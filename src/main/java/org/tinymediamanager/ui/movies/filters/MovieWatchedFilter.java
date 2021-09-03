@@ -33,7 +33,7 @@ public class MovieWatchedFilter extends AbstractMovieUIFilter {
     WATCHED(TmmResourceBundle.getString("metatag.watched")),
     NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
-    private String title;
+    private final String title;
 
     WatchedFlag(String title) {
       this.title = title;
@@ -76,6 +76,12 @@ public class MovieWatchedFilter extends AbstractMovieUIFilter {
         combobox.setSelectedItem(watchedFlag);
       }
     }
+  }
+
+  @Override
+  public void clearFilter() {
+    // just set the default value
+    combobox.setSelectedItem(combobox.getItemAt(0));
   }
 
   @Override

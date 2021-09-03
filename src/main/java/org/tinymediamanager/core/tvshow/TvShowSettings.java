@@ -224,6 +224,8 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        seasonArtworkFallback                  = false;
   boolean                                        storeUiFilters                         = false;
   final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+  final List<UniversalFilterFields>              universalFilterFields                  = new ArrayList<>();
+
   final List<TvShowScraperMetadataConfig>        tvShowCheckMetadata                    = new ArrayList<>();
   boolean                                        tvShowDisplayAllMissingMetadata        = false;
   final List<TvShowScraperMetadataConfig>        tvShowCheckArtwork                     = new ArrayList<>();
@@ -337,6 +339,7 @@ public final class TvShowSettings extends AbstractSettings {
 
     tvShowScraperMetadataConfig.addAll(Arrays.asList(TvShowScraperMetadataConfig.values()));
     episodeScraperMetadataConfig.addAll(Arrays.asList(TvShowEpisodeScraperMetadataConfig.values()));
+    universalFilterFields.addAll(Arrays.asList(UniversalFilterFields.values()));
   }
 
   @Override
@@ -1660,5 +1663,15 @@ public final class TvShowSettings extends AbstractSettings {
     postProcess.clear();
     postProcess.addAll(newValues);
     firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+  }
+
+  public void setUniversalFilterFields(List<UniversalFilterFields> fields) {
+    universalFilterFields.clear();
+    universalFilterFields.addAll(fields);
+    firePropertyChange("universalFilterFields", null, universalFilterFields);
+  }
+
+  public List<UniversalFilterFields> getUniversalFilterFields() {
+    return universalFilterFields;
   }
 }

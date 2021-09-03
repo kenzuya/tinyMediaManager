@@ -481,10 +481,14 @@ public class TmmTreeTable extends TmmTable {
   public void clearFilter() {
     // remove our filter listener
     for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+      if (filter instanceof ITmmUIFilter) {
+        ITmmUIFilter<?> tmmUIFilter = (ITmmUIFilter<?>) filter;
+
+        tmmUIFilter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);
+        tmmUIFilter.clearFilter();
+      }
       filter.removePropertyChangeListener(filterChangeListener);
     }
-
-    treeFilters.clear();
 
     updateFiltering();
   }

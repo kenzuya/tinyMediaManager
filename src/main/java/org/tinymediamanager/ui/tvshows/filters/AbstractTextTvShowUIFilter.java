@@ -45,6 +45,11 @@ public abstract class AbstractTextTvShowUIFilter extends AbstractTvShowUIFilter 
     }
   }
 
+  @Override
+  public void clearFilter() {
+    textField.setText("");
+  }
+
   /**
    * delegate the filter changed event to the tree
    */

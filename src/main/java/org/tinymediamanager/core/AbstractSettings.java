@@ -259,4 +259,17 @@ public abstract class AbstractSettings extends AbstractModelObject {
     public ITmmUIFilter.FilterState state       = ITmmUIFilter.FilterState.INACTIVE;
     public String                   filterValue = "";
   }
+
+  public enum UniversalFilterFields {
+    NOTE,
+    FILENAME,
+    PRODUCTION_COMPANY,
+    COUNTRY,
+    SPOKEN_LANGUAGE,
+    ACTOR,
+    PRODUCER,
+    WRITER,
+    DIRECTOR,
+    TAGS
+  }
 }

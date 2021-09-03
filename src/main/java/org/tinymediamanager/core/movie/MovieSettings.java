@@ -219,7 +219,6 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   originalTitle                          = false;
   boolean                                   sortableOriginalTitle                  = false;
   boolean                                   sortTitle                              = false;
-  boolean                                   note                                   = false;
   final List<PostProcess>                   postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
@@ -235,6 +234,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   movieSetDisplayAllMissingArtwork       = false;
   boolean                                   storeUiFilters                         = false;
   final List<UIFilters>                     uiFilters                              = new ArrayList<>();
+  final List<UniversalFilterFields>         universalFilterFields                  = new ArrayList<>();
 
   // movie sets
   MovieSetConnectors                        movieSetConnector                      = MovieSetConnectors.EMBY;
@@ -369,6 +369,7 @@ public final class MovieSettings extends AbstractSettings {
     addMovieSetCheckArtwork(MovieSetScraperMetadataConfig.POSTER);
     addMovieSetCheckArtwork(MovieSetScraperMetadataConfig.FANART);
 
+    universalFilterFields.addAll(Arrays.asList(UniversalFilterFields.values()));
     scraperMetadataConfig.addAll(Arrays.asList(MovieScraperMetadataConfig.values()));
   }
 
@@ -1253,12 +1254,6 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("sortTitle", oldValue, newValue);
   }
 
-  public void setNote(boolean newValue) {
-    boolean oldValue = this.note;
-    this.note = newValue;
-    firePropertyChange("note", oldValue, newValue);
-  }
-
   public boolean getTitle() {
     return this.title;
   }
@@ -1277,10 +1272,6 @@ public final class MovieSettings extends AbstractSettings {
 
   public boolean getSortTitle() {
     return this.sortTitle;
-  }
-
-  public boolean getNote() {
-    return this.note;
   }
 
   public boolean isIncludeExternalAudioStreams() {
@@ -1792,6 +1783,16 @@ public final class MovieSettings extends AbstractSettings {
       return uiFilters;
     }
     return new ArrayList<>();
+  }
+
+  public void setUniversalFilterFields(List<UniversalFilterFields> fields) {
+    universalFilterFields.clear();
+    universalFilterFields.addAll(fields);
+    firePropertyChange("universalFilterFields", null, universalFilterFields);
+  }
+
+  public List<UniversalFilterFields> getUniversalFilterFields() {
+    return universalFilterFields;
   }
 
   public void setStoreUiFilters(boolean newValue) {

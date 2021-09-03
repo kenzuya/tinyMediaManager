@@ -21,7 +21,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,9 +99,11 @@ public class MovieSetFilterDialog extends TmmDialog {
         treeTable.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().get(filterName));
       }
       else {
-        treeTable.setFilterValues(Collections.emptyList());
+        treeTable.clearFilter();
       }
     };
+
+    ActionListener resetFilter = e -> SwingUtilities.invokeLater(treeTable::clearFilter);
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -115,7 +116,11 @@ public class MovieSetFilterDialog extends TmmDialog {
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieSetNewMoviesFilter(), panelMain);
         addFilter(new MovieSetWithMoreThanOneMovieFilter(), panelMain);

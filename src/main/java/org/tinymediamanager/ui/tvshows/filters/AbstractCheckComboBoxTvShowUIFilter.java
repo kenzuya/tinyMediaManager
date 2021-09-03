@@ -77,6 +77,11 @@ abstract class AbstractCheckComboBoxTvShowUIFilter<E> extends AbstractTvShowUIFi
     checkComboBox.setSelectedItems(selectedItems);
   }
 
+  @Override
+  public void clearFilter() {
+    checkComboBox.clearSelection();
+  }
+
   /**
    * set the given values into the {@link TmmCheckComboBox}
    *

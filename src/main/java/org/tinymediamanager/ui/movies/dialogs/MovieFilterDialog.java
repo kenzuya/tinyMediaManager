@@ -21,7 +21,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,6 +102,11 @@ import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * the class {@link MovieFilterDialog} provides an easy access to all filters
+ * 
+ * @author Manuel Laggner
+ */
 public class MovieFilterDialog extends TmmDialog {
   private static final long                      serialVersionUID = 2298540526428945319L;
 
@@ -113,32 +117,33 @@ public class MovieFilterDialog extends TmmDialog {
   // map for storing which filter is in which panel
   private final Map<JPanel, Set<IMovieUIFilter>> filterMap;
   private final Set<IMovieUIFilter>              filters;
-
+  private final JCheckBox                        chkbxEnableAll;
   private final JTabbedPane                      tabbedPane;
+
   private JComboBox<String>                      cbPreset;
-  private JCheckBox                              chkbxEnableAll;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
-    setMinimumSize(new Dimension(500, 400));
+    setMinimumSize(new Dimension(550, 400));
 
     this.selectionModel = selectionModel;
     this.filterMap = new HashMap<>();
     this.filters = new HashSet<>();
     this.selectionModel.addPropertyChangeListener("filterChanged", evt -> filterChanged());
 
-    ActionListener actionListener = e -> {
-      SwingUtilities.invokeLater(() -> {
-        String filterName = (String) cbPreset.getSelectedItem();
-        if (StringUtils.isNotBlank(filterName)) {
-          selectionModel.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(filterName));
-        }
-        else {
-          selectionModel.setFilterValues(Collections.emptyList());
-        }
-      });
-    };
+    ActionListener actionListener = e -> SwingUtilities.invokeLater(() -> {
+      String filterName = (String) cbPreset.getSelectedItem();
+      if (StringUtils.isNotBlank(filterName)) {
+        selectionModel.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(filterName));
+      }
+      else {
+        // clear all filters
+        selectionModel.clearFilters();
+      }
+    });
+
+    ActionListener resetFilter = e -> SwingUtilities.invokeLater(selectionModel::clearFilters);
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -151,59 +156,118 @@ public class MovieFilterDialog extends TmmDialog {
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieNewMoviesFilter(), panelMain);
+        addFilter(new MovieDatasourceFilter(), panelMain);
+        addFilter(new MovieWatchedFilter(), panelMain);
         addFilter(new MovieDateAddedFilter(), panelMain);
         addFilter(new MovieDuplicateFilter(), panelMain);
-        addFilter(new MovieWatchedFilter(), panelMain);
-        addFilter(new MovieGenreFilter(), panelMain);
-        addFilter(new MovieCertificationFilter(), panelMain);
-        addFilter(new MovieYearFilter(), panelMain);
-        addFilter(new MovieDecadesFilter(), panelMain);
-        addFilter(new MovieCastFilter(), panelMain);
-        addFilter(new MovieCountryFilter(), panelMain);
-        addFilter(new MovieLanguageFilter(), panelMain);
-        addFilter(new MovieProductionCompanyFilter(), panelMain);
-        addFilter(new MovieTagFilter(), panelMain);
-        addFilter(new MovieEditionFilter(), panelMain);
         addFilter(new MovieInMovieSetFilter(), panelMain);
-        addFilter(new MovieDifferentRuntimeFilter(), panelMain);
-        addFilter(new MovieNoteFilter(), panelMain);
         addFilter(new MovieAllInOneFilter(), panelMain);
-        addFilter(new MovieMissingMetadataFilter(), panelMain);
-        addFilter(new MovieMissingArtworkFilter(), panelMain);
       }
 
       {
-        // panel media data
-        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
+        // panel metadata
+        JPanel panelMetadata = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
+        JScrollPane scrollPane = new NoBorderScrollPane(panelMetadata);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediainformation"), scrollPaneMediaData);
-        panelMediaData.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), scrollPane);
+        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        addFilter(new MovieMediaSourceFilter(), panelMediaData);
-        addFilter(new MovieMediaFilesFilter(), panelMediaData);
-        addFilter(new MovieFilenameFilter(), panelMediaData);
-        addFilter(new MovieVideoFormatFilter(), panelMediaData);
-        addFilter(new MovieVideoCodecFilter(), panelMediaData);
-        addFilter(new MovieAspectRatioFilter(), panelMediaData);
-        addFilter(new MovieFrameRateFilter(), panelMediaData);
-        addFilter(new MovieVideo3DFilter(), panelMediaData);
-        addFilter(new MovieVideoContainerFilter(), panelMediaData);
-        addFilter(new MovieAudioCodecFilter(), panelMediaData);
-        addFilter(new MovieAudioChannelFilter(), panelMediaData);
-        addFilter(new MovieCountAudioStreamFilter(), panelMediaData);
-        addFilter(new MovieAudioLanguageFilter(), panelMediaData);
-        addFilter(new MovieAudioTitleFilter(), panelMediaData);
-        addFilter(new MovieCountSubtitleFilter(), panelMediaData);
-        addFilter(new MovieSubtitleLanguageFilter(), panelMediaData);
-        addFilter(new MovieDatasourceFilter(), panelMediaData);
-        addFilter(new MovieVideoExtrasFilter(), panelMediaData);
-        addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
-        addFilter(new MovieHDRFormatFilter(), panelMediaData);
+        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMetadata.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieYearFilter(), panelMetadata);
+        addFilter(new MovieDecadesFilter(), panelMetadata);
+        addFilter(new MovieGenreFilter(), panelMetadata);
+        addFilter(new MovieCertificationFilter(), panelMetadata);
+        addFilter(new MovieCastFilter(), panelMetadata);
+        addFilter(new MovieCountryFilter(), panelMetadata);
+        addFilter(new MovieLanguageFilter(), panelMetadata);
+        addFilter(new MovieProductionCompanyFilter(), panelMetadata);
+
+        panelMetadata.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieTagFilter(), panelMetadata);
+        addFilter(new MovieEditionFilter(), panelMetadata);
+        addFilter(new MovieNoteFilter(), panelMetadata);
+      }
+
+      {
+        // panel video
+        JPanel panelVideo = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
+        JScrollPane scrollPane = new NoBorderScrollPane(panelVideo);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), scrollPane);
+        panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelVideo.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieVideoFormatFilter(), panelVideo);
+        addFilter(new MovieVideoCodecFilter(), panelVideo);
+        addFilter(new MovieVideoContainerFilter(), panelVideo);
+        addFilter(new MovieAspectRatioFilter(), panelVideo);
+        addFilter(new MovieFrameRateFilter(), panelVideo);
+        addFilter(new MovieVideo3DFilter(), panelVideo);
+        addFilter(new MovieHDRFormatFilter(), panelVideo);
+      }
+
+      {
+        // panel audio
+        JPanel panelAudio = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
+        JScrollPane scrollPane = new NoBorderScrollPane(panelAudio);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), scrollPane);
+        panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelAudio.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieAudioCodecFilter(), panelAudio);
+        addFilter(new MovieAudioChannelFilter(), panelAudio);
+        addFilter(new MovieCountAudioStreamFilter(), panelAudio);
+        addFilter(new MovieAudioLanguageFilter(), panelAudio);
+        addFilter(new MovieAudioTitleFilter(), panelAudio);
+      }
+
+      {
+        // panel other
+        JPanel panelOther = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
+        JScrollPane scrollPane = new NoBorderScrollPane(panelOther);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), scrollPane);
+        panelOther.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelOther.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelOther.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelOther.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieMediaSourceFilter(), panelOther);
+        addFilter(new MovieMediaFilesFilter(), panelOther);
+        addFilter(new MovieFilenameFilter(), panelOther);
+        addFilter(new MovieCountSubtitleFilter(), panelOther);
+        addFilter(new MovieSubtitleLanguageFilter(), panelOther);
+        addFilter(new MovieVideoExtrasFilter(), panelOther);
+        addFilter(new MovieDifferentRuntimeFilter(), panelOther);
+
+        panelOther.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MovieMissingMetadataFilter(), panelOther);
+        addFilter(new MovieMissingArtworkFilter(), panelOther);
+        addFilter(new MovieMissingSubtitlesFilter(), panelOther);
       }
 
       {
