@@ -543,6 +543,7 @@ public class ImageChooserDialog extends TmmDialog {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() >= 2 && e.getButton() == MouseEvent.BUTTON1) {
+          button.setSelected(true);
           new OkAction().actionPerformed(new ActionEvent(e.getSource(), e.getID(), "OK"));
         }
       }
