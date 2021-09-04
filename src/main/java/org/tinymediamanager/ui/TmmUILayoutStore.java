@@ -183,6 +183,15 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     if (!dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
+
+      // re-check if the stored window size is "big" enough (the "default" size has already been set with .pack())
+      if (rect.width < dialog.getWidth()) {
+        rect.width = dialog.getWidth();
+      }
+      if (rect.height < dialog.getHeight()) {
+        rect.height = dialog.getHeight();
+      }
+
       if (rect.width > 0 && getVirtualBounds().contains(rect)) {
         GraphicsDevice ge = getScreenForBounds(rect);
         if (ge.getDefaultConfiguration() != dialog.getGraphicsConfiguration()) {

@@ -502,7 +502,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnFirstAudioStream, "flowx,cell 1 13");
+        panelContent.add(btnFirstAudioStream, "flowx,cell 1 13 4 1");
 
         JButton btnBestAudioStream = new JButton(TmmResourceBundle.getString("edit.audio.best"));
         btnBestAudioStream.setToolTipText(TmmResourceBundle.getString("edit.audio.best.desc"));
@@ -548,11 +548,11 @@ public class MovieBulkEditorDialog extends TmmDialog {
       JPanel panelContent = new JPanel();
 
       tabbedPane.addTab(TmmResourceBundle.getString("bulkedit.expert"), panelContent);
-      panelContent.setLayout(new MigLayout("", "[][grow][]", "[grow][20lp!][][50lp][20lp!][grow]"));
+      panelContent.setLayout(new MigLayout("", "[][100lp:200lp,grow]", "[grow][20lp!][][50lp][20lp!][200lp:250lp,grow]"));
 
       {
         JTextPane tpDescription = new ReadOnlyTextPane(TmmResourceBundle.getString("bulkedit.description"));
-        panelContent.add(tpDescription, "cell 0 0 3 1,grow");
+        panelContent.add(tpDescription, "cell 0 0 2 1,grow");
       }
       {
         JLabel lblPropertyT = new TmmLabel(TmmResourceBundle.getString("bulkedit.field"));
@@ -614,7 +614,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
         });
 
-        panelContent.add(taPattern, "cell 1 3,wmin 0,grow");
+        panelContent.add(taPattern, "flowx,cell 1 3,wmin 0,grow");
       }
       {
         JButton btnApply = new SquareIconButton(IconManager.APPLY_INV);
@@ -624,7 +624,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           movieValuesEventList.forEach(MovieValues::applyValue);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnApply, "cell 2 3,aligny bottom");
+        panelContent.add(btnApply, "cell 1 3,aligny bottom");
       }
       {
         TmmTable tableValues = new TmmTable(new TmmTableModel<>(movieValuesEventList, new MovieValuesTableFormat()));
@@ -632,7 +632,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
         JScrollPane scrollPane = new JScrollPane();
         tableValues.configureScrollPane(scrollPane);
-        panelContent.add(scrollPane, "cell 0 5 3 1,grow");
+        panelContent.add(scrollPane, "cell 0 5 2 1,grow");
 
         scrollPane.setViewportView(tableValues);
       }

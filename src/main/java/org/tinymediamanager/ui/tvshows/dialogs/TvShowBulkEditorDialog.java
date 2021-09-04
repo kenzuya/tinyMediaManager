@@ -106,7 +106,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
        * TVShow Tab
        ********************/
       JPanel panelContent = new JPanel();
-      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][grow]"));
+      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][]"));
       tabbedPane.add(TmmResourceBundle.getString("metatag.tvshow"), panelContent);
       {
         JLabel lblGenres = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));

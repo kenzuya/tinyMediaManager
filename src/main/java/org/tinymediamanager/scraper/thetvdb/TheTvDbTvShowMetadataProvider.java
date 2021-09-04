@@ -342,20 +342,30 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     // now search for the right episode in this list
     MediaMetadata foundEpisode = null;
     // first run - search with EP number
-    for (MediaMetadata episode : episodes) {
-      if (episodeTvdbId == (int) episode.getId(TVDB)) {
-        foundEpisode = episode;
-        break;
-      }
-      else if (useDvdOrder && episode.getDvdSeasonNumber() == seasonNr && episode.getDvdEpisodeNumber() == episodeNr) {
-        foundEpisode = episode;
-        break;
-      }
-      else if (!useDvdOrder && episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
-        foundEpisode = episode;
-        break;
+    if (episodeTvdbId > 0) {
+      for (MediaMetadata episode : episodes) {
+        if (episodeTvdbId == episode.getIdAsIntOrDefault(TVDB, 0)) {
+          foundEpisode = episode;
+          break;
+        }
       }
     }
+
+    // search with S/E
+    if (foundEpisode == null) {
+      for (MediaMetadata episode : episodes) {
+        if (useDvdOrder && episode.getDvdSeasonNumber() == seasonNr && episode.getDvdEpisodeNumber() == episodeNr) {
+          foundEpisode = episode;
+          break;
+        }
+        else if (!useDvdOrder && episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+          foundEpisode = episode;
+          break;
+        }
+      }
+    }
+
+    // search with date
     if (foundEpisode == null && releaseDate != null) {
       // we did not find the episode via season/episode number - search via release date
       for (MediaMetadata episode : episodes) {
@@ -811,7 +821,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
   private void setEpisodeNumber(MediaMetadata md, EpisodeBaseRecord ep, SeasonType seasonType) {
     switch (seasonType) {
       case DEFAULT:
-        md.setSeasonNumber(ep.seasonNumber);
         md.setEpisodeNumber(ep.episodeNumber);
         break;
 

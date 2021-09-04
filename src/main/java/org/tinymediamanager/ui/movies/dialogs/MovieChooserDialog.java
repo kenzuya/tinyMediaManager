@@ -195,7 +195,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     {
       final JPanel panelPath = new JPanel();
-      panelPath.setLayout(new MigLayout("", "[grow][]", "[]"));
+      panelPath.setLayout(new MigLayout("", "[200lp:300lp,grow][]", "[]"));
       {
         lblPath = new JLabel("");
         TmmFontHelper.changeFont(lblPath, 1.16667, Font.BOLD);

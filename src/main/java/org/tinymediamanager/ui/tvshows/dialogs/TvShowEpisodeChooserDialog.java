@@ -25,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -224,6 +225,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     // column widths
     table.getColumnModel().getColumn(0).setMaxWidth(50);
     table.getColumnModel().getColumn(1).setMaxWidth(50);
+    table.getColumnModel().getColumn(2).setMaxWidth(120);
 
     task = new SearchTask();
     task.execute();
@@ -277,28 +279,47 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       options.setIds(episode.getTvShow().getIds());
 
       try {
-        for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          if (isCancelled()) {
-            break;
-          }
-          try {
-            TvShowEpisodeSearchAndScrapeOptions episodeOptions = new TvShowEpisodeSearchAndScrapeOptions();
-            episodeOptions.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
-            episodeOptions.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
-            episodeOptions.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
-            episodeOptions.setTvShowIds(episode.getTvShow().getIds());
-            episodeOptions.setMetadata(md);
-            episodeOptions.setIds(md.getIds());
+        List<MediaMetadata> episodeList = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options);
 
-            MediaMetadata episodeMd = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(episodeOptions);
-            episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, episodeMd));
-          }
-          catch (Exception e) {
-            // fallback
-            episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
+        ForkJoinPool forkJoinPool = null;
+        try {
+          forkJoinPool = new ForkJoinPool(3); // fetch 3 episodes in parallel
+          forkJoinPool.submit(() ->
+          // parallel stream invoked here
+          episodeList.parallelStream().forEach(md -> {
+            if (isCancelled()) {
+              return;
+            }
+            try {
+              TvShowEpisodeSearchAndScrapeOptions episodeOptions = new TvShowEpisodeSearchAndScrapeOptions();
+              episodeOptions.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
+              episodeOptions.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+              episodeOptions.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
+              episodeOptions.setTvShowIds(episode.getTvShow().getIds());
+              episodeOptions.setMetadata(md);
+              episodeOptions.setIds(md.getIds());
+
+              MediaMetadata episodeMd = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(episodeOptions);
+              episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, episodeMd));
+            }
+            catch (Exception e) {
+              // fallback
+              episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
+            }
+          })).get(); // this makes it an overall blocking call
+
+        }
+        catch (InterruptedException e) {
+          // ingored
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not get episodes: '{}'", e.getMessage());
+        }
+        finally {
+          if (forkJoinPool != null) {
+            forkJoinPool.shutdown(); // always remember to shutdown the pool
           }
         }
-        table.adjustColumnPreferredWidths(5);
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
