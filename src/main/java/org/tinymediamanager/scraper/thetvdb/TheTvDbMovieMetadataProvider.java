@@ -172,7 +172,23 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     for (SearchResultRecord searchResultRecord : searchResults) {
       // build up a new result
       MediaSearchResult result = new MediaSearchResult(getId(), options.getMediaType());
-      result.setId(searchResultRecord.tvdbId);
+
+      String id = "";
+      if (StringUtils.isNotBlank(searchResultRecord.tvdbId)) {
+        // the TVDB should be here
+        id = searchResultRecord.tvdbId;
+      }
+      else if (StringUtils.isNotBlank(searchResultRecord.id)) {
+        // we can parse it out here too
+        id = searchResultRecord.id.replace("movie-", "");
+      }
+
+      if (StringUtils.isBlank(id)) {
+        // no valid if found? need to go to the next result
+        continue;
+      }
+
+      result.setId(id);
 
       MediaLanguages baseLanguage = options.getLanguage();
       MediaLanguages fallbackLanguage = null;
@@ -214,7 +230,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
       // calculate score
       result.calculateScore(options);
-      resultMap.put(searchResultRecord.tvdbId, result);
+      resultMap.put(id, result);
     }
 
     // and convert all entries from the map to a list
