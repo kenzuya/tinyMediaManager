@@ -1,3 +1,8 @@
+Version 4.2.2
+=======================
+x (TVDB) various smaller fixes in the API
+
+
 Version 4.2.1
 =======================
 x (TVDB) hotfix for the broken TVDB search API

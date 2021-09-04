@@ -504,6 +504,57 @@ public class MediaMetadata {
   }
 
   /**
+   * Get the id for the given provider id as Integer
+   *
+   * @param providerId
+   *          the provider Id
+   * @return the id as Integer or null
+   */
+  public Integer getIdAsInteger(String providerId) {
+    Object id = ids.get(providerId);
+    if (id != null) {
+      if (id instanceof Integer) {
+        return (Integer) id;
+      }
+      if (id instanceof String)
+        try {
+          return Integer.parseInt((String) id);
+        }
+        catch (Exception ignored) {
+          // nothing to be done here
+        }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get the id for the given provider id as int
+   *
+   * @param providerId
+   *          the provider Id
+   * @return the id as int or 0
+   */
+  public int getIdAsInt(String providerId) {
+    return getIdAsIntOrDefault(providerId, 0);
+  }
+
+  /**
+   * Get the id for the given provider id as int or the chosen default value
+   *
+   * @param providerId
+   *          the provider Id
+   * @return the id as int or the default value
+   */
+  public int getIdAsIntOrDefault(String providerId, int defaultValue) {
+    Integer id = getIdAsInteger(providerId);
+    if (id == null) {
+      return defaultValue;
+    }
+    return id;
+  }
+
+  /**
    * Gets all IDs.
    * 
    * @return the IDs
