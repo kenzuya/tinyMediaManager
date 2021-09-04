@@ -1,6 +1,7 @@
-Version 4.2.2
+Version 4.2.1.1
 =======================
 x (TVDB) various smaller fixes in the API
+x fixed a problem where (too small) stored window sizes lead into hidden UI elements
 
 
 Version 4.2.1
