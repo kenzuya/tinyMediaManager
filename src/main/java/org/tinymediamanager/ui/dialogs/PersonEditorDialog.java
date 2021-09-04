@@ -56,6 +56,10 @@ public class PersonEditorDialog extends TmmDialog {
     tfRole.setText(personToEdit.getRole());
     tfImageUrl.setText(personToEdit.getThumbUrl());
     tfProfileUrl.setText(personToEdit.getProfileUrl());
+
+    if (person.getType() != Person.Type.ACTOR) {
+      tfRole.setEnabled(false);
+    }
   }
 
   private void initComponents() {

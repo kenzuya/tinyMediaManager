@@ -64,9 +64,9 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   protected boolean                      isAdjusting               = false;
   // throttle update of the UI
   protected long                         nextUpdateSortAndFilter   = 0;
-  protected Timer                        updateSortAndFilterTimer  = null;
+  protected DelayedUpdateTask            updateSortAndFilterTask;
   protected long                         nextNodeStructureChanged  = 0;
-  protected Timer                        nodeStructureChangedTimer = null;
+  protected DelayedUpdateTask            nodeStructureChangedTask;
 
   /**
    * Create a new instance of the TmmTreeModel for the given TmmTree and data provider
@@ -83,6 +83,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     if (dataProvider.getTreeFilters() == null) {
       this.dataProvider.setTreeFilters(new HashSet<>());
     }
+
     dataProvider.addPropertyChangeListener(evt -> {
       // a node has been inserted
       if (TmmTreeDataProvider.NODE_INSERTED.equals(evt.getPropertyName()) && evt.getNewValue() instanceof TmmTreeNode) {
@@ -269,24 +270,31 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
   protected void startUpdateSortAndFilterTimer() {
     // lazily update the node structure to prevent UI locking
-    if (updateSortAndFilterTimer != null) {
+    if (updateSortAndFilterTask != null) {
       // a timer is already running
+      // register for another run
+      updateSortAndFilterTask.updateNeeded = true;
       return;
     }
 
-    updateSortAndFilterTimer = new Timer();
-    TimerTask timerTask = new TimerTask() {
+    Timer updateSortAndFilterTimer = new Timer();
+    updateSortAndFilterTask = new DelayedUpdateTask() {
       @Override
       public void run() {
         SwingUtilities.invokeLater(() -> {
           updateSortingAndFiltering();
-          updateSortAndFilterTimer = null;
+          updateSortAndFilterTask = null;
+
+          // check if one more update is needed
+          if (updateNeeded) {
+            startUpdateSortAndFilterTimer();
+          }
         });
       }
     };
 
     // fire that after the timer delay
-    updateSortAndFilterTimer.schedule(timerTask, TIMER_DELAY);
+    updateSortAndFilterTimer.schedule(updateSortAndFilterTask, TIMER_DELAY);
   }
 
   /**
@@ -340,13 +348,15 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
   protected void startNodeStructureChangedTimer(TmmTreeState treeState) {
     // lazily update the node structure to prevent UI locking
-    if (nodeStructureChangedTimer != null) {
+    if (nodeStructureChangedTask != null) {
       // a timer is already running
+      // register for another run
+      nodeStructureChangedTask.updateNeeded = true;
       return;
     }
 
-    nodeStructureChangedTimer = new Timer();
-    TimerTask timerTask = new TimerTask() {
+    Timer nodeStructureChangedTimer = new Timer();
+    nodeStructureChangedTask = new DelayedUpdateTask() {
       @Override
       public void run() {
         SwingUtilities.invokeLater(() -> {
@@ -358,13 +368,18 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
             tree.setTreeState(treeState);
           }
 
-          nodeStructureChangedTimer = null;
+          nodeStructureChangedTask = null;
+
+          // check if one more update is needed
+          if (updateNeeded) {
+            startNodeStructureChangedTimer(treeState);
+          }
         });
       }
     };
 
     // fire that after the timer delay
-    nodeStructureChangedTimer.schedule(timerTask, TIMER_DELAY);
+    nodeStructureChangedTimer.schedule(nodeStructureChangedTask, TIMER_DELAY);
   }
 
   /**
@@ -551,6 +566,8 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
     // Inserting nodes
     insertNodesInto(children, parent, parent.getChildCount());
+
+    setAdjusting(false);
 
     // Updating parent node sorting and filtering
     updateSortingAndFiltering();
@@ -798,5 +815,9 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    */
   public void setAdjusting(boolean adjusting) {
     isAdjusting = adjusting;
+  }
+
+  private abstract class DelayedUpdateTask extends TimerTask {
+    boolean updateNeeded = false;
   }
 }

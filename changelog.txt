@@ -1,3 +1,10 @@
+Version 4.2.1
+=======================
+x (TVDB) hotfix for the broken TVDB search API
+x selecting images in the image chooser with double click
+x (TV shows) redraw tree on recent changes #1472
+
+
 Version 4.2
 =======================
 ******************************************************************************************************
