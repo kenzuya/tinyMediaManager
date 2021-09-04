@@ -106,7 +106,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
        * TVShow Tab
        ********************/
       JPanel panelContent = new JPanel();
-      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][grow]"));
+      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][]"));
       tabbedPane.add(TmmResourceBundle.getString("metatag.tvshow"), panelContent);
       {
         JLabel lblGenres = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
@@ -524,12 +524,13 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       {
         JButton btnAddSubtitle = new JButton(TmmResourceBundle.getString("subtitle.add"));
         panelContent.add(btnAddSubtitle, "cell 1 9");
-        btnAddSubtitle.addActionListener( e -> {
+        btnAddSubtitle.addActionListener(e -> {
 
-          //Open Subtitle Dialog
+          // Open Subtitle Dialog
           MediaFileSubtitle mediaFileSubtitle = new MediaFileSubtitle();
 
-          SubtitleEditorDialog dialog = new SubtitleEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("subtitle.add"),mediaFileSubtitle);
+          SubtitleEditorDialog dialog = new SubtitleEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("subtitle.add"),
+              mediaFileSubtitle);
           dialog.setVisible(true);
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
