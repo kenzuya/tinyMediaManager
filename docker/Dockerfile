@@ -1,7 +1,6 @@
 # Building application container
 FROM max06net/base-gui:0.1.0-buster-slim
 
-ENV TMM_VERSION=4.2.2
 ENV APP=tinyMediaManager
 ENV ALLOW_DIRECT_VNC=true
 
