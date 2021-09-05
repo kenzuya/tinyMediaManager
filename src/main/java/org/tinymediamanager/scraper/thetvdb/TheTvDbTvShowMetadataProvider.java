@@ -821,6 +821,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
   private void setEpisodeNumber(MediaMetadata md, EpisodeBaseRecord ep, SeasonType seasonType) {
     switch (seasonType) {
       case DEFAULT:
+        md.setSeasonNumber(ep.seasonNumber);
         md.setEpisodeNumber(ep.episodeNumber);
         break;
 

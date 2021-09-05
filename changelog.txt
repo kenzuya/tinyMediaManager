@@ -1,3 +1,8 @@
+Version 4.2.1.2
+=======================
+x (TVDB) set the right season number in the episode response
+
+
 Version 4.2.1.1
 =======================
 x (TVDB) various smaller fixes in the API
