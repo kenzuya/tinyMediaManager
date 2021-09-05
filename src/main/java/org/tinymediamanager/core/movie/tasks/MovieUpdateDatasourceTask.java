@@ -1556,6 +1556,34 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private List<Path> listFilesAndDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+      for (Path path : directoryStream) {
+        if (isInSkipFolder(path)) {
+          LOGGER.debug("Skipping: {}", path);
+        }
+        else {
+          fileNames.add(path.toAbsolutePath());
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("error on listFilesAndDirs", e);
+      LOGGER.debug("falling back to the alternate coding");
+      fileNames = listFilesAndDirs2(directory);
+    }
+    return fileNames;
+  }
+
+  /**
+   * simple NIO File.listFiles() replacement<br>
+   * returns all files & folders in specified dir, filtering against our skip folders (NOT recursive)
+   *
+   * @param directory
+   *          the folder to list the items for
+   * @return list of files&folders
+   */
+  private List<Path> listFilesAndDirs2(Path directory) {
+    List<Path> fileNames = new ArrayList<>();
 
     try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
       List<Path> allElements = directoryStream.collect(Collectors.toList());
@@ -1571,8 +1599,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
     }
-    catch (IOException e) {
-      LOGGER.error("error on listFilesAndDirs: {}", e.getMessage());
+    catch (Exception e) {
+      LOGGER.error("error on listFilesAndDirs2", e);
     }
     return fileNames;
   }
