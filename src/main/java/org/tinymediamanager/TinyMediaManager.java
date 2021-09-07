@@ -487,9 +487,15 @@ public final class TinyMediaManager {
 
         // check if a .desktop file exists
         if (Platform.isLinux()) {
-          File desktop = new File(TmmOsUtils.DESKTOP_FILE);
-          if (!desktop.exists()) {
-            TmmOsUtils.createDesktopFileForLinux(desktop);
+          if (!TmmOsUtils.existsDesktopFileForLinux()) {
+            Path desktopFile = Paths.get(System.getProperty("user.home"), ".local", "share", "applications", "tinyMediaManager.desktop")
+                .toAbsolutePath();
+            if (Files.isWritable(desktopFile.getParent())) {
+              TmmOsUtils.createDesktopFileForLinux(desktopFile.toFile());
+            }
+            else {
+              TmmOsUtils.createDesktopFileForLinux(new File(TmmOsUtils.DESKTOP_FILE));
+            }
           }
         }
       }
