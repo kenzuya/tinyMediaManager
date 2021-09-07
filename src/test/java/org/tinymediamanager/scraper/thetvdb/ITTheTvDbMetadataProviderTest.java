@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -152,13 +151,6 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
           md.getPlot());
       assertEquals(2006, md.getYear());
 
-      assertThat(md.getRatings()).isNotEmpty();
-      MediaRating rating = md.getRatings().get(0);
-      assertThat(rating.getId()).isEqualTo("tvdb");
-      assertThat(rating.getMaxValue()).isEqualTo(10);
-      assertThat(rating.getRating()).isGreaterThan(0);
-      // assertThat(rating.getVotes()).isGreaterThan(0);
-
       assertEquals(MediaAiredStatus.ENDED, md.getStatus());
       assertThat(md.getProductionCompanies()).isNotEmpty();
       assertThat(md.getGenres().size()).isGreaterThan(0);
@@ -196,12 +188,6 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
           "Shawn Spencer ist selbsternannter Detektiv. Von seinem Vater Henry, einem angesehenen Polizisten, wurde er trainiert, sich alle Dinge in seinem Umfeld genau einzuprägen, seien sie auch noch so klein oder unwichtig. Über seine Erziehung unzufrieden kehrte Shawn seinem Vater jedoch den Rücken. Nach einigen misslungenen Lebensabschnitten erkennt er seine Gabe, ungelöste Fälle der Polizei mithilfe seines fotografischen Gedächtnisses lösen zu können. Dabei gibt Shawn aber stets vor ein Hellseher zu sein. Nachdem er der Polizei in mehreren Fällen helfen konnte und diese ihn immer wieder als Unterstützung anfordert, gründet Shawn schließlich mit seinem Freund Burton Guster eine eigene Detektei.",
           md.getPlot());
       assertEquals(2006, md.getYear());
-
-      assertThat(md.getRatings()).isNotEmpty();
-      MediaRating rating = md.getRatings().get(0);
-      assertThat(rating.getId()).isEqualTo("tvdb");
-      assertThat(rating.getMaxValue()).isEqualTo(10);
-      assertThat(rating.getRating()).isGreaterThan(0);
 
       assertEquals(MediaAiredStatus.ENDED, md.getStatus());
       assertThat(md.getProductionCompanies()).isNotEmpty();

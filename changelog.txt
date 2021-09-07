@@ -1,5 +1,6 @@
 Version 4.2.2
 =======================
+x (TVDB) fix recent API changes from TVDB #1481
 x fix some minor issues for the live update of movie set data #1477
 
 

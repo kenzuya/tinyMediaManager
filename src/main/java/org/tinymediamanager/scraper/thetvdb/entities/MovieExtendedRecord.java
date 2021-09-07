@@ -42,7 +42,7 @@ public class MovieExtendedRecord {
   public List<Character>           characters           = null;
 
   @SerializedName("companies")
-  public List<CompanyBaseRecord>   companies            = null;
+  public Companies                 companies            = null;
 
   @SerializedName("contentRatings")
   public List<ContentRating>       contentRatings       = null;
