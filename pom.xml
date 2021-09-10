@@ -81,7 +81,7 @@
         <jar.version>3.2.0</jar.version>
         <surefire.version>3.0.0-M5</surefire.version>
         <compiler.version>3.8.1</compiler.version>
-        <enforcer.version>3.0.0-M3</enforcer.version>
+        <enforcer.version>3.0.0</enforcer.version>
         <animal-sniffer.version>1.17</animal-sniffer.version>
         <wagon-webdav-jackrabbit.version>3.0.0</wagon-webdav-jackrabbit.version>
         <okhttp.version>4.9.0</okhttp.version>
@@ -755,7 +755,7 @@
                     <plugin>
                         <groupId>net.nicoulaj.maven.plugins</groupId>
                         <artifactId>checksum-maven-plugin</artifactId>
-                        <version>1.9</version>
+                        <version>1.11</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -786,7 +786,7 @@
                     <plugin>
                         <groupId>de.thetaphi</groupId>
                         <artifactId>forbiddenapis</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1</version>
                         <configuration>
                             <targetVersion>${maven.compiler.release}</targetVersion>
                             <!-- if the used Java version is too new, don't fail, just do nothing: -->
@@ -816,7 +816,7 @@
                     <plugin>
                         <groupId>org.gaul</groupId>
                         <artifactId>modernizer-maven-plugin</artifactId>
-                        <version>2.1.0</version>
+                        <version>2.3.0</version>
                         <configuration>
                             <failOnViolations>false</failOnViolations>
                             <javaVersion>${maven.compiler.release}</javaVersion>
