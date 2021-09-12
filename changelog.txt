@@ -3,6 +3,7 @@ Version 4.2.2
 x (TVDB) fix recent API changes from TVDB #1481
 x fix some minor issues for the live update of movie set data #1477
 x calculation of minimum size for restoring window sizes/positions #1485
+x enhanced loading times of internal scrapers
 
 
 Version 4.2.1.2
