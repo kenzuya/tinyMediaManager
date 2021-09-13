@@ -28,6 +28,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -54,6 +55,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
   private JComboBox<CountryCode>    cbCertificationCountry;
   private JComboBox<CountryItem>    cbReleaseCountry;
   private JCheckBox                 chckbxCapitalizeWords;
+  private JCheckBox                 chckbxDoNotOverwrite;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -88,13 +90,13 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
         JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage")); // $NON-NLS-1$
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
-        cbScraperLanguage = new JComboBox<>(MediaLanguages.valuesSorted());
+        cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0");
 
         JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry")); // $NON-NLS-1$
         panelOptions.add(lblCountry, "cell 1 1 2 1");
 
-        cbCertificationCountry = new JComboBox<>(CountryCode.values());
+        cbCertificationCountry = new JComboBox(CountryCode.values());
         panelOptions.add(cbCertificationCountry, "cell 1 1");
 
         JLabel label = new JLabel(TmmResourceBundle.getString("Settings.releaseDateCountry"));
@@ -109,7 +111,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     }
     {
       JPanel panelDefaults = new JPanel();
-      panelDefaults.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelDefaults.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][]")); // 16lp ~ width of the
 
       JLabel lblDefaultsT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.defaults"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDefaults, lblDefaultsT, true);
@@ -119,6 +121,10 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
         TvShowScraperMetadataPanel scraperMetadataPanel = new TvShowScraperMetadataPanel();
         panelDefaults.add(scraperMetadataPanel, "cell 1 0 2 1");
       }
+
+      chckbxDoNotOverwrite = new JCheckBox(TmmResourceBundle.getString("message.scrape.donotoverwrite"));
+      chckbxDoNotOverwrite.setToolTipText(TmmResourceBundle.getString("message.scrape.donotoverwrite.desc"));
+      panelDefaults.add(chckbxDoNotOverwrite, "cell 1 1 2 1");
     }
     {
       JPanel panelImages = new JPanel();
@@ -135,31 +141,6 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     }
   }
 
-  protected void initDataBindings() {
-    BeanProperty<TvShowSettings, MediaLanguages> settingsBeanProperty_8 = BeanProperty.create("scraperLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<TvShowSettings, MediaLanguages, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_8, cbScraperLanguage, jComboBoxBeanProperty);
-    autoBinding_7.bind();
-    //
-    BeanProperty<TvShowSettings, CountryCode> settingsBeanProperty_9 = BeanProperty.create("certificationCountry");
-    AutoBinding<TvShowSettings, CountryCode, JComboBox, Object> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_9, cbCertificationCountry, jComboBoxBeanProperty);
-    autoBinding_8.bind();
-    //
-    BeanProperty<TvShowSettings, Boolean> settingsBeanProperty = BeanProperty.create("scrapeBestImage");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, chckbxAutomaticallyScrapeImages, jCheckBoxBeanProperty);
-    autoBinding.bind();
-    //
-    BeanProperty<TvShowSettings, Boolean> settingsBeanProperty_10 = BeanProperty.create("capitalWordsInTitles");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_1 = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_10, chckbxCapitalizeWords, jCheckBoxBeanProperty_1);
-    autoBinding_9.bind();
-  }
-
   private static class CountryItem {
     private final Locale locale;
 
@@ -171,5 +152,35 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     public String toString() {
       return locale.getCountry() + " - " + locale.getDisplayCountry();
     }
+  }
+
+  protected void initDataBindings() {
+    Property settingsBeanProperty_8 = BeanProperty.create("scraperLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_8, cbScraperLanguage,
+        jComboBoxBeanProperty);
+    autoBinding_7.bind();
+    //
+    Property settingsBeanProperty_9 = BeanProperty.create("certificationCountry");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_9, cbCertificationCountry,
+        jComboBoxBeanProperty);
+    autoBinding_8.bind();
+    //
+    Property settingsBeanProperty = BeanProperty.create("scrapeBestImage");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxAutomaticallyScrapeImages,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
+    //
+    Property settingsBeanProperty_10 = BeanProperty.create("capitalWordsInTitles");
+    Property jCheckBoxBeanProperty_1 = BeanProperty.create("selected");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_10, chckbxCapitalizeWords,
+        jCheckBoxBeanProperty_1);
+    autoBinding_9.bind();
+    //
+    Property tvShowSettingsBeanProperty = BeanProperty.create("doNotOverwriteExistingData");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, chckbxDoNotOverwrite,
+        jCheckBoxBeanProperty);
+    autoBinding_1.bind();
   }
 }

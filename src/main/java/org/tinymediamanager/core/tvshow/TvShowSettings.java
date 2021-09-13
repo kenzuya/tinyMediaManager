@@ -184,6 +184,7 @@ public final class TvShowSettings extends AbstractSettings {
   String                                         releaseDateCountry                     = "";
   final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
   final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
+  boolean                                        doNotOverwriteExistingData             = false;
 
   // artwork scraper
   MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
@@ -1673,5 +1674,15 @@ public final class TvShowSettings extends AbstractSettings {
 
   public List<UniversalFilterFields> getUniversalFilterFields() {
     return universalFilterFields;
+  }
+
+  public boolean isDoNotOverwriteExistingData() {
+    return doNotOverwriteExistingData;
+  }
+
+  public void setDoNotOverwriteExistingData(boolean newValue) {
+    boolean oldValue = doNotOverwriteExistingData;
+    doNotOverwriteExistingData = newValue;
+    firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
   }
 }

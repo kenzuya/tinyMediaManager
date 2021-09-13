@@ -1,5 +1,6 @@
 Version 4.2.2
 =======================
++ added an option to set the default value for "do not overwrite existing data" to the settings
 x (TVDB) fix recent API changes from TVDB #1481
 x fix some minor issues for the live update of movie set data #1477
 x calculation of minimum size for restoring window sizes/positions #1485

@@ -470,6 +470,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       progressBar.setVisible(false);
       cbTvShowScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getTvShowScraperMetadataConfig());
       cbEpisodeScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getEpisodeScraperMetadataConfig());
+      chckbxDoNotOverwrite.setSelected(TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
 
       lblPath.setText(tvShowToScrape.getPathNIO().toString());
       textFieldSearchString.setText(tvShowToScrape.getTitle());

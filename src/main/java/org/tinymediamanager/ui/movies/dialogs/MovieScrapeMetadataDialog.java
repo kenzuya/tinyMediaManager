@@ -186,6 +186,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
     }
 
     cbScraperConfig.setSelectedItems(configs);
+    chckbxDoNotOverwrite.setSelected(MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
   }
 
   /**

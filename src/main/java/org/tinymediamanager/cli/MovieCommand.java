@@ -178,7 +178,9 @@ class MovieCommand implements Runnable {
       List<MovieScraperMetadataConfig> config = MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig();
       options.loadDefaults();
 
-      Runnable task = new MovieScrapeTask(new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config));
+      MovieScrapeTask.MovieScrapeParams movieScrapeParams = new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config);
+      movieScrapeParams.setOverwriteExistingItems(!MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
+      Runnable task = new MovieScrapeTask(movieScrapeParams);
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)
@@ -214,7 +216,8 @@ class MovieCommand implements Runnable {
         .getMovieList()
         .getMovies()
         .stream()
-        .filter(movie -> movie.getMediaFiles(MediaFileType.TRAILER).isEmpty()).collect(Collectors.toList());
+        .filter(movie -> movie.getMediaFiles(MediaFileType.TRAILER).isEmpty())
+        .collect(Collectors.toList());
 
     for (Movie movie : moviesWithoutTrailer) {
       TmmTask task = new MovieTrailerDownloadTask(movie);

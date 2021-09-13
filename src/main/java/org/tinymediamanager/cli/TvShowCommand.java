@@ -211,8 +211,11 @@ class TvShowCommand implements Runnable {
           .getSettings()
           .getEpisodeScraperMetadataConfig();
 
-      Runnable task = new TvShowScrapeTask(
-          new TvShowScrapeTask.TvShowScrapeParams(showsToScrape, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig));
+      TvShowScrapeTask.TvShowScrapeParams tvShowScrapeParams = new TvShowScrapeTask.TvShowScrapeParams(showsToScrape, options,
+          tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
+      tvShowScrapeParams.setOverwriteExistingItems(!TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
+
+      Runnable task = new TvShowScrapeTask(tvShowScrapeParams);
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)
@@ -251,7 +254,8 @@ class TvShowCommand implements Runnable {
             .getSettings()
             .getEpisodeScraperMetadataConfig();
 
-        Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig, true);
+        Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig,
+            !TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
         task.run(); // blocking
 
         // wait for other tmm threads (artwork download et all)

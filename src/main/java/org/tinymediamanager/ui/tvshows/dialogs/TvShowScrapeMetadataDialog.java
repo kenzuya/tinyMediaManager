@@ -246,6 +246,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       }
       cbEpisodeScraperConfig.setSelectedItems(config);
     }
+    chckbxDoNotOverwrite.setSelected(TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
   }
 
   public void setMetadataScraper(MediaScraper metadataScraper) {
