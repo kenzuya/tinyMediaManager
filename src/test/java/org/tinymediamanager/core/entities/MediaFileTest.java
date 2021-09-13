@@ -45,4 +45,21 @@ public class MediaFileTest extends BasicTest {
     assertThat(m.getDecadeLong().equals("200-209"));
     assertThat(m.getDecadeShort().equals("200s"));
   }
+
+  @Test
+  public void testMediaFileTypeDetection() throws Exception {
+    // trailer
+    checkMediaFileType("So.Dark.the.Night.1946.720p.BluRay.x264-x0r[Trailer-Theatrical-Trailer].mkv", MediaFileType.TRAILER);
+    checkMediaFileType("cool movie-trailer.mkv", MediaFileType.TRAILER);
+    checkMediaFileType("film-trailer.1.mov", MediaFileType.TRAILER);
+    checkMediaFileType("film-trailer1.mov", MediaFileType.TRAILER);
+    checkMediaFileType("film-trailer-1.mov", MediaFileType.TRAILER);
+
+    // VIDEO
+    checkMediaFileType("This.is.Trailer.park.Boys.mkv", MediaFileType.VIDEO);
+  }
+
+  private void checkMediaFileType(String filename, MediaFileType trailer) {
+    assertThat(new MediaFile(Paths.get(filename)).getType()).isEqualTo(trailer);
+  }
 }

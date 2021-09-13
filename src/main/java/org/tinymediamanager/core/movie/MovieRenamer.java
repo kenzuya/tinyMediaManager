@@ -98,6 +98,7 @@ public class MovieRenamer {
   // to not use posix here
   private static final Pattern             TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern             YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             TRAILER_STACKING_PATTERN    = Pattern.compile(".*?(\\d)$");
 
   private static final Map<String, String> TOKEN_MAP                   = createTokenMap();
 
@@ -840,13 +841,26 @@ public class MovieRenamer {
               trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
             }
           }
+
+          // check if the trailer ends with a "stacking" marker
+          String stackingMarker = "";
+          Matcher matcher = TRAILER_STACKING_PATTERN.matcher(mf.getBasename());
+          if (matcher.matches()) {
+            stackingMarker = matcher.group(1);
+          }
+
           for (MovieTrailerNaming name : trailernames) {
             String newTrailerName = movie.getTrailerFilename(name, newFilename + ".avi"); // basename used, so add fake extension
             if (newTrailerName.isEmpty()) {
               continue;
             }
             MediaFile trail = new MediaFile(mf);
-            trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+            if (StringUtils.isNotBlank(stackingMarker)) {
+              trail.setFile(newMovieDir.resolve(newTrailerName + "." + stackingMarker + "." + mf.getExtension())); // get w/o extension to add same
+            }
+            else {
+              trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+            }
             newFiles.add(trail);
           }
         }
