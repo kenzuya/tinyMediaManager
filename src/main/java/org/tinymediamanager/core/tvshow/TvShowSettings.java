@@ -307,13 +307,8 @@ public final class TvShowSettings extends AbstractSettings {
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.TITLE);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.PLOT);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.YEAR);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.AIRED);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.STATUS);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RATING);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RUNTIME);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.CERTIFICATION);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.GENRES);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.STUDIO);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.ACTORS);
 
     tvShowCheckArtwork.clear();
@@ -329,7 +324,6 @@ public final class TvShowSettings extends AbstractSettings {
     episodeCheckMetadata.clear();
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.TITLE);
-    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.ACTORS);
 
     episodeCheckArtwork.clear();
