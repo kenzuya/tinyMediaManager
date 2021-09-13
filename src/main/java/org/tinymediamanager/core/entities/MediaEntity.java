@@ -805,6 +805,10 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {
+    if (mediaFile == null) {
+      return;
+    }
+
     boolean changed = false;
 
     try {
@@ -842,6 +846,10 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   protected void fireAddedEventForMediaFile(MediaFile mediaFile) {
+    if (mediaFile == null) {
+      return;
+    }
+
     switch (mediaFile.getType()) {
       case FANART:
         firePropertyChange(FANART, null, mediaFile.getPath());
@@ -899,6 +907,10 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   protected void fireRemoveEventForMediaFile(MediaFile mediaFile) {
+    if (mediaFile == null) {
+      return;
+    }
+
     switch (mediaFile.getType()) {
       case FANART:
         firePropertyChange(FANART, null, "");
