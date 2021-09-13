@@ -1848,7 +1848,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // maybe the regexp is a full path
-      if (pattern.toString().equals(fullPath)) {
+      if (pattern.toString().replace("\\Q", "").replace("\\E", "").equals(fullPath)) {
         return true;
       }
     }
