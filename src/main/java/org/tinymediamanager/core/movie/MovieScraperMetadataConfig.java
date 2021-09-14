@@ -149,4 +149,21 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
 
     return values;
   }
+
+  /**
+   * get all values except the deprecated ones
+   *
+   * @return a {@link List} of all values except deprecated ones
+   */
+  public static List<MovieScraperMetadataConfig> getValues() {
+    List<MovieScraperMetadataConfig> values = new ArrayList<>();
+
+    for (MovieScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED) {
+        values.add(value);
+      }
+    }
+
+    return values;
+  }
 }
