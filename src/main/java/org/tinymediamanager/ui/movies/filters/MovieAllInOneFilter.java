@@ -15,17 +15,6 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.ACTOR;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.COUNTRY;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
-
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -43,6 +32,8 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.*;
 
 /**
  * the class {@link MovieAllInOneFilter} implements a generic text field filter
@@ -105,6 +96,17 @@ public class MovieAllInOneFilter extends AbstractTextMovieUIFilter {
 
     // country
     if (filterFields.contains(COUNTRY) && filterField(movie.getCountry())) {
+      return true;
+    }
+
+
+    //plot
+    if(filterFields.contains(PLOT) && filterField(movie.getPlot())) {
+      return true;
+    }
+
+    //tagline
+    if(filterFields.contains(TAGLINE) && filterField(movie.getTagline())) {
       return true;
     }
 

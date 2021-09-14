@@ -270,6 +270,8 @@ public abstract class AbstractSettings extends AbstractModelObject {
     PRODUCER,
     WRITER,
     DIRECTOR,
-    TAGS
+    TAGS,
+    PLOT,
+    TAGLINE
   }
 }
