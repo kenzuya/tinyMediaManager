@@ -136,7 +136,8 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     Document doc = null;
     try {
       doc = UrlUtil
-          .parseDocumentFromUrl("https://www.omdbapi.com/?apikey=" + getApiKey() + "&s=" + query.getSearchQuery() + "&type=movie&page=1&r=xml");
+          .parseDocumentFromUrl(
+              "https://www.omdbapi.com/?apikey=" + getApiKey() + "&s=" + UrlUtil.encode(query.getSearchQuery()) + "&type=movie&page=1&r=xml");
     }
     catch (InterruptedException | InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -157,7 +158,8 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     // nothing found? try a direct lookup
     if (searchResults.isEmpty()) {
       try {
-        doc = UrlUtil.parseDocumentFromUrl("https://www.omdbapi.com/?apikey=" + getApiKey() + "&t=" + query.getSearchQuery() + "&type=movie&r=xml");
+        doc = UrlUtil.parseDocumentFromUrl(
+            "https://www.omdbapi.com/?apikey=" + getApiKey() + "&t=" + UrlUtil.encode(query.getSearchQuery()) + "&type=movie&r=xml");
         if (doc != null && doc.childrenSize() != 0) {
           MediaMetadata md = parseDetail(doc, "movie");
           if (md != null) {
