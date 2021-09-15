@@ -353,6 +353,7 @@ public final class TinyMediaManager {
             // wizard for new user
             if (Settings.getInstance().isNewConfig()) {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
+              wizard.setLocationRelativeTo(null); // center
               wizard.setVisible(true);
             }
             else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {

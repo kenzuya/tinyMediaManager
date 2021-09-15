@@ -184,6 +184,12 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     if (!dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
+
+      if (rect.width == 0 && rect.height == 0) {
+        // nothing found for that dialog
+        return;
+      }
+
       Dimension minimumSize = dialog.getMinimumSize();
 
       // re-check if the stored window size is "big" enough (the "default" size has already been set with .pack())

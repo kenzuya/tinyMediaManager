@@ -147,6 +147,8 @@ public class MainWindow extends JFrame {
     getContentPane().add(rootLayer, BorderLayout.CENTER);
 
     JSplitPane splitPane = new JSplitPane();
+    splitPane.setContinuousLayout(true);
+    splitPane.setResizeWeight(0.5);
     splitPane.setOneTouchExpandable(true);
     splitPane.setName("mainWindow.splitPane");
     TmmUILayoutStore.getInstance().install(splitPane);

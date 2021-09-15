@@ -58,21 +58,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner*
  */
 class TvShowScraperPanel extends JPanel {
-  private static final long           serialVersionUID = -2639391458779374972L;
-
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
-  
+  private static final long         serialVersionUID = -2639391458779374972L;
 
   private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
-  private final List<TvShowScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
-  private JTable                      tableScraper;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox<CountryCode>      cbCertificationCountry;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
+  private JTable                    tableScraper;
+  private JComboBox<MediaLanguages> cbScraperLanguage;
+  private JComboBox<CountryCode>    cbCertificationCountry;
+  private JTextPane                 tpScraperDescription;
+  private JPanel                    panelScraperOptions;
 
   TvShowScraperPanel() {
     // data init before UI init
@@ -101,22 +96,23 @@ class TvShowScraperPanel extends JPanel {
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        TvShowScraper changedScraper = scrapers.get(row);
-        // if flag default scraper was changed, change all other flags
-        if (changedScraper.getDefaultScraper()) {
-          settings.setScraper(changedScraper.getScraperId());
-          for (TvShowScraper scraper : scrapers) {
-            if (scraper != changedScraper) {
-              scraper.setDefaultScraper(Boolean.FALSE);
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            TvShowScraper changedScraper = scrapers.get(row);
+            // if flag default scraper was changed, change all other flags
+            if (changedScraper.getDefaultScraper()) {
+              settings.setScraper(changedScraper.getScraperId());
+              for (TvShowScraper scraper : scrapers) {
+                if (scraper != changedScraper) {
+                  scraper.setDefaultScraper(Boolean.FALSE);
+                }
+              }
             }
           }
-        }
-      }
-    });
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -211,7 +207,9 @@ class TvShowScraperPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<TvShowScraper, Boolean> tvShowScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.default"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<TvShowScraper, Icon> tvShowScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
     jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
