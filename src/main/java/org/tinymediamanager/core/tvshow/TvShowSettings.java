@@ -235,8 +235,10 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        seasonDisplayAllMissingArtwork         = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckMetadata                   = new ArrayList<>();
   boolean                                        episodeDisplayAllMissingMetadata       = false;
+  boolean                                        episodeSpecialsCheckMissingMetadata    = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckArtwork                    = new ArrayList<>();
   boolean                                        episodeDisplayAllMissingArtwork        = false;
+  boolean                                        episodeSpecialsCheckMissingArtwork     = false;
 
   // Quick Search filter
   boolean                                        node                                   = true;
@@ -1411,6 +1413,16 @@ public final class TvShowSettings extends AbstractSettings {
     return episodeDisplayAllMissingMetadata;
   }
 
+  public void setEpisodeSpecialsCheckMissingMetadata(boolean newValue) {
+    boolean oldValue = episodeSpecialsCheckMissingMetadata;
+    episodeSpecialsCheckMissingMetadata = newValue;
+    firePropertyChange("episodeSpecialsCheckMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isEpisodeSpecialsCheckMissingMetadata() {
+    return episodeSpecialsCheckMissingMetadata;
+  }
+
   public void clearEpisodeCheckArtwork() {
     episodeCheckArtwork.clear();
     firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
@@ -1435,6 +1447,16 @@ public final class TvShowSettings extends AbstractSettings {
 
   public boolean isEpisodeDisplayAllMissingArtwork() {
     return episodeDisplayAllMissingArtwork;
+  }
+
+  public void setEpisodeSpecialsCheckMissingArtwork(boolean newValue) {
+    boolean oldValue = episodeSpecialsCheckMissingArtwork;
+    episodeSpecialsCheckMissingArtwork = newValue;
+    firePropertyChange("episodeSpecialsCheckMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isEpisodeSpecialsCheckMissingArtwork() {
+    return episodeSpecialsCheckMissingArtwork;
   }
 
   public CertificationStyle getCertificationStyle() {

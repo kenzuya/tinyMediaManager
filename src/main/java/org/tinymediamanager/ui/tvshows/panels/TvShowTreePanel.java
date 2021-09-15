@@ -134,6 +134,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         case "seasonCheckArtwork":
         case "episodeCheckMetadata":
         case "episodeCheckArtwork":
+        case "episodeSpecialsCheckMissingMetadata":
+        case "episodeSpecialsCheckMissingArtwork":
           tree.invalidate();
           break;
 
