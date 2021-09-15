@@ -1,5 +1,7 @@
 Version 4.2.2
 =======================
++ added selected entries amount and file size totals to the movie/movie set/TV show list #1450
++ added file size totals tp the movie/movie set/TV show table
 + added an option to set the default value for "do not overwrite existing data" to the settings
 x (TVDB) fix recent API changes from TVDB #1481
 x fix some minor issues for the live update of movie set data #1477

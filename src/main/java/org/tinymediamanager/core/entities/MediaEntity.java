@@ -969,8 +969,9 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public List<MediaFile> getMediaFiles() {
     List<MediaFile> mf = new ArrayList<>();
-    readWriteLock.readLock().lock();
+
     try {
+      readWriteLock.readLock().lock();
       mf.addAll(mediaFiles);
     }
     finally {
@@ -993,20 +994,25 @@ public abstract class MediaEntity extends AbstractModelObject {
    */
   public List<MediaFile> getMediaFiles(MediaFileType... types) {
     List<MediaFile> mf = new ArrayList<>();
-    readWriteLock.readLock().lock();
-    for (MediaFile mediaFile : mediaFiles) {
-      boolean match = false;
-      for (MediaFileType type : types) {
-        if (mediaFile.getType().equals(type)) {
-          match = true;
+
+    try {
+      readWriteLock.readLock().lock();
+      for (MediaFile mediaFile : mediaFiles) {
+        boolean match = false;
+        for (MediaFileType type : types) {
+          if (mediaFile.getType().equals(type)) {
+            match = true;
+          }
+        }
+        if (match) {
+          mf.add(mediaFile);
         }
       }
-      if (match) {
-        mf.add(mediaFile);
-      }
+      return mf;
     }
-    readWriteLock.readLock().unlock();
-    return mf;
+    finally {
+      readWriteLock.readLock().unlock();
+    }
   }
 
   /**
@@ -1018,18 +1024,32 @@ public abstract class MediaEntity extends AbstractModelObject {
   public MediaFile getBiggestMediaFile(MediaFileType... types) {
     MediaFile mf = null;
 
-    readWriteLock.readLock().lock();
-    for (MediaFile mediaFile : mediaFiles) {
-      for (MediaFileType type : types) {
-        if (mediaFile.getType().equals(type)) {
-          if (mf == null || mediaFile.getFilesize() >= mf.getFilesize()) {
-            mf = mediaFile;
+    try {
+      readWriteLock.readLock().lock();
+      for (MediaFile mediaFile : mediaFiles) {
+        for (MediaFileType type : types) {
+          if (mediaFile.getType().equals(type)) {
+            if (mf == null || mediaFile.getFilesize() >= mf.getFilesize()) {
+              mf = mediaFile;
+            }
           }
         }
       }
+      return mf;
     }
-    readWriteLock.readLock().unlock();
-    return mf;
+    finally {
+      readWriteLock.readLock().unlock();
+    }
+  }
+
+  public long getTotalFilesize() {
+    try {
+      readWriteLock.readLock().lock();
+      return mediaFiles.stream().mapToLong(MediaFile::getFilesize).sum();
+    }
+    finally {
+      readWriteLock.readLock().unlock();
+    }
   }
 
   /**
@@ -1041,19 +1061,24 @@ public abstract class MediaEntity extends AbstractModelObject {
    */
   public MediaFile getNewestMediaFilesOfType(MediaFileType... types) {
     MediaFile mf = null;
-    readWriteLock.readLock().lock();
-    for (MediaFile mediaFile : mediaFiles) {
-      for (MediaFileType type : types) {
-        if (mediaFile.getType().equals(type)) {
-          if (mf == null || mediaFile.getFiledate() >= mf.getFiledate()) {
-            // get the latter one
-            mf = new MediaFile(mediaFile);
+
+    try {
+      readWriteLock.readLock().lock();
+      for (MediaFile mediaFile : mediaFiles) {
+        for (MediaFileType type : types) {
+          if (mediaFile.getType().equals(type)) {
+            if (mf == null || mediaFile.getFiledate() >= mf.getFiledate()) {
+              // get the latter one
+              mf = new MediaFile(mediaFile);
+            }
           }
         }
       }
+      return mf;
     }
-    readWriteLock.readLock().unlock();
-    return mf;
+    finally {
+      readWriteLock.readLock().unlock();
+    }
   }
 
   /**
@@ -1066,29 +1091,40 @@ public abstract class MediaEntity extends AbstractModelObject {
    */
   public List<MediaFile> getMediaFilesExceptType(MediaFileType... types) {
     List<MediaFile> mf = new ArrayList<>();
-    readWriteLock.readLock().lock();
-    for (MediaFile mediaFile : mediaFiles) {
-      boolean match = false;
-      for (MediaFileType type : types) {
-        if (mediaFile.getType().equals(type)) {
-          match = true;
+
+    try {
+      readWriteLock.readLock().lock();
+      for (MediaFile mediaFile : mediaFiles) {
+        boolean match = false;
+        for (MediaFileType type : types) {
+          if (mediaFile.getType().equals(type)) {
+            match = true;
+          }
+        }
+        if (!match) {
+          mf.add(mediaFile);
         }
       }
-      if (!match) {
-        mf.add(mediaFile);
-      }
+      return mf;
     }
-    readWriteLock.readLock().unlock();
-    return mf;
+    finally {
+      readWriteLock.readLock().unlock();
+    }
   }
 
   public void removeAllMediaFiles() {
     List<MediaFile> changedMediafiles = new ArrayList<>(mediaFiles);
-    readWriteLock.writeLock().lock();
-    for (int i = mediaFiles.size() - 1; i >= 0; i--) {
-      mediaFiles.remove(i);
+
+    try {
+      readWriteLock.writeLock().lock();
+      for (int i = mediaFiles.size() - 1; i >= 0; i--) {
+        mediaFiles.remove(i);
+      }
     }
-    readWriteLock.writeLock().unlock();
+    finally {
+      readWriteLock.writeLock().unlock();
+    }
+
     for (MediaFile mediaFile : changedMediafiles) {
       fireRemoveEventForMediaFile(mediaFile);
     }
@@ -1097,8 +1133,8 @@ public abstract class MediaEntity extends AbstractModelObject {
   public void removeFromMediaFiles(MediaFile mediaFile) {
     boolean changed = false;
 
-    readWriteLock.writeLock().lock();
     try {
+      readWriteLock.writeLock().lock();
       changed = mediaFiles.remove(mediaFile);
     }
     finally {
@@ -1175,9 +1211,15 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void updateMediaFilePath(Path oldPath, Path newPath) {
-    readWriteLock.readLock().lock();
-    List<MediaFile> mfs = new ArrayList<>(this.mediaFiles);
-    readWriteLock.readLock().unlock();
+    List<MediaFile> mfs = new ArrayList<>();
+
+    try {
+      readWriteLock.readLock().lock();
+      mfs.addAll(this.mediaFiles);
+    }
+    finally {
+      readWriteLock.readLock().unlock();
+    }
 
     for (MediaFile mf : mfs) {
       // invalidate image cache
@@ -1206,9 +1248,16 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void gatherMediaFileInformation(boolean force) {
-    readWriteLock.readLock().lock();
-    List<MediaFile> mfs = new ArrayList<>(this.mediaFiles);
-    readWriteLock.readLock().unlock();
+    List<MediaFile> mfs = new ArrayList<>();
+
+    try {
+      readWriteLock.readLock().lock();
+      mfs.addAll(this.mediaFiles);
+    }
+    finally {
+      readWriteLock.readLock().unlock();
+    }
+
     for (MediaFile mediaFile : mfs) {
       mediaFile.gatherMediaInformation(force);
     }

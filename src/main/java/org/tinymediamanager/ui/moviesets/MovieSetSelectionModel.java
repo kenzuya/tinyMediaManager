@@ -17,7 +17,9 @@ package org.tinymediamanager.ui.moviesets;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -125,6 +127,29 @@ public class MovieSetSelectionModel extends AbstractModelObject {
     }
 
     return selectedMovies;
+  }
+
+  /**
+   * get all selected movies. selected movie sets will return all their movies
+   *
+   * @return list of all selected movies
+   */
+  public List<Movie> getSelectedMoviesRecursive() {
+    Set<Movie> selectedMovies = new LinkedHashSet<>();
+
+    for (Object obj : getSelectedObjects()) {
+      if (obj instanceof MovieSet) {
+        selectedMovies.addAll(((MovieSet) obj).getMovies());
+      }
+      else if (obj instanceof MovieSet.MovieSetMovie) {
+        // do nothing here
+      }
+      else if (obj instanceof Movie) {
+        selectedMovies.add((Movie) obj);
+      }
+    }
+
+    return new ArrayList<>(selectedMovies);
   }
 
   /**

@@ -264,7 +264,19 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * main video file size (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videofilesize"), "fileSize", this::getVideoFileSize, String.class);
+    col.setHeaderIcon(IconManager.FILE_SIZE);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
+    col.setColumnComparator(fileSizeComparator);
+    addColumn(col);
+
+    /*
+     * total file size (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.totalfilesize"), "totalFileSize", this::getTotalFileSize, String.class);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -352,9 +364,9 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * has Note
+     * has Note (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.note"), "theme", this::hasNote, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.note"), "note", this::hasNote, ImageIcon.class);
     col.setHeaderIcon(IconManager.INFO);
     col.setColumnResizeable(false);
     col.setDefaultHidden(true);
@@ -527,7 +539,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private String getFileSize(TmmTreeNode node) {
+  private String getVideoFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode) {
       long size = 0;
@@ -535,6 +547,19 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         size += mf.getFilesize();
       }
 
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
+    return "";
+  }
+
+  private String getTotalFileSize(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      long size = ((TvShow) userObject).getTotalFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
+    if (userObject instanceof TvShowEpisode) {
+      long size = ((TvShowEpisode) userObject).getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
