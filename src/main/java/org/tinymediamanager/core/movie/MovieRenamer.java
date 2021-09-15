@@ -820,9 +820,7 @@ public class MovieRenamer {
         if (relativePathOfMediafile.getNameCount() > 1
             && MediaFileHelper.TRAILER_FOLDERS.contains(relativePathOfMediafile.subpath(0, 1).toString())) {
           // the trailer is in a /trailer(s) subfolder
-          if (!newDestIsMultiMovieDir) {
-            newFiles.add(defaultMF);
-          }
+          newFiles.add(defaultMF);
         }
         else {
           // not in a /trailer(s) subfolder
@@ -1121,9 +1119,7 @@ public class MovieRenamer {
       // *************
       case EXTRATHUMB:
         // pass the file regardless of the settings (they're here so we just rename them)
-        if (!newDestIsMultiMovieDir) {
-          newFiles.add(defaultMF);
-        }
+        newFiles.add(defaultMF);
         break;
 
       // *************
