@@ -162,6 +162,14 @@ public abstract class AbstractSettings extends AbstractModelObject {
   protected abstract Logger getLogger();
 
   /**
+   * force saving the settings - independently of the dirty flag
+   */
+  public void forceSaveSettings() {
+    dirty = true;
+    saveSettings();
+  }
+
+  /**
    * save the settings to a JSON file
    */
   public void saveSettings() {

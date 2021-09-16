@@ -52,7 +52,7 @@ public class MoviePostProcessDialog extends PostProcessDialog {
     process.setCommand(tfCommand.getText().replace('\n', ' '));
     process.setPath(tfPath.getText());
 
-    MovieModuleManager.getInstance().getSettings().saveSettings();
+    MovieModuleManager.getInstance().getSettings().forceSaveSettings();
 
     firePropertyChange("postProcess", null, process);
     setVisible(false);
