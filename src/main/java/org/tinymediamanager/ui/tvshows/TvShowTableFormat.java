@@ -25,11 +25,9 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
-import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -541,12 +539,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getVideoFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      long size = ((TvShow) userObject).getVideoFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
+    if (userObject instanceof TvShowSeason) {
+      long size = ((TvShowSeason) userObject).getVideoFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
     if (userObject instanceof TvShowEpisode) {
-      long size = 0;
-      for (MediaFile mf : ((TvShowEpisode) userObject).getMediaFiles(MediaFileType.VIDEO)) {
-        size += mf.getFilesize();
-      }
-
+      long size = ((TvShowEpisode) userObject).getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
@@ -558,8 +560,12 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       long size = ((TvShow) userObject).getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
+    if (userObject instanceof TvShowSeason) {
+      long size = ((TvShowSeason) userObject).getTotalFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
     if (userObject instanceof TvShowEpisode) {
-      long size = ((TvShowEpisode) userObject).getVideoFilesize();
+      long size = ((TvShowEpisode) userObject).getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";

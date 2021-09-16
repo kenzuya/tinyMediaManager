@@ -2288,9 +2288,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public long getVideoFilesize() {
     long filesize = 0;
     for (TvShowEpisode episode : episodes) {
-      for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO)) {
-        filesize += mf.getFilesize();
-      }
+      filesize += episode.getVideoFilesize();
+    }
+    return filesize;
+  }
+
+  @Override
+  public long getTotalFilesize() {
+    long filesize = 0;
+    for (TvShowEpisode episode : episodes) {
+      filesize += episode.getTotalFilesize();
     }
     return filesize;
   }
