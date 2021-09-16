@@ -20,9 +20,11 @@ import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.C
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PLOT;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGLINE;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 
@@ -105,6 +107,16 @@ public class MovieAllInOneFilter extends AbstractTextMovieUIFilter {
 
     // country
     if (filterFields.contains(COUNTRY) && filterField(movie.getCountry())) {
+      return true;
+    }
+
+    // plot
+    if (filterFields.contains(PLOT) && filterField(movie.getPlot())) {
+      return true;
+    }
+
+    // tagline
+    if (filterFields.contains(TAGLINE) && filterField(movie.getTagline())) {
       return true;
     }
 

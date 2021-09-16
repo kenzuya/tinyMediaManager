@@ -51,6 +51,9 @@ public class TvShowPostProcessDialog extends PostProcessDialog {
     process.setName(tfProcessName.getText());
     process.setCommand(tfCommand.getText());
     process.setPath(tfPath.getText());
+
+    TvShowModuleManager.getInstance().getSettings().forceSaveSettings();
+
     firePropertyChange("postProcessTvShow", null, process);
     setVisible(false);
   }

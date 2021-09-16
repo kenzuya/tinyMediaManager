@@ -252,6 +252,22 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     return episodes;
   }
 
+  public long getVideoFilesize() {
+    long filesize = 0;
+    for (TvShowEpisode episode : episodes) {
+      filesize += episode.getVideoFilesize();
+    }
+    return filesize;
+  }
+
+  public long getTotalFilesize() {
+    long filesize = 0;
+    for (TvShowEpisode episode : episodes) {
+      filesize += episode.getTotalFilesize();
+    }
+    return filesize;
+  }
+
   public void setArtwork(MediaFile mediaFile) {
     MediaArtworkType artworkType = MediaFileType.getMediaArtworkType(mediaFile.getType());
     String oldValue = getArtworkFilename(artworkType);

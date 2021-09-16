@@ -77,7 +77,7 @@ public abstract class MediaFilesPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("insets 0", "[450lp,grow]", "[300lp,grow]"));
+    setLayout(new MigLayout("insets 0", "[200lp:450lp,grow]", "[100lp:300lp,grow]"));
     {
       TmmTableModel<MediaFile> tableModel = new TmmTableModel<>(mediaFileEventList, new MediaTableFormat());
       tableFiles = new TmmTable(tableModel);

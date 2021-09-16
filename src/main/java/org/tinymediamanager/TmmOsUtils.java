@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,25 @@ public class TmmOsUtils {
 
   private TmmOsUtils() {
     // hide public constructor for utility classes
+  }
+
+  /**
+   * check if .desktop file exists in default paths in linux and unix (not osx)
+   */
+  public static boolean existsDesktopFileForLinux() {
+    if (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_MAC) {
+      return false;
+    }
+
+    String currentUsersHomeDir = System.getProperty("user.home");
+    for (Path path : Arrays.asList(Paths.get(currentUsersHomeDir, ".local", "share", "applications", TmmOsUtils.DESKTOP_FILE).toAbsolutePath(),
+        Paths.get("usr", "local", "share", "applications", TmmOsUtils.DESKTOP_FILE).toAbsolutePath(),
+        Paths.get("usr", "share", "applications", TmmOsUtils.DESKTOP_FILE).toAbsolutePath())) {
+      if (!path.toFile().exists()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

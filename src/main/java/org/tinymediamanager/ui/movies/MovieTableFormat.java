@@ -416,13 +416,21 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * main video file size (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", movie -> {
-      long size = 0;
-      for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-        size += mf.getFilesize();
-      }
-      return (int) (size / (1000.0 * 1000.0)) + " M";
-    }, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videofilesize"), "fileSize",
+        movie -> (int) (movie.getVideoFilesize() / (1000.0 * 1000.0)) + " M", String.class);
+    col.setColumnComparator(fileSizeComparator);
+    col.setHeaderIcon(IconManager.FILE_SIZE);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * total file size (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.totalfilesize"), "totalFileSize",
+        movie -> (int) (movie.getTotalFilesize() / (1000.0 * 1000.0)) + " M", String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -576,7 +584,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * Note
+     * Note (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.note"), "note", movie -> getCheckIcon(movie.getHasNote()), ImageIcon.class);
     col.setColumnComparator(imageComparator);

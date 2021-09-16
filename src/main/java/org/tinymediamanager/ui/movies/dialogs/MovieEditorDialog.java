@@ -399,8 +399,8 @@ public class MovieEditorDialog extends TmmDialog {
     {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), details1Panel);
-      details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][50lp:75lp,grow][25lp:n][200lp:250lp,grow]",
-          "[][][][][100lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][pref!]"));
+      details1Panel.setLayout(new MigLayout("", "[][75lp:n][50lp:75lp][][60lp:75lp][100lp:n][50lp:75lp,grow][25lp:n][200lp:250lp,grow]",
+          "[][][][][75lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][pref!]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
@@ -779,7 +779,7 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel crewPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("movie.edit.castandcrew"), null, crewPanel, null);
       crewPanel
-          .setLayout(new MigLayout("", "[][150lp:300lp,grow][20lp:n][][150lp:300lp,grow]", "[100lp:250lp,grow][20lp:n][100lp:200lp,grow][grow]"));
+          .setLayout(new MigLayout("", "[][150lp:300lp,grow][20lp:n][][150lp:300lp,grow]", "[100lp:200lp,grow][20lp:n][100lp:200lp,grow][grow]"));
       {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         crewPanel.add(lblActors, "flowy,cell 0 0,alignx right,aligny top");
@@ -1159,7 +1159,7 @@ public class MovieEditorDialog extends TmmDialog {
     {
       JPanel artworkAndTrailerPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("edit.artworkandtrailer"), null, artworkAndTrailerPanel, null);
-      artworkAndTrailerPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][][][20lp:n][250lp]"));
+      artworkAndTrailerPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][][][20lp:n][100lp:200lp,grow][grow]"));
       {
         JLabel lblPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster"));
         artworkAndTrailerPanel.add(lblPosterT, "cell 0 0,alignx right");

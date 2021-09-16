@@ -395,8 +395,22 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     md.setRuntime(MetadataUtil.unboxInteger(movie.runtime, 0));
 
-    for (CompanyBaseRecord company : ListUtils.nullSafe(movie.companies)) {
-      md.addProductionCompany(company.name);
+    if (movie.companies != null) {
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(movie.companies.production)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(movie.companies.studio)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(movie.companies.network)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(movie.companies.specialEffects)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(movie.companies.distributor)) {
+        md.addProductionCompany(baseRecord.name);
+      }
     }
 
     for (Person member : parseCastMembers(movie.characters)) {

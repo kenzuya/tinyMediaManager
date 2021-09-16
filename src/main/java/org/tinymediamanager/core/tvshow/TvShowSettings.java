@@ -184,6 +184,7 @@ public final class TvShowSettings extends AbstractSettings {
   String                                         releaseDateCountry                     = "";
   final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
   final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
+  boolean                                        doNotOverwriteExistingData             = false;
 
   // artwork scraper
   MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
@@ -234,8 +235,10 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        seasonDisplayAllMissingArtwork         = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckMetadata                   = new ArrayList<>();
   boolean                                        episodeDisplayAllMissingMetadata       = false;
+  boolean                                        episodeSpecialsCheckMissingMetadata    = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckArtwork                    = new ArrayList<>();
   boolean                                        episodeDisplayAllMissingArtwork        = false;
+  boolean                                        episodeSpecialsCheckMissingArtwork     = false;
 
   // Quick Search filter
   boolean                                        node                                   = true;
@@ -306,13 +309,8 @@ public final class TvShowSettings extends AbstractSettings {
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.TITLE);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.PLOT);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.YEAR);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.AIRED);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.STATUS);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RATING);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RUNTIME);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.CERTIFICATION);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.GENRES);
-    addTvShowCheckMetadata(TvShowScraperMetadataConfig.STUDIO);
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.ACTORS);
 
     tvShowCheckArtwork.clear();
@@ -328,7 +326,6 @@ public final class TvShowSettings extends AbstractSettings {
     episodeCheckMetadata.clear();
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.TITLE);
-    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.ACTORS);
 
     episodeCheckArtwork.clear();
@@ -1416,6 +1413,16 @@ public final class TvShowSettings extends AbstractSettings {
     return episodeDisplayAllMissingMetadata;
   }
 
+  public void setEpisodeSpecialsCheckMissingMetadata(boolean newValue) {
+    boolean oldValue = episodeSpecialsCheckMissingMetadata;
+    episodeSpecialsCheckMissingMetadata = newValue;
+    firePropertyChange("episodeSpecialsCheckMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isEpisodeSpecialsCheckMissingMetadata() {
+    return episodeSpecialsCheckMissingMetadata;
+  }
+
   public void clearEpisodeCheckArtwork() {
     episodeCheckArtwork.clear();
     firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
@@ -1440,6 +1447,16 @@ public final class TvShowSettings extends AbstractSettings {
 
   public boolean isEpisodeDisplayAllMissingArtwork() {
     return episodeDisplayAllMissingArtwork;
+  }
+
+  public void setEpisodeSpecialsCheckMissingArtwork(boolean newValue) {
+    boolean oldValue = episodeSpecialsCheckMissingArtwork;
+    episodeSpecialsCheckMissingArtwork = newValue;
+    firePropertyChange("episodeSpecialsCheckMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isEpisodeSpecialsCheckMissingArtwork() {
+    return episodeSpecialsCheckMissingArtwork;
   }
 
   public CertificationStyle getCertificationStyle() {
@@ -1673,5 +1690,15 @@ public final class TvShowSettings extends AbstractSettings {
 
   public List<UniversalFilterFields> getUniversalFilterFields() {
     return universalFilterFields;
+  }
+
+  public boolean isDoNotOverwriteExistingData() {
+    return doNotOverwriteExistingData;
+  }
+
+  public void setDoNotOverwriteExistingData(boolean newValue) {
+    boolean oldValue = doNotOverwriteExistingData;
+    doNotOverwriteExistingData = newValue;
+    firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
   }
 }

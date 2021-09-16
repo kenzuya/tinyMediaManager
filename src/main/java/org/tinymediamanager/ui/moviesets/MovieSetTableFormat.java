@@ -240,13 +240,26 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * main video file size
+     * main video file size (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videofilesize"), "fileSize", this::getFileSize, String.class);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setColumnComparator(fileSizeComparator);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * total file size (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.totalfilesize"), "totalFileSize", this::getTotalFileSize, String.class);
+    col.setHeaderIcon(IconManager.FILE_SIZE);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
     col.setColumnComparator(fileSizeComparator);
     addColumn(col);
 
@@ -318,11 +331,19 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
     else if (userObject instanceof Movie) {
-      long size = 0;
-      for (MediaFile mf : ((Movie) userObject).getMediaFiles(MediaFileType.VIDEO)) {
-        size += mf.getFilesize();
-      }
+      long size = ((Movie) userObject).getVideoFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
+    return null;
+  }
 
+  private String getTotalFileSize(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      long size = ((Movie) userObject).getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return null;

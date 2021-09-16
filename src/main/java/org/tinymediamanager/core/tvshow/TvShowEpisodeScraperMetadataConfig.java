@@ -131,4 +131,21 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
 
     return values;
   }
+
+  /**
+   * get all values except the deprecated ones
+   * 
+   * @return a {@link List} of all values except deprecated ones
+   */
+  public static List<TvShowEpisodeScraperMetadataConfig> getValues() {
+    List<TvShowEpisodeScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED) {
+        values.add(value);
+      }
+    }
+
+    return values;
+  }
 }

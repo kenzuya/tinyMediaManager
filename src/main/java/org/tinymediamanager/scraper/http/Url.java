@@ -31,6 +31,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,16 +130,28 @@ public class Url {
       splitHeadersFromUrl();
     }
 
-    // morph to URI to check syntax of the url
     try {
-      uri = morphStringToUri(url);
+      createUri(url);
     }
-    catch (URISyntaxException e) {
-      throw new MalformedURLException(url);
+    catch (Exception e) {
+      throw new MalformedURLException(url + " - " + e.getMessage());
     }
 
     // default user agent
     addHeader(USER_AGENT, UrlUtil.generateUA());
+  }
+
+  private void createUri(String url) throws Exception {
+    // morph to URI to check syntax of the url
+    try {
+      uri = morphStringToUri(url);
+    }
+    catch (MalformedURLException e) {
+      if (!url.contains("://")) {
+        // maybe a path to a local file - retry
+        uri = Paths.get(url).toUri();
+      }
+    }
   }
 
   /**

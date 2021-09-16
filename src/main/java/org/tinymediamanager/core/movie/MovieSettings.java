@@ -176,6 +176,7 @@ public final class MovieSettings extends AbstractSettings {
   double                                    scraperThreshold                       = 0.75;
   boolean                                   scraperFallback                        = false;
   final List<MovieScraperMetadataConfig>    scraperMetadataConfig                  = new ArrayList<>();
+  boolean                                   doNotOverwriteExistingData             = false;
   boolean                                   capitalWordsInTitles                   = false;
 
   // artwork scraper
@@ -345,12 +346,10 @@ public final class MovieSettings extends AbstractSettings {
     addMovieCheckMetadata(MovieScraperMetadataConfig.TITLE);
     addMovieCheckMetadata(MovieScraperMetadataConfig.YEAR);
     addMovieCheckMetadata(MovieScraperMetadataConfig.PLOT);
-    addMovieCheckMetadata(MovieScraperMetadataConfig.RELEASE_DATE);
     addMovieCheckMetadata(MovieScraperMetadataConfig.RATING);
     addMovieCheckMetadata(MovieScraperMetadataConfig.RUNTIME);
     addMovieCheckMetadata(MovieScraperMetadataConfig.CERTIFICATION);
     addMovieCheckMetadata(MovieScraperMetadataConfig.GENRES);
-    addMovieCheckMetadata(MovieScraperMetadataConfig.PRODUCTION_COMPANY);
     addMovieCheckMetadata(MovieScraperMetadataConfig.ACTORS);
 
     movieCheckArtwork.clear();
@@ -1586,6 +1585,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.capitalWordsInTitles;
     this.capitalWordsInTitles = newValue;
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
+  }
+
+  public boolean isDoNotOverwriteExistingData() {
+    return doNotOverwriteExistingData;
+  }
+
+  public void setDoNotOverwriteExistingData(boolean newValue) {
+    boolean oldValue = doNotOverwriteExistingData;
+    doNotOverwriteExistingData = newValue;
+    firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
   }
 
   public MovieSetConnectors getMovieSetConnector() {

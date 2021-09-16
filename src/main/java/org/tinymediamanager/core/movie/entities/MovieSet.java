@@ -300,6 +300,22 @@ public class MovieSet extends MediaEntity {
     MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
 
     firePropertyChange(Constants.ADDED_MOVIE, null, movie);
+
+    // and remove the dummy for the same movie
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      boolean found = false;
+
+      if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+        found = true;
+      }
+      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+        found = true;
+      }
+
+      if (found) {
+        firePropertyChange(Constants.REMOVED_MOVIE, null, movieSetMovie);
+      }
+    }
   }
 
   /**
@@ -334,6 +350,22 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange(Constants.REMOVED_MOVIE, null, movie);
+
+    // and mixin die missing movie
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      boolean found = false;
+
+      if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+        found = true;
+      }
+      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+        found = true;
+      }
+
+      if (found) {
+        firePropertyChange(Constants.ADDED_MOVIE, null, movieSetMovie);
+      }
+    }
   }
 
   public List<Movie> getMovies() {
@@ -635,7 +667,10 @@ public class MovieSet extends MediaEntity {
 
   public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
     this.dummyMovies.clear();
-    this.dummyMovies.addAll(dummyMovies);
+    dummyMovies.forEach(dummy -> {
+      dummy.setMovieSet(this);
+      this.dummyMovies.add(dummy);
+    });
 
     firePropertyChange("dummyMovies", null, dummyMovies);
   }
@@ -652,9 +687,8 @@ public class MovieSet extends MediaEntity {
   public String getYears() {
     List<Integer> years = new ArrayList<>();
 
-    for (Movie movie : movies) {
-      years.add(movie.getYear());
-    }
+    movies.forEach(movie -> years.add(movie.getYear()));
+    dummyMovies.forEach(dummy -> years.add(dummy.getYear()));
 
     Collections.sort(years);
     if (!years.isEmpty() && years.size() >= 2) {

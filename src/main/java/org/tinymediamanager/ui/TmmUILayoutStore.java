@@ -20,6 +20,7 @@ import static java.awt.Frame.MAXIMIZED_BOTH;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -184,12 +185,19 @@ public class TmmUILayoutStore implements AWTEventListener {
     if (!dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
 
-      // re-check if the stored window size is "big" enough (the "default" size has already been set with .pack())
-      if (rect.width < dialog.getWidth()) {
-        rect.width = dialog.getWidth();
+      if (rect.width == 0 && rect.height == 0) {
+        // nothing found for that dialog
+        return;
       }
-      if (rect.height < dialog.getHeight()) {
-        rect.height = dialog.getHeight();
+
+      Dimension minimumSize = dialog.getMinimumSize();
+
+      // re-check if the stored window size is "big" enough (the "default" size has already been set with .pack())
+      if (rect.width < minimumSize.width) {
+        rect.width = minimumSize.width;
+      }
+      if (rect.height < minimumSize.height) {
+        rect.height = minimumSize.height;
       }
 
       if (rect.width > 0 && getVirtualBounds().contains(rect)) {

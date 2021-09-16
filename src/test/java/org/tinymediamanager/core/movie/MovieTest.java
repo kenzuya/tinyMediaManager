@@ -15,18 +15,14 @@
  */
 package org.tinymediamanager.core.movie;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -41,23 +37,6 @@ public class MovieTest extends BasicTest {
   @BeforeClass
   public static void setup() {
     BasicTest.setup();
-  }
-
-  @Test
-  public void trailerDetection() {
-    String m = "So.Dark.the.Night.1946.720p.BluRay.x264-x0r[Trailer-Theatrical-Trailer].mkv";
-    MediaFile mf = new MediaFile(Paths.get(m));
-    Assert.assertSame(MediaFileType.TRAILER, mf.getType());
-
-    m = "cool movie-trailer.mkv";
-    mf = new MediaFile(Paths.get(m));
-    Assert.assertSame(MediaFileType.TRAILER, mf.getType());
-
-    // negative test
-    m = "This.is.Trailer.park.Boys.mkv";
-    mf = new MediaFile(Paths.get(m));
-    Assert.assertSame(MediaFileType.VIDEO, mf.getType());
-
   }
 
   @Test

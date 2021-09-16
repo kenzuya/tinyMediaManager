@@ -16,10 +16,13 @@
 package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -94,7 +97,7 @@ public class MediaProviders {
     }
 
     // load the addons
-    List<Class<? extends IMediaProvider>> addons = new ArrayList<>();
+    Set<Class<? extends IMediaProvider>> addons = new LinkedHashSet<>();
     Iterator<IAddonProvider> addonIterator = ServiceLoader.load(IAddonProvider.class).iterator();
     while (addonIterator.hasNext()) {
       try {
@@ -218,7 +221,7 @@ public class MediaProviders {
     loadAddonsForInterface(addons, ITvShowSubtitleProvider.class);
   }
 
-  private static void loadAddonsForInterface(List<Class<? extends IMediaProvider>> addons, Class<? extends IMediaProvider> iface) {
+  private static void loadAddonsForInterface(Collection<Class<? extends IMediaProvider>> addons, Class<? extends IMediaProvider> iface) {
     for (Class<? extends IMediaProvider> addon : addons) {
       if (iface.isAssignableFrom(addon)) {
         try {

@@ -1262,10 +1262,16 @@ public final class TvShowList extends AbstractModelObject {
   }
 
   public List<TvShowEpisodeScraperMetadataConfig> detectMissingMetadata(TvShowEpisode episode) {
+    if (episode.isDummy() || (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata())) {
+      return Collections.emptyList();
+    }
     return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckMetadata());
   }
 
   public List<TvShowEpisodeScraperMetadataConfig> detectMissingArtwork(TvShowEpisode episode) {
+    if (episode.isDummy() || (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingArtwork())) {
+      return Collections.emptyList();
+    }
     return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckArtwork());
   }
 

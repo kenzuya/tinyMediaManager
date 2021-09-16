@@ -33,6 +33,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -64,6 +65,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
   private JComboBox<CountryItem>    cbReleaseCountry;
   private JCheckBox                 chckbxScraperFallback;
   private JCheckBox                 chckbxCapitalizeWords;
+  private JCheckBox                 chckbxDoNotOverwrite;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -133,7 +135,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     }
     {
       JPanel panelDefaults = new JPanel();
-      panelDefaults.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelDefaults.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][]")); // 16lp ~ width of the
 
       JLabel lblDefaultsT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.defaults"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDefaults, lblDefaultsT, true);
@@ -143,6 +145,10 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
         MovieScraperMetadataPanel movieScraperMetadataPanel = new MovieScraperMetadataPanel();
         panelDefaults.add(movieScraperMetadataPanel, "cell 1 0 2 1");
       }
+
+      chckbxDoNotOverwrite = new JCheckBox(TmmResourceBundle.getString("message.scrape.donotoverwrite"));
+      chckbxDoNotOverwrite.setToolTipText(TmmResourceBundle.getString("message.scrape.donotoverwrite.desc"));
+      panelDefaults.add(chckbxDoNotOverwrite, "cell 1 1 2 1");
     }
     {
       JPanel panelImages = new JPanel();
@@ -183,37 +189,6 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     }
   }
 
-  protected void initDataBindings() {
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty = BeanProperty.create("scrapeBestImage");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, chckbxAutomaticallyScrapeImages, jCheckBoxBeanProperty);
-    autoBinding.bind();
-    //
-    BeanProperty<MovieSettings, MediaLanguages> settingsBeanProperty_8 = BeanProperty.create("scraperLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MediaLanguages, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_8, cbScraperLanguage, jComboBoxBeanProperty);
-    autoBinding_7.bind();
-    //
-    BeanProperty<MovieSettings, CountryCode> settingsBeanProperty_9 = BeanProperty.create("certificationCountry");
-    AutoBinding<MovieSettings, CountryCode, JComboBox, Object> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_9, cbCertificationCountry, jComboBoxBeanProperty);
-    autoBinding_8.bind();
-    //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_1 = BeanProperty.create("scraperFallback");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_2 = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_1, chckbxScraperFallback, jCheckBoxBeanProperty_2);
-    autoBinding_1.bind();
-    //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_2 = BeanProperty.create("capitalWordsInTitles");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_3 = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_2, chckbxCapitalizeWords, jCheckBoxBeanProperty_3);
-    autoBinding_2.bind();
-  }
-
   private static class CountryItem {
     private final Locale locale;
 
@@ -225,5 +200,41 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     public String toString() {
       return locale.getCountry() + " - " + locale.getDisplayCountry();
     }
+  }
+
+  protected void initDataBindings() {
+    Property settingsBeanProperty = BeanProperty.create("scrapeBestImage");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxAutomaticallyScrapeImages,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
+    //
+    Property settingsBeanProperty_8 = BeanProperty.create("scraperLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_8, cbScraperLanguage,
+        jComboBoxBeanProperty);
+    autoBinding_7.bind();
+    //
+    Property settingsBeanProperty_9 = BeanProperty.create("certificationCountry");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_9, cbCertificationCountry,
+        jComboBoxBeanProperty);
+    autoBinding_8.bind();
+    //
+    Property settingsBeanProperty_1 = BeanProperty.create("scraperFallback");
+    Property jCheckBoxBeanProperty_2 = BeanProperty.create("selected");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, chckbxScraperFallback,
+        jCheckBoxBeanProperty_2);
+    autoBinding_1.bind();
+    //
+    Property settingsBeanProperty_2 = BeanProperty.create("capitalWordsInTitles");
+    Property jCheckBoxBeanProperty_3 = BeanProperty.create("selected");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2, chckbxCapitalizeWords,
+        jCheckBoxBeanProperty_3);
+    autoBinding_2.bind();
+    //
+    Property movieSettingsBeanProperty = BeanProperty.create("doNotOverwriteExistingData");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxDoNotOverwrite,
+        jCheckBoxBeanProperty);
+    autoBinding_3.bind();
   }
 }

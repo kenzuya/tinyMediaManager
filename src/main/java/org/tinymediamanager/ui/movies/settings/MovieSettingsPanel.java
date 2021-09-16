@@ -20,9 +20,11 @@ import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.C
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PLOT;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGLINE;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
@@ -128,6 +130,8 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                                        chckbxUniversalProducers;
   private JCheckBox                                        chckbxUniversalDirectors;
   private JCheckBox                                        chckbxUniversalWriters;
+  private JCheckBox                                        chckbxUniversalPlot;
+  private JCheckBox                                        chckbxUniversalTagLine;
 
   private JCheckBox                                        chckbxTraktSyncWatched;
   private JCheckBox                                        chckbxTraktSyncRating;
@@ -265,6 +269,12 @@ public class MovieSettingsPanel extends JPanel {
     if (chckbxUniversalDirectors.isSelected()) {
       universalFilterFields.add(DIRECTOR);
     }
+    if (chckbxUniversalPlot.isSelected()) {
+      universalFilterFields.add(PLOT);
+    }
+    if (chckbxUniversalTagLine.isSelected()) {
+      universalFilterFields.add(TAGLINE);
+    }
     settings.setUniversalFilterFields(universalFilterFields);
 
     // metadata
@@ -331,6 +341,12 @@ public class MovieSettingsPanel extends JPanel {
         case WRITER:
           chckbxUniversalWriters.setSelected(true);
           break;
+
+        case PLOT:
+          chckbxUniversalPlot.setSelected(true);
+
+        case TAGLINE:
+          chckbxUniversalTagLine.setSelected(true);
       }
     }
 
@@ -345,6 +361,8 @@ public class MovieSettingsPanel extends JPanel {
     chckbxUniversalProducers.addItemListener(checkBoxListener);
     chckbxUniversalDirectors.addItemListener(checkBoxListener);
     chckbxUniversalWriters.addItemListener(checkBoxListener);
+    chckbxUniversalPlot.addItemListener(checkBoxListener);
+    chckbxUniversalTagLine.addItemListener(checkBoxListener);
 
     // metadata
     for (MovieScraperMetadataConfig value : settings.getMovieCheckMetadata()) {
@@ -448,6 +466,12 @@ public class MovieSettingsPanel extends JPanel {
 
         chckbxUniversalWriters = new JCheckBox(TmmResourceBundle.getString("metatag.writers"));
         panelUiSettings.add(chckbxUniversalWriters, "cell 2 4");
+
+        chckbxUniversalPlot = new JCheckBox(TmmResourceBundle.getString("metatag.plot"));
+        panelUiSettings.add(chckbxUniversalPlot, "cell 2 4");
+
+        chckbxUniversalTagLine = new JCheckBox(TmmResourceBundle.getString("metatag.tagline"));
+        panelUiSettings.add(chckbxUniversalTagLine, "cell 2 4");
       }
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));

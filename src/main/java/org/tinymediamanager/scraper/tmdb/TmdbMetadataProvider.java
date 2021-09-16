@@ -92,7 +92,8 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
       }
 
       try {
-        api = new Tmdb(getApiKey()) {
+        String userApiKey = providerInfo.getConfig().getValue("apiKey");
+        api = new Tmdb(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey()) {
           // tell the tmdb api to use our OkHttp client
 
           @Override
