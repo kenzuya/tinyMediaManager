@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -50,7 +49,7 @@ public class MovieFilenameFilter extends AbstractTextMovieUIFilter {
     }
 
     try {
-      for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.VIDEO)) {
+      for (MediaFile mediaFile : movie.getMediaFiles()) {
         Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
         if (matcher.find()) {
           return true;

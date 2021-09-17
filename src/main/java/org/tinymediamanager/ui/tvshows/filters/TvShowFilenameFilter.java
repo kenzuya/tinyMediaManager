@@ -22,7 +22,6 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -54,7 +53,7 @@ public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
         }
         else {
           // actual file name
-          for (MediaFile mediaFile : episode.getMediaFiles(MediaFileType.VIDEO)) {
+          for (MediaFile mediaFile : episode.getMediaFiles()) {
             matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
             if (matcher.find()) {
               foundEpisode = true;

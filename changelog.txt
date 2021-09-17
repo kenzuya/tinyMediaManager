@@ -11,6 +11,7 @@ x enhanced loading times of internal scrapers
 x fix detection of paths in skip folders #1493
 x fix detection of multiple trailers (Zidoo style) #1398 #1413
 x lowered defaults for completeness check
+x enhanced the filename filter to run against all media files
 
 
 Version 4.2.1.2
