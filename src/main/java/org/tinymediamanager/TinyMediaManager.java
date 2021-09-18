@@ -373,7 +373,7 @@ public final class TinyMediaManager {
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
               // special case nightly/git: if same snapshot version, do not display changelog
-              showChangelog();
+              SwingUtilities.invokeLater(WhatsNewDialog::showChangelog);
             }
 
             // did we just upgrade to v4?
@@ -513,11 +513,6 @@ public final class TinyMediaManager {
             }
           }
         }
-      }
-
-      private void showChangelog() {
-        // read the changelog
-        WhatsNewDialog.showChangelog();
       }
     });
   }
