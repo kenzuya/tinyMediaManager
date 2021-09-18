@@ -38,10 +38,14 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
@@ -50,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -374,6 +379,15 @@ public final class TinyMediaManager {
             // did we just upgrade to v4?
             if (newVersion && UpgradeTasks.getOldVersion().startsWith("3")) {
               restartWarningAfterV4Upgrade();
+            }
+
+            // is the license about to running out?
+            if (License.getInstance().isValidLicense()) {
+              LocalDate validUntil = License.getInstance().validUntil();
+              if (validUntil != null && validUntil.minus(7, ChronoUnit.DAYS).isBefore(LocalDate.now())) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(window, TmmResourceBundle.getString("tmm.renewlicense")
+                    .replace("{}", TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil)))));
+              }
             }
 
             // If auto update on start for movies data sources is enable, execute it
