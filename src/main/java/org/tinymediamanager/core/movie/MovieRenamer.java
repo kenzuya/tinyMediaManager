@@ -1484,7 +1484,7 @@ public class MovieRenamer {
     return result.replaceAll("\\\\", " ");
   }
 
-  private static class MovieNamedFirstCharacterRenderer implements NamedRenderer {
+  public static class MovieNamedFirstCharacterRenderer implements NamedRenderer {
     private static final Pattern FIRST_ALPHANUM_PATTERN = Pattern.compile("[\\p{L}\\d]");
 
     @Override
@@ -1528,7 +1528,7 @@ public class MovieRenamer {
     }
   }
 
-  private static class MovieNamedIndexOfMovieSetRenderer implements NamedRenderer {
+  public static class MovieNamedIndexOfMovieSetRenderer implements NamedRenderer {
 
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {

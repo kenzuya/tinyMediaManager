@@ -36,7 +36,7 @@ public class MoviePostProcessDialog extends PostProcessDialog {
 
   @Override
   public void save() {
-    if (StringUtils.isBlank(tfProcessName.getText()) || StringUtils.isBlank(tfCommand.getText()) || StringUtils.isBlank(tfPath.getText())) {
+    if (StringUtils.isBlank(tfProcessName.getText()) || (StringUtils.isBlank(tfCommand.getText()) && StringUtils.isBlank(tfPath.getText()))) {
 
       JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.missingitems"));
       return;
@@ -49,7 +49,7 @@ public class MoviePostProcessDialog extends PostProcessDialog {
     }
 
     process.setName(tfProcessName.getText());
-    process.setCommand(tfCommand.getText().replace('\n', ' '));
+    process.setCommand(tfCommand.getText());
     process.setPath(tfPath.getText());
 
     MovieModuleManager.getInstance().getSettings().forceSaveSettings();

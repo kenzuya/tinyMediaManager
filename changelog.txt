@@ -15,6 +15,7 @@ x lowered defaults for completeness check
 x enhanced the filename filter to run against all media files
 x reverted fetching of translated episodes in the episode chooser (because it was too slow)
 x (IMDB) allow unassigned episodes to be scraped #1494
+x several fixes for post-processing management
 
 
 Version 4.2.1.2

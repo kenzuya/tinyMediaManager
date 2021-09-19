@@ -52,6 +52,7 @@ public abstract class PostProcessDialog extends TmmDialog {
 
   public PostProcessDialog() {
     super(TmmResourceBundle.getString("Settings.addpostprocess"), "addPostProcess");
+    setName("PostProcessDialog");
 
     {
       JPanel panelContent = new JPanel();
@@ -112,9 +113,11 @@ public abstract class PostProcessDialog extends TmmDialog {
 
   public void setProcess(PostProcess process) {
     this.process = process;
-    this.tfProcessName.setText(process.getName());
-    this.tfPath.setText(process.getPath());
-    this.tfCommand.setText(process.getCommand());
+    if (this.process != null) {
+      this.tfProcessName.setText(process.getName());
+      this.tfPath.setText(process.getPath());
+      this.tfCommand.setText(process.getCommand());
+    }
   }
 
   private class CancelAction extends AbstractAction {

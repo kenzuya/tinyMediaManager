@@ -118,7 +118,6 @@ public final class TvShowSettings extends AbstractSettings {
   static final String                            TITLE                                  = "title";
   static final String                            ORIGINAL_TITLE                         = "originalTitle";
   static final String                            NOTE                                   = "note";
-  static final String                            TV_SHOW_POST_PROCESS                   = "postProcessTvShow";
 
   final List<String>                             tvShowDataSources                      = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             badWords                               = ObservableCollections.observableList(new ArrayList<>());
@@ -126,7 +125,8 @@ public final class TvShowSettings extends AbstractSettings {
   final List<String>                             trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
-  final List<PostProcess>                        postProcess                            = ObservableCollections.observableList(new ArrayList<>());
+  final List<PostProcess>                        postProcessTvShow                      = ObservableCollections.observableList(new ArrayList<>());
+  final List<PostProcess>                        postProcessEpisode                     = ObservableCollections.observableList(new ArrayList<>());
   final List<TvShowNfoNaming>                    nfoFilenames                           = new ArrayList<>();
   final List<TvShowPosterNaming>                 posterFilenames                        = new ArrayList<>();
   final List<TvShowFanartNaming>                 fanartFilenames                        = new ArrayList<>();
@@ -1663,23 +1663,43 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public void addPostProcessTvShow(PostProcess newProcess) {
-    postProcess.add(newProcess);
-    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+    postProcessTvShow.add(newProcess);
+    firePropertyChange("postProcessTvShow", null, postProcessTvShow);
   }
 
   public void removePostProcessTvShow(PostProcess process) {
-    postProcess.remove(process);
-    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+    postProcessTvShow.remove(process);
+    firePropertyChange("postProcessTvShow", null, postProcessTvShow);
   }
 
   public List<PostProcess> getPostProcessTvShow() {
-    return postProcess;
+    return postProcessTvShow;
   }
 
   public void setPostProcessTvShow(List<PostProcess> newValues) {
-    postProcess.clear();
-    postProcess.addAll(newValues);
-    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+    postProcessTvShow.clear();
+    postProcessTvShow.addAll(newValues);
+    firePropertyChange("postProcessTvShow", null, postProcessTvShow);
+  }
+
+  public void addPostProcessEpisode(PostProcess newProcess) {
+    postProcessEpisode.add(newProcess);
+    firePropertyChange("postProcessEpisode", null, postProcessEpisode);
+  }
+
+  public void removePostProcessEpisode(PostProcess process) {
+    postProcessEpisode.remove(process);
+    firePropertyChange("postProcessEpisode", null, postProcessEpisode);
+  }
+
+  public List<PostProcess> getPostProcessEpisode() {
+    return postProcessEpisode;
+  }
+
+  public void setPostProcessEpisode(List<PostProcess> newValues) {
+    postProcessEpisode.clear();
+    postProcessEpisode.addAll(newValues);
+    firePropertyChange("postProcessEpisode", null, postProcessEpisode);
   }
 
   public void setUniversalFilterFields(List<UniversalFilterFields> fields) {

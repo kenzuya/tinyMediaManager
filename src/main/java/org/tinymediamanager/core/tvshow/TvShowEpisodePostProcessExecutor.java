@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.core.movie;
+package org.tinymediamanager.core.tvshow;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,36 +29,43 @@ import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
-import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import com.floreysoft.jmte.Engine;
 
 /**
- * the class {@link MoviePostProcessExecutor} executes post process steps for movies
- * 
+ * the class {@link TvShowEpisodePostProcessExecutor} executes post process steps for movies
+ *
  * @author Wolfgang Janes
  */
-public class MoviePostProcessExecutor extends PostProcessExecutor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MoviePostProcessExecutor.class);
+public class TvShowEpisodePostProcessExecutor extends PostProcessExecutor {
 
-  public MoviePostProcessExecutor(PostProcess postProcess) {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowEpisodePostProcessExecutor.class);
+
+  public TvShowEpisodePostProcessExecutor(PostProcess postProcess) {
     super(postProcess);
   }
 
   public void execute() {
-    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
-    for (Movie movie : selectedMovies) {
-      String[] command = substituteMovieTokens(movie);
-      // Execute File
+    for (TvShowEpisode episode : selectedEpisodes) {
+      Map<String, Object> mappings = new HashMap<>();
+      mappings.put("tvShow", episode.getTvShow());
+      mappings.put("season", episode.getTvShowSeason());
+      mappings.put("episode", episode);
+
+      String[] command = substituteTokens(mappings);
+
       try {
-        executeCommand(command, movie);
+        executeCommand(command, episode);
       }
       catch (InterruptedException e) {
         // ignored
@@ -71,28 +77,25 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     }
   }
 
-  private String[] substituteMovieTokens(Movie movie) {
+  private String[] substituteTokens(Map<String, Object> mappings) {
     Engine engine = Engine.createEngine();
     engine.registerRenderer(Number.class, new ZeroNumberRenderer());
     engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedNumberRenderer());
     engine.registerNamedRenderer(new NamedUpperCaseRenderer());
     engine.registerNamedRenderer(new NamedLowerCaseRenderer());
     engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-    engine.registerNamedRenderer(new MovieRenamer.MovieNamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new TvShowRenamer.TvShowNamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new NamedArrayRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
-    engine.registerNamedRenderer(new MovieRenamer.MovieNamedIndexOfMovieSetRenderer());
 
     engine.setModelAdaptor(new TmmModelAdaptor());
 
-    Map<String, Object> root = new HashMap<>();
-    root.put("movie", movie);
-
     String[] splitted = postProcess.getCommand().split("\\n");
     for (int i = 0; i < splitted.length; i++) {
-      splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], MovieRenamer.getTokenMap()), root);
+      splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], TvShowRenamer.getTokenMap()), mappings);
     }
     return splitted;
   }
