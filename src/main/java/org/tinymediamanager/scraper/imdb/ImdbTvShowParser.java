@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -271,18 +273,25 @@ public class ImdbTvShowParser extends ImdbParser {
     List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
     MediaMetadata wantedEpisode = null;
-    for (MediaMetadata episode : episodes) {
-      if (StringUtils.isNotBlank(episodeId)) {
-        // search via episode imdb id
+
+    // search by ID
+    if (StringUtils.isNotBlank(episodeId)) {
+      for (MediaMetadata episode : episodes) {
         if (episodeId.equals(episode.getId(MediaMetadata.IMDB))) {
           wantedEpisode = episode;
           break;
         }
       }
-      else if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
-        // search via season/episode number
-        wantedEpisode = episode;
-        break;
+    }
+
+    // search by S/E
+    if (wantedEpisode == null) {
+      for (MediaMetadata episode : episodes) {
+        if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+          // search via season/episode number
+          wantedEpisode = episode;
+          break;
+        }
       }
     }
 
@@ -329,7 +338,6 @@ public class ImdbTvShowParser extends ImdbParser {
 
         try {
           Document doc = futureReference.get();
-
           if (doc != null) {
             // director
             Element directorsElement = doc.getElementById("directors");
@@ -495,7 +503,8 @@ public class ImdbTvShowParser extends ImdbParser {
     Document doc;
     Url url;
     try {
-      url = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"));
+      // cache this on disk because that may be called multiple times
+      url = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"), 300, TimeUnit.SECONDS);
       url.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
     }
     catch (Exception e) {
