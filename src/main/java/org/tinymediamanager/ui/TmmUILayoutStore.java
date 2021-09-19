@@ -187,6 +187,8 @@ public class TmmUILayoutStore implements AWTEventListener {
 
       if (rect.width == 0 && rect.height == 0) {
         // nothing found for that dialog
+        dialog.pack();
+        dialog.setLocationRelativeTo(dialog.getParent());
         return;
       }
 

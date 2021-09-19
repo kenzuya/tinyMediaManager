@@ -68,6 +68,7 @@ public class MoviePostProcessingSettingsPanel extends JPanel {
       dialog.pack();
       dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
+      tablePostProcesses.adjustColumnPreferredWidths(5);
     });
 
     btnRemoveProcess.addActionListener(e -> {
@@ -77,6 +78,7 @@ public class MoviePostProcessingSettingsPanel extends JPanel {
       if (row != -1) {
         PostProcess process = settings.getPostProcess().get(row);
         settings.removePostProcess(process);
+        tablePostProcesses.adjustColumnPreferredWidths(5);
       }
     });
 
@@ -92,6 +94,7 @@ public class MoviePostProcessingSettingsPanel extends JPanel {
           dialog.pack();
           dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
+          tablePostProcesses.adjustColumnPreferredWidths(5);
         }
       }
     });

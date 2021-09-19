@@ -697,7 +697,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       MediaScraper scraper = (MediaScraper) cbScraper.getSelectedItem();
-      TvShowEpisodeChooserDialog dialog = new TvShowEpisodeChooserDialog(episodeToEdit, scraper);
+      TvShowEpisodeChooserDialog dialog = new TvShowEpisodeChooserDialog(TvShowEpisodeEditorDialog.this, episodeToEdit, scraper);
       dialog.setLocationRelativeTo(TvShowEpisodeEditorDialog.this);
       dialog.setVisible(true);
       MediaMetadata metadata = dialog.getMetadata();
@@ -899,7 +899,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
   private class ScrapeTask extends SwingWorker<Void, Void> {
     private final MediaScraper mediaScraper;
-    private MediaMetadata metadata = null;
+    private MediaMetadata      metadata = null;
 
     ScrapeTask(MediaScraper mediaScraper) {
       this.mediaScraper = mediaScraper;
@@ -911,6 +911,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(episodeToEdit.getTvShow().getIds());
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
 
+      for (MediaIdTable.MediaId mediaId : ids) {
+        options.setId(mediaId.key, mediaId.value);
+      }
       options.setId(MediaMetadata.SEASON_NR, spSeason.getValue().toString());
       options.setId(MediaMetadata.EPISODE_NR, spEpisode.getValue().toString());
 

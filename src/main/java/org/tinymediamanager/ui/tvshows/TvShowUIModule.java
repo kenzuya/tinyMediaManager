@@ -32,6 +32,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowEpisodePostProcessExecutor;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowPostProcessExecutor;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -368,25 +369,40 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
         // Post processing
         postProcessingMenu.removeAll();
-        for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow())) {
-          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY_INV);
-          menuItem.addActionListener(pp -> new TvShowPostProcessExecutor(process).execute());
-          postProcessingMenu.add(menuItem);
-        }
-        if (postProcessingMenu.getItemCount() == 0) {
+
+        if (TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow().isEmpty()
+            && TvShowModuleManager.getInstance().getSettings().getPostProcessEpisode().isEmpty()) {
           postProcessingMenu.setEnabled(false);
         }
         else {
+          for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow())) {
+            JMenuItem menuItem = new JMenuItem(TmmResourceBundle.getString("metatag.tvshow") + " - " + process.getName(), IconManager.APPLY_INV);
+            menuItem.addActionListener(pp -> new TvShowPostProcessExecutor(process).execute());
+            postProcessingMenu.add(menuItem);
+          }
+
+          if (postProcessingMenu.getItemCount() != 0) {
+            postProcessingMenu.addSeparator();
+          }
+
+          for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessEpisode())) {
+            JMenuItem menuItem = new JMenuItem(TmmResourceBundle.getString("metatag.episode") + " - " + process.getName(), IconManager.APPLY_INV);
+            menuItem.addActionListener(pp -> new TvShowEpisodePostProcessExecutor(process).execute());
+            postProcessingMenu.add(menuItem);
+          }
+
           postProcessingMenu.setEnabled(true);
         }
       }
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
       }
 
       @Override
       public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
       }
     });
 

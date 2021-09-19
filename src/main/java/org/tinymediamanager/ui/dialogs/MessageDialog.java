@@ -28,8 +28,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 
@@ -41,13 +47,15 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MessageDialog extends TmmDialog {
-  private static final long serialVersionUID = -9035402766767310658L;
+  private static final long   serialVersionUID = -9035402766767310658L;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(MessageDialog.class);
 
-  private final JLabel      lblImage;
-  private final JTextPane   tpText;
-  private final JTextPane   tpDescription;
-  private final JScrollPane scrollPane;
-  private final JTextPane   textPane;
+  private final JLabel        lblImage;
+  private final JTextPane     tpText;
+  private final JTextPane     tpDescription;
+  private final JScrollPane   scrollPane;
+  private final JTextPane     textPane;
+  private final LinkLabel     lblLink;
 
   public MessageDialog(Window owner, String title) {
     super(owner, title, "messageDialog");
@@ -56,7 +64,7 @@ public class MessageDialog extends TmmDialog {
 
     {
       JPanel panelContent = new JPanel();
-      panelContent.setLayout(new MigLayout("hidemode 1", "[][500lp,grow]", "[][][300lp,grow]"));
+      panelContent.setLayout(new MigLayout("hidemode 3", "[][600lp:800lp,grow]", "[][][][400lp:600lp,grow]"));
       getContentPane().add(panelContent, BorderLayout.CENTER);
       {
         lblImage = new JLabel("");
@@ -75,10 +83,25 @@ public class MessageDialog extends TmmDialog {
         panelContent.add(tpDescription, "cell 1 1,growx");
       }
       {
+        lblLink = new LinkLabel();
+        lblLink.setVisible(false);
+        lblLink.addActionListener(arg0 -> {
+          try {
+            TmmUIHelper.browseUrl(lblLink.getText());
+          }
+          catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            MessageManager.instance.pushMessage(
+                new Message(Message.MessageLevel.ERROR, lblLink.getText(), "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+          }
+        });
+        panelContent.add(lblLink, "cell 1 2");
+      }
+      {
         scrollPane = new NoBorderScrollPane();
         scrollPane.setVisible(false);
         scrollPane.setPreferredSize(new Dimension(600, 200));
-        panelContent.add(scrollPane, "cell 0 2 2 1,grow");
+        panelContent.add(scrollPane, "cell 0 3 2 1,grow");
         {
           textPane = new JTextPane();
           textPane.setVisible(false);
@@ -109,6 +132,11 @@ public class MessageDialog extends TmmDialog {
     tpDescription.setVisible(true);
   }
 
+  public void setLink(String link) {
+    lblLink.setText(link);
+    lblLink.setVisible(true);
+  }
+
   public void setDetails(String details) {
     textPane.setText(details);
     textPane.setVisible(true);
@@ -120,11 +148,16 @@ public class MessageDialog extends TmmDialog {
     MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
 
     dialog.setImage(IconManager.ERROR);
-    String msg = ex.getLocalizedMessage();
-    dialog.setText(msg != null ? msg : "");
-    dialog.setDescription(TmmResourceBundle.getString("tmm.uicrash"));
+    if (ex instanceof OutOfMemoryError) {
+      dialog.setDescription(TmmResourceBundle.getString("tmm.oom"));
+      dialog.setLink("https://www.tinymediamanager.org/help/faq#java-heap-space-errors");
+    }
+    else {
+      String msg = ex.getLocalizedMessage();
+      dialog.setText(msg != null ? msg : "");
+      dialog.setDescription(TmmResourceBundle.getString("tmm.uicrash"));
+    }
     dialog.setDetails(stackStraceAsString(ex));
-    dialog.setAlwaysOnTop(true);
     dialog.setVisible(true);
   }
 

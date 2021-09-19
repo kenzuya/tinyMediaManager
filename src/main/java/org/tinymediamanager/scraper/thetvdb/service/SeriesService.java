@@ -78,6 +78,24 @@ public interface SeriesService {
   Call<SeriesEpisodesResponse> getSeriesEpisodes(@Path("id") long id, @Path("season-type") SeasonType seasonType, @Query("page") long page);
 
   /**
+   *
+   * Returns series episodes with translated data
+   *
+   * @param id
+   *          id
+   * @param seasonType
+   *          the season type
+   * @param page
+   *          the page
+   * @param language
+   *          the language
+   * @return Call&lt;SeriesExtendedResponse&gt;
+   */
+  @GET("series/{id}/episodes/{season-type}/{lang}")
+  Call<SeriesEpisodesResponse> getSeriesEpisodes(@Path("id") long id, @Path("season-type") SeasonType seasonType, @Path("lang") String language,
+      @Query("page") long page);
+
+  /**
    * 
    * Returns series translation record
    * 

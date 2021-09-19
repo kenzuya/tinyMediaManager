@@ -190,7 +190,7 @@ public class ToolbarPanel extends JPanel {
       lblUnlock.setVisible(false);
 
       LocalDate validUntil = License.getInstance().validUntil();
-      if (validUntil.minus(14, ChronoUnit.DAYS).isBefore(LocalDate.now())) {
+      if (validUntil != null && validUntil.minus(14, ChronoUnit.DAYS).isBefore(LocalDate.now())) {
         btnRenewLicense.setVisible(true);
         lblRenewLicense.setVisible(true);
       }

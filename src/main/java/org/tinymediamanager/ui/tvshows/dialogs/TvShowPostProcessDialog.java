@@ -22,6 +22,7 @@ import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.ui.dialogs.PostProcessDialog;
+import org.tinymediamanager.ui.dialogs.SettingsDialog;
 
 /**
  * the class {@link TvShowPostProcessDialog} is used to maintain post process actions for movies
@@ -30,13 +31,45 @@ import org.tinymediamanager.ui.dialogs.PostProcessDialog;
  */
 public class TvShowPostProcessDialog extends PostProcessDialog {
 
-  public TvShowPostProcessDialog() {
+  enum Type {
+    TV_SHOW,
+    EPISODE
+  }
+
+  private final Type type;
+
+  private TvShowPostProcessDialog(Type type) {
     super();
+    this.type = type;
+  }
+
+  public static void showTvShowPostProcessDialog() {
+    showTvShowPostProcessDialog(null);
+  }
+
+  public static void showTvShowPostProcessDialog(PostProcess process) {
+    PostProcessDialog dialog = new TvShowPostProcessDialog(Type.TV_SHOW);
+    dialog.setProcess(process);
+    dialog.pack();
+    dialog.setLocationRelativeTo(SettingsDialog.getInstance());
+    dialog.setVisible(true);
+  }
+
+  public static void showEpisodePostProcessDialog() {
+    showEpisodePostProcessDialog(null);
+  }
+
+  public static void showEpisodePostProcessDialog(PostProcess process) {
+    PostProcessDialog dialog = new TvShowPostProcessDialog(Type.EPISODE);
+    dialog.setProcess(process);
+    dialog.pack();
+    dialog.setLocationRelativeTo(SettingsDialog.getInstance());
+    dialog.setVisible(true);
   }
 
   @Override
   protected void save() {
-    if (StringUtils.isBlank(tfProcessName.getText()) || StringUtils.isBlank(tfCommand.getText()) || StringUtils.isBlank(tfPath.getText())) {
+    if (StringUtils.isBlank(tfProcessName.getText()) || (StringUtils.isBlank(tfCommand.getText()) && StringUtils.isBlank(tfPath.getText()))) {
 
       JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.missingitems"));
       return;
@@ -45,7 +78,18 @@ public class TvShowPostProcessDialog extends PostProcessDialog {
     // create a new post-process
     if (process == null) {
       process = new PostProcess();
-      TvShowModuleManager.getInstance().getSettings().addPostProcessTvShow(process);
+      switch (type) {
+        case TV_SHOW:
+          TvShowModuleManager.getInstance().getSettings().addPostProcessTvShow(process);
+          break;
+
+        case EPISODE:
+          TvShowModuleManager.getInstance().getSettings().addPostProcessEpisode(process);
+          break;
+
+        default:
+          return;
+      }
     }
 
     process.setName(tfProcessName.getText());
