@@ -591,15 +591,15 @@ public class ImdbTvShowParser extends ImdbParser {
     for (Element table : tables) {
       Elements rows = table.getElementsByClass("list_item");
       for (Element row : rows) {
-        Matcher matcher = season == 0 ? unknownPattern.matcher(row.text()) : seasonEpisodePattern.matcher(row.text());
-        if (matcher.find() && (season == 0 || matcher.groupCount() >= 2)) {
+        Matcher matcher = season <= 0 ? unknownPattern.matcher(row.text()) : seasonEpisodePattern.matcher(row.text());
+        if (matcher.find() && (season <= 0 || matcher.groupCount() >= 2)) {
           try {
             // we found a row containing episode data
             MediaMetadata ep = new MediaMetadata(ImdbMetadataProvider.ID);
 
             // parse season and ep number
-            if (season == 0) {
-              ep.setSeasonNumber(season);
+            if (season <= 0) {
+              ep.setSeasonNumber(0);
               ep.setEpisodeNumber(++episodeCounter);
             }
             else {

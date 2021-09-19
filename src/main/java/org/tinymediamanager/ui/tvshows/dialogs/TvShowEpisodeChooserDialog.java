@@ -223,7 +223,8 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     // column widths
     table.getColumnModel().getColumn(0).setMaxWidth(50);
     table.getColumnModel().getColumn(1).setMaxWidth(50);
-    table.getColumnModel().getColumn(2).setMaxWidth(120);
+    table.getColumnModel().getColumn(2).setMinWidth(100);
+    table.getColumnModel().getColumn(2).setMaxWidth(110);
 
     task = new SearchTask();
     task.execute();
