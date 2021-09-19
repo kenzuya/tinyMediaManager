@@ -39,8 +39,14 @@ public class EpisodeBaseRecord {
   @SerializedName("name")
   public String                 name                 = null;
 
+  // used to inject translations
+  public String                 originalName         = null;
+
   @SerializedName("nameTranslations")
   public List<String>           nameTranslations     = null;
+
+  @SerializedName("overview")
+  public String                 overview             = null;
 
   @SerializedName("overviewTranslations")
   public List<String>           overviewTranslations = null;

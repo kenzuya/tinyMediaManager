@@ -439,7 +439,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
     assertThat(results).isNotNull();
     assertThat(results).isNotEmpty();
 
-    assertEquals("Lucky # Slevin", results.get(0).getTitle());
+    assertEquals("Lucky Number Slevin", results.get(0).getTitle());
     assertEquals(2006, results.get(0).getYear());
   }
 

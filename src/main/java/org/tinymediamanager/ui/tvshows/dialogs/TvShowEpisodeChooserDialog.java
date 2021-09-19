@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -102,8 +103,8 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
   private JTextArea                                              taPlot;
 
-  public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
-    super(TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
+  public TvShowEpisodeChooserDialog(JDialog parent, TvShowEpisode ep, MediaScraper mediaScraper) {
+    super(parent, TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
 
     this.episode = ep;
     this.mediaScraper = mediaScraper;
@@ -126,7 +127,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("", "[700lp:800lp,grow]", "[500lp,grow]"));
+    contentPanel.setLayout(new MigLayout("", "[700lp:900lp,grow]", "[500lp,grow]"));
 
     {
       JSplitPane splitPane = new JSplitPane();
@@ -135,7 +136,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       contentPanel.add(splitPane, "cell 0 0,grow");
 
       JPanel panelLeft = new JPanel();
-      panelLeft.setLayout(new MigLayout("", "[250lp:300lp,grow]", "[][400lp,grow]"));
+      panelLeft.setLayout(new MigLayout("", "[350lp:450lp,grow]", "[][400lp,grow]"));
 
       textField = EnhancedTextField.createSearchTextField();
       panelLeft.add(textField, "cell 0 0, growx");
