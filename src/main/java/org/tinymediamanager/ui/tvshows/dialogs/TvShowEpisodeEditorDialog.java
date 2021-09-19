@@ -911,6 +911,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(episodeToEdit.getTvShow().getIds());
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
 
+      for (MediaIdTable.MediaId mediaId : ids) {
+        options.setId(mediaId.key, mediaId.value);
+      }
       options.setId(MediaMetadata.SEASON_NR, spSeason.getValue().toString());
       options.setId(MediaMetadata.EPISODE_NR, spEpisode.getValue().toString());
 
