@@ -27,6 +27,6 @@ public abstract class ClearFilterPresetAction extends TmmAction {
 
   public ClearFilterPresetAction() {
     putValue(NAME, TmmResourceBundle.getString("filter.reset"));
-    putValue(SMALL_ICON, IconManager.DELETE_FOREVER);
+    putValue(SMALL_ICON, IconManager.DELETE);
   }
 }

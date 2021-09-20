@@ -2299,6 +2299,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
           ok = false;
         }
       }
+
+      // also try to remove the folder (if it is empty)
+      try {
+        Utils.deleteEmptyDirectoryRecursive(getPathNIO());
+      }
+      catch (Exception ignored) {
+        // just ignore
+      }
+
       return ok;
     }
     else {

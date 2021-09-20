@@ -159,7 +159,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
         panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMain.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
         panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieNewMoviesFilter(), panelMain);
@@ -181,7 +181,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
         panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMetadata.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
         panelMetadata.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieYearFilter(), panelMetadata);
@@ -210,7 +210,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
         panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelVideo.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
         panelVideo.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieVideoFormatFilter(), panelVideo);
@@ -232,7 +232,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
         panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelAudio.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
         panelAudio.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieAudioCodecFilter(), panelAudio);
@@ -252,7 +252,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelOther.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
         panelOther.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelOther.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelOther.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
         panelOther.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieMediaSourceFilter(), panelOther);
