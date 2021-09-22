@@ -56,8 +56,8 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     for (Movie movie : selectedMovies) {
+      LOGGER.info("PostProcessing: START {}", postProcess);
       String[] command = substituteMovieTokens(movie);
-      // Execute File
       try {
         executeCommand(command, movie);
       }
@@ -90,10 +90,18 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     Map<String, Object> root = new HashMap<>();
     root.put("movie", movie);
 
-    String[] splitted = postProcess.getCommand().split("\\n");
-    for (int i = 0; i < splitted.length; i++) {
-      splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], MovieRenamer.getTokenMap()), root);
+    if (postProcess.getPath() == null) {
+      // scripting mode - transform as single string
+      String transformed = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), MovieRenamer.getTokenMap()), root);
+      return new String[] { transformed };
     }
-    return splitted;
+    else {
+      // parameter mode - transform every line to have separated params
+      String[] splitted = postProcess.getCommand().split("\\n");
+      for (int i = 0; i < splitted.length; i++) {
+        splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], MovieRenamer.getTokenMap()), root);
+      }
+      return splitted;
+    }
   }
 }
