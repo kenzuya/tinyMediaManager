@@ -583,6 +583,15 @@ public class TvShowArtworkHelper {
       try {
         Path destFile = ImageUtils.downloadImage(url, destinationPath, filename);
 
+        // if the old filename differs from the new one (e.g. .jpg -> .png), remove the old one
+        if (StringUtils.isNotBlank(oldFilename)) {
+          Path oldFile = Paths.get(oldFilename);
+          if (!oldFile.equals(destFile)) {
+            ImageCache.invalidateCachedImage(oldFile);
+            Utils.deleteFileSafely(oldFile);
+          }
+        }
+
         // invalidate image cache
         if (tvShowSeason != null) {
           MediaFile mf = new MediaFile(destFile, MediaFileType.getMediaFileType(artworkType));
