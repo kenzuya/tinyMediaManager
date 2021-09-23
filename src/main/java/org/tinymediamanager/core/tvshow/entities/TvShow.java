@@ -2439,6 +2439,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case CHARACTERART:
         return getMediaFiles(MediaFileType.CHARACTERART);
 
+      case SEASON_POSTER:
+        return getMediaFiles(MediaFileType.SEASON_POSTER);
+
+      case SEASON_BANNER:
+        return getMediaFiles(MediaFileType.SEASON_BANNER);
+
+      case SEASON_THUMB:
+        return getMediaFiles(MediaFileType.SEASON_THUMB);
+
       case THEME:
         return getMediaFiles(MediaFileType.THEME);
     }
