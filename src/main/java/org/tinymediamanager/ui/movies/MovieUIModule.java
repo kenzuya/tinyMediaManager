@@ -88,7 +88,7 @@ import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieListPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
-import org.tinymediamanager.ui.movies.panels.TrailerPanel;
+import org.tinymediamanager.ui.movies.panels.MovieTrailerPanel;
 import org.tinymediamanager.ui.movies.settings.MovieSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
@@ -139,7 +139,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     tabbedPane.add(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(selectionModel));
     tabbedPane.add(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel));
     tabbedPane.add(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel));
-    tabbedPane.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.trailer"), new MovieTrailerPanel(selectionModel));
     dataPanel.add(tabbedPane);
 
     movieFilterDialog = new MovieFilterDialog(selectionModel);

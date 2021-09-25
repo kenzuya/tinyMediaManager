@@ -44,7 +44,6 @@ import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
-import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
@@ -104,6 +103,7 @@ import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowArtworkPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowCastPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowInformationPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowMediaInformationPanel;
+import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowTrailerPanel;
 import org.tinymediamanager.ui.tvshows.settings.TvShowSettingsNode;
 
 import net.miginfocom.swing.MigLayout;
@@ -156,7 +156,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.cast"), new TvShowCastPanel(tvShowSelectionModel));
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"), new TvShowMediaInformationPanel(tvShowSelectionModel));
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.artwork"), new TvShowArtworkPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.trailer"), new TvShowTrailerPanel(tvShowSelectionModel));
     dataPanel.add(tvShowDetailPanel, "tvShow");
 
     // panel for seasons
