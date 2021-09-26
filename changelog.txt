@@ -5,6 +5,7 @@ x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
 x cleanup of old season artwork when adding new one #1518
+x fixed check of shipped FFmpeg #1522
 
 
 Version 4.2.2
