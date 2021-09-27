@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -30,11 +31,11 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * the class {@link TvShowFilenameFilter} provides a filter for TV show filenames
+ * the class {@link TvShowVideoFilenameFilter} provides a filter for TV show video filenames
  * 
  * @author Wolfgang Janes
  */
-public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
+public class TvShowVideoFilenameFilter extends AbstractTextTvShowUIFilter {
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
     if (StringUtils.isBlank(normalizedFilterText)) {
@@ -42,23 +43,23 @@ public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
     }
 
     try {
-      // TV show
-      for (MediaFile mediaFile : tvShow.getMediaFiles()) {
-        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
-        if (matcher.find()) {
-          return true;
-        }
-      }
-
-      // episodes
+      // filter on the actual / original filename of the episodes
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
 
-        for (MediaFile mediaFile : episode.getMediaFiles()) {
-          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
-          if (matcher.find()) {
-            foundEpisode = true;
-            break;
+        // original file name
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getOriginalFilename()));
+        if (matcher.find()) {
+          foundEpisode = true;
+        }
+        else {
+          // actual file name
+          for (MediaFile mediaFile : episode.getMediaFiles(MediaFileType.VIDEO)) {
+            matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
+            if (matcher.find()) {
+              foundEpisode = true;
+              break;
+            }
           }
         }
 
@@ -82,11 +83,11 @@ public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("metatag.filename"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.videofilename"));
   }
 
   @Override
   public String getId() {
-    return "TvShowFilename";
+    return "tvShowVideoFilename";
   }
 }

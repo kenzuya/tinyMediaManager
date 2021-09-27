@@ -54,18 +54,7 @@ public class MovieFilenameFilter extends AbstractTextMovieUIFilter {
         if (matcher.find()) {
           return true;
         }
-
       }
-
-      // also have a look at the original filename
-      if (StringUtils.isNotEmpty(movie.getOriginalFilename())) {
-        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalFilename()));
-        if (matcher.find()) {
-          return true;
-        }
-
-      }
-
     }
     catch (Exception e) {
       // if any exceptions are thrown, just return true
