@@ -112,7 +112,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
-    config.addSelect(RATINGS, "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("top250", "metatag.top250",
         compatibleScraperIds.contains(MediaMetadata.IMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.IMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
@@ -128,6 +128,16 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         compatibleScraperIds.contains(MediaMetadata.TMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.TMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
     config.load();
+  }
+
+  private List<String> scrapersWithout(List<String> scrapers, String... excludes) {
+    List<String> newScrapers = new ArrayList<>(scrapers);
+
+    for (String scraperToExclude : excludes) {
+      newScrapers.remove(scraperToExclude);
+    }
+
+    return newScrapers;
   }
 
   @Override

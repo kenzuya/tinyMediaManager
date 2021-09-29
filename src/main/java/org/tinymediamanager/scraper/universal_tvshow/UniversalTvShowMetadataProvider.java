@@ -114,7 +114,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
-    config.addSelect(RATINGS, "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("genres", "metatag.genre", compatibleScraperIds, UNDEFINED);
     config.addSelect("certifications", "metatag.certification", compatibleScraperIds, UNDEFINED);
     config.addSelect("productionCompanies", "metatag.studio", compatibleScraperIds, UNDEFINED);
@@ -130,10 +130,20 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodeTitle", "metatag.title", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeCastMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
-    config.addSelect("episodeRatings", "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect("episodeRatings", "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
 
     config.load();
+  }
+
+  private List<String> scrapersWithout(List<String> scrapers, String... excludes) {
+    List<String> newScrapers = new ArrayList<>(scrapers);
+
+    for (String scraperToExclude : excludes) {
+      newScrapers.remove(scraperToExclude);
+    }
+
+    return newScrapers;
   }
 
   @Override
