@@ -7,6 +7,7 @@ x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
 x cleanup of old season artwork when adding new one #1518
 x fixed check of shipped FFmpeg #1522
+x (image chooser) show a warning message when a wrong url has been entered #1530
 
 
 Version 4.2.2
