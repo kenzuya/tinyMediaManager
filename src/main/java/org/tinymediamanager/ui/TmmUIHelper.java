@@ -103,7 +103,7 @@ public class TmmUIHelper {
         return new TinyFileDialogs().chooseDirectory(title, Paths.get(initialPath));
       }
       catch (Exception | Error e) {
-        LOGGER.error("could not call nfd - {}", e.getMessage());
+        LOGGER.error("could not call TinyFileDialogs - {}", e.getMessage());
       }
     }
 
@@ -210,7 +210,7 @@ public class TmmUIHelper {
         return new TinyFileDialogs().openFile(title, Paths.get(initialPath), filterList, filterDescription);
       }
       catch (Exception | Error e) {
-        LOGGER.error("could not call nfd - {}", e.getMessage());
+        LOGGER.error("could not call TinyFileDialogs - {}", e.getMessage());
       }
     }
 
@@ -268,7 +268,7 @@ public class TmmUIHelper {
       }
     }
     else {
-      // try to open with NFD
+      // try to open with TinyFileDialogs
       try {
         String[] filterList = null;
         String filterDescription = null;
@@ -285,7 +285,7 @@ public class TmmUIHelper {
         return new TinyFileDialogs().saveFile(title, Paths.get(initialPath, filename), filterList, filterDescription);
       }
       catch (Exception | Error e) {
-        LOGGER.error("could not call nfd - {}", e.getMessage());
+        LOGGER.error("could not call TinyFileDialogs - {}", e.getMessage());
       }
     }
 
