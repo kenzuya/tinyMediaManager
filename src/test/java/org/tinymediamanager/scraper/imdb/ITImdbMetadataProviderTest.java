@@ -379,6 +379,38 @@ public class ITImdbMetadataProviderTest extends BasicTest {
   }
 
   @Test
+  public void testEpisodeWithoutShowLink() throws Exception {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+    // uncategorized episode "Misfits: Erazer" which is basically an episode from Doctor Who
+    ITvShowMetadataProvider mp = new ImdbTvShowMetadataProvider();
+    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+    TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
+    options.setId(MediaMetadata.IMDB, "tt2358073");
+    options.setLanguage(MediaLanguages.en);
+
+    MediaMetadata md = mp.getMetadata(options);
+
+    // did we get metadata?
+    assertNotNull("MediaMetadata", md);
+
+    assertEquals("Misfits: Erazer", md.getTitle());
+    assertThat(md.getPlot()).isNotEmpty();
+    assertEquals("2011-12-04", sdf.format(md.getReleaseDate()));
+
+    assertThat(md.getRatings()).isNotEmpty();
+    MediaRating mediaRating = md.getRatings().get(0);
+    assertThat(mediaRating.getId()).isNotEmpty();
+    assertThat(mediaRating.getRating()).isGreaterThan(0);
+    assertThat(mediaRating.getVotes()).isGreaterThan(0);
+    assertThat(mediaRating.getMaxValue()).isEqualTo(10);
+
+    assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
+
+    assertThat(md.getCastMembers()).isNotEmpty();
+  }
+
+  @Test
   public void testEpisodeScrapeWithTmdb() {
     ITvShowMetadataProvider mp = null;
     TvShowEpisodeSearchAndScrapeOptions options = null;
