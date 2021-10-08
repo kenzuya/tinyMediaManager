@@ -1176,6 +1176,10 @@ public final class MovieList extends AbstractModelObject {
       movie.clearDuplicate();
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
+        // ignore collection "IDs"
+        if (entry.getKey().equals(Constants.TMDB_SET)) {
+          continue;
+        }
         String id = entry.getKey() + String.valueOf(entry.getValue());
 
         if (duplicates.containsKey(id)) {
