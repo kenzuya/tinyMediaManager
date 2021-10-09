@@ -42,18 +42,17 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
 
   // cast
   ACTORS(Type.CAST),
-  PRODUCERS(Type.CAST),
   DIRECTORS(Type.CAST),
   WRITERS(Type.CAST),
+  @Deprecated
+  PRODUCERS(Type.DEPRECATED),
 
   // artwork
   THUMB(Type.ARTWORK);
 
-  
-
-  private Type                        type;
-  private String                      description;
-  private String                      tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   TvShowEpisodeScraperMetadataConfig(Type type) {
     this(type, null, null);
@@ -127,6 +126,23 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
     for (TvShowEpisodeScraperMetadataConfig config : values()) {
       if (config.type == type) {
         values.add(config);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * get all values except the deprecated ones
+   * 
+   * @return a {@link List} of all values except deprecated ones
+   */
+  public static List<TvShowEpisodeScraperMetadataConfig> getValues() {
+    List<TvShowEpisodeScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED) {
+        values.add(value);
       }
     }
 

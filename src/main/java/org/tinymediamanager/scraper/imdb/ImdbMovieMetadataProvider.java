@@ -81,7 +81,7 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return (new ImdbMovieParser(this, executor)).search(options);
+    return (new ImdbMovieParser(this, EXECUTOR)).search(options);
   }
 
   @Override
@@ -91,6 +91,6 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return (new ImdbMovieParser(this, executor)).getMovieMetadata(options);
+    return (new ImdbMovieParser(this, EXECUTOR)).getMovieMetadata(options);
   }
 }

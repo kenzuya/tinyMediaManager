@@ -62,7 +62,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -90,6 +89,7 @@ import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.connector.ITvShowEpisodeConnector;
+import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToEmbyConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
@@ -251,6 +251,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // the reference to the tv show and the media files are the only things we don't
     // copy
     tvShow = source.tvShow;
+    tvShowId = source.tvShowId;
 
     // clone media files
     for (MediaFile mf : source.getMediaFiles()) {
@@ -264,18 +265,19 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     year = source.year;
     plot = source.plot;
 
-    for (Entry<MediaFileType, String> entry : source.artworkUrlMap.entrySet()) {
-      artworkUrlMap.put(entry.getKey(), entry.getValue());
-    }
+    artworkUrlMap.putAll(source.artworkUrlMap);
 
     dateAdded = new Date(source.dateAdded.getTime());
     scraped = source.scraped;
     ids.putAll(source.ids);
+    mediaSource = source.mediaSource;
 
     episode = source.episode;
     season = source.season;
     dvdEpisode = source.dvdEpisode;
     dvdSeason = source.dvdSeason;
+    displayEpisode = source.displayEpisode;
+    displaySeason = source.displaySeason;
     isDvdOrder = source.isDvdOrder;
 
     if (source.firstAired != null) {
@@ -283,6 +285,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     disc = source.disc;
+    stacked = source.stacked;
+    multiEpisode = source.multiEpisode;
+    titleSortable = source.titleSortable;
+    lastWatched = source.lastWatched;
     watched = source.watched;
     playcount = source.playcount;
 
@@ -299,6 +305,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
     }
     tags.addAll(source.tags);
+    originalFilename = source.originalFilename;
+    dummy = source.dummy;
   }
 
   /**
@@ -821,14 +829,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     ITvShowEpisodeConnector connector = null;
 
     switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
+      case XBMC:
+        connector = new TvShowEpisodeToXbmcConnector(episodesInNfo);
+        break;
+
+      case EMBY:
+        connector = new TvShowEpisodeToEmbyConnector(episodesInNfo);
+        break;
+
       case KODI:
+      case JELLYFIN:
+      case PLEX:
+      case MEDIAPORTAL:
+      default:
         connector = new TvShowEpisodeToKodiConnector(episodesInNfo);
         break;
 
-      case XBMC:
-      default:
-        connector = new TvShowEpisodeToXbmcConnector(episodesInNfo);
-        break;
     }
 
     if (connector != null) {
@@ -836,30 +852,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     firePropertyChange(HAS_NFO_FILE, false, true);
-  }
-
-  /**
-   * Gets the checks for nfo file.
-   * 
-   * @return the checks for nfo file
-   */
-  public Boolean getHasNfoFile() {
-    List<MediaFile> nfos = getMediaFiles(MediaFileType.NFO);
-    return nfos != null && !nfos.isEmpty();
-  }
-
-  /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
-   * @return the checks for images
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getEpisodeCheckImages()) {
-      if (StringUtils.isBlank(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
-        return false;
-      }
-    }
-    return true;
   }
 
   /**
@@ -1276,26 +1268,28 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
-      if (episode == -1) {
-        String episode = mediaFile.getExtraData().get("episode");
-        if (StringUtils.isNotBlank(episode)) {
+      if (getEpisode() == -1) {
+        String e = mediaFile.getExtraData().get("episode");
+        if (StringUtils.isNotBlank(e)) {
           try {
-            setEpisode(Integer.parseInt(episode));
+            setEpisode(Integer.parseInt(e));
             dirty = true;
           }
           catch (Exception ignored) {
+            // ignored
           }
         }
       }
 
-      if (season == -1) {
-        String season = mediaFile.getExtraData().get("season");
-        if (StringUtils.isNotBlank(season)) {
+      if (getSeason() == -1) {
+        String s = mediaFile.getExtraData().get("season");
+        if (StringUtils.isNotBlank(s)) {
           try {
-            setSeason(Integer.parseInt(season));
+            setSeason(Integer.parseInt(s));
             dirty = true;
           }
           catch (Exception ignored) {
+            // ignored
           }
         }
       }
@@ -1806,5 +1800,60 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   public boolean getHasNote() {
     return StringUtils.isNotBlank(note);
+  }
+
+  public Object getValueForMetadata(TvShowEpisodeScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case AIRED_SEASON_EPISODE:
+        if (season == -1 || episode == -1) {
+          return null;
+        }
+        return "S" + season + "E" + episode;
+
+      case DVD_SEASON_EPISODE:
+        if (dvdSeason == -1 || dvdEpisode == -1) {
+          return null;
+        }
+        return "S" + dvdSeason + "E" + dvdEpisode;
+
+      case DISPLAY_SEASON_EPISODE:
+        if (displaySeason == -1 || displayEpisode == -1) {
+          return null;
+        }
+        return "S" + displaySeason + "E" + displayEpisode;
+
+      case TITLE:
+        return getTitle();
+
+      case ORIGINAL_TITLE:
+        return getOriginalTitle();
+
+      case PLOT:
+        return getPlot();
+
+      case AIRED:
+        return getFirstAired();
+
+      case RATING:
+        return getRatings();
+
+      case TAGS:
+        return getTags();
+
+      case ACTORS:
+        return getActors();
+
+      case DIRECTORS:
+        return getDirectors();
+
+      case WRITERS:
+        return getWriters();
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+    }
+
+    return null;
   }
 }

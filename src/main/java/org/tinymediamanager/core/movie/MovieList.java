@@ -112,6 +112,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInMovies;
   private final CopyOnWriteArrayList<String>             decadeInMovies;
   private final CopyOnWriteArrayList<String>             hdrFormatInMovies;
+  private final CopyOnWriteArrayList<String>             audioTitlesInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -140,6 +141,7 @@ public final class MovieList extends AbstractModelObject {
     subtitleLanguagesInMovies = new CopyOnWriteArrayList<>();
     decadeInMovies = new CopyOnWriteArrayList<>();
     hdrFormatInMovies = new CopyOnWriteArrayList<>();
+    audioTitlesInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -414,10 +416,11 @@ public final class MovieList extends AbstractModelObject {
         movie.setDbId(uuid);
 
         // sanity check: only movies with a video file are valid
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          // no video file? drop it
-          LOGGER.info("movie \"{}\" without video file - dropping", movie.getTitle());
+        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource())) {
+          // no video file or path or datasource? drop it
+          LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
           movieMap.remove(uuid);
+          continue;
         }
 
         // for performance reasons we add movies directly
@@ -964,6 +967,7 @@ public final class MovieList extends AbstractModelObject {
     Set<String> audioLanguages = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
+    Set<String> audioTitles = new HashSet<>();
 
     // get Subtitle language from video files and subtitle files
     for (Movie movie : movies) {
@@ -1017,6 +1021,11 @@ public final class MovieList extends AbstractModelObject {
         if (!mf.getHdrFormat().isEmpty()) {
           hdrFormat.add(mf.getHdrFormat());
         }
+
+        // Audio Titles
+        if (!mf.getAudioTitleList().isEmpty()) {
+          audioTitles.addAll(mf.getAudioTitleList());
+        }
       }
     }
 
@@ -1063,6 +1072,11 @@ public final class MovieList extends AbstractModelObject {
     // HDR Format
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInMovies, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInMovies);
+    }
+
+    // AudioTitle
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioTitlesInMovies, audioTitles)) {
+      firePropertyChange(Constants.AUDIO_TITLE, null, audioTitlesInMovies);
     }
   }
 
@@ -1148,45 +1162,35 @@ public final class MovieList extends AbstractModelObject {
     return Collections.unmodifiableList(hdrFormatInMovies);
   }
 
+  public Collection<String> getAudioTitlesInMovies() {
+    return Collections.unmodifiableList(audioTitlesInMovies);
+  }
+
   /**
    * Search duplicates.
    */
   public void searchDuplicates() {
-    Map<String, Movie> imdbDuplicates = new HashMap<>();
-    Map<Integer, Movie> tmdbDuplicates = new HashMap<>();
+    Map<String, Movie> duplicates = new HashMap<>();
 
     for (Movie movie : movieList) {
       movie.clearDuplicate();
+      Map<String, Object> ids = movie.getIds();
+      for (var entry : ids.entrySet()) {
+        // ignore collection "IDs"
+        if (entry.getKey().equals(Constants.TMDB_SET)) {
+          continue;
+        }
+        String id = entry.getKey() + String.valueOf(entry.getValue());
 
-      // imdb duplicate search only works with given imdbid
-      if (StringUtils.isNotEmpty(movie.getImdbId())) {
-        // is there a movie with this imdbid sotred?
-        String imdbId = movie.getImdbId();
-        if (imdbDuplicates.containsKey(imdbId)) {
+        if (duplicates.containsKey(id)) {
           // yes - set duplicate flag on both movies
           movie.setDuplicate();
-          Movie movie2 = imdbDuplicates.get(imdbId);
+          Movie movie2 = duplicates.get(id);
           movie2.setDuplicate();
         }
         else {
           // no, store movie
-          imdbDuplicates.put(imdbId, movie);
-        }
-      }
-
-      // tmdb duplicate search only works with with given tmdb id
-      int tmdbId = movie.getTmdbId();
-      if (tmdbId > 0) {
-        // is there a movie with this tmdbid sotred?
-        if (tmdbDuplicates.containsKey(tmdbId)) {
-          // yes - set duplicate flag on both movies
-          movie.setDuplicate();
-          Movie movie2 = tmdbDuplicates.get(tmdbId);
-          movie2.setDuplicate();
-        }
-        else {
-          // no, store movie
-          tmdbDuplicates.put(tmdbId, movie);
+          duplicates.put(id, movie);
         }
       }
     }
@@ -1237,7 +1241,6 @@ public final class MovieList extends AbstractModelObject {
    */
   public void removeMovieSet(MovieSet movieSet) {
     int oldValue = movieSetList.size();
-    movieSet.removeAllMovies();
     movieSet.removePropertyChangeListener(movieSetListener);
 
     try {
@@ -1254,6 +1257,9 @@ public final class MovieList extends AbstractModelObject {
         String movieSetName = movieSet.getTitleForStorage();
         Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder(), movieSetName));
       }
+
+      movieSet.removeAllMovies();
+
       readWriteLock.writeLock().lock();
       movieSetList.remove(movieSet);
       readWriteLock.writeLock().unlock();
@@ -1268,7 +1274,7 @@ public final class MovieList extends AbstractModelObject {
     firePropertyChange("movieInMovieSetCount", oldValue, getMovieInMovieSetCount());
   }
 
-  private MovieSet findMovieSet(String title, int tmdbId) {
+  public MovieSet findMovieSet(String title, int tmdbId) {
     // first search by tmdbId
     if (tmdbId > 0) {
       for (MovieSet movieSet : movieSetList) {
@@ -1279,9 +1285,11 @@ public final class MovieList extends AbstractModelObject {
     }
 
     // search for the movieset by name
-    for (MovieSet movieSet : movieSetList) {
-      if (movieSet.getTitle().equals(title)) {
-        return movieSet;
+    if (StringUtils.isNotBlank(title)) {
+      for (MovieSet movieSet : movieSetList) {
+        if (movieSet.getTitle().equals(title)) {
+          return movieSet;
+        }
       }
     }
 
@@ -1416,6 +1424,78 @@ public final class MovieList extends AbstractModelObject {
     TvShowModuleManager.getInstance().getTvShowList().getTvShows().forEach(tvShow -> tvShowTitles.add(tvShow.getTitle()));
     tvShowTitles.sort(Comparator.naturalOrder());
     return tvShowTitles;
+  }
+
+  public List<MovieScraperMetadataConfig> detectMissingMetadata(Movie movie) {
+    return detectMissingFields(movie, MovieModuleManager.getInstance().getSettings().getMovieCheckMetadata());
+  }
+
+  public List<MovieScraperMetadataConfig> detectMissingArtwork(Movie movie) {
+    return detectMissingFields(movie, MovieModuleManager.getInstance().getSettings().getMovieCheckArtwork());
+  }
+
+  public List<MovieScraperMetadataConfig> detectMissingFields(Movie movie, List<MovieScraperMetadataConfig> toCheck) {
+    List<MovieScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (MovieScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = movie.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingMetadata(MovieSet movieSet) {
+    return detectMissingFields(movieSet, MovieModuleManager.getInstance().getSettings().getMovieSetCheckMetadata());
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingArtwork(MovieSet movieSet) {
+    return detectMissingFields(movieSet, MovieModuleManager.getInstance().getSettings().getMovieSetCheckArtwork());
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingFields(MovieSet movieSet, List<MovieSetScraperMetadataConfig> toCheck) {
+    List<MovieSetScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (MovieSetScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = movieSet.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
   }
 
   private static class MovieSetComparator implements Comparator<MovieSet> {

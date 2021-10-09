@@ -63,24 +63,20 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperPanel extends JPanel {
-  private static final long           serialVersionUID = 405588171648074608L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
-
+  private static final long          serialVersionUID = 405588171648074608L;
 
   private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
-  private final List<MovieScraper>    scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<MovieScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
-  private JTable                      tableScraper;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox<CountryCode>      cbCertificationCountry;
-  private JComboBox<MovieConnectors>  cbNfoFormat;
-  private JTextPane                   tpScraperDescription;
-  private JCheckBox                   chckbxScraperFallback;
-  private JCheckBox                   cbMovieNfoFilename1;
-  private JCheckBox                   cbMovieNfoFilename2;
-  private JPanel                      panelScraperOptions;
+  private JTable                     tableScraper;
+  private JComboBox<MediaLanguages>  cbScraperLanguage;
+  private JComboBox<CountryCode>     cbCertificationCountry;
+  private JComboBox<MovieConnectors> cbNfoFormat;
+  private JTextPane                  tpScraperDescription;
+  private JCheckBox                  chckbxScraperFallback;
+  private JCheckBox                  cbMovieNfoFilename1;
+  private JCheckBox                  cbMovieNfoFilename2;
+  private JPanel                     panelScraperOptions;
 
   public MovieScraperPanel() {
     // data init before UI init
@@ -122,22 +118,23 @@ class MovieScraperPanel extends JPanel {
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        MovieScraper changedScraper = scrapers.get(row);
-        // if flag default scraper was changed, change all other flags
-        if (changedScraper.getDefaultScraper()) {
-          settings.setMovieScraper(changedScraper.getScraperId());
-          for (MovieScraper scraper : scrapers) {
-            if (scraper != changedScraper) {
-              scraper.setDefaultScraper(Boolean.FALSE);
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            MovieScraper changedScraper = scrapers.get(row);
+            // if flag default scraper was changed, change all other flags
+            if (changedScraper.getDefaultScraper()) {
+              settings.setMovieScraper(changedScraper.getScraperId());
+              for (MovieScraper scraper : scrapers) {
+                if (scraper != changedScraper) {
+                  scraper.setDefaultScraper(Boolean.FALSE);
+                }
+              }
             }
           }
-        }
-      }
-    });
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -270,7 +267,9 @@ class MovieScraperPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<MovieScraper, Boolean> movieScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.default"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<MovieScraper, Icon> movieScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
     jTableBinding.addColumnBinding(movieScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);

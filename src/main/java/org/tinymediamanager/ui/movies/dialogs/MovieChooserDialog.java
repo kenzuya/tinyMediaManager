@@ -66,6 +66,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -194,7 +195,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     {
       final JPanel panelPath = new JPanel();
-      panelPath.setLayout(new MigLayout("", "[grow][]", "[]"));
+      panelPath.setLayout(new MigLayout("", "[200lp:300lp,grow][]", "[]"));
       {
         lblPath = new JLabel("");
         TmmFontHelper.changeFont(lblPath, 1.16667, Font.BOLD);
@@ -207,7 +208,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         btnPlay.addActionListener(e -> {
           MediaFile mf = movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0);
           try {
-            TmmUIHelper.openFile(mf.getFileAsPath());
+            TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
           }
           catch (Exception ex) {
             LOGGER.error("open file", ex);
@@ -470,6 +471,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     {
       progressBar.setVisible(false);
       cbScraperConfig.setSelectedItems(MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig());
+      chckbxDoNotOverwrite.setSelected(MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
 
       textFieldSearchString.setText(movieToScrape.getTitle());
       lblPath.setText(movieToScrape.getPathNIO().resolve(movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0).getFilename()).toString());

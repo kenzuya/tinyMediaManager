@@ -64,7 +64,7 @@ public class TvShowEpisodeAndSeasonParser {
   }
 
   public static String cleanEpisodeTitle(String titleToClean, String tvShowName) {
-    String basename = FilenameUtils.getBaseName(ParserUtils.removeStopwordsAndBadwordsFromTvEpisodeName(titleToClean));
+    String basename = ParserUtils.removeStopwordsAndBadwordsFromTvEpisodeName(titleToClean.replaceAll("([\":<>|?*])", ""));
 
     // parse foldername
     Pattern regex = Pattern.compile("(.*[\\/\\\\])");

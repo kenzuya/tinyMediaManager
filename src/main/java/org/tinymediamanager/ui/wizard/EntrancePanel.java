@@ -32,11 +32,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class EntrancePanel extends JPanel {
-  private static final long           serialVersionUID = -4743144534338715073L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
-
+  private static final long serialVersionUID = -4743144534338715073L;
 
   public EntrancePanel() {
     initComponents();

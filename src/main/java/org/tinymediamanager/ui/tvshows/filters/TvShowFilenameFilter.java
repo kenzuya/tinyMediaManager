@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -36,34 +37,29 @@ import org.tinymediamanager.ui.components.TmmLabel;
 public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-
     if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }
 
     try {
-      // first: filter on the production companies of the Tv show
-      boolean foundShow = false;
-      Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getOriginalFilename()));
-      if (matcher.find()) {
-        foundShow = true;
+      // TV show
+      for (MediaFile mediaFile : tvShow.getMediaFiles()) {
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
+        if (matcher.find()) {
+          return true;
+        }
       }
 
-      // if we found anything in the show we can quit here
-      if (!invert && foundShow) {
-        return true;
-      }
-      else if (invert && foundShow) {
-        return false;
-      }
-
-      // second: filter production company from the episodes
+      // episodes
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
 
-        matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getOriginalFilename()));
-        if (matcher.find()) {
-          foundEpisode = true;
+        for (MediaFile mediaFile : episode.getMediaFiles()) {
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
+          if (matcher.find()) {
+            foundEpisode = true;
+            break;
+          }
         }
 
         // if there is a match in this episode, we can stop
@@ -73,7 +69,6 @@ public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
         else if (!invert && foundEpisode) {
           return true;
         }
-
       }
 
     }

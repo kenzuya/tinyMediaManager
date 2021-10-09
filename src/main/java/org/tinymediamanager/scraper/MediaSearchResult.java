@@ -331,6 +331,26 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
   }
 
   /**
+   * set all given ids
+   * 
+   * @param ids
+   *          the ids to set
+   */
+  public void setIds(Map<String, Object> ids) {
+    if (ids == null) {
+      return;
+    }
+
+    for (Map.Entry<String, Object> entry : ids.entrySet()) {
+      if (entry.getValue() == null) {
+        continue;
+      }
+
+      setId(entry.getKey(), entry.getValue().toString());
+    }
+  }
+
+  /**
    * Get the IMDB id
    * 
    * @return the IMDB id
@@ -452,16 +472,17 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
     float yearPenalty = MetadataUtil.calculateYearPenalty(options.getSearchYear(), year);
     if (yearPenalty > 0) {
-      LOGGER.debug("parsed year does not match search result year - downgrading score by {}", yearPenalty);
+      LOGGER.trace("parsed year does not match search result year - downgrading score by {}", yearPenalty);
       calculatedScore -= yearPenalty;
     }
 
     if (StringUtils.isBlank(posterUrl)) {
       // no poster?
-      LOGGER.debug("no poster - downgrading score by 0.01");
+      LOGGER.trace("no poster - downgrading score by 0.01");
       calculatedScore -= 0.01f;
     }
 
+    LOGGER.debug(String.format("Similarity Score: [%s] [%s / %s]=[%s]", options.getSearchQuery(), title, originalTitle, calculatedScore));
     setScore(calculatedScore);
   }
 

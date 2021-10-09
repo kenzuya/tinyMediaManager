@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import javax.swing.Action;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -46,6 +47,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -90,11 +92,11 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   private MovieList         movieList;
 
-  private JTextField        searchField;
   private TmmTable          movieTable;
   private JLabel            lblMovieCountFiltered;
   private JLabel            lblMovieCountTotal;
   private SplitButton       btnExtendedFilter;
+  private JLabel            lblSelectedCount;
 
   public MovieListPanel() {
     initComponents();
@@ -108,7 +110,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
     setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
 
-    searchField = EnhancedTextField.createSearchTextField();
+    JTextField searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");
 
     // register global short cut for the search field
@@ -196,22 +198,59 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1, growx");
 
-    JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
-    add(lblMovieCount, "flowx,cell 0 3 2 1");
+    {
+      JPanel panelTotals = new JPanel();
+      add(panelTotals, "cell 0 3 2 1,grow");
+      panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
 
-    lblMovieCountFiltered = new JLabel("");
-    add(lblMovieCountFiltered, "cell 0 3 2 1");
+      JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
+      panelTotals.add(lblMovieCount, "cell 0 0");
 
-    JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-    add(lblMovieCountOf, "cell 0 3 2 1");
+      lblMovieCountFiltered = new JLabel("");
+      panelTotals.add(lblMovieCountFiltered, "cell 0 0");
 
-    lblMovieCountTotal = new JLabel("");
-    add(lblMovieCountTotal, "cell 0 3 2 1");
+      JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
+      panelTotals.add(lblMovieCountOf, "cell 0 0");
 
-    initDataBindings();
+      lblMovieCountTotal = new JLabel("");
+      panelTotals.add(lblMovieCountTotal, "cell 0 0");
+
+      lblSelectedCount = new JLabel("");
+      panelTotals.add(lblSelectedCount, "cell 1 0");
+    }
+
+    selectionModel.addPropertyChangeListener(MovieSelectionModel.SELECTED_MOVIES, evt -> updateSelectionSums());
 
     // initialize filteredCount
     lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
+
+    initDataBindings();
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieCheckMetadata":
+        case "movieCheckArtwork":
+          movieTable.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
+  }
+
+  private void updateSelectionSums() {
+    String selectedMovies = TmmResourceBundle.getString("movie.selected").replace("{}", String.valueOf(selectionModel.getSelectedMovies().size()));
+    double videoFileSize = selectionModel.getSelectedMovies().stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = selectionModel.getSelectedMovies().stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+
+    String text = String.format("%s (%.2f G)", selectedMovies, totalFileSize);
+    lblSelectedCount.setText(text);
+
+    String selectedMoviesHint = selectedMovies + " ("
+        + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
+        + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
+    lblSelectedCount.setToolTipText(selectedMoviesHint);
   }
 
   private void updateFilterIndicator() {

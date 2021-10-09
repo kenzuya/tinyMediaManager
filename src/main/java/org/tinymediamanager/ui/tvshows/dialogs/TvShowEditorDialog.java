@@ -152,12 +152,12 @@ public class TvShowEditorDialog extends TmmDialog {
   private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<EpisodeEditorContainer>  episodes;
   private final List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private final int                                queueIndex;
+  private final int                                queueSize;
 
   private List<String>                             extrafanarts        = null;
   private boolean                                  continueQueue       = true;
   private boolean                                  navigateBack        = false;
-  private int                                      queueIndex;
-  private int                                      queueSize;
 
   /**
    * UI elements
@@ -366,7 +366,7 @@ public class TvShowEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][100lp:25%:25%,grow][][][pref!][][][][75lp:20%:20%,grow][pref!]"));
+          "[][][][75lp:25%:25%,grow][][][pref!][][][][75lp:20%:20%,grow][pref!]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
@@ -500,7 +500,7 @@ public class TvShowEditorDialog extends TmmDialog {
         details1Panel.add(lblRatingsT, "flowy,cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPaneRatings = new JScrollPane();
-        details1Panel.add(scrollPaneRatings, "cell 1 10 4 1,growx");
+        details1Panel.add(scrollPaneRatings, "cell 1 10 4 1,grow");
 
         tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
@@ -566,7 +566,7 @@ public class TvShowEditorDialog extends TmmDialog {
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details2"), details2Panel);
 
       details2Panel
-          .setLayout(new MigLayout("", "[][150lp:400lp,grow][20lp:n][][150lp:300lp,grow]", "[][150lp,grow 200][20lp:n][100lp:150lp,grow][][]"));
+          .setLayout(new MigLayout("", "[][150lp:400lp,grow][20lp:n][][150lp:300lp,grow]", "[][100lp:150lp,grow][20lp:n][100lp:150lp,grow][][grow]"));
       {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
@@ -1015,7 +1015,7 @@ public class TvShowEditorDialog extends TmmDialog {
       JPanel episodesPanel = new JPanel();
 
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.episodes"), episodesPanel);
-      episodesPanel.setLayout(new MigLayout("", "[][grow]", "[][100px:n,grow]"));
+      episodesPanel.setLayout(new MigLayout("", "[][200lp:450lp,grow]", "[][100lp:200lp,grow]"));
       {
         JButton btnCloneEpisode = new SquareIconButton(new CloneEpisodeAction());
         episodesPanel.add(btnCloneEpisode, "cell 0 0");
@@ -1039,23 +1039,23 @@ public class TvShowEditorDialog extends TmmDialog {
     {
       JPanel trailerPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("Settings.trailer"), null, trailerPanel, null);
-      trailerPanel.setLayout(new MigLayout("", "[][grow]", "[][][]"));
+      trailerPanel.setLayout(new MigLayout("", "[][grow]", "[100lp:250lp,grow][grow 200]"));
 
       {
         JLabel lblTrailer = new TmmLabel(TmmResourceBundle.getString("metatag.trailer"));
-        trailerPanel.add(lblTrailer, "flowy,cell 0 10,alignx right,aligny top");
+        trailerPanel.add(lblTrailer, "flowy,cell 0 0,alignx right,aligny top");
 
         JButton btnAddTrailer = new SquareIconButton(new AddTrailerAction());
-        trailerPanel.add(btnAddTrailer, "cell 0 10,alignx right,aligny top");
+        trailerPanel.add(btnAddTrailer, "cell 0 0,alignx right,aligny top");
 
         JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
-        trailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
+        trailerPanel.add(btnRemoveTrailer, "cell 0 0,alignx right,aligny top");
 
         JButton btnPlayTrailer = new SquareIconButton(new PlayTrailerAction());
-        trailerPanel.add(btnPlayTrailer, "cell 0 10,alignx right,aligny top");
+        trailerPanel.add(btnPlayTrailer, "cell 0 0,alignx right,aligny top");
 
         JScrollPane scrollPaneTrailer = new JScrollPane();
-        trailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
+        trailerPanel.add(scrollPaneTrailer, "cell 1 0,grow");
         tableTrailer = new TmmTable();
         tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         tableTrailer.configureScrollPane(scrollPaneTrailer);
@@ -1715,7 +1715,7 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  private class EpisodeEditorContainer extends AbstractModelObject {
+  private static class EpisodeEditorContainer extends AbstractModelObject {
     TvShowEpisode tvShowEpisode;
     int           season;
     int           episode;

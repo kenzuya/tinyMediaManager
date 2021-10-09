@@ -38,10 +38,14 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
@@ -50,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -153,7 +158,7 @@ public final class TinyMediaManager {
     }
 
     LOGGER.info("=====================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012-2020 Manuel Laggner ===");
+    LOGGER.info("=== tinyMediaManager (c) 2012-2021 Manuel Laggner ===");
     LOGGER.info("=====================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
@@ -353,6 +358,7 @@ public final class TinyMediaManager {
             // wizard for new user
             if (Settings.getInstance().isNewConfig()) {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
+              wizard.setLocationRelativeTo(null); // center
               wizard.setVisible(true);
             }
             else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
@@ -367,12 +373,21 @@ public final class TinyMediaManager {
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
               // special case nightly/git: if same snapshot version, do not display changelog
-              showChangelog();
+              SwingUtilities.invokeLater(WhatsNewDialog::showChangelog);
             }
 
             // did we just upgrade to v4?
             if (newVersion && UpgradeTasks.getOldVersion().startsWith("3")) {
               restartWarningAfterV4Upgrade();
+            }
+
+            // is the license about to running out?
+            if (License.getInstance().isValidLicense()) {
+              LocalDate validUntil = License.getInstance().validUntil();
+              if (validUntil != null && validUntil.minus(7, ChronoUnit.DAYS).isBefore(LocalDate.now())) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(window, TmmResourceBundle.getString("tmm.renewlicense")
+                    .replace("{}", TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil)))));
+              }
             }
 
             // If auto update on start for movies data sources is enable, execute it
@@ -487,16 +502,17 @@ public final class TinyMediaManager {
 
         // check if a .desktop file exists
         if (Platform.isLinux()) {
-          File desktop = new File(TmmOsUtils.DESKTOP_FILE);
-          if (!desktop.exists()) {
-            TmmOsUtils.createDesktopFileForLinux(desktop);
+          if (!TmmOsUtils.existsDesktopFileForLinux()) {
+            Path desktopFile = Paths.get(System.getProperty("user.home"), ".local", "share", "applications", "tinyMediaManager.desktop")
+                .toAbsolutePath();
+            if (Files.isWritable(desktopFile.getParent())) {
+              TmmOsUtils.createDesktopFileForLinux(desktopFile.toFile());
+            }
+            else {
+              TmmOsUtils.createDesktopFileForLinux(new File(TmmOsUtils.DESKTOP_FILE));
+            }
           }
         }
-      }
-
-      private void showChangelog() {
-        // read the changelog
-        WhatsNewDialog.showChangelog();
       }
     });
   }
@@ -534,8 +550,12 @@ public final class TinyMediaManager {
     Level level;
 
     switch (loglevelAsString) {
+      case "OFF":
+        level = null;
+        break;
+
       case "ERROR":
-        level = Level.TRACE;
+        level = Level.ERROR;
         break;
 
       case "WARN":
@@ -563,11 +583,16 @@ public final class TinyMediaManager {
     // get the console appender
     Appender consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
     if (consoleAppender instanceof ConsoleAppender) {
-      // and set a filter to drop messages beneath the given level
-      ThresholdLoggerFilter filter = new ThresholdLoggerFilter(level);
-      filter.start();
-      consoleAppender.clearAllFilters();
-      consoleAppender.addFilter(filter);
+      if (level == null) {
+        consoleAppender.stop();
+      }
+      else {
+        // and set a filter to drop messages beneath the given level
+        ThresholdLoggerFilter filter = new ThresholdLoggerFilter(level);
+        filter.start();
+        consoleAppender.clearAllFilters();
+        consoleAppender.addFilter(filter);
+      }
     }
   }
 

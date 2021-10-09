@@ -47,7 +47,6 @@ import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.scraper.DynaEnum;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
@@ -326,74 +325,5 @@ public class TvShowJmteTests extends BasicTest {
     episode.addToMediaFiles(mf);
 
     return episode;
-  }
-
-  // @Test
-  // public void getProperties() throws Exception {
-  // printBeanInfo(TvShow.class);
-  // printBeanInfo(TvShowSeason.class);
-  // printBeanInfo(TvShowEpisode.class);
-  // }
-  //
-  // private void printBeanInfo(Class clazz) throws Exception {
-  // System.out.println("\n\n" + clazz.getName() + "\n");
-  //
-  // // access properties as Map
-  // BeanInfo info = Introspector.getBeanInfo(clazz);
-  // PropertyDescriptor[] pds = info.getPropertyDescriptors();
-  //
-  // for (PropertyDescriptor descriptor : pds) {
-  // if ("class".equals(descriptor.getDisplayName())) {
-  // continue;
-  // }
-  //
-  // if ("declaringClass".equals(descriptor.getDisplayName())) {
-  // continue;
-  // }
-  //
-  // if (descriptor.getReadMethod() != null) {
-  // final Type type = descriptor.getReadMethod().getGenericReturnType();
-  // if (type instanceof ParameterizedTypeImpl) {
-  // ParameterizedType pt = (ParameterizedTypeImpl) type;
-  //
-  // String typeAsString;
-  // Class rawTypeClass = (Class) pt.getRawType();
-  // typeAsString = rawTypeClass.getSimpleName() + "\\<";
-  //
-  // int index = 0;
-  // for (Type arg : pt.getActualTypeArguments()) {
-  // Class argClass = (Class) arg;
-  // typeAsString += getTypeName(argClass);
-  //
-  // index++;
-  //
-  // if (index < pt.getActualTypeArguments().length) {
-  // typeAsString += ",";
-  // }
-  // }
-  // typeAsString += "\\>";
-  // System.out.println("|" + typeAsString + "|" + descriptor.getDisplayName() + "|");
-  // }
-  // else {
-  // System.out.println("|" + getTypeName(descriptor.getReadMethod().getReturnType()) + "|" + descriptor.getDisplayName() + "|");
-  // }
-  // }
-  // }
-  // }
-
-  private String getTypeName(Class clazz) {
-    String typeAsString;
-
-    Class returnType = clazz;
-    if (returnType.isEnum()) {
-      typeAsString = "String";
-    }
-    else if (DynaEnum.class.isAssignableFrom(returnType)) {
-      typeAsString = "String";
-    }
-    else {
-      typeAsString = returnType.getSimpleName();
-    }
-    return typeAsString;
   }
 }

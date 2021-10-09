@@ -30,6 +30,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   // meta data
+  ID(Type.METADATA),
   TITLE(Type.METADATA),
   ORIGINAL_TITLE(Type.METADATA, "metatag.originaltitle"),
   PLOT(Type.METADATA),
@@ -145,6 +146,23 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
     for (TvShowScraperMetadataConfig config : values()) {
       if (config.type == type) {
         values.add(config);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * get all values except the deprecated ones
+   *
+   * @return a {@link List} of all values except deprecated ones
+   */
+  public static List<TvShowScraperMetadataConfig> getValues() {
+    List<TvShowScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED) {
+        values.add(value);
       }
     }
 

@@ -34,23 +34,6 @@ import org.tinymediamanager.ui.components.TmmLabel;
 public class TvShowUncategorizedEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
-  protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-
-    for (TvShowEpisode episode : episodes) {
-      if (episode.isDummy()) {
-        continue;
-      }
-
-      if (invert ^ episode.isUncategorized()) {
-        return true;
-      }
-
-    }
-
-    return false;
-  }
-
-  @Override
   protected JLabel createLabel() {
     return new TmmLabel(TmmResourceBundle.getString("tvshow.uncategorized"));
   }
@@ -72,6 +55,27 @@ public class TvShowUncategorizedEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   public void setFilterValue(Object value) {
+    // nothing to do
+  }
 
+  @Override
+  public void clearFilter() {
+    // nothing to do
+  }
+
+  @Override
+  protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
+
+    for (TvShowEpisode episode : episodes) {
+      if (episode.isDummy()) {
+        continue;
+      }
+
+      if (invert ^ episode.isUncategorized()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

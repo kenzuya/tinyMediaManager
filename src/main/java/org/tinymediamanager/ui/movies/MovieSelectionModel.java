@@ -28,6 +28,7 @@ import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
 
 import ca.odell.glazedlists.EventList;
@@ -40,11 +41,12 @@ import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
  * @author Manuel Laggner
  */
 public class MovieSelectionModel extends AbstractModelObject implements ListSelectionListener {
-  private static final String               SELECTED_MOVIE = "selectedMovie";
+  public static final String                SELECTED_MOVIE  = "selectedMovie";
+  public static final String                SELECTED_MOVIES = "selectedMovies";
 
-  public final Movie                        initialMovie   = new Movie();
+  public final Movie                        initialMovie    = new Movie();
 
-  private List<Movie>                       selectedMovies;
+  private EventList<Movie>                  selectedMovies;
   private Movie                             selectedMovie;
   private DefaultEventSelectionModel<Movie> selectionModel;
   private MovieMatcherEditor                matcherEditor;
@@ -178,6 +180,8 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
       }
       firePropertyChange(SELECTED_MOVIE, oldValue, selectedMovie);
     }
+
+    firePropertyChange(SELECTED_MOVIES, null, this.selectedMovies);
   }
 
   /**
@@ -208,7 +212,11 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
    *          the new selected movies
    */
   public void setSelectedMovies(List<Movie> selectedMovies) {
-    this.selectedMovies = selectedMovies;
+    this.selectedMovies.clear();
+
+    if (ListUtils.isNotEmpty(selectedMovies)) {
+      this.selectedMovies.addAll(selectedMovies);
+    }
   }
 
   /**
@@ -267,5 +275,13 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
     }
     matcherEditor.setFilterValues(values);
     firePropertyChange("filterChanged", null, values);
+  }
+
+  /**
+   * clear all active filters
+   */
+  public void clearFilters() {
+    matcherEditor.clearFilters();
+    firePropertyChange("filterChanged", null, Collections.emptyList());
   }
 }

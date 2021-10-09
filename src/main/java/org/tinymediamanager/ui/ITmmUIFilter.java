@@ -79,6 +79,11 @@ public interface ITmmUIFilter<E> {
   void setFilterValue(Object value);
 
   /**
+   * clear all filter values
+   */
+  void clearFilter();
+
+  /**
    * get the filter state
    * 
    * @return the filter state (ACTIVE, ACTIVE_NEGATIVE, INACTIVE)

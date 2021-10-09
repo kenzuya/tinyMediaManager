@@ -33,6 +33,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -49,6 +50,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -81,25 +83,28 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long serialVersionUID = 5889203009864512935L;
+  private static final long            serialVersionUID = 5889203009864512935L;
 
-  private final MovieList   movieList        = MovieModuleManager.getInstance().getMovieList();
+  private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
+  private final MovieSetSelectionModel selectionModel;
 
-  private int               rowcount;
-  private long              rowcountLastUpdate;
+  private int                          rowcount;
+  private long                         rowcountLastUpdate;
 
-  private TmmTreeTable      tree;
-  private JLabel            lblMovieCountFiltered;
-  private JLabel            lblMovieCountTotal;
-  private JLabel            lblMovieSetCountFiltered;
-  private JLabel            lblMovieSetCountTotal;
-  private SplitButton       btnFilter;
+  private TmmTreeTable                 tree;
+  private JLabel                       lblMovieCountFiltered;
+  private JLabel                       lblMovieCountTotal;
+  private JLabel                       lblMovieSetCountFiltered;
+  private JLabel                       lblMovieSetCountTotal;
+  private SplitButton                  btnFilter;
+  private JLabel                       lblSelectedMovieCount;
 
   public MovieSetTreePanel(MovieSetSelectionModel movieSetSelectionModel) {
     initComponents();
     initDataBindings();
 
-    movieSetSelectionModel.setTreeTable(tree);
+    this.selectionModel = movieSetSelectionModel;
+    this.selectionModel.setTreeTable(tree);
 
     // initialize filteredCount
     updateFilteredCount();
@@ -109,6 +114,18 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
         case "movieSetCount":
         case "movieInMovieSetCount":
           updateFilteredCount();
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieSetCheckMetadata":
+        case "movieSetCheckArtwork":
+          tree.invalidate();
           break;
 
         default:
@@ -250,6 +267,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
       else {
         MovieSetUIModule.getInstance().setSelectedMovieSet(null);
       }
+
+      updateSelectionSums();
     });
 
     // selecting first movie set at startup
@@ -291,30 +310,36 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1,growx");
     {
+      JPanel panelTotals = new JPanel();
+      add(panelTotals, "cell 0 3 2 1,grow");
+      panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
+
       JLabel lblMovieSetCount = new JLabel(TmmResourceBundle.getString("tmm.moviesets") + ":");
-      add(lblMovieSetCount, "flowx,cell 0 3 2 1");
+      panelTotals.add(lblMovieSetCount, "flowx,cell 0 0");
 
       lblMovieSetCountFiltered = new JLabel("");
-      add(lblMovieSetCountFiltered, "cell 0 3 2 1");
+      panelTotals.add(lblMovieSetCountFiltered, "cell 0 0");
 
       JLabel lblMovieSetCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-      add(lblMovieSetCountOf, "cell 0 3 2 1");
+      panelTotals.add(lblMovieSetCountOf, "cell 0 0");
 
       lblMovieSetCountTotal = new JLabel("");
-      add(lblMovieSetCountTotal, "cell 0 3 2 1");
-    }
-    {
+      panelTotals.add(lblMovieSetCountTotal, "cell 0 0");
+
       JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
-      add(lblMovieCount, "flowx,cell 0 4 2 1");
+      panelTotals.add(lblMovieCount, "flowx,cell 0 1");
 
       lblMovieCountFiltered = new JLabel("");
-      add(lblMovieCountFiltered, "cell 0 4 2 1");
+      panelTotals.add(lblMovieCountFiltered, "cell 0 1");
 
       JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-      add(lblMovieCountOf, "cell 0 4 2 1");
+      panelTotals.add(lblMovieCountOf, "cell 0 1");
 
       lblMovieCountTotal = new JLabel("");
-      add(lblMovieCountTotal, "cell 0 4 2 1");
+      panelTotals.add(lblMovieCountTotal, "cell 0 1");
+
+      lblSelectedMovieCount = new JLabel("");
+      panelTotals.add(lblSelectedMovieCount, "cell 1 1");
     }
   }
 
@@ -385,6 +410,23 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     lblMovieSetCountFiltered.setText(String.valueOf(movieSetCount));
     lblMovieCountFiltered.setText(String.valueOf(movieCount));
+  }
+
+  private void updateSelectionSums() {
+    List<Movie> movies = selectionModel.getSelectedMoviesRecursive();
+
+    // episode
+    String selectedMovies = TmmResourceBundle.getString("movie.selected").replace("{}", String.valueOf(movies.size()));
+    double videoFileSize = movies.stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = movies.stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+
+    String text = String.format("%s (%.2f G)", selectedMovies, totalFileSize);
+    lblSelectedMovieCount.setText(text);
+
+    String selectedEpisodesHint = selectedMovies + " ("
+        + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
+        + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
+    lblSelectedMovieCount.setToolTipText(selectedEpisodesHint);
   }
 
   @Override

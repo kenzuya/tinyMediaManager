@@ -66,6 +66,7 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_TOOLS                = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_TOOLS_HOVER          = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_UPGRADE              = createSVGIcon("icn_upgrade.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_RENEW                = createSVGIcon("icn_renew.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
 
@@ -84,6 +85,7 @@ public class IconManager {
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
+  public static final ImageIcon              APPLY                        = createMenuIcon("check-circle.svg");
   public static final ImageIcon              ASPECT_RATIO_BLUE            = createMenuIcon("ruler-combined-solid.svg");
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
   public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");

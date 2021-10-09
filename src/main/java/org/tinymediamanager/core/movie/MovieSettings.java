@@ -32,6 +32,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -61,7 +62,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
-import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
@@ -73,180 +73,192 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * The Class MovieSettings.
  */
 public final class MovieSettings extends AbstractSettings {
-  private static final Logger            LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
-  private static final String            CONFIG_FILE                            = "movies.json";
+  private static final Logger               LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
+  private static final String               CONFIG_FILE                            = "movies.json";
 
-  public static final String             DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
-  public static final String             DEFAULT_RENAMER_FILE_PATTERN           = "${title} ${- ,edition,} (${year}) ${videoFormat} ${audioCodec}";
+  public static final String                DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
+  public static final String                DEFAULT_RENAMER_FILE_PATTERN           = "${title} ${- ,edition,} (${year}) ${videoFormat} ${audioCodec}";
 
-  private static MovieSettings           instance;
+  private static MovieSettings              instance;
 
   /**
    * Constants mainly for events
    */
-  public static final String             MOVIE_UI_FILTER_PRESETS                = "movieUiFilterPresets";
-  public static final String             MOVIE_SET_UI_FILTER_PRESETS            = "movieSetUiFilterPresets";
-  static final String                    MOVIE_DATA_SOURCE                      = "movieDataSource";
-  static final String                    NFO_FILENAME                           = "nfoFilename";
-  static final String                    POSTER_FILENAME                        = "posterFilename";
-  static final String                    FANART_FILENAME                        = "fanartFilename";
-  static final String                    EXTRAFANART_FILENAME                   = "extraFanartFilename";
-  static final String                    BANNER_FILENAME                        = "bannerFilename";
-  static final String                    CLEARART_FILENAME                      = "clearartFilename";
-  static final String                    THUMB_FILENAME                         = "thumbFilename";
-  static final String                    LOGO_FILENAME                          = "logoFilename";
-  static final String                    CLEARLOGO_FILENAME                     = "clearlogoFilename";
-  static final String                    DISCART_FILENAME                       = "discartFilename";
-  static final String                    KEYART_FILENAME                        = "keyartFilename";
-  static final String                    MOVIE_SET_POSTER_FILENAME              = "movieSetPosterFilename";
-  static final String                    MOVIE_SET_FANART_FILENAME              = "movieSetFanartFilename";
-  static final String                    MOVIE_SET_BANNER_FILENAME              = "movieSetBannerFilename";
-  static final String                    MOVIE_SET_CLEARART_FILENAME            = "movieSetClearartFilename";
-  static final String                    MOVIE_SET_THUMB_FILENAME               = "movieSetThumbFilename";
-  static final String                    MOVIE_SET_LOGO_FILENAME                = "movieSetLogoFilename";
-  static final String                    MOVIE_SET_CLEARLOGO_FILENAME           = "movieSetClearlogoFilename";
-  static final String                    MOVIE_SET_DISCART_FILENAME             = "movieSetDiscartFilename";
-  static final String                    TRAILER_FILENAME                       = "trailerFilename";
-  static final String                    ARTWORK_SCRAPERS                       = "artworkScrapers";
-  static final String                    TRAILER_SCRAPERS                       = "trailerScrapers";
-  static final String                    SUBTITLE_SCRAPERS                      = "subtitleScrapers";
-  static final String                    BAD_WORD                               = "badWord";
-  static final String                    SKIP_FOLDER                            = "skipFolder";
-  static final String                    CHECK_IMAGES_MOVIE                     = "checkImagesMovie";
-  static final String                    CHECK_IMAGES_MOVIESET                  = "checkImagesMovieSet";
+  public static final String                MOVIE_UI_FILTER_PRESETS                = "movieUiFilterPresets";
+  public static final String                MOVIE_SET_UI_FILTER_PRESETS            = "movieSetUiFilterPresets";
+  static final String                       MOVIE_DATA_SOURCE                      = "movieDataSource";
+  static final String                       NFO_FILENAME                           = "nfoFilename";
+  static final String                       POSTER_FILENAME                        = "posterFilename";
+  static final String                       FANART_FILENAME                        = "fanartFilename";
+  static final String                       EXTRAFANART_FILENAME                   = "extraFanartFilename";
+  static final String                       BANNER_FILENAME                        = "bannerFilename";
+  static final String                       CLEARART_FILENAME                      = "clearartFilename";
+  static final String                       THUMB_FILENAME                         = "thumbFilename";
+  static final String                       LOGO_FILENAME                          = "logoFilename";
+  static final String                       CLEARLOGO_FILENAME                     = "clearlogoFilename";
+  static final String                       DISCART_FILENAME                       = "discartFilename";
+  static final String                       KEYART_FILENAME                        = "keyartFilename";
+  static final String                       MOVIE_SET_POSTER_FILENAME              = "movieSetPosterFilename";
+  static final String                       MOVIE_SET_FANART_FILENAME              = "movieSetFanartFilename";
+  static final String                       MOVIE_SET_BANNER_FILENAME              = "movieSetBannerFilename";
+  static final String                       MOVIE_SET_CLEARART_FILENAME            = "movieSetClearartFilename";
+  static final String                       MOVIE_SET_THUMB_FILENAME               = "movieSetThumbFilename";
+  static final String                       MOVIE_SET_LOGO_FILENAME                = "movieSetLogoFilename";
+  static final String                       MOVIE_SET_CLEARLOGO_FILENAME           = "movieSetClearlogoFilename";
+  static final String                       MOVIE_SET_DISCART_FILENAME             = "movieSetDiscartFilename";
+  static final String                       TRAILER_FILENAME                       = "trailerFilename";
+  static final String                       ARTWORK_SCRAPERS                       = "artworkScrapers";
+  static final String                       TRAILER_SCRAPERS                       = "trailerScrapers";
+  static final String                       SUBTITLE_SCRAPERS                      = "subtitleScrapers";
+  static final String                       BAD_WORD                               = "badWord";
+  static final String                       SKIP_FOLDER                            = "skipFolder";
+  static final String                       MOVIE_CHECK_METADATA                   = "movieCheckMetadata";
+  static final String                       MOVIE_CHECK_ARTWORK                    = "movieCheckArtwork";
+  static final String                       MOVIESET_CHECK_METADATA                = "movieSetCheckMetadata";
+  static final String                       MOVIESET_CHECK_ARTWORK                 = "movieSetCheckArtwork";
+  static final String                       POST_PROCESS                           = "postProcess";
 
-  final List<String>                     movieDataSources                       = ObservableCollections.observableList(new ArrayList<>());
-  final List<MovieNfoNaming>             nfoFilenames                           = new ArrayList<>();
+  final List<String>                        movieDataSources                       = ObservableCollections.observableList(new ArrayList<>());
+  final List<MovieNfoNaming>                nfoFilenames                           = new ArrayList<>();
 
   // movie artwork
-  final List<MoviePosterNaming>          posterFilenames                        = new ArrayList<>();
-  final List<MovieFanartNaming>          fanartFilenames                        = new ArrayList<>();
-  final List<MovieExtraFanartNaming>     extraFanartFilenames                   = new ArrayList<>();
-  final List<MovieBannerNaming>          bannerFilenames                        = new ArrayList<>();
-  final List<MovieClearartNaming>        clearartFilenames                      = new ArrayList<>();
-  final List<MovieThumbNaming>           thumbFilenames                         = new ArrayList<>();
-  final List<MovieClearlogoNaming>       clearlogoFilenames                     = new ArrayList<>();
-  final List<MovieLogoNaming>            logoFilenames                          = new ArrayList<>();
-  final List<MovieDiscartNaming>         discartFilenames                       = new ArrayList<>();
-  final List<MovieKeyartNaming>          keyartFilenames                        = new ArrayList<>();
+  final List<MoviePosterNaming>             posterFilenames                        = new ArrayList<>();
+  final List<MovieFanartNaming>             fanartFilenames                        = new ArrayList<>();
+  final List<MovieExtraFanartNaming>        extraFanartFilenames                   = new ArrayList<>();
+  final List<MovieBannerNaming>             bannerFilenames                        = new ArrayList<>();
+  final List<MovieClearartNaming>           clearartFilenames                      = new ArrayList<>();
+  final List<MovieThumbNaming>              thumbFilenames                         = new ArrayList<>();
+  final List<MovieClearlogoNaming>          clearlogoFilenames                     = new ArrayList<>();
+  final List<MovieLogoNaming>               logoFilenames                          = new ArrayList<>();
+  final List<MovieDiscartNaming>            discartFilenames                       = new ArrayList<>();
+  final List<MovieKeyartNaming>             keyartFilenames                        = new ArrayList<>();
 
-  final List<MovieTrailerNaming>         trailerFilenames                       = new ArrayList<>();
-  final List<String>                     badWords                               = ObservableCollections.observableList(new ArrayList<>());
-  final List<String>                     artworkScrapers                        = ObservableCollections.observableList(new ArrayList<>());
-  final List<String>                     trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
-  final List<String>                     subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
-  final List<String>                     skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
+  final List<MovieTrailerNaming>            trailerFilenames                       = new ArrayList<>();
+  final List<String>                        badWords                               = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                        artworkScrapers                        = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                        trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                        subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                        skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
 
   // data sources / NFO settings
-  boolean                                buildImageCacheOnImport                = false;
-  MovieConnectors                        movieConnector                         = MovieConnectors.KODI;
-  CertificationStyle                     certificationStyle                     = CertificationStyle.LARGE;
-  boolean                                writeCleanNfo                          = false;
-  DateField                              nfoDateAddedField                      = DateField.DATE_ADDED;
-  MediaLanguages                         nfoLanguage                            = MediaLanguages.en;
-  boolean                                createOutline                          = true;
-  boolean                                outlineFirstSentence                   = false;
-  boolean                                nfoWriteSingleStudio                   = false;
+  boolean                                   buildImageCacheOnImport                = false;
+  MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
+  CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
+  boolean                                   writeCleanNfo                          = false;
+  DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
+  MediaLanguages                            nfoLanguage                            = MediaLanguages.en;
+  boolean                                   createOutline                          = true;
+  boolean                                   outlineFirstSentence                   = false;
+  boolean                                   nfoWriteSingleStudio                   = false;
 
   // renamer
-  boolean                                renameAfterScrape                      = false;
-  boolean                                ardAfterScrape                         = false;
-  boolean                                updateOnStart                          = false;
-  String                                 renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
-  String                                 renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
-  boolean                                renamerPathnameSpaceSubstitution       = false;
-  String                                 renamerPathnameSpaceReplacement        = "_";
-  boolean                                renamerFilenameSpaceSubstitution       = false;
-  String                                 renamerFilenameSpaceReplacement        = "_";
-  String                                 renamerColonReplacement                = "-";
-  boolean                                renamerNfoCleanup                      = false;
-  boolean                                renamerCreateMoviesetForSingleMovie    = false;
-  String                                 renamerFirstCharacterNumberReplacement = "#";
-  boolean                                asciiReplacement                       = false;
+  boolean                                   renameAfterScrape                      = false;
+  boolean                                   ardAfterScrape                         = false;
+  boolean                                   updateOnStart                          = false;
+  String                                    renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
+  String                                    renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
+  boolean                                   renamerPathnameSpaceSubstitution       = false;
+  String                                    renamerPathnameSpaceReplacement        = "_";
+  boolean                                   renamerFilenameSpaceSubstitution       = false;
+  String                                    renamerFilenameSpaceReplacement        = "_";
+  String                                    renamerColonReplacement                = "-";
+  boolean                                   renamerNfoCleanup                      = false;
+  boolean                                   renamerCreateMoviesetForSingleMovie    = false;
+  String                                    renamerFirstCharacterNumberReplacement = "#";
+  boolean                                   asciiReplacement                       = false;
+  boolean                                   allowMultipleMoviesInSameDir           = false;
 
   // meta data scraper
-  String                                 movieScraper                           = Constants.TMDB;
-  MediaLanguages                         scraperLanguage                        = MediaLanguages.en;
-  CountryCode                            certificationCountry                   = CountryCode.US;
-  String                                 releaseDateCountry                     = "";
-  double                                 scraperThreshold                       = 0.75;
-  boolean                                scraperFallback                        = false;
-  final List<MovieScraperMetadataConfig> scraperMetadataConfig                  = new ArrayList<>();
-  boolean                                capitalWordsInTitles                   = false;
+  String                                    movieScraper                           = Constants.TMDB;
+  MediaLanguages                            scraperLanguage                        = MediaLanguages.en;
+  CountryCode                               certificationCountry                   = CountryCode.US;
+  String                                    releaseDateCountry                     = "";
+  double                                    scraperThreshold                       = 0.75;
+  boolean                                   scraperFallback                        = false;
+  final List<MovieScraperMetadataConfig>    scraperMetadataConfig                  = new ArrayList<>();
+  boolean                                   doNotOverwriteExistingData             = false;
+  boolean                                   capitalWordsInTitles                   = false;
 
   // artwork scraper
-  PosterSizes                            imagePosterSize                        = PosterSizes.LARGE;
-  FanartSizes                            imageFanartSize                        = FanartSizes.LARGE;
-  boolean                                imageExtraThumbs                       = false;
-  boolean                                imageExtraThumbsResize                 = true;
-  int                                    imageExtraThumbsSize                   = 300;
-  int                                    imageExtraThumbsCount                  = 5;
-  boolean                                imageExtraFanart                       = false;
-  int                                    imageExtraFanartCount                  = 5;
-  boolean                                scrapeBestImage                        = true;
-  MediaLanguages                         imageScraperLanguage                   = MediaLanguages.en;
-  boolean                                imageLanguagePriority                  = true;
-  boolean                                writeActorImages                       = false;
+  PosterSizes                               imagePosterSize                        = PosterSizes.LARGE;
+  FanartSizes                               imageFanartSize                        = FanartSizes.LARGE;
+  boolean                                   imageExtraThumbs                       = false;
+  boolean                                   imageExtraThumbsResize                 = true;
+  int                                       imageExtraThumbsSize                   = 300;
+  int                                       imageExtraThumbsCount                  = 5;
+  boolean                                   imageExtraFanart                       = false;
+  int                                       imageExtraFanartCount                  = 5;
+  boolean                                   scrapeBestImage                        = true;
+  MediaLanguages                            imageScraperLanguage                   = MediaLanguages.en;
+  boolean                                   imageLanguagePriority                  = true;
+  boolean                                   writeActorImages                       = false;
 
   // trailer scraper
-  boolean                                useTrailerPreference                   = true;
-  boolean                                automaticTrailerDownload               = false;
-  TrailerQuality                         trailerQuality                         = TrailerQuality.HD_720;
-  TrailerSources                         trailerSource                          = TrailerSources.YOUTUBE;
+  boolean                                   useTrailerPreference                   = true;
+  boolean                                   automaticTrailerDownload               = false;
+  TrailerQuality                            trailerQuality                         = TrailerQuality.HD_720;
+  TrailerSources                            trailerSource                          = TrailerSources.YOUTUBE;
 
   // subtitle scraper
-  MediaLanguages                         subtitleScraperLanguage                = MediaLanguages.en;
-  LanguageStyle                          subtitleLanguageStyle                  = LanguageStyle.ISO3T;
-  boolean                                subtitleWithoutLanguageTag             = false;
-  boolean                                subtitleForceBestMatch                 = false;
+  MediaLanguages                            subtitleScraperLanguage                = MediaLanguages.en;
+  LanguageStyle                             subtitleLanguageStyle                  = LanguageStyle.ISO3T;
+  boolean                                   subtitleWithoutLanguageTag             = false;
+  boolean                                   subtitleForceBestMatch                 = false;
 
   // misc
-  boolean                                runtimeFromMediaInfo                   = false;
-  boolean                                includeExternalAudioStreams            = false;
-  boolean                                syncTrakt                              = false;
-  boolean                                syncTraktCollection                    = true;
-  boolean                                syncTraktWatched                       = true;
-  boolean                                syncTraktRating                        = true;
-  boolean                                extractArtworkFromVsmeta               = false;
-  boolean                                useMediainfoMetadata                   = false;
+  boolean                                   runtimeFromMediaInfo                   = false;
+  boolean                                   includeExternalAudioStreams            = false;
+  boolean                                   syncTrakt                              = false;
+  boolean                                   syncTraktCollection                    = true;
+  boolean                                   syncTraktWatched                       = true;
+  boolean                                   syncTraktRating                        = true;
+  boolean                                   extractArtworkFromVsmeta               = false;
+  boolean                                   useMediainfoMetadata                   = false;
 
-  boolean                                title                                  = true;
-  boolean                                sortableTitle                          = false;
-  boolean                                originalTitle                          = false;
-  boolean                                sortableOriginalTitle                  = false;
-  boolean                                sortTitle                              = false;
-  boolean                                note                                   = false;
+  boolean                                   title                                  = true;
+  boolean                                   sortableTitle                          = false;
+  boolean                                   originalTitle                          = false;
+  boolean                                   sortableOriginalTitle                  = false;
+  boolean                                   sortTitle                              = false;
+  final List<PostProcess>                   postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
-  boolean                                showMovieTableTooltips                 = true;
-  final List<String>                     ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
-  final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
-  boolean                                storeUiFilters                         = false;
-  final List<UIFilters>                  uiFilters                              = new ArrayList<>();
+  boolean                                   showMovieTableTooltips                 = true;
+  final List<String>                        ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
+  final List<MovieScraperMetadataConfig>    movieCheckMetadata                     = new ArrayList<>();
+  boolean                                   movieDisplayAllMissingMetadata         = false;
+  final List<MovieScraperMetadataConfig>    movieCheckArtwork                      = new ArrayList<>();
+  boolean                                   movieDisplayAllMissingArtwork          = false;
+  final List<MovieSetScraperMetadataConfig> movieSetCheckMetadata                  = new ArrayList<>();
+  boolean                                   movieSetDisplayAllMissingMetadata      = false;
+  final List<MovieSetScraperMetadataConfig> movieSetCheckArtwork                   = new ArrayList<>();
+  boolean                                   movieSetDisplayAllMissingArtwork       = false;
+  boolean                                   storeUiFilters                         = false;
+  final List<UIFilters>                     uiFilters                              = new ArrayList<>();
+  final List<UniversalFilterFields>         universalFilterFields                  = new ArrayList<>();
 
   // movie sets
-  MovieSetConnectors                     movieSetConnector                      = MovieSetConnectors.EMBY;
-  final List<MovieSetNfoNaming>          movieSetNfoFilenames                   = new ArrayList<>();
+  MovieSetConnectors                        movieSetConnector                      = MovieSetConnectors.EMBY;
+  final List<MovieSetNfoNaming>             movieSetNfoFilenames                   = new ArrayList<>();
   @JsonAlias("movieSetArtworkFolder")
-  String                                 movieSetDataFolder                     = "";
-  boolean                                scrapeBestImageMovieSet                = true;
+  String                                    movieSetDataFolder                     = "";
+  boolean                                   scrapeBestImageMovieSet                = true;
 
   // movie set artwork
-  final List<MovieSetPosterNaming>       movieSetPosterFilenames                = new ArrayList<>();
-  final List<MovieSetFanartNaming>       movieSetFanartFilenames                = new ArrayList<>();
-  boolean                                showMovieSetTableTooltips              = true;
-  final List<MovieSetBannerNaming>       movieSetBannerFilenames                = new ArrayList<>();
-  boolean                                displayMovieSetMissingMovies           = false;
-  final List<MovieSetClearartNaming>     movieSetClearartFilenames              = new ArrayList<>();
-  final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
-  final List<MovieSetThumbNaming>        movieSetThumbFilenames                 = new ArrayList<>();
-  boolean                                storeMovieSetUiFilters                 = false;
-  final List<MovieSetClearlogoNaming>    movieSetClearlogoFilenames             = new ArrayList<>();
-  final List<UIFilters>                  movieSetUiFilters                      = new ArrayList<>();
-  final List<MovieSetLogoNaming>         movieSetLogoFilenames                  = new ArrayList<>();
-  final Map<String, List<UIFilters>>     movieUiFilterPresets                   = new HashMap<>();
-  final List<MovieSetDiscartNaming>      movieSetDiscartFilenames               = new ArrayList<>();
-  final Map<String, List<UIFilters>>     movieSetUiFilterPresets                = new HashMap<>();
+  final List<MovieSetPosterNaming>          movieSetPosterFilenames                = new ArrayList<>();
+  final List<MovieSetFanartNaming>          movieSetFanartFilenames                = new ArrayList<>();
+  boolean                                   showMovieSetTableTooltips              = true;
+  final List<MovieSetBannerNaming>          movieSetBannerFilenames                = new ArrayList<>();
+  boolean                                   displayMovieSetMissingMovies           = false;
+  final List<MovieSetClearartNaming>        movieSetClearartFilenames              = new ArrayList<>();
+  final List<MovieSetThumbNaming>           movieSetThumbFilenames                 = new ArrayList<>();
+  boolean                                   storeMovieSetUiFilters                 = false;
+  final List<MovieSetClearlogoNaming>       movieSetClearlogoFilenames             = new ArrayList<>();
+  final List<UIFilters>                     movieSetUiFilters                      = new ArrayList<>();
+  final List<MovieSetLogoNaming>            movieSetLogoFilenames                  = new ArrayList<>();
+  final Map<String, List<UIFilters>>        movieUiFilterPresets                   = new HashMap<>();
+  final List<MovieSetDiscartNaming>         movieSetDiscartFilenames               = new ArrayList<>();
+  final Map<String, List<UIFilters>>        movieSetUiFilterPresets                = new HashMap<>();
 
   public MovieSettings() {
     super();
@@ -329,17 +341,34 @@ public final class MovieSettings extends AbstractSettings {
     setCertificationStyle(CertificationStyle.LARGE);
 
     // UI settings
-    checkImagesMovie.clear();
-    addCheckImagesMovie(MediaArtworkType.POSTER);
-    addCheckImagesMovie(MediaArtworkType.BACKGROUND);
+    movieCheckMetadata.clear();
+    addMovieCheckMetadata(MovieScraperMetadataConfig.ID);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.TITLE);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.YEAR);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.PLOT);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.RATING);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.RUNTIME);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.CERTIFICATION);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.GENRES);
+    addMovieCheckMetadata(MovieScraperMetadataConfig.ACTORS);
+
+    movieCheckArtwork.clear();
+    addMovieCheckArtwork(MovieScraperMetadataConfig.POSTER);
+    addMovieCheckArtwork(MovieScraperMetadataConfig.FANART);
 
     ratingSources.clear();
     addRatingSource(MediaMetadata.IMDB);
 
-    checkImagesMovieSet.clear();
-    addCheckImagesMovieSet(MediaArtworkType.POSTER);
-    addCheckImagesMovieSet(MediaArtworkType.BACKGROUND);
+    movieSetCheckMetadata.clear();
+    addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.ID);
+    addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.TITLE);
+    addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.PLOT);
 
+    movieSetCheckArtwork.clear();
+    addMovieSetCheckArtwork(MovieSetScraperMetadataConfig.POSTER);
+    addMovieSetCheckArtwork(MovieSetScraperMetadataConfig.FANART);
+
+    universalFilterFields.addAll(Arrays.asList(UniversalFilterFields.values()));
     scraperMetadataConfig.addAll(Arrays.asList(MovieScraperMetadataConfig.values()));
   }
 
@@ -617,36 +646,108 @@ public final class MovieSettings extends AbstractSettings {
     return new ArrayList<>(this.discartFilenames);
   }
 
-  public void clearCheckImagesMovie() {
-    checkImagesMovie.clear();
-    firePropertyChange(CHECK_IMAGES_MOVIE, null, checkImagesMovie);
+  public void clearMovieCheckMetadata() {
+    movieCheckMetadata.clear();
+    firePropertyChange(MOVIE_CHECK_METADATA, null, movieCheckMetadata);
   }
 
-  public List<MediaArtworkType> getCheckImagesMovie() {
-    return new ArrayList<>(this.checkImagesMovie);
+  public List<MovieScraperMetadataConfig> getMovieCheckMetadata() {
+    return new ArrayList<>(movieCheckMetadata);
   }
 
-  public void addCheckImagesMovie(MediaArtworkType type) {
-    if (!checkImagesMovie.contains(type)) {
-      checkImagesMovie.add(type);
-      firePropertyChange(CHECK_IMAGES_MOVIE, null, checkImagesMovie);
+  public void addMovieCheckMetadata(MovieScraperMetadataConfig config) {
+    if (!movieCheckMetadata.contains(config)) {
+      movieCheckMetadata.add(config);
+      firePropertyChange(MOVIE_CHECK_METADATA, null, movieCheckMetadata);
     }
   }
 
-  public void clearCheckImagesMovieSet() {
-    checkImagesMovieSet.clear();
-    firePropertyChange(CHECK_IMAGES_MOVIESET, null, checkImagesMovieSet);
+  public void setMovieDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = movieDisplayAllMissingMetadata;
+    movieDisplayAllMissingMetadata = newValue;
+    firePropertyChange("movieDisplayAllMissingMetadata", oldValue, newValue);
   }
 
-  public List<MediaArtworkType> getCheckImagesMovieSet() {
-    return new ArrayList<>(this.checkImagesMovieSet);
+  public boolean isMovieDisplayAllMissingMetadata() {
+    return movieDisplayAllMissingMetadata;
   }
 
-  public void addCheckImagesMovieSet(MediaArtworkType type) {
-    if (!checkImagesMovieSet.contains(type)) {
-      checkImagesMovieSet.add(type);
-      firePropertyChange(CHECK_IMAGES_MOVIESET, null, checkImagesMovieSet);
+  public void clearMovieCheckArtwork() {
+    movieCheckArtwork.clear();
+    firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
+  }
+
+  public List<MovieScraperMetadataConfig> getMovieCheckArtwork() {
+    return new ArrayList<>(movieCheckArtwork);
+  }
+
+  public void addMovieCheckArtwork(MovieScraperMetadataConfig config) {
+    if (!movieCheckArtwork.contains(config)) {
+      movieCheckArtwork.add(config);
+      firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
     }
+  }
+
+  public void setMovieDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = movieDisplayAllMissingArtwork;
+    movieDisplayAllMissingArtwork = newValue;
+    firePropertyChange("movieDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isMovieDisplayAllMissingArtwork() {
+    return movieDisplayAllMissingArtwork;
+  }
+
+  public void clearMovieSetCheckMetadata() {
+    movieSetCheckMetadata.clear();
+    firePropertyChange(MOVIESET_CHECK_METADATA, null, movieSetCheckMetadata);
+  }
+
+  public List<MovieSetScraperMetadataConfig> getMovieSetCheckMetadata() {
+    return new ArrayList<>(movieSetCheckMetadata);
+  }
+
+  public void addMovieSetCheckMetadata(MovieSetScraperMetadataConfig config) {
+    if (!movieSetCheckMetadata.contains(config)) {
+      movieSetCheckMetadata.add(config);
+      firePropertyChange(MOVIESET_CHECK_METADATA, null, movieSetCheckMetadata);
+    }
+  }
+
+  public void setMovieSetDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = movieSetDisplayAllMissingMetadata;
+    movieSetDisplayAllMissingMetadata = newValue;
+    firePropertyChange("movieSetDisplayAllMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isMovieSetDisplayAllMissingMetadata() {
+    return movieSetDisplayAllMissingMetadata;
+  }
+
+  public void clearMovieSetCheckArtwork() {
+    movieSetCheckArtwork.clear();
+    firePropertyChange(MOVIESET_CHECK_ARTWORK, null, movieSetCheckArtwork);
+  }
+
+  public List<MovieSetScraperMetadataConfig> getMovieSetCheckArtwork() {
+    return new ArrayList<>(movieSetCheckArtwork);
+  }
+
+  public void addMovieSetCheckArtwork(MovieSetScraperMetadataConfig config) {
+    if (!movieSetCheckArtwork.contains(config)) {
+      movieSetCheckArtwork.add(config);
+      firePropertyChange(MOVIESET_CHECK_ARTWORK, null, movieSetCheckArtwork);
+    }
+  }
+
+  public void setMovieSetDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = movieSetDisplayAllMissingArtwork;
+    movieSetDisplayAllMissingArtwork = newValue;
+    firePropertyChange("movieSetDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isMovieSetDisplayAllMissingArtwork() {
+    return movieSetDisplayAllMissingArtwork;
   }
 
   public void addKeyartFilename(MovieKeyartNaming filename) {
@@ -1152,12 +1253,6 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("sortTitle", oldValue, newValue);
   }
 
-  public void setNote(boolean newValue) {
-    boolean oldValue = this.note;
-    this.note = newValue;
-    firePropertyChange("note", oldValue, newValue);
-  }
-
   public boolean getTitle() {
     return this.title;
   }
@@ -1178,10 +1273,6 @@ public final class MovieSettings extends AbstractSettings {
     return this.sortTitle;
   }
 
-  public boolean getNote() {
-    return this.note;
-  }
-
   public boolean isIncludeExternalAudioStreams() {
     return includeExternalAudioStreams;
   }
@@ -1200,6 +1291,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.asciiReplacement;
     this.asciiReplacement = newValue;
     firePropertyChange("asciiReplacement", oldValue, newValue);
+  }
+
+  public boolean isAllowMultipleMoviesInSameDir() {
+    return allowMultipleMoviesInSameDir;
+  }
+
+  public void setAllowMultipleMoviesInSameDir(boolean newValue) {
+    boolean oldValue = allowMultipleMoviesInSameDir;
+    this.allowMultipleMoviesInSameDir = newValue;
+    firePropertyChange("allowMultipleMoviesInSameDir", oldValue, newValue);
   }
 
   public void addBadWord(String badWord) {
@@ -1486,6 +1587,16 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
+  public boolean isDoNotOverwriteExistingData() {
+    return doNotOverwriteExistingData;
+  }
+
+  public void setDoNotOverwriteExistingData(boolean newValue) {
+    boolean oldValue = doNotOverwriteExistingData;
+    doNotOverwriteExistingData = newValue;
+    firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
+  }
+
   public MovieSetConnectors getMovieSetConnector() {
     return movieSetConnector;
   }
@@ -1683,6 +1794,16 @@ public final class MovieSettings extends AbstractSettings {
     return new ArrayList<>();
   }
 
+  public void setUniversalFilterFields(List<UniversalFilterFields> fields) {
+    universalFilterFields.clear();
+    universalFilterFields.addAll(fields);
+    firePropertyChange("universalFilterFields", null, universalFilterFields);
+  }
+
+  public List<UniversalFilterFields> getUniversalFilterFields() {
+    return universalFilterFields;
+  }
+
   public void setStoreUiFilters(boolean newValue) {
     boolean oldValue = this.storeUiFilters;
     this.storeUiFilters = newValue;
@@ -1716,5 +1837,23 @@ public final class MovieSettings extends AbstractSettings {
     return storeMovieSetUiFilters;
   }
 
+  public void addPostProcess(PostProcess newProcess) {
+    postProcess.add(newProcess);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
 
+  public void removePostProcess(PostProcess process) {
+    postProcess.remove(process);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
+
+  public List<PostProcess> getPostProcess() {
+    return postProcess;
+  }
+
+  public void setPostProcess(List<PostProcess> newValues) {
+    postProcess.clear();
+    postProcess.addAll(newValues);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
 }

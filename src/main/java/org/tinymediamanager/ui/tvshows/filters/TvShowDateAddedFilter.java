@@ -78,6 +78,11 @@ public class TvShowDateAddedFilter extends AbstractTvShowUIFilter {
   }
 
   @Override
+  public void clearFilter() {
+    datePicker.setDate(null);
+  }
+
+  @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
     if (datePicker.getDate() == null) {
       return true;

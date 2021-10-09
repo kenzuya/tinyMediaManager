@@ -344,7 +344,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
    */
   private String getLanguageCode(Locale locale) {
     // default ISO 639.2B
-    String languageCode = LanguageUtils.getISO3BLanguage(locale.getLanguage());
+    String languageCode = LanguageUtils.getIso3BLanguage(locale.getLanguage());
 
     // and now the exceptions
     // greek: gre -> ell

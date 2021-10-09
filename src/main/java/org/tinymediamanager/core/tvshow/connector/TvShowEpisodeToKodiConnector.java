@@ -29,7 +29,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
- * the class TvShowEpisodeToKodiConnector is used to write a the most recent Kodi compatible NFO file
+ * the class {@link TvShowEpisodeToKodiConnector} is used to write a most recent Kodi compatible NFO file
  *
  * @author Manuel Laggner
  */
@@ -98,7 +98,7 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
   /**
    * add the <epbookmark>xxx</epbookmark>
    */
-  private void addEpbookmark(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+  protected void addEpbookmark(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element epbookmark = document.createElement("epbookmark");
     if (parser != null) {
       epbookmark.setTextContent(parser.epbookmark);
@@ -109,7 +109,7 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
   /**
    * add the <code>xxx</code>
    */
-  private void addCode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+  protected void addCode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element code = document.createElement("code");
     if (parser != null) {
       code.setTextContent(parser.code);

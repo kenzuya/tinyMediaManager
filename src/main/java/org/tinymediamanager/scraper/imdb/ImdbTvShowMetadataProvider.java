@@ -79,7 +79,7 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return (new ImdbTvShowParser(this, executor)).getTvShowMetadata(options);
+    return (new ImdbTvShowParser(this, EXECUTOR)).getTvShowMetadata(options);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return (new ImdbTvShowParser(this, executor)).getEpisodeMetadata(options);
+    return (new ImdbTvShowParser(this, EXECUTOR)).getEpisodeMetadata(options);
   }
 
   @Override
@@ -99,7 +99,7 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return (new ImdbTvShowParser(this, executor)).search(options);
+    return (new ImdbTvShowParser(this, EXECUTOR)).search(options);
   }
 
   @Override
@@ -109,6 +109,6 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    return new ImdbTvShowParser(this, executor).getEpisodeList(options);
+    return new ImdbTvShowParser(this, EXECUTOR).getEpisodeList(options);
   }
 }

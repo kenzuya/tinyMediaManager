@@ -52,6 +52,18 @@ test:jdk15:
   artifacts:
     expire_in: 1 days
 
+test:jdk16:
+  stage: test
+  image: registry.gitlab.com/tinymediamanager/docker/jdk16
+  except:
+    - main@tinyMediaManager/tinyMediaManager
+  only:
+    - pushes
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
 # use dependency scanning (only on QA)
 include:
   template: Dependency-Scanning.gitlab-ci.yml
@@ -81,6 +93,9 @@ sonarqube-qa:
   artifacts:
     expire_in: 1 days
 
+##########################################
+# nightly
+##########################################
 deploy:nightly:
   stage: deploy
   only:
@@ -90,6 +105,9 @@ deploy:nightly:
     include: .ci/deploy_nightly.yml
     strategy: depend
 
+##########################################
+# PRE-RELEASE
+##########################################
 deploy:PRE-RELEASE:
   stage: deploy
   only:
@@ -99,78 +117,42 @@ deploy:PRE-RELEASE:
     include: .ci/deploy_prerelease.yml
     strategy: depend
 
+##########################################
+# RELEASE
+##########################################
 deploy:RELEASE:
   stage: deploy
-  image: maven:3-jdk-11      # use stretch
-  environment:
-    name: release
-    url: https://release.tinymediamanager.org
-  when: manual
   only:
     - main@tinyMediaManager/tinyMediaManager
-  tags:
-    - docker # force running on gitlab
+  when: manual
+  trigger:
+    include: .ci/deploy_release.yml
+    strategy: depend
+
+##########################################
+# DOCKER - RELEASE
+##########################################
+deploy:DOCKER-RELEASE:
+  stage: deploy
+  image: docker:latest
+  only:
+    - main@tinyMediaManager/tinyMediaManager
+  when: manual
+  services:
+    - name: docker:dind
+  variables:
+    TMM_VERSION: "4.2.3"
+    IMAGE_NAME: tinymediamanager/tinymediamanager:${TMM_VERSION}
   script:
-    # update package sources and install ant + 32 bit libs
-    - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
+    # login
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
-    ##
-    ## Install ssh-agent if not already installed, it is required by Docker.
-    ## (change apt-get to yum if you use an RPM-based image)
-    ##
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    # build
+    - cd docker
+    - docker build -f Dockerfile -t $IMAGE_NAME .
 
-    ##
-    ## Run ssh-agent (inside the build environment)
-    ##
-    - eval $(ssh-agent -s)
-
-    ##
-    ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
-    ## We're using tr to fix line endings which makes ed25519 keys work
-    ## without extra base64 encoding.
-    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
-    ##
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-
-    ##
-    ## Create the SSH directory and give it the right permissions
-    ##
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-
-    ##
-    ## set gpg key
-    ##
-    - echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
-    - gpg --list-keys
-
-    ##
-    ## configure git for version push
-    ##
-    - git config --global user.name ${SSH_USER_NAME}
-    - git config --global user.email ${SSH_USER_EMAIL}
-    - git checkout -f ${CI_COMMIT_REF_NAME}
-    - git remote set-url origin git@gitlab.com:tinyMediaManager/${CI_PROJECT_NAME}.git
-
-    ##
-    ## perform the release
-    ##
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown.txt -Dthread_pool_size=1 release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -Dmaven.test.skip=true -DskipITs -DscmCommentPrefix="[ci skip]"
-
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 release\"}" https://gitlab.com/api/v4/projects/10869704/repository/files/v4_job_id.txt
-
-    # trigger the deployment on release.tinymediamanager.org (new HP)
-    - curl -X POST -F "token=${RELEASE_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869704/trigger/pipeline
-
-  artifacts:
-    expire_in: never
-    paths:
-      - build/
-      - dist/
+    # push to the registry
+    - docker push $IMAGE_NAME
 
 ##########################################
 # TEST

@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -135,23 +137,20 @@ public class ImdbTvShowParser extends ImdbParser {
     // worker for tmdb request
     Future<MediaMetadata> futureTmdb = null;
     if (isUseTmdbForTvShows()) {
-      ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
       Callable<MediaMetadata> worker2 = new TmdbTvShowWorker(options);
-      futureTmdb = compSvcTmdb.submit(worker2);
+      futureTmdb = executor.submit(worker2);
     }
-
-    ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
     // get reference data (/reference)
     String url = apiKey + "title/" + imdbId + "/reference";
     Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-    Future<Document> futureReference = compSvcImdb.submit(worker);
+    Future<Document> futureReference = executor.submit(worker);
 
     // worker for imdb request (/plotsummary)
     Future<Document> futurePlotsummary;
     url = apiKey + "title/" + imdbId + "/plotsummary";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = compSvcImdb.submit(worker);
+    futurePlotsummary = executor.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     // Future<Document> futureReleaseinfo;
@@ -163,7 +162,7 @@ public class ImdbTvShowParser extends ImdbParser {
     if (isScrapeKeywordsPage()) {
       url = apiKey + "title/" + imdbId + "/keywords";
       worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-      futureKeywords = compSvcImdb.submit(worker);
+      futureKeywords = executor.submit(worker);
     }
 
     Document doc;
@@ -181,7 +180,7 @@ public class ImdbTvShowParser extends ImdbParser {
       // did we get a release date?
       if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
         // get the date from the releaseinfo page
-        Document releaseinfoDoc = compSvcImdb.submit(worker).get();
+        Document releaseinfoDoc = executor.submit(worker).get();
         // parse original title here!!
         if (releaseinfoDoc != null) {
           parseReleaseinfoPage(releaseinfoDoc, options, md);
@@ -252,11 +251,6 @@ public class ImdbTvShowParser extends ImdbParser {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
     String showId = "" + options.getTvShowIds().get(MediaMetadata.IMDB);
 
-    if (!MetadataUtil.isValidImdbId(showId)) {
-      LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
-      throw new MissingIdException(MediaMetadata.IMDB);
-    }
-
     String episodeId = options.getIdAsString(MediaMetadata.IMDB);
     if (!MetadataUtil.isValidImdbId(episodeId)) {
       episodeId = "";
@@ -271,26 +265,40 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
-    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
-
+    // only if we get a S/E number
     MediaMetadata wantedEpisode = null;
-    for (MediaMetadata episode : episodes) {
+    if (seasonNr >= 0 && episodeNr > 0) {
+      if (!MetadataUtil.isValidImdbId(showId)) {
+        LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
+        throw new MissingIdException(MediaMetadata.IMDB);
+      }
+
+      List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
+
+      // search by ID
       if (StringUtils.isNotBlank(episodeId)) {
-        // search via episode imdb id
-        if (episodeId.equals(episode.getId(MediaMetadata.IMDB))) {
-          wantedEpisode = episode;
-          break;
+        for (MediaMetadata episode : episodes) {
+          if (episodeId.equals(episode.getId(MediaMetadata.IMDB))) {
+            wantedEpisode = episode;
+            break;
+          }
         }
       }
-      else if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
-        // search via season/episode number
-        wantedEpisode = episode;
-        break;
+
+      // search by S/E
+      if (wantedEpisode == null) {
+        for (MediaMetadata episode : episodes) {
+          if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+            // search via season/episode number
+            wantedEpisode = episode;
+            break;
+          }
+        }
       }
     }
 
     // we did not find the episode; return
-    if (wantedEpisode == null) {
+    if (wantedEpisode == null && StringUtils.isBlank(episodeId)) {
       LOGGER.warn("episode not found");
       throw new NothingFoundException();
     }
@@ -298,23 +306,27 @@ public class ImdbTvShowParser extends ImdbParser {
     // worker for tmdb request
     ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
     Future<MediaMetadata> futureTmdb = null;
-    if (isUseTmdbForTvShows()) {
-      Callable<MediaMetadata> worker2 = new TmdbTvShowEpisodeWorker(options);
-      futureTmdb = compSvcTmdb.submit(worker2);
+
+    // match via episodelist found
+    if (wantedEpisode != null && wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
+      episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
+      md.setEpisodeNumber(wantedEpisode.getEpisodeNumber());
+      md.setSeasonNumber(wantedEpisode.getSeasonNumber());
+      md.setTitle(wantedEpisode.getTitle());
+      md.setPlot(wantedEpisode.getPlot());
+      md.setRatings(wantedEpisode.getRatings());
+      md.setReleaseDate(wantedEpisode.getReleaseDate());
+
+      if (isUseTmdbForTvShows()) {
+        Callable<MediaMetadata> worker2 = new TmdbTvShowEpisodeWorker(options);
+        futureTmdb = compSvcTmdb.submit(worker2);
+      }
     }
 
-    md.setId(ImdbMetadataProvider.ID, wantedEpisode.getId(ImdbMetadataProvider.ID));
-    md.setEpisodeNumber(wantedEpisode.getEpisodeNumber());
-    md.setSeasonNumber(wantedEpisode.getSeasonNumber());
-    md.setTitle(wantedEpisode.getTitle());
-    md.setPlot(wantedEpisode.getPlot());
-    md.setRatings(wantedEpisode.getRatings());
-    md.setReleaseDate(wantedEpisode.getReleaseDate());
-    md.setRatings(wantedEpisode.getRatings());
-
     // and finally the cast which needed to be fetched from the reference page
-    if (wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
-      episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
+    if (MetadataUtil.isValidImdbId(episodeId)) {
+      md.setId(ImdbMetadataProvider.ID, episodeId);
+
       if (MetadataUtil.isValidImdbId(episodeId)) {
         ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
@@ -332,87 +344,8 @@ public class ImdbTvShowParser extends ImdbParser {
 
         try {
           Document doc = futureReference.get();
-
           if (doc != null) {
-            // director
-            Element directorsElement = doc.getElementById("directors");
-            while (directorsElement != null && !"header".equals(directorsElement.tag().getName())) {
-              directorsElement = directorsElement.parent();
-            }
-            if (directorsElement != null) {
-              directorsElement = directorsElement.nextElementSibling();
-            }
-            if (directorsElement != null) {
-              for (Element directorElement : directorsElement.getElementsByClass("name")) {
-                String director = directorElement.text().trim();
-
-                Person cm = new Person(Person.Type.DIRECTOR, director);
-                // profile path
-                Element anchor = directorElement.getElementsByAttributeValueStarting("href", "/name/").first();
-                if (anchor != null) {
-                  Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
-                  if (matcher.find()) {
-                    if (matcher.group(0) != null) {
-                      cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
-                    }
-                    if (matcher.group(1) != null) {
-                      cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
-                    }
-                  }
-                }
-                md.addCastMember(cm);
-              }
-            }
-
-            // actors
-            Element castTableElement = doc.getElementsByClass("cast_list").first();
-            if (castTableElement != null) {
-              Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
-              Elements tr = castTableElement.getElementsByTag("tr");
-              for (Element row : tr) {
-                // check if we're at the uncredited cast members
-                if (!isScrapeUncreditedActors() && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
-                  break;
-                }
-
-                Person cm = parseCastMember(row);
-                if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
-                  cm.setType(ACTOR);
-                  md.addCastMember(cm);
-                }
-              }
-            }
-
-            // writers
-            Element writersElement = doc.getElementById("writers");
-            while (writersElement != null && !"header".equals(writersElement.tag().getName())) {
-              writersElement = writersElement.parent();
-            }
-            if (writersElement != null) {
-              writersElement = writersElement.nextElementSibling();
-            }
-            if (writersElement != null) {
-              Elements writersElements = writersElement.getElementsByAttributeValueStarting("href", "/name/");
-
-              for (Element writerElement : writersElements) {
-                String writer = cleanString(writerElement.ownText());
-                Person cm = new Person(WRITER, writer);
-                // profile path
-                Element anchor = writerElement.getElementsByAttributeValueStarting("href", "/name/").first();
-                if (anchor != null) {
-                  Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
-                  if (matcher.find()) {
-                    if (matcher.group(0) != null) {
-                      cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
-                    }
-                    if (matcher.group(1) != null) {
-                      cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
-                    }
-                  }
-                }
-                md.addCastMember(cm);
-              }
-            }
+            parseEpisodeReference(doc, md, episodeId);
           }
 
           if (futureKeywords != null) {
@@ -498,7 +431,8 @@ public class ImdbTvShowParser extends ImdbParser {
     Document doc;
     Url url;
     try {
-      url = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"));
+      // cache this on disk because that may be called multiple times
+      url = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"), 300, TimeUnit.SECONDS);
       url.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
     }
     catch (Exception e) {
@@ -594,15 +528,15 @@ public class ImdbTvShowParser extends ImdbParser {
     for (Element table : tables) {
       Elements rows = table.getElementsByClass("list_item");
       for (Element row : rows) {
-        Matcher matcher = season == 0 ? unknownPattern.matcher(row.text()) : seasonEpisodePattern.matcher(row.text());
-        if (matcher.find() && (season == 0 || matcher.groupCount() >= 2)) {
+        Matcher matcher = season <= 0 ? unknownPattern.matcher(row.text()) : seasonEpisodePattern.matcher(row.text());
+        if (matcher.find() && (season <= 0 || matcher.groupCount() >= 2)) {
           try {
             // we found a row containing episode data
             MediaMetadata ep = new MediaMetadata(ImdbMetadataProvider.ID);
 
             // parse season and ep number
-            if (season == 0) {
-              ep.setSeasonNumber(season);
+            if (season <= 0) {
+              ep.setSeasonNumber(0);
               ep.setEpisodeNumber(++episodeCounter);
             }
             else {
@@ -694,6 +628,177 @@ public class ImdbTvShowParser extends ImdbParser {
       }
     }
     return true;
+  }
+
+  private void parseEpisodeReference(Document doc, MediaMetadata md, String imdbId) {
+    // title (h3 itemprop=name)
+    Element header = doc.getElementsByClass("titlereference-header").first();
+    if (header != null) {
+      Element year = header.getElementsByClass("titlereference-title-year").first();
+      if (year != null) {
+        String episodeTitle = cleanString(year.parent().ownText());
+        if (StringUtils.isNotBlank(episodeTitle)) {
+          md.setTitle(episodeTitle);
+        }
+      }
+    }
+
+    // title: fallback to title from meta
+    if (StringUtils.isBlank(md.getTitle())) {
+      Element title = doc.getElementsByAttributeValue("name", "title").first();
+      if (title != null) {
+        String episodeTitle = cleanString(title.attr("content"));
+
+        int yearStart = episodeTitle.lastIndexOf('(');
+        if (yearStart > 0) {
+          episodeTitle = episodeTitle.substring(0, yearStart - 1).trim();
+          md.setTitle(episodeTitle);
+        }
+      }
+    }
+
+    // plot
+    // class titlereference-section-overview -> first div without class
+    Element titlereference = doc.getElementsByClass("titlereference-section-overview").first();
+    if (titlereference != null) {
+      for (Element child : titlereference.children()) {
+        if ("div".equals(child.tagName()) && child.classNames().isEmpty()) {
+          String plot = child.text();
+          if (StringUtils.isNotBlank(plot)) {
+            md.setPlot(plot);
+            break;
+          }
+        }
+      }
+    }
+
+    // releasedate
+    Element releaseDateElement = doc.getElementsByAttributeValue("href", "/title/" + imdbId + "/releaseinfo").first();
+    if (releaseDateElement != null) {
+      String releaseDateText = releaseDateElement.ownText();
+      int startOfCountry = releaseDateText.indexOf('(');
+      if (startOfCountry > 0) {
+        releaseDateText = releaseDateText.substring(0, startOfCountry - 1).trim();
+      }
+      md.setReleaseDate(parseDate(releaseDateText));
+    }
+
+    // poster
+    Element poster = doc.getElementsByAttributeValue("property", "og:image").first();
+    if (poster != null) {
+      String posterUrl = poster.attr("content");
+
+      int fileStart = posterUrl.lastIndexOf('/');
+      if (fileStart > 0) {
+        int parameterStart = posterUrl.indexOf('_', fileStart);
+        if (parameterStart > 0) {
+          int startOfExtension = posterUrl.lastIndexOf('.');
+          if (startOfExtension > parameterStart) {
+            posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
+          }
+        }
+      }
+      processMediaArt(md, MediaArtwork.MediaArtworkType.POSTER, posterUrl);
+    }
+
+    // rating and rating count
+    Element ratingElement = doc.getElementsByClass("ipl-rating-star__rating").first();
+    if (ratingElement != null) {
+      String ratingAsString = ratingElement.ownText().replace(",", ".");
+      Element votesElement = doc.getElementsByClass("ipl-rating-star__total-votes").first();
+      if (votesElement != null) {
+        String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
+        try {
+          MediaRating rating = new MediaRating("imdb");
+          rating.setRating(Float.parseFloat(ratingAsString));
+          rating.setVotes(MetadataUtil.parseInt(countAsString));
+          md.addRating(rating);
+        }
+        catch (Exception e) {
+          getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+        }
+      }
+    }
+
+    // director
+    Element directorsElement = doc.getElementById("directors");
+    while (directorsElement != null && !"header".equals(directorsElement.tag().getName())) {
+      directorsElement = directorsElement.parent();
+    }
+    if (directorsElement != null) {
+      directorsElement = directorsElement.nextElementSibling();
+    }
+    if (directorsElement != null) {
+      for (Element directorElement : directorsElement.getElementsByClass("name")) {
+        String director = directorElement.text().trim();
+
+        Person cm = new Person(Person.Type.DIRECTOR, director);
+        // profile path
+        Element anchor = directorElement.getElementsByAttributeValueStarting("href", "/name/").first();
+        if (anchor != null) {
+          Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
+          if (matcher.find()) {
+            if (matcher.group(0) != null) {
+              cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
+            }
+            if (matcher.group(1) != null) {
+              cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
+            }
+          }
+        }
+        md.addCastMember(cm);
+      }
+    }
+
+    // actors
+    Element castTableElement = doc.getElementsByClass("cast_list").first();
+    if (castTableElement != null) {
+      Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
+      Elements tr = castTableElement.getElementsByTag("tr");
+      for (Element row : tr) {
+        // check if we're at the uncredited cast members
+        if (!isScrapeUncreditedActors() && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+          break;
+        }
+
+        Person cm = parseCastMember(row);
+        if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
+          cm.setType(ACTOR);
+          md.addCastMember(cm);
+        }
+      }
+    }
+
+    // writers
+    Element writersElement = doc.getElementById("writers");
+    while (writersElement != null && !"header".equals(writersElement.tag().getName())) {
+      writersElement = writersElement.parent();
+    }
+    if (writersElement != null) {
+      writersElement = writersElement.nextElementSibling();
+    }
+    if (writersElement != null) {
+      Elements writersElements = writersElement.getElementsByAttributeValueStarting("href", "/name/");
+
+      for (Element writerElement : writersElements) {
+        String writer = cleanString(writerElement.ownText());
+        Person cm = new Person(WRITER, writer);
+        // profile path
+        Element anchor = writerElement.getElementsByAttributeValueStarting("href", "/name/").first();
+        if (anchor != null) {
+          Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
+          if (matcher.find()) {
+            if (matcher.group(0) != null) {
+              cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
+            }
+            if (matcher.group(1) != null) {
+              cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
+            }
+          }
+        }
+        md.addCastMember(cm);
+      }
+    }
   }
 
   public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {

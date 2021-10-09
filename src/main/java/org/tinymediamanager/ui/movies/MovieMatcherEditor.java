@@ -105,6 +105,18 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
   }
 
   /**
+   * clear any set filters
+   */
+  public void clearFilters() {
+    for (IMovieUIFilter filter : filters) {
+      filter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);
+      filter.clearFilter();
+    }
+
+    updateFiltering();
+  }
+
+  /**
    * re-filter the list
    */
   private void updateFiltering() {

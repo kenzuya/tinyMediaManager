@@ -51,13 +51,11 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieSourcePanel extends JPanel {
-  private static final long           serialVersionUID = -8346420911623937902L;
-
-  
+  private static final long   serialVersionUID = -8346420911623937902L;
 
   private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
-  private JList<String>               listDataSources;
+  private JList<String>       listDataSources;
 
   public MovieSourcePanel() {
     initComponents();

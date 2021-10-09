@@ -28,6 +28,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public enum MovieSetScraperMetadataConfig implements ScraperMetadataConfig {
   // meta data
+  ID(Type.METADATA),
   TITLE(Type.METADATA),
   PLOT(Type.METADATA),
   RATING(Type.METADATA),

@@ -50,6 +50,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 
@@ -240,14 +241,14 @@ public class MovieScrapeTask extends TmmThreadPool {
       List<MediaSearchResult> results = movieList.searchMovie(movie.getTitle(), movie.getYear(), movie.getIds(), mediaMetadataProvider);
       MediaSearchResult result = null;
 
-      if (results != null && !results.isEmpty()) {
+      if (ListUtils.isNotEmpty(results)) {
         result = results.get(0);
         // check if there is an other result with 100% score
         if (results.size() > 1) {
           MediaSearchResult result2 = results.get(1);
-          // if both results have 100% score - do not take any result
-          if (result.getScore() == 1 && result2.getScore() == 1) {
-            LOGGER.info("two 100% results, can't decide which to take - ignore result");
+          // if both results have the same score - do not take any result
+          if (result.getScore() == result2.getScore()) {
+            LOGGER.info("two identical results, can't decide which to take - ignore result");
             MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "movie.scrape.toosimilar"));
             return null;
           }

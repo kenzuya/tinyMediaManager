@@ -56,6 +56,7 @@ public class WhatsNewDialog extends TmmDialog {
 
   public WhatsNewDialog(String changelog) {
     super(TmmResourceBundle.getString("whatsnew.title"), "whatsnew");
+    setName("WhatsNewDialog");
     setMinimumSize(new Dimension(800, 600));
     {
       JPanel panelContent = new JPanel();

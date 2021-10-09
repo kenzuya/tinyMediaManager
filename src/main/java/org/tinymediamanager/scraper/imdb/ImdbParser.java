@@ -74,7 +74,7 @@ public abstract class ImdbParser {
   static final Pattern                PERSON_ID_PATTERN        = Pattern.compile("/name/(nm[0-9]{6,})/");
   static final Pattern                MOVIE_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)$");
   static final Pattern                TV_MOVIE_PATTERN         = Pattern.compile("^.*?\\(\\d{4}\\s+TV Movie\\)$");
-  static final Pattern                TV_SERIES_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((TV Series|TV Mini-Series)\\)$");
+  static final Pattern                TV_SERIES_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((TV Series|TV Mini[ -]Series)\\)$");
   static final Pattern                SHORT_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((Short|Video)\\)$");
   static final Pattern                VIDEOGAME_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\(Video Game\\)$");
 
@@ -393,7 +393,7 @@ public abstract class ImdbParser {
 
         // and parse out the poster
         String posterUrl = "";
-        Elements posters = doc.getElementsByClass("poster");
+        Elements posters = doc.getElementsByClass("ipc-poster");
         if (posters != null && !posters.isEmpty()) {
           Elements imgs = posters.get(0).getElementsByTag("img");
           for (Element img : imgs) {
@@ -443,7 +443,7 @@ public abstract class ImdbParser {
         }
 
         // filter out unwanted results
-        if (!includeSearchResult(element.text())) {
+        if (!includeSearchResult(element.ownText().replace("aka", ""))) {
           continue;
         }
 

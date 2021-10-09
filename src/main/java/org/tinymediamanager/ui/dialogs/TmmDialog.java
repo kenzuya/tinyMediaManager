@@ -144,7 +144,7 @@ public abstract class TmmDialog extends JDialog {
    *          the panel to be set
    */
   protected void setBottomInformationPanel(JPanel panel) {
-    bottomPanel.add(panel, "cell 0 1,growx");
+    bottomPanel.add(panel, "cell 0 1,growx, wmin 0");
   }
 
   /**
@@ -170,7 +170,7 @@ public abstract class TmmDialog extends JDialog {
       topPanel.setLayout(new MigLayout("insets 0 0 n 0, gap rel 0", "[grow]", "[][shrink 0]"));
 
       JSeparator separator = new JSeparator();
-      topPanel.add(separator, "cell 0 1,growx");
+      topPanel.add(separator, "cell 0 1,growx, wmin 0");
     }
 
     topPanel.add(panel, "cell 0 0,growx");

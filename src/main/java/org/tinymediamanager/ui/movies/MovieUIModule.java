@@ -16,9 +16,11 @@
 package org.tinymediamanager.ui.movies;
 
 import java.awt.CardLayout;
+import java.util.ArrayList;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -28,9 +30,11 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MoviePostProcessExecutor;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -84,7 +88,7 @@ import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieListPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
-import org.tinymediamanager.ui.movies.panels.TrailerPanel;
+import org.tinymediamanager.ui.movies.panels.MovieTrailerPanel;
 import org.tinymediamanager.ui.movies.settings.MovieSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
@@ -135,7 +139,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     tabbedPane.add(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(selectionModel));
     tabbedPane.add(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel));
     tabbedPane.add(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel));
-    tabbedPane.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.trailer"), new MovieTrailerPanel(selectionModel));
     dataPanel.add(tabbedPane);
 
     movieFilterDialog = new MovieFilterDialog(selectionModel);
@@ -240,12 +244,17 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
 
+    JMenu postProcessingMenu = new JMenu(TmmResourceBundle.getString("Settings.postprocessing"));
+    postProcessingMenu.setIcon(IconManager.MENU);
+    popupMenu.add(postProcessingMenu);
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
     popupMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRemoveAction.class));
     popupMenu.add(createAndRegisterAction(MovieDeleteAction.class));
+    popupMenu.addSeparator();
 
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");
@@ -273,14 +282,30 @@ public class MovieUIModule extends AbstractTmmUIModule {
         else {
           traktMenu.setEnabled(false);
         }
+
+        // Post processing
+        postProcessingMenu.removeAll();
+        for (PostProcess process : new ArrayList<>(MovieModuleManager.getInstance().getSettings().getPostProcess())) {
+          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY);
+          menuItem.addActionListener(pp -> new MoviePostProcessExecutor(process).execute());
+          postProcessingMenu.add(menuItem);
+        }
+        if (postProcessingMenu.getItemCount() == 0) {
+          postProcessingMenu.setEnabled(false);
+        }
+        else {
+          postProcessingMenu.setEnabled(true);
+        }
       }
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // nothing to do
       }
 
       @Override
       public void popupMenuCanceled(PopupMenuEvent e) {
+        // nothing to do
       }
     });
 

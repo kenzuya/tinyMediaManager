@@ -17,6 +17,7 @@
 package org.tinymediamanager.core.movie.connector;
 
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.w3c.dom.Element;
 
 /**
  * this class is a general XML connector which suits as a base class for most xml based connectors
@@ -31,5 +32,17 @@ public class MovieSetToEmbyConnector extends MovieSetGenericXmlConnector {
   @Override
   protected void addOwnTags() {
     // no own tags here
+  }
+
+  @Override
+  protected void addIds() {
+    // write a <tmdbid> tag for emby
+    Element tmdbid = document.createElement("tmdbid");
+    if (movieSet.getTmdbId() > 0) {
+      tmdbid.setTextContent(Integer.toString(movieSet.getTmdbId()));
+    }
+    root.appendChild(tmdbid);
+
+    super.addIds();
   }
 }

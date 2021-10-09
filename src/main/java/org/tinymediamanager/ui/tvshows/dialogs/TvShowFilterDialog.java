@@ -19,8 +19,8 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +66,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowAudioChannelFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioStreamCountFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowAudioTitleFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCastFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCertificationFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCountryFilter;
@@ -94,6 +95,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowTagFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowUncategorizedEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoContainerFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowWatchedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
@@ -117,6 +119,7 @@ public class TvShowFilterDialog extends TmmDialog {
   public TvShowFilterDialog(TmmTreeTable treeTable) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "tvShowFilter");
     setModalityType(ModalityType.MODELESS);
+    setMinimumSize(new Dimension(550, 400));
 
     this.treeTable = treeTable;
     this.filterMap = new HashMap<>();
@@ -129,9 +132,11 @@ public class TvShowFilterDialog extends TmmDialog {
         treeTable.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(filterName));
       }
       else {
-        treeTable.setFilterValues(Collections.emptyList());
+        treeTable.clearFilter();
       }
     };
+
+    ActionListener resetFilter = e -> SwingUtilities.invokeLater(treeTable::clearFilter);
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -144,56 +149,111 @@ public class TvShowFilterDialog extends TmmDialog {
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowNewEpisodesFilter(), panelMain);
+        addFilter(new TvShowDatasourceFilter(), panelMain);
+        addFilter(new TvShowWatchedFilter(), panelMain);
         addFilter(new TvShowDateAddedFilter(), panelMain);
         addFilter(new TvShowDuplicateEpisodesFilter(), panelMain);
-        addFilter(new TvShowWatchedFilter(), panelMain);
         addFilter(new TvShowStatusFilter(), panelMain);
-        addFilter(new TvShowGenreFilter(), panelMain);
-        addFilter(new TvShowCertificationFilter(), panelMain);
-        addFilter(new TvShowStudioFilter(), panelMain);
-        addFilter(new TvShowCastFilter(), panelMain);
-        addFilter(new TvShowCountryFilter(), panelMain);
-        addFilter(new TvShowTagFilter(), panelMain);
+        addFilter(new TvShowAllInOneFilter(), panelMain);
         addFilter(new TvShowEmptyFilter(), panelMain);
-        addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
-        addFilter(new TvShowMissingEpisodesFilter(), panelMain);
-        addFilter(new TvShowNoteFilter(), panelMain);
-        addFilter(new TvShowYearFilter(), panelMain);
-        addFilter(new TvShowDecadeFilter(), panelMain);
-        addFilter(new TvShowAllInOneFilter(),panelMain);
       }
 
       {
-        // panel media data
-        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
+        // panel Metadata
+        JPanel panelMetadata = new JPanel(new MigLayout("", "[][][100lp:150lp,grow]", "[]"));
+        JScrollPane scrollPaneMetadata = new NoBorderScrollPane(panelMetadata);
+        scrollPaneMetadata.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), scrollPaneMetadata);
 
-        scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediainformation"), scrollPaneMediaData);
-        panelMediaData.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        addFilter(new TvShowDatasourceFilter(), panelMediaData);
-        addFilter(new TvShowMediaFilesFilter(), panelMediaData);
-        addFilter(new TvShowFilenameFilter(), panelMediaData);
-        addFilter(new TvShowVideoFormatFilter(), panelMediaData);
-        addFilter(new TvShowVideoCodecFilter(), panelMediaData);
-        addFilter(new TvShowAspectRatioFilter(), panelMediaData);
-        addFilter(new TvShowFrameRateFilter(), panelMediaData);
-        addFilter(new TvShowVideoContainerFilter(), panelMediaData);
-        addFilter(new TvShowAudioCodecFilter(), panelMediaData);
-        addFilter(new TvShowAudioChannelFilter(), panelMediaData);
-        addFilter(new TvShowAudioStreamCountFilter(), panelMediaData);
-        addFilter(new TvShowAudioLanguageFilter(), panelMediaData);
-        addFilter(new TvShowSubtitleCountFilter(), panelMediaData);
-        addFilter(new TvShowSubtitleLanguageFilter(), panelMediaData);
-        addFilter(new TvShowMediaSourceFilter(), panelMediaData);
-        addFilter(new TvShowMissingMetadataFilter(), panelMediaData);
-        addFilter(new TvShowMissingArtworkFilter(), panelMediaData);
-        addFilter(new TvShowMissingSubtitlesFilter(), panelMediaData);
-        addFilter(new TvShowHDRFormatFilter(), panelMediaData);
+        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new TvShowYearFilter(), panelMetadata);
+        addFilter(new TvShowDecadeFilter(), panelMetadata);
+        addFilter(new TvShowGenreFilter(), panelMetadata);
+        addFilter(new TvShowCertificationFilter(), panelMetadata);
+        addFilter(new TvShowCastFilter(), panelMetadata);
+        addFilter(new TvShowCountryFilter(), panelMetadata);
+        addFilter(new TvShowStudioFilter(), panelMetadata);
+        addFilter(new TvShowTagFilter(), panelMetadata);
+        addFilter(new TvShowNoteFilter(), panelMetadata);
+      }
+
+      {
+        // panel video
+        JPanel panelVideo = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
+        JScrollPane scrollPaneVideo = new NoBorderScrollPane(panelVideo);
+
+        scrollPaneVideo.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), scrollPaneVideo);
+        panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new TvShowVideoFormatFilter(), panelVideo);
+        addFilter(new TvShowVideoCodecFilter(), panelVideo);
+        addFilter(new TvShowVideoContainerFilter(), panelVideo);
+        addFilter(new TvShowAspectRatioFilter(), panelVideo);
+        addFilter(new TvShowFrameRateFilter(), panelVideo);
+        addFilter(new TvShowHDRFormatFilter(), panelVideo);
+      }
+
+      {
+        // panel audio
+        JPanel panelAudio = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
+        JScrollPane scrollPaneAudio = new NoBorderScrollPane(panelAudio);
+
+        scrollPaneAudio.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), scrollPaneAudio);
+        panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new TvShowAudioCodecFilter(), panelAudio);
+        addFilter(new TvShowAudioChannelFilter(), panelAudio);
+        addFilter(new TvShowAudioStreamCountFilter(), panelAudio);
+        addFilter(new TvShowAudioLanguageFilter(), panelAudio);
+        addFilter(new TvShowAudioTitleFilter(), panelAudio);
+      }
+
+      {
+        // panel other
+        JPanel panelOthers = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
+        JScrollPane scrollPaneOthers = new NoBorderScrollPane(panelOthers);
+
+        scrollPaneOthers.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), scrollPaneOthers);
+        panelOthers.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelOthers.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelOthers.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelOthers.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new TvShowMediaSourceFilter(), panelOthers);
+        addFilter(new TvShowMediaFilesFilter(), panelOthers);
+        addFilter(new TvShowFilenameFilter(), panelOthers);
+        addFilter(new TvShowVideoFilenameFilter(), panelOthers);
+        addFilter(new TvShowSubtitleCountFilter(), panelOthers);
+        addFilter(new TvShowSubtitleLanguageFilter(), panelOthers);
+        addFilter(new TvShowUncategorizedEpisodesFilter(), panelOthers);
+        addFilter(new TvShowMissingEpisodesFilter(), panelOthers);
+        addFilter(new TvShowMissingMetadataFilter(), panelOthers);
+        addFilter(new TvShowMissingArtworkFilter(), panelOthers);
+        addFilter(new TvShowMissingSubtitlesFilter(), panelOthers);
       }
 
       {

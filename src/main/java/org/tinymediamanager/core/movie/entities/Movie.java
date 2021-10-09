@@ -57,6 +57,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -80,8 +81,6 @@ import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
@@ -100,9 +99,11 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
+import org.tinymediamanager.core.movie.connector.MovieToEmbyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpLegacyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpMovingPicturesConnector;
@@ -113,6 +114,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
+import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
@@ -124,10 +126,6 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
-import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -313,7 +311,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @Override
   public boolean isScraped() {
-    return scraped || getHasMetadata();
+    return scraped || (!plot.isEmpty() && year != 0);
   }
 
   /**
@@ -380,23 +378,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * doe we have basic metadata filled?<br>
-   * like plot and year to take another fields into account always produces false positives (there are documentaries out there, which do not have
-   * actors or either a producer in the meta data DBs..)
-   * 
+   * do we have basic metadata filled?<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
+   *
    * @return true/false
    */
+  @Deprecated // is still used in some export templates
   public Boolean getHasMetadata() {
     return !plot.isEmpty() && year != 0;
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
+   * do we have basic images? Poster and Fanart is checked.<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
+   *
    * @return the checks for images
    */
+  @Deprecated // is still used in some export templates
   public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.getInstance().getSettings().getCheckImagesMovie()) {
+    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER, MediaArtworkType.BACKGROUND)) {
       if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
         return false;
       }
@@ -889,41 +889,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
         // no need to log here
       }
       if (col != 0) {
-        MovieSet movieSet = MovieModuleManager.getInstance().getMovieList().getMovieSet(metadata.getCollectionName(), col);
-        if (movieSet != null && movieSet.getTmdbId() == 0) {
+        boolean created = false;
+        MovieSet movieSet = MovieModuleManager.getInstance().getMovieList().findMovieSet(metadata.getCollectionName(), col);
+
+        if (movieSet == null && StringUtils.isNotBlank(metadata.getCollectionName())) {
+          // no movie set here yet
+          movieSet = new MovieSet(metadata.getCollectionName());
           movieSet.setTmdbId(col);
-          // get movieset metadata
-          try {
-            List<MediaScraper> movieSetMediaScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SET);
-            if (!movieSetMediaScrapers.isEmpty()) {
-              MediaScraper first = movieSetMediaScrapers.get(0); // just get first
-              IMovieSetMetadataProvider mp = ((IMovieSetMetadataProvider) first.getMediaProvider());
-              MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
-              options.setTmdbId(col);
-              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
-
-              MediaMetadata info = mp.getMetadata(options);
-              if (info != null && StringUtils.isNotBlank(info.getTitle())) {
-                movieSet.setTitle(info.getTitle());
-                movieSet.setPlot(info.getPlot());
-
-                if (!info.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
-                }
-                if (!info.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
-                }
-              }
-            }
-          }
-          catch (MissingIdException | NothingFoundException e) {
-            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
-          }
-          catch (ScrapeException e) {
-            LOGGER.error("getMovieSet", e);
-            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, this, "message.scrape.metadatamoviesetfailed",
-                new String[] { ":", e.getLocalizedMessage() }));
-          }
+          movieSet.saveToDb();
+          MovieModuleManager.getInstance().getMovieList().addMovieSet(movieSet);
+          created = true;
         }
 
         // add movie to movieset
@@ -935,6 +910,24 @@ public class Movie extends MediaEntity implements IMediaInformation {
           setMovieSet(movieSet);
           movieSet.insertMovie(this);
           movieSet.saveToDb();
+
+          // and scrape if unscraped
+          if (created) {
+            // get movieset metadata
+            List<MediaScraper> movieSetMediaScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SET);
+            if (!movieSetMediaScrapers.isEmpty()) {
+
+              // get movieset metadata (async to donot block here)
+              MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
+              options.setTmdbId(col);
+              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              options.setMetadataScraper(movieSetMediaScrapers.get(0));
+              options.setArtworkScraper(MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers());
+              MovieSetScrapeTask task = new MovieSetScrapeTask(Collections.singletonList(movieSet), options,
+                  Arrays.asList(MovieSetScraperMetadataConfig.values()));
+              TmmTaskManager.getInstance().addUnnamedTask(task);
+            }
+          }
         }
       }
     }
@@ -1283,8 +1276,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
         connector = new MovieToXbmcConnector(this);
         break;
 
-      case KODI:
       case EMBY:
+        connector = new MovieToEmbyConnector(this);
+        break;
+
+      case KODI:
       case JELLYFIN:
       case PLEX:
       case DVR_3:
@@ -1715,6 +1711,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * Gets the images to cache.
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
     // image files
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -1739,8 +1736,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * @return list of actor images on filesystem
    */
-  private List<MediaFile> listActorFiles() {
-    if (!Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
+  protected List<MediaFile> listActorFiles() {
+    if (getPathNIO() == null || !Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
       return Collections.emptyList();
     }
 
@@ -2302,6 +2299,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
           ok = false;
         }
       }
+
+      // also try to remove the folder (if it is empty)
+      try {
+        Utils.deleteEmptyDirectoryRecursive(getPathNIO());
+      }
+      catch (Exception ignored) {
+        // just ignore
+      }
+
       return ok;
     }
     else {
@@ -2682,7 +2688,113 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
   }
 
-  private void postProcess(List<MovieScraperMetadataConfig> config) {
+  public Object getValueForMetadata(MovieScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case ORIGINAL_TITLE:
+        return getOriginalTitle();
+
+      case TAGLINE:
+        return getTagline();
+
+      case PLOT:
+        return getPlot();
+
+      case YEAR:
+        return getYear();
+
+      case RELEASE_DATE:
+        return getReleaseDate();
+
+      case RATING:
+        return getRatings();
+
+      case TOP250:
+        return getTop250();
+
+      case RUNTIME:
+        return getRuntime();
+
+      case CERTIFICATION:
+        return getCertification();
+
+      case GENRES:
+        return getGenres();
+
+      case SPOKEN_LANGUAGES:
+        return getSpokenLanguages();
+
+      case COUNTRY:
+        return getCountry();
+
+      case PRODUCTION_COMPANY:
+        return getProductionCompany();
+
+      case TAGS:
+        return getTags();
+
+      case COLLECTION:
+        return getMovieSet();
+
+      case TRAILER:
+        return getMediaFiles(MediaFileType.TRAILER);
+
+      case ACTORS:
+        return getActors();
+
+      case PRODUCERS:
+        return getProducers();
+
+      case DIRECTORS:
+        return getDirectors();
+
+      case WRITERS:
+        return getWriters();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+
+      case KEYART:
+        return getMediaFiles(MediaFileType.KEYART);
+
+      case EXTRAFANART:
+        return getMediaFiles(MediaFileType.EXTRAFANART);
+
+      case EXTRATHUMB:
+        return getMediaFiles(MediaFileType.EXTRATHUMB);
+    }
+
+    return null;
+  }
+
+  protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {

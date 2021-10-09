@@ -80,7 +80,7 @@ public class MovieScraperMetadataPanel extends JPanel {
 
     // Metadata
     for (MovieScraperMetadataConfig value : MovieScraperMetadataConfig.values()) {
-      if (value.isMetaData()) {
+      if (value.isMetaData() && value != MovieScraperMetadataConfig.ID) {
         addCheckbox(value, gbc);
       }
     }

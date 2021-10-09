@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1211,7 +1212,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   /**
    * simple NIO File.listFiles() replacement<br>
    * returns all files & folders in specified dir (NOT recursive)
-   * 
+   *
    * @param directory
    *          the folder to list the items for
    * @return list of files&folders
@@ -1230,9 +1231,40 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
     }
     catch (IOException e) {
-      LOGGER.error("list files failed: {}", e.getMessage());
-      // add some more trace infos to get a clue what exactly failed
-      LOGGER.trace("visit file failed", e);
+      LOGGER.error("error on listFilesAndDirs", e);
+      LOGGER.debug("falling back to the alternate coding");
+      fileNames = listFilesAndDirs2(directory);
+    }
+    return fileNames;
+  }
+
+  /**
+   * simple NIO File.listFiles() replacement<br>
+   * returns all folders in specified dir (NOT recursive)
+   * 
+   * @param directory
+   *          the folder to list the items for
+   * @return list of files&folders
+   */
+  private List<Path> listFilesAndDirs2(Path directory) {
+    List<Path> fileNames = new ArrayList<>();
+    try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
+      List<Path> allElements = directoryStream.filter(Files::isDirectory).collect(Collectors.toList());
+      for (Path path : allElements) {
+        if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
+          continue;
+        }
+        String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
+        if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
+          fileNames.add(path.toAbsolutePath());
+        }
+        else {
+          LOGGER.debug("Skipping: {}", path);
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("error on listFilesAndDirs2", e);
     }
     return fileNames;
   }

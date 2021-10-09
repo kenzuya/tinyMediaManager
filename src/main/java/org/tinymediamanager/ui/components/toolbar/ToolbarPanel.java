@@ -20,6 +20,8 @@ import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -87,18 +89,20 @@ public class ToolbarPanel extends JPanel {
 
   private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
-  private ToolbarButton       btnSearch;
-  private ToolbarButton       btnEdit;
-  private ToolbarButton       btnUpdate;
-  private ToolbarButton       btnRename;
-  private ToolbarButton       btnUnlock;
+  private final ToolbarButton btnSearch;
+  private final ToolbarButton btnEdit;
+  private final ToolbarButton btnUpdate;
+  private final ToolbarButton btnRename;
+  private final ToolbarButton btnUnlock;
+  private final ToolbarButton btnRenewLicense;
 
-  private ToolbarMenu         menuUpdate;
-  private ToolbarMenu         menuSearch;
-  private ToolbarMenu         menuEdit;
-  private ToolbarMenu         menuRename;
+  private final ToolbarMenu   menuUpdate;
+  private final ToolbarMenu   menuSearch;
+  private final ToolbarMenu   menuEdit;
+  private final ToolbarMenu   menuRename;
 
-  private ToolbarLabel        lblUnlock;
+  private final ToolbarLabel  lblUnlock;
+  private final ToolbarLabel  lblRenewLicense;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -106,8 +110,8 @@ public class ToolbarPanel extends JPanel {
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter
-        .setLayout(new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][15lp:n]", "[50lp]1lp[]5lp"));
+    panelCenter.setLayout(
+        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
 
@@ -139,7 +143,12 @@ public class ToolbarPanel extends JPanel {
     btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
     Action unlockAction = new UnlockAction();
     btnUnlock.setAction(unlockAction);
-    panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
+    panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom");
+
+    btnRenewLicense = new ToolbarButton(IconManager.TOOLBAR_RENEW, IconManager.TOOLBAR_RENEW);
+    btnRenewLicense.setAction(unlockAction);
+    btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
+    panelCenter.add(btnRenewLicense, "cell 12 0, alignx center,aligny bottom, gap 10lp");
 
     menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
@@ -166,6 +175,10 @@ public class ToolbarPanel extends JPanel {
     lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.upgrade.desc"));
     panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp, wmin 0");
 
+    lblRenewLicense = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.renewlicense"), unlockAction);
+    lblRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
+    panelCenter.add(lblRenewLicense, "cell 12 1,alignx center, gap 10lp, wmin 0");
+
     License.getInstance().addEventListener(this::showHideUnlock);
 
     showHideUnlock();
@@ -175,10 +188,22 @@ public class ToolbarPanel extends JPanel {
     if (License.getInstance().isValidLicense()) {
       btnUnlock.setVisible(false);
       lblUnlock.setVisible(false);
+
+      LocalDate validUntil = License.getInstance().validUntil();
+      if (validUntil != null && validUntil.minus(14, ChronoUnit.DAYS).isBefore(LocalDate.now())) {
+        btnRenewLicense.setVisible(true);
+        lblRenewLicense.setVisible(true);
+      }
+      else {
+        btnRenewLicense.setVisible(false);
+        lblRenewLicense.setVisible(false);
+      }
     }
     else {
       btnUnlock.setVisible(true);
       lblUnlock.setVisible(true);
+      btnRenewLicense.setVisible(false);
+      lblRenewLicense.setVisible(false);
     }
   }
 

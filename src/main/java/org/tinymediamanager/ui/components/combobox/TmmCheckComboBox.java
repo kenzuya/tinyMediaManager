@@ -272,6 +272,38 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
   }
 
   /**
+   * clear all selections in this check combo box
+   */
+  public void clearSelection() {
+    int n = model.getSize();
+    boolean dirty = false;
+
+    for (int i = 0; i < n; i++) {
+      TmmCheckComboBoxItem<E> cb = model.getElementAt(i);
+      if (cb == nullItem) {
+        continue;
+      }
+
+      boolean oldState = cb.isSelected();
+      cb.setSelected(false);
+
+      if (oldState) {
+        dirty = true;
+      }
+    }
+
+    if (dirty) {
+      // update state of the "select all" and "select none" items
+      // Select all
+      model.getElementAt(n - 2).setSelected(false);
+      // select none
+      model.getElementAt(n - 1).setSelected(true);
+
+      update();
+    }
+  }
+
+  /**
    * set selected items
    * 
    * @param items
@@ -422,7 +454,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
       setLayout(new WrapLayout(FlowLayout.LEFT, 5, 2));
       setOpaque(false);
-      setBorder(BorderFactory.createEmptyBorder(-2, -5, -2, 0)); // to avoid space of the first/last item
+      setBorder(BorderFactory.createEmptyBorder(-2, -5, 2, 0)); // to avoid space of the first/last item
     }
 
     @Override

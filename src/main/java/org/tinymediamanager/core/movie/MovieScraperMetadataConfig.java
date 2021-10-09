@@ -30,6 +30,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   // meta data
+  ID(Type.METADATA, "metatag.id"),
   TITLE(Type.METADATA),
   ORIGINAL_TITLE(Type.METADATA, "metatag.originaltitle"),
   TAGLINE(Type.METADATA),
@@ -67,9 +68,9 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-  private Type   type;
-  private String description;
-  private String tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   MovieScraperMetadataConfig(Type type) {
     this(type, null, null);
@@ -143,6 +144,23 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
     for (MovieScraperMetadataConfig config : values()) {
       if (config.type == type) {
         values.add(config);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * get all values except the deprecated ones
+   *
+   * @return a {@link List} of all values except deprecated ones
+   */
+  public static List<MovieScraperMetadataConfig> getValues() {
+    List<MovieScraperMetadataConfig> values = new ArrayList<>();
+
+    for (MovieScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED) {
+        values.add(value);
       }
     }
 

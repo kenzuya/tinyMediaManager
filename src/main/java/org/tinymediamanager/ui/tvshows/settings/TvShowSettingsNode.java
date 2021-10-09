@@ -26,15 +26,15 @@ import org.tinymediamanager.ui.settings.TmmSettingsNode;
  */
 public class TvShowSettingsNode extends TmmSettingsNode {
 
-
   public TvShowSettingsNode() {
     super(TmmResourceBundle.getString("Settings.tvshow"), new TvShowSettingsPanel());
 
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.source"), new TvShowDatasourceSettingsPanel()));
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new TvShowScraperNfoSettingsPanel()));
 
     TmmSettingsNode scraperSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper"), new TvShowScraperSettingsPanel());
-    scraperSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new TvShowScraperOptionsSettingsPanel()));
-    scraperSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new TvShowScraperNfoSettingsPanel()));
+    scraperSettingsNode
+        .addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new TvShowScraperOptionsSettingsPanel()));
     addChild(scraperSettingsNode);
 
     TmmSettingsNode imageSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.images"), new TvShowImageSettingsPanel());
@@ -44,5 +44,6 @@ public class TvShowSettingsNode extends TmmSettingsNode {
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.trailer"), new TvShowTrailerSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.subtitle"), new TvShowSubtitleSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.renamer"), new TvShowRenamerSettingsPanel()));
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.postprocessing"), new TvShowPostProcessingSettingsPanel()));
   }
 }

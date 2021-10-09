@@ -62,6 +62,7 @@ import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -103,6 +104,7 @@ public final class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInEpisodes;
   private final CopyOnWriteArrayList<String>             hdrFormatInEpisodes;
+  private final CopyOnWriteArrayList<String>             audioTitlesInEpisodes;
 
   private final PropertyChangeListener                   propertyChangeListener;
   private final ReadWriteLock                            readWriteLock = new ReentrantReadWriteLock();
@@ -125,6 +127,7 @@ public final class TvShowList extends AbstractModelObject {
     subtitlesInEpisodes = new CopyOnWriteArrayList<>();
     subtitleLanguagesInEpisodes = new CopyOnWriteArrayList<>();
     hdrFormatInEpisodes = new CopyOnWriteArrayList<>();
+    audioTitlesInEpisodes = new CopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -809,6 +812,7 @@ public final class TvShowList extends AbstractModelObject {
     Set<Integer> subtitleStreamCount = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
+    Set<String> audioTitles = new HashSet<>();
 
     for (TvShowEpisode episode : episodes) {
       int audioCount = 0;
@@ -846,6 +850,9 @@ public final class TvShowList extends AbstractModelObject {
           // audio languages
           audioLanguages.addAll(mf.getAudioLanguagesList());
 
+          // audio titles
+          audioTitles.addAll(mf.getAudioTitleList());
+
           // subtitles stream count
           subtitleCount = mf.getSubtitles().size();
 
@@ -869,6 +876,7 @@ public final class TvShowList extends AbstractModelObject {
       for (MediaFile mf : episode.getMediaFiles(MediaFileType.AUDIO)) {
         audioCount++;
         audioLanguages.addAll(mf.getAudioLanguagesList());
+        audioTitles.addAll(mf.getAudioTitleList());
       }
 
       audioStreamCount.add(audioCount);
@@ -920,6 +928,11 @@ public final class TvShowList extends AbstractModelObject {
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInEpisodes, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInEpisodes);
     }
+
+    // audio titles
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioTitlesInEpisodes, audioTitles)) {
+      firePropertyChange(Constants.AUDIO_TITLE, null, audioTitlesInEpisodes);
+    }
   }
 
   public Collection<String> getVideoCodecsInEpisodes() {
@@ -960,6 +973,10 @@ public final class TvShowList extends AbstractModelObject {
 
   public Collection<String> getHdrFormatInEpisodes() {
     return Collections.unmodifiableList(hdrFormatInEpisodes);
+  }
+
+  public Collection<String> getAudioTitlesInEpisodes() {
+    return Collections.unmodifiableList(audioTitlesInEpisodes);
   }
 
   /**
@@ -1174,6 +1191,116 @@ public final class TvShowList extends AbstractModelObject {
         }
       }
     }
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingMetadata(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckMetadata());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShow tvshow, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = tvshow.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShowSeason season) {
+    return detectMissingFields(season, TvShowModuleManager.getInstance().getSettings().getSeasonCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShowSeason season, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = season.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingMetadata(TvShowEpisode episode) {
+    if (episode.isDummy() || (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata())) {
+      return Collections.emptyList();
+    }
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckMetadata());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingArtwork(TvShowEpisode episode) {
+    if (episode.isDummy() || (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingArtwork())) {
+      return Collections.emptyList();
+    }
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckArtwork());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingFields(TvShowEpisode episode, List<TvShowEpisodeScraperMetadataConfig> toCheck) {
+    List<TvShowEpisodeScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = episode.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
   }
 
   private static class TvShowMediaScraperComparator implements Comparator<MediaScraper> {

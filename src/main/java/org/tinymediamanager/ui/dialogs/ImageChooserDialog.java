@@ -112,7 +112,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class ImageChooser. Let the user choose the right image for the media entity
- * 
+ *
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
@@ -543,6 +543,7 @@ public class ImageChooserDialog extends TmmDialog {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() >= 2 && e.getButton() == MouseEvent.BUTTON1) {
+          button.setSelected(true);
           new OkAction().actionPerformed(new ActionEvent(e.getSource(), e.getID(), "OK"));
         }
       }
@@ -881,11 +882,16 @@ public class ImageChooserDialog extends TmmDialog {
         Url url1 = new Url(art.getPreviewUrl());
         final BufferedImage bufferedImage = ImageUtils.createImage(url1.getBytesWithRetry(5));
 
-        SwingUtilities.invokeLater(() -> {
-          addImage(bufferedImage, art);
-          bufferedImage.flush();
-        });
-        tfImageUrl.setText("");
+        if (bufferedImage != null) {
+          SwingUtilities.invokeLater(() -> {
+            addImage(bufferedImage, art);
+            bufferedImage.flush();
+          });
+          tfImageUrl.setText("");
+        }
+        else {
+          JOptionPane.showMessageDialog(ImageChooserDialog.this, TmmResourceBundle.getString("message.errorloadimage"));
+        }
       }
       catch (Exception e) {
         LOGGER.error("could not download manually entered image url: {} - {}", tfImageUrl.getText(), e.getMessage());

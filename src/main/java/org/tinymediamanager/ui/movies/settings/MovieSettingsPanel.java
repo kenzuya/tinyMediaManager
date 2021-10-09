@@ -15,11 +15,18 @@
  */
 package org.tinymediamanager.ui.movies.settings;
 
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.*;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,18 +46,21 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.MovieTextMatcherList;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.thirdparty.trakttv.MovieClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
+import org.tinymediamanager.ui.components.JHintLabel;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
@@ -64,60 +74,70 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSettingsPanel extends JPanel {
-  private static final long            serialVersionUID = -4173835431245178069L;
+  private static final long                                serialVersionUID = -4173835431245178069L;
+  private static final int                                 COL_COUNT        = 7;
 
-  private final MovieSettings          settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings                              settings         = MovieModuleManager.getInstance().getSettings();
 
-  private JButton                      btnClearTraktData;
-  private JCheckBox                    chckbxTraktSync;
-  private JCheckBox                    chckbxRenameAfterScrape;
-  private JCheckBox                    chckbxARDAfterScrape;
-  private JCheckBox                    chckbxAutoUpdateOnStart;
-  private JCheckBox                    chckbxBuildImageCache;
-  private JCheckBox                    chckbxExtractArtworkFromVsmeta;
-  private JCheckBox                    chckbxRuntimeFromMi;
-  private JButton                      btnPresetKodi;
-  private JButton                      btnPresetXbmc;
-  private JButton                      btnPresetMediaPortal1;
-  private JButton                      btnPresetMediaPortal2;
-  private JButton                      btnPresetPlex;
-  private AutocompleteComboBox<String> cbRating;
-  private JCheckBox                    chckbxIncludeExternalAudioStreams;
-  private JCheckBox                    chckbxMovieTableTooltips;
-  private JCheckBox                    chckbxUseMediainfoMetadata;
+  private JButton                                          btnClearTraktData;
+  private JCheckBox                                        chckbxTraktSync;
+  private JCheckBox                                        chckbxRenameAfterScrape;
+  private JCheckBox                                        chckbxARDAfterScrape;
+  private JCheckBox                                        chckbxAutoUpdateOnStart;
+  private JCheckBox                                        chckbxBuildImageCache;
+  private JCheckBox                                        chckbxExtractArtworkFromVsmeta;
+  private JCheckBox                                        chckbxRuntimeFromMi;
+  private JButton                                          btnPresetKodi;
+  private JButton                                          btnPresetXbmc;
+  private JButton                                          btnPresetMediaPortal1;
+  private JButton                                          btnPresetMediaPortal2;
+  private JButton                                          btnPresetPlex;
+  private AutocompleteComboBox<String>                     cbRating;
+  private JCheckBox                                        chckbxIncludeExternalAudioStreams;
+  private JCheckBox                                        chckbxMovieTableTooltips;
+  private JCheckBox                                        chckbxUseMediainfoMetadata;
 
-  private JList                        listRatings;
-  private JButton                      btnAddRating;
-  private JButton                      btnRemoveRating;
-  private JButton                      btnMoveRatingUp;
-  private JButton                      btnMoveRatingDown;
+  private JList                                            listRatings;
+  private JButton                                          btnAddRating;
+  private JButton                                          btnRemoveRating;
+  private JButton                                          btnMoveRatingUp;
+  private JButton                                          btnMoveRatingDown;
 
-  private JCheckBox                    chckbxCheckPoster;
-  private JCheckBox                    chckbxCheckFanart;
-  private JCheckBox                    chckbxCheckBanner;
-  private JCheckBox                    chckbxCheckClearart;
-  private JCheckBox                    chckbxCheckThumb;
-  private JCheckBox                    chckbxCheckLogo;
-  private JCheckBox                    chckbxCheckClearlogo;
-  private JCheckBox                    chckbxCheckDiscart;
+  private JCheckBox                                        chckbxTitle;
+  private JCheckBox                                        chckbxSortableTitle;
+  private JCheckBox                                        chckbxOriginalTitle;
+  private JCheckBox                                        chckbxSortableOriginalTitle;
+  private JCheckBox                                        chckbxSortTitle;
 
-  private JCheckBox                    chckbxTitle;
-  private JCheckBox                    chckbxSortableTitle;
-  private JCheckBox                    chckbxOriginalTitle;
-  private JCheckBox                    chckbxSortableOriginalTitle;
-  private JCheckBox                    chckbxSortTitle;
-  private JCheckBox                    chckbxNote;
+  private JCheckBox                                        chckbxUniversalNote;
+  private JCheckBox                                        chckbxUniversalFilename;
+  private JCheckBox                                        chckbxUniversalTags;
+  private JCheckBox                                        chckbxUniversalProductionCompany;
+  private JCheckBox                                        chckbxUniversalCountry;
+  private JCheckBox                                        chckbxUniversalLanguages;
+  private JCheckBox                                        chckbxUniversalActors;
+  private JCheckBox                                        chckbxUniversalProducers;
+  private JCheckBox                                        chckbxUniversalDirectors;
+  private JCheckBox                                        chckbxUniversalWriters;
+  private JCheckBox                                        chckbxUniversalPlot;
+  private JCheckBox                                        chckbxUniversalTagLine;
 
-  private final ItemListener           checkBoxListener;
-  private JCheckBox                    chckbxTraktSyncWatched;
-  private JCheckBox                    chckbxTraktSyncRating;
-  private JCheckBox                    chckbxTraktSyncCollection;
-  private JCheckBox                    chckbxStoreFilter;
-  private JButton                      btnPresetJellyfin;
-  private JButton                      btnPresetEmby;
+  private JCheckBox                                        chckbxTraktSyncWatched;
+  private JCheckBox                                        chckbxTraktSyncRating;
+  private JCheckBox                                        chckbxTraktSyncCollection;
+  private JCheckBox                                        chckbxStoreFilter;
+  private JHintCheckBox                                    chckbxDisplayAllMissingMetadata;
+  private JHintCheckBox                                    chckbxDisplayAllMissingArtwork;
+  private JButton                                          btnPresetJellyfin;
+  private JButton                                          btnPresetEmby;
+
+  private final Map<MovieScraperMetadataConfig, JCheckBox> metadataCheckBoxes;
+  private final Map<MovieScraperMetadataConfig, JCheckBox> artworkCheckBoxes;
+  private final ItemListener                               checkBoxListener;
 
   public MovieSettingsPanel() {
-
+    metadataCheckBoxes = new LinkedHashMap<>();
+    artworkCheckBoxes = new LinkedHashMap<>();
     checkBoxListener = e -> checkChanges();
 
     // UI initializations
@@ -206,97 +226,157 @@ public class MovieSettingsPanel extends JPanel {
   }
 
   private void checkChanges() {
-    settings.clearCheckImagesMovie();
-    if (chckbxCheckPoster.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.POSTER);
+    // universal filter
+    List<AbstractSettings.UniversalFilterFields> universalFilterFields = new ArrayList<>();
+    if (chckbxUniversalNote.isSelected()) {
+      universalFilterFields.add(NOTE);
     }
-    if (chckbxCheckFanart.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.BACKGROUND);
+    if (chckbxUniversalFilename.isSelected()) {
+      universalFilterFields.add(FILENAME);
     }
-    if (chckbxCheckBanner.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.BANNER);
+    if (chckbxUniversalTags.isSelected()) {
+      universalFilterFields.add(TAGS);
     }
-    if (chckbxCheckClearart.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.CLEARART);
+    if (chckbxUniversalCountry.isSelected()) {
+      universalFilterFields.add(COUNTRY);
     }
-    if (chckbxCheckThumb.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.THUMB);
+    if (chckbxUniversalProductionCompany.isSelected()) {
+      universalFilterFields.add(PRODUCTION_COMPANY);
     }
-    if (chckbxCheckLogo.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.LOGO);
+    if (chckbxUniversalLanguages.isSelected()) {
+      universalFilterFields.add(SPOKEN_LANGUAGE);
     }
-    if (chckbxCheckClearlogo.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.CLEARLOGO);
+    if (chckbxUniversalActors.isSelected()) {
+      universalFilterFields.add(ACTOR);
     }
-    if (chckbxCheckDiscart.isSelected()) {
-      settings.addCheckImagesMovie(MediaArtwork.MediaArtworkType.DISC);
+    if (chckbxUniversalProducers.isSelected()) {
+      universalFilterFields.add(PRODUCER);
+    }
+    if (chckbxUniversalWriters.isSelected()) {
+      universalFilterFields.add(WRITER);
+    }
+    if (chckbxUniversalDirectors.isSelected()) {
+      universalFilterFields.add(DIRECTOR);
+    }
+    if (chckbxUniversalPlot.isSelected()) {
+      universalFilterFields.add(PLOT);
+    }
+    if (chckbxUniversalTagLine.isSelected()) {
+      universalFilterFields.add(TAGLINE);
+    }
+    settings.setUniversalFilterFields(universalFilterFields);
+
+    // metadata
+    settings.clearMovieCheckMetadata();
+    for (Map.Entry<MovieScraperMetadataConfig, JCheckBox> entry : metadataCheckBoxes.entrySet()) {
+      MovieScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addMovieCheckMetadata(key);
+      }
+    }
+
+    // artwork
+    settings.clearMovieCheckArtwork();
+    for (Map.Entry<MovieScraperMetadataConfig, JCheckBox> entry : artworkCheckBoxes.entrySet()) {
+      MovieScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addMovieCheckArtwork(key);
+      }
     }
   }
 
   private void buildCheckBoxes() {
-    chckbxCheckPoster.removeItemListener(checkBoxListener);
-    chckbxCheckFanart.removeItemListener(checkBoxListener);
-    chckbxCheckBanner.removeItemListener(checkBoxListener);
-    chckbxCheckClearart.removeItemListener(checkBoxListener);
-    chckbxCheckThumb.removeItemListener(checkBoxListener);
-    chckbxCheckLogo.removeItemListener(checkBoxListener);
-    chckbxCheckClearlogo.removeItemListener(checkBoxListener);
-    chckbxCheckDiscart.removeItemListener(checkBoxListener);
-    clearSelection(chckbxCheckPoster, chckbxCheckFanart, chckbxCheckBanner, chckbxCheckClearart, chckbxCheckThumb, chckbxCheckLogo,
-        chckbxCheckClearlogo, chckbxCheckDiscart);
-
-    for (MediaArtwork.MediaArtworkType type : settings.getCheckImagesMovie()) {
-      switch (type) {
-        case POSTER:
-          chckbxCheckPoster.setSelected(true);
+    // universal filter
+    for (AbstractSettings.UniversalFilterFields filterField : settings.getUniversalFilterFields()) {
+      switch (filterField) {
+        case NOTE:
+          chckbxUniversalNote.setSelected(true);
           break;
 
-        case BACKGROUND:
-          chckbxCheckFanart.setSelected(true);
+        case FILENAME:
+          chckbxUniversalFilename.setSelected(true);
           break;
 
-        case BANNER:
-          chckbxCheckBanner.setSelected(true);
+        case TAGS:
+          chckbxUniversalTags.setSelected(true);
           break;
 
-        case CLEARART:
-          chckbxCheckClearart.setSelected(true);
+        case PRODUCTION_COMPANY:
+          chckbxUniversalProductionCompany.setSelected(true);
           break;
 
-        case THUMB:
-          chckbxCheckThumb.setSelected(true);
+        case COUNTRY:
+          chckbxUniversalCountry.setSelected(true);
           break;
 
-        case LOGO:
-          chckbxCheckLogo.setSelected(true);
+        case SPOKEN_LANGUAGE:
+          chckbxUniversalLanguages.setSelected(true);
           break;
 
-        case CLEARLOGO:
-          chckbxCheckClearlogo.setSelected(true);
+        case ACTOR:
+          chckbxUniversalActors.setSelected(true);
           break;
 
-        case DISC:
-          chckbxCheckDiscart.setSelected(true);
+        case DIRECTOR:
+          chckbxUniversalDirectors.setSelected(true);
           break;
 
-        default:
+        case PRODUCER:
+          chckbxUniversalProducers.setSelected(true);
           break;
+
+        case WRITER:
+          chckbxUniversalWriters.setSelected(true);
+          break;
+
+        case PLOT:
+          chckbxUniversalPlot.setSelected(true);
+
+        case TAGLINE:
+          chckbxUniversalTagLine.setSelected(true);
       }
     }
 
-    chckbxCheckPoster.addItemListener(checkBoxListener);
-    chckbxCheckFanart.addItemListener(checkBoxListener);
-    chckbxCheckBanner.addItemListener(checkBoxListener);
-    chckbxCheckClearart.addItemListener(checkBoxListener);
-    chckbxCheckThumb.addItemListener(checkBoxListener);
-    chckbxCheckLogo.addItemListener(checkBoxListener);
-    chckbxCheckClearlogo.addItemListener(checkBoxListener);
-    chckbxCheckDiscart.addItemListener(checkBoxListener);
-  }
+    // set the checkbox listener at the end!
+    chckbxUniversalNote.addItemListener(checkBoxListener);
+    chckbxUniversalFilename.addItemListener(checkBoxListener);
+    chckbxUniversalTags.addItemListener(checkBoxListener);
+    chckbxUniversalProductionCompany.addItemListener(checkBoxListener);
+    chckbxUniversalCountry.addItemListener(checkBoxListener);
+    chckbxUniversalLanguages.addItemListener(checkBoxListener);
+    chckbxUniversalActors.addItemListener(checkBoxListener);
+    chckbxUniversalProducers.addItemListener(checkBoxListener);
+    chckbxUniversalDirectors.addItemListener(checkBoxListener);
+    chckbxUniversalWriters.addItemListener(checkBoxListener);
+    chckbxUniversalPlot.addItemListener(checkBoxListener);
+    chckbxUniversalTagLine.addItemListener(checkBoxListener);
 
-  private void clearSelection(JCheckBox... checkBoxes) {
-    for (JCheckBox checkbox : checkBoxes) {
-      checkbox.setSelected(false);
+    // metadata
+    for (MovieScraperMetadataConfig value : settings.getMovieCheckMetadata()) {
+      JCheckBox checkBox = metadataCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
+
+    // set the checkbox listener at the end!
+    for (JCheckBox checkBox : metadataCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
+
+    // artwork
+    for (MovieScraperMetadataConfig value : settings.getMovieCheckArtwork()) {
+      JCheckBox checkBox = artworkCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
+
+    // set the checkbox listener at the end!
+    for (JCheckBox checkBox : artworkCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
     }
   }
 
@@ -305,7 +385,8 @@ public class MovieSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][10lp!][][125lp,grow]"));
+      panelUiSettings.setLayout(
+          new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][10lp!][][grow][][][][][][10lp!][][10lp!][][125lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -337,24 +418,127 @@ public class MovieSettingsPanel extends JPanel {
 
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
         panelUiSettings.add(chckbxSortTitle, "cell 2 1");
+      }
 
-        chckbxNote = new JCheckBox(MovieTextMatcherList.NOTE.toString());
-        panelUiSettings.add(chckbxNote, "cell 2 1");
+      {
+        JHintLabel lblUniversalFilter = new JHintLabel(TmmResourceBundle.getString("filter.universal"));
+        lblUniversalFilter.setHintIcon(IconManager.HINT);
+        lblUniversalFilter.setToolTipText(TmmResourceBundle.getString("filter.universal.hint"));
+        panelUiSettings.add(lblUniversalFilter, "cell 1 2 2 1");
+
+        chckbxUniversalNote = new JCheckBox(TmmResourceBundle.getString("metatag.note"));
+        panelUiSettings.add(chckbxUniversalNote, "cell 2 3");
+
+        chckbxUniversalFilename = new JCheckBox(TmmResourceBundle.getString("metatag.filename"));
+        panelUiSettings.add(chckbxUniversalFilename, "cell 2 3");
+
+        chckbxUniversalTags = new JCheckBox(TmmResourceBundle.getString("metatag.tags"));
+        panelUiSettings.add(chckbxUniversalTags, "cell 2 3");
+
+        chckbxUniversalProductionCompany = new JCheckBox(TmmResourceBundle.getString("metatag.production"));
+        panelUiSettings.add(chckbxUniversalProductionCompany, "cell 2 3");
+
+        chckbxUniversalCountry = new JCheckBox(TmmResourceBundle.getString("metatag.country"));
+        panelUiSettings.add(chckbxUniversalCountry, "cell 2 3");
+
+        chckbxUniversalLanguages = new JCheckBox(TmmResourceBundle.getString("metatag.spokenlanguages"));
+        panelUiSettings.add(chckbxUniversalLanguages, "cell 2 3");
+
+        chckbxUniversalActors = new JCheckBox(TmmResourceBundle.getString("metatag.actors"));
+        panelUiSettings.add(chckbxUniversalActors, "cell 2 4");
+
+        chckbxUniversalProducers = new JCheckBox(TmmResourceBundle.getString("metatag.producers"));
+        panelUiSettings.add(chckbxUniversalProducers, "cell 2 4");
+
+        chckbxUniversalDirectors = new JCheckBox(TmmResourceBundle.getString("metatag.directors"));
+        panelUiSettings.add(chckbxUniversalDirectors, "cell 2 4");
+
+        chckbxUniversalWriters = new JCheckBox(TmmResourceBundle.getString("metatag.writers"));
+        panelUiSettings.add(chckbxUniversalWriters, "cell 2 4");
+
+        chckbxUniversalPlot = new JCheckBox(TmmResourceBundle.getString("metatag.plot"));
+        panelUiSettings.add(chckbxUniversalPlot,"cell 2 4");
+
+        chckbxUniversalTagLine = new JCheckBox(TmmResourceBundle.getString("metatag.tagline"));
+        panelUiSettings.add(chckbxUniversalTagLine, "cell 2 4");
       }
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxStoreFilter, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 5 2 1");
+      }
+      {
+        JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
+        panelUiSettings.add(lblCheckMetadata, "cell 1 7 2 1");
+
+        JPanel panelCheckMetadata = new JPanel();
+        panelCheckMetadata.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.ipadx = 10;
+
+        // Metadata
+        for (MovieScraperMetadataConfig value : MovieScraperMetadataConfig.values()) {
+          if (value.isMetaData()) {
+            addMetadataCheckbox(panelCheckMetadata, value, metadataCheckBoxes, gbc);
+          }
+        }
+
+        // cast
+        gbc.gridx = 0;
+        gbc.gridy++;
+        for (MovieScraperMetadataConfig value : MovieScraperMetadataConfig.values()) {
+          if (value.isCast()) {
+            addMetadataCheckbox(panelCheckMetadata, value, metadataCheckBoxes, gbc);
+          }
+        }
+        panelUiSettings.add(panelCheckMetadata, "cell 2 8");
+
+        chckbxDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
+        chckbxDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
+        chckbxDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
+        panelUiSettings.add(chckbxDisplayAllMissingMetadata, "cell 2 9");
+      }
+
+      {
+        JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
+        panelUiSettings.add(lblCheckImages, "cell 1 11 2 1");
+
+        JPanel panelCheckImages = new JPanel();
+        panelCheckImages.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.ipadx = 10;
+
+        // Artwork
+        for (MovieScraperMetadataConfig value : MovieScraperMetadataConfig.values()) {
+          if (value.isArtwork()) {
+            addMetadataCheckbox(panelCheckImages, value, artworkCheckBoxes, gbc);
+          }
+        }
+
+        panelUiSettings.add(panelCheckImages, "cell 2 12");
+
+        chckbxDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
+        chckbxDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
+        chckbxDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
+        panelUiSettings.add(chckbxDisplayAllMissingArtwork, "cell 2 13");
       }
       {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
-        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 4 2 1");
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 15 2 1");
       }
       {
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 6 2 1");
+        panelUiSettings.add(lblRating, "cell 1 17 2 1");
 
         JPanel panelRatingSource = new JPanel();
-        panelUiSettings.add(panelRatingSource, "cell 2 7,grow");
+        panelUiSettings.add(panelRatingSource, "cell 2 18,grow");
         panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
         {
           listRatings = new JList();
@@ -387,7 +571,7 @@ public class MovieSettingsPanel extends JPanel {
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][]")); // 16lp ~ width of the
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -434,7 +618,7 @@ public class MovieSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -459,38 +643,6 @@ public class MovieSettingsPanel extends JPanel {
 
         chckbxIncludeExternalAudioStreams = new JCheckBox(TmmResourceBundle.getString("Settings.includeexternalstreamsinnfo"));
         panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 4 2 1");
-      }
-      {
-        JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 5 2 1");
-
-        JPanel panelCheckImages = new JPanel();
-        panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "", ""));
-        panelMisc.add(panelCheckImages, "cell 2 6");
-
-        chckbxCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
-        panelCheckImages.add(chckbxCheckPoster, "cell 0 0");
-
-        chckbxCheckFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
-        panelCheckImages.add(chckbxCheckFanart, "cell 1 0");
-
-        chckbxCheckBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
-        panelCheckImages.add(chckbxCheckBanner, "cell 2 0");
-
-        chckbxCheckClearart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearart"));
-        panelCheckImages.add(chckbxCheckClearart, "cell 3 0");
-
-        chckbxCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
-        panelCheckImages.add(chckbxCheckThumb, "cell 4 0");
-
-        chckbxCheckLogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.logo"));
-        panelCheckImages.add(chckbxCheckLogo, "cell 5 0");
-
-        chckbxCheckClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
-        panelCheckImages.add(chckbxCheckClearlogo, "cell 6 0");
-
-        chckbxCheckDiscart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.disc"));
-        panelCheckImages.add(chckbxCheckDiscart, "cell 7 0");
       }
     }
     {
@@ -530,6 +682,28 @@ public class MovieSettingsPanel extends JPanel {
         panelPresets.add(btnPresetMediaPortal2, "cell 4 3,growx");
       }
     }
+  }
+
+  private void addMetadataCheckbox(JPanel panel, MovieScraperMetadataConfig config, Map<MovieScraperMetadataConfig, JCheckBox> map,
+      GridBagConstraints gbc) {
+    JCheckBox checkBox;
+    if (StringUtils.isNotBlank(config.getToolTip())) {
+      checkBox = new JHintCheckBox(config.getDescription());
+      checkBox.setToolTipText(config.getToolTip());
+      ((JHintCheckBox) checkBox).setHintIcon(IconManager.HINT);
+    }
+    else {
+      checkBox = new JCheckBox(config.getDescription());
+    }
+    map.put(config, checkBox);
+
+    if (gbc.gridx >= COL_COUNT) {
+      gbc.gridx = 0;
+      gbc.gridy++;
+    }
+    panel.add(checkBox, gbc);
+
+    gbc.gridx++;
   }
 
   protected void initDataBindings() {
@@ -600,11 +774,6 @@ public class MovieSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_17.bind();
     //
-    Property movieSettingsBeanProperty_23 = BeanProperty.create("note");
-    AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_23, chckbxNote,
-        jCheckBoxBeanProperty);
-    autoBinding_23.bind();
-    //
     Property movieSettingsBeanProperty = BeanProperty.create("ratingSources");
     JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, listRatings);
     jListBinding.bind();
@@ -656,5 +825,15 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_22, chckbxARDAfterScrape,
         jCheckBoxBeanProperty);
     autoBinding_22.bind();
+    //
+    Property movieSettingsBeanProperty_20 = BeanProperty.create("movieDisplayAllMissingMetadata");
+    AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_20,
+        chckbxDisplayAllMissingMetadata, jCheckBoxBeanProperty);
+    autoBinding_24.bind();
+    //
+    Property movieSettingsBeanProperty_21 = BeanProperty.create("movieDisplayAllMissingArtwork");
+    AutoBinding autoBinding_25 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_21,
+        chckbxDisplayAllMissingArtwork, jCheckBoxBeanProperty);
+    autoBinding_25.bind();
   }
 }

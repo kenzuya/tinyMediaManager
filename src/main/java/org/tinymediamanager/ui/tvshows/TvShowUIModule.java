@@ -16,8 +16,10 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.awt.CardLayout;
+import java.util.ArrayList;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -27,9 +29,12 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowEpisodePostProcessExecutor;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowPostProcessExecutor;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -39,7 +44,6 @@ import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
-import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
@@ -84,6 +88,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowTrailerDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateSingleDatasourceAction;
@@ -98,6 +103,7 @@ import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowArtworkPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowCastPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowInformationPanel;
 import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowMediaInformationPanel;
+import org.tinymediamanager.ui.tvshows.panels.tvshow.TvShowTrailerPanel;
 import org.tinymediamanager.ui.tvshows.settings.TvShowSettingsNode;
 
 import net.miginfocom.swing.MigLayout;
@@ -150,7 +156,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.cast"), new TvShowCastPanel(tvShowSelectionModel));
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"), new TvShowMediaInformationPanel(tvShowSelectionModel));
     tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.artwork"), new TvShowArtworkPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.trailer"), new TvShowTrailerPanel(tvShowSelectionModel));
     dataPanel.add(tvShowDetailPanel, "tvShow");
 
     // panel for seasons
@@ -305,6 +311,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowDownloadMissingArtworkAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadActorImagesAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowTrailerDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleSearchAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadThemeAction.class));
@@ -321,6 +328,10 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
+
+    JMenu postProcessingMenu = new JMenu(TmmResourceBundle.getString("Settings.postprocessing"));
+    postProcessingMenu.setIcon(IconManager.MENU);
+    popupMenu.add(postProcessingMenu);
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowCleanUpFilesAction.class));
@@ -355,14 +366,43 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         else {
           traktMenu.setEnabled(false);
         }
+
+        // Post processing
+        postProcessingMenu.removeAll();
+
+        if (TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow().isEmpty()
+            && TvShowModuleManager.getInstance().getSettings().getPostProcessEpisode().isEmpty()) {
+          postProcessingMenu.setEnabled(false);
+        }
+        else {
+          for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow())) {
+            JMenuItem menuItem = new JMenuItem(TmmResourceBundle.getString("metatag.tvshow") + " - " + process.getName(), IconManager.APPLY_INV);
+            menuItem.addActionListener(pp -> new TvShowPostProcessExecutor(process).execute());
+            postProcessingMenu.add(menuItem);
+          }
+
+          if (postProcessingMenu.getItemCount() != 0) {
+            postProcessingMenu.addSeparator();
+          }
+
+          for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessEpisode())) {
+            JMenuItem menuItem = new JMenuItem(TmmResourceBundle.getString("metatag.episode") + " - " + process.getName(), IconManager.APPLY_INV);
+            menuItem.addActionListener(pp -> new TvShowEpisodePostProcessExecutor(process).execute());
+            postProcessingMenu.add(menuItem);
+          }
+
+          postProcessingMenu.setEnabled(true);
+        }
       }
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
       }
 
       @Override
       public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
       }
     });
 

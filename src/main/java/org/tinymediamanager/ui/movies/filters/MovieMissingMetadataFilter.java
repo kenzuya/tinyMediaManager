@@ -15,10 +15,16 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
-import javax.swing.JComponent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -27,7 +33,25 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class MovieMissingMetadataFilter extends AbstractMovieUIFilter {
+public class MovieMissingMetadataFilter extends AbstractCheckComboBoxMovieUIFilter<MovieMissingMetadataFilter.MetadataField> {
+
+  private final MovieList movieList;
+
+  public MovieMissingMetadataFilter() {
+    super();
+    movieList = MovieModuleManager.getInstance().getMovieList();
+
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
+
+    // initial filling
+    List<MovieMissingMetadataFilter.MetadataField> values = new ArrayList<>();
+    for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+      if (config.isMetaData() || config.isCast()) {
+        values.add(new MetadataField(config));
+      }
+    }
+    setValues(values);
+  }
 
   @Override
   public String getId() {
@@ -35,17 +59,27 @@ public class MovieMissingMetadataFilter extends AbstractMovieUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return null;
+  protected String parseTypeToString(MetadataField type) throws Exception {
+    return type.config.name();
   }
 
   @Override
-  public void setFilterValue(Object value) {
+  protected MetadataField parseStringToType(String string) throws Exception {
+    try {
+      return new MetadataField(MovieScraperMetadataConfig.valueOf(string));
+    }
+    catch (Exception e) {
+      return null;
+    }
   }
 
   @Override
   public boolean accept(Movie movie) {
-    return !movie.isScraped();
+    List<MovieScraperMetadataConfig> values = new ArrayList<>();
+    for (MetadataField metadataField : checkComboBox.getSelectedItems()) {
+      values.add(metadataField.config);
+    }
+    return !movieList.detectMissingFields(movie, values).isEmpty();
   }
 
   @Override
@@ -53,8 +87,16 @@ public class MovieMissingMetadataFilter extends AbstractMovieUIFilter {
     return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.missingmetadata"));
   }
 
-  @Override
-  protected JComponent createFilterComponent() {
-    return null;
+  public static class MetadataField {
+    private final MovieScraperMetadataConfig config;
+
+    public MetadataField(MovieScraperMetadataConfig config) {
+      this.config = config;
+    }
+
+    @Override
+    public String toString() {
+      return config.getDescription();
+    }
   }
 }

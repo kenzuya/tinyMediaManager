@@ -91,7 +91,7 @@ public class Upnp {
   private Upnp() {
   }
 
-  public synchronized static Upnp getInstance() {
+  public static synchronized Upnp getInstance() {
     if (Upnp.instance == null) {
       Upnp.instance = new Upnp();
     }
@@ -318,8 +318,9 @@ public class Upnp {
   public String getDeviceDescriptorXML() {
     String xml = "";
     try {
-      xml = upnpService.getConfiguration().getDeviceDescriptorBinderUDA10().generate(localDevice, new RemoteClientInfo(),
-          upnpService.getConfiguration().getNamespace());
+      xml = upnpService.getConfiguration()
+          .getDeviceDescriptorBinderUDA10()
+          .generate(localDevice, new RemoteClientInfo(), upnpService.getConfiguration().getNamespace());
     }
     catch (DescriptorBindingException e) {
       LOGGER.warn("Could not generate UPNP device descriptor", e);

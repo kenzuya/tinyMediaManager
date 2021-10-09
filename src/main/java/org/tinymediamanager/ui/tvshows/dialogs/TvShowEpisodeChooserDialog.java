@@ -27,13 +27,16 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
@@ -91,14 +94,17 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private MediaMetadata                                          metadata;
   private final List<TvShowEpisodeChooserModel>                  selectedEpisodes;
   private final SortedList<TvShowEpisodeChooserModel>            sortedEpisodes;
+  private final SearchTask                                       task;
 
-  private JLabel                                                 lblPath;
-  private TmmTable                                               table;
+  private final TmmTable                                         table;
+  private final JTextField                                       textField;
+  private final JProgressBar                                     progressBar;
+  private final JLabel                                           lblProgressAction;
+
   private JTextArea                                              taPlot;
-  private JTextField                                             textField;
 
-  public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
-    super(TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
+  public TvShowEpisodeChooserDialog(JDialog parent, TvShowEpisode ep, MediaScraper mediaScraper) {
+    super(parent, TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
 
     this.episode = ep;
     this.mediaScraper = mediaScraper;
@@ -111,7 +117,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       final JPanel panelPath = new JPanel();
       panelPath.setLayout(new MigLayout("", "[grow]", "[]"));
       {
-        lblPath = new JLabel("");
+        JLabel lblPath = new JLabel(episode.getPathNIO().resolve(episode.getMainVideoFile().getFilename()).toString());
         TmmFontHelper.changeFont(lblPath, 1.16667, Font.BOLD);
         panelPath.add(lblPath, "cell 0 0, wmin 0");
       }
@@ -121,7 +127,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("", "[700lp,grow]", "[500lp,grow]"));
+    contentPanel.setLayout(new MigLayout("", "[700lp:900lp,grow]", "[500lp,grow]"));
 
     {
       JSplitPane splitPane = new JSplitPane();
@@ -130,7 +136,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       contentPanel.add(splitPane, "cell 0 0,grow");
 
       JPanel panelLeft = new JPanel();
-      panelLeft.setLayout(new MigLayout("", "[300lp,grow]", "[][400lp,grow]"));
+      panelLeft.setLayout(new MigLayout("", "[350lp:450lp,grow]", "[][400lp,grow]"));
 
       textField = EnhancedTextField.createSearchTextField();
       panelLeft.add(textField, "cell 0 0, growx");
@@ -168,7 +174,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       table.configureScrollPane(scrollPane);
 
       JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("", "[400lp,grow]", "[400lp,grow]"));
+      panelRight.setLayout(new MigLayout("", "[300lp:400lp,grow]", "[400lp,grow]"));
 
       JScrollPane scrollPane_1 = new NoBorderScrollPane();
       panelRight.add(scrollPane_1, "cell 0 0,grow");
@@ -178,7 +184,18 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       scrollPane_1.setViewportView(taPlot);
     }
     {
+      JPanel infoPanel = new JPanel();
+      infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
 
+      progressBar = new JProgressBar();
+      infoPanel.add(progressBar, "cell 0 0");
+
+      lblProgressAction = new JLabel("");
+      infoPanel.add(lblProgressAction, "cell 1 0");
+
+      setBottomInformationPanel(infoPanel);
+    }
+    {
       JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
       cancelButton.setToolTipText(TmmResourceBundle.getString("edit.discard"));
       cancelButton.setIcon(IconManager.CANCEL_INV);
@@ -206,11 +223,18 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     // column widths
     table.getColumnModel().getColumn(0).setMaxWidth(50);
     table.getColumnModel().getColumn(1).setMaxWidth(50);
+    table.getColumnModel().getColumn(2).setMinWidth(100);
+    table.getColumnModel().getColumn(2).setMaxWidth(110);
 
-    SearchTask task = new SearchTask();
+    task = new SearchTask();
     task.execute();
 
-    lblPath.setText(episode.getPathNIO().resolve(episode.getMainVideoFile().getFilename()).toString());
+    SwingUtilities.invokeLater(() -> {
+      lblProgressAction.setText(TmmResourceBundle.getString("chooser.scrapeepisodes"));
+      progressBar.setVisible(true);
+      progressBar.setIndeterminate(true);
+    });
+
   }
 
   @Override
@@ -223,12 +247,18 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           metadata = episode.getMediaMetadata();
         }
 
+        if (task != null && !task.isDone()) {
+          task.cancel(true);
+        }
         setVisible(false);
       }
     }
 
     // cancel
     if ("Cancel".equals(e.getActionCommand())) {
+      if (task != null && !task.isDone()) {
+        task.cancel(true);
+      }
       setVisible(false);
     }
   }
@@ -248,7 +278,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       try {
         for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
+          episodeEventList.add(new TvShowEpisodeChooserModel(md));
         }
         table.adjustColumnPreferredWidths(5);
       }
@@ -311,6 +341,11 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           // Rectangle rect = table.getCellRect(index, 0, true);
           // table.scrollRectToVisible(rect);
         }
+
+        SwingUtilities.invokeLater(() -> {
+          lblProgressAction.setVisible(false);
+          progressBar.setVisible(false);
+        });
       }
     }
 

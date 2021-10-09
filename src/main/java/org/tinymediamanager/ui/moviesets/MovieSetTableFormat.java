@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.awt.FontMetrics;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,10 +24,15 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -42,7 +48,12 @@ import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
  */
 public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
+  private final MovieList movieList;
+
   public MovieSetTableFormat() {
+
+    movieList = MovieModuleManager.getInstance().getMovieList();
+
     FontMetrics fontMetrics = getFontMetrics();
 
     Comparator<String> integerComparator = (o1, o2) -> {
@@ -229,23 +240,37 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * main video file size
+     * main video file size (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videofilesize"), "fileSize", this::getFileSize, String.class);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
     col.setColumnComparator(fileSizeComparator);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
-     * NFO
+     * total file size (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.totalfilesize"), "totalFileSize", this::getTotalFileSize, String.class);
+    col.setHeaderIcon(IconManager.FILE_SIZE);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
+    col.setColumnComparator(fileSizeComparator);
+    addColumn(col);
+
+    /*
+     * metadata
+     */
+    col = new Column(TmmResourceBundle.getString("tmm.metadata"), "metadata", this::hasMetadata, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
+    col.setColumnTooltip(this::hasMetadataTooltip);
     addColumn(col);
 
     /*
@@ -255,6 +280,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
+    col.setColumnTooltip(this::hasImagesTooltip);
     addColumn(col);
 
     /*
@@ -305,23 +331,70 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
     else if (userObject instanceof Movie) {
-      long size = 0;
-      for (MediaFile mf : ((Movie) userObject).getMediaFiles(MediaFileType.VIDEO)) {
-        size += mf.getFilesize();
-      }
-
+      long size = ((Movie) userObject).getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return null;
   }
 
-  private ImageIcon hasNfo(TmmTreeNode node) {
+  private String getTotalFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof MovieSet.MovieSetMovie) {
       return null;
     }
     else if (userObject instanceof Movie) {
-      return getCheckIcon(((Movie) userObject).getHasNfoFile());
+      long size = ((Movie) userObject).getTotalFilesize();
+      return (int) (size / (1000.0 * 1000.0)) + " M";
+    }
+    return null;
+  }
+
+  private ImageIcon hasMetadata(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof MovieSet) {
+      return getCheckIcon(movieList.detectMissingMetadata((MovieSet) userObject).isEmpty());
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      return getCheckIcon(movieList.detectMissingMetadata((Movie) userObject).isEmpty());
+    }
+    return null;
+  }
+
+  private String hasMetadataTooltip(TmmTreeNode node) {
+    if (!MovieModuleManager.getInstance().getSettings().isShowMovieSetTableTooltips()) {
+      return null;
+    }
+
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet) {
+      List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
+      if (MovieModuleManager.getInstance().getSettings().isMovieSetDisplayAllMissingMetadata()) {
+        for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+          if (config.isMetaData() || config.isCast()) {
+            values.add(config);
+          }
+        }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetCheckMetadata());
+      }
+      return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((Movie) userObject, values));
     }
     return null;
   }
@@ -329,13 +402,49 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private ImageIcon hasImages(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof MovieSet) {
-      return getCheckIcon(((MovieSet) userObject).getHasImages());
+      return getCheckIcon(movieList.detectMissingArtwork((MovieSet) userObject).isEmpty());
     }
     else if (userObject instanceof MovieSet.MovieSetMovie) {
       return null;
     }
     else if (userObject instanceof Movie) {
-      return getCheckIcon(((Movie) userObject).getHasImages());
+      return getCheckIcon(movieList.detectMissingArtwork((Movie) userObject).isEmpty());
+    }
+    return null;
+  }
+
+  private String hasImagesTooltip(TmmTreeNode node) {
+    if (!MovieModuleManager.getInstance().getSettings().isShowMovieSetTableTooltips()) {
+      return null;
+    }
+
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet) {
+      List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
+      if (MovieModuleManager.getInstance().getSettings().isMovieSetDisplayAllMissingArtwork()) {
+        for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+          if (config.isArtwork()) {
+            values.add(config);
+          }
+        }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetCheckArtwork());
+      }
+      return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((Movie) userObject, values));
     }
     return null;
   }
@@ -506,6 +615,20 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     if (userObject instanceof Movie) {
       return ((Movie) userObject).getMainVideoFile().getFilename();
+    }
+
+    return null;
+  }
+
+  private String getMissingToolTip(List<? extends ScraperMetadataConfig> missingValues) {
+    if (!missingValues.isEmpty()) {
+      StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
+
+      for (ScraperMetadataConfig metadataConfig : missingValues) {
+        missing.append("\n").append(metadataConfig.getDescription());
+      }
+
+      return missing.toString();
     }
 
     return null;

@@ -46,8 +46,6 @@ public class TvShowNoteFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-
-
     if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }

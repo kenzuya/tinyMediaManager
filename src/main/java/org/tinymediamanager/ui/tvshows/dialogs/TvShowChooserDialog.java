@@ -336,7 +336,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         JLabel lblEpisodesT = new TmmLabel(TmmResourceBundle.getString("metatag.episodes"));
         panelScraperConfig.add(lblEpisodesT, "cell 0 2,alignx trailing");
 
-        cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.values());
+        cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.getValues());
         cbEpisodeScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
@@ -470,6 +470,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       progressBar.setVisible(false);
       cbTvShowScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getTvShowScraperMetadataConfig());
       cbEpisodeScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getEpisodeScraperMetadataConfig());
+      chckbxDoNotOverwrite.setSelected(TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
 
       lblPath.setText(tvShowToScrape.getPathNIO().toString());
       textFieldSearchString.setText(tvShowToScrape.getTitle());

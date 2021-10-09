@@ -44,6 +44,12 @@ public class TvShowMissingSubtitlesFilter extends AbstractTvShowUIFilter {
 
   @Override
   public void setFilterValue(Object value) {
+    // nothing to do
+  }
+
+  @Override
+  public void clearFilter() {
+    // nothing to do
   }
 
   @Override

@@ -36,11 +36,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
 /**
@@ -206,27 +207,15 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
-   * @return true if artwork is available
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getSeasonCheckImages()) {
-      if (StringUtils.isBlank(getArtworkFilename(type))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Checks if all episodes of that season have artwork assigned
    *
    * @return true if artwork is available
    */
   public Boolean getHasEpisodeImages() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy() && !episode.getHasImages()) {
+      if (!episode.isDummy() && !tvShowList.detectMissingArtwork(episode).isEmpty()) {
         return false;
       }
     }
@@ -234,19 +223,20 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   }
 
   /**
-   * Checks if all episodes of that season have a NFO file
+   * Checks if all episodes of that season have valis metadata
    *
-   * @return true if NFO files are available
+   * @return true if all chosen metadata fields are filled
    */
-  public Boolean getHasEpisodeNfoFiles() {
-    boolean nfo = true;
+  public Boolean getHasEpisodeMetadata() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy() && !episode.getHasNfoFile()) {
-        nfo = false;
-        break;
+      if (!episode.isDummy() && !tvShowList.detectMissingMetadata(episode).isEmpty()) {
+        return false;
       }
     }
-    return nfo;
+
+    return true;
   }
 
   public boolean isDummy() {
@@ -260,6 +250,22 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public List<TvShowEpisode> getEpisodesForDisplay() {
     return episodes;
+  }
+
+  public long getVideoFilesize() {
+    long filesize = 0;
+    for (TvShowEpisode episode : episodes) {
+      filesize += episode.getVideoFilesize();
+    }
+    return filesize;
+  }
+
+  public long getTotalFilesize() {
+    long filesize = 0;
+    for (TvShowEpisode episode : episodes) {
+      filesize += episode.getTotalFilesize();
+    }
+    return filesize;
   }
 
   public void setArtwork(MediaFile mediaFile) {
@@ -414,6 +420,25 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public void setLastWatched(Date lastWatched) {
     this.lastWatched = lastWatched;
+  }
+
+  public Object getValueForMetadata(TvShowScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case TITLE:
+        return getTitle();
+
+      case SEASON_POSTER:
+        return getArtworkFilename(MediaArtworkType.SEASON_POSTER);
+
+      case SEASON_BANNER:
+        return getArtworkFilename(MediaArtworkType.SEASON_BANNER);
+
+      case SEASON_THUMB:
+        return getArtworkFilename(MediaArtworkType.SEASON_THUMB);
+    }
+
+    return null;
   }
 
   @Override

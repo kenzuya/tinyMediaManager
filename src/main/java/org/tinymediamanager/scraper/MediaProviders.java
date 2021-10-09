@@ -16,10 +16,13 @@
 package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -55,6 +58,7 @@ import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.spi.IAddonProvider;
+import org.tinymediamanager.scraper.thetvdb.TheTvDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
@@ -93,7 +97,7 @@ public class MediaProviders {
     }
 
     // load the addons
-    List<Class<? extends IMediaProvider>> addons = new ArrayList<>();
+    Set<Class<? extends IMediaProvider>> addons = new LinkedHashSet<>();
     Iterator<IAddonProvider> addonIterator = ServiceLoader.load(IAddonProvider.class).iterator();
     while (addonIterator.hasNext()) {
       try {
@@ -108,13 +112,14 @@ public class MediaProviders {
     // MOVIE
     /////////////////////////////////////////////
     loadProvider(TmdbMovieMetadataProvider.class);
+    loadProvider(OmdbMovieMetadataProvider.class);
+    loadProvider(TheTvDbMovieMetadataProvider.class);
     loadProvider(ImdbMovieMetadataProvider.class);
+    loadProvider(KodiMetadataProvider.class);
     loadProvider(MovieMeterMovieMetadataProvider.class);
     loadProvider(OfdbMovieMetadataProvider.class);
-    loadProvider(OmdbMovieMetadataProvider.class);
-    loadProvider(MpdbMovieMetadataProvider.class);
-    loadProvider(KodiMetadataProvider.class);
     loadProvider(TraktMovieMetadataProvider.class);
+    loadProvider(MpdbMovieMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieMetadataProvider.class);
@@ -216,7 +221,7 @@ public class MediaProviders {
     loadAddonsForInterface(addons, ITvShowSubtitleProvider.class);
   }
 
-  private static void loadAddonsForInterface(List<Class<? extends IMediaProvider>> addons, Class<? extends IMediaProvider> iface) {
+  private static void loadAddonsForInterface(Collection<Class<? extends IMediaProvider>> addons, Class<? extends IMediaProvider> iface) {
     for (Class<? extends IMediaProvider> addon : addons) {
       if (iface.isAssignableFrom(addon)) {
         try {

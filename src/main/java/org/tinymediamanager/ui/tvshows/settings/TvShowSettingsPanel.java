@@ -15,33 +15,55 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.ACTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.COUNTRY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.TvShowSettingsDefaults;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.thirdparty.trakttv.TvShowClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
+import org.tinymediamanager.ui.components.JHintLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
@@ -53,57 +75,72 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowSettingsPanel extends JPanel {
-  private static final long            serialVersionUID = -675729644848101096L;
+  private static final long                                        serialVersionUID = -675729644848101096L;
+  private static final int                                         COL_COUNT        = 7;
 
-  private final TvShowSettings         settings         = TvShowModuleManager.getInstance().getSettings();
-  private final ItemListener           checkBoxListener;
+  private final TvShowSettings                                     settings         = TvShowModuleManager.getInstance().getSettings();
+  private final ItemListener                                       checkBoxListener;
 
-  private JCheckBox                    chckbxImageCache;
-  private JCheckBox                    chckbxExtractArtworkFromVsmeta;
-  private JCheckBox                    chckbxTraktTv;
-  private JButton                      btnClearTraktTvShows;
-  private JCheckBox                    chckbxShowLogos;
-  private JCheckBox                    chckbxShowMissingEpisodes;
-  private JButton                      btnPresetKodi;
-  private JButton                      btnPresetXbmc;
-  private JButton                      btnPresetMediaPortal1;
-  private JButton                      btnPresetMediaPortal2;
-  private JButton                      btnPresetPlex;
-  private AutocompleteComboBox<String> cbRating;
-  private JCheckBox                    chckbxRenameAfterScrape;
-  private JCheckBox                    chckbxARDAfterScrape;
-  private JCheckBox                    chckbxAutoUpdateOnStart;
-  private JCheckBox                    chckbxShowMissingSpecials;
-  private JCheckBox                    chckbxTvShowTableTooltips;
+  private JCheckBox                                                chckbxImageCache;
+  private JCheckBox                                                chckbxExtractArtworkFromVsmeta;
+  private JCheckBox                                                chckbxTraktTv;
+  private JButton                                                  btnClearTraktTvShows;
+  private JCheckBox                                                chckbxShowMissingEpisodes;
+  private JButton                                                  btnPresetKodi;
+  private JButton                                                  btnPresetXbmc;
+  private JButton                                                  btnPresetMediaPortal1;
+  private JButton                                                  btnPresetMediaPortal2;
+  private JButton                                                  btnPresetPlex;
+  private AutocompleteComboBox<String>                             cbRating;
+  private JCheckBox                                                chckbxRenameAfterScrape;
+  private JCheckBox                                                chckbxARDAfterScrape;
+  private JCheckBox                                                chckbxAutoUpdateOnStart;
+  private JCheckBox                                                chckbxShowMissingSpecials;
+  private JCheckBox                                                chckbxTvShowTableTooltips;
 
-  private JCheckBox                    chckbxTvShowCheckPoster;
-  private JCheckBox                    chckbxTvShowCheckFanart;
-  private JCheckBox                    chckbxTvShowCheckBanner;
-  private JCheckBox                    chckbxTvShowCheckClearart;
-  private JCheckBox                    chckbxTvShowCheckThumb;
-  private JCheckBox                    chckbxTvShowCheckLogo;
-  private JCheckBox                    chckbxTvShowCheckClearlogo;
+  private JCheckBox                                                chckbxMetadataFromMediainfo;
+  private JCheckBox                                                chckbxTraktCollection;
+  private JCheckBox                                                chckbxTraktWatched;
+  private JCheckBox                                                chckbxTraktRating;
+  private JCheckBox                                                chckbxSeasonArtworkFallback;
+  private JCheckBox                                                chckbxStoreFilter;
 
-  private JCheckBox                    chckbxTvShowSeasonCheckPoster;
-  private JCheckBox                    chckbxTvShowSeasonCheckBanner;
-  private JCheckBox                    chckbxTvShowSeasonCheckThumb;
-  private JCheckBox                    chckbxTvShowEpisodeCheckThumb;
-  private JCheckBox                    chckbxMetadataFromMediainfo;
-  private JCheckBox                    chckbxTraktCollection;
-  private JCheckBox                    chckbxTraktWatched;
-  private JCheckBox                    chckbxTraktRating;
-  private JCheckBox                    chckbxSeasonArtworkFallback;
-  private JCheckBox                    chckbxStoreFilter;
+  private JCheckBox                                                chckbxNode;
+  private JCheckBox                                                chckbxTitle;
+  private JCheckBox                                                chckbxOriginalTitle;
 
-  private JCheckBox                    chckbxNode;
-  private JCheckBox                    chckbxTitle;
-  private JCheckBox                    chckbxOriginalTitle;
-  private JCheckBox                    chckbxNote;
+  private JCheckBox                                                chckbxUniversalNote;
+  private JCheckBox                                                chckbxUniversalFilename;
+  private JCheckBox                                                chckbxUniversalTags;
+  private JCheckBox                                                chckbxUniversalProductionCompany;
+  private JCheckBox                                                chckbxUniversalCountry;
+  private JCheckBox                                                chckbxUniversalLanguages;
+  private JCheckBox                                                chckbxUniversalActors;
+  private JCheckBox                                                chckbxUniversalDirectors;
+  private JCheckBox                                                chckbxUniversalWriters;
+
+  private final Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowMetadataCheckBoxes;
+  private final Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeMetadataCheckBoxes;
+  private JHintCheckBox                                            chckbxTvShowDisplayAllMissingMetadata;
+  private JHintCheckBox                                            chckbxEpisodeDisplayAllMissingMetadata;
+  private JCheckBox                                                chckbxEpisodeSpecialsCheckMissingMetadata;
+  private final Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowArtworkCheckBoxes;
+  private final Map<TvShowScraperMetadataConfig, JCheckBox>        seasonArtworkCheckBoxes;
+  private final Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeArtworkCheckBoxes;
+  private JHintCheckBox                                            chckbxTvShowDisplayAllMissingArtwork;
+  private JHintCheckBox                                            chckbxSeasonDisplayAllMissingArtwork;
+  private JHintCheckBox                                            chckbxEpisodeDisplayAllMissingArtwork;
+  private JCheckBox                                                chckbxEpisodeSpecialsCheckMissingArtwork;
 
   /**
    * Instantiates a new tv show settings panel.
    */
   TvShowSettingsPanel() {
+    tvShowMetadataCheckBoxes = new LinkedHashMap<>();
+    episodeMetadataCheckBoxes = new LinkedHashMap<>();
+    tvShowArtworkCheckBoxes = new LinkedHashMap<>();
+    seasonArtworkCheckBoxes = new LinkedHashMap<>();
+    episodeArtworkCheckBoxes = new LinkedHashMap<>();
     checkBoxListener = e -> checkChanges();
 
     // UI initializations
@@ -134,148 +171,205 @@ class TvShowSettingsPanel extends JPanel {
    * Check changes.
    */
   private void checkChanges() {
-    settings.clearTvShowCheckImages();
-    if (chckbxTvShowCheckPoster.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.POSTER);
+    // universal filter
+    List<AbstractSettings.UniversalFilterFields> universalFilterFields = new ArrayList<>();
+    if (chckbxUniversalNote.isSelected()) {
+      universalFilterFields.add(NOTE);
     }
-    if (chckbxTvShowCheckFanart.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.BACKGROUND);
+    if (chckbxUniversalFilename.isSelected()) {
+      universalFilterFields.add(FILENAME);
     }
-    if (chckbxTvShowCheckBanner.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.BANNER);
+    if (chckbxUniversalTags.isSelected()) {
+      universalFilterFields.add(TAGS);
     }
-    if (chckbxTvShowCheckClearart.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.CLEARART);
+    if (chckbxUniversalCountry.isSelected()) {
+      universalFilterFields.add(COUNTRY);
     }
-    if (chckbxTvShowCheckThumb.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.THUMB);
+    if (chckbxUniversalProductionCompany.isSelected()) {
+      universalFilterFields.add(PRODUCTION_COMPANY);
     }
-    if (chckbxTvShowCheckLogo.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.LOGO);
+    if (chckbxUniversalLanguages.isSelected()) {
+      universalFilterFields.add(SPOKEN_LANGUAGE);
     }
-    if (chckbxTvShowCheckClearlogo.isSelected()) {
-      settings.addTvShowCheckImages(MediaArtwork.MediaArtworkType.CLEARLOGO);
+    if (chckbxUniversalActors.isSelected()) {
+      universalFilterFields.add(ACTOR);
+    }
+    if (chckbxUniversalWriters.isSelected()) {
+      universalFilterFields.add(WRITER);
+    }
+    if (chckbxUniversalDirectors.isSelected()) {
+      universalFilterFields.add(DIRECTOR);
+    }
+    settings.setUniversalFilterFields(universalFilterFields);
+
+    // TV show
+    // metadata
+    settings.clearTvShowCheckMetadata();
+    for (Map.Entry<TvShowScraperMetadataConfig, JCheckBox> entry : tvShowMetadataCheckBoxes.entrySet()) {
+      TvShowScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addTvShowCheckMetadata(key);
+      }
     }
 
-    settings.clearSeasonCheckImages();
-    if (chckbxTvShowSeasonCheckPoster.isSelected()) {
-      settings.addSeasonCheckImages(MediaArtwork.MediaArtworkType.SEASON_POSTER);
-    }
-    if (chckbxTvShowSeasonCheckBanner.isSelected()) {
-      settings.addSeasonCheckImages(MediaArtwork.MediaArtworkType.SEASON_BANNER);
-    }
-    if (chckbxTvShowSeasonCheckThumb.isSelected()) {
-      settings.addSeasonCheckImages(MediaArtwork.MediaArtworkType.SEASON_THUMB);
+    // artwork
+    settings.clearTvShowCheckArtwork();
+    for (Map.Entry<TvShowScraperMetadataConfig, JCheckBox> entry : tvShowArtworkCheckBoxes.entrySet()) {
+      TvShowScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addTvShowCheckArtwork(key);
+      }
     }
 
-    settings.clearEpisodeCheckImages();
-    if (chckbxTvShowEpisodeCheckThumb.isSelected()) {
-      settings.addEpisodeCheckImages(MediaArtwork.MediaArtworkType.THUMB);
+    // season
+    // artwork
+    settings.clearSeasonCheckArtwork();
+    for (Map.Entry<TvShowScraperMetadataConfig, JCheckBox> entry : seasonArtworkCheckBoxes.entrySet()) {
+      TvShowScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addSeasonCheckArtwork(key);
+      }
+    }
+
+    // episode
+    // metadata
+    settings.clearEpisodeCheckMetadata();
+    for (Map.Entry<TvShowEpisodeScraperMetadataConfig, JCheckBox> entry : episodeMetadataCheckBoxes.entrySet()) {
+      TvShowEpisodeScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addEpisodeCheckMetadata(key);
+      }
+    }
+
+    // artwork
+    settings.clearEpisodeCheckArtwork();
+    for (Map.Entry<TvShowEpisodeScraperMetadataConfig, JCheckBox> entry : episodeArtworkCheckBoxes.entrySet()) {
+      TvShowEpisodeScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addEpisodeCheckArtwork(key);
+      }
     }
   }
 
   private void buildCheckBoxes() {
-    chckbxTvShowCheckPoster.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckFanart.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckBanner.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckClearart.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckThumb.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckLogo.removeItemListener(checkBoxListener);
-    chckbxTvShowCheckClearlogo.removeItemListener(checkBoxListener);
-    clearSelection(chckbxTvShowCheckPoster, chckbxTvShowCheckFanart, chckbxTvShowCheckBanner, chckbxTvShowCheckClearart, chckbxTvShowCheckThumb,
-        chckbxTvShowCheckLogo, chckbxTvShowCheckClearlogo);
-
-    chckbxTvShowSeasonCheckPoster.removeItemListener(checkBoxListener);
-    chckbxTvShowSeasonCheckBanner.removeItemListener(checkBoxListener);
-    chckbxTvShowSeasonCheckThumb.removeItemListener(checkBoxListener);
-    clearSelection(chckbxTvShowSeasonCheckPoster, chckbxTvShowSeasonCheckBanner, chckbxTvShowSeasonCheckThumb);
-
-    chckbxTvShowEpisodeCheckThumb.removeItemListener(checkBoxListener);
-    clearSelection(chckbxTvShowEpisodeCheckThumb);
-
-    for (MediaArtwork.MediaArtworkType type : settings.getTvShowCheckImages()) {
-      switch (type) {
-        case POSTER:
-          chckbxTvShowCheckPoster.setSelected(true);
+    // universal filter
+    for (AbstractSettings.UniversalFilterFields filterField : settings.getUniversalFilterFields()) {
+      switch (filterField) {
+        case NOTE:
+          chckbxUniversalNote.setSelected(true);
           break;
 
-        case BACKGROUND:
-          chckbxTvShowCheckFanart.setSelected(true);
+        case FILENAME:
+          chckbxUniversalFilename.setSelected(true);
           break;
 
-        case BANNER:
-          chckbxTvShowCheckBanner.setSelected(true);
+        case TAGS:
+          chckbxUniversalTags.setSelected(true);
           break;
 
-        case CLEARART:
-          chckbxTvShowCheckClearart.setSelected(true);
+        case PRODUCTION_COMPANY:
+          chckbxUniversalProductionCompany.setSelected(true);
           break;
 
-        case THUMB:
-          chckbxTvShowCheckThumb.setSelected(true);
+        case COUNTRY:
+          chckbxUniversalCountry.setSelected(true);
           break;
 
-        case LOGO:
-          chckbxTvShowCheckLogo.setSelected(true);
+        case SPOKEN_LANGUAGE:
+          chckbxUniversalLanguages.setSelected(true);
           break;
 
-        case CLEARLOGO:
-          chckbxTvShowCheckClearlogo.setSelected(true);
+        case ACTOR:
+          chckbxUniversalActors.setSelected(true);
           break;
 
-        default:
+        case DIRECTOR:
+          chckbxUniversalDirectors.setSelected(true);
+          break;
+
+        case WRITER:
+          chckbxUniversalWriters.setSelected(true);
           break;
       }
     }
 
-    for (MediaArtwork.MediaArtworkType type : settings.getSeasonCheckImages()) {
-      switch (type) {
-        case SEASON_POSTER:
-          chckbxTvShowSeasonCheckPoster.setSelected(true);
-          break;
+    // set the checkbox listener at the end!
+    chckbxUniversalNote.addItemListener(checkBoxListener);
+    chckbxUniversalFilename.addItemListener(checkBoxListener);
+    chckbxUniversalTags.addItemListener(checkBoxListener);
+    chckbxUniversalProductionCompany.addItemListener(checkBoxListener);
+    chckbxUniversalCountry.addItemListener(checkBoxListener);
+    chckbxUniversalLanguages.addItemListener(checkBoxListener);
+    chckbxUniversalActors.addItemListener(checkBoxListener);
+    chckbxUniversalDirectors.addItemListener(checkBoxListener);
+    chckbxUniversalWriters.addItemListener(checkBoxListener);
 
-        case SEASON_BANNER:
-          chckbxTvShowSeasonCheckBanner.setSelected(true);
-          break;
-
-        case SEASON_THUMB:
-          chckbxTvShowSeasonCheckThumb.setSelected(true);
-          break;
-
-        default:
-          break;
+    // TV Show
+    // metadata
+    for (TvShowScraperMetadataConfig value : settings.getTvShowCheckMetadata()) {
+      JCheckBox checkBox = tvShowMetadataCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
       }
     }
 
-    for (MediaArtwork.MediaArtworkType type : settings.getEpisodeCheckImages()) {
-      switch (type) {
-        case THUMB:
-          chckbxTvShowEpisodeCheckThumb.setSelected(true);
-          break;
+    for (JCheckBox checkBox : tvShowMetadataCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
 
-        default:
-          break;
+    // artwork
+    for (TvShowScraperMetadataConfig value : settings.getTvShowCheckArtwork()) {
+      JCheckBox checkBox = tvShowArtworkCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
       }
     }
 
-    chckbxTvShowCheckPoster.addItemListener(checkBoxListener);
-    chckbxTvShowCheckFanart.addItemListener(checkBoxListener);
-    chckbxTvShowCheckBanner.addItemListener(checkBoxListener);
-    chckbxTvShowCheckClearart.addItemListener(checkBoxListener);
-    chckbxTvShowCheckThumb.addItemListener(checkBoxListener);
-    chckbxTvShowCheckLogo.addItemListener(checkBoxListener);
-    chckbxTvShowCheckClearlogo.addItemListener(checkBoxListener);
+    for (JCheckBox checkBox : tvShowArtworkCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
 
-    chckbxTvShowSeasonCheckPoster.addItemListener(checkBoxListener);
-    chckbxTvShowSeasonCheckBanner.addItemListener(checkBoxListener);
-    chckbxTvShowSeasonCheckThumb.addItemListener(checkBoxListener);
+    // season
+    // artwork
+    for (TvShowScraperMetadataConfig value : settings.getSeasonCheckArtwork()) {
+      JCheckBox checkBox = seasonArtworkCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
 
-    chckbxTvShowEpisodeCheckThumb.addItemListener(checkBoxListener);
-  }
+    for (JCheckBox checkBox : seasonArtworkCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
 
-  private void clearSelection(JCheckBox... checkBoxes) {
-    for (JCheckBox checkBox : checkBoxes) {
-      checkBox.setSelected(false);
+    // episode
+    // metadata
+    for (TvShowEpisodeScraperMetadataConfig value : settings.getEpisodeCheckMetadata()) {
+      JCheckBox checkBox = episodeMetadataCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
+
+    for (JCheckBox checkBox : episodeMetadataCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
+
+    // artwork
+    for (TvShowEpisodeScraperMetadataConfig value : settings.getEpisodeCheckArtwork()) {
+      JCheckBox checkBox = episodeArtworkCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
+
+    for (JCheckBox checkBox : episodeArtworkCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
     }
   }
 
@@ -283,7 +377,9 @@ class TvShowSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][]")); // 16lp ~ width of the
+      // 16lp ~ width of the checkbox
+      panelUiSettings
+          .setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][][10lp!][][grow][10lp!][][][10lp!][][]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -301,41 +397,274 @@ class TvShowSettingsPanel extends JPanel {
 
         chckbxOriginalTitle = new JCheckBox(TmmResourceBundle.getString("metatag.originaltitle"));
         panelUiSettings.add(chckbxOriginalTitle, "cell 2 1");
-
-        chckbxNote = new JCheckBox(TmmResourceBundle.getString("metatag.note"));
-        panelUiSettings.add(chckbxNote, "cell 2 1");
       }
+      {
+        JHintLabel lblUniversalFilter = new JHintLabel(TmmResourceBundle.getString("filter.universal"));
+        lblUniversalFilter.setHintIcon(IconManager.HINT);
+        lblUniversalFilter.setToolTipText(TmmResourceBundle.getString("filter.universal.hint"));
+        panelUiSettings.add(lblUniversalFilter, "cell 1 2 2 1");
+
+        chckbxUniversalNote = new JCheckBox(TmmResourceBundle.getString("metatag.note"));
+        panelUiSettings.add(chckbxUniversalNote, "cell 2 3");
+
+        chckbxUniversalFilename = new JCheckBox(TmmResourceBundle.getString("metatag.filename"));
+        panelUiSettings.add(chckbxUniversalFilename, "cell 2 3");
+
+        chckbxUniversalTags = new JCheckBox(TmmResourceBundle.getString("metatag.tags"));
+        panelUiSettings.add(chckbxUniversalTags, "cell 2 3");
+
+        chckbxUniversalProductionCompany = new JCheckBox(TmmResourceBundle.getString("metatag.production"));
+        panelUiSettings.add(chckbxUniversalProductionCompany, "cell 2 3");
+
+        chckbxUniversalCountry = new JCheckBox(TmmResourceBundle.getString("metatag.country"));
+        panelUiSettings.add(chckbxUniversalCountry, "cell 2 3");
+
+        chckbxUniversalLanguages = new JCheckBox(TmmResourceBundle.getString("metatag.spokenlanguages"));
+        panelUiSettings.add(chckbxUniversalLanguages, "cell 2 3");
+
+        chckbxUniversalActors = new JCheckBox(TmmResourceBundle.getString("metatag.actors"));
+        panelUiSettings.add(chckbxUniversalActors, "cell 2 4");
+
+        chckbxUniversalDirectors = new JCheckBox(TmmResourceBundle.getString("metatag.directors"));
+        panelUiSettings.add(chckbxUniversalDirectors, "cell 2 4");
+
+        chckbxUniversalWriters = new JCheckBox(TmmResourceBundle.getString("metatag.writers"));
+        panelUiSettings.add(chckbxUniversalWriters, "cell 2 4");
+      }
+
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxStoreFilter, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 5 2 1");
       }
-      {
-        chckbxShowLogos = new JCheckBox(TmmResourceBundle.getString("Settings.showlogos"));
-        panelUiSettings.add(chckbxShowLogos, "cell 1 3 2 1");
 
+      {
         chckbxShowMissingEpisodes = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingepisodes"));
-        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 4 2 1");
+        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 6 2 1");
 
         chckbxShowMissingSpecials = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingespecials"));
-        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 5");
+        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 7");
 
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "flowx,cell 1 6 2 1");
+        panelUiSettings.add(lblRating, "flowx,cell 1 8 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
-        panelUiSettings.add(cbRating, "cell 1 6 2 1");
+        panelUiSettings.add(cbRating, "cell 1 8 2 1");
+
+        {
+          JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
+          panelUiSettings.add(lblCheckMetadata, "cell 1 10 2 1");
+
+          JPanel panelCheckMetadata = new JPanel(new GridBagLayout());
+
+          GridBagConstraints gbc = new GridBagConstraints();
+          gbc.gridx = 0;
+          gbc.gridy = 0;
+          gbc.anchor = GridBagConstraints.LINE_START;
+          gbc.ipadx = 10;
+
+          // TV show
+          JLabel lblTvShow = new TmmLabel(TmmResourceBundle.getString("metatag.tvshow"));
+          panelCheckMetadata.add(lblTvShow, gbc.clone());
+
+          gbc.gridx++;
+
+          // Metadata
+          for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+            if (value.isMetaData()) {
+              addMetadataCheckbox(panelCheckMetadata, value, tvShowMetadataCheckBoxes, gbc);
+            }
+          }
+
+          // cast
+          gbc.gridx = 1;
+          gbc.gridy++;
+          for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+            if (value.isCast()) {
+              addMetadataCheckbox(panelCheckMetadata, value, tvShowMetadataCheckBoxes, gbc);
+            }
+          }
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckMetadata.add(Box.createVerticalStrut(5), gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxTvShowDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
+          chckbxTvShowDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
+          chckbxTvShowDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
+          panelCheckMetadata.add(chckbxTvShowDisplayAllMissingMetadata, gbc.clone());
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckMetadata.add(Box.createVerticalStrut(10), gbc.clone());
+
+          // Episode
+          gbc.gridx = 0;
+          gbc.gridy++;
+
+          JLabel lblEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
+          panelCheckMetadata.add(lblEpisode, gbc.clone());
+
+          gbc.gridx++;
+
+          // Metadata
+          for (TvShowEpisodeScraperMetadataConfig value : TvShowEpisodeScraperMetadataConfig.values()) {
+            if (value.isMetaData()) {
+              addMetadataCheckbox(panelCheckMetadata, value, episodeMetadataCheckBoxes, gbc);
+            }
+          }
+
+          // cast
+          gbc.gridx = 1;
+          gbc.gridy++;
+          for (TvShowEpisodeScraperMetadataConfig value : TvShowEpisodeScraperMetadataConfig.values()) {
+            if (value.isCast()) {
+              addMetadataCheckbox(panelCheckMetadata, value, episodeMetadataCheckBoxes, gbc);
+            }
+          }
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckMetadata.add(Box.createVerticalStrut(5), gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxEpisodeDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
+          chckbxEpisodeDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
+          chckbxEpisodeDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
+          panelCheckMetadata.add(chckbxEpisodeDisplayAllMissingMetadata, gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxEpisodeSpecialsCheckMissingMetadata = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkmetadata.specials"));
+          panelCheckMetadata.add(chckbxEpisodeSpecialsCheckMissingMetadata, gbc.clone());
+
+          panelUiSettings.add(panelCheckMetadata, "cell 2 11");
+        }
+        {
+          JLabel lblCheckArtwork = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
+          panelUiSettings.add(lblCheckArtwork, "cell 1 13 2 1");
+
+          JPanel panelCheckArtwork = new JPanel(new GridBagLayout());
+
+          GridBagConstraints gbc = new GridBagConstraints();
+          gbc.gridx = 0;
+          gbc.gridy = 0;
+          gbc.anchor = GridBagConstraints.LINE_START;
+          gbc.ipadx = 10;
+
+          // TV show
+          JLabel lblTvShow = new TmmLabel(TmmResourceBundle.getString("metatag.tvshow"));
+          panelCheckArtwork.add(lblTvShow, gbc.clone());
+
+          gbc.gridx++;
+
+          for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+            if (value.isArtwork()) {
+              addMetadataCheckbox(panelCheckArtwork, value, tvShowArtworkCheckBoxes, gbc);
+            }
+          }
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckArtwork.add(Box.createVerticalStrut(5), gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxTvShowDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
+          chckbxTvShowDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
+          chckbxTvShowDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
+          panelCheckArtwork.add(chckbxTvShowDisplayAllMissingArtwork, gbc.clone());
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckArtwork.add(Box.createVerticalStrut(10), gbc.clone());
+
+          // Season
+          gbc.gridx = 0;
+          gbc.gridy++;
+
+          JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
+          panelCheckArtwork.add(lblSeason, gbc.clone());
+
+          gbc.gridx++;
+
+          for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+            if (value.isArtwork() && value.name().startsWith("SEASON")) {
+              addMetadataCheckbox(panelCheckArtwork, value, seasonArtworkCheckBoxes, gbc);
+            }
+          }
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckArtwork.add(Box.createVerticalStrut(5), gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxSeasonDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
+          chckbxSeasonDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
+          chckbxSeasonDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
+          panelCheckArtwork.add(chckbxSeasonDisplayAllMissingArtwork, gbc.clone());
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckArtwork.add(Box.createVerticalStrut(10), gbc.clone());
+
+          // Episode
+          gbc.gridx = 0;
+          gbc.gridy++;
+
+          JLabel lblEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
+          panelCheckArtwork.add(lblEpisode, gbc.clone());
+
+          gbc.gridx++;
+
+          for (TvShowEpisodeScraperMetadataConfig value : TvShowEpisodeScraperMetadataConfig.values()) {
+            if (value.isArtwork()) {
+              addMetadataCheckbox(panelCheckArtwork, value, episodeArtworkCheckBoxes, gbc);
+            }
+          }
+
+          // spacer
+          gbc.gridx = 0;
+          gbc.gridy++;
+          panelCheckArtwork.add(Box.createVerticalStrut(5), gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxEpisodeDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
+          chckbxEpisodeDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
+          chckbxEpisodeDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
+          panelCheckArtwork.add(chckbxEpisodeDisplayAllMissingArtwork, gbc.clone());
+
+          gbc.gridx = 1;
+          gbc.gridy++;
+          chckbxEpisodeSpecialsCheckMissingArtwork = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkartwork.specials"));
+          panelCheckArtwork.add(chckbxEpisodeSpecialsCheckMissingArtwork, gbc.clone());
+
+          panelUiSettings.add(panelCheckArtwork, "cell 2 14");
+        }
 
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
-        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 8 2 1");
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 16 2 1");
       }
       {
         chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
-        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 9 2 1");
+        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 17 2 1");
       }
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][]")); // 16lp ~ width of the
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][10lp!][]")); // 16lp ~ width of
+                                                                                                                                  // the
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -381,7 +710,7 @@ class TvShowSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -400,57 +729,6 @@ class TvShowSettingsPanel extends JPanel {
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
         lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
         panelMisc.add(lblBuildImageCacheHint, "cell 1 2 2 1");
-
-        JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 3 2 1");
-
-        {
-          JPanel panelCheckImages = new JPanel();
-          panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "[][][][]", ""));
-          panelMisc.add(panelCheckImages, "cell 2 4");
-
-          JLabel lblTvShowCheckImages = new TmmLabel(TmmResourceBundle.getString("metatag.tvshow"));
-          panelCheckImages.add(lblTvShowCheckImages, "cell 0 0");
-
-          chckbxTvShowCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
-          panelCheckImages.add(chckbxTvShowCheckPoster, "cell 1 0");
-
-          chckbxTvShowCheckFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
-          panelCheckImages.add(chckbxTvShowCheckFanart, "cell 2 0");
-
-          chckbxTvShowCheckBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
-          panelCheckImages.add(chckbxTvShowCheckBanner, "cell 3 0");
-
-          chckbxTvShowCheckClearart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearart"));
-          panelCheckImages.add(chckbxTvShowCheckClearart, "cell 4 0");
-
-          chckbxTvShowCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
-          panelCheckImages.add(chckbxTvShowCheckThumb, "cell 5 0");
-
-          chckbxTvShowCheckLogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.logo"));
-          panelCheckImages.add(chckbxTvShowCheckLogo, "cell 6 0");
-
-          chckbxTvShowCheckClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
-          panelCheckImages.add(chckbxTvShowCheckClearlogo, "cell 7 0");
-
-          JLabel lblTvShowSeasonCheckImages = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
-          panelCheckImages.add(lblTvShowSeasonCheckImages, "cell 0 1");
-
-          chckbxTvShowSeasonCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
-          panelCheckImages.add(chckbxTvShowSeasonCheckPoster, "cell 1 1");
-
-          chckbxTvShowSeasonCheckBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
-          panelCheckImages.add(chckbxTvShowSeasonCheckBanner, "cell 2 1");
-
-          chckbxTvShowSeasonCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
-          panelCheckImages.add(chckbxTvShowSeasonCheckThumb, "cell 3 1");
-
-          JLabel lblTvShowEpisodeCheckImages = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
-          panelCheckImages.add(lblTvShowEpisodeCheckImages, "cell 0 2");
-
-          chckbxTvShowEpisodeCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
-          panelCheckImages.add(chckbxTvShowEpisodeCheckThumb, "cell 1 2");
-        }
       }
     }
     {
@@ -484,6 +762,27 @@ class TvShowSettingsPanel extends JPanel {
         }
       }
     }
+  }
+
+  private <E extends ScraperMetadataConfig> void addMetadataCheckbox(JPanel panel, E config, Map<E, JCheckBox> map, GridBagConstraints gbc) {
+    JCheckBox checkBox;
+    if (StringUtils.isNotBlank(config.getToolTip())) {
+      checkBox = new JHintCheckBox(config.getDescription());
+      checkBox.setToolTipText(config.getToolTip());
+      ((JHintCheckBox) checkBox).setHintIcon(IconManager.HINT);
+    }
+    else {
+      checkBox = new JCheckBox(config.getDescription());
+    }
+    map.put(config, checkBox);
+
+    if (gbc.gridx >= COL_COUNT) {
+      gbc.gridx = 1;
+      gbc.gridy++;
+    }
+    panel.add(checkBox, gbc.clone());
+
+    gbc.gridx++;
   }
 
   protected void initDataBindings() {
@@ -523,11 +822,6 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6,
         chckbxShowMissingSpecials, jCheckBoxBeanProperty);
     autoBinding_8.bind();
-    //
-    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("showLogosPanel");
-    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxShowLogos,
-        jCheckBoxBeanProperty);
-    autoBinding_9.bind();
     //
     Property tvShowSettingsBeanProperty_8 = BeanProperty.create("extractArtworkFromVsmeta");
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8,
@@ -606,9 +900,39 @@ class TvShowSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_23.bind();
     //
-    Property tvShowSettingsBeanProperty_24 = BeanProperty.create("note");
-    AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_24, chckbxNote,
-        jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_15 = BeanProperty.create("tvShowDisplayAllMissingMetadata");
+    AutoBinding autoBinding_25 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_15,
+        chckbxTvShowDisplayAllMissingMetadata, jCheckBoxBeanProperty);
+    autoBinding_25.bind();
+    //
+    Property tvShowSettingsBeanProperty_16 = BeanProperty.create("episodeDisplayAllMissingMetadata");
+    AutoBinding autoBinding_26 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_16,
+        chckbxEpisodeDisplayAllMissingMetadata, jCheckBoxBeanProperty);
+    autoBinding_26.bind();
+    //
+    Property tvShowSettingsBeanProperty_17 = BeanProperty.create("tvShowDisplayAllMissingArtwork");
+    AutoBinding autoBinding_27 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_17,
+        chckbxTvShowDisplayAllMissingArtwork, jCheckBoxBeanProperty);
+    autoBinding_27.bind();
+    //
+    Property tvShowSettingsBeanProperty_18 = BeanProperty.create("seasonDisplayAllMissingArtwork");
+    AutoBinding autoBinding_28 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_18,
+        chckbxSeasonDisplayAllMissingArtwork, jCheckBoxBeanProperty);
+    autoBinding_28.bind();
+    //
+    Property tvShowSettingsBeanProperty_19 = BeanProperty.create("episodeDisplayAllMissingArtwork");
+    AutoBinding autoBinding_29 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_19,
+        chckbxEpisodeDisplayAllMissingArtwork, jCheckBoxBeanProperty);
+    autoBinding_29.bind();
+    //
+    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("episodeSpecialsCheckMissingMetadata");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7,
+        chckbxEpisodeSpecialsCheckMissingMetadata, jCheckBoxBeanProperty);
+    autoBinding_9.bind();
+    //
+    Property tvShowSettingsBeanProperty_24 = BeanProperty.create("episodeSpecialsCheckMissingArtwork");
+    AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_24,
+        chckbxEpisodeSpecialsCheckMissingArtwork, jCheckBoxBeanProperty);
     autoBinding_24.bind();
   }
 }

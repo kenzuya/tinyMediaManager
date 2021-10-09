@@ -97,9 +97,9 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         LOGGER.trace("");
         if (isPlaintext(buffer)) {
           String content = buffer.readString(charset);
-          // only log the first 10k characters
-          if (content.length() > 10000) {
-            LOGGER.trace("{}...", content.substring(0, 10000)); // NOSONAR
+          // only log the first 1k characters
+          if (content.length() > 1000) {
+            LOGGER.trace("{}...", content.substring(0, 1000)); // NOSONAR
           }
           else {
             LOGGER.trace(content);

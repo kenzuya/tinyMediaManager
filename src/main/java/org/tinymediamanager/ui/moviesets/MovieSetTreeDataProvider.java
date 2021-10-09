@@ -201,6 +201,11 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // and also add a propertychangelistener to react on changes inside the movie set
     movieSet.addPropertyChangeListener(movieSetPropertyChangeListener);
+
+    // and also add all existing movies
+    for (Movie movie : movieSet.getMovies()) {
+      addMovie(movie);
+    }
     return node;
   }
 
@@ -222,10 +227,17 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   }
 
   private TmmTreeNode addMovie(Movie movie) {
-    // check if this season has already been added
+    // check if this movie has already been added
     TmmTreeNode cachedNode = getNodeFromCache(movie);
     if (cachedNode != null) {
-      return cachedNode;
+      // cross check if the parent (movie set) has the same node
+      TmmTreeNode parent = getNodeFromCache(movie.getMovieSet());
+      if (parent == cachedNode.getParent()) {
+        return cachedNode;
+      }
+      else {
+        removeNodeFromCache(movie);
+      }
     }
 
     // add a new node

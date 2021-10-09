@@ -98,6 +98,7 @@ public class MovieRenamer {
   // to not use posix here
   private static final Pattern             TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern             YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             TRAILER_STACKING_PATTERN    = Pattern.compile(".*?(\\d)$");
 
   private static final Map<String, String> TOKEN_MAP                   = createTokenMap();
 
@@ -120,6 +121,7 @@ public class MovieRenamer {
     tokenMap.put("titleSortable", "movie.titleSortable");
     tokenMap.put("rating", "movie.rating.rating");
     tokenMap.put("imdb", "movie.imdbId");
+    tokenMap.put("tmdb", "movie.tmdbId");
     tokenMap.put("certification", "movie.certification");
     tokenMap.put("language", "movie.spokenLanguages");
 
@@ -338,7 +340,6 @@ public class MovieRenamer {
     // FIXME: what? when?
     boolean posterRenamed = false;
     boolean fanartRenamed = false;
-    boolean downloadMissingArtworks = false;
 
     // check if a datasource is set
     if (StringUtils.isEmpty(movie.getDataSource())) {
@@ -371,90 +372,7 @@ public class MovieRenamer {
 
     if (!newPathname.isEmpty()) {
       newPathname = Paths.get(movie.getDataSource(), newPathname).toString();
-      Path srcDir = movie.getPathNIO();
-      Path destDir = Paths.get(newPathname);
-      if (!srcDir.toAbsolutePath().toString().equals(destDir.toAbsolutePath().toString())) {
-
-        boolean newDestIsMultiMovieDir = false;
-        // re-evaluate multiMovieDir based on renamer settings
-        // folder MUST BE UNIQUE, we need at least a T/E-Y combo or IMDBid
-        // so if renaming just to a fixed pattern (eg "$S"), movie will downgrade to a MMD
-        if (!isFolderPatternUnique(MovieModuleManager.getInstance().getSettings().getRenamerPathname())) {
-          // FIXME: if we already in a normal dir - keep it?
-          newDestIsMultiMovieDir = true;
-        }
-        // FIXME: add warning to GUI if downgrade!!!!!!
-        LOGGER.debug("movie willBeMulti?: {}", newDestIsMultiMovieDir);
-
-        // ######################################################################
-        // ## 1) old = separate movie dir, and new too -> move folder
-        // ######################################################################
-        if (!movie.isMultiMovieDir() && !newDestIsMultiMovieDir) {
-          boolean ok = false;
-          try {
-            ok = Utils.moveDirectorySafe(srcDir, destDir);
-            if (ok) {
-              movie.setMultiMovieDir(false);
-              movie.updateMediaFilePath(srcDir, destDir);
-              movie.setPath(newPathname);
-              movie.saveToDb(); // since we moved already, save it
-            }
-          }
-          catch (Exception e) {
-            LOGGER.error("error moving folder: ", e);
-            MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          if (!ok) {
-            // FIXME: when we were not able to rename folder, display error msg and abort!!!
-            LOGGER.error("Could not move to destination '{}' - NOT renaming folder", destDir);
-            return;
-          }
-        }
-        else if (movie.isMultiMovieDir() && !newDestIsMultiMovieDir) {
-          // ######################################################################
-          // ## 2) MMD movie -> normal movie (upgrade)
-          // ######################################################################
-          LOGGER.trace("Upgrading movie into it's own dir :) - {}", newPathname);
-          if (!Files.exists(destDir)) {
-            try {
-              Files.createDirectories(destDir);
-            }
-            catch (Exception e) {
-              LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie)", destDir);
-              // well, better not to rename
-              return;
-            }
-          }
-          else {
-            LOGGER.error("Directory already exists! '{}' - NOT renaming folder ('upgrade' movie)", destDir);
-            // well, better not to rename
-            return;
-          }
-          movie.setMultiMovieDir(false);
-          downloadMissingArtworks = true; // yay - we upgraded our movie, so we could try to get additional artworks :)
-        }
-        else {
-          // ######################################################################
-          // ## Can be
-          // ## 3) MMD movie -> MMD movie (but foldername possible changed)
-          // ## 4) normal movie -> MMD movie (downgrade)
-          // ## either way - check & create dest folder
-          // ######################################################################
-          LOGGER.trace("New movie path is a MMD :( - {}", newPathname);
-          if (!Files.exists(destDir)) { // if existent, all is good -> MMD (FIXME: kinda, we *might* have another full movie in there)
-            try {
-              Files.createDirectories(destDir);
-            }
-            catch (Exception e) {
-              LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie)", destDir);
-              // well, better not to rename
-              return;
-            }
-          }
-          movie.setMultiMovieDir(true);
-        }
-      } // src == dest
+      renameMovieFolder(movie, newPathname);
     } // folder pattern empty
     else {
       LOGGER.info("Folder rename settings were empty - NOT renaming folder");
@@ -525,6 +443,16 @@ public class MovieRenamer {
       boolean ok = moveFile(vid.getFileAsPath(), newMF.getFileAsPath());
       if (ok) {
         vid.setFile(newMF.getFileAsPath()); // update
+      }
+      else {
+        LOGGER.error("could not movie video file of movie '{}' - abort renaming", movie.getTitle());
+        // could not move main video file - abort!
+        // if we're in a MMD, we did not do anything before, just reset the path
+        if (movie.isMultiMovieDir()) {
+          movie.setPath(oldPathname);
+        }
+
+        return;
       }
       needed.add(vid); // add vid, since we're updating existing MF object
     }
@@ -692,6 +620,8 @@ public class MovieRenamer {
           continue;
         }
 
+        movie.removeFromMediaFiles(cl);
+
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           Utils.deleteFileWithBackup(cl.getFileAsPath(), movie.getDataSource());
@@ -715,15 +645,108 @@ public class MovieRenamer {
     }
 
     removeEmptySubfolders(movie);
-
-    if (downloadMissingArtworks) {
-      LOGGER.debug("Yay - movie upgrade :) download missing artworks");
-      MovieArtworkHelper.downloadMissingArtwork(movie);
-      // also trigger a download of actor images
-      movie.writeActorImages();
-    }
-
     movie.saveToDb();
+  }
+
+  private static void renameMovieFolder(Movie movie, String newPathname) {
+    Path srcDir = movie.getPathNIO();
+    Path destDir = Paths.get(newPathname);
+    if (!srcDir.toAbsolutePath().toString().equals(destDir.toAbsolutePath().toString())) {
+      boolean newDestIsMultiMovieDir = false;
+      // re-evaluate multiMovieDir based on renamer settings
+      // folder MUST BE UNIQUE, we need at least a T/E-Y combo or IMDBid
+      // so if renaming just to a fixed pattern (eg "$S"), movie will downgrade to a MMD
+      if (!isFolderPatternUnique(MovieModuleManager.getInstance().getSettings().getRenamerPathname())) {
+        newDestIsMultiMovieDir = true;
+      }
+      else {
+        // check if the target folder already exists (and is not empty)
+        // check if the user wants this behaviour
+        try {
+          if (Files.exists(destDir) && !Utils.isFolderEmpty(destDir)
+              && MovieModuleManager.getInstance().getSettings().isAllowMultipleMoviesInSameDir()) {
+            // destination folder exists and is not empty - assume there is another movie -> MMD = true
+            newDestIsMultiMovieDir = true;
+            MessageManager.instance
+                .pushMessage(new Message(MessageLevel.INFO, srcDir, "message.renamer.mergetommd", new String[] { movie.getTitle() }));
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not check if dir '{}' exists/is empty - '{}'", destDir, e.getMessage());
+        }
+      }
+      LOGGER.debug("movie willBeMulti?: {}", newDestIsMultiMovieDir);
+
+      // ######################################################################
+      // ## 1) old = separate movie dir, and new too -> move folder
+      // ######################################################################
+      if (!movie.isMultiMovieDir() && !newDestIsMultiMovieDir) {
+        boolean ok;
+        try {
+          ok = Utils.moveDirectorySafe(srcDir, destDir);
+          if (ok) {
+            movie.setMultiMovieDir(false);
+            movie.updateMediaFilePath(srcDir, destDir);
+            movie.setPath(newPathname);
+            movie.saveToDb(); // since we moved already, save it
+          }
+        }
+        catch (Exception e) {
+          LOGGER.error("error moving folder: ", e);
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename", new String[] { ":", e.getLocalizedMessage() }));
+          return;
+        }
+        if (!ok) {
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename", new String[] { movie.getTitle() }));
+          LOGGER.error("Could not move to destination '{}' - NOT renaming folder", destDir);
+          return;
+        }
+      }
+      else if (movie.isMultiMovieDir() && !newDestIsMultiMovieDir) {
+        // ######################################################################
+        // ## 2) MMD movie -> normal movie (upgrade)
+        // ######################################################################
+        LOGGER.trace("Upgrading movie into it's own dir :) - {}", newPathname);
+        if (!Files.exists(destDir)) {
+          try {
+            Files.createDirectories(destDir);
+          }
+          catch (Exception e) {
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie)", destDir);
+            // well, better not to rename
+            return;
+          }
+        }
+        else {
+          LOGGER.error("Directory already exists! '{}' - NOT renaming folder ('upgrade' movie)", destDir);
+          // well, better not to rename
+          return;
+        }
+        movie.setMultiMovieDir(false);
+      }
+      else {
+        // ######################################################################
+        // ## Can be
+        // ## 3) MMD movie -> MMD movie (but foldername possible changed)
+        // ## 4) normal movie -> MMD movie (downgrade)
+        // ## either way - check & create dest folder
+        // ######################################################################
+        LOGGER.trace("New movie path is a MMD :( - {}", newPathname);
+        if (!Files.exists(destDir)) { // if existent, all is good -> MMD
+          try {
+            Files.createDirectories(destDir);
+          }
+          catch (Exception e) {
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie)", destDir);
+            // well, better not to rename
+            return;
+          }
+        }
+        movie.setMultiMovieDir(true);
+      }
+    } // src == dest
   }
 
   /**
@@ -797,9 +820,7 @@ public class MovieRenamer {
         if (relativePathOfMediafile.getNameCount() > 1
             && MediaFileHelper.TRAILER_FOLDERS.contains(relativePathOfMediafile.subpath(0, 1).toString())) {
           // the trailer is in a /trailer(s) subfolder
-          if (!newDestIsMultiMovieDir) {
-            newFiles.add(defaultMF);
-          }
+          newFiles.add(defaultMF);
         }
         else {
           // not in a /trailer(s) subfolder
@@ -818,13 +839,26 @@ public class MovieRenamer {
               trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
             }
           }
+
+          // check if the trailer ends with a "stacking" marker
+          String stackingMarker = "";
+          Matcher matcher = TRAILER_STACKING_PATTERN.matcher(mf.getBasename());
+          if (matcher.matches()) {
+            stackingMarker = matcher.group(1);
+          }
+
           for (MovieTrailerNaming name : trailernames) {
             String newTrailerName = movie.getTrailerFilename(name, newFilename + ".avi"); // basename used, so add fake extension
             if (newTrailerName.isEmpty()) {
               continue;
             }
             MediaFile trail = new MediaFile(mf);
-            trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+            if (StringUtils.isNotBlank(stackingMarker)) {
+              trail.setFile(newMovieDir.resolve(newTrailerName + "." + stackingMarker + "." + mf.getExtension())); // get w/o extension to add same
+            }
+            else {
+              trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+            }
             newFiles.add(trail);
           }
         }
@@ -1085,9 +1119,7 @@ public class MovieRenamer {
       // *************
       case EXTRATHUMB:
         // pass the file regardless of the settings (they're here so we just rename them)
-        if (!newDestIsMultiMovieDir) {
-          newFiles.add(defaultMF);
-        }
+        newFiles.add(defaultMF);
         break;
 
       // *************
@@ -1343,7 +1375,7 @@ public class MovieRenamer {
       }
     }
     catch (Exception e) {
-      LOGGER.error("error moving file", e);
+      LOGGER.error("error moving file '{}' - '{}'", oldFilename.toAbsolutePath(), e.getMessage());
       MessageManager.instance
           .pushMessage(new Message(MessageLevel.ERROR, oldFilename, "message.renamer.failedrename", new String[] { ":", e.getLocalizedMessage() }));
       return false; // rename failed
@@ -1452,7 +1484,7 @@ public class MovieRenamer {
     return result.replaceAll("\\\\", " ");
   }
 
-  private static class MovieNamedFirstCharacterRenderer implements NamedRenderer {
+  public static class MovieNamedFirstCharacterRenderer implements NamedRenderer {
     private static final Pattern FIRST_ALPHANUM_PATTERN = Pattern.compile("[\\p{L}\\d]");
 
     @Override
@@ -1496,7 +1528,7 @@ public class MovieRenamer {
     }
   }
 
-  private static class MovieNamedIndexOfMovieSetRenderer implements NamedRenderer {
+  public static class MovieNamedIndexOfMovieSetRenderer implements NamedRenderer {
 
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {

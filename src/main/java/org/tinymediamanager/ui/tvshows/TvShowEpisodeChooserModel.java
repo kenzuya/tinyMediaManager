@@ -21,7 +21,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.MediaScraper;
 
 /**
  * The class TvShowEpisodeChooserModel
@@ -32,16 +31,15 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
 
   public static final TvShowEpisodeChooserModel emptyResult = new TvShowEpisodeChooserModel();
 
-  private MediaScraper                          mediaScraper;
   private MediaMetadata                         mediaMetadata;
+  private String                                originalTitle;
   private String                                title;
   private String                                overview;
   private Date                                  firstAired;
   private int                                   season;
   private int                                   episode;
 
-  public TvShowEpisodeChooserModel(MediaScraper mediaScraper, MediaMetadata episode) {
-    this.mediaScraper = mediaScraper;
+  public TvShowEpisodeChooserModel(MediaMetadata episode) {
     this.mediaMetadata = episode;
 
     setTitle(episode.getTitle());

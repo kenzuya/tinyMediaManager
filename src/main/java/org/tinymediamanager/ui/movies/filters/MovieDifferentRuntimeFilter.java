@@ -19,7 +19,6 @@ package org.tinymediamanager.ui.movies.filters;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -33,7 +32,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
 
-  JSpinner spinner;
+  private JSpinner spinner;
 
   @Override
   protected JLabel createLabel() {
@@ -42,8 +41,7 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
 
   @Override
   protected JComponent createFilterComponent() {
-    SpinnerModel model = new SpinnerNumberModel(1, 1, 100, 1);
-    spinner = new JSpinner(model);
+    spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
     return spinner;
   }
 
@@ -54,12 +52,24 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
 
   @Override
   public String getFilterValueAsString() {
-    return spinner.getValue()
-        .toString();
+    return spinner.getValue().toString();
   }
 
   @Override
   public void setFilterValue(Object value) {
+    try {
+      spinner.setValue(Integer.parseInt(value.toString()));
+    }
+    catch (Exception e) {
+      // default value
+      spinner.setValue(1);
+    }
+  }
+
+  @Override
+  public void clearFilter() {
+    // default value
+    spinner.setValue(1);
   }
 
   @Override

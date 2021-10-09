@@ -1,10 +1,73 @@
+Version 4.2.3
+=======================
++ make trailer table sortable #1492
++ added a dedicated file name filter for video files #1509
+x (movies) do not update the selected sum too often #1510
+x enhanced display of ratings if a user rating has been added #1513
+x added tmdbid to the movie set NFO #1516
+x cleanup of old season artwork when adding new one #1518
+x fixed check of shipped FFmpeg #1522
+x (image chooser) show a warning message when a wrong url has been entered #1530
+x (movies) Duplicate filter now considers all IDs
+
+
+Version 4.2.2
+=======================
++ added selected entries amount and file size totals to the movie/movie set/TV show list #1450
++ added file size totals tp the movie/movie set/TV show table
++ added an option to set the default value for "do not overwrite existing data" to the settings
++ added a setting to ignore completeness check for specials
+x (TVDB) fix recent API changes from TVDB #1481
+x (TVDB) enhanced translation handling of our API implementation
+x fix some minor issues for the live update of movie set data #1477
+x calculation of minimum size for restoring window sizes/positions #1485
+x enhanced loading times of internal scrapers
+x fix detection of paths in skip folders #1493
+x fix detection of multiple trailers (Zidoo style) #1398 #1413
+x lowered defaults for completeness check
+x enhanced the filename filter to run against all media files
+x rewrote fetching of translated episodes in the episode chooser
+x (IMDB) allow unassigned episodes to be scraped #1494
+x several fixes for post-processing management
+
+
+Version 4.2.1.2
+=======================
+x (TVDB) set the right season number in the episode response
+x fall back to alternate file listing logic in update data source #1473
+
+
+Version 4.2.1.1
+=======================
+x (TVDB) various smaller fixes in the API
+x fixed a problem where (too small) stored window sizes lead into hidden UI elements
+
+
+Version 4.2.1
+=======================
+x (TVDB) hotfix for the broken TVDB search API
+x selecting images in the image chooser with double click
+x (TV shows) redraw tree on recent changes #1472
+
+
 Version 4.2
 =======================
-+ added Windows installer, macOS dmg and Docker image
-+ added support for 3rd party scrapers
-+ added regular expression based skip folders #1402
+******************************************************************************************************
+added TheTVDB API v4 which improves scraping TV show (and movie) metadata in several places #921 #1367
+
+TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a contract with TheTVDB
+  to allow all PRO users to continue using this service without any additional subscription needed! (https://bit.ly/2VJTy7n)
+******************************************************************************************************
+
++ (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
+  => Emby users should switch from Kodi NFO style to Emby NFO style!
++ added Windows installer, macOS dmg and Docker image (https://bit.ly/3CN2Y2o)
++ added support for 3rd party scrapers (https://bit.ly/3smdPM8)
++ added experimental support for post process actions (https://bit.ly/3si4Ew6) #817
++ added regular expression based skip folders (https://bit.ly/3xJ6aZa) #1402
++ enhanced visualization of missing metadata (https://bit.ly/3CGNeOF) #1350
 + (Linux) ship libmediainfo for 64bit systems
-+ added support for not overwriting existing items on scrape #1368
++ added support for not overwriting existing items on scrape (https://bit.ly/37G1U20) #1368
 + added support for webp images
 + added country MX to supported certifications #1379
 + (TV shows) added experimental TV show renamer preview #534
@@ -14,13 +77,16 @@ Version 4.2
 + (movies/TV shows) added a filter for date added
 + (movies) added quickfilter for notes
 + (TV shows) added customizable quickfilters
-+ (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
 + (TV shows) added filter for year and decade
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
 + (movies/TV shows) added column to see if note is available
 + (movies) added the possibility to download just extrafanarts/extrathumbs #741 #1397
-+ (movies) added a "index of movie in movie set" renamer token #1347
-+ (movies/TV shows) added universal filter to filter all text based filters in one
++ (movies) added "index of movie in movie set" renamer token #1347
++ (movies/TV shows) added more tags to the renamer (TMDB id, TVDB id, tags) #1458
++ (movies/TV shows) added universal filter to filter all text based filters in one #1387
++ (TV shows) added context menu for downloading best trailer for selected TV Shows #1417
++ (TV shows) added bulk adding subtitle information #1396
++ (movies) added option to consolidate movies on rename #1048
 x (TV shows) introduced adaptive event processing: this will help the UI to stay responsive on large libraries.
   The drawback here is, that some sorting and filtering in the UI will be delayed for large libraries
 x (TV shows) do not mix in TV show actors to the episode cast #1219
@@ -36,3 +102,9 @@ x (movies) respect more special plex folders #1398 #1402
 x fixed loading of the translations for Traditional Chinese (zh_Hant) #1406
 x (TV shows) persist TV show after downloading a theme #1405
 x (movies) improved internal artwork handling #1413
+x (movies/TV shows) parsing of IMDB search requests #1420
+x (movies) remove corrupted/faulty movies from database at startup
+x (movies) fixed downloading actor images for movies in movie sets
+x (universal scraper) added proper thread cleanup to prevent memory leak #1432
+x (movies/TV shows) added new approach to play (DVD/BR) disc folders with the systems default media player #644
+x (TV shows) fix crash in episode chooser for episodes containing a ":" in the title #1463

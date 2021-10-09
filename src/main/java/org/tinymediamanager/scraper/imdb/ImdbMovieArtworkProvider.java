@@ -49,7 +49,7 @@ public class ImdbMovieArtworkProvider extends ImdbMetadataProvider implements IM
     }
 
     if (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.POSTER) {
-      return (new ImdbMovieParser(this, executor)).getMovieArtwork(options);
+      return (new ImdbMovieParser(this, EXECUTOR)).getMovieArtwork(options);
     }
 
     return Collections.emptyList();

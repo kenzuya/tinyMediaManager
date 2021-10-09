@@ -122,6 +122,19 @@ public class TmmProperties {
   }
 
   /**
+   * get the value for the given key
+   * 
+   * @param key
+   *          the key to search the value for
+   * @param defaultValue
+   *          a default value, when key not found
+   * @return the value or defaultValue
+   */
+  public String getProperty(String key, String defaultValue) {
+    return properties.getProperty(key, defaultValue);
+  }
+
+  /**
    * get the value as Boolean<br>
    * if the value is not available or not parsable, this will return {@literal Boolean.FALSE}
    *

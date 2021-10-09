@@ -39,8 +39,6 @@ import net.miginfocom.swing.MigLayout;
 class DisclaimerPanel extends JPanel {
   private static final long            serialVersionUID = -4743134514329815273L;
 
-
-
   private final TinyMediaManagerWizard wizard;
 
   private JCheckBox                    chckbxAccept;
@@ -54,11 +52,11 @@ class DisclaimerPanel extends JPanel {
    * init UI components
    */
   private void initComponents() {
-    setLayout(new MigLayout("", "[400lp:400lp,grow]", "[][150lp:200lp,grow][]"));
+    setLayout(new MigLayout("", "[400lp:400lp,grow]", "[][100lp:150lp,grow][20lp:n]"));
     {
       JLabel lblDisclaimer = new JLabel(TmmResourceBundle.getString("wizard.disclaimer"));
       TmmFontHelper.changeFont(lblDisclaimer, 1.3333, Font.BOLD);
-      add(lblDisclaimer, "cell 0 0,growx");
+      add(lblDisclaimer, "cell 0 0,growx, wmin 0");
     }
     {
       JScrollPane scrollPane = new NoBorderScrollPane();

@@ -115,6 +115,9 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
 
           // re-build the image cache afterwards in an own thread
           movie.cacheImages();
+
+          // cleanup
+          Utils.deleteEmptyDirectoryRecursive(srcDir);
         }
         else {
           LOGGER.error("Could not move to destination '{}' - NOT changing datasource", destDir);
@@ -164,6 +167,9 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
 
         // re-build the image cache afterwards in an own thread
         movie.cacheImages();
+
+        // cleanup
+        Utils.deleteEmptyDirectoryRecursive(srcDir);
       }
       catch (Exception e) {
         LOGGER.error("error moving movie files: ", e);

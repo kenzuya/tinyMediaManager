@@ -36,6 +36,7 @@ import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -51,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -90,23 +92,26 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long serialVersionUID      = 5889203009864512935L;
+  private static final long          serialVersionUID      = 5889203009864512935L;
 
-  private final TvShowList  tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowList           tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowSelectionModel selectionModel;
 
-  private TmmTreeTable      tree;
-  private JLabel            lblEpisodeCountFiltered;
-  private JLabel            lblEpisodeCountTotal;
-  private JLabel            lblTvShowCountFiltered;
-  private JLabel            lblTvShowCountTotal;
-  private SplitButton       btnFilter;
+  private TmmTreeTable               tree;
+  private JLabel                     lblEpisodeCountFiltered;
+  private JLabel                     lblEpisodeCountTotal;
+  private JLabel                     lblTvShowCountFiltered;
+  private JLabel                     lblTvShowCountTotal;
+  private SplitButton                btnFilter;
+  private JLabel                     lblSelectedEpisodeCount;
 
-  private Timer             totalCalculationTimer = null;
+  private Timer                      totalCalculationTimer = null;
 
   public TvShowTreePanel(TvShowSelectionModel selectionModel) {
     initComponents();
 
-    selectionModel.setTreeTable(tree);
+    this.selectionModel = selectionModel;
+    this.selectionModel.setTreeTable(tree);
 
     // initialize totals
     updateTotals();
@@ -116,6 +121,22 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         case Constants.TV_SHOW_COUNT:
         case Constants.EPISODE_COUNT:
           updateTotals();
+          break;
+
+        default:
+          break;
+      }
+    });
+    TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "tvShowCheckMetadata":
+        case "tvShowCheckArtwork":
+        case "seasonCheckArtwork":
+        case "episodeCheckMetadata":
+        case "episodeCheckArtwork":
+        case "episodeSpecialsCheckMissingMetadata":
+        case "episodeSpecialsCheckMissingArtwork":
+          tree.invalidate();
           break;
 
         default:
@@ -267,6 +288,11 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
         }
       }
+      else {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+      }
+
+      updateSelectionSums();
     });
 
     // selecting first TV show at startup
@@ -343,30 +369,36 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     add(separator, "cell 0 2 2 1,growx");
 
     {
+      JPanel panelTotals = new JPanel();
+      add(panelTotals, "cell 0 3 2 1,grow");
+      panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
+
       JLabel lblTvShowCount = new JLabel(TmmResourceBundle.getString("tmm.tvshows") + ":");
-      add(lblTvShowCount, "flowx,cell 0 3 2 1");
+      panelTotals.add(lblTvShowCount, "flowx,cell 0 0");
 
       lblTvShowCountFiltered = new JLabel("");
-      add(lblTvShowCountFiltered, "cell 0 3 2 1");
+      panelTotals.add(lblTvShowCountFiltered, "cell 0 0");
 
       JLabel lblTvShowCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-      add(lblTvShowCountOf, "cell 0 3 2 1");
+      panelTotals.add(lblTvShowCountOf, "cell 0 0");
 
       lblTvShowCountTotal = new JLabel("");
-      add(lblTvShowCountTotal, "cell 0 3 2 1");
-    }
-    {
+      panelTotals.add(lblTvShowCountTotal, "cell 0 0");
+
       JLabel lblEpisodeCount = new JLabel(TmmResourceBundle.getString("metatag.episodes") + ":");
-      add(lblEpisodeCount, "flowx,cell 0 4 2 1");
+      panelTotals.add(lblEpisodeCount, "flowx,cell 0 1");
 
       lblEpisodeCountFiltered = new JLabel("");
-      add(lblEpisodeCountFiltered, "cell 0 4 2 1");
+      panelTotals.add(lblEpisodeCountFiltered, "cell 0 1");
 
       JLabel lblEpisodeCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-      add(lblEpisodeCountOf, "cell 0 4 2 1");
+      panelTotals.add(lblEpisodeCountOf, "cell 0 1");
 
       lblEpisodeCountTotal = new JLabel("");
-      add(lblEpisodeCountTotal, "cell 0 4 2 1");
+      panelTotals.add(lblEpisodeCountTotal, "cell 0 1");
+
+      lblSelectedEpisodeCount = new JLabel("");
+      panelTotals.add(lblSelectedEpisodeCount, "cell 1 1");
     }
   }
 
@@ -466,6 +498,23 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     };
 
     totalCalculationTimer.schedule(task, 100L);
+  }
+
+  private void updateSelectionSums() {
+    List<TvShowEpisode> episodes = selectionModel.getSelectedEpisodes();
+
+    // episode
+    String selectedEpisodes = TmmResourceBundle.getString("episode.selected").replace("{}", String.valueOf(episodes.size()));
+    double videoFileSize = episodes.stream().mapToLong(TvShowEpisode::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = episodes.stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+
+    String text = String.format("%s (%.2f G)", selectedEpisodes, totalFileSize);
+    lblSelectedEpisodeCount.setText(text);
+
+    String selectedEpisodesHint = selectedEpisodes + " ("
+        + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
+        + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
+    lblSelectedEpisodeCount.setToolTipText(selectedEpisodesHint);
   }
 
   @Override

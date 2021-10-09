@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -108,39 +107,36 @@ public class ImdbMovieParser extends ImdbParser {
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
-    ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
-    ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
-
     // worker for imdb request (/reference)
     Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, "/reference"), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
-    Future<Document> futureReference = compSvcImdb.submit(worker);
+    Future<Document> futureReference = executor.submit(worker);
 
     // worker for imdb request (/plotsummary) (from chosen site)
     Future<Document> futurePlotsummary;
     worker = new ImdbWorker(constructUrl("title/", imdbId, "/plotsummary"), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = compSvcImdb.submit(worker);
+    futurePlotsummary = executor.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
     worker = new ImdbWorker(constructUrl("title/", imdbId, "/releaseinfo"), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
-    futureReleaseinfo = compSvcImdb.submit(worker);
+    futureReleaseinfo = executor.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
       worker = new ImdbWorker(constructUrl("title/", imdbId, "/keywords"), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2());
-      futureKeywords = compSvcImdb.submit(worker);
+      futureKeywords = executor.submit(worker);
     }
 
     // worker for tmdb request
     Future<MediaMetadata> futureTmdb = null;
     if (isUseTmdbForMovies() || isScrapeCollectionInfo()) {
       Callable<MediaMetadata> worker2 = new TmdbMovieWorker(options);
-      futureTmdb = compSvcTmdb.submit(worker2);
+      futureTmdb = executor.submit(worker2);
     }
 
     Document doc;

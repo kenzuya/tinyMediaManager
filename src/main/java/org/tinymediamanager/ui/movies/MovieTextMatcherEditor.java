@@ -84,39 +84,33 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
         return true;
       }
 
-      if (StringUtils.isNotBlank(movie.getTitle()) && settings.getTitle()) {
+      if (settings.getTitle() && StringUtils.isNotBlank(movie.getTitle())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotBlank(movie.getTitleSortable()) && settings.getSortableTitle()) {
+      if (settings.getSortableTitle() && StringUtils.isNotBlank(movie.getTitleSortable())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
 
-      if (StringUtils.isNotBlank(movie.getOriginalTitle()) && settings.getOriginalTitle()) {
+      if (settings.getOriginalTitle() && StringUtils.isNotBlank(movie.getOriginalTitle())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotBlank(movie.getOriginalTitleSortable()) && settings.getSortableOriginalTitle()) {
+      if (settings.getSortableOriginalTitle() && StringUtils.isNotBlank(movie.getOriginalTitleSortable())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotBlank(movie.getSortTitle()) && settings.getSortTitle()) {
+      if (settings.getSortTitle() && StringUtils.isNotBlank(movie.getSortTitle())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSortTitle()));
-        if (matcher.find()) {
-          return true;
-        }
-      }
-      if (StringUtils.isNotBlank(movie.getNote()) && settings.getNote()) {
-        java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getNote()));
         if (matcher.find()) {
           return true;
         }

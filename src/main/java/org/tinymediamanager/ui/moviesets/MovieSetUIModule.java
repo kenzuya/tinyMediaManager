@@ -37,7 +37,7 @@ import org.tinymediamanager.ui.movies.panels.MovieArtworkPanel;
 import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
-import org.tinymediamanager.ui.movies.panels.TrailerPanel;
+import org.tinymediamanager.ui.movies.panels.MovieTrailerPanel;
 import org.tinymediamanager.ui.moviesets.actions.DebugDumpMovieSetAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetAddAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetBatchEditMovieAction;
@@ -133,7 +133,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel));
     movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel));
     movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(movieSelectionModel));
-    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.trailer"), new MovieTrailerPanel(movieSelectionModel));
     dataPanel.add(movieDetailPanel, "movie");
 
     movieSetFilterDialog = new MovieSetFilterDialog(treePanel.getTreeTable());

@@ -1,5 +1,7 @@
 package org.tinymediamanager.core;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -170,6 +172,12 @@ public class ParserUtilsTest extends BasicTest {
       ret = ret + " | " + s[1];
     }
     return ret;
+  }
+
+  @Test
+  public void imdb() throws IOException {
+    String text = Utils.readFileToString(Paths.get("src/test/resources/movie_nfo/kodi.nfo"));
+    System.out.println(ParserUtils.detectImdbId(text));
   }
 
   // @Test

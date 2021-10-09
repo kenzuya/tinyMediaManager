@@ -79,6 +79,12 @@ public class MovieInMovieSetFilter extends AbstractMovieUIFilter {
   }
 
   @Override
+  public void clearFilter() {
+    // set the default value
+    combobox.setSelectedItem(combobox.getItemAt(0));
+  }
+
+  @Override
   public boolean accept(Movie movie) {
     if (combobox.getSelectedItem() == MovieInMovieSet.IN_MOVIESET) {
       return movie.getMovieSet() != null;

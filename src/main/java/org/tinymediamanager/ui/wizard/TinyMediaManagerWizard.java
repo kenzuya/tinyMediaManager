@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.wizard;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -47,21 +48,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TinyMediaManagerWizard extends TmmDialog {
-  private static final long           serialVersionUID = 1112053710541745443L;
+  private static final long  serialVersionUID = 1112053710541745443L;
 
-  
+  private final List<JPanel> panels;
+  private int                activePanelIndex = 0;
 
-  private final List<JPanel>          panels;
-  private int                         activePanelIndex = 0;
-
-  private JButton                     btnBack;
-  private JButton                     btnNext;
-  private JButton                     btnFinish;
-  private JPanel                      panelContent;
+  private JButton            btnBack;
+  private JButton            btnNext;
+  private JButton            btnFinish;
+  private JPanel             panelContent;
 
   public TinyMediaManagerWizard() {
     super("tinyMediaManager Setup Wizard", "wizard");
-    setBounds(5, 5, 800, 600);
+    setMinimumSize(new Dimension(800, 600));
 
     initComponents();
 
@@ -96,7 +95,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     {
       JPanel panelSizing = new JPanel();
       getContentPane().add(panelSizing, BorderLayout.CENTER);
-      panelSizing.setLayout(new MigLayout("", "[750lp,grow]", "[350lp,grow]"));
+      panelSizing.setLayout(new MigLayout("", "[650lp:850lp,grow]", "[450lp:550lp,grow]"));
 
       panelContent = new JPanel();
       panelContent.setLayout(new CardLayout());
@@ -156,6 +155,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
       btnFinish.setVisible(false);
       CardLayout cl = (CardLayout) (panelContent.getLayout());
       cl.show(panelContent, "" + activePanelIndex);
+      panelContent.revalidate();
     }
   }
 
@@ -177,6 +177,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
 
       CardLayout cl = (CardLayout) (panelContent.getLayout());
       cl.show(panelContent, "" + activePanelIndex);
+      panelContent.revalidate();
     }
   }
 

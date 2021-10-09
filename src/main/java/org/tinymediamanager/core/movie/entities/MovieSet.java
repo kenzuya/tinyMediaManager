@@ -51,7 +51,6 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -301,6 +300,22 @@ public class MovieSet extends MediaEntity {
     MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
 
     firePropertyChange(Constants.ADDED_MOVIE, null, movie);
+
+    // and remove the dummy for the same movie
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      boolean found = false;
+
+      if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+        found = true;
+      }
+      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+        found = true;
+      }
+
+      if (found) {
+        firePropertyChange(Constants.REMOVED_MOVIE, null, movieSetMovie);
+      }
+    }
   }
 
   /**
@@ -335,6 +350,22 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange(Constants.REMOVED_MOVIE, null, movie);
+
+    // and mixin die missing movie
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      boolean found = false;
+
+      if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+        found = true;
+      }
+      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+        found = true;
+      }
+
+      if (found) {
+        firePropertyChange(Constants.ADDED_MOVIE, null, movieSetMovie);
+      }
+    }
   }
 
   public List<Movie> getMovies() {
@@ -432,12 +463,14 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
+   * do we have basic images? Poster is checked.<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
+   *
    * @return the checks for images
    */
+  @Deprecated
   public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.getInstance().getSettings().getCheckImagesMovieSet()) {
+    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER)) {
       if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
@@ -445,11 +478,22 @@ public class MovieSet extends MediaEntity {
     return true;
   }
 
+  /**
+   * do we have basic metadata filled?<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
+   *
+   * @return true/false
+   */
+  @Deprecated
   public Boolean getHasMetadata() {
-    return StringUtils.isNotBlank(plot) && StringUtils.isNotBlank(title);
+    return StringUtils.isNoneBlank(title, plot);
   }
 
   public Boolean isWatched() {
+    if (movies.isEmpty()) {
+      return false;
+    }
+
     for (Movie movie : movies) {
       if (!movie.isWatched()) {
         return false;
@@ -458,6 +502,7 @@ public class MovieSet extends MediaEntity {
     return true;
   }
 
+  @Override
   public List<MediaFile> getImagesToCache() {
     // get files to cache
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -482,6 +527,7 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do here
   }
 
   @Override
@@ -492,40 +538,6 @@ public class MovieSet extends MediaEntity {
   @Override
   public void deleteFromDb() {
     MovieModuleManager.getInstance().getMovieList().removeMovieSetFromDb(this);
-  }
-
-  /**
-   * clean movies from this movieset if there are any inconsistances
-   */
-  public void cleanMovieSet() {
-    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
-    boolean dirty = false;
-
-    for (Movie movie : new ArrayList<>(movies)) {
-      if (!movieList.getMovies().contains(movie)) {
-        movies.remove(movie);
-        movieIds.remove(movie.getDbId());
-        dirty = true;
-      }
-    }
-
-    if (dirty) {
-      saveToDb();
-    }
-  }
-
-  /**
-   * check if one of the movies is newly added
-   *
-   * @return true/false
-   */
-  public boolean hasNewlyAddedMovies() {
-    for (Movie movie : movies) {
-      if (movie.isNewlyAdded()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -616,7 +628,7 @@ public class MovieSet extends MediaEntity {
    */
   public void writeNFO() {
     if (MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames().isEmpty()) {
-      LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
+      LOGGER.debug("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
@@ -655,7 +667,10 @@ public class MovieSet extends MediaEntity {
 
   public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
     this.dummyMovies.clear();
-    this.dummyMovies.addAll(dummyMovies);
+    dummyMovies.forEach(dummy -> {
+      dummy.setMovieSet(this);
+      this.dummyMovies.add(dummy);
+    });
 
     firePropertyChange("dummyMovies", null, dummyMovies);
   }
@@ -672,9 +687,8 @@ public class MovieSet extends MediaEntity {
   public String getYears() {
     List<Integer> years = new ArrayList<>();
 
-    for (Movie movie : movies) {
-      years.add(movie.getYear());
-    }
+    movies.forEach(movie -> years.add(movie.getYear()));
+    dummyMovies.forEach(dummy -> years.add(dummy.getYear()));
 
     Collections.sort(years);
     if (!years.isEmpty() && years.size() >= 2) {
@@ -690,6 +704,49 @@ public class MovieSet extends MediaEntity {
     }
 
     return "";
+  }
+
+  public Object getValueForMetadata(MovieSetScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case PLOT:
+        return getPlot();
+
+      case RATING:
+        return getRatings();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+    }
+
+    return null;
   }
 
   /*******************************************************************************
@@ -738,6 +795,16 @@ public class MovieSet extends MediaEntity {
     @Override
     public void saveToDb() {
       // do nothing here
+    }
+
+    @Override
+    protected void postProcess(List<MovieScraperMetadataConfig> config) {
+      // no postprocessing needed
+    }
+
+    @Override
+    protected List<MediaFile> listActorFiles() {
+      return Collections.emptyList();
     }
 
     @Override

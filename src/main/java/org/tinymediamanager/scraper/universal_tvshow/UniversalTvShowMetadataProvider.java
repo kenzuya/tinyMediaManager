@@ -30,8 +30,10 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +66,8 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static final String                               RATINGS             = "ratings";
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
   private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
-  private static final ExecutorService                      EXECUTOR            = Executors.newFixedThreadPool(4);
+  private static final ExecutorService                      EXECUTOR            = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS,
+      new LinkedBlockingQueue<>());
 
   private final MediaProviderInfo                           providerInfo;
 
@@ -111,7 +114,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
-    config.addSelect(RATINGS, "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("genres", "metatag.genre", compatibleScraperIds, UNDEFINED);
     config.addSelect("certifications", "metatag.certification", compatibleScraperIds, UNDEFINED);
     config.addSelect("productionCompanies", "metatag.studio", compatibleScraperIds, UNDEFINED);
@@ -127,10 +130,20 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodeTitle", "metatag.title", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeCastMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
-    config.addSelect("episodeRatings", "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect("episodeRatings", "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
 
     config.load();
+  }
+
+  private List<String> scrapersWithout(List<String> scrapers, String... excludes) {
+    List<String> newScrapers = new ArrayList<>(scrapers);
+
+    for (String scraperToExclude : excludes) {
+      newScrapers.remove(scraperToExclude);
+    }
+
+    return newScrapers;
   }
 
   @Override

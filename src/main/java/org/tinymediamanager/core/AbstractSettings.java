@@ -162,6 +162,14 @@ public abstract class AbstractSettings extends AbstractModelObject {
   protected abstract Logger getLogger();
 
   /**
+   * force saving the settings - independently of the dirty flag
+   */
+  public void forceSaveSettings() {
+    dirty = true;
+    saveSettings();
+  }
+
+  /**
    * save the settings to a JSON file
    */
   public void saveSettings() {
@@ -258,5 +266,20 @@ public abstract class AbstractSettings extends AbstractModelObject {
     public String                   id          = "";
     public ITmmUIFilter.FilterState state       = ITmmUIFilter.FilterState.INACTIVE;
     public String                   filterValue = "";
+  }
+
+  public enum UniversalFilterFields {
+    NOTE,
+    FILENAME,
+    PRODUCTION_COMPANY,
+    COUNTRY,
+    SPOKEN_LANGUAGE,
+    ACTOR,
+    PRODUCER,
+    WRITER,
+    DIRECTOR,
+    TAGS,
+    PLOT,
+    TAGLINE
   }
 }
