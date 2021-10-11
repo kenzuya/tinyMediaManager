@@ -192,11 +192,6 @@
             <artifactId>aXMLRPC</artifactId>
             <version>1.12.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.uwetrottmann.tmdb2</groupId>
-            <artifactId>tmdb-java</artifactId>
-            <version>2.4.0</version>
-        </dependency>
 
         <dependency>
             <groupId>org.tinymediamanager</groupId>
