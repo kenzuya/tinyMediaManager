@@ -81,7 +81,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private int                        videoHeight       = 0;
   @JsonProperty
-  private float                      aspectRatio       = 0f;
+  private Float                      aspectRatio       = 0f;
   @JsonProperty
   private Float                      aspectRatio2      = null;
   @JsonProperty
@@ -397,7 +397,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setFrameRate(0);
     setExactVideoFormat("");
     setContainerFormat("");
-    setAspectRatio(0);
+    setAspectRatio(0f);
     setAspectRatio2(null);
     setVideo3DFormat("");
     setHdrFormat("");
@@ -1036,8 +1036,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @param newValue
    *          the aspect ratio to be forced
    */
-  public void setAspectRatio(float newValue) {
-    float oldValue = this.aspectRatio;
+  public void setAspectRatio(Float newValue) {
+    Float oldValue = this.aspectRatio;
     this.aspectRatio = newValue;
     firePropertyChange("aspectRatio", oldValue, newValue);
   }
