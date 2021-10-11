@@ -18,6 +18,7 @@ package org.tinymediamanager.thirdparty.yt;
 import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 
+import com.github.kiulian.downloader.Config;
 import com.github.kiulian.downloader.YoutubeDownloader;
 
 /**
@@ -27,6 +28,6 @@ import com.github.kiulian.downloader.YoutubeDownloader;
  */
 public class YTDownloader extends YoutubeDownloader implements TmmFeature {
   public YTDownloader() throws ScrapeException {
-    super(new YTParser());
+    super(new Config.Builder().build(), new DownloaderImpl());
   }
 }

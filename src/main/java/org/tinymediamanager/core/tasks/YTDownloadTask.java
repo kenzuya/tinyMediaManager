@@ -49,14 +49,16 @@ import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
 import org.tinymediamanager.thirdparty.yt.YTDownloader;
 
+import com.github.kiulian.downloader.downloader.request.RequestVideoInfo;
+import com.github.kiulian.downloader.downloader.response.Response;
 import com.github.kiulian.downloader.model.Extension;
-import com.github.kiulian.downloader.model.YoutubeVideo;
-import com.github.kiulian.downloader.model.formats.AudioFormat;
-import com.github.kiulian.downloader.model.formats.AudioVideoFormat;
-import com.github.kiulian.downloader.model.formats.Format;
-import com.github.kiulian.downloader.model.formats.VideoFormat;
-import com.github.kiulian.downloader.model.quality.AudioQuality;
-import com.github.kiulian.downloader.model.quality.VideoQuality;
+import com.github.kiulian.downloader.model.videos.VideoInfo;
+import com.github.kiulian.downloader.model.videos.formats.AudioFormat;
+import com.github.kiulian.downloader.model.videos.formats.Format;
+import com.github.kiulian.downloader.model.videos.formats.VideoFormat;
+import com.github.kiulian.downloader.model.videos.formats.VideoWithAudioFormat;
+import com.github.kiulian.downloader.model.videos.quality.AudioQuality;
+import com.github.kiulian.downloader.model.videos.quality.VideoQuality;
 
 /**
  * A task for downloading trailers from YT
@@ -65,19 +67,19 @@ import com.github.kiulian.downloader.model.quality.VideoQuality;
  */
 public abstract class YTDownloadTask extends TmmTask {
 
-  private static final Logger  LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
+  private static final Logger  LOGGER            = LoggerFactory.getLogger(YTDownloadTask.class);
 
   private final MediaTrailer   mediaTrailer;
   private final TrailerQuality desiredQuality;
 
-  private YoutubeVideo         video;
+  private VideoInfo            video;
 
   /* helpers for calculating the download speed */
-  private long                 timestamp1                  = System.nanoTime();
+  private long                 timestamp1        = System.nanoTime();
   private long                 length;
-  private long                 bytesDone                   = 0;
-  private long                 bytesDonePrevious           = 0;
-  private double               speed                       = 0;
+  private long                 bytesDone         = 0;
+  private long                 bytesDonePrevious = 0;
+  private double               speed             = 0;
 
   public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
@@ -120,10 +122,15 @@ public abstract class YTDownloadTask extends TmmTask {
       }
 
       YTDownloader downloader = new YTDownloader();
-      video = downloader.getVideo(id);
+      Response<VideoInfo> videoInfo = downloader.getVideoInfo(new RequestVideoInfo(id));
+      if (!videoInfo.ok()) {
+        return;
+      }
+
+      video = videoInfo.data();
 
       // search for a combined audio-video stream
-      AudioVideoFormat audioVideoFormat = findCombinedStream();
+      VideoWithAudioFormat audioVideoFormat = findCombinedStream();
 
       if (audioVideoFormat != null) {
         downloadCombinedStream(audioVideoFormat);
@@ -139,8 +146,8 @@ public abstract class YTDownloadTask extends TmmTask {
 
       // still nothing found? just try to get the best possible
       streams = findBestStreams();
-      if (streams.length == 1 && streams[0] instanceof AudioVideoFormat) {
-        downloadCombinedStream((AudioVideoFormat) streams[0]);
+      if (streams.length == 1 && streams[0] instanceof VideoWithAudioFormat) {
+        downloadCombinedStream((VideoWithAudioFormat) streams[0]);
       }
       else if (streams.length == 2) {
         downloadSeparateStreams((VideoFormat) streams[0], (AudioFormat) streams[1]);
@@ -151,17 +158,18 @@ public abstract class YTDownloadTask extends TmmTask {
           new String[] { getMediaEntityToAdd().getTitle() }));
       setState(TaskState.FAILED);
       LOGGER.error("download of Trailer {} failed", mediaTrailer.getUrl());
+      LOGGER.debug("trailer download - '{}'", e.getMessage());
     }
   }
 
-  private AudioVideoFormat findCombinedStream() {
-    AudioVideoFormat audioVideoFormat = null;
+  private VideoWithAudioFormat findCombinedStream() {
+    VideoWithAudioFormat audioVideoFormat = null;
 
-    List<AudioVideoFormat> audioVideoFormats = video.videoWithAudioFormats();
+    List<VideoWithAudioFormat> audioVideoFormats = video.videoWithAudioFormats();
 
     if (!"unknown".equalsIgnoreCase(mediaTrailer.getQuality())) {
       // if there is an explicit quality in the URL
-      for (AudioVideoFormat format : audioVideoFormats) {
+      for (VideoWithAudioFormat format : audioVideoFormats) {
         if (format.videoQuality() == getVideoQuality(mediaTrailer.getQuality()) && Extension.MPEG4 == format.extension()) {
           audioVideoFormat = format;
           break;
@@ -179,7 +187,7 @@ public abstract class YTDownloadTask extends TmmTask {
       }
 
       if (quality != null) {
-        for (AudioVideoFormat format : audioVideoFormats) {
+        for (VideoWithAudioFormat format : audioVideoFormats) {
           if (format.videoQuality() == quality && Extension.MPEG4 == format.extension()) {
             audioVideoFormat = format;
             break;
@@ -246,8 +254,8 @@ public abstract class YTDownloadTask extends TmmTask {
     VideoQuality bestQuality = null;
 
     for (Format format : video.formats()) {
-      if (format instanceof AudioVideoFormat) {
-        AudioVideoFormat audioVideoFormat = (AudioVideoFormat) format;
+      if (format instanceof VideoWithAudioFormat) {
+        VideoWithAudioFormat audioVideoFormat = (VideoWithAudioFormat) format;
         if (bestQuality == null) {
           // just take it
           bestQuality = audioVideoFormat.videoQuality();
@@ -276,7 +284,7 @@ public abstract class YTDownloadTask extends TmmTask {
     // now check if we got anything
     if (videoStreamInBestQuality != null) {
       // yeah - we found at least one video stream
-      if (videoStreamInBestQuality instanceof AudioVideoFormat) {
+      if (videoStreamInBestQuality instanceof VideoWithAudioFormat) {
         // yeah #2 - a combined stream
         return new Format[] { videoStreamInBestQuality };
       }
@@ -292,7 +300,7 @@ public abstract class YTDownloadTask extends TmmTask {
     return new Format[0];
   }
 
-  private VideoFormat findVideo(YoutubeVideo video, VideoQuality videoQuality, Extension extension) {
+  private VideoFormat findVideo(VideoInfo video, VideoQuality videoQuality, Extension extension) {
     for (VideoFormat format : video.videoFormats()) {
       if (format.videoQuality() == videoQuality && format.extension().equals(extension)) {
         return format;
@@ -303,7 +311,7 @@ public abstract class YTDownloadTask extends TmmTask {
     return null;
   }
 
-  private AudioFormat findBestAudio(YoutubeVideo video, Extension extension) {
+  private AudioFormat findBestAudio(VideoInfo video, Extension extension) {
 
     // search for all audio formats in the given quality order
     for (AudioQuality quality : getAudioQualityList()) {
@@ -344,7 +352,7 @@ public abstract class YTDownloadTask extends TmmTask {
     return list;
   }
 
-  private void downloadCombinedStream(AudioVideoFormat audioVideoFormat) throws Exception {
+  private void downloadCombinedStream(VideoWithAudioFormat audioVideoFormat) throws Exception {
     MediaEntity mediaEntity = getMediaEntityToAdd();
 
     // we've found a combined audio/video format for the requested quality, so we don't need to mux it ;)
@@ -525,6 +533,5 @@ public abstract class YTDownloadTask extends TmmTask {
   private String formatSpeedForOutput(double speed) {
     return String.format("%.2fkB/s", speed / 1000d);
   }
-
 
 }
