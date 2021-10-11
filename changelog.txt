@@ -11,6 +11,7 @@ x cleanup of old season artwork when adding new one #1518
 x fixed check of shipped FFmpeg #1522
 x (image chooser) show a warning message when a wrong url has been entered #1530
 x (movies) Duplicate filter now considers all IDs
+x enhanced aborting of trailer downloads
 
 
 Version 4.2.2
