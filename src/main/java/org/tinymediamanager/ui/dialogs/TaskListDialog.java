@@ -66,7 +66,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       noActiveTask.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
       panelContent.add(noActiveTask);
 
-      panelContent.setLayout(new MigLayout("", "[grow]"));
+      panelContent.setLayout(new MigLayout("", "[200lp:300lp,grow]", "[]"));
       panelContent.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 
       JScrollPane scrollPane = new NoBorderScrollPane();
@@ -78,7 +78,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
 
       JPanel rootPanel = new JPanel();
       rootPanel.setBackground(UIManager.getColor("Menu.background"));
-      rootPanel.setLayout(new MigLayout("insets 0", "[]", "[100lp:300lp,grow]"));
+      rootPanel.setLayout(new MigLayout("insets 0", "[200lp:300lp,grow]", "[100lp:300lp,grow]"));
       rootPanel.add(scrollPane, "cell 0 0, top, grow");
 
       getContentPane().add(rootPanel, BorderLayout.CENTER);
@@ -153,7 +153,9 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
 
     if (isShowing()) {
       invalidate();
+      panelContent.invalidate();
       repaint();
+      panelContent.repaint();
     }
   }
 
@@ -175,9 +177,10 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     }
 
     if (isShowing()) {
-      revalidate();
-      pack();
+      invalidate();
+      panelContent.invalidate();
       repaint();
+      panelContent.repaint();
     }
   }
 }
