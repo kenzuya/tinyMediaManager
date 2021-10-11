@@ -3,6 +3,7 @@ Version 4.2.3
 + make trailer table sortable #1492
 + added a dedicated file name filter for video files #1509
 + updated libmediainfo to 21.09
++ re-added legacy TVDB API v3 (the shutdown of API v3 has been postponed to the first half of 2022)
 x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
