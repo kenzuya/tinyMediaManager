@@ -11,4 +11,8 @@
     <description>Gran Torino\nDrama, USA 2008\nAltersfreigabe: ab 12</description>
     <uid></uid>
     <firstrun>true</firstrun>
+    <genres>
+        <genre>Soap / Melodrama / Folkloric</genre>
+        <genre>Sci-Fi &amp; Fantasy</genre>
+    </genres>
 </recording>

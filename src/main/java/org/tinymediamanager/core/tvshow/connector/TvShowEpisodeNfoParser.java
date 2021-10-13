@@ -266,6 +266,7 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::parseDescription);
       parseTag(Episode::parseCertificationInRating);
       parseTag(Episode::parseOriginalAirDate);
+      parseTag(Episode::parseGenres);
     }
 
     /**
