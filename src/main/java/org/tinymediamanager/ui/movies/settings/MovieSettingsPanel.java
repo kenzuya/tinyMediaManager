@@ -15,7 +15,18 @@
  */
 package org.tinymediamanager.ui.movies.settings;
 
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.*;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.ACTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.COUNTRY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PLOT;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGLINE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Component;
@@ -381,7 +392,7 @@ public class MovieSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox

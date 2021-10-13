@@ -374,7 +374,7 @@ class TvShowSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
@@ -491,6 +491,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxTvShowDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
           chckbxTvShowDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
           chckbxTvShowDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
@@ -499,6 +500,7 @@ class TvShowSettingsPanel extends JPanel {
           // spacer
           gbc.gridx = 0;
           gbc.gridy++;
+          gbc.gridwidth = 1;
           panelCheckMetadata.add(Box.createVerticalStrut(10), gbc.clone());
 
           // Episode
@@ -533,6 +535,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxEpisodeDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
           chckbxEpisodeDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
           chckbxEpisodeDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
@@ -540,6 +543,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxEpisodeSpecialsCheckMissingMetadata = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkmetadata.specials"));
           panelCheckMetadata.add(chckbxEpisodeSpecialsCheckMissingMetadata, gbc.clone());
 
@@ -576,6 +580,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxTvShowDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
           chckbxTvShowDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
           chckbxTvShowDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
@@ -584,6 +589,7 @@ class TvShowSettingsPanel extends JPanel {
           // spacer
           gbc.gridx = 0;
           gbc.gridy++;
+          gbc.gridwidth = 1;
           panelCheckArtwork.add(Box.createVerticalStrut(10), gbc.clone());
 
           // Season
@@ -608,6 +614,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxSeasonDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
           chckbxSeasonDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
           chckbxSeasonDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
@@ -616,6 +623,7 @@ class TvShowSettingsPanel extends JPanel {
           // spacer
           gbc.gridx = 0;
           gbc.gridy++;
+          gbc.gridwidth = 1;
           panelCheckArtwork.add(Box.createVerticalStrut(10), gbc.clone());
 
           // Episode
@@ -640,6 +648,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxEpisodeDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
           chckbxEpisodeDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
           chckbxEpisodeDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
@@ -647,6 +656,7 @@ class TvShowSettingsPanel extends JPanel {
 
           gbc.gridx = 1;
           gbc.gridy++;
+          gbc.gridwidth = COL_COUNT;
           chckbxEpisodeSpecialsCheckMissingArtwork = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkartwork.specials"));
           panelCheckArtwork.add(chckbxEpisodeSpecialsCheckMissingArtwork, gbc.clone());
 
