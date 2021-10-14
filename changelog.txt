@@ -13,6 +13,7 @@ x (image chooser) show a warning message when a wrong url has been entered #1530
 x (movies) Duplicate filter now considers all IDs
 x enhanced aborting of trailer downloads
 x enhanced layouting of the movie/TV show settings
+x enhanced nextpvr parsing #1537
 
 
 Version 4.2.2
