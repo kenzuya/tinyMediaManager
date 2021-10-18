@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.dialogs;
 
 import java.awt.BorderLayout;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -96,7 +97,11 @@ public class UnlockDialog extends TmmDialog {
         try {
           License.getInstance().setLicenseCode(taLicenseCode.getText());
 
-          if (License.getInstance().isValidLicense()) {
+          if (License.getInstance().validUntil() != null && License.getInstance().validUntil().isBefore(LocalDate.now())) {
+            // license already expired
+            JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.expired"));
+          }
+          else if (License.getInstance().isValidLicense()) {
             // if we're reaching this, the license code was valid!
 
             // persist the license code
