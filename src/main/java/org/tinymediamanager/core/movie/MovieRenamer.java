@@ -1469,9 +1469,6 @@ public class MovieRenamer {
       result = result.replace(":", MovieModuleManager.getInstance().getSettings().getRenamerColonReplacement());
     }
 
-    // replace multiple spaces with a single one
-    result = result.replaceAll(" +", " ").trim();
-
     return result.replaceAll("([\":<>|?*])", "");
   }
 
