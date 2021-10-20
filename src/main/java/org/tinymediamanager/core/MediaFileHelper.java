@@ -148,8 +148,8 @@ public class MediaFileHelper {
         ".wmv", ".webm", ".xvid");
 
     DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
-        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".rm",
-        ".tta", ".thd", ".wav", ".wave", ".wma");
+        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".tta",
+        ".thd", ".wav", ".wave", ".wma");
 
     DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
         ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
