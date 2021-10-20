@@ -52,33 +52,29 @@ public class TvShowNoteFilter extends AbstractTextTvShowUIFilter {
 
     try {
       boolean foundShow = false;
-      if (StringUtils.isNotBlank(tvShow.getNote())) {
-        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getNote()));
-        if (matcher.find()) {
-          foundShow = true;
-        }
-        if (!invert && foundShow) {
-          return true;
-        }
-        else if (invert && foundShow) {
-          return false;
-        }
+      Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getNote()));
+      if (matcher.find()) {
+        foundShow = true;
+      }
+      if (!invert && foundShow) {
+        return true;
+      }
+      else if (invert && foundShow) {
+        return false;
       }
 
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
-        if (StringUtils.isNotBlank(episode.getNote())) {
-          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getNote()));
-          if (matcher.find()) {
-            foundEpisode = true;
-          }
+        matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getNote()));
+        if (matcher.find()) {
+          foundEpisode = true;
+        }
 
-          if (invert && !foundEpisode) {
-            return true;
-          }
-          else if (!invert && foundEpisode) {
-            return true;
-          }
+        if (invert && !foundEpisode) {
+          return true;
+        }
+        else if (!invert && foundEpisode) {
+          return true;
         }
       }
     }
