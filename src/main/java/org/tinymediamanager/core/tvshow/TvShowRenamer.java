@@ -1698,10 +1698,6 @@ public class TvShowRenamer {
       destination = StrgUtils.convertToAscii(destination, false);
     }
 
-    // trim out unnecessary whitespaces
-    destination = destination.trim();
-    destination = destination.replaceAll(" +", " ").trim();
-
     // replace all leading/trailing separators
     destination = destination.replaceAll("^[ \\.\\-_]+", "");
     destination = destination.replaceAll("[ \\.\\-_]+$", "");
@@ -1709,6 +1705,9 @@ public class TvShowRenamer {
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
     destination = destination.replace(": ", " - "); // nicer
     destination = destination.replace(":", "-"); // nicer
+
+    // trim out unnecessary whitespaces
+    destination = destination.replaceAll(" +", " ").trim();
 
     return destination.trim();
   }
