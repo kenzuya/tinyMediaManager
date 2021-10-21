@@ -66,6 +66,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
@@ -431,7 +432,7 @@ public class MovieInformationPanel extends JPanel {
         JLabel lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlotT, "cell 0 8,alignx left,aligny top");
 
-        taPlot = new ReadOnlyTextPane();
+        taPlot = new ReadOnlyTextPaneHTML();
         panelRight.add(taPlot, "cell 0 9,growx,wmin 0,aligny top");
       }
       {
@@ -480,7 +481,7 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 5");
 
-          taNote = new ReadOnlyTextPane();
+          taNote = new ReadOnlyTextPaneHTML();
           panelBottomDetails.add(taNote, "cell 1 5,growx,wmin 0");
         }
       }

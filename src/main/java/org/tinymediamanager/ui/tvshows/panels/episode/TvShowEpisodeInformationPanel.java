@@ -70,6 +70,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
@@ -110,7 +111,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                             lblAired;
   private JTextPane                          taTags;
   private LinkTextArea                       lblPath;
-  private JLabel                             lblNote;
+  private JTextPane                          taNote;
   private LinkLabel                          lblTraktTvId;
   private LinkLabel                          lblTvdbId;
   private LinkLabel                          lblImdbId;
@@ -409,7 +410,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlot, "cell 0 6");
 
-        taOverview = new ReadOnlyTextPane();
+        taOverview = new ReadOnlyTextPaneHTML();
         panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
       }
       {
@@ -438,8 +439,8 @@ public class TvShowEpisodeInformationPanel extends JPanel {
             JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
             panelBottomDetails.add(lblNoteT, "cell 0 2");
 
-            lblNote = new JLabel("");
-            panelBottomDetails.add(lblNote, "cell 2 2,growx,wmin 0");
+            taNote = new ReadOnlyTextPaneHTML();
+            panelBottomDetails.add(taNote, "cell 2 2,growx,wmin 0");
           }
         }
       }
@@ -548,8 +549,8 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     autoBinding_13.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShowEpisode.note");
-    AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, lblNote, jLabelBeanProperty);
+    AutoBinding<TvShowEpisodeSelectionModel, String, JTextPane, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, taNote, JTextPaneBeanProperty);
     autoBinding_14.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");

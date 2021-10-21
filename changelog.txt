@@ -18,6 +18,7 @@ x enhanced nextpvr parsing #1537
 x (Linux) statically linked launcher to avoid glibc version mismatch #1542
 x fixed occasional double spaces in the renamer results #1541
 x (TV shows) enhanced note filter #1540
+x Plot & note fields render now clickable links #1538
 
 
 Version 4.2.2

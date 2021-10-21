@@ -65,6 +65,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
@@ -401,7 +402,7 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(lblPlot, "cell 0 6");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
-        taOverview = new ReadOnlyTextPane();
+        taOverview = new ReadOnlyTextPaneHTML();
         panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
       }
       {
@@ -430,7 +431,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 2");
 
-          taNote = new ReadOnlyTextPane();
+          taNote = new ReadOnlyTextPaneHTML();
           panelBottomDetails.add(taNote, "cell 1 2,growx,wmin 0");
         }
       }
