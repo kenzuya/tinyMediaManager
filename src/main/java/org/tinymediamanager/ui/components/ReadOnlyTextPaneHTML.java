@@ -46,7 +46,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
             TmmUIHelper.browseUrl(e.getURL().toURI().toString());
           }
           catch (Exception ex) {
-            ex.printStackTrace();
+            // ex.printStackTrace();
           }
         }
       }
@@ -65,7 +65,6 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         super.setText(t);
       }
       else {
-        System.out.println(t);
         // performance: just do a quick contains, before doing all the fancy stuff
         if (t.contains("http") || t.contains("www")) {
           // remove all existing href tags, to not reHTMLify existing ones
@@ -76,7 +75,6 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
           t = t.replaceAll("(?:https|http)://([^\\s]+)", "<a href=\"$0\">$1</a>");
           // whitespace before WWW to not include former style!!!
           t = t.replaceAll("(?:^|\\s)(www\\.[^\\s]+)", " <a href=\"https://$1\">$1</a>");
-          System.out.println(t);
 
           setContentType("text/html");
           super.setText("<html>" + t + "</html>");
