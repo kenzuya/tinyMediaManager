@@ -57,6 +57,7 @@ import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -92,6 +93,11 @@ class MovieUiSettingsPanel extends JPanel {
   private JButton                                          btnRemoveRating;
   private JButton                                          btnMoveRatingUp;
   private JButton                                          btnMoveRatingDown;
+
+  private JCheckBox                                        chckbxShowPoster;
+  private JCheckBox                                        chckbxShowFanart;
+  private JCheckBox                                        chckbxShowBanner;
+  private JCheckBox                                        chckbxShowThumb;
 
   private JCheckBox                                        chckbxTitle;
   private JCheckBox                                        chckbxSortableTitle;
@@ -192,6 +198,22 @@ class MovieUiSettingsPanel extends JPanel {
   }
 
   private void checkChanges() {
+    // show artwork
+    List<MediaFileType> artworkTypes = new ArrayList<>();
+    if (chckbxShowPoster.isSelected()) {
+      artworkTypes.add(MediaFileType.POSTER);
+    }
+    if (chckbxShowFanart.isSelected()) {
+      artworkTypes.add(MediaFileType.FANART);
+    }
+    if (chckbxShowBanner.isSelected()) {
+      artworkTypes.add(MediaFileType.BANNER);
+    }
+    if (chckbxShowThumb.isSelected()) {
+      artworkTypes.add(MediaFileType.THUMB);
+    }
+    settings.setShowArtworkTypes(artworkTypes);
+
     // universal filter
     List<AbstractSettings.UniversalFilterFields> universalFilterFields = new ArrayList<>();
     if (chckbxUniversalNote.isSelected()) {
@@ -254,6 +276,27 @@ class MovieUiSettingsPanel extends JPanel {
   }
 
   private void buildCheckBoxes() {
+    // show artwork
+    for (MediaFileType artworkType : settings.getShowArtworkTypes()) {
+      switch (artworkType) {
+        case POSTER:
+          chckbxShowPoster.setSelected(true);
+          break;
+
+        case FANART:
+          chckbxShowFanart.setSelected(true);
+          break;
+
+        case BANNER:
+          chckbxShowBanner.setSelected(true);
+          break;
+
+        case THUMB:
+          chckbxShowThumb.setSelected(true);
+          break;
+      }
+    }
+
     // universal filter
     for (AbstractSettings.UniversalFilterFields filterField : settings.getUniversalFilterFields()) {
       switch (filterField) {
@@ -299,13 +342,19 @@ class MovieUiSettingsPanel extends JPanel {
 
         case PLOT:
           chckbxUniversalPlot.setSelected(true);
+          break;
 
         case TAGLINE:
           chckbxUniversalTagLine.setSelected(true);
+          break;
       }
     }
 
     // set the checkbox listener at the end!
+    chckbxShowPoster.addItemListener(checkBoxListener);
+    chckbxShowFanart.addItemListener(checkBoxListener);
+    chckbxShowBanner.addItemListener(checkBoxListener);
+    chckbxShowThumb.addItemListener(checkBoxListener);
     chckbxUniversalNote.addItemListener(checkBoxListener);
     chckbxUniversalFilename.addItemListener(checkBoxListener);
     chckbxUniversalTags.addItemListener(checkBoxListener);
@@ -351,19 +400,37 @@ class MovieUiSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][10lp!][][grow][][][][][][10lp!][][125lp,grow]"));
+      panelUiSettings
+          .setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][grow][][][][][][10lp!][][125lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
+
+      {
+        JLabel lblNewLabel = new JLabel(TmmResourceBundle.getString("Settings.showartworktypes"));
+        panelUiSettings.add(lblNewLabel, "cell 1 0 2 1");
+
+        chckbxShowPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
+        panelUiSettings.add(chckbxShowPoster, "flowx,cell 2 1");
+
+        chckbxShowFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
+        panelUiSettings.add(chckbxShowFanart, "cell 2 1");
+
+        chckbxShowBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
+        panelUiSettings.add(chckbxShowBanner, "cell 2 1");
+
+        chckbxShowThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
+        panelUiSettings.add(chckbxShowThumb, "cell 2 1");
+      }
       {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
-        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 0 2 1");
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 2 2 1");
       }
       {
         JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
-        panelUiSettings.add(lblCheckMetadata, "cell 1 2 2 1");
+        panelUiSettings.add(lblCheckMetadata, "cell 1 4 2 1");
 
         JPanel panelCheckMetadata = new JPanel();
         panelCheckMetadata.setLayout(new GridBagLayout());
@@ -389,17 +456,17 @@ class MovieUiSettingsPanel extends JPanel {
             addMetadataCheckbox(panelCheckMetadata, value, metadataCheckBoxes, gbc);
           }
         }
-        panelUiSettings.add(panelCheckMetadata, "cell 2 3");
+        panelUiSettings.add(panelCheckMetadata, "cell 2 5");
 
         chckbxDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
         chckbxDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
         chckbxDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
-        panelUiSettings.add(chckbxDisplayAllMissingMetadata, "cell 2 4");
+        panelUiSettings.add(chckbxDisplayAllMissingMetadata, "cell 2 6");
       }
 
       {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelUiSettings.add(lblCheckImages, "cell 1 6 2 1");
+        panelUiSettings.add(lblCheckImages, "cell 1 8 2 1");
 
         JPanel panelCheckImages = new JPanel();
         panelCheckImages.setLayout(new GridBagLayout());
@@ -417,19 +484,19 @@ class MovieUiSettingsPanel extends JPanel {
           }
         }
 
-        panelUiSettings.add(panelCheckImages, "cell 2 7");
+        panelUiSettings.add(panelCheckImages, "cell 2 9");
 
         chckbxDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
         chckbxDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
         chckbxDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
-        panelUiSettings.add(chckbxDisplayAllMissingArtwork, "cell 2 8");
+        panelUiSettings.add(chckbxDisplayAllMissingArtwork, "cell 2 10");
       }
       {
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 10 2 1");
+        panelUiSettings.add(lblRating, "cell 1 12 2 1");
 
         JPanel panelRatingSource = new JPanel();
-        panelUiSettings.add(panelRatingSource, "cell 2 11,grow");
+        panelUiSettings.add(panelRatingSource, "cell 2 13,grow");
         panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
         {
           listRatings = new JList();

@@ -47,6 +47,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -107,6 +108,15 @@ class TvShowUiSettingsPanel extends JPanel {
   private JHintCheckBox                                            chckbxSeasonDisplayAllMissingArtwork;
   private JHintCheckBox                                            chckbxEpisodeDisplayAllMissingArtwork;
   private JCheckBox                                                chckbxEpisodeSpecialsCheckMissingArtwork;
+  private JCheckBox                                                chckbxTvShowPoster;
+  private JCheckBox                                                chckbxTvShowFanart;
+  private JCheckBox                                                chckbxTvShowBanner;
+  private JCheckBox                                                chckbxTvShowThumb;
+  private JCheckBox                                                chckbxSeasonPoster;
+  private JCheckBox                                                chckbxEpisodePoster;
+  private JCheckBox                                                chckbxEpisodeThumb;
+  private JCheckBox                                                chckbxSeasonThumb;
+  private JCheckBox                                                chckbxSeasonBanner;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -130,6 +140,43 @@ class TvShowUiSettingsPanel extends JPanel {
    * Check changes.
    */
   private void checkChanges() {
+    // show artwork
+    List<MediaFileType> tvShowArtworkTypes = new ArrayList<>();
+    if (chckbxTvShowPoster.isSelected()) {
+      tvShowArtworkTypes.add(MediaFileType.POSTER);
+    }
+    if (chckbxTvShowFanart.isSelected()) {
+      tvShowArtworkTypes.add(MediaFileType.FANART);
+    }
+    if (chckbxTvShowBanner.isSelected()) {
+      tvShowArtworkTypes.add(MediaFileType.BANNER);
+    }
+    if (chckbxTvShowThumb.isSelected()) {
+      tvShowArtworkTypes.add(MediaFileType.THUMB);
+    }
+    settings.setShowTvShowArtworkTypes(tvShowArtworkTypes);
+
+    List<MediaFileType> seasonArtworkTypes = new ArrayList<>();
+    if (chckbxSeasonPoster.isSelected()) {
+      seasonArtworkTypes.add(MediaFileType.SEASON_POSTER);
+    }
+    if (chckbxSeasonBanner.isSelected()) {
+      seasonArtworkTypes.add(MediaFileType.SEASON_BANNER);
+    }
+    if (chckbxSeasonThumb.isSelected()) {
+      seasonArtworkTypes.add(MediaFileType.SEASON_THUMB);
+    }
+    settings.setShowSeasonArtworkTypes(seasonArtworkTypes);
+
+    List<MediaFileType> episodeArtworkTypes = new ArrayList<>();
+    if (chckbxEpisodePoster.isSelected()) {
+      episodeArtworkTypes.add(MediaFileType.SEASON_POSTER);
+    }
+    if (chckbxEpisodeThumb.isSelected()) {
+      episodeArtworkTypes.add(MediaFileType.THUMB);
+    }
+    settings.setShowEpisodeArtworkTypes(episodeArtworkTypes);
+
     // universal filter
     List<AbstractSettings.UniversalFilterFields> universalFilterFields = new ArrayList<>();
     if (chckbxUniversalNote.isSelected()) {
@@ -216,6 +263,59 @@ class TvShowUiSettingsPanel extends JPanel {
   }
 
   private void buildCheckBoxes() {
+    // show artwork
+    for (MediaFileType artworkType : settings.getShowTvShowArtworkTypes()) {
+      switch (artworkType) {
+        case POSTER:
+          chckbxTvShowPoster.setSelected(true);
+          break;
+
+        case FANART:
+          chckbxTvShowFanart.setSelected(true);
+          break;
+
+        case BANNER:
+          chckbxTvShowBanner.setSelected(true);
+          break;
+
+        case THUMB:
+          chckbxTvShowThumb.setSelected(true);
+          break;
+      }
+    }
+
+    for (MediaFileType artworkType : settings.getShowSeasonArtworkTypes()) {
+      switch (artworkType) {
+        case SEASON_POSTER:
+        case POSTER:
+          chckbxSeasonPoster.setSelected(true);
+          break;
+
+        case SEASON_BANNER:
+        case BANNER:
+          chckbxSeasonBanner.setSelected(true);
+          break;
+
+        case SEASON_THUMB:
+        case THUMB:
+          chckbxSeasonThumb.setSelected(true);
+          break;
+      }
+    }
+
+    for (MediaFileType artworkType : settings.getShowEpisodeArtworkTypes()) {
+      switch (artworkType) {
+        case SEASON_POSTER:
+        case POSTER:
+          chckbxEpisodePoster.setSelected(true);
+          break;
+
+        case THUMB:
+          chckbxEpisodeThumb.setSelected(true);
+          break;
+      }
+    }
+
     // universal filter
     for (AbstractSettings.UniversalFilterFields filterField : settings.getUniversalFilterFields()) {
       switch (filterField) {
@@ -258,6 +358,15 @@ class TvShowUiSettingsPanel extends JPanel {
     }
 
     // set the checkbox listener at the end!
+    chckbxTvShowPoster.addItemListener(checkBoxListener);
+    chckbxTvShowFanart.addItemListener(checkBoxListener);
+    chckbxTvShowBanner.addItemListener(checkBoxListener);
+    chckbxTvShowThumb.addItemListener(checkBoxListener);
+    chckbxSeasonPoster.addItemListener(checkBoxListener);
+    chckbxSeasonBanner.addItemListener(checkBoxListener);
+    chckbxSeasonThumb.addItemListener(checkBoxListener);
+    chckbxEpisodePoster.addItemListener(checkBoxListener);
+    chckbxEpisodeThumb.addItemListener(checkBoxListener);
     chckbxUniversalNote.addItemListener(checkBoxListener);
     chckbxUniversalFilename.addItemListener(checkBoxListener);
     chckbxUniversalTags.addItemListener(checkBoxListener);
@@ -337,7 +446,7 @@ class TvShowUiSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][grow][10lp!][][][10lp!][][]"));
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][][grow][10lp!][][][10lp!][][]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -345,18 +454,62 @@ class TvShowUiSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
 
       {
+        JLabel lblNewLabel = new JLabel(TmmResourceBundle.getString("Settings.showartworktypes"));
+        panelUiSettings.add(lblNewLabel, "cell 1 0 2 1");
+
+        JPanel panelShowArtwork = new JPanel();
+        panelUiSettings.add(panelShowArtwork, "cell 2 1,grow");
+        panelShowArtwork.setLayout(new MigLayout("", "[][][][][]", "[][][]"));
+
+        JLabel lblTvShowArtwork = new JLabel(TmmResourceBundle.getString("metatag.tvshow"));
+        panelShowArtwork.add(lblTvShowArtwork, "flowy,cell 0 0");
+
+        chckbxTvShowPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
+        panelShowArtwork.add(chckbxTvShowPoster, "cell 1 0");
+
+        chckbxTvShowFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
+        panelShowArtwork.add(chckbxTvShowFanart, "cell 2 0");
+
+        chckbxTvShowBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
+        panelShowArtwork.add(chckbxTvShowBanner, "cell 3 0");
+
+        chckbxTvShowThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
+        panelShowArtwork.add(chckbxTvShowThumb, "cell 4 0");
+
+        JLabel lblSeasonArtwork = new JLabel(TmmResourceBundle.getString("metatag.season"));
+        panelShowArtwork.add(lblSeasonArtwork, "flowy,cell 0 1");
+
+        chckbxSeasonPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
+        panelShowArtwork.add(chckbxSeasonPoster, "cell 1 1");
+
+        chckbxSeasonThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
+        panelShowArtwork.add(chckbxSeasonThumb, "cell 2 1");
+
+        chckbxSeasonBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
+        panelShowArtwork.add(chckbxSeasonBanner, "cell 3 1");
+
+        JLabel lblEpisodeArtwork = new JLabel(TmmResourceBundle.getString("metatag.episode"));
+        panelShowArtwork.add(lblEpisodeArtwork, "cell 0 2");
+
+        chckbxEpisodePoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.season_poster"));
+        panelShowArtwork.add(chckbxEpisodePoster, "cell 1 2");
+
+        chckbxEpisodeThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
+        panelShowArtwork.add(chckbxEpisodeThumb, "cell 2 2");
+      }
+      {
         chckbxShowMissingEpisodes = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingepisodes"));
-        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 0 2 1");
+        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 2 2 1");
 
         chckbxShowMissingSpecials = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingespecials"));
-        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 1");
+        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 3");
 
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
-        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 4 2 1");
 
         {
           JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
-          panelUiSettings.add(lblCheckMetadata, "cell 1 4 2 1");
+          panelUiSettings.add(lblCheckMetadata, "cell 1 6 2 1");
 
           JPanel panelCheckMetadata = new JPanel(new GridBagLayout());
 
@@ -451,11 +604,11 @@ class TvShowUiSettingsPanel extends JPanel {
           chckbxEpisodeSpecialsCheckMissingMetadata = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkmetadata.specials"));
           panelCheckMetadata.add(chckbxEpisodeSpecialsCheckMissingMetadata, gbc.clone());
 
-          panelUiSettings.add(panelCheckMetadata, "cell 2 5");
+          panelUiSettings.add(panelCheckMetadata, "cell 2 7");
         }
         {
           JLabel lblCheckArtwork = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-          panelUiSettings.add(lblCheckArtwork, "cell 1 7 2 1");
+          panelUiSettings.add(lblCheckArtwork, "cell 1 9 2 1");
 
           JPanel panelCheckArtwork = new JPanel(new GridBagLayout());
 
@@ -564,19 +717,19 @@ class TvShowUiSettingsPanel extends JPanel {
           chckbxEpisodeSpecialsCheckMissingArtwork = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkartwork.specials"));
           panelCheckArtwork.add(chckbxEpisodeSpecialsCheckMissingArtwork, gbc.clone());
 
-          panelUiSettings.add(panelCheckArtwork, "cell 2 8");
+          panelUiSettings.add(panelCheckArtwork, "cell 2 10");
         }
       }
       {
         chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
-        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 10 2 1");
+        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 12 2 1");
       }
 
       JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-      panelUiSettings.add(lblRating, "cell 1 11 2 1");
+      panelUiSettings.add(lblRating, "cell 1 13 2 1");
 
       cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
-      panelUiSettings.add(cbRating, "cell 1 11 2 1");
+      panelUiSettings.add(cbRating, "cell 1 13 2 1");
     }
     {
       JPanel panelFilter = new JPanel();
