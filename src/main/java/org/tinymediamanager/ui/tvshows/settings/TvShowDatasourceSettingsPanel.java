@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -71,7 +72,9 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   private JTextField                  tfAddBadword;
   private JList<String>               listBadWords;
   private JList<String>               listDatasources;
+  private JPanel               panelDatasources;
   private JList<String>               listSkipFolder;
+  private JPanel               panelIgnore;
   private JButton                     btnAddDatasource;
   private JButton                     btnRemoveDatasource;
   private JButton                     btnAddSkipFolder;
@@ -94,6 +97,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       if (file != null && Files.isDirectory(file)) {
         settings.addTvShowDataSources(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("tvshow.datasource.path", file.toAbsolutePath().toString());
+        panelDatasources.revalidate();
       }
     });
     btnRemoveDatasource.addActionListener(arg0 -> {
@@ -108,6 +112,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           settings.removeTvShowDataSources(path);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          panelDatasources.revalidate();
         }
       }
     });
@@ -117,6 +122,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       if (file != null && Files.isDirectory(file)) {
         settings.addSkipFolder(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("tvshow.ignore.path", file.toAbsolutePath().toString());
+        panelIgnore.revalidate();
       }
     });
     btnRemoveSkipFolder.addActionListener(e -> {
@@ -124,6 +130,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       if (row != -1) { // nothing selected
         String ingore = settings.getSkipFolder().get(row);
         settings.removeSkipFolder(ingore);
+        panelIgnore.revalidate();
       }
     });
     btnAddBadWord.addActionListener(e -> {
@@ -177,6 +184,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           TvShowModuleManager.getInstance().getSettings().exchangeTvShowDatasource(path, dialog.getNewDatasource());
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          panelDatasources.revalidate();
         }
       }
     });
@@ -185,7 +193,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow][][10lp!][]"));
+      panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp:n][][grow]", "[100lp,grow][][10lp!][]"));
 
       JLabel lblDatasourcesT = new TmmLabel(TmmResourceBundle.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
@@ -193,6 +201,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
+        scrollPaneDataSources.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelDatasources.add(scrollPaneDataSources, "cell 1 0 1 2,grow");
 
         listDatasources = new JList();
@@ -224,7 +233,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow]"));
+      panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp:n][][grow]", "[100lp,grow]"));
 
       JLabel lblIgnoreT = new TmmLabel(TmmResourceBundle.getString("Settings.ignore"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelIgnore, lblIgnoreT, true);
@@ -232,6 +241,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JScrollPane scrollPaneIgnore = new JScrollPane();
+        scrollPaneIgnore.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelIgnore.add(scrollPaneIgnore, "cell 1 0,grow");
 
         listSkipFolder = new JList();
@@ -247,7 +257,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelBadWords = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp][][grow]", "[][100lp,grow][]"));
+      JPanel panelBadWords = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp:n][][grow]", "[][100lp,grow][]"));
 
       JLabel lblBadWordsT = new TmmLabel(TmmResourceBundle.getString("Settings.movie.badwords"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelBadWords, lblBadWordsT, true);
@@ -258,6 +268,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         panelBadWords.add(lblBadWordsDesc, "cell 1 0 3 1");
 
         JScrollPane scrollPaneBadWords = new JScrollPane();
+        scrollPaneBadWords.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelBadWords.add(scrollPaneBadWords, "cell 1 1,grow");
 
         listBadWords = new JList();
