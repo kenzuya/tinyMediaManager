@@ -607,7 +607,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // STEP 1 - get (or create) TvShow object
       // ******************************
       TvShow tvShow = tvShowList.getTvShowByPath(showDir);
-      // FIXME: create a method to get a MF solely by constant name like
+
       // SHOW_NFO or SEASON_BANNER
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate
       if (tvShow == null) {
@@ -1007,7 +1007,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           for (int epnr : result.episodes) {
             // get any assigned episode
             List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);
-            if (!eps.isEmpty()) {
+            if (eps.size() == 1) {
+              // just one episode for that S/E found -> we can blindly assign it
+              eps.get(0).addToMediaFiles(mf);
+            }
+            else if (eps.size() > 1) {
               for (TvShowEpisode ep : eps) {
                 String episodeBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(ep.getMainVideoFile().getFilename()));
                 // okay, at least one existing episode found.. just check if there is the same base name without stacking markers
