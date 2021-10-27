@@ -1,5 +1,6 @@
 Version 4.2.3
 =======================
++ support for multiple trailers in the same language (forced, sdh, ...) #343 #1543
 + make trailer table sortable #1492
 + added a dedicated file name filter for video files #1509
 + updated libmediainfo to 21.09

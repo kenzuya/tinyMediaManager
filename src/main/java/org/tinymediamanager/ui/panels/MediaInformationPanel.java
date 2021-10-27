@@ -363,6 +363,13 @@ abstract public class MediaInformationPanel extends JPanel {
       }, String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
+
+      /*
+       * title
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.subtitle.getTitle(), String.class);
+      col.setColumnComparator(stringComparator);
+      addColumn(col);
     }
   }
 }

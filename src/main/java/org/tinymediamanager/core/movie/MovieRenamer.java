@@ -184,23 +184,27 @@ public class MovieRenamer {
       String additional = "";
       List<MediaFileSubtitle> mfsl = sub.getSubtitles();
 
-      if (mfsl != null && !mfsl.isEmpty()) {
+      if (ListUtils.isNotEmpty(mfsl)) {
         // use internal values
         MediaFileSubtitle mfs = mfsl.get(0);
         originalLang = mfs.getLanguage();
-        if (mfs.isForced()) {
+
+        if (StringUtils.isNotBlank(mfs.getTitle())) {
+          additional = "." + mfs.getTitle().replace(" ", ".");
+        }
+        if (mfs.isForced() && !additional.contains(".forced")) {
           additional = ".forced";
         }
-        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
+        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED) && !(additional.contains(".sdh") || additional.contains(".cc"))) {
           additional += ".sdh"; // double possible?!
         }
       }
       else {
+        /** SHOULD NOT BE NEEDED ANY MORE?! **/
         // detect from filename, if we don't have a MediaFileSubtitle entry!
         // remove the filename of movie from subtitle, to ease parsing
-        List<MediaFile> mfs = m.getMediaFiles(MediaFileType.VIDEO);
         String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
-        if (ListUtils.isNotEmpty(mfs)) {
+        if (ListUtils.isNotEmpty(m.getMediaFiles(MediaFileType.VIDEO))) {
           shortname = sub.getBasename().toLowerCase(Locale.ROOT).replace(m.getVideoBasenameWithoutStacking(), "");
         }
 
@@ -237,11 +241,12 @@ public class MovieRenamer {
 
       // rebuild new filename
       String newSubName = "";
+      String basename = "";
 
       if (sub.getStacking() == 0) {
         // fine, so match to first movie file
         MediaFile mf = m.getMediaFiles(MediaFileType.VIDEO).get(0);
-        newSubName = mf.getBasename();
+        basename = newSubName = mf.getBasename();
         if (!lang.isEmpty()) {
           newSubName += "." + lang;
         }
@@ -251,11 +256,13 @@ public class MovieRenamer {
         // with stacking info; try to match
         for (MediaFile mf : m.getMediaFiles(MediaFileType.VIDEO)) {
           if (mf.getStacking() == sub.getStacking()) {
-            newSubName = mf.getBasename();
+            basename = newSubName = mf.getBasename();
             if (!lang.isEmpty()) {
               newSubName += "." + lang;
             }
             newSubName += additional;
+
+            break;
           }
         }
       }
@@ -277,17 +284,9 @@ public class MovieRenamer {
             }
           }
           m.removeFromMediaFiles(sub);
-          MediaFile mf = new MediaFile(newFile);
-          MediaFileSubtitle mfs = new MediaFileSubtitle();
-          if (!lang.isEmpty()) {
-            mfs.setLanguage(lang);
-          }
-          if (!additional.isEmpty()) {
-            mfs.setForced(true);
-          }
-          mfs.setCodec(sub.getExtension());
-          mf.setContainerFormat(sub.getExtension()); // set containerformat, so mediainfo deos not overwrite our new array
-          mf.addSubtitle(mfs);
+
+          MediaFile mf = new MediaFile(sub);
+          mf.setFile(newFile);
           m.addToMediaFiles(mf);
         }
         else {

@@ -673,8 +673,8 @@ public class MediaFileEditorPanel extends JPanel {
     Property mediaFileSubtitleBeanProperty = BeanProperty.create("language");
     jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty).setColumnName("Language").setColumnClass(String.class);
     //
-    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("forced");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Forced").setColumnClass(Boolean.class);
+    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("title");
+    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Title").setColumnClass(String.class);
     //
     jTableBinding_2.bind();
     //

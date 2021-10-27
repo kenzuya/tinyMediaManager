@@ -1613,11 +1613,19 @@ public class MediaFileHelper {
     List<String> splitted = ParserUtils.splitByPunctuation(shortname);
     if (splitted.contains("forced")) {
       sub.setForced(true);
+      sub.set(Flags.FLAG_FORCED);
+      sub.setTitle("forced");
       shortname = shortname.replaceAll("\\p{Punct}*forced", "");
     }
     if (splitted.contains("sdh")) {
       sub.set(Flags.FLAG_HEARING_IMPAIRED);
+      sub.setTitle("sdh");
       shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
+    }
+    else if (splitted.contains("cc")) { // basically the same as sdh
+      sub.set(Flags.FLAG_HEARING_IMPAIRED);
+      sub.setTitle("cc");
+      shortname = shortname.replaceAll("\\p{Punct}*cc", "");
     }
     sub.setLanguage(parseLanguageFromString(shortname));
 
@@ -2703,5 +2711,64 @@ public class MediaFileHelper {
     }
 
     return mediaFile.getFileAsPath();
+  }
+
+  /**
+   * Try to parse the language out of the filename. This happens (like in Kodi) to chop the filename into different chunks and search in the chunks
+   * for possible language tags.<br />
+   * To make this work flawless we need to chop out the "main" filename part (movie/episode video filename) and look into the rest. For this we need
+   * to pass the basename of the main video file to this method too.<br />
+   * This is only usable for audio and subtitle files
+   *
+   * @param mediaFile
+   *          the {@link MediaFile} to work with
+   * @param commonPart
+   *          the common part of the filename which is shared with the video file
+   */
+  public static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
+    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
+      return;
+    }
+
+    String shortname = mediaFile.getBasename();
+
+    shortname = shortname.replace(commonPart, "");
+
+    // split the shortname into chunks and search from the end to the beginning for the language
+    List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+
+    String language = "";
+    int languageIndex = 0;
+    String title = "";
+
+    for (int i = chunks.size() - 1; i >= 0; i--) {
+      language = LanguageUtils.parseLanguageFromString(chunks.get(i));
+      if (StringUtils.isNotBlank(language)) {
+        languageIndex = i;
+        break;
+      }
+    }
+
+    if (languageIndex < chunks.size() - 1) {
+      // the language index was not the last chunk. Save the part between the language index and the last chunk as title
+      title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+    }
+
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
+      if (StringUtils.isBlank(sub.getLanguage())) {
+        sub.setLanguage(language);
+      }
+      sub.setTitle(title);
+    }
+    else if (mediaFile.getType() == MediaFileType.AUDIO) {
+      MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
+      if (StringUtils.isBlank(audio.getLanguage())) {
+        audio.setLanguage(language);
+      }
+      if (StringUtils.isBlank(audio.getTitle())) {
+        audio.setAudioTitle(title);
+      }
+    }
   }
 }

@@ -47,6 +47,9 @@ public class MediaStreamInfo extends AbstractModelObject {
   @JsonProperty
   protected String     language    = "";
   @JsonProperty
+  protected String     title       = "";
+
+  @JsonProperty
   protected Set<Flags> streamFlags = EnumSet.noneOf(Flags.class);
 
   // the stream id for locally mixin in DVD information
@@ -66,6 +69,14 @@ public class MediaStreamInfo extends AbstractModelObject {
 
   public void setLanguage(String language) {
     this.language = language;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public boolean has(Flags flag) {

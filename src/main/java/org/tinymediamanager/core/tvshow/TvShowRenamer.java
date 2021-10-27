@@ -54,6 +54,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
@@ -1156,13 +1157,25 @@ public class TvShowRenamer {
               }
               subtitleFilename = newFilename + "." + lang;
             }
-            if (mfs.isForced()) {
-              subtitleFilename = newFilename + ".forced";
+
+            String additional = "";
+
+            if (StringUtils.isNotBlank(mfs.getTitle())) {
+              additional = "." + mfs.getTitle().replace(" ", ".");
             }
+            if (mfs.isForced() && !additional.contains(".forced")) {
+              additional = ".forced";
+            }
+            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED) && !(additional.contains(".sdh") || additional.contains(".cc"))) {
+              additional += ".sdh"; // double possible?!
+            }
+
+            subtitleFilename += additional;
           }
         }
 
         if (StringUtils.isBlank(subtitleFilename)) {
+          /** SHOULD NOT BE NEEDED ANY MORE?! **/
           // detect from filename, if we don't have a MediaFileSubtitle entry or could not create a file name out of it!
           // remove the filename of episode from subtitle, to ease parsing
           String shortname = mf.getBasename().toLowerCase(Locale.ROOT).replace(eps.get(0).getVideoBasenameWithoutStacking(), "");

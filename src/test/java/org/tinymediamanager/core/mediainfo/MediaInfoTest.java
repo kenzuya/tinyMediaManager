@@ -19,12 +19,11 @@ package org.tinymediamanager.core.mediainfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_HSBS;
 import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_SBS;
+import static org.tinymediamanager.core.MediaFileHelper.gatherLanguageInformation;
 
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Locale;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.TmmOsUtils;
@@ -34,7 +33,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
-import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
 public class MediaInfoTest extends BasicTest {
@@ -474,77 +472,34 @@ public class MediaInfoTest extends BasicTest {
   @Test
   public void testSubtitleLanguageDetection() throws Exception {
     compareSubtitle("en.srt", "eng");
-    compareSubtitle("eng_sdh.srt", "eng");
+    compareSubtitle("eng_sdh.srt", "eng", "sdh");
     compareSubtitle("moviename.en.srt", "eng");
-    compareSubtitle("moviename.en.forced.srt", "eng");
+    compareSubtitle("moviename.en.forced.srt", "eng", "forced");
     compareSubtitle("moviename.eng.srt", "eng");
     compareSubtitle("moviename.german.srt", "deu");
     compareSubtitle("moviename.Deutsch.srt", "deu");
     compareSubtitle("moviename.eng_hi.srt", "hin"); // yeah not eng since the string ends with a valid language code :/
-    compareSubtitle("moviename.eng_sdh.srt", "eng");
-    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu");
-    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu");
+    compareSubtitle("moviename.eng_sdh.srt", "eng", "sdh");
+    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu", "dTV XViD"); // shit in, shit out
+    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu", "waf com cn hk"); // shit in, shit out
     compareSubtitle("movie.name.year.pt-br.srt", "pob");
-  }
-
-  /**
-   * Try to parse the language out of the filename. This happens (like in Kodi) to chop the filename into different chunks and search in the chunks
-   * for possible language tags.<br />
-   * To make this work flawless we need to chop out the "main" filename part (movie/episode video filename) and look into the rest. For this we need
-   * to pass the basename of the main video file to this method too.<br />
-   * This is only usable for audio and subtitle files
-   *
-   * @param mediaFile
-   *          the {@link MediaFile} to work with
-   * @param commonPart
-   *          the common part of the filename which is shared with the video file
-   */
-  private static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
-    // FIXME: if finished, this should move to MediaFileHelper
-    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
-      return;
-    }
-
-    String filename = mediaFile.getFilename();
-    String path = mediaFile.getPath();
-
-    String shortname = mediaFile.getBasename().toLowerCase(Locale.ROOT);
-
-    shortname = shortname.replace(commonPart, "");
-    shortname = shortname.replaceAll("\\p{Punct}*forced", "");
-
-    // split the shortname into chunks and search from the end to the beginning for the language
-    String[] chunks = shortname.split("[ \\._\\-]");
-
-    String language = "";
-    for (int i = chunks.length - 1; i >= 0; i--) {
-      language = LanguageUtils.parseLanguageFromString(chunks[i]);
-      if (StringUtils.isNotBlank(language)) {
-        break;
-      }
-    }
-
-    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-      MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
-      if (StringUtils.isBlank(sub.getLanguage())) {
-        sub.setLanguage(language);
-      }
-    }
-    else if (mediaFile.getType() == MediaFileType.AUDIO) {
-      MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
-      if (StringUtils.isBlank(audio.getLanguage())) {
-        audio.setLanguage(language);
-      }
-    }
+    compareSubtitle("moviename.german-director.srt", "deu", "director");
+    compareSubtitle("moviename.english-director.srt", "eng", "director");
+    compareSubtitle("moviename.srt", "");
   }
 
   private void compareSubtitle(String filename, String expectedLanguage) throws Exception {
+    compareSubtitle(filename, expectedLanguage, "");
+  }
+
+  private void compareSubtitle(String filename, String expectedLanguage, String expectedTitle) throws Exception {
     MediaFile mf = new MediaFile(Paths.get("target/test-classes/subtitles/" + filename));
     mf.gatherMediaInformation();
     gatherLanguageInformation(mf, "moviename");
     assertThat(mf.getType()).isEqualTo(MediaFileType.SUBTITLE);
     assertThat(mf.getSubtitles()).isNotEmpty();
     assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo(expectedLanguage);
+    assertThat(mf.getSubtitles().get(0).getTitle()).isEqualTo(expectedTitle);
   }
 
   // @Test

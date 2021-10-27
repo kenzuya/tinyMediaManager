@@ -30,6 +30,7 @@ import static org.tinymediamanager.core.MediaFileType.GRAPHIC;
 import static org.tinymediamanager.core.MediaFileType.KEYART;
 import static org.tinymediamanager.core.MediaFileType.LOGO;
 import static org.tinymediamanager.core.MediaFileType.POSTER;
+import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
@@ -1130,8 +1131,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // sort the given media files to bring the video to the front
     mediaFiles.sort(new MovieMediaFileComparator());
 
-    // remember the first video file
+    // remember the first video file (existing first)
     MediaFile mainVideoFile = null;
+
+    if (!movie.getMediaFiles(VIDEO).isEmpty()) {
+      mainVideoFile = movie.getMainVideoFile();
+    }
 
     for (MediaFile mf : mediaFiles) {
       if (!current.contains(mf)) { // a new mediafile was found!
