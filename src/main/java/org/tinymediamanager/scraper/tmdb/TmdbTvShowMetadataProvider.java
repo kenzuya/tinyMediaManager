@@ -44,13 +44,11 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -60,6 +58,23 @@ import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
+import org.tinymediamanager.scraper.tmdb.entities.BaseCompany;
+import org.tinymediamanager.scraper.tmdb.entities.BaseKeyword;
+import org.tinymediamanager.scraper.tmdb.entities.BaseTvEpisode;
+import org.tinymediamanager.scraper.tmdb.entities.BaseTvShow;
+import org.tinymediamanager.scraper.tmdb.entities.CastMember;
+import org.tinymediamanager.scraper.tmdb.entities.ContentRating;
+import org.tinymediamanager.scraper.tmdb.entities.CrewMember;
+import org.tinymediamanager.scraper.tmdb.entities.FindResults;
+import org.tinymediamanager.scraper.tmdb.entities.Genre;
+import org.tinymediamanager.scraper.tmdb.entities.Image;
+import org.tinymediamanager.scraper.tmdb.entities.TvEpisode;
+import org.tinymediamanager.scraper.tmdb.entities.TvSeason;
+import org.tinymediamanager.scraper.tmdb.entities.TvShow;
+import org.tinymediamanager.scraper.tmdb.entities.TvShowResultsPage;
+import org.tinymediamanager.scraper.tmdb.enumerations.AppendToResponseItem;
+import org.tinymediamanager.scraper.tmdb.enumerations.ExternalSource;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -67,31 +82,13 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
-import com.uwetrottmann.tmdb2.entities.AppendToResponse;
-import com.uwetrottmann.tmdb2.entities.BaseCompany;
-import com.uwetrottmann.tmdb2.entities.BaseKeyword;
-import com.uwetrottmann.tmdb2.entities.BaseTvEpisode;
-import com.uwetrottmann.tmdb2.entities.BaseTvShow;
-import com.uwetrottmann.tmdb2.entities.CastMember;
-import com.uwetrottmann.tmdb2.entities.ContentRating;
-import com.uwetrottmann.tmdb2.entities.CrewMember;
-import com.uwetrottmann.tmdb2.entities.FindResults;
-import com.uwetrottmann.tmdb2.entities.Genre;
-import com.uwetrottmann.tmdb2.entities.Image;
-import com.uwetrottmann.tmdb2.entities.TvEpisode;
-import com.uwetrottmann.tmdb2.entities.TvSeason;
-import com.uwetrottmann.tmdb2.entities.TvShow;
-import com.uwetrottmann.tmdb2.entities.TvShowResultsPage;
-import com.uwetrottmann.tmdb2.enumerations.AppendToResponseItem;
-import com.uwetrottmann.tmdb2.enumerations.ExternalSource;
-import com.uwetrottmann.tmdb2.exceptions.TmdbNotFoundException;
-
 import retrofit2.Response;
 
 public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     implements ITvShowMetadataProvider, ITvShowTmdbMetadataProvider, ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider {
-  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
-  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
+  private static final Logger                                LOGGER                      = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP      = new CacheMap<>(600, 5);
+  private static final CacheMap<Integer, String>             ORIGINAL_LANGUAGE_CACHE_MAP = new CacheMap<>(600, 5);
 
   @Override
   protected MediaProviderInfo createMediaProviderInfo() {
@@ -313,7 +310,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
         }
         for (TvEpisode episode : ListUtils.nullSafe(seasonResponse.body().episodes)) {
           // season does not send translations, get em only with full episode scrape
-          // verifyTvEpisodeTitleLanguage(options, season, episode)) {
+          // verifyTvEpisodeTitleLanguage(episode, options);
           seasonEpisodes.add(morphTvEpisodeToMediaMetadata(episode));
         }
         episodes.addAll(seasonEpisodes);
@@ -384,9 +381,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       }
       complete = httpResponse.body();
       injectTranslations(Locale.forLanguageTag(language), complete);
-    }
-    catch (TmdbNotFoundException e) {
-      LOGGER.info("nothing found");
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
@@ -638,59 +632,54 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     // get the data from tmdb
     TvEpisode episode = null;
     TvSeason fullSeason = null;
-    synchronized (api) {
-      // get episode via season listing -> improves caching performance
-      try {
-        Response<TvSeason> seasonResponse = api.tvSeasonsService()
-            .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS))
-            .execute();
-        if (!seasonResponse.isSuccessful()) {
-          throw new HttpException(seasonResponse.code(), seasonResponse.message());
+    // get episode via season listing -> improves caching performance
+    try {
+      Response<TvSeason> seasonResponse = api.tvSeasonsService()
+          .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS))
+          .execute();
+      if (!seasonResponse.isSuccessful()) {
+        throw new HttpException(seasonResponse.code(), seasonResponse.message());
+      }
+      fullSeason = seasonResponse.body();
+      for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
+        if (MetadataUtil.unboxInteger(ep.season_number, -1) == seasonNr && MetadataUtil.unboxInteger(ep.episode_number, -1) == episodeNr) {
+          episode = ep;
+          break;
         }
-        fullSeason = seasonResponse.body();
-        for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
-          if (MetadataUtil.unboxInteger(ep.season_number, -1) == seasonNr && MetadataUtil.unboxInteger(ep.episode_number, -1) == episodeNr) {
-            episode = ep;
-            break;
-          }
-        }
+      }
 
-        // not found? try to match by date
-        if (episode == null && !aired.isEmpty()) {
-          for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
-            if (ep.air_date != null) {
-              Format formatter = new SimpleDateFormat("yyyy-MM-dd");
-              String epAired = formatter.format(ep.air_date);
-              if (epAired.equals(aired)) {
-                episode = ep;
-                break;
-              }
+      // not found? try to match by date
+      if (episode == null && !aired.isEmpty()) {
+        for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
+          if (ep.air_date != null) {
+            Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+            String epAired = formatter.format(ep.air_date);
+            if (epAired.equals(aired)) {
+              episode = ep;
+              break;
             }
           }
         }
+      }
 
-        // get full episode data
-        if (episode != null) {
-          Response<TvEpisode> episodeResponse = api.tvEpisodesService()
-              .episode(tmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), language,
-                  new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS,
-                      AppendToResponseItem.IMAGES))
-              .execute();
+      // get full episode data
+      if (episode != null) {
+        Response<TvEpisode> episodeResponse = api.tvEpisodesService()
+            .episode(tmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), language,
+                new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS,
+                    AppendToResponseItem.IMAGES))
+            .execute();
 
-          if (!episodeResponse.isSuccessful()) {
-            throw new HttpException(seasonResponse.code(), seasonResponse.message());
-          }
-          episode = episodeResponse.body();
-          verifyTvEpisodeTitleLanguage(episode, options);
+        if (!episodeResponse.isSuccessful()) {
+          throw new HttpException(seasonResponse.code(), seasonResponse.message());
         }
+        episode = episodeResponse.body();
+        injectTranslations(Locale.forLanguageTag(language), episode, tmdbId);
       }
-      catch (TmdbNotFoundException e) {
-        LOGGER.info("nothing found");
-      }
-      catch (Exception e) {
-        LOGGER.debug("failed to get meta data: {}", e.getMessage());
-        throw new ScrapeException(e);
-      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (episode == null || fullSeason == null) {
@@ -715,6 +704,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     md.setTitle(episode.name);
+    md.setOriginalTitle(episode.originalName);
     md.setPlot(episode.overview);
 
     if (MetadataUtil.unboxInteger(episode.vote_count, 0) > 0) {
@@ -976,42 +966,41 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
   }
 
   /**
-   * Language Fallback Mechanism - For TV Episode
-   *
-   * @param query
-   *          the query options
-   * @param episode
-   *          the original tv episode
+   * Fallback Language Mechanism - for direct TMDB lookup<br>
+   * Title/Overview always gets returned in the original language, if translation has not been found.<br>
+   * So we never know exactly what is missing.. so we just inject everything here by hand if a fallback language has been found
    */
-  private void verifyTvEpisodeTitleLanguage(BaseTvEpisode episode, MediaSearchAndScrapeOptions query) {
-    int seasonNr = query.getIdAsInt(MediaMetadata.SEASON_NR);
-    int episodeNr = query.getIdAsInt(MediaMetadata.EPISODE_NR);
+  private void injectTranslations(Locale language, TvEpisode episode, int showId) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
+      Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
+      // get in desired localization
+      String[] val = getValuesFromTranslation(episode.translations, language);
 
-    if (episode != null && (StringUtils.isAnyBlank(episode.name, episode.overview) || isEpisodesNameDefault(episode, episodeNr)
-        || getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
-
-      String languageFallback = MediaLanguages.get(getProviderInfo().getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
-
-      try {
-        TvEpisode ep = api.tvEpisodesService()
-            .episode(query.getTmdbId(), episode.season_number, episode.episode_number, languageFallback)
-            .execute()
-            .body();
-        if (ep != null) {
-          if ((ep.season_number == seasonNr || ep.episode_number.equals(episode.season_number))
-              && (ep.episode_number == episodeNr || ep.episode_number.equals(episode.episode_number))) {
-
-            if (StringUtils.isBlank(episode.name) || (isEpisodesNameDefault(episode, episodeNr) && !isEpisodesNameDefault(ep, episodeNr))) {
-              episode.name = ep.name;
-            }
-            if (StringUtils.isBlank(episode.overview)) {
-              episode.overview = ep.overview;
-            }
-          }
-        }
+      // merge empty ones with fallback
+      String[] temp = getValuesFromTranslation(episode.translations, fallbackLanguage);
+      if (StringUtils.isBlank(val[0])) {
+        val[0] = temp[0];
       }
-      catch (Exception ignored) {
+      if (StringUtils.isBlank(val[1])) {
+        val[1] = temp[1];
+      }
 
+      // finally SET the values
+      // if the original episode title from the response starts with "Episode" is might be not translated
+      if ((StringUtils.isBlank(episode.name) || isEpisodesNameDefault(episode, episode.episode_number)) && StringUtils.isNotBlank(val[0])) {
+        episode.name = val[0];
+      }
+      if (StringUtils.isNotBlank(val[1])) {
+        episode.overview = val[1];
+      }
+    }
+
+    // parse the original title
+    String originalLanguage = getOriginalLanguage(showId);
+    if (StringUtils.isNotBlank(originalLanguage)) {
+      String[] val = getValuesFromTranslation(episode.translations, Locale.forLanguageTag(originalLanguage));
+      if (StringUtils.isNotBlank(val[0])) {
+        episode.originalName = val[0];
       }
     }
   }
@@ -1085,6 +1074,33 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     return result;
+  }
+
+  private String getOriginalLanguage(int tmdbId) {
+    String cache = ORIGINAL_LANGUAGE_CACHE_MAP.get(tmdbId);
+    if (StringUtils.isNotBlank(cache)) {
+      return cache;
+    }
+
+    String originalLanguage = "";
+    try {
+      Response<TvShow> httpResponse = api.tvService().tv(tmdbId, null).execute();
+      if (!httpResponse.isSuccessful()) {
+        return "";
+      }
+      TvShow complete = httpResponse.body();
+      if (StringUtils.isNotBlank(complete.original_language)) {
+        originalLanguage = complete.original_language;
+      }
+    }
+    catch (Exception e) {
+      originalLanguage = "";
+    }
+    finally {
+      ORIGINAL_LANGUAGE_CACHE_MAP.put(tmdbId, originalLanguage);
+    }
+
+    return originalLanguage;
   }
 
   /**

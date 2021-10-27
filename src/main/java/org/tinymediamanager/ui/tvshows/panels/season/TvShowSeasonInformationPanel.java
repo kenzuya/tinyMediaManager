@@ -24,12 +24,12 @@ import static org.tinymediamanager.core.Constants.THUMB;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Locale;
 
-import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -49,6 +49,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -57,6 +58,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.tvshows.TvShowSeasonSelectionModel;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -71,8 +73,11 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowSeasonInformationPanel extends JPanel {
-  private static final long                  serialVersionUID = 1911808562993073590L;
+public class TvShowSeasonInformationPanel extends InformationPanel {
+  private static final long                  serialVersionUID       = 1911808562993073590L;
+
+  private static final String                LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
+  private static final String                LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";
 
   private Color                              defaultColor;
   private Color                              dummyColor;
@@ -80,12 +85,6 @@ public class TvShowSeasonInformationPanel extends JPanel {
   private final EventList<TvShowEpisode>     episodeEventList;
   private final TmmTableModel<TvShowEpisode> episodeTableModel;
   private final TvShowSeasonSelectionModel   tvShowSeasonSelectionModel;
-  private ImageLabel                         lblTvShowPoster;
-  private JLabel                             lblPosterSize;
-  private ImageLabel                         lblTvShowBanner;
-  private JLabel                             lblBannerSize;
-  private ImageLabel                         lblTvShowThumb;
-  private JLabel                             lblThumbSize;
   private JLabel                             lblTvshowTitle;
   private JLabel                             lblSeason;
   private TmmTable                           tableEpisodes;
@@ -159,38 +158,23 @@ public class TvShowSeasonInformationPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[grow]"));
+    setLayout(new MigLayout("", LAYOUT_ARTWORK_VISIBLE, "[grow]"));
 
     {
       JPanel panelLeft = new JPanel();
       add(panelLeft, "cell 0 0,grow");
       panelLeft.setLayout(new ColumnLayout());
+      for (Component component : generateArtworkComponents(MediaFileType.SEASON_POSTER)) {
+        panelLeft.add(component);
+      }
 
-      lblTvShowPoster = new ImageLabel(false, false, true);
-      lblTvShowPoster.setDesiredAspectRatio(2 / 3.0f);
-      lblTvShowPoster.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowPoster);
-      lblTvShowPoster.enableLightbox();
-      lblPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.poster"));
-      panelLeft.add(lblPosterSize);
-      panelLeft.add(Box.createVerticalStrut(20));
+      for (Component component : generateArtworkComponents(MediaFileType.SEASON_BANNER)) {
+        panelLeft.add(component);
+      }
 
-      lblTvShowThumb = new ImageLabel(false, false, true);
-      lblTvShowThumb.setDesiredAspectRatio(16 / 9.0f);
-      lblTvShowThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowThumb);
-      lblTvShowThumb.enableLightbox();
-      lblThumbSize = new JLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
-      panelLeft.add(lblThumbSize);
-      panelLeft.add(Box.createVerticalStrut(20));
-
-      lblTvShowBanner = new ImageLabel(false, false, true);
-      lblTvShowBanner.setDesiredAspectRatio(25 / 8.0f);
-      lblTvShowBanner.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowBanner);
-      lblTvShowBanner.enableLightbox();
-      lblBannerSize = new JLabel(TmmResourceBundle.getString("mediafiletype.banner"));
-      panelLeft.add(lblBannerSize);
+      for (Component component : generateArtworkComponents(MediaFileType.SEASON_THUMB)) {
+        panelLeft.add(component);
+      }
     }
     {
       JPanel panelRight = new JPanel();
@@ -228,8 +212,6 @@ public class TvShowSeasonInformationPanel extends JPanel {
   }
 
   private void setPoster(TvShowSeason season) {
-    lblTvShowPoster.clearImage();
-
     String posterPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     Dimension posterSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
 
@@ -238,19 +220,11 @@ public class TvShowSeasonInformationPanel extends JPanel {
       posterPath = season.getTvShow().getArtworkFilename(MediaFileType.POSTER);
       posterSize = season.getTvShow().getArtworkDimension(MediaFileType.POSTER);
     }
-    lblTvShowPoster.setImagePath(posterPath);
 
-    if (posterSize.width > 0 && posterSize.height > 0) {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
-    }
-    else {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster"));
-    }
+    setArtwork(MediaFileType.SEASON_POSTER, posterPath, posterSize);
   }
 
   private void setBanner(TvShowSeason season) {
-    lblTvShowBanner.clearImage();
-
     String bannerPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER);
     Dimension bannerSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_BANNER);
 
@@ -260,18 +234,10 @@ public class TvShowSeasonInformationPanel extends JPanel {
       bannerSize = season.getTvShow().getArtworkDimension(MediaFileType.BANNER);
     }
 
-    lblTvShowBanner.setImagePath(bannerPath);
-    if (bannerSize.width > 0 && bannerSize.height > 0) {
-      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner") + " - " + bannerSize.width + "x" + bannerSize.height);
-    }
-    else {
-      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner"));
-    }
+    setArtwork(MediaFileType.SEASON_BANNER, bannerPath, bannerSize);
   }
 
   private void setThumb(TvShowSeason season) {
-    lblTvShowThumb.clearImage();
-
     String thumbPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB);
     Dimension thumbSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_THUMB);
 
@@ -280,12 +246,54 @@ public class TvShowSeasonInformationPanel extends JPanel {
       thumbSize = season.getTvShow().getArtworkDimension(MediaFileType.FANART);
     }
 
-    lblTvShowThumb.setImagePath(thumbPath);
-    if (thumbSize.width > 0 && thumbSize.height > 0) {
-      lblThumbSize.setText(TmmResourceBundle.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height);
+    setArtwork(MediaFileType.SEASON_THUMB, thumbPath, thumbSize);
+
+  }
+
+  private void setArtwork(MediaFileType type, String artworkPath, Dimension artworkDimension) {
+    List<Component> components = artworkComponents.get(type);
+    if (ListUtils.isEmpty(components)) {
+      return;
+    }
+
+    boolean visible = getShowArtworkFromSettings().contains(type);
+
+    for (Component component : components) {
+      component.setVisible(visible);
+
+      if (component instanceof ImageLabel) {
+        ImageLabel imageLabel = (ImageLabel) component;
+        imageLabel.clearImage();
+        imageLabel.setImagePath(artworkPath);
+      }
+      else if (component instanceof JLabel) {
+        JLabel sizeLabel = (JLabel) component;
+
+        if (artworkDimension.width > 0 && artworkDimension.height > 0) {
+          sizeLabel.setText(TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT)) + " - " + artworkDimension.width
+              + "x" + artworkDimension.height);
+        }
+        else {
+          sizeLabel.setText(TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT)));
+        }
+      }
+    }
+
+    updateArtwork();
+  }
+
+  @Override
+  protected List<MediaFileType> getShowArtworkFromSettings() {
+    return TvShowModuleManager.getInstance().getSettings().getShowSeasonArtworkTypes();
+  }
+
+  @Override
+  protected void setColumnLayout(boolean artworkVisible) {
+    if (artworkVisible) {
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_VISIBLE);
     }
     else {
-      lblThumbSize.setText(TmmResourceBundle.getString("mediafiletype.thumb"));
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_HIDDEN);
     }
   }
 

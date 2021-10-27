@@ -87,7 +87,7 @@ public class TmmHttpClient {
 
     // timeouts
     builder.connectTimeout(60, TimeUnit.SECONDS);
-    builder.writeTimeout(30, TimeUnit.SECONDS);
+    builder.writeTimeout(60, TimeUnit.SECONDS);
     builder.readTimeout(60, TimeUnit.SECONDS);
 
     // proxy

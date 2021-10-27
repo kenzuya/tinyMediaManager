@@ -64,7 +64,7 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
-import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -263,7 +263,7 @@ public class MovieSetInformationPanel extends JPanel {
         JScrollPane scrollPaneOverview = new NoBorderScrollPane();
         panelRight.add(scrollPaneOverview, "cell 0 5,grow");
 
-        taOverview = new ReadOnlyTextPane();
+        taOverview = new ReadOnlyTextPaneHTML();
         scrollPaneOverview.setViewportView(taOverview);
       }
 
@@ -286,7 +286,7 @@ public class MovieSetInformationPanel extends JPanel {
         JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
         panelBottom.add(lblNoteT, "cell 0 1");
 
-        tpNote = new ReadOnlyTextPane();
+        tpNote = new ReadOnlyTextPaneHTML();
         panelBottom.add(tpNote, "cell 1 1,growx,wmin 0");
       }
       {

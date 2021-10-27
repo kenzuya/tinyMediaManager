@@ -1311,9 +1311,6 @@ public class MovieRenamer {
       newDestination = replacePathSeparators(newDestination);
     }
 
-    // replace multiple spaces with a single one
-    newDestination = newDestination.replaceAll(" +", " ").trim();
-
     // replace spaces with underscores if needed (filename only)
     if (forFilename && MovieModuleManager.getInstance().getSettings().isRenamerFilenameSpaceSubstitution()) {
       String replacement = MovieModuleManager.getInstance().getSettings().getRenamerFilenameSpaceReplacement();
@@ -1321,7 +1318,7 @@ public class MovieRenamer {
 
       // also replace now multiple replacements with one to avoid strange looking results
       // example:
-      // Abraham Lincoln - Vapire Hunter -> Abraham-Lincoln---Vampire-Hunter
+      // Abraham Lincoln - Vampire Hunter -> Abraham-Lincoln---Vampire-Hunter
       newDestination = newDestination.replaceAll(Pattern.quote(replacement) + "+", replacement);
     }
     else if (!forFilename && MovieModuleManager.getInstance().getSettings().isRenamerPathnameSpaceSubstitution()) {
@@ -1346,6 +1343,9 @@ public class MovieRenamer {
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
     newDestination = newDestination.replace(": ", " - "); // nicer
     newDestination = newDestination.replace(":", "-"); // nicer
+
+    // replace multiple spaces with a single one
+    newDestination = newDestination.replaceAll(" +", " ").trim();
 
     return newDestination.trim();
   }

@@ -32,6 +32,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
@@ -223,6 +224,7 @@ public final class MovieSettings extends AbstractSettings {
   final List<PostProcess>                   postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
+  final List<MediaFileType>                 showArtworkTypes                       = ObservableCollections.observableList(new ArrayList<>());
   boolean                                   showMovieTableTooltips                 = true;
   final List<String>                        ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   final List<MovieScraperMetadataConfig>    movieCheckMetadata                     = new ArrayList<>();
@@ -341,6 +343,11 @@ public final class MovieSettings extends AbstractSettings {
     setCertificationStyle(CertificationStyle.LARGE);
 
     // UI settings
+    showArtworkTypes.clear();
+    addShowArtworkTypes(MediaFileType.POSTER);
+    addShowArtworkTypes(MediaFileType.FANART);
+    addShowArtworkTypes(MediaFileType.THUMB);
+
     movieCheckMetadata.clear();
     addMovieCheckMetadata(MovieScraperMetadataConfig.ID);
     addMovieCheckMetadata(MovieScraperMetadataConfig.TITLE);
@@ -644,6 +651,23 @@ public final class MovieSettings extends AbstractSettings {
 
   public List<MovieDiscartNaming> getDiscartFilenames() {
     return new ArrayList<>(this.discartFilenames);
+  }
+
+  public void addShowArtworkTypes(MediaFileType type) {
+    if (!showArtworkTypes.contains(type)) {
+      showArtworkTypes.add(type);
+      firePropertyChange("showArtworkTypes", null, showArtworkTypes);
+    }
+  }
+
+  public void setShowArtworkTypes(List<MediaFileType> newTypes) {
+    showArtworkTypes.clear();
+    showArtworkTypes.addAll(newTypes);
+    firePropertyChange("showArtworkTypes", null, showArtworkTypes);
+  }
+
+  public List<MediaFileType> getShowArtworkTypes() {
+    return new ArrayList<>(showArtworkTypes);
   }
 
   public void clearMovieCheckMetadata() {

@@ -198,9 +198,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
       assertEquals("Harry Potter and the Philosopher's Stone", md.getTitle());
       assertEquals(2001, md.getYear());
-      assertEquals(
-          "Harry Potter has lived under the stairs at his aunt and uncle's house his whole life. But on his 11th birthday, he learns he's a powerful wizard -- with a place waiting for him at the Hogwarts School of Witchcraft and Wizardry. As he learns to harness his newfound powers with the help of the school's kindly headmaster, Harry uncovers the truth about his parents' deaths -- and about the villain who's to blame.",
-          md.getPlot());
+      assertThat(md.getPlot()).contains("Harry", "Potter", "Hogwarts");
       assertEquals("Let the Magic Begin.", md.getTagline());
       assertEquals(1241, (int) md.getId(MediaMetadata.TMDB_SET));
       assertEquals("Harry Potter Collection", md.getCollectionName());

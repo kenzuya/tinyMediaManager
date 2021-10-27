@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -266,6 +267,12 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::parseDescription);
       parseTag(Episode::parseCertificationInRating);
       parseTag(Episode::parseOriginalAirDate);
+      parseTag(Episode::parseGenres);
+
+      // fix the case where the title is in the description
+      if (StringUtils.isBlank(title) && StringUtils.isNotBlank(plot)) {
+        title = plot;
+      }
     }
 
     /**
@@ -937,7 +944,7 @@ public class TvShowEpisodeNfoParser {
         for (Element genre : elements) {
           if (StringUtils.isNotBlank(genre.ownText())) {
             // old style - single tag with delimiter
-            String[] split = genre.ownText().split("/");
+            String[] split = StringEscapeUtils.unescapeXml(genre.ownText()).split("[/&]");
             for (String sp : split) {
               genres.add(MediaGenres.getGenre(sp.trim()));
             }

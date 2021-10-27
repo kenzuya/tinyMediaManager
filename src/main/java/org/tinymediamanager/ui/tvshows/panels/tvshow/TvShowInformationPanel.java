@@ -21,18 +21,18 @@ import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.RATING;
+import static org.tinymediamanager.core.Constants.THUMB;
 
-import java.awt.Cursor;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,20 +54,22 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
+import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
 import org.tinymediamanager.ui.tvshows.TvShowOtherIdsConverter;
@@ -80,10 +82,13 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowInformationPanel extends JPanel {
-  private static final long          serialVersionUID = 1911808562993073590L;
+public class TvShowInformationPanel extends InformationPanel {
+  private static final long          serialVersionUID       = 1911808562993073590L;
 
-  private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
+  private static final Logger        LOGGER                 = LoggerFactory.getLogger(TvShowInformationPanel.class);
+
+  private static final String        LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
+  private static final String        LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";
 
   private final TvShowSelectionModel tvShowSelectionModel;
 
@@ -103,12 +108,6 @@ public class TvShowInformationPanel extends JPanel {
   private JLabel                     lblRuntime;
   private JTextPane                  taNote;
   private JLabel                     lblTvShowName;
-  private ImageLabel                 lblTvShowBackground;
-  private JLabel                     lblFanartSize;
-  private ImageLabel                 lblTvShowPoster;
-  private JLabel                     lblPosterSize;
-  private ImageLabel                 lblTvShowBanner;
-  private JLabel                     lblBannerSize;
   private JTextPane                  taOverview;
   private MediaInformationLogosPanel panelLogos;
   private JLabel                     lblOriginalTitle;
@@ -198,15 +197,19 @@ public class TvShowInformationPanel extends JPanel {
       TvShow tvShow = model.getSelectedTvShow();
 
       if ("selectedTvShow".equals(property) || POSTER.equals(property)) {
-        setPoster(tvShow);
+        setArtwork(tvShow, MediaFileType.POSTER);
       }
 
       if ("selectedTvShow".equals(property) || FANART.equals(property)) {
-        setFanart(tvShow);
+        setArtwork(tvShow, MediaFileType.FANART);
       }
 
       if ("selectedTvShow".equals(property) || BANNER.equals(property)) {
-        setBanner(tvShow);
+        setArtwork(tvShow, MediaFileType.BANNER);
+      }
+
+      if ("selectedTvShow".equals(property) || THUMB.equals(property)) {
+        setArtwork(tvShow, MediaFileType.THUMB);
       }
 
       if ("selectedTvShow".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
@@ -229,37 +232,27 @@ public class TvShowInformationPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[][grow]"));
+    setLayout(new MigLayout("", LAYOUT_ARTWORK_VISIBLE, "[][grow]"));
     {
       JPanel panelLeft = new JPanel();
       panelLeft.setLayout(new ColumnLayout());
       add(panelLeft, "cell 0 0 1 2,grow");
 
-      lblTvShowPoster = new ImageLabel(false, false, true);
-      lblTvShowPoster.setDesiredAspectRatio(2 / 3f);
-      lblTvShowPoster.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowPoster);
-      lblTvShowPoster.enableLightbox();
-      lblPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.poster"));
-      panelLeft.add(lblPosterSize);
-      panelLeft.add(Box.createVerticalStrut(20));
+      for (Component component : generateArtworkComponents(MediaFileType.POSTER)) {
+        panelLeft.add(component);
+      }
 
-      lblTvShowBackground = new ImageLabel(false, false, true);
-      lblTvShowBackground.setDesiredAspectRatio(16 / 9f);
-      lblTvShowBackground.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowBackground);
-      lblTvShowBackground.enableLightbox();
-      lblFanartSize = new JLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
-      panelLeft.add(lblFanartSize);
-      panelLeft.add(Box.createVerticalStrut(20));
+      for (Component component : generateArtworkComponents(MediaFileType.FANART)) {
+        panelLeft.add(component);
+      }
 
-      lblTvShowBanner = new ImageLabel(false, false, true);
-      lblTvShowBanner.setDesiredAspectRatio(25 / 8f);
-      lblTvShowBanner.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblTvShowBanner);
-      lblTvShowBanner.enableLightbox();
-      lblBannerSize = new JLabel(TmmResourceBundle.getString("mediafiletype.banner"));
-      panelLeft.add(lblBannerSize);
+      for (Component component : generateArtworkComponents(MediaFileType.BANNER)) {
+        panelLeft.add(component);
+      }
+
+      for (Component component : generateArtworkComponents(MediaFileType.THUMB)) {
+        panelLeft.add(component);
+      }
     }
     {
       JPanel panelTitle = new JPanel();
@@ -401,7 +394,7 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(lblPlot, "cell 0 6");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
-        taOverview = new ReadOnlyTextPane();
+        taOverview = new ReadOnlyTextPaneHTML();
         panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
       }
       {
@@ -430,46 +423,25 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 2");
 
-          taNote = new ReadOnlyTextPane();
+          taNote = new ReadOnlyTextPaneHTML();
           panelBottomDetails.add(taNote, "cell 1 2,growx,wmin 0");
         }
       }
     }
   }
 
-  private void setPoster(TvShow tvShow) {
-    lblTvShowPoster.clearImage();
-    lblTvShowPoster.setImagePath(tvShow.getArtworkFilename(MediaFileType.POSTER));
-    Dimension posterSize = tvShow.getArtworkDimension(MediaFileType.POSTER);
-    if (posterSize.width > 0 && posterSize.height > 0) {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
-    }
-    else {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster"));
-    }
+  @Override
+  protected List<MediaFileType> getShowArtworkFromSettings() {
+    return TvShowModuleManager.getInstance().getSettings().getShowTvShowArtworkTypes();
   }
 
-  private void setFanart(TvShow tvShow) {
-    lblTvShowBackground.clearImage();
-    lblTvShowBackground.setImagePath(tvShow.getArtworkFilename(MediaFileType.FANART));
-    Dimension fanartSize = tvShow.getArtworkDimension(MediaFileType.FANART);
-    if (fanartSize.width > 0 && fanartSize.height > 0) {
-      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
+  @Override
+  protected void setColumnLayout(boolean artworkVisible) {
+    if (artworkVisible) {
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_VISIBLE);
     }
     else {
-      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart"));
-    }
-  }
-
-  private void setBanner(TvShow tvShow) {
-    lblTvShowBanner.clearImage();
-    lblTvShowBanner.setImagePath(tvShow.getArtworkFilename(MediaFileType.BANNER));
-    Dimension bannerSize = tvShow.getArtworkDimension(MediaFileType.BANNER);
-    if (bannerSize.width > 0 && bannerSize.height > 0) {
-      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner") + " - " + bannerSize.width + "x" + bannerSize.height);
-    }
-    else {
-      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner"));
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_HIDDEN);
     }
   }
 

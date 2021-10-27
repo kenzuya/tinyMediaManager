@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +66,9 @@ class MovieDatasourceSettingsPanel extends JPanel {
 
   private JTextField          tfAddBadword;
   private JList<String>       listBadWords;
+  private JPanel              panelDatasources;
   private JList<String>       listDatasources;
+  private JPanel              panelIgnore;
   private JList<String>       listSkipFolder;
   private JButton             btnRemoveDatasource;
   private JButton             btnAddDatasource;
@@ -100,6 +103,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          panelDatasources.revalidate();
         }
       }
     });
@@ -109,6 +113,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       if (file != null && Files.isDirectory(file)) {
         settings.addMovieDataSources(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("movie.datasource.path", file.toAbsolutePath().toString());
+        panelDatasources.revalidate();
       }
     });
 
@@ -118,6 +123,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       if (file != null && Files.isDirectory(file)) {
         settings.addSkipFolder(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("movie.ignore.path", file.toAbsolutePath().toString());
+        panelIgnore.revalidate();
       }
     });
 
@@ -125,6 +131,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       String regexp = TmmUIHelper.showRegexpInputDialog(SwingUtilities.getWindowAncestor(this));
       if (StringUtils.isNotBlank(regexp)) {
         settings.addSkipFolder(regexp);
+        panelIgnore.revalidate();
       }
     });
 
@@ -133,6 +140,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       if (row != -1) { // nothing selected
         String ignore = settings.getSkipFolder().get(row);
         settings.removeSkipFolder(ignore);
+        panelIgnore.revalidate();
       }
     });
 
@@ -189,6 +197,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().exchangeMovieDatasource(path, dialog.getNewDatasource());
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          panelDatasources.revalidate();
         }
       }
     });
@@ -197,7 +206,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow][]"));
+      panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp:n][][grow]", "[150lp,grow][]"));
 
       JLabel lblDatasourcesT = new TmmLabel(TmmResourceBundle.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
@@ -205,6 +214,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
+        scrollPaneDataSources.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelDatasources.add(scrollPaneDataSources, "cell 1 0 1 2,grow");
 
         listDatasources = new JList();
@@ -234,7 +244,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
     }
 
     {
-      JPanel panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow]"));
+      panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow]"));
 
       JLabel lblIgnoreT = new TmmLabel(TmmResourceBundle.getString("Settings.ignore"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelIgnore, lblIgnoreT, true);
@@ -242,6 +252,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JScrollPane scrollPaneIgnore = new JScrollPane();
+        scrollPaneIgnore.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelIgnore.add(scrollPaneIgnore, "cell 1 0,grow");
 
         listSkipFolder = new JList();
@@ -262,7 +273,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
     }
 
     {
-      JPanel panelBadWords = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp][][grow]", "[][100lp,grow][]"));
+      JPanel panelBadWords = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp:n][][grow]", "[][100lp,grow][]"));
 
       JLabel lblBadWordsT = new TmmLabel(TmmResourceBundle.getString("Settings.movie.badwords"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelBadWords, lblBadWordsT, true);
@@ -273,6 +284,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
         panelBadWords.add(lblBadWordsDesc, "cell 1 0 3 1");
 
         JScrollPane scrollPaneBadWords = new JScrollPane();
+        scrollPaneBadWords.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panelBadWords.add(scrollPaneBadWords, "cell 1 1,grow");
 
         listBadWords = new JList();

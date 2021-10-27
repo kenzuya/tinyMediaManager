@@ -54,31 +54,29 @@ import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
+import org.tinymediamanager.scraper.tmdb.entities.BaseCollection;
+import org.tinymediamanager.scraper.tmdb.entities.BaseCompany;
+import org.tinymediamanager.scraper.tmdb.entities.BaseKeyword;
+import org.tinymediamanager.scraper.tmdb.entities.BaseMovie;
+import org.tinymediamanager.scraper.tmdb.entities.CastMember;
+import org.tinymediamanager.scraper.tmdb.entities.Collection;
+import org.tinymediamanager.scraper.tmdb.entities.CollectionResultsPage;
+import org.tinymediamanager.scraper.tmdb.entities.Country;
+import org.tinymediamanager.scraper.tmdb.entities.CrewMember;
+import org.tinymediamanager.scraper.tmdb.entities.FindResults;
+import org.tinymediamanager.scraper.tmdb.entities.Genre;
+import org.tinymediamanager.scraper.tmdb.entities.Movie;
+import org.tinymediamanager.scraper.tmdb.entities.MovieResultsPage;
+import org.tinymediamanager.scraper.tmdb.entities.ReleaseDate;
+import org.tinymediamanager.scraper.tmdb.entities.ReleaseDatesResult;
+import org.tinymediamanager.scraper.tmdb.entities.SpokenLanguage;
+import org.tinymediamanager.scraper.tmdb.enumerations.AppendToResponseItem;
+import org.tinymediamanager.scraper.tmdb.enumerations.ExternalSource;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RatingUtil;
-
-import com.uwetrottmann.tmdb2.entities.AppendToResponse;
-import com.uwetrottmann.tmdb2.entities.BaseCollection;
-import com.uwetrottmann.tmdb2.entities.BaseCompany;
-import com.uwetrottmann.tmdb2.entities.BaseKeyword;
-import com.uwetrottmann.tmdb2.entities.BaseMovie;
-import com.uwetrottmann.tmdb2.entities.CastMember;
-import com.uwetrottmann.tmdb2.entities.Collection;
-import com.uwetrottmann.tmdb2.entities.CollectionResultsPage;
-import com.uwetrottmann.tmdb2.entities.Country;
-import com.uwetrottmann.tmdb2.entities.CrewMember;
-import com.uwetrottmann.tmdb2.entities.FindResults;
-import com.uwetrottmann.tmdb2.entities.Genre;
-import com.uwetrottmann.tmdb2.entities.Movie;
-import com.uwetrottmann.tmdb2.entities.MovieResultsPage;
-import com.uwetrottmann.tmdb2.entities.ReleaseDate;
-import com.uwetrottmann.tmdb2.entities.ReleaseDatesResult;
-import com.uwetrottmann.tmdb2.entities.SpokenLanguage;
-import com.uwetrottmann.tmdb2.enumerations.AppendToResponseItem;
-import com.uwetrottmann.tmdb2.enumerations.ExternalSource;
-import com.uwetrottmann.tmdb2.exceptions.TmdbNotFoundException;
 
 import retrofit2.Response;
 
@@ -336,7 +334,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       }
     }
 
-    if (movie == null && tmdbId > 0) {
+    if (tmdbId > 0) {
       try {
         Response<Movie> httpResponse = api.moviesService()
             .summary(tmdbId, language,
@@ -348,9 +346,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         }
         movie = httpResponse.body();
         injectTranslations(Locale.forLanguageTag(language), movie);
-      }
-      catch (TmdbNotFoundException e) {
-        LOGGER.info("nothing found");
       }
       catch (Exception e) {
         LOGGER.warn("problem getting data from tmdb: {}", e.getMessage());
@@ -408,63 +403,59 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     String language = getRequestLanguage(options.getLanguage());
 
     Collection collection = null;
-    synchronized (api) {
-      try {
-        collection = api.collectionService().summary(tmdbId, language).execute().body();
-        // if collection title/overview is not availbale, rescrape in the fallback language
-        if (collection != null && (StringUtils.isBlank(collection.overview) || StringUtils.isBlank(collection.name))
-            && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
 
-          String fallbackLang = MediaLanguages.get(getProviderInfo().getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
-          Collection collectionInFallbackLanguage = api.collectionService().summary(tmdbId, fallbackLang).execute().body();
+    try {
+      collection = api.collectionService().summary(tmdbId, language).execute().body();
+      // if collection title/overview is not availbale, rescrape in the fallback language
+      if (collection != null && (StringUtils.isBlank(collection.overview) || StringUtils.isBlank(collection.name))
+          && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
 
-          if (collectionInFallbackLanguage != null) {
-            Collection collectionInDefaultLanguage = null;
-            if (StringUtils.isBlank(collectionInFallbackLanguage.name) || StringUtils.isBlank(collectionInFallbackLanguage.overview)) {
-              collectionInDefaultLanguage = api.collectionService().summary(tmdbId, null).execute().body();
+        String fallbackLang = MediaLanguages.get(getProviderInfo().getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
+        Collection collectionInFallbackLanguage = api.collectionService().summary(tmdbId, fallbackLang).execute().body();
 
-            }
+        if (collectionInFallbackLanguage != null) {
+          Collection collectionInDefaultLanguage = null;
+          if (StringUtils.isBlank(collectionInFallbackLanguage.name) || StringUtils.isBlank(collectionInFallbackLanguage.overview)) {
+            collectionInDefaultLanguage = api.collectionService().summary(tmdbId, null).execute().body();
 
-            if (StringUtils.isBlank(collection.name) && StringUtils.isNotBlank(collectionInFallbackLanguage.name)) {
-              collection.name = collectionInFallbackLanguage.name;
-            }
-            else if (StringUtils.isBlank(collection.name) && collectionInDefaultLanguage != null
-                && StringUtils.isNotBlank(collectionInDefaultLanguage.name)) {
-              collection.name = collectionInDefaultLanguage.name;
-            }
+          }
 
-            if (StringUtils.isBlank(collection.overview) && StringUtils.isNotBlank(collectionInFallbackLanguage.overview)) {
-              collection.overview = collectionInFallbackLanguage.overview;
-            }
-            else if (StringUtils.isBlank(collection.overview) && collectionInDefaultLanguage != null
-                && StringUtils.isNotBlank(collectionInDefaultLanguage.overview)) {
-              collection.overview = collectionInDefaultLanguage.overview;
-            }
+          if (StringUtils.isBlank(collection.name) && StringUtils.isNotBlank(collectionInFallbackLanguage.name)) {
+            collection.name = collectionInFallbackLanguage.name;
+          }
+          else if (StringUtils.isBlank(collection.name) && collectionInDefaultLanguage != null
+              && StringUtils.isNotBlank(collectionInDefaultLanguage.name)) {
+            collection.name = collectionInDefaultLanguage.name;
+          }
 
-            for (BaseMovie movie : collection.parts) {
-              for (BaseMovie fallbackMovie : collectionInFallbackLanguage.parts) {
-                if (movie.id.equals(fallbackMovie.id)) {
-                  if (StringUtils.isBlank(movie.overview) && !StringUtils.isBlank(fallbackMovie.overview)) {
-                    movie.overview = fallbackMovie.overview;
-                  }
-                  if (movie.title.equals(movie.original_title) && !movie.original_language.equals(options.getLanguage().getLanguage())
-                      && !StringUtils.isBlank(fallbackMovie.title)) {
-                    movie.title = fallbackMovie.title;
-                  }
-                  break;
+          if (StringUtils.isBlank(collection.overview) && StringUtils.isNotBlank(collectionInFallbackLanguage.overview)) {
+            collection.overview = collectionInFallbackLanguage.overview;
+          }
+          else if (StringUtils.isBlank(collection.overview) && collectionInDefaultLanguage != null
+              && StringUtils.isNotBlank(collectionInDefaultLanguage.overview)) {
+            collection.overview = collectionInDefaultLanguage.overview;
+          }
+
+          for (BaseMovie movie : collection.parts) {
+            for (BaseMovie fallbackMovie : collectionInFallbackLanguage.parts) {
+              if (movie.id.equals(fallbackMovie.id)) {
+                if (StringUtils.isBlank(movie.overview) && !StringUtils.isBlank(fallbackMovie.overview)) {
+                  movie.overview = fallbackMovie.overview;
                 }
+                if (movie.title.equals(movie.original_title) && !movie.original_language.equals(options.getLanguage().getLanguage())
+                    && !StringUtils.isBlank(fallbackMovie.title)) {
+                  movie.title = fallbackMovie.title;
+                }
+                break;
               }
             }
           }
         }
       }
-      catch (TmdbNotFoundException e) {
-        LOGGER.info("nothing found");
-      }
-      catch (Exception e) {
-        LOGGER.debug("failed to get meta data: {}", e.getMessage());
-        throw new ScrapeException(e);
-      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (collection == null) {

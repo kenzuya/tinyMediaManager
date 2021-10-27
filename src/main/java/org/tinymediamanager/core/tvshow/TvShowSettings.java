@@ -32,6 +32,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
@@ -218,6 +219,9 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        useMediainfoMetadata                   = false;
 
   // ui
+  final List<MediaFileType>                      showTvShowArtworkTypes                 = ObservableCollections.observableList(new ArrayList<>());
+  final List<MediaFileType>                      showSeasonArtworkTypes                 = ObservableCollections.observableList(new ArrayList<>());
+  final List<MediaFileType>                      showEpisodeArtworkTypes                = ObservableCollections.observableList(new ArrayList<>());
   boolean                                        displayMissingEpisodes                 = false;
   boolean                                        displayMissingSpecials                 = false;
   boolean                                        capitalWordsinTitles                   = false;
@@ -303,6 +307,20 @@ public final class TvShowSettings extends AbstractSettings {
 
     episodeThumbFilenames.clear();
     addEpisodeThumbFilename(TvShowEpisodeThumbNaming.FILENAME_THUMB);
+
+    showTvShowArtworkTypes.clear();
+    addShowTvShowArtworkTypes(MediaFileType.POSTER);
+    addShowTvShowArtworkTypes(MediaFileType.FANART);
+    addShowTvShowArtworkTypes(MediaFileType.BANNER);
+
+    showSeasonArtworkTypes.clear();
+    addShowSeasonArtworkTypes(MediaFileType.SEASON_POSTER);
+    addShowSeasonArtworkTypes(MediaFileType.SEASON_THUMB);
+    addShowSeasonArtworkTypes(MediaFileType.SEASON_BANNER);
+
+    showEpisodeArtworkTypes.clear();
+    addShowEpisodeArtworkTypes(MediaFileType.SEASON_POSTER);
+    addShowEpisodeArtworkTypes(MediaFileType.THUMB);
 
     tvShowCheckMetadata.clear();
     addTvShowCheckMetadata(TvShowScraperMetadataConfig.ID);
@@ -1720,5 +1738,56 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = doNotOverwriteExistingData;
     doNotOverwriteExistingData = newValue;
     firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
+  }
+
+  public void addShowTvShowArtworkTypes(MediaFileType type) {
+    if (!showTvShowArtworkTypes.contains(type)) {
+      showTvShowArtworkTypes.add(type);
+      firePropertyChange("showTvShowArtworkTypes", null, showTvShowArtworkTypes);
+    }
+  }
+
+  public void setShowTvShowArtworkTypes(List<MediaFileType> newTypes) {
+    showTvShowArtworkTypes.clear();
+    showTvShowArtworkTypes.addAll(newTypes);
+    firePropertyChange("showTvShowArtworkTypes", null, showTvShowArtworkTypes);
+  }
+
+  public List<MediaFileType> getShowTvShowArtworkTypes() {
+    return new ArrayList<>(showTvShowArtworkTypes);
+  }
+
+  public void addShowSeasonArtworkTypes(MediaFileType type) {
+    if (!showSeasonArtworkTypes.contains(type)) {
+      showSeasonArtworkTypes.add(type);
+      firePropertyChange("showSeasonArtworkTypes", null, showSeasonArtworkTypes);
+    }
+  }
+
+  public void setShowSeasonArtworkTypes(List<MediaFileType> newTypes) {
+    showSeasonArtworkTypes.clear();
+    showSeasonArtworkTypes.addAll(newTypes);
+    firePropertyChange("showSeasonArtworkTypes", null, showSeasonArtworkTypes);
+  }
+
+  public List<MediaFileType> getShowSeasonArtworkTypes() {
+    return new ArrayList<>(showSeasonArtworkTypes);
+  }
+
+  public void addShowEpisodeArtworkTypes(MediaFileType type) {
+    if (!showEpisodeArtworkTypes.contains(type)) {
+      showEpisodeArtworkTypes.add(type);
+      firePropertyChange("showEpisodeArtworkTypes", null, showEpisodeArtworkTypes);
+    }
+  }
+
+  public void setShowEpisodeArtworkTypes(List<MediaFileType> newTypes) {
+    showEpisodeArtworkTypes.clear();
+    showEpisodeArtworkTypes.addAll(newTypes);
+    firePropertyChange("showEpisodeArtworkTypes", null, showEpisodeArtworkTypes);
+  }
+
+  public List<MediaFileType> getShowEpisodeArtworkTypes() {
+    return new ArrayList<>(showEpisodeArtworkTypes);
   }
 }

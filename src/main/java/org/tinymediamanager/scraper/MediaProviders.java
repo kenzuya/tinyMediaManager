@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.davestrailer.DavesTrailerPageProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
 import org.tinymediamanager.scraper.ffmpeg.FFmpegMovieArtworkProvider;
@@ -69,6 +70,8 @@ import org.tinymediamanager.scraper.tmdb.TmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.trakt.TraktMovieMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktTvShowMetadataProvider;
+import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowArtworkProvider;
+import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvmaze.TvMazeTvShowMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
 import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
@@ -154,6 +157,7 @@ public class MediaProviders {
     loadProvider(TmdbMovieTrailerProvider.class);
     loadProvider(HdTrailersNetMovieTrailerProvider.class);
     loadProvider(OfdbMovieTrailerProvider.class);
+    loadProvider(DavesTrailerPageProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieTrailerProvider.class);
@@ -176,6 +180,7 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
+    loadProvider(TvdbV3TvShowMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
@@ -200,6 +205,7 @@ public class MediaProviders {
     loadProvider(TmdbTvShowArtworkProvider.class);
     loadProvider(ImdbTvShowArtworkProvider.class);
     loadProvider(FFmpegTvShowArtworkProvider.class);
+    loadProvider(TvdbV3TvShowArtworkProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowArtworkProvider.class);

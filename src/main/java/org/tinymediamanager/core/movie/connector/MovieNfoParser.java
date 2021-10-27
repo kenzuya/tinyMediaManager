@@ -209,6 +209,7 @@ public class MovieNfoParser {
     parseTag(MovieNfoParser::parseTitle);
     parseTag(MovieNfoParser::parseDescription);
     parseTag(MovieNfoParser::parseCertificationInRating);
+    parseTag(MovieNfoParser::parseGenres);
   }
 
   /**

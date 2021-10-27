@@ -16,7 +16,6 @@
 package org.tinymediamanager.scraper.tmdb;
 
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,18 +25,11 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.tmdb.entities.Configuration;
+import org.tinymediamanager.scraper.tmdb.entities.Genre;
+import org.tinymediamanager.scraper.tmdb.entities.Translations;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-
-import com.uwetrottmann.tmdb2.Tmdb;
-import com.uwetrottmann.tmdb2.TmdbInterceptor;
-import com.uwetrottmann.tmdb2.entities.Configuration;
-import com.uwetrottmann.tmdb2.entities.Genre;
-import com.uwetrottmann.tmdb2.entities.Translations;
-import com.uwetrottmann.tmdb2.entities.Translations.Translation;
-
-import okhttp3.OkHttpClient;
 
 /**
  * The Class TmdbMetadataProvider. A meta data, artwork and trailer provider for the site themoviedb.org
@@ -57,7 +49,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
   private final MediaProviderInfo providerInfo;
 
-  protected Tmdb                  api;
+  protected TmdbController        api;
   protected Configuration         configuration;
   protected String                artworkBaseUrl;
 
@@ -93,23 +85,10 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
       try {
         String userApiKey = providerInfo.getConfig().getValue("apiKey");
-        api = new Tmdb(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey()) {
-          // tell the tmdb api to use our OkHttp client
-
-          @Override
-          protected synchronized OkHttpClient okHttpClient() {
-            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
-            builder.connectTimeout(30, TimeUnit.SECONDS);
-            builder.writeTimeout(30, TimeUnit.SECONDS);
-            builder.readTimeout(30, TimeUnit.SECONDS);
-            builder.addInterceptor(new TmdbInterceptor(this));
-            return builder.build();
-          }
-        };
-
+        api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey());
         configuration = api.configurationService().configuration().execute().body();
         if (configuration == null) {
-          throw new Exception("Invalid TMDB API key");
+          throw new ScrapeException(new Exception("Invalid TMDB API key"));
         }
         artworkBaseUrl = configuration.images.secure_base_url;
       }
@@ -150,11 +129,11 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
    *          the locale to search for
    * @return the found translation or null
    */
-  protected Translation getTranslationForLocale(Translations translations, Locale locale) {
-    Translation ret = null;
+  protected Translations.Translation getTranslationForLocale(Translations translations, Locale locale) {
+    Translations.Translation ret = null;
 
     if (translations != null && translations.translations != null && !translations.translations.isEmpty()) {
-      for (Translation tr : translations.translations) {
+      for (Translations.Translation tr : translations.translations) {
         // check with language AND country
         if (tr.iso_639_1.equals(locale.getLanguage()) && tr.iso_3166_1.equals(locale.getCountry())) {
           ret = tr;
@@ -173,7 +152,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
             break;
 
           default:
-            for (Translation tr : translations.translations) {
+            for (Translations.Translation tr : translations.translations) {
               if (tr.iso_639_1.equals(locale.getLanguage()) || tr.iso_3166_1.equals(locale.getCountry())) {
                 ret = tr;
                 break;
@@ -201,19 +180,19 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   protected String[] getValuesFromTranslation(Translations translations, Locale locale) {
     String[] ret = new String[] { "", "" };
 
-    Translation tr = getTranslationForLocale(translations, locale);
+    Translations.Translation tr = getTranslationForLocale(translations, locale);
     if (tr == null || tr.data == null) {
       return ret;
     }
 
-    if (!StringUtils.isEmpty(tr.data.title)) {
+    if (StringUtils.isNotBlank(tr.data.title)) {
       ret[0] = tr.data.title; // movie
     }
-    if (!StringUtils.isEmpty(tr.data.name)) {
+    if (StringUtils.isNotBlank(tr.data.name)) {
       ret[0] = tr.data.name; // show
     }
 
-    if (!StringUtils.isEmpty(tr.data.overview)) {
+    if (StringUtils.isNotBlank(tr.data.overview)) {
       ret[1] = tr.data.overview;
     }
 

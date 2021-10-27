@@ -33,27 +33,24 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
+import org.tinymediamanager.scraper.tmdb.entities.Image;
+import org.tinymediamanager.scraper.tmdb.entities.Images;
+import org.tinymediamanager.scraper.tmdb.entities.TvShow;
+import org.tinymediamanager.scraper.tmdb.enumerations.AppendToResponseItem;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-
-import com.uwetrottmann.tmdb2.Tmdb;
-import com.uwetrottmann.tmdb2.entities.AppendToResponse;
-import com.uwetrottmann.tmdb2.entities.Image;
-import com.uwetrottmann.tmdb2.entities.Images;
-import com.uwetrottmann.tmdb2.entities.TvShow;
-import com.uwetrottmann.tmdb2.enumerations.AppendToResponseItem;
-import com.uwetrottmann.tmdb2.exceptions.TmdbNotFoundException;
 
 /**
  * The class TmdbArtworkProvider. For managing all artwork provided tasks with tmdb
  */
 class TmdbArtworkProvider {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TmdbArtworkProvider.class);
+  private static final Logger  LOGGER = LoggerFactory.getLogger(TmdbArtworkProvider.class);
 
-  private final Tmdb          api;
-  private final String        baseUrl;
+  private final TmdbController api;
+  private final String         baseUrl;
 
-  public TmdbArtworkProvider(Tmdb api, String baseUrl) {
+  public TmdbArtworkProvider(TmdbController api, String baseUrl) {
     this.api = api;
     this.baseUrl = baseUrl;
   }
@@ -67,7 +64,7 @@ class TmdbArtworkProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
    */
-  List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getArtwork(): {}", options);
     MediaArtwork.MediaArtworkType artworkType = options.getArtworkType();
 
@@ -95,64 +92,56 @@ class TmdbArtworkProvider {
     }
 
     List<MediaArtwork> artwork = null;
-    synchronized (api) {
-      try {
-        // posters and fanart
-        switch (options.getMediaType()) {
-          case MOVIE:
-            artwork = prepareArtwork(api.moviesService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
-            break;
+    try {
+      // posters and fanart
+      switch (options.getMediaType()) {
+        case MOVIE:
+          artwork = prepareArtwork(api.moviesService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
+          break;
 
-          case MOVIE_SET:
-            artwork = prepareArtwork(api.collectionService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
-            break;
+        case MOVIE_SET:
+          artwork = prepareArtwork(api.collectionService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
+          break;
 
-          case TV_SHOW:
-            // here we need to do a fetch of the base details to get the season count for all season related artwork
-            if (artworkType == MediaArtworkType.ALL || artworkType == MediaArtworkType.SEASON_POSTER) {
-              TvShow tvShow = api.tvService().tv(tmdbId, null, new AppendToResponse(AppendToResponseItem.IMAGES)).execute().body();
-              if (tvShow != null) {
-                artwork = prepareArtwork(tvShow.images, artworkType, tmdbId, options);
-                for (int i = 0; i <= MetadataUtil.unboxInteger(tvShow.number_of_seasons); i++) {
-                  try {
-                    artwork.addAll(prepareArtwork(api.tvSeasonsService().images(tmdbId, i, null).execute().body(), artworkType, tmdbId, i, options));
-                  }
-                  catch (Exception e) {
-                    LOGGER.debug("could not net season artwork: '{}'", e.getMessage());
-                  }
+        case TV_SHOW:
+          // here we need to do a fetch of the base details to get the season count for all season related artwork
+          if (artworkType == MediaArtworkType.ALL || artworkType == MediaArtworkType.SEASON_POSTER) {
+            TvShow tvShow = api.tvService().tv(tmdbId, null, new AppendToResponse(AppendToResponseItem.IMAGES)).execute().body();
+            if (tvShow != null) {
+              artwork = prepareArtwork(tvShow.images, artworkType, tmdbId, options);
+              for (int i = 0; i <= MetadataUtil.unboxInteger(tvShow.number_of_seasons); i++) {
+                try {
+                  artwork.addAll(prepareArtwork(api.tvSeasonsService().images(tmdbId, i, null).execute().body(), artworkType, tmdbId, i, options));
+                }
+                catch (Exception e) {
+                  LOGGER.debug("could not net season artwork: '{}'", e.getMessage());
                 }
               }
             }
-            else {
-              // no season artwork requested - just use the easy call
-              artwork = prepareArtwork(api.tvService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
-            }
+          }
+          else {
+            // no season artwork requested - just use the easy call
+            artwork = prepareArtwork(api.tvService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
+          }
 
-            break;
+          break;
 
-          case TV_EPISODE:
-            int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
-            int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
+        case TV_EPISODE:
+          int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
+          int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
-            if (seasonNr > -1 && episodeNr > -1) {
-              artwork = prepareArtwork(api.tvEpisodesService().images(tmdbId, seasonNr, episodeNr).execute().body(), artworkType, tmdbId, options);
-            }
-            break;
-        }
+          if (seasonNr > -1 && episodeNr > -1) {
+            artwork = prepareArtwork(api.tvEpisodesService().images(tmdbId, seasonNr, episodeNr).execute().body(), artworkType, tmdbId, options);
+          }
+          break;
       }
-      catch (TmdbNotFoundException e) {
-        LOGGER.info("nothing found");
-      }
-      catch (Exception e) {
-        LOGGER.debug("failed to get artwork: {}", e.getMessage());
-
-        // if the thread has been interrupted, to no rethrow that exception
-        if (e instanceof InterruptedException || e instanceof InterruptedIOException) {
-          return Collections.emptyList();
-        }
-
-        throw new ScrapeException(e);
-      }
+    }
+    catch (InterruptedIOException e) {
+      return Collections.emptyList();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get artwork: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (ListUtils.isEmpty(artwork)) {

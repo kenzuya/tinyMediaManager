@@ -105,9 +105,6 @@ public final class TinyMediaManager {
    *          the arguments
    */
   public static void main(String[] args) {
-    // should we change the log level for the console?
-    setConsoleLogLevel();
-
     // simple parse command line
     if (args != null && args.length > 0) {
       LOGGER.debug("TMM started with: {}", Arrays.toString(args));
@@ -126,6 +123,10 @@ public final class TinyMediaManager {
         shutdownLogger();
         System.exit(0);
       }
+
+      // should we change the log level for the console?
+      // in GUI mode we set that directly. in CLI mode we set that after startup
+      setConsoleLogLevel();
     }
 
     // check if we have write permissions to this folder
@@ -403,6 +404,9 @@ public final class TinyMediaManager {
             }
           }
           else {
+            // should we change the log level for the console? CLI version
+            setConsoleLogLevel();
+
             TinyMediaManagerCLI.start(args);
             // wait for other tmm threads (artwork download et all)
             while (TmmTaskManager.getInstance().poolRunning()) {
