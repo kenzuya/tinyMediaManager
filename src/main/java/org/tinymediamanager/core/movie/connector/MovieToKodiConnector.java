@@ -198,6 +198,8 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   protected void addRating() {
     Element ratings = document.createElement("ratings");
 
+    MediaRating mainMediaRating = movie.getRating();
+
     for (MediaRating r : movie.getRatings().values()) {
       // skip user ratings here
       if (MediaRating.USER.equals(r.getId())) {
@@ -214,8 +216,6 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
         rating.setAttribute("name", r.getId());
       }
       rating.setAttribute("max", String.valueOf(r.getMaxValue()));
-
-      MediaRating mainMediaRating = movie.getRating();
       rating.setAttribute("default", r == mainMediaRating ? "true" : "false");
 
       Element value = document.createElement("value");
