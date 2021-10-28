@@ -472,14 +472,14 @@ public class MediaInfoTest extends BasicTest {
   @Test
   public void testSubtitleLanguageDetection() throws Exception {
     compareSubtitle("en.srt", "eng");
-    compareSubtitle("eng_sdh.srt", "eng", "sdh");
+    compareSubtitle("eng_sdh.srt", "eng");
     compareSubtitle("moviename.en.srt", "eng");
-    compareSubtitle("moviename.en.forced.srt", "eng", "forced");
+    compareSubtitle("moviename.en.forced.srt", "eng");
     compareSubtitle("moviename.eng.srt", "eng");
     compareSubtitle("moviename.german.srt", "deu");
     compareSubtitle("moviename.Deutsch.srt", "deu");
     compareSubtitle("moviename.eng_hi.srt", "hin"); // yeah not eng since the string ends with a valid language code :/
-    compareSubtitle("moviename.eng_sdh.srt", "eng", "sdh");
+    compareSubtitle("moviename.eng_sdh.srt", "eng");
     compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu", "dTV XViD"); // shit in, shit out
     compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu", "waf com cn hk"); // shit in, shit out
     compareSubtitle("movie.name.year.pt-br.srt", "pob");

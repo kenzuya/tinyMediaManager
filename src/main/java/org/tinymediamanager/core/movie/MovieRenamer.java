@@ -190,12 +190,12 @@ public class MovieRenamer {
         originalLang = mfs.getLanguage();
 
         if (StringUtils.isNotBlank(mfs.getTitle())) {
-          additional = "." + mfs.getTitle().replace(" ", ".");
+          additional = "(" + mfs.getTitle().strip() + ")";
         }
-        if (mfs.isForced() && !additional.contains(".forced")) {
-          additional = ".forced";
+        if (mfs.isForced()) {
+          additional += ".forced";
         }
-        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED) && !(additional.contains(".sdh") || additional.contains(".cc"))) {
+        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
           additional += ".sdh"; // double possible?!
         }
       }
@@ -909,7 +909,7 @@ public class MovieRenamer {
         // check if there is only one subtitle file and the user wants to write this w/o the language tag
         if (!MovieModuleManager.getInstance().getSettings().isSubtitleWithoutLanguageTag() || subtitleFiles.size() > 1) {
           newFilename += getStackingString(mf);
-          if (mfsl != null && !mfsl.isEmpty()) {
+          if (ListUtils.isNotEmpty(mfsl)) {
             // internal values
             MediaFileSubtitle mfs = mfsl.get(0);
             if (!mfs.getLanguage().isEmpty()) {
@@ -920,12 +920,19 @@ public class MovieRenamer {
               }
               newFilename += "." + lang;
             }
+
+            String additional = "";
+            if (StringUtils.isNotBlank(mfs.getTitle())) {
+              additional = "(" + mfs.getTitle().strip() + ")";
+            }
             if (mfs.isForced()) {
-              newFilename += ".forced";
+              additional += ".forced";
             }
             if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
-              newFilename += ".sdh";
+              additional += ".sdh"; // double possible?!
             }
+
+            newFilename += additional;
           }
         }
         newFilename += "." + mf.getExtension();

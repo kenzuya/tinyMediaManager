@@ -17,6 +17,7 @@
 package org.tinymediamanager.core.entities;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -87,6 +88,10 @@ public class MediaStreamInfo extends AbstractModelObject {
     streamFlags.addAll(Arrays.asList(flags));
   }
 
+  public void set(Collection<Flags> flags) {
+    streamFlags.addAll(flags);
+  }
+
   public void remove(Flags... flags) {
     for (Flags f : flags) {
       streamFlags.remove(f);
@@ -116,6 +121,19 @@ public class MediaStreamInfo extends AbstractModelObject {
     }
     else {
       streamFlags.remove(Flags.FLAG_FORCED);
+    }
+  }
+
+  public boolean isSdh() {
+    return streamFlags.contains(Flags.FLAG_HEARING_IMPAIRED);
+  }
+
+  public void setSdh(boolean sdh) {
+    if (sdh) {
+      streamFlags.add(Flags.FLAG_HEARING_IMPAIRED);
+    }
+    else {
+      streamFlags.remove(Flags.FLAG_HEARING_IMPAIRED);
     }
   }
 

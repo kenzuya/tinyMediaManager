@@ -1161,12 +1161,12 @@ public class TvShowRenamer {
             String additional = "";
 
             if (StringUtils.isNotBlank(mfs.getTitle())) {
-              additional = "." + mfs.getTitle().replace(" ", ".");
+              additional = "(" + mfs.getTitle().strip() + ")";
             }
-            if (mfs.isForced() && !additional.contains(".forced")) {
-              additional = ".forced";
+            if (mfs.isForced()) {
+              additional += ".forced";
             }
-            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED) && !(additional.contains(".sdh") || additional.contains(".cc"))) {
+            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED)) {
               additional += ".sdh"; // double possible?!
             }
 

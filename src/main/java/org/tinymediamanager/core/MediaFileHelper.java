@@ -1614,17 +1614,14 @@ public class MediaFileHelper {
     if (splitted.contains("forced")) {
       sub.setForced(true);
       sub.set(Flags.FLAG_FORCED);
-      sub.setTitle("forced");
       shortname = shortname.replaceAll("\\p{Punct}*forced", "");
     }
     if (splitted.contains("sdh")) {
       sub.set(Flags.FLAG_HEARING_IMPAIRED);
-      sub.setTitle("sdh");
       shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
     }
     else if (splitted.contains("cc")) { // basically the same as sdh
       sub.set(Flags.FLAG_HEARING_IMPAIRED);
-      sub.setTitle("cc");
       shortname = shortname.replaceAll("\\p{Punct}*cc", "");
     }
     sub.setLanguage(parseLanguageFromString(shortname));
@@ -2740,6 +2737,7 @@ public class MediaFileHelper {
     String language = "";
     int languageIndex = 0;
     String title = "";
+    List<Flags> flags = new ArrayList<>();
 
     for (int i = chunks.size() - 1; i >= 0; i--) {
       language = LanguageUtils.parseLanguageFromString(chunks.get(i));
@@ -2752,6 +2750,21 @@ public class MediaFileHelper {
     if (languageIndex < chunks.size() - 1) {
       // the language index was not the last chunk. Save the part between the language index and the last chunk as title
       title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+
+      if (title.contains("forced")) {
+        flags.add(Flags.FLAG_FORCED);
+        title = title.replaceAll("\\p{Punct}*forced", "");
+      }
+      if (title.contains("sdh")) {
+        flags.add(Flags.FLAG_HEARING_IMPAIRED);
+        title = title.replaceAll("\\p{Punct}*sdh", "");
+      }
+      else if (title.contains("cc")) { // basically the same as sdh
+        flags.add(Flags.FLAG_HEARING_IMPAIRED);
+        title = title.replaceAll("\\p{Punct}*cc", "");
+      }
+
+      title = title.strip();
     }
 
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
@@ -2760,6 +2773,7 @@ public class MediaFileHelper {
         sub.setLanguage(language);
       }
       sub.setTitle(title);
+      sub.set(flags);
     }
     else if (mediaFile.getType() == MediaFileType.AUDIO) {
       MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
@@ -2769,6 +2783,7 @@ public class MediaFileHelper {
       if (StringUtils.isBlank(audio.getTitle())) {
         audio.setAudioTitle(title);
       }
+      audio.set(flags);
     }
   }
 }

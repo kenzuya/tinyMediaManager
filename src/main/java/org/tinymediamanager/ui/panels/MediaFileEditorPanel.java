@@ -84,33 +84,33 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaFileEditorPanel extends JPanel {
-  private static final long               serialVersionUID = -2416409052145301941L;
+  private static final long        serialVersionUID = -2416409052145301941L;
 
-  private final Set<Binding>              bindings         = new HashSet<>();
+  private final Set<Binding>       bindings         = new HashSet<>();
 
-  private TmmTask                         ardTask;
-  private List<MediaFileContainer>        mediaFiles;
-  private TmmTable                        tableMediaFiles;
-  private JLabel                          lblFilename;
-  private JTextField                      tfCodec;
-  private JTextField                      tfContainerFormat;
-  private JTextField                      tfWidth;
-  private JTextField                      tfHeight;
-  private TmmTable                        tableAudioStreams;
-  private TmmTable                        tableSubtitles;
-  private JButton                         btnAddAudioStream;
-  private JButton                         btnRemoveAudioStream;
-  private JButton                         btnAddSubtitle;
-  private JButton                         btnRemoveSubtitle;
-  private JComboBox<String>               cb3dFormat;
-  private JComboBox                       cbAspectRatio;
-  private JComboBox                       cbAspectRatio2;
-  private JTextField                      tfFrameRate;
-  private JTextField                      tfBitDepth;
-  private JTextField                      tfHdrFormat;
-  private JTextField                      tfVideoBitrate;
-  private JTextField                      tfRuntime;
-  private JButton                         btnARD;
+  private TmmTask                  ardTask;
+  private List<MediaFileContainer> mediaFiles;
+  private TmmTable                 tableMediaFiles;
+  private JLabel                   lblFilename;
+  private JTextField               tfCodec;
+  private JTextField               tfContainerFormat;
+  private JTextField               tfWidth;
+  private JTextField               tfHeight;
+  private TmmTable                 tableAudioStreams;
+  private TmmTable                 tableSubtitles;
+  private JButton                  btnAddAudioStream;
+  private JButton                  btnRemoveAudioStream;
+  private JButton                  btnAddSubtitle;
+  private JButton                  btnRemoveSubtitle;
+  private JComboBox<String>        cb3dFormat;
+  private JComboBox                cbAspectRatio;
+  private JComboBox                cbAspectRatio2;
+  private JTextField               tfFrameRate;
+  private JTextField               tfBitDepth;
+  private JTextField               tfHdrFormat;
+  private JTextField               tfVideoBitrate;
+  private JTextField               tfRuntime;
+  private JButton                  btnARD;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
 
@@ -475,7 +475,8 @@ public class MediaFileEditorPanel extends JPanel {
     public void processTaskEvent(TmmTaskHandle task) {
       if (TmmTaskHandle.TaskState.QUEUED.equals(task.getState())) {
         btnARD.setEnabled(false);
-      } else if (TmmTaskHandle.TaskState.FINISHED.equals(task.getState())) {
+      }
+      else if (TmmTaskHandle.TaskState.FINISHED.equals(task.getState())) {
         btnARD.setEnabled(true);
       }
     }
@@ -673,8 +674,14 @@ public class MediaFileEditorPanel extends JPanel {
     Property mediaFileSubtitleBeanProperty = BeanProperty.create("language");
     jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty).setColumnName("Language").setColumnClass(String.class);
     //
-    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("title");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Title").setColumnClass(String.class);
+    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("forced");
+    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Forced").setColumnClass(Boolean.class);
+    //
+    Property mediaFileSubtitleBeanProperty_2 = BeanProperty.create("sdh");
+    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_2).setColumnName("Hearing Impaired").setColumnClass(Boolean.class);
+    //
+    Property mediaFileSubtitleBeanProperty_3 = BeanProperty.create("title");
+    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_3).setColumnName("Title").setColumnClass(String.class);
     //
     jTableBinding_2.bind();
     //
