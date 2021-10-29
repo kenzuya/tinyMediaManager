@@ -22,6 +22,7 @@ x fixed occasional double spaces in the renamer results #1541
 x (TV shows) enhanced note filter #1540
 x Plot & note fields render now clickable links #1538
 x enabled growing of the datasource settings panel #1548
+x do not strip <set> tag from TV show NFO files
 
 
 Version 4.2.2
