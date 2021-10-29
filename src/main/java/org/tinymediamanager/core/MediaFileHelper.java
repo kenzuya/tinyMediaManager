@@ -1683,6 +1683,11 @@ public class MediaFileHelper {
       boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
       stream.setForced(b);
 
+      String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+      if (StringUtils.isNotBlank(title)) {
+        stream.setTitle(title);
+      }
+
       // "default" subtitle stream?
       String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
       if (def.equalsIgnoreCase("yes")) {

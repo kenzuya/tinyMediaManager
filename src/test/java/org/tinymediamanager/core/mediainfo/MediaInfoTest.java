@@ -592,4 +592,20 @@ public class MediaInfoTest extends BasicTest {
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
     assertThat(mf.getVideoHeight()).isEqualTo(800);
   }
+
+  @Test
+  public void testSubtitleTitle() throws Exception {
+    // Dolby Vision
+    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/subtitle-title.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getSubtitles().size()).isEqualTo(2);
+
+    MediaFileSubtitle sub1 = mf.getSubtitles().get(0);
+    assertThat(sub1.getTitle()).isEqualTo("That's a DVDSUB subtitle");
+
+    MediaFileSubtitle sub2 = mf.getSubtitles().get(1);
+    assertThat(sub2.getTitle()).isEqualTo("and this a simple srt subtitle");
+  }
 }
