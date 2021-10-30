@@ -113,10 +113,10 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     MediaMetadata md = new MediaMetadata(getId());
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(getId());
+    Integer id = options.getIdAsInteger(MediaMetadata.TVDB);
     if (id == null || id == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(getId());
+      throw new MissingIdException(MediaMetadata.TVDB);
     }
 
     String language = options.getLanguage().getLanguage();
@@ -141,7 +141,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     }
 
     // populate metadata
-    md.setId(getId(), show.id);
+    md.setId(TVDB, show.id);
     md.setTitle(show.seriesName);
     if (MetadataUtil.isValidImdbId(show.imdbId)) {
       md.setId(MediaMetadata.IMDB, show.imdbId);
@@ -160,7 +160,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     }
 
     try {
-      MediaRating rating = new MediaRating(getProviderInfo().getId());
+      MediaRating rating = new MediaRating(MediaMetadata.TVDB);
       rating.setRating(show.siteRating.floatValue());
       rating.setVotes(TvUtils.parseInt(show.siteRatingCount));
       rating.setMaxValue(10);
@@ -209,7 +209,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
 
     for (Actor actor : actors) {
       Person member = new Person(ACTOR);
-      member.setId(getId(), actor.id);
+      member.setId(MediaMetadata.TVDB, actor.id);
       member.setName(actor.name);
       member.setRole(actor.role);
       if (StringUtils.isNotBlank(actor.image)) {
@@ -247,11 +247,11 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     boolean useDvdOrder = false;
 
     // do we have an id from the options?
-    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault(getId(), 0);
+    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault(MediaMetadata.TVDB, 0);
 
     if (showId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(getId());
+      throw new MissingIdException(MediaMetadata.TVDB);
     }
 
     int episodeTvdbId = options.getIdAsIntOrDefault(TVDB, 0);
@@ -338,7 +338,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       searchString = null; // null-out search string, when searching with IMDB, else 405
     }
 
-    int tvdbId = options.getIdAsInt(getId());
+    int tvdbId = options.getIdAsInt(MediaMetadata.TVDB);
     String language = options.getLanguage().getLanguage();
     String fallbackLanguage = MediaLanguages.get(getProviderInfo().getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage(); // just 2 char
 
@@ -414,7 +414,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       }
 
       // build up a new result
-      MediaSearchResult result = new MediaSearchResult(getId(), options.getMediaType());
+      MediaSearchResult result = new MediaSearchResult(MediaMetadata.TVDB, options.getMediaType());
       result.setId(show.id.toString());
       result.setTitle(show.seriesName);
       result.setOverview(show.overview);
@@ -454,10 +454,10 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     initAPI();
 
     // do we have an show id from the options?
-    Integer showId = options.getIdAsInteger(getProviderInfo().getId());
+    Integer showId = options.getIdAsInteger(MediaMetadata.TVDB);
     if (showId == null || showId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(getProviderInfo().getId());
+      throw new MissingIdException(MediaMetadata.TVDB);
     }
 
     // look in the cache map if there is an entry
@@ -507,9 +507,9 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     }
 
     for (Episode ep : eps) {
-      MediaMetadata episode = new MediaMetadata(getProviderInfo().getId());
+      MediaMetadata episode = new MediaMetadata(MediaMetadata.TVDB);
 
-      episode.setId(getProviderInfo().getId(), ep.id);
+      episode.setId(MediaMetadata.TVDB, ep.id);
       if (MetadataUtil.isValidImdbId(ep.imdbId)) {
         episode.setId(MediaMetadata.IMDB, ep.imdbId);
       }
@@ -538,7 +538,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       }
 
       try {
-        MediaRating rating = new MediaRating(getProviderInfo().getId());
+        MediaRating rating = new MediaRating(MediaMetadata.TVDB);
         rating.setRating(ep.siteRating.floatValue());
         rating.setVotes(TvUtils.parseInt(ep.siteRatingCount));
         rating.setMaxValue(10);
