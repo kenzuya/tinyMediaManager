@@ -28,16 +28,17 @@ import org.tinymediamanager.ui.components.ImageLabel;
  * @author Manuel Laggner
  */
 public class ColumnLayout implements LayoutManager2 {
-  private static Dimension MIN_SIZE = new Dimension(1, 1);
-  private static Dimension MAX_SIZE = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
+  private static final Dimension MIN_SIZE = new Dimension(1, 1);
+  private static final Dimension MAX_SIZE = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
   @Override
   public void layoutContainer(Container parent) {
-    Component components[] = parent.getComponents();
+    Component[] components = parent.getComponents();
 
     // without children there is no layouting needed
-    if (components.length == 0)
+    if (components.length == 0) {
       return;
+    }
 
     // do a layouting based on the parent's size
     int y = 0;
@@ -46,6 +47,12 @@ public class ColumnLayout implements LayoutManager2 {
 
     for (Component component : components) {
       Dimension preferredSize = component.getPreferredSize();
+
+      if (!component.isVisible()) {
+        preferredSize.width = 0;
+        preferredSize.height = 0;
+      }
+
       int height = preferredSize.height;
       if (component instanceof ImageLabel) {
         height = (int) (preferredSize.getHeight() * width * 1.0 / preferredSize.getWidth());
@@ -62,7 +69,7 @@ public class ColumnLayout implements LayoutManager2 {
 
   @Override
   public Dimension preferredLayoutSize(Container parent) {
-    Component components[] = parent.getComponents();
+    Component[] components = parent.getComponents();
 
     // calculate the complete height
     int maxWidth = parent.getWidth();
@@ -105,14 +112,17 @@ public class ColumnLayout implements LayoutManager2 {
 
   @Override
   public void removeLayoutComponent(Component comp) {
+    // not needed
   }
 
   @Override
   public void addLayoutComponent(Component comp, Object constraints) {
+    // not needed
   }
 
   @Override
   public void addLayoutComponent(String name, Component comp) {
+    // not needed
   }
 
   @Override
@@ -127,6 +137,7 @@ public class ColumnLayout implements LayoutManager2 {
 
   @Override
   public void invalidateLayout(Container target) {
+    // not needed
   }
 
   @Override

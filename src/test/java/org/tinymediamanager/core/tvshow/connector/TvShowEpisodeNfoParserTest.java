@@ -365,5 +365,38 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
     assertThat(episode.plot).startsWith("Aang versucht, das Erdbändigen von Toph zu lernen, aber");
     assertThat(episode.certification).isEqualTo(MediaCertification.DE_FSK6);
     assertThat(episode.releaseDate).isEqualTo("2005-01-01");
+    assertThat(episode.genres.size()).isEqualTo(2);
+  }
+
+  @Test
+  public void testNetpvrXml2() throws Exception {
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr2.xml"));
+
+    List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
+    assertThat(episodes.size()).isEqualTo(1);
+
+    TvShowEpisodeNfoParser.Episode episode = episodes.get(0);
+
+    assertThat(episode.title).isEqualTo("Die Unwissenden");
+    assertThat(episode.plot).startsWith("Josh kämpft darum, Nora zurückzugewinnen.");
+    assertThat(episode.certification).isEqualTo(MediaCertification.DE_FSK12);
+    assertThat(episode.releaseDate).isEqualTo("2014-10-17");
+    assertThat(episode.genres.size()).isEqualTo(2);
+  }
+
+  @Test
+  public void testNetpvrXml3() throws Exception {
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr3.xml"));
+
+    List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
+    assertThat(episodes.size()).isEqualTo(1);
+
+    TvShowEpisodeNfoParser.Episode episode = episodes.get(0);
+
+    assertThat(episode.title).isEqualTo("Die Wissenschafts-Meemaw und der Skandal im Kopierraum");
+    assertThat(episode.plot).isEqualTo(episode.title);
+    assertThat(episode.certification).isEqualTo(MediaCertification.UNKNOWN);
+    assertThat(episode.releaseDate).isNull();
+    assertThat(episode.genres.size()).isEqualTo(3);
   }
 }

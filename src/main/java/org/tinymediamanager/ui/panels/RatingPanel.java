@@ -58,14 +58,13 @@ public class RatingPanel extends JPanel {
     // add well known ratings in the following order
 
     // 1. user rating
-    MediaRating rating = ratings.get(MediaRating.USER);
-    if (rating != null) {
-      addedRatings.add(rating);
-      add(new RatingContainer(rating));
+    MediaRating userRating = ratings.get(MediaRating.USER);
+    if (userRating != null) {
+      add(new RatingContainer(userRating));
     }
 
     // 2. imdb rating
-    rating = ratings.get(MediaMetadata.IMDB);
+    MediaRating rating = ratings.get(MediaMetadata.IMDB);
     if (rating != null) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));

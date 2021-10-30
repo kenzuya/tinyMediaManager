@@ -57,6 +57,7 @@ public class TvShowEpisodePostProcessExecutor extends PostProcessExecutor {
     List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     for (TvShowEpisode episode : selectedEpisodes) {
+      LOGGER.info("PostProcessing: START {}", postProcess);
       Map<String, Object> mappings = new HashMap<>();
       mappings.put("tvShow", episode.getTvShow());
       mappings.put("season", episode.getTvShowSeason());
@@ -93,10 +94,18 @@ public class TvShowEpisodePostProcessExecutor extends PostProcessExecutor {
 
     engine.setModelAdaptor(new TmmModelAdaptor());
 
-    String[] splitted = postProcess.getCommand().split("\\n");
-    for (int i = 0; i < splitted.length; i++) {
-      splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], TvShowRenamer.getTokenMap()), mappings);
+    if (postProcess.getPath() == null) {
+      // scripting mode - transform as single string
+      String transformed = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), TvShowRenamer.getTokenMap()), mappings);
+      return new String[] { transformed };
     }
-    return splitted;
+    else {
+      // parameter mode - transform every line to have separated params
+      String[] splitted = postProcess.getCommand().split("\\n");
+      for (int i = 0; i < splitted.length; i++) {
+        splitted[i] = engine.transform(JmteUtils.morphTemplate(splitted[i], TvShowRenamer.getTokenMap()), mappings);
+      }
+      return splitted;
+    }
   }
 }

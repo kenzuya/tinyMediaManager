@@ -54,4 +54,9 @@ public class PostProcess extends AbstractModelObject {
     this.command = newValue;
     firePropertyChange("command", oldValue, newValue);
   }
+
+  @Override
+  public String toString() {
+    return "PostProcess [path=" + path + ", command=" + command + "]";
+  }
 }

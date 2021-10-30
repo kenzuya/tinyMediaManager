@@ -230,6 +230,13 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     }
   }
 
+  public static class BooleanComparator implements Comparator<Boolean> {
+    @Override
+    public int compare(Boolean arg0, Boolean arg1) {
+      return Boolean.compare(arg0, arg1);
+    }
+  }
+
   public static class PathComparator implements Comparator<Path> {
     @Override
     public int compare(Path arg0, Path arg1) {

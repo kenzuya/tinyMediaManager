@@ -77,7 +77,12 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
     // FFmpeg must be specified in the settings
-    if (StringUtils.isBlank(Settings.getInstance().getMediaFramework())) {
+    // shipped FFmpeg
+    if (Settings.getInstance().isUseInternalMediaFramework() && !(new FFmpegAddon().isAvailable())) {
+      throw new MissingIdException("FFmpeg");
+    }
+    // Systems FFmpeg
+    else if (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isBlank(Settings.getInstance().getMediaFramework())) {
       throw new MissingIdException("FFmpeg");
     }
 

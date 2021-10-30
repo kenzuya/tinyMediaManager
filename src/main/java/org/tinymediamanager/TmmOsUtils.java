@@ -16,9 +16,11 @@
 package org.tinymediamanager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -169,8 +171,14 @@ public class TmmOsUtils {
       Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
       Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
 
-      System.setProperty("jna.library.path", nativeDir.toString());
-      LOGGER.debug("Loading native libs from: {}", nativeDir);
+      if (Files.exists(nativeDir) && !Utils.isFolderEmpty(nativeDir)) {
+        System.setProperty("jna.library.path", nativeDir.toString());
+        LOGGER.debug("Loading native libs from: {}", nativeDir);
+      }
+      else {
+        // to enter the fallback
+        throw new FileNotFoundException(nativeDir.toString());
+      }
     }
     catch (Exception e) {
       // not possible somehow -> load directly from tmm folder

@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.core.movie.connector;
 
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
+
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -356,7 +359,14 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
 
     for (Map.Entry<String, Object> entry : movieSet.getIds().entrySet()) {
       Element uniqueid = document.createElement("uniqueid");
-      uniqueid.setAttribute("type", entry.getKey());
+
+      // write tmdb rather than tmdbSet
+      String key = entry.getKey();
+      if (TMDB_SET.equals(key)) {
+        key = TMDB;
+      }
+
+      uniqueid.setAttribute("type", key);
       if (defaultScraper.equals(entry.getKey())) {
         uniqueid.setAttribute("default", "true");
       }

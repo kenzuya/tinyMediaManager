@@ -29,6 +29,7 @@ public class MovieSettingsNode extends TmmSettingsNode {
   public MovieSettingsNode() {
     super(TmmResourceBundle.getString("Settings.movies"), new MovieSettingsPanel());
 
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.ui"), new MovieUiSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.source"), new MovieDatasourceSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new MovieScraperNfoSettingsPanel()));
 

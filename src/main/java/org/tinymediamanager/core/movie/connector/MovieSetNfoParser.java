@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.core.movie.connector;
 
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
 
 import java.io.FileInputStream;
@@ -200,8 +201,8 @@ public class MovieSetNfoParser {
     supportedElements.add("ids");
     supportedElements.add("uniqueid");
 
-    // tmdbId tag
-    Element element = getSingleElement(root, "tmdbId");
+    // tmdbid tag
+    Element element = getSingleElement(root, "tmdbid");
     if (element != null) {
       try {
         ids.put(MediaMetadata.TMDB, MetadataUtil.parseInt(element.ownText()));
@@ -216,6 +217,9 @@ public class MovieSetNfoParser {
     for (Element id : elements) {
       try {
         String key = id.attr("type");
+        if (TMDB.equals(key)) {
+          key = TMDB_SET;
+        }
         String value = id.ownText();
         if (StringUtils.isNoneBlank(key, value)) {
           // check whether the id is an integer

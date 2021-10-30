@@ -16,37 +16,35 @@
 package org.tinymediamanager.scraper.tmdb;
 
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.tmdb.entities.FindResults;
+import org.tinymediamanager.scraper.tmdb.enumerations.ExternalSource;
 import org.tinymediamanager.scraper.util.ListUtils;
 
-import com.uwetrottmann.tmdb2.Tmdb;
-import com.uwetrottmann.tmdb2.entities.FindResults;
-import com.uwetrottmann.tmdb2.enumerations.ExternalSource;
-
 /**
- * the class TmdbUtils is used to share some common utils across the TMDB scraper package
+ * the class TmdbUtils is used to share some common utils across the CONTROLLER scraper package
  * 
  * @author Manuel Laggner
  * @since 4.0
  */
 class TmdbUtils {
   private TmdbUtils() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
-   * get the TMDB id via the IMDB id
+   * get the CONTROLLER id via the IMDB id
    * 
    * @param api
-   *          the TMDB API
+   *          the CONTROLLER API
    * @param type
-   *          the {@link MediaType}, because TMDB shares the same ids between movies and TV shows :(
+   *          the {@link MediaType}, because CONTROLLER shares the same ids between movies and TV shows :(
    * @param imdbId
    *          the IMDB id
-   * @return the TMDB id or 0 if nothing has been found
+   * @return the CONTROLLER id or 0 if nothing has been found
    * @throws Exception
    *           any Exception thrown
    */
-  static int getTmdbIdFromImdbId(Tmdb api, MediaType type, String imdbId) throws Exception {
+  static int getTmdbIdFromImdbId(TmdbController api, MediaType type, String imdbId) throws Exception {
     FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
 
     if (findResults == null) {
@@ -72,17 +70,17 @@ class TmdbUtils {
   }
 
   /**
-   * get the TMDB if via the TVDB id
+   * get the CONTROLLER if via the TVDB id
    *
    * @param api
-   *          the TMDB API
+   *          the CONTROLLER API
    * @param tvdbId
    *          the TVDB id
-   * @return the TMDB id or 0 if nothing has been found
+   * @return the CONTROLLER id or 0 if nothing has been found
    * @throws Exception
    *           any Exception thrown
    */
-  static int getTmdbIdFromTvdbId(Tmdb api, int tvdbId) throws Exception {
+  static int getTmdbIdFromTvdbId(TmdbController api, int tvdbId) throws Exception {
     FindResults findResults = api.findService().find(tvdbId, ExternalSource.TVDB_ID, null).execute().body();
     if (findResults != null && findResults.tv_results != null && !findResults.tv_results.isEmpty()) {
       return findResults.tv_results.get(0).id;

@@ -154,7 +154,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
         }
         catch (IndexOutOfBoundsException i) {
           // ignore parse errors per line
-          LOGGER.warn("Error parsing HD-Trailers line. Possible missing quality.");
+          LOGGER.debug("Error parsing HD-Trailers line. Possible missing quality.");
         }
       }
     }
@@ -163,10 +163,10 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
       Thread.currentThread().interrupt();
     }
     catch (HttpException e) {
-      LOGGER.info("could not find a trailer on hd-trailers.net");
+      LOGGER.debug("could not find a trailer on hd-trailers.net");
     }
     catch (Exception e) {
-      LOGGER.error("cannot parse HD-Trailers movie: {}", e.getMessage());
+      LOGGER.debug("cannot parse HD-Trailers movie: {}", e.getMessage());
       throw new ScrapeException(e);
     }
 

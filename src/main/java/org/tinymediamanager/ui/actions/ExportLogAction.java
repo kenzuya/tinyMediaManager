@@ -45,9 +45,8 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class ExportLogAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
-  private static final long           serialVersionUID = -1578568721825387890L;
-
+  private static final Logger LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
+  private static final long   serialVersionUID = -1578568721825387890L;
 
   public ExportLogAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
@@ -58,7 +57,7 @@ public class ExportLogAction extends TmmAction {
     // open the log download window
     Path file = null;
     try {
-      String path = TmmProperties.getInstance().getProperty("exportlogs.path");
+      String path = TmmProperties.getInstance().getProperty("exportlogs.path", "");
       file = TmmUIHelper.saveFile(TmmResourceBundle.getString("BugReport.savelogs"), path, "tmm_logs.zip",
           new FileNameExtensionFilter("Zip files", ".zip"));
       if (file != null) {

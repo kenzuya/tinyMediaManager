@@ -122,6 +122,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private JComboBox                            cbColonReplacement;
   private JTextField                           tfFirstCharacter;
   private JCheckBox                            chckbxAllowMerge;
+  private JCheckBox                            chckbxAutomaticRename;
 
   public MovieRenamerSettingsPanel() {
     exampleEventList = GlazedLists
@@ -335,63 +336,71 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
     {
       JPanel panelAdvancedOptions = new JPanel();
-      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][]")); // 16lp ~ width of the
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#advanced-options-4"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
+
       {
+        chckbxAutomaticRename = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticrename"));
+        panelAdvancedOptions.add(chckbxAutomaticRename, "cell 1 0 2 1");
+
+        JLabel lblAutomaticRenameHint = new JLabel(IconManager.HINT);
+        lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticrename.desc"));
+        panelAdvancedOptions.add(lblAutomaticRenameHint, "cell 1 0 2 1");
+
         chckbxFoldernameSpaceReplacement = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.folderspacereplacement"));
         chckbxFoldernameSpaceReplacement.setToolTipText(TmmResourceBundle.getString("Settings.renamer.folderspacereplacement.hint"));
-        panelAdvancedOptions.add(chckbxFoldernameSpaceReplacement, "cell 1 0 2 1");
+        panelAdvancedOptions.add(chckbxFoldernameSpaceReplacement, "cell 1 1 2 1");
 
         cbFoldernameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
-        panelAdvancedOptions.add(cbFoldernameSpaceReplacement, "cell 1 0 2 1");
+        panelAdvancedOptions.add(cbFoldernameSpaceReplacement, "cell 1 1 2 1");
       }
       {
         chckbxFilenameSpaceReplacement = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.spacereplacement"));
         chckbxFilenameSpaceReplacement.setToolTipText(TmmResourceBundle.getString("Settings.renamer.spacereplacement.hint"));
-        panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 1 2 1");
+        panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 2 2 1");
 
         cbFilenameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
-        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 1 2 1");
+        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 2 2 1");
       }
       {
         JLabel lblColonReplacement = new JLabel(TmmResourceBundle.getString("Settings.renamer.colonreplacement"));
-        panelAdvancedOptions.add(lblColonReplacement, "cell 1 2 2 1");
+        panelAdvancedOptions.add(lblColonReplacement, "cell 1 3 2 1");
         lblColonReplacement.setToolTipText(TmmResourceBundle.getString("Settings.renamer.colonreplacement.hint"));
 
         cbColonReplacement = new JComboBox<>(colonReplacement.toArray());
-        panelAdvancedOptions.add(cbColonReplacement, "cell 1 2 2 1");
+        panelAdvancedOptions.add(cbColonReplacement, "cell 1 3 2 1");
       }
       {
         chckbxAsciiReplacement = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.asciireplacement"));
-        panelAdvancedOptions.add(chckbxAsciiReplacement, "cell 1 3 2 1");
+        panelAdvancedOptions.add(chckbxAsciiReplacement, "cell 1 4 2 1");
 
         JLabel lblAsciiHint = new JLabel(TmmResourceBundle.getString("Settings.renamer.asciireplacement.hint"));
-        panelAdvancedOptions.add(lblAsciiHint, "cell 2 4");
+        panelAdvancedOptions.add(lblAsciiHint, "cell 2 5");
         TmmFontHelper.changeFont(lblAsciiHint, L2);
       }
       {
         JLabel lblFirstCharacterT = new JLabel(TmmResourceBundle.getString("Settings.renamer.firstnumbercharacterreplacement"));
-        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 5 2 1");
+        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 6 2 1");
 
         tfFirstCharacter = new JTextField();
-        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 5 2 1");
+        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 6 2 1");
         tfFirstCharacter.setColumns(2);
       }
       {
         chckbxMoviesetSingleMovie = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.moviesetsinglemovie"));
-        panelAdvancedOptions.add(chckbxMoviesetSingleMovie, "cell 1 6 2 1");
+        panelAdvancedOptions.add(chckbxMoviesetSingleMovie, "cell 1 7 2 1");
       }
       {
         chckbxRemoveOtherNfos = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.removenfo"));
-        panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 7 2 1");
+        panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 8 2 1");
       }
       {
         chckbxAllowMerge = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.movie.allowmerge"));
-        panelAdvancedOptions.add(chckbxAllowMerge, "cell 1 8 2 1");
+        panelAdvancedOptions.add(chckbxAllowMerge, "cell 1 9 2 1");
       }
     }
     {
@@ -685,5 +694,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, chckbxAllowMerge,
         jCheckBoxBeanProperty);
     autoBinding_6.bind();
+    //
+    Property movieSettingsBeanProperty_2 = BeanProperty.create("renameAfterScrape");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxAutomaticRename,
+        jCheckBoxBeanProperty);
+    autoBinding_7.bind();
   }
 }

@@ -42,23 +42,23 @@ public class TvShowFilenameFilter extends AbstractTextTvShowUIFilter {
     }
 
     try {
-      // filter on the actual / original filename of the episodes
+      // TV show
+      for (MediaFile mediaFile : tvShow.getMediaFiles()) {
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
+        if (matcher.find()) {
+          return true;
+        }
+      }
+
+      // episodes
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
 
-        // original file name
-        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getOriginalFilename()));
-        if (matcher.find()) {
-          foundEpisode = true;
-        }
-        else {
-          // actual file name
-          for (MediaFile mediaFile : episode.getMediaFiles()) {
-            matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
-            if (matcher.find()) {
-              foundEpisode = true;
-              break;
-            }
+        for (MediaFile mediaFile : episode.getMediaFiles()) {
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(mediaFile.getFilename()));
+          if (matcher.find()) {
+            foundEpisode = true;
+            break;
           }
         }
 

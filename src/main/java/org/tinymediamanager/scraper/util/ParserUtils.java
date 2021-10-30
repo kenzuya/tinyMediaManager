@@ -228,9 +228,9 @@ public class ParserUtils {
   public static String detectImdbId(String text) {
     String imdb = "";
     if (text != null && !text.isEmpty()) {
-      imdb = StrgUtils.substr(text, ".*(tt\\d{6,}).*");
+      imdb = StrgUtils.substr(text, "(tt\\d{6,})");
       if (imdb.isEmpty()) {
-        imdb = StrgUtils.substr(text, ".*imdb\\.com\\/Title\\?(\\d{7}).*");
+        imdb = StrgUtils.substr(text, "imdb\\.com\\/Title\\?(\\d{6,})");
         if (!imdb.isEmpty()) {
           imdb = "tt" + imdb;
         }

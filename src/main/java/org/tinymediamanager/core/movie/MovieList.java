@@ -1162,47 +1162,35 @@ public final class MovieList extends AbstractModelObject {
     return Collections.unmodifiableList(hdrFormatInMovies);
   }
 
-  public Collection<String> getAudioTitlesInMovies() { return Collections.unmodifiableList(audioTitlesInMovies);}
+  public Collection<String> getAudioTitlesInMovies() {
+    return Collections.unmodifiableList(audioTitlesInMovies);
+  }
 
   /**
    * Search duplicates.
    */
   public void searchDuplicates() {
-    Map<String, Movie> imdbDuplicates = new HashMap<>();
-    Map<Integer, Movie> tmdbDuplicates = new HashMap<>();
+    Map<String, Movie> duplicates = new HashMap<>();
 
     for (Movie movie : movieList) {
       movie.clearDuplicate();
+      Map<String, Object> ids = movie.getIds();
+      for (var entry : ids.entrySet()) {
+        // ignore collection "IDs"
+        if (entry.getKey().equals(Constants.TMDB_SET)) {
+          continue;
+        }
+        String id = entry.getKey() + String.valueOf(entry.getValue());
 
-      // imdb duplicate search only works with given imdbid
-      if (StringUtils.isNotEmpty(movie.getImdbId())) {
-        // is there a movie with this imdbid sotred?
-        String imdbId = movie.getImdbId();
-        if (imdbDuplicates.containsKey(imdbId)) {
+        if (duplicates.containsKey(id)) {
           // yes - set duplicate flag on both movies
           movie.setDuplicate();
-          Movie movie2 = imdbDuplicates.get(imdbId);
+          Movie movie2 = duplicates.get(id);
           movie2.setDuplicate();
         }
         else {
           // no, store movie
-          imdbDuplicates.put(imdbId, movie);
-        }
-      }
-
-      // tmdb duplicate search only works with with given tmdb id
-      int tmdbId = movie.getTmdbId();
-      if (tmdbId > 0) {
-        // is there a movie with this tmdbid sotred?
-        if (tmdbDuplicates.containsKey(tmdbId)) {
-          // yes - set duplicate flag on both movies
-          movie.setDuplicate();
-          Movie movie2 = tmdbDuplicates.get(tmdbId);
-          movie2.setDuplicate();
-        }
-        else {
-          // no, store movie
-          tmdbDuplicates.put(tmdbId, movie);
+          duplicates.put(id, movie);
         }
       }
     }

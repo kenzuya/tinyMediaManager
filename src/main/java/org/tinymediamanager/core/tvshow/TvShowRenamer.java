@@ -54,6 +54,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
@@ -1156,13 +1157,25 @@ public class TvShowRenamer {
               }
               subtitleFilename = newFilename + "." + lang;
             }
-            if (mfs.isForced()) {
-              subtitleFilename = newFilename + ".forced";
+
+            String additional = "";
+
+            if (StringUtils.isNotBlank(mfs.getTitle())) {
+              additional = "(" + mfs.getTitle().strip() + ")";
             }
+            if (mfs.isForced()) {
+              additional += ".forced";
+            }
+            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED)) {
+              additional += ".sdh"; // double possible?!
+            }
+
+            subtitleFilename += additional;
           }
         }
 
         if (StringUtils.isBlank(subtitleFilename)) {
+          /** SHOULD NOT BE NEEDED ANY MORE?! **/
           // detect from filename, if we don't have a MediaFileSubtitle entry or could not create a file name out of it!
           // remove the filename of episode from subtitle, to ease parsing
           String shortname = mf.getBasename().toLowerCase(Locale.ROOT).replace(eps.get(0).getVideoBasenameWithoutStacking(), "");
@@ -1698,10 +1711,6 @@ public class TvShowRenamer {
       destination = StrgUtils.convertToAscii(destination, false);
     }
 
-    // trim out unnecessary whitespaces
-    destination = destination.trim();
-    destination = destination.replaceAll(" +", " ").trim();
-
     // replace all leading/trailing separators
     destination = destination.replaceAll("^[ \\.\\-_]+", "");
     destination = destination.replaceAll("[ \\.\\-_]+$", "");
@@ -1709,6 +1718,9 @@ public class TvShowRenamer {
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
     destination = destination.replace(": ", " - "); // nicer
     destination = destination.replace(":", "-"); // nicer
+
+    // trim out unnecessary whitespaces
+    destination = destination.replaceAll(" +", " ").trim();
 
     return destination.trim();
   }

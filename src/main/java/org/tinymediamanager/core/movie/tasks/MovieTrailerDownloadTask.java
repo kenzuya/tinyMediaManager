@@ -50,6 +50,8 @@ public class MovieTrailerDownloadTask extends TmmTask {
   private final TrailerQuality           desiredQuality;
   private final TrailerSources           desiredSource;
 
+  private TmmTask                        task;
+
   public MovieTrailerDownloadTask(Movie movie) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + movie.getTitle(), 100, TaskType.BACKGROUND_TASK);
 
@@ -110,8 +112,6 @@ public class MovieTrailerDownloadTask extends TmmTask {
       try {
         LOGGER.debug("try to download trailer '{}'", url);
 
-        TmmTask task;
-
         Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(url);
         if (matcher.matches()) {
           task = new YTDownloadTask(trailer, desiredQuality) {
@@ -140,6 +140,10 @@ public class MovieTrailerDownloadTask extends TmmTask {
           };
         }
 
+        if (cancel) {
+          return;
+        }
+
         // delegate events
         task.addListener(taskEvent -> {
           setProgressDone(taskEvent.getProgressDone());
@@ -158,6 +162,14 @@ public class MovieTrailerDownloadTask extends TmmTask {
       catch (Exception e) {
         LOGGER.debug("could download trailer - {}", e.getMessage());
       }
+    }
+  }
+
+  @Override
+  public void cancel() {
+    super.cancel();
+    if (task != null) {
+      task.cancel();
     }
   }
 

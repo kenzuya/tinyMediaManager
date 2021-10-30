@@ -17,7 +17,7 @@ import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
 public class EpisodeExtendedRecord {
-  @SerializedName("RemoteIDs")
+  @SerializedName("remoteIds")
   public List<RemoteID>          remoteIDs            = null;
 
   @SerializedName("aired")

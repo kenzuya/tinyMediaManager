@@ -29,6 +29,7 @@ public class TvShowSettingsNode extends TmmSettingsNode {
   public TvShowSettingsNode() {
     super(TmmResourceBundle.getString("Settings.tvshow"), new TvShowSettingsPanel());
 
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.ui"), new TvShowUiSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.source"), new TvShowDatasourceSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new TvShowScraperNfoSettingsPanel()));
 

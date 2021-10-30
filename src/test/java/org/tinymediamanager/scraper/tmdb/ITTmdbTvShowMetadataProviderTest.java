@@ -107,7 +107,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Band of Brothers");
-    options.setLanguage(MediaLanguages.ar); // AR not available!
+    options.setLanguage(MediaLanguages.bm); // BM not available!
     options.setCertificationCountry(CountryCode.US);
     options.setReleaseDateCountry("US");
 
@@ -189,7 +189,8 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     assertThat(mediaMetadata).isNotNull();
     assertThat(mediaMetadata.getEpisodeNumber()).isEqualTo(12);
     assertThat(mediaMetadata.getSeasonNumber()).isEqualTo(2);
-    assertThat(mediaMetadata.getTitle()).isEqualTo("Επεισόδιο 12");
+    assertThat(mediaMetadata.getTitle()).isEqualTo("The Way We Was"); // no greek translation here
+    assertThat(mediaMetadata.getOriginalTitle()).isEqualTo("The Way We Was");
     assertThat(mediaMetadata.getPlot())
         .isEqualTo("Η φτηνή τηλεόραση των Σίμσονς χαλάει κι ο Χόμερ με την Μαρτζ διηγούνται στα παιδιά τους πώς γνωρίστηκαν.");
   }

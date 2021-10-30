@@ -15,22 +15,23 @@
  */
 package org.tinymediamanager.ui.movies.panels;
 
+import static org.tinymediamanager.core.Constants.BANNER;
 import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.RATING;
+import static org.tinymediamanager.core.Constants.THUMB;
 
-import java.awt.Cursor;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,23 +56,25 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
-import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.movies.MovieOtherIdsConverter;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
+import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
 
@@ -82,9 +85,12 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MovieInformationPanel extends JPanel {
-  private static final Logger        LOGGER           = LoggerFactory.getLogger(MovieInformationPanel.class);
-  private static final long          serialVersionUID = -8527284262749511617L;
+public class MovieInformationPanel extends InformationPanel {
+  private static final Logger        LOGGER                 = LoggerFactory.getLogger(MovieInformationPanel.class);
+  private static final long          serialVersionUID       = -8527284262749511617L;
+
+  private static final String        LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
+  private static final String        LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";
 
   private final MovieSelectionModel  movieSelectionModel;
 
@@ -98,10 +104,6 @@ public class MovieInformationPanel extends JPanel {
   private LinkLabel                  lblTmdbid;
   private JTextPane                  taGenres;
   private JTextPane                  taPlot;
-  private ImageLabel                 lblMoviePoster;
-  private JLabel                     lblPosterSize;
-  private ImageLabel                 lblMovieFanart;
-  private JLabel                     lblFanartSize;
   private JLabel                     lblCertification;
   private JTextPane                  taOtherIds;
   private MediaInformationLogosPanel panelLogos;
@@ -204,11 +206,19 @@ public class MovieInformationPanel extends JPanel {
       Movie movie = selectionModel.getSelectedMovie();
 
       if ("selectedMovie".equals(property) || POSTER.equals(property)) {
-        setPoster(movie);
+        setArtwork(movie, MediaFileType.POSTER);
       }
 
       if ("selectedMovie".equals(property) || FANART.equals(property)) {
-        setFanart(movie);
+        setArtwork(movie, MediaFileType.FANART);
+      }
+
+      if ("selectedMovie".equals(property) || BANNER.equals(property)) {
+        setArtwork(movie, MediaFileType.BANNER);
+      }
+
+      if ("selectedMovie".equals(property) || THUMB.equals(property)) {
+        setArtwork(movie, MediaFileType.THUMB);
       }
 
       if ("selectedMovie".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
@@ -242,33 +252,28 @@ public class MovieInformationPanel extends JPanel {
   }
 
   private void initComponents() {
-    putClientProperty("class", "roundedPanel");
-    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[][grow]"));
+    setLayout(new MigLayout("hidemode 3", LAYOUT_ARTWORK_VISIBLE, "[][grow]"));
 
     {
       JPanel panelLeft = new JPanel();
       panelLeft.setLayout(new ColumnLayout());
-      add(panelLeft, "cell 0 0 1 2,grow");
+      add(panelLeft, "cell 0 0 1 2, grow");
 
-      lblMoviePoster = new ImageLabel(false, false, true);
-      lblMoviePoster.setDesiredAspectRatio(2 / 3f);
-      lblMoviePoster.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      panelLeft.add(lblMoviePoster);
+      for (Component component : generateArtworkComponents(MediaFileType.POSTER)) {
+        panelLeft.add(component);
+      }
 
-      lblMoviePoster.enableLightbox();
-      lblPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.poster"));
-      panelLeft.add(lblPosterSize);
+      for (Component component : generateArtworkComponents(MediaFileType.FANART)) {
+        panelLeft.add(component);
+      }
 
-      panelLeft.add(Box.createVerticalStrut(20));
+      for (Component component : generateArtworkComponents(MediaFileType.BANNER)) {
+        panelLeft.add(component);
+      }
 
-      lblMovieFanart = new ImageLabel(false, false, true);
-      lblMovieFanart.setDesiredAspectRatio(16 / 9f);
-      lblMovieFanart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-      panelLeft.add(lblMovieFanart);
-      lblMovieFanart.enableLightbox();
-      lblFanartSize = new JLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
-      panelLeft.add(lblFanartSize);
+      for (Component component : generateArtworkComponents(MediaFileType.THUMB)) {
+        panelLeft.add(component);
+      }
     }
     {
       JPanel panelTitle = new JPanel();
@@ -294,7 +299,7 @@ public class MovieInformationPanel extends JPanel {
     {
       JPanel panelRight = new JPanel();
       panelRight
-          .setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[shrink 0][][shrink 0][][][][][shrink 0][][grow,top][shrink 0][]"));
+          .setLayout(new MigLayout("insets n 0 n n, hidemode 3", "[100lp,grow]", "[shrink 0][][shrink 0][][][][][shrink 0][][grow,top][shrink 0][]"));
 
       scrollPane = new NoBorderScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -431,7 +436,7 @@ public class MovieInformationPanel extends JPanel {
         JLabel lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlotT, "cell 0 8,alignx left,aligny top");
 
-        taPlot = new ReadOnlyTextPane();
+        taPlot = new ReadOnlyTextPaneHTML();
         panelRight.add(taPlot, "cell 0 9,growx,wmin 0,aligny top");
       }
       {
@@ -480,34 +485,25 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 5");
 
-          taNote = new ReadOnlyTextPane();
+          taNote = new ReadOnlyTextPaneHTML();
           panelBottomDetails.add(taNote, "cell 1 5,growx,wmin 0");
         }
       }
     }
   }
 
-  private void setPoster(Movie movie) {
-    lblMoviePoster.clearImage();
-    lblMoviePoster.setImagePath(movie.getArtworkFilename(MediaFileType.POSTER));
-    Dimension posterSize = movie.getArtworkDimension(MediaFileType.POSTER);
-    if (posterSize.width > 0 && posterSize.height > 0) {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
-    }
-    else {
-      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster"));
-    }
+  @Override
+  protected List<MediaFileType> getShowArtworkFromSettings() {
+    return MovieModuleManager.getInstance().getSettings().getShowArtworkTypes();
   }
 
-  private void setFanart(Movie movie) {
-    lblMovieFanart.clearImage();
-    lblMovieFanart.setImagePath(movie.getArtworkFilename(MediaFileType.FANART));
-    Dimension fanartSize = movie.getArtworkDimension(MediaFileType.FANART);
-    if (fanartSize.width > 0 && fanartSize.height > 0) {
-      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
+  @Override
+  protected void setColumnLayout(boolean artworkVisible) {
+    if (artworkVisible) {
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_VISIBLE);
     }
     else {
-      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart"));
+      ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_HIDDEN);
     }
   }
 

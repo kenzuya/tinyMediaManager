@@ -29,23 +29,20 @@ import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.tmdb.entities.Videos;
+import org.tinymediamanager.scraper.tmdb.enumerations.VideoType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-
-import com.uwetrottmann.tmdb2.Tmdb;
-import com.uwetrottmann.tmdb2.entities.Videos;
-import com.uwetrottmann.tmdb2.entities.Videos.Video;
-import com.uwetrottmann.tmdb2.enumerations.VideoType;
 
 /**
  * The class TmdbTrailerProvider. For managing all trailer provided tasks with tmdb
  */
 class TmdbTrailerProvider {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TmdbTrailerProvider.class);
+  private static final Logger  LOGGER = LoggerFactory.getLogger(TmdbTrailerProvider.class);
 
-  private final Tmdb          api;
+  private final TmdbController api;
 
-  TmdbTrailerProvider(Tmdb api) {
+  TmdbTrailerProvider(TmdbController api) {
     this.api = api;
   }
 
@@ -86,33 +83,31 @@ class TmdbTrailerProvider {
 
     LOGGER.debug("TMDB: getTrailers(tmdbId): {}", tmdbId);
 
-    List<Video> videos = new ArrayList<>();
-    synchronized (api) {
-      // get trailers from tmdb (with specified langu and without)
-      try {
-        if (options.getMediaType() == MediaType.MOVIE) {
-          Videos tmdbVideos = api.moviesService().videos(tmdbId, language).execute().body();
-          Videos tmdbVideosWoLang = api.moviesService().videos(tmdbId, "").execute().body();
+    List<Videos.Video> videos = new ArrayList<>();
+    // get trailers from tmdb (with specified langu and without)
+    try {
+      if (options.getMediaType() == MediaType.MOVIE) {
+        Videos tmdbVideos = api.moviesService().videos(tmdbId, language).execute().body();
+        Videos tmdbVideosWoLang = api.moviesService().videos(tmdbId, "").execute().body();
 
-          videos.addAll(tmdbVideos.results);
-          videos.addAll(tmdbVideosWoLang.results);
+        videos.addAll(tmdbVideos.results);
+        videos.addAll(tmdbVideosWoLang.results);
 
-        }
-        else if (options.getMediaType() == MediaType.TV_SHOW) {
-          Videos tmdbVideos = api.tvService().videos(tmdbId, language).execute().body();
-          Videos tmdbVideosWoLang = api.tvService().videos(tmdbId, "").execute().body();
-
-          videos.addAll(tmdbVideos.results);
-          videos.addAll(tmdbVideosWoLang.results);
-        }
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to get trailer: {}", e.getMessage());
-        throw new ScrapeException(e);
+      else if (options.getMediaType() == MediaType.TV_SHOW) {
+        Videos tmdbVideos = api.tvService().videos(tmdbId, language).execute().body();
+        Videos tmdbVideosWoLang = api.tvService().videos(tmdbId, "").execute().body();
+
+        videos.addAll(tmdbVideos.results);
+        videos.addAll(tmdbVideosWoLang.results);
       }
     }
+    catch (Exception e) {
+      LOGGER.debug("failed to get trailer: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
 
-    for (Video video : ListUtils.nullSafe(videos)) {
+    for (Videos.Video video : ListUtils.nullSafe(videos)) {
       if (VideoType.TRAILER != video.type) {
         continue;
       }

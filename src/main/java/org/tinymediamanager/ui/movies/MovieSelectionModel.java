@@ -71,7 +71,6 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
     this.selectionModel.addListSelectionListener(this);
     this.matcherEditor = matcher;
     this.selectedMovies = selectionModel.getSelected();
-    this.selectedMovies.addListEventListener(listChanges -> firePropertyChange(SELECTED_MOVIES, null, this.selectedMovies));
 
     propertyChangeListener = evt -> {
       if (evt.getSource() == selectedMovie) {
@@ -181,6 +180,8 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
       }
       firePropertyChange(SELECTED_MOVIE, oldValue, selectedMovie);
     }
+
+    firePropertyChange(SELECTED_MOVIES, null, this.selectedMovies);
   }
 
   /**

@@ -1,3 +1,30 @@
+Version 4.2.3
+=======================
++ support for multiple trailers in the same language (forced, sdh, ...) #343 #1543
++ make trailer table sortable #1492
++ added a dedicated file name filter for video files #1509
++ updated libmediainfo to 21.09
++ re-added legacy TVDB API v3 (the shutdown of API v3 has been postponed to the first half of 2022)
++ added trailer scraper for Dave's movie trailer page (https://www.davestrailerpage.co.uk/)
++ displaying of artwork is now configurable (for poster, fanart, banner, thumb) #1495
+x (movies) do not update the selected sum too often #1510
+x enhanced display of ratings if a user rating has been added #1513
+x added tmdbid to the movie set NFO #1516
+x cleanup of old season artwork when adding new one #1518
+x fixed check of shipped FFmpeg #1522
+x (image chooser) show a warning message when a wrong url has been entered #1530
+x (movies) Duplicate filter now considers all IDs
+x enhanced aborting of trailer downloads
+x enhanced layouting of the movie/TV show settings
+x enhanced nextpvr parsing #1537
+x (Linux) statically linked launcher to avoid glibc version mismatch #1542
+x fixed occasional double spaces in the renamer results #1541
+x (TV shows) enhanced note filter #1540
+x Plot & note fields render now clickable links #1538
+x enabled growing of the datasource settings panel #1548
+x do not strip <set> tag from TV show NFO files
+
+
 Version 4.2.2
 =======================
 + added selected entries amount and file size totals to the movie/movie set/TV show list #1450

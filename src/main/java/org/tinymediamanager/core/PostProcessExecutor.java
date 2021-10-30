@@ -50,8 +50,6 @@ public abstract class PostProcessExecutor {
   public abstract void execute();
 
   protected void executeCommand(String[] cmdline, MediaEntity mediaEntity) throws IOException, InterruptedException {
-    LOGGER.info("PostProcessing: START");
-
     List<String> commandList = new ArrayList<>();
     ProcessBuilder pb;
     String p = "";
@@ -64,7 +62,7 @@ public abstract class PostProcessExecutor {
       // path filled with some program
       if (p.endsWith("exe") || p.endsWith("com")) {
         commandList.add("&");
-        commandList.add("'" + p + "'"); // needs to be quoted
+        commandList.add("'" + postProcess.getPath() + "'"); // needs to be quoted
         commandList.addAll(Arrays.asList(cmdline));
       }
       // powershell scripting file
@@ -72,13 +70,13 @@ public abstract class PostProcessExecutor {
         commandList.add("-ExecutionPolicy"); // default security restriction bypass
         commandList.add("ByPass");
         commandList.add("-File");
-        commandList.add(p); // needs to be unquoted
+        commandList.add(postProcess.getPath()); // needs to be unquoted
         commandList.addAll(Arrays.asList(cmdline));
       }
       // standard cmd, ONLY if we not operating on a network share // TODO: find better way
       else if ((p.endsWith("bat") || p.endsWith("cmd")) && !mediaEntity.getDataSource().startsWith("\\\\")) {
         commandList.add("&");
-        commandList.add("'" + p + "'");
+        commandList.add("'" + postProcess.getPath() + "'");
         commandList.addAll(Arrays.asList(cmdline));
       }
       else {
@@ -90,7 +88,7 @@ public abstract class PostProcessExecutor {
     }
     else {
       // Linux & Mac
-      pb = new ProcessBuilder("/bin/sh", "-c", p + " " + String.join(" ", cmdline));
+      pb = new ProcessBuilder("/bin/sh", "-c", postProcess.getPath() + " " + String.join(" ", cmdline));
     }
 
     pb.redirectErrorStream(true);

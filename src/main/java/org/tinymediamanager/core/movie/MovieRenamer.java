@@ -184,23 +184,27 @@ public class MovieRenamer {
       String additional = "";
       List<MediaFileSubtitle> mfsl = sub.getSubtitles();
 
-      if (mfsl != null && !mfsl.isEmpty()) {
+      if (ListUtils.isNotEmpty(mfsl)) {
         // use internal values
         MediaFileSubtitle mfs = mfsl.get(0);
         originalLang = mfs.getLanguage();
+
+        if (StringUtils.isNotBlank(mfs.getTitle())) {
+          additional = "(" + mfs.getTitle().strip() + ")";
+        }
         if (mfs.isForced()) {
-          additional = ".forced";
+          additional += ".forced";
         }
         if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
           additional += ".sdh"; // double possible?!
         }
       }
       else {
+        /** SHOULD NOT BE NEEDED ANY MORE?! **/
         // detect from filename, if we don't have a MediaFileSubtitle entry!
         // remove the filename of movie from subtitle, to ease parsing
-        List<MediaFile> mfs = m.getMediaFiles(MediaFileType.VIDEO);
         String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
-        if (ListUtils.isNotEmpty(mfs)) {
+        if (ListUtils.isNotEmpty(m.getMediaFiles(MediaFileType.VIDEO))) {
           shortname = sub.getBasename().toLowerCase(Locale.ROOT).replace(m.getVideoBasenameWithoutStacking(), "");
         }
 
@@ -237,11 +241,12 @@ public class MovieRenamer {
 
       // rebuild new filename
       String newSubName = "";
+      String basename = "";
 
       if (sub.getStacking() == 0) {
         // fine, so match to first movie file
         MediaFile mf = m.getMediaFiles(MediaFileType.VIDEO).get(0);
-        newSubName = mf.getBasename();
+        basename = newSubName = mf.getBasename();
         if (!lang.isEmpty()) {
           newSubName += "." + lang;
         }
@@ -251,11 +256,13 @@ public class MovieRenamer {
         // with stacking info; try to match
         for (MediaFile mf : m.getMediaFiles(MediaFileType.VIDEO)) {
           if (mf.getStacking() == sub.getStacking()) {
-            newSubName = mf.getBasename();
+            basename = newSubName = mf.getBasename();
             if (!lang.isEmpty()) {
               newSubName += "." + lang;
             }
             newSubName += additional;
+
+            break;
           }
         }
       }
@@ -277,17 +284,9 @@ public class MovieRenamer {
             }
           }
           m.removeFromMediaFiles(sub);
-          MediaFile mf = new MediaFile(newFile);
-          MediaFileSubtitle mfs = new MediaFileSubtitle();
-          if (!lang.isEmpty()) {
-            mfs.setLanguage(lang);
-          }
-          if (!additional.isEmpty()) {
-            mfs.setForced(true);
-          }
-          mfs.setCodec(sub.getExtension());
-          mf.setContainerFormat(sub.getExtension()); // set containerformat, so mediainfo deos not overwrite our new array
-          mf.addSubtitle(mfs);
+
+          MediaFile mf = new MediaFile(sub);
+          mf.setFile(newFile);
           m.addToMediaFiles(mf);
         }
         else {
@@ -910,7 +909,7 @@ public class MovieRenamer {
         // check if there is only one subtitle file and the user wants to write this w/o the language tag
         if (!MovieModuleManager.getInstance().getSettings().isSubtitleWithoutLanguageTag() || subtitleFiles.size() > 1) {
           newFilename += getStackingString(mf);
-          if (mfsl != null && !mfsl.isEmpty()) {
+          if (ListUtils.isNotEmpty(mfsl)) {
             // internal values
             MediaFileSubtitle mfs = mfsl.get(0);
             if (!mfs.getLanguage().isEmpty()) {
@@ -921,12 +920,19 @@ public class MovieRenamer {
               }
               newFilename += "." + lang;
             }
+
+            String additional = "";
+            if (StringUtils.isNotBlank(mfs.getTitle())) {
+              additional = "(" + mfs.getTitle().strip() + ")";
+            }
             if (mfs.isForced()) {
-              newFilename += ".forced";
+              additional += ".forced";
             }
             if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
-              newFilename += ".sdh";
+              additional += ".sdh"; // double possible?!
             }
+
+            newFilename += additional;
           }
         }
         newFilename += "." + mf.getExtension();
@@ -1311,9 +1317,6 @@ public class MovieRenamer {
       newDestination = replacePathSeparators(newDestination);
     }
 
-    // replace multiple spaces with a single one
-    newDestination = newDestination.replaceAll(" +", " ").trim();
-
     // replace spaces with underscores if needed (filename only)
     if (forFilename && MovieModuleManager.getInstance().getSettings().isRenamerFilenameSpaceSubstitution()) {
       String replacement = MovieModuleManager.getInstance().getSettings().getRenamerFilenameSpaceReplacement();
@@ -1321,7 +1324,7 @@ public class MovieRenamer {
 
       // also replace now multiple replacements with one to avoid strange looking results
       // example:
-      // Abraham Lincoln - Vapire Hunter -> Abraham-Lincoln---Vampire-Hunter
+      // Abraham Lincoln - Vampire Hunter -> Abraham-Lincoln---Vampire-Hunter
       newDestination = newDestination.replaceAll(Pattern.quote(replacement) + "+", replacement);
     }
     else if (!forFilename && MovieModuleManager.getInstance().getSettings().isRenamerPathnameSpaceSubstitution()) {
@@ -1346,6 +1349,9 @@ public class MovieRenamer {
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
     newDestination = newDestination.replace(": ", " - "); // nicer
     newDestination = newDestination.replace(":", "-"); // nicer
+
+    // replace multiple spaces with a single one
+    newDestination = newDestination.replaceAll(" +", " ").trim();
 
     return newDestination.trim();
   }

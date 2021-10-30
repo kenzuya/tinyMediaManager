@@ -173,6 +173,8 @@ public class TvShowTest extends BasicTest {
     assertEqual("S:3 E:9", detectEpisode("Vikings_S03E09_10bit_x265_1080p_BluRay_6CH_30nama_30NAMA.mkv"));
     assertEqual("S:1 E:5", detectEpisode("S01/05 Gray Matter.avi"));
     assertEqual("S:1 E:5", detectEpisode("S 01/05 Gray Matter.avi"));
+    assertEqual("S:4 E:101", detectEpisode("Season 4 Episode 101.avi"));
+    assertEqual("S:4 E:204", detectEpisode("4x204.avi"));
 
     // FIXME: TV test pattern which currently do not work...
     // assertEqual("S:1 E:13 E:14 E:15", detectEpisode("Peter Pan S01E13_1x14_1x15 - El Hookato.ts")); // finds 1&13
