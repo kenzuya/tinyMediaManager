@@ -468,6 +468,7 @@ public abstract class ARDetectorTask extends TmmTask {
       getNewHeight(videoInfo);
       videoInfo.height = videoInfo.heightPrimary;
       videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
+      videoInfo.arSecondary = 0f;
 
       LOGGER.debug(
           "Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
