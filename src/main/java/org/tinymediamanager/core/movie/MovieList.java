@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -623,6 +624,8 @@ public final class MovieList extends AbstractModelObject {
     Set<MediaSearchResult> sr = new TreeSet<>();
     IMovieMetadataProvider provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
 
+    Pattern tmdbPattern = Pattern.compile("https://www.themoviedb.org/movie/(.*?)-.*");
+
     // set what we have, so the provider could chose from all :)
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setLanguage(language);
@@ -636,7 +639,6 @@ public final class MovieList extends AbstractModelObject {
 
     if (!searchTerm.isEmpty()) {
       String query = searchTerm.toLowerCase(Locale.ROOT);
-
       if (MetadataUtil.isValidImdbId(query)) {
         options.setImdbId(query);
       }
@@ -646,9 +648,26 @@ public final class MovieList extends AbstractModelObject {
           options.setImdbId(imdbId);
         }
       }
+      else if (query.startsWith("https://www.imdb.com/title/")) {
+        String imdbId = query.split("/")[4];
+        if (MetadataUtil.isValidImdbId(imdbId)) {
+          options.setImdbId(imdbId);
+        }
+      }
       else if (query.startsWith("tmdb:")) {
         try {
           int tmdbId = Integer.parseInt(query.replace("tmdb:", ""));
+          if (tmdbId > 0) {
+            options.setTmdbId(tmdbId);
+          }
+        }
+        catch (Exception e) {
+          // ignored
+        }
+      }
+      else if (tmdbPattern.matcher(query).matches()) {
+        try {
+          int tmdbId = Integer.parseInt(tmdbPattern.matcher(query).replaceAll("$1"));
           if (tmdbId > 0) {
             options.setTmdbId(tmdbId);
           }
