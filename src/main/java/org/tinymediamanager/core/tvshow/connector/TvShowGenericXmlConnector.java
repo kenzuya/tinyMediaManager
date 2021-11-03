@@ -204,7 +204,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          LOGGER.debug("NFO did not change - do not write it!");
+          LOGGER.debug("NFO {} did not change - do not write it!", f);
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
@@ -526,9 +526,8 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected void addCertification() {
     Element certification = document.createElement("certification");
     if (tvShow.getCertification() != null) {
-      certification
-          .setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(),
-              TvShowModuleManager.getInstance().getSettings().getCertificationStyle()));
+      certification.setTextContent(
+          CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(certification);
   }
@@ -560,9 +559,9 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
       Element episodeguide = document.createElement("episodeguide");
       Element url = document.createElement("url");
-      url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB)
-          + "?api_key=6a5be4999abf74eba1f9a8311294c267&language="
-          + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
+      url.setTextContent(
+          "http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB) + "?api_key=6a5be4999abf74eba1f9a8311294c267&language="
+              + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
       episodeguide.appendChild(url);
       root.appendChild(episodeguide);
     }

@@ -519,11 +519,14 @@ public class TmmUIHelper {
    *          the MediaEntity (movie/show) for generating correct links
    * @param id
    *          the ID to generate the url for (IMDB, TMDB, ...)
-   * @return the https url for GUI
+   * @return the https url for GUI, or empty
    */
   public static String createUrlForID(MediaEntity me, String id) {
     String url = "";
     String value = me.getIdAsString(id);
+    if (value.isEmpty()) {
+      return "";
+    }
 
     // same url, regardless if movie or tv
     switch (id) {
