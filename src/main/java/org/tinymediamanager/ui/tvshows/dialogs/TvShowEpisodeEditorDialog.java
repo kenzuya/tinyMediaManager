@@ -710,6 +710,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         spDvdEpisode.setValue(metadata.getDvdEpisodeNumber());
         spDvdSeason.setValue(metadata.getDvdSeasonNumber());
 
+        ids.clear();
+        ids.addAll(MediaIdTable.convertIdMapToEventList(metadata.getIds()));
+
         guests.clear();
         writers.clear();
         directors.clear();

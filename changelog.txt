@@ -23,6 +23,7 @@ x (TV shows) enhanced note filter #1540
 x Plot & note fields render now clickable links #1538
 x enabled growing of the datasource settings panel #1548
 x do not strip <set> tag from TV show NFO files
+x (TV shows) re-set episode IDs when changing the S/E number via the find episode dialog #1462
 
 
 Version 4.2.2
