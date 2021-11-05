@@ -7,6 +7,7 @@ Version 4.2.3
 + re-added legacy TVDB API v3 (the shutdown of API v3 has been postponed to the first half of 2022)
 + added trailer scraper for Dave's movie trailer page (https://www.davestrailerpage.co.uk/)
 + displaying of artwork is now configurable (for poster, fanart, banner, thumb) #1495
++ enabled editing of person IDs #1559
 x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
