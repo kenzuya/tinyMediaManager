@@ -62,6 +62,7 @@ import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
+import org.tinymediamanager.ui.actions.DeleteTrashAction;
 import org.tinymediamanager.ui.actions.DocsAction;
 import org.tinymediamanager.ui.actions.ExportLogAction;
 import org.tinymediamanager.ui.actions.FaqAction;
@@ -269,6 +270,7 @@ public class ToolbarPanel extends JPanel {
       }
     });
 
+    menu.add(new DeleteTrashAction());
     menu.addSeparator();
 
     final JMenu menuWakeOnLan = new JMenu(TmmResourceBundle.getString("tmm.wakeonlan"));
