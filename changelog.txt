@@ -106,6 +106,7 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (TV shows) added bulk adding subtitle information #1396
 + (movies) added option to consolidate movies on rename #1048
 + added the action "Tools -> Delete trash folder" to delete all .deletedByTMM folders in your data sources #1551
++ added an action to go to the tmp folder of tinyMediaManager
 x (TV shows) introduced adaptive event processing: this will help the UI to stay responsive on large libraries.
   The drawback here is, that some sorting and filtering in the UI will be delayed for large libraries
 x (TV shows) do not mix in TV show actors to the episode cast #1219
