@@ -8,6 +8,7 @@ Version 4.2.3
 + added trailer scraper for Dave's movie trailer page (https://www.davestrailerpage.co.uk/)
 + displaying of artwork is now configurable (for poster, fanart, banner, thumb) #1495
 + enabled editing of person IDs #1559
++ added writing of IMDB ID/TMDB ID for directors in Emby NFO format #1558
 x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
