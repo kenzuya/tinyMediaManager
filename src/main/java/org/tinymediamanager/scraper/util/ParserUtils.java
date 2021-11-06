@@ -49,8 +49,7 @@ public class ParserUtils {
       "divx", "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7",
       "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd",
       "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo",
-      "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remastered", "remux", "retail",
-      "roor", "rs",
+      "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs",
       "rsvcd", "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs",
       "vhsrip", "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
 
