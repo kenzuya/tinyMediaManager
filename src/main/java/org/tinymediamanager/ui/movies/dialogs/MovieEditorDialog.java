@@ -1412,9 +1412,15 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       movieToEdit.setProductionCompany(tfProductionCompanies.getText());
+
+      // remove cast to avoid merging
+      movieToEdit.removeActors();
       movieToEdit.setActors(cast);
+      movieToEdit.removeProducers();
       movieToEdit.setProducers(producers);
+      movieToEdit.removeDirectors();
       movieToEdit.setDirectors(directors);
+      movieToEdit.removeWriters();
       movieToEdit.setWriters(writers);
       movieToEdit.setGenres(genres);
 

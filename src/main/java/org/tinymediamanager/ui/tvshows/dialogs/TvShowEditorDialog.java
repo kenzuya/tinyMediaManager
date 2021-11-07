@@ -1166,8 +1166,11 @@ public class TvShowEditorDialog extends TmmDialog {
       tvShowToEdit.setProductionCompany(tfStudio.getText());
       tvShowToEdit.setCountry(tfCountry.getText());
       tvShowToEdit.setNote(tfNote.getText());
-      tvShowToEdit.setActors(actors);
       tvShowToEdit.setGenres(genres);
+
+      // remove cast to avoid merging
+      tvShowToEdit.removeActors();
+      tvShowToEdit.setActors(actors);
 
       tvShowToEdit.setTags(tags);
       tvShowToEdit.setDateAdded((Date) spDateAdded.getValue());

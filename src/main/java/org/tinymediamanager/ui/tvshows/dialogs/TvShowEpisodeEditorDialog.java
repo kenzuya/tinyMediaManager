@@ -836,8 +836,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setFirstAired(dpFirstAired.getDate());
 
       episodeToEdit.setWatched(chckbxWatched.isSelected());
+
+      // remove cast to avoid merging
+      episodeToEdit.removeActors();
       episodeToEdit.setActors(guests);
+      episodeToEdit.removeDirectors();
       episodeToEdit.setDirectors(directors);
+      episodeToEdit.removeWriters();
       episodeToEdit.setWriters(writers);
 
       // process artwork

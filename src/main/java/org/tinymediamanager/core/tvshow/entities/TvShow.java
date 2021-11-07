@@ -1411,14 +1411,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * Removes the actor.
-   *
-   * @param obj
-   *          the obj
+   * Removes all actors.
    */
-  public void removeActor(Person obj) {
-    actors.remove(obj);
-
+  public void removeActors() {
+    actors.clear();
     firePropertyChange(ACTORS, null, this.getActors());
   }
 

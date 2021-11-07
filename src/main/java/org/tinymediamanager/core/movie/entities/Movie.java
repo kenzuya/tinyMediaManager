@@ -1996,13 +1996,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove the given actor.
-   *
-   * @param actor
-   *          the actor to be removed
+   * remove all actors.
    */
-  public void removeActor(Person actor) {
-    actors.remove(actor);
+  public void removeActors() {
+    actors.clear();
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -2058,13 +2055,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove the given producer
-   *
-   * @param producer
-   *          the producer to be removed
+   * remove all producers
    */
-  public void removeProducer(Person producer) {
-    producers.remove(producer);
+  public void removeProducers() {
+    producers.clear();
     firePropertyChange(PRODUCERS, null, producers);
   }
 
@@ -2122,13 +2116,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove the given director.
-   *
-   * @param director
-   *          the director to be removed
+   * remove all directors.
    */
-  public void removeDirector(Person director) {
-    directors.remove(director);
+  public void removeDirectors() {
+    directors.clear();
     firePropertyChange(DIRECTORS, null, directors);
     firePropertyChange(DIRECTORS_AS_STRING, null, getDirectorsAsString());
   }
@@ -2201,13 +2192,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove the given writer.
-   *
-   * @param writer
-   *          the writer to be removed
+   * remove all writers.
    */
-  public void removeWriter(Person writer) {
-    writers.remove(writer);
+  public void removeWriters() {
+    writers.clear();
     firePropertyChange(WRITERS, null, getWriters());
     firePropertyChange(WRITERS_AS_STRING, null, getWritersAsString());
   }
