@@ -28,6 +28,7 @@ x enabled growing of the datasource settings panel #1548
 x do not strip <set> tag from TV show NFO files
 x (TV shows) re-set episode IDs when changing the S/E number via the find episode dialog #1462
 x (movies) write the original filename (rather than the actual one) to the NFO #1556
+x Emby: quickfix for multi episodes by writing <episodenumberend> tag #1444
 
 
 Version 4.2.2

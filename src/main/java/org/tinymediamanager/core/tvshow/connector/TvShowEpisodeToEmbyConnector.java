@@ -39,6 +39,33 @@ public class TvShowEpisodeToEmbyConnector extends TvShowEpisodeToKodiConnector {
     super.addOwnTags(episode, parser);
 
     addLockdata(episode, parser);
+
+    // write highest episode number to tag, if multi-episode (only allowed on same season)
+    // write em for all, since Emby only reads the first entry... and we don't care on reading ;)
+    if (episode.isMultiEpisode()) {
+      TvShowEpisode highest = new TvShowEpisode();
+      for (TvShowEpisode tvShowEpisode : episodes) {
+        if (tvShowEpisode.getSeason() > highest.getSeason()) {
+          highest = tvShowEpisode;
+        }
+        if (tvShowEpisode.getSeason() == highest.getSeason() && tvShowEpisode.getEpisode() > highest.getEpisode()) {
+          highest = tvShowEpisode;
+        }
+      }
+      addEpisodeNumberEnd(highest, parser);
+    }
+  }
+
+  /**
+   * write the <episodenumberend> tag for Emby<br />
+   * in case of a multi-episode, this will mark the highest episode number on all entries...<br>
+   * see https://gitlab.com/tinyMediaManager/tinyMediaManager/-/issues/1444
+   */
+  protected void addEpisodeNumberEnd(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element episodenumberend = document.createElement("episodenumberend");
+    episodenumberend.setTextContent(String.valueOf(episode.getEpisode()));
+
+    root.appendChild(episodenumberend);
   }
 
   /**
