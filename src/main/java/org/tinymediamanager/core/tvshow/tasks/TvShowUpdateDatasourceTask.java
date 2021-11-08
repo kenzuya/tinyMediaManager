@@ -1059,8 +1059,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
-      // re-evaluate stacking markers
+      // re-evaluate stacking markers & disc folders
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        episode.reEvaluateDiscfolder();
         episode.reEvaluateStacking();
         episode.saveToDb();
       }

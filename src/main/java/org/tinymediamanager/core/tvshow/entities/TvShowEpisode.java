@@ -1741,6 +1741,19 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
+   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag
+   */
+  public void reEvaluateDiscfolder() {
+    boolean disc = false;
+    for (MediaFile mf : getMediaFiles()) {
+      if (mf.isDiscFile()) {
+        disc = true;
+      }
+    }
+    setDisc(disc);
+  }
+
+  /**
    * ok, we might have detected some stacking MFs.<br>
    * But if we only have ONE video file, reset stacking markers in this case<br>
    */

@@ -912,7 +912,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movieList.addMovie(movie);
 
       movie.setOffline(isOffline);
-
+      movie.reEvaluateDiscfolder();
       movie.reEvaluateStacking();
       movie.saveToDb();
     }
@@ -1120,6 +1120,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     // check stacking on all movie from this dir (it might have changed!)
     for (Movie m : movieList.getMoviesByPath(movieDir)) {
+      m.reEvaluateDiscfolder();
       m.reEvaluateStacking();
       m.saveToDb();
     }
@@ -1142,7 +1143,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (!current.contains(mf)) { // a new mediafile was found!
         if (mf.getPath().toUpperCase(Locale.ROOT).contains("BDMV") || mf.getPath().toUpperCase(Locale.ROOT).contains("VIDEO_TS")
             || mf.getPath().toUpperCase(Locale.ROOT).contains("HVDVD_TS") || mf.isDiscFile()) {
-          movie.setDisc(true);
           if (movie.getMediaSource() == MediaSource.UNKNOWN) {
             movie.setMediaSource(MediaSource.parseMediaSource(mf.getPath()));
           }
