@@ -80,6 +80,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -489,10 +490,14 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     cbTvShowForPreview.removeAllItems();
     List<TvShow> allTvShows = new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     allTvShows.sort(new TvShowComparator());
+    TvShow sel = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShow();
     for (TvShow tvShow : allTvShows) {
       TvShowPreviewContainer container = new TvShowPreviewContainer();
       container.tvShow = tvShow;
       cbTvShowForPreview.addItem(container);
+      if (sel != null && tvShow.equals(sel)) {
+        cbTvShowForPreview.setSelectedItem(container);
+      }
     }
   }
 
@@ -501,10 +506,14 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     Object obj = cbTvShowForPreview.getSelectedItem();
     if (obj instanceof TvShowPreviewContainer) {
       TvShowPreviewContainer c = (TvShowPreviewContainer) cbTvShowForPreview.getSelectedItem();
+      List<TvShowEpisode> sel = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
       for (TvShowEpisode episode : c.tvShow.getEpisodes()) {
         TvShowEpisodePreviewContainer container = new TvShowEpisodePreviewContainer();
         container.episode = episode;
         cbEpisodeForPreview.addItem(container);
+        if (sel != null && sel.size() > 0 && episode.equals(sel.get(0))) {
+          cbEpisodeForPreview.setSelectedItem(container);
+        }
       }
     }
   }
