@@ -710,6 +710,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         spDvdEpisode.setValue(metadata.getDvdEpisodeNumber());
         spDvdSeason.setValue(metadata.getDvdSeasonNumber());
 
+        ids.clear();
+        ids.addAll(MediaIdTable.convertIdMapToEventList(metadata.getIds()));
+
         guests.clear();
         writers.clear();
         directors.clear();
@@ -833,8 +836,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setFirstAired(dpFirstAired.getDate());
 
       episodeToEdit.setWatched(chckbxWatched.isSelected());
+
+      // remove cast to avoid merging
+      episodeToEdit.removeActors();
       episodeToEdit.setActors(guests);
+      episodeToEdit.removeDirectors();
       episodeToEdit.setDirectors(directors);
+      episodeToEdit.removeWriters();
       episodeToEdit.setWriters(writers);
 
       // process artwork

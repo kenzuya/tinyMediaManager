@@ -1979,15 +1979,11 @@ public class Utils {
   }
 
   public static void clearTempFolder() {
-    String tmpdir = System.getProperty("java.io.tmpdir");
-
-    if (StringUtils.isNotBlank(tmpdir) && !tmpdir.equals(tempFolder)) {
-      try {
-        deleteDirectoryRecursive(Paths.get(tempFolder));
-      }
-      catch (Exception ignored) {
-        // just ignore
-      }
+    try {
+      deleteDirectoryRecursive(Paths.get(tempFolder));
+    }
+    catch (Exception ignored) {
+      // just ignore
     }
   }
 

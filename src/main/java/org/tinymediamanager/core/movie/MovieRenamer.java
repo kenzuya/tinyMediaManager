@@ -371,7 +371,9 @@ public class MovieRenamer {
 
     if (!newPathname.isEmpty()) {
       newPathname = Paths.get(movie.getDataSource(), newPathname).toString();
-      renameMovieFolder(movie, newPathname);
+      if (!renameMovieFolder(movie, newPathname)) {
+        return;
+      }
     } // folder pattern empty
     else {
       LOGGER.info("Folder rename settings were empty - NOT renaming folder");
@@ -647,7 +649,7 @@ public class MovieRenamer {
     movie.saveToDb();
   }
 
-  private static void renameMovieFolder(Movie movie, String newPathname) {
+  private static boolean renameMovieFolder(Movie movie, String newPathname) {
     Path srcDir = movie.getPathNIO();
     Path destDir = Paths.get(newPathname);
     if (!srcDir.toAbsolutePath().toString().equals(destDir.toAbsolutePath().toString())) {
@@ -694,13 +696,13 @@ public class MovieRenamer {
           LOGGER.error("error moving folder: ", e);
           MessageManager.instance
               .pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename", new String[] { ":", e.getLocalizedMessage() }));
-          return;
+          return false;
         }
         if (!ok) {
           MessageManager.instance
               .pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename", new String[] { movie.getTitle() }));
           LOGGER.error("Could not move to destination '{}' - NOT renaming folder", destDir);
-          return;
+          return false;
         }
       }
       else if (movie.isMultiMovieDir() && !newDestIsMultiMovieDir) {
@@ -715,13 +717,13 @@ public class MovieRenamer {
           catch (Exception e) {
             LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie)", destDir);
             // well, better not to rename
-            return;
+            return false;
           }
         }
         else {
           LOGGER.error("Directory already exists! '{}' - NOT renaming folder ('upgrade' movie)", destDir);
           // well, better not to rename
-          return;
+          return false;
         }
         movie.setMultiMovieDir(false);
       }
@@ -740,12 +742,14 @@ public class MovieRenamer {
           catch (Exception e) {
             LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie)", destDir);
             // well, better not to rename
-            return;
+            return false;
           }
         }
         movie.setMultiMovieDir(true);
       }
     } // src == dest
+
+    return true;
   }
 
   /**

@@ -194,7 +194,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          LOGGER.trace("NFO did not change - do not write it!");
+          LOGGER.trace("NFO {} did not change - do not write it!", f);
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
@@ -440,9 +440,8 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   protected void addCertification() {
     Element certification = document.createElement("certification");
     if (movie.getCertification() != null) {
-      certification
-          .setTextContent(CertificationStyle.formatCertification(movie.getCertification(),
-              MovieModuleManager.getInstance().getSettings().getCertificationStyle()));
+      certification.setTextContent(
+          CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(certification);
   }
@@ -729,8 +728,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     List<String> translatedLanguages = new ArrayList<>();
     for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
       String translated = LanguageUtils
-          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(),
-          langu.trim());
+          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(), langu.trim());
       translatedLanguages.add(translated);
     }
 
@@ -816,7 +814,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addOriginalFilename() {
     Element originalFileName = document.createElement("original_filename");
-    originalFileName.setTextContent(movie.getMainFile().getFilename());
+    originalFileName.setTextContent(movie.getOriginalFilename());
     root.appendChild(originalFileName);
   }
 
