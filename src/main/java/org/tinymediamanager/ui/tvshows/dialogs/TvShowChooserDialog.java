@@ -327,7 +327,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         JLabel lblTvShowsT = new TmmLabel(TmmResourceBundle.getString("metatag.tvshows"));
         panelScraperConfig.add(lblTvShowsT, "cell 0 1,alignx trailing");
 
-        cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.values());
+        cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.getValuesWithout(TvShowScraperMetadataConfig.ID));
         cbTvShowScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
