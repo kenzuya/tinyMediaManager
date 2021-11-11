@@ -264,8 +264,22 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     md.setRuntime(MetadataUtil.unboxInteger(show.averageRuntime, 0));
 
-    for (CompanyBaseRecord company : ListUtils.nullSafe(show.companies)) {
-      md.addProductionCompany(company.name);
+    if (show.companies != null) {
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(show.companies.production)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(show.companies.studio)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(show.companies.network)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(show.companies.specialEffects)) {
+        md.addProductionCompany(baseRecord.name);
+      }
+      for (CompanyBaseRecord baseRecord : ListUtils.nullSafe(show.companies.distributor)) {
+        md.addProductionCompany(baseRecord.name);
+      }
     }
 
     if (show.characters != null) {
