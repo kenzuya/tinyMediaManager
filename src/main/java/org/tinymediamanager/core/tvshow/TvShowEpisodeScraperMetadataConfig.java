@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.tvshow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -142,6 +143,27 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
 
     for (TvShowEpisodeScraperMetadataConfig value : values()) {
       if (value.type != Type.DEPRECATED) {
+        values.add(value);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * get all values except the given and deprecated ones
+   *
+   * @param valuesToExclude
+   *          values to exclude from the list
+   *
+   * @return a {@link List} of all values except the given and deprecated ones
+   */
+  public static List<TvShowEpisodeScraperMetadataConfig> getValuesWithout(TvShowEpisodeScraperMetadataConfig... valuesToExclude) {
+    List<TvShowEpisodeScraperMetadataConfig> values = new ArrayList<>();
+    List<TvShowEpisodeScraperMetadataConfig> exclude = Arrays.asList(valuesToExclude);
+
+    for (TvShowEpisodeScraperMetadataConfig value : values()) {
+      if (value.type != Type.DEPRECATED && !exclude.contains(value)) {
         values.add(value);
       }
     }

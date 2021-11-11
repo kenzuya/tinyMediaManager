@@ -72,7 +72,7 @@ public class SeriesExtendedRecord {
   public List<String>              nameTranslations     = null;
 
   @SerializedName("companies")
-  public List<CompanyBaseRecord>   companies            = null;
+  public Companies                 companies            = null;
 
   @SerializedName("nextAired")
   public String                    nextAired            = null;
