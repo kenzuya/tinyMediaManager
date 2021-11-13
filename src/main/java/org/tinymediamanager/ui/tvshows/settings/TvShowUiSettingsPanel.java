@@ -736,7 +736,7 @@ class TvShowUiSettingsPanel extends JPanel {
       panelFilter.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][]")); // 16lp ~ width of
                                                                                                                    // the
 
-      JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.filter"), H3);
+      JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.filters"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFilter, lblAutomaticTasksT, true);
       JLabel lblTvShowFilter = new JLabel(TmmResourceBundle.getString("Settings.tvshowquickfilter"));
       panelFilter.add(lblTvShowFilter, "cell 1 0 2 1");
