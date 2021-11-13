@@ -150,9 +150,11 @@ deploy:DOCKER-RELEASE:
     # build
     - cd docker
     - docker build -f Dockerfile -t $IMAGE_NAME .
+    - docker tag $IMAGE_NAME tinymediamanager/tinymediamanager:latest
 
     # push to the registry
     - docker push $IMAGE_NAME
+    - docker push tinymediamanager/tinymediamanager:latest
 
 ##########################################
 # TEST
