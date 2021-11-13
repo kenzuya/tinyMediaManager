@@ -1,3 +1,7 @@
+Version 4.2.4
+=======================
+
+
 Version 4.2.3
 =======================
 + support for multiple trailers in the same language (forced, sdh, ...) #343 #1543
