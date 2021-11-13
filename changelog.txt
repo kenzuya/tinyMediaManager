@@ -9,7 +9,6 @@ Version 4.2.3
 + displaying of artwork is now configurable (for poster, fanart, banner, thumb) #1495
 + enabled editing of person IDs #1559
 + added writing of IMDB ID/TMDB ID for directors in Emby NFO format #1558
-x (TV shows) fixed some changes in the TVDB API
 x (movies) fixed regression of #1048 where a duplicate movie may removed the original one #1557
 x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
