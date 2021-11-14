@@ -274,7 +274,7 @@ class TvShowImageSettingsPanel extends JPanel {
         JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
-        cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
+        cbScraperLanguage = new JComboBox(MediaLanguages.allValuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
         JLabel lblImageTmdbPosterSize = new JLabel(TmmResourceBundle.getString("image.poster.size"));
