@@ -995,8 +995,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // tvShow.addToMediaFiles(mfs); // add remaining
       // not so fast - try to parse S/E from remaining first!
       for (MediaFile mf : mfs) {
-        // a season poster/banner/thumb does not belong to any episode
-        if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_BANNER
+        // a season poster/fanart/banner/thumb does not belong to any episode
+        if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_FANART || mf.getType() == MediaFileType.SEASON_BANNER
             || mf.getType() == MediaFileType.SEASON_THUMB) {
           continue;
         }
@@ -1032,8 +1032,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       mfs.removeAll(tvShow.getEpisodesMediaFiles()); // remove EP files
       tvShow.addToMediaFiles(mfs); // now add remaining
 
-      // fill season posters map
-      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB)) {
+      // fill season artwork map
+      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
+          MediaFileType.SEASON_THUMB)) {
         int season;
         try {
           if (mf.getFilename().startsWith("season-specials")) {

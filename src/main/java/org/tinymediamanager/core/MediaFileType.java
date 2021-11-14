@@ -48,6 +48,7 @@ public enum MediaFileType {
   CHARACTERART, //gfx
   KEYART, // gfx
   SEASON_POSTER, // gfx
+  SEASON_FANART, // gfx
   SEASON_BANNER, // gfx
   SEASON_THUMB, // gfx
   EXTRAFANART, // gfx
@@ -82,6 +83,9 @@ public enum MediaFileType {
 
       case SEASON_POSTER:
         return MediaFileType.SEASON_POSTER;
+
+      case SEASON_FANART:
+        return MediaFileType.SEASON_FANART;
 
       case SEASON_BANNER:
         return MediaFileType.SEASON_BANNER;
@@ -136,6 +140,9 @@ public enum MediaFileType {
       case SEASON_POSTER:
         return MediaArtworkType.SEASON_POSTER;
 
+      case SEASON_FANART:
+        return MediaArtworkType.SEASON_FANART;
+
       case SEASON_BANNER:
         return MediaArtworkType.SEASON_BANNER;
 
@@ -187,6 +194,7 @@ public enum MediaFileType {
         MediaFileType.CHARACTERART,
         MediaFileType.KEYART,
         MediaFileType.SEASON_POSTER,
+        MediaFileType.SEASON_FANART,
         MediaFileType.SEASON_BANNER,
         MediaFileType.SEASON_THUMB,
         MediaFileType.EXTRAFANART,

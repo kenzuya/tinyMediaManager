@@ -65,6 +65,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
 
   SEASON_POSTER(Type.ARTWORK),
+  SEASON_FANART(Type.ARTWORK),
   SEASON_BANNER(Type.ARTWORK),
   SEASON_THUMB(Type.ARTWORK),
 

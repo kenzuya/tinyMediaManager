@@ -24,6 +24,7 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_FANART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
@@ -63,6 +64,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowExtraImageFetcherTask;
@@ -245,6 +247,14 @@ public class TvShowArtworkHelper {
           }
         }
       }
+      if (StringUtils.isBlank(season.getArtworkFilename(SEASON_FANART))) {
+        for (MediaArtwork art : artwork) {
+          if (art.getSeason() == season.getSeason()) {
+            tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_FANART);
+            downloadSeasonFanart(tvShow, art.getSeason());
+          }
+        }
+      }
       if (StringUtils.isBlank(season.getArtworkFilename(SEASON_BANNER))) {
         for (MediaArtwork art : artwork) {
           if (art.getSeason() == season.getSeason()) {
@@ -383,6 +393,11 @@ public class TvShowArtworkHelper {
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_POSTER))) {
         return true;
       }
+      if (config.contains(TvShowScraperMetadataConfig.SEASON_FANART)
+          && !TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames().isEmpty()
+          && StringUtils.isBlank(season.getArtworkFilename(SEASON_FANART))) {
+        return true;
+      }
       if (config.contains(TvShowScraperMetadataConfig.SEASON_BANNER)
           && !TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames().isEmpty()
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_BANNER))) {
@@ -479,6 +494,58 @@ public class TvShowArtworkHelper {
     // if that has been a local file, remove it from the artwork urls after we've already started the download(copy) task
     if (tvShowSeason != null && seasonPosterUrl.startsWith("file:")) {
       tvShowSeason.removeArtworkUrl(SEASON_POSTER);
+    }
+  }
+
+  /**
+   * Download the season fanart
+   *
+   * @param show
+   *          the TV show
+   * @param season
+   *          the season to download the fanart for
+   */
+  private static void downloadSeasonFanart(TvShow show, int season) {
+    String seasonFanartUrl = show.getSeasonArtworkUrl(season, SEASON_FANART);
+
+    TvShowSeason tvShowSeason = null;
+    // try to get a season instance
+    for (TvShowSeason s : show.getSeasons()) {
+      if (s.getSeason() == season) {
+        tvShowSeason = s;
+        break;
+      }
+    }
+
+    for (TvShowSeasonFanartNaming seasonFanartNaming : TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames()) {
+      String filename = seasonFanartNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonFanartUrl));
+      if (StringUtils.isBlank(filename)) {
+        LOGGER.warn("empty filename for artwork: {} - {}", seasonFanartNaming.name(), show); // NOSONAR
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, show, "tvshow.seasondownload.failed"));
+        continue;
+      }
+
+      Path destFile = show.getPathNIO().resolve(filename);
+
+      // check if the parent exist and create if needed
+      if (!Files.exists(destFile.getParent())) {
+        try {
+          Files.createDirectory(destFile.getParent());
+        }
+        catch (IOException e) {
+          LOGGER.error("could not create folder: {} - {}", destFile.getParent(), e.getMessage());
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, show, "tvshow.seasondownload.failed"));
+          continue;
+        }
+      }
+
+      SeasonArtworkImageFetcher task = new SeasonArtworkImageFetcher(show, destFile, tvShowSeason, seasonFanartUrl, SEASON_FANART);
+      TmmTaskManager.getInstance().addImageDownloadTask(task);
+    }
+
+    // if that has been a local file, remove it from the artwork urls after we've already started the download(copy) task
+    if (tvShowSeason != null && seasonFanartUrl.startsWith("file:")) {
+      tvShowSeason.removeArtworkUrl(SEASON_FANART);
     }
   }
 
@@ -739,6 +806,24 @@ public class TvShowArtworkHelper {
               tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_POSTER);
               TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_POSTER);
               seasonPosters.put(art.getSeason(), art.getDefaultUrl());
+            }
+          }
+        }
+      }
+    }
+
+    // season fanart
+    if (config.contains(TvShowScraperMetadataConfig.SEASON_FANART)) {
+      HashMap<Integer, String> seasonFanarts = new HashMap<>();
+      for (MediaArtwork art : artwork) {
+        if (art.getType() == SEASON_FANART && art.getSeason() >= 0) {
+          // check if there is already an artwork for this season
+          if (overwrite || StringUtils.isBlank(tvShow.getSeasonArtwork(art.getSeason(), SEASON_FANART))) {
+            String url = seasonFanarts.get(art.getSeason());
+            if (StringUtils.isBlank(url)) {
+              tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_FANART);
+              TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_FANART);
+              seasonFanarts.put(art.getSeason(), art.getDefaultUrl());
             }
           }
         }

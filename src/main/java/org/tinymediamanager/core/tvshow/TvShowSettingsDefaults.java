@@ -35,6 +35,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
@@ -96,6 +97,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
 
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
@@ -163,6 +167,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
 
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
@@ -232,6 +239,9 @@ public class TvShowSettingsDefaults {
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
 
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
+
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
 
@@ -298,6 +308,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
 
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_FOLDER);

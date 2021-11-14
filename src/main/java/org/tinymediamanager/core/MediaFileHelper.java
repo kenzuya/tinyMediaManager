@@ -90,6 +90,7 @@ public class MediaFileHelper {
   public static final Pattern      BANNER_PATTERN;
   public static final Pattern      THUMB_PATTERN;
   public static final Pattern      SEASON_POSTER_PATTERN;
+  public static final Pattern      SEASON_FANART_PATTERN;
   public static final Pattern      SEASON_BANNER_PATTERN;
   public static final Pattern      SEASON_THUMB_PATTERN;
   public static final Pattern      LOGO_PATTERN;
@@ -166,6 +167,7 @@ public class MediaFileHelper {
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
     SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
+    SEASON_FANART_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-fanart)?\\.(" + extensions + ")$");
     SEASON_BANNER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-banner\\.(" + extensions + ")$");
     SEASON_THUMB_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
     LOGO_PATTERN = Pattern.compile("(?i)(.*-logo|logo)\\.(" + extensions + ")$");
@@ -352,6 +354,13 @@ public class MediaFileHelper {
     matcher = MediaFileHelper.SEASON_POSTER_PATTERN.matcher(filename);
     if (matcher.matches()) {
       return MediaFileType.SEASON_POSTER;
+    }
+
+    // season(XX|-specials)-fanart.*
+    // seasonXX.*
+    matcher = MediaFileHelper.SEASON_FANART_PATTERN.matcher(filename);
+    if (matcher.matches()) {
+      return MediaFileType.SEASON_FANART;
     }
 
     // season(XX|-specials)-banner.*
@@ -2292,6 +2301,7 @@ public class MediaFileHelper {
       case EXTRAFANART:
       case GRAPHIC:
       case SEASON_POSTER:
+      case SEASON_FANART:
       case SEASON_BANNER:
       case SEASON_THUMB:
       case LOGO:

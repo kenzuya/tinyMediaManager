@@ -1229,7 +1229,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           case SAMPLE:
           case NFO:
           case TEXT:
-          case SEASON_POSTER:
           case EXTRAFANART:
           case EXTRATHUMB:
           case AUDIO:
@@ -1243,6 +1242,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
           case GRAPHIC:
           case UNKNOWN:
+          case SEASON_POSTER:
+          case SEASON_FANART:
           case SEASON_BANNER:
           case SEASON_THUMB:
           case VIDEO_EXTRA:
