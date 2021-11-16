@@ -320,6 +320,21 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     }
   }
 
+  public static class DateTimeComparator implements Comparator<Date> {
+
+    @Override
+    public int compare(Date arg0, Date arg1) {
+      if (arg0 == null) {
+        return -1;
+      }
+      if (arg1 == null) {
+        return 1;
+      }
+
+      return arg0.compareTo(arg1);
+    }
+  }
+
   public static class VideoFormatComparator implements Comparator<String> {
     @Override
     public int compare(String arg0, String arg1) {

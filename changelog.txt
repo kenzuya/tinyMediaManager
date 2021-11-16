@@ -2,6 +2,7 @@ Version 4.2.4
 =======================
 + added support for season fanart #1434 #1572
 x prefer fanart without text to comply with Kodi standards #1565
+x sort the column "date added" by date AND time
 
 
 Version 4.2.3
