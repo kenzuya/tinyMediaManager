@@ -15,12 +15,18 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Window;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 
-import javax.swing.*;
-import java.awt.*;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * this dialog is used for editing a subtitle
@@ -29,53 +35,52 @@ import java.awt.*;
  */
 public class SubtitleEditorDialog extends TmmDialog {
 
-    private static final String DIALOG_ID = "subtitleEditor";
+  private static final String DIALOG_ID = "subtitleEditor";
 
-    private JTextField tfLanguage;
-    private JCheckBox cbForced;
-    private MediaFileSubtitle mediaFileSubtitleToEdit;
+  private JTextField          tfLanguage;
+  private JCheckBox           cbForced;
+  private MediaFileSubtitle   mediaFileSubtitleToEdit;
 
-    public SubtitleEditorDialog(Window owner, String title, MediaFileSubtitle mediaFileSubtitleToEdit) {
-        super(owner,title,DIALOG_ID);
-        this.mediaFileSubtitleToEdit = mediaFileSubtitleToEdit;
-        initComponents();
+  public SubtitleEditorDialog(Window owner, String title, MediaFileSubtitle mediaFileSubtitleToEdit) {
+    super(owner, title, DIALOG_ID);
+    this.mediaFileSubtitleToEdit = mediaFileSubtitleToEdit;
+    initComponents();
+  }
+
+  private void initComponents() {
+    JPanel panelContent = new JPanel();
+    getContentPane().add(panelContent);
+    panelContent.setLayout(new MigLayout("", "[][50lp:n,grow]", "[][]"));
+
+    {
+      JLabel lblLanguage = new JLabel(TmmResourceBundle.getString("metatag.language"));
+      panelContent.add(lblLanguage, "cell 0 0, alignx trailing");
+
+      tfLanguage = new JTextField();
+      panelContent.add(tfLanguage, "cell 1 0, growx");
     }
+    {
+      JLabel lblForced = new JLabel(TmmResourceBundle.getString("metatag.forced"));
+      panelContent.add(lblForced, "cell 0 1, alignx trailing");
 
-
-    private void initComponents() {
-        JPanel panelContent = new JPanel();
-        getContentPane().add(panelContent);
-        panelContent.setLayout(new MigLayout("", "[][50lp:n,grow]", "[][]"));
-
-        {
-            JLabel lblLanguage = new JLabel(TmmResourceBundle.getString("metatag.language"));
-            panelContent.add(lblLanguage,"cell 0 0, alignx trailing");
-
-            tfLanguage = new JTextField();
-            panelContent.add(tfLanguage,"cell 1 0, growx");
-        }
-        {
-            JLabel lblForced = new JLabel(TmmResourceBundle.getString("metatag.forced"));
-            panelContent.add(lblForced,"cell 0 1, alignx trailing");
-
-            cbForced = new JCheckBox();
-            panelContent.add(cbForced,"cell 1 1, growx");
-        }
-        {
-            JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-            btnCancel.addActionListener(e -> setVisible(false));
-            addButton(btnCancel);
-
-            JButton btnOk = new JButton(TmmResourceBundle.getString("Button.save"));
-            btnOk.addActionListener(e -> {
-
-                mediaFileSubtitleToEdit.setForced(cbForced.isSelected());
-                mediaFileSubtitleToEdit.setLanguage(tfLanguage.getText());
-
-                setVisible(false);
-            });
-            addDefaultButton(btnOk);
-        }
+      cbForced = new JCheckBox();
+      panelContent.add(cbForced, "cell 1 1, growx");
     }
+    {
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
+      btnCancel.addActionListener(e -> setVisible(false));
+      addButton(btnCancel);
+
+      JButton btnOk = new JButton(TmmResourceBundle.getString("Button.save"));
+      btnOk.addActionListener(e -> {
+
+        mediaFileSubtitleToEdit.setForced(cbForced.isSelected());
+        mediaFileSubtitleToEdit.setLanguage(tfLanguage.getText());
+
+        setVisible(false);
+      });
+      addDefaultButton(btnOk);
+    }
+  }
 
 }

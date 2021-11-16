@@ -58,7 +58,7 @@ public class ArdSettingsPanel extends JPanel {
   private JRadioButton           rdbtnRoundNearest;
   private JRadioButton           rdbtnRoundUpToNext;
   private ButtonGroup            buttonGroupARUseMode = new ButtonGroup();
-  private JRadioButton rdbtnMFMost;
+  private JRadioButton           rdbtnMFMost;
   private JRadioButton           rdbtnMFHigher;
   private JRadioButton           rdbtnMFWider;
 

@@ -43,7 +43,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
  * the class {@link TvShowAllInOneFilter} implements a generic text field filter
- * 
+ *
  * @author Manuel Laggner
  */
 public class TvShowAllInOneFilter extends AbstractTextTvShowUIFilter {

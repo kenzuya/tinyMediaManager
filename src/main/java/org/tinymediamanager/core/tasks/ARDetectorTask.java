@@ -200,8 +200,7 @@ public abstract class ARDetectorTask extends TmmTask {
       mediaFile.setVideoHeight(videoInfo.height);
       mediaFile.setVideoWidth(videoInfo.width);
 
-      LOGGER.info("Detected: {}x{} AR: {}{}", videoInfo.width, videoInfo.height,
-          String.format("%.2f", videoInfo.arPrimary),
+      LOGGER.info("Detected: {}x{} AR: {}{}", videoInfo.width, videoInfo.height, String.format("%.2f", videoInfo.arPrimary),
           videoInfo.arSecondary > 0f ? (" (AR2: " + String.format("%.2f", videoInfo.arSecondary)) + ")" : "");
     }
     catch (Exception ex) {
