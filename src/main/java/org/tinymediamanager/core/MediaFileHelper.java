@@ -2726,6 +2726,54 @@ public class MediaFileHelper {
   }
 
   /**
+   * get all relevant video files. This comes in handy for disc structures
+   * 
+   * @param mediaFile
+   *          the {@link MediaFile} to get all relevant video files
+   * @return a {@link List} of all video files (as {@link Path})
+   */
+  public static List<Path> getVideoFiles(MediaFile mediaFile) {
+    if (Files.isDirectory(mediaFile.getFileAsPath())) {
+      // looks like a disc structure
+      List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
+      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
+        try {
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
+        }
+      }
+
+      if (mediaFile.isDVDFile()) {
+        String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
+        mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
+          if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
+            return false;
+          }
+          if (file.getFilename().startsWith(relevantPrefix)) {
+            return true;
+          }
+          return false;
+        }).sorted().collect(Collectors.toList());
+      }
+      else if (mediaFile.isBlurayFile()) {
+        mediaInfoFiles = detectRelevantBlurayFiles(mediaInfoFiles);
+      }
+      else if (mediaFile.isHDDVDFile()) {
+        mediaInfoFiles = detectRelevantHdDvdFiles(mediaInfoFiles);
+      }
+
+      List<Path> files = new ArrayList<>();
+      mediaInfoFiles.forEach(mediaInfoFile -> files.add(Paths.get(mediaInfoFile.getPath(), mediaInfoFile.getFilename())));
+
+      return files;
+    }
+
+    return Collections.singletonList(mediaFile.getFileAsPath());
+  }
+
+  /**
    * Try to parse the language out of the filename. This happens (like in Kodi) to chop the filename into different chunks and search in the chunks
    * for possible language tags.<br />
    * To make this work flawless we need to chop out the "main" filename part (movie/episode video filename) and look into the rest. For this we need

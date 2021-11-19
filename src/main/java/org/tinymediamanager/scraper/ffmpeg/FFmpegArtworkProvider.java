@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -96,7 +97,17 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
       return Collections.emptyList();
     }
+    else if (mediaFile.isDiscFile()) {
+      // need to get the thumbs from the various disc files
+      return createStillsFromDiscFiles(mediaFile);
+    }
+    else {
+      // plain file - just need to get the stills from there
+      return createStillsFromPlainFile(mediaFile);
+    }
+  }
 
+  private List<MediaArtwork> createStillsFromPlainFile(MediaFile mediaFile) throws ScrapeException {
     // take the runtime
     int duration = mediaFile.getDuration();
 
@@ -121,7 +132,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second);
 
         MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-        still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath().toString());
+        still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
         still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
         still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
         artworks.add(still);
@@ -132,6 +143,54 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       }
     }
 
+    return artworks;
+  }
+
+  private List<MediaArtwork> createStillsFromDiscFiles(MediaFile mediaFile) throws ScrapeException {
+    // take the runtime
+    int duration = mediaFile.getDuration();
+
+    // create up to {count} stills between {start}% and {end}% of the runtime
+    int count = providerInfo.getConfig().getValueAsInteger("count");
+    int start = providerInfo.getConfig().getValueAsInteger("start");
+    int end = providerInfo.getConfig().getValueAsInteger("end");
+
+    if (count <= 0 || start <= 0 || end >= 100 || start > end) {
+      throw new ScrapeException(new IllegalArgumentException());
+    }
+
+    float increment = (end - start) / (100f * count);
+
+    List<MediaArtwork> artworks = new ArrayList<>();
+
+    // get the amount of disc files and split the amount of stills over every disc file
+    List<Path> files = MediaFileHelper.getVideoFiles(mediaFile);
+
+    int countPerFile = (int) Math.ceil(count / (double) files.size());
+    int fileDuration = duration / files.size();
+
+    for (int fileIndex = 0; fileIndex < files.size(); fileIndex++) {
+      Path path = files.get(fileIndex);
+
+      for (int i = 0; i < countPerFile; i++) {
+        // the second needs to be split across _all_ files
+        int second = (int) (fileDuration * (start / 100f + i * increment));
+
+        try {
+          Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
+          FFmpeg.createStill(path, tempFile, second);
+
+          MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
+          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+          still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+          still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+          artworks.add(still);
+        }
+        catch (Exception e) {
+          throw new ScrapeException(e);
+        }
+      }
+    }
     return artworks;
   }
 }

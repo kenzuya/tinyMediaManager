@@ -1,6 +1,7 @@
 Version 4.2.4
 =======================
 + added support for season fanart #1434 #1572
++ support for getting FFmpeg thumbs from disk folders
 x prefer fanart without text to comply with Kodi standards #1565
 x sort the column "date added" by date AND time
 x some enhancements in the MPDb.TV scraper #1574
