@@ -22,7 +22,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.exceptions.HttpException;
@@ -69,17 +68,12 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
     List<MediaArtwork> ma = new ArrayList<>();
     String id;
 
-    // search with mpdbtv id, tmdb id and imdb id
+    // search with mpdbtv id
     id = options.getIdAsString(providerInfo.getId());
-    if (id == null || id.equals("0")) {
-      id = Integer.toString(options.getTmdbId());
-      if (id == null || id.equals("0")) {
-        id = options.getImdbId();
-      }
-    }
-    if (id.equals("0")) {
-      LOGGER.warn("Cannot get artwork - neither imdb/tmdb set");
-      throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
+
+    if ("0".equals(id)) {
+      LOGGER.debug("Cannot get artwork - no mpdb id set");
+      throw new MissingIdException(getId());
     }
 
     LOGGER.info("========= BEGIN MPDB.tv artwork scraping");
