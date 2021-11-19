@@ -340,10 +340,16 @@ public class TvShowSettingsDefaults {
   public static void setDefaultScrapers() {
     TvShowSettings tvShowSettings = TvShowSettings.getInstance();
 
-    // activate default scrapers
+    // activate default scrapers (hand curated list of defaults)
     tvShowSettings.artworkScrapers.clear();
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
-      tvShowSettings.addTvShowArtworkScraper(ms.getId());
+      switch (ms.getId()) {
+        case "tmdb":
+        case "fanarttv":
+        case "tvdb":
+          tvShowSettings.addTvShowArtworkScraper(ms.getId());
+          break;
+      }
     }
 
     tvShowSettings.trailerScrapers.clear();
