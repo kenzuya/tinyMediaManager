@@ -92,481 +92,481 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
-    private static final long          serialVersionUID      = 5889203009864512935L;
+  private static final long          serialVersionUID      = 5889203009864512935L;
 
-    private final TvShowList           tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
-    private final TvShowSelectionModel selectionModel;
+  private final TvShowList           tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowSelectionModel selectionModel;
 
-    private TmmTreeTable               tree;
-    private JLabel                     lblEpisodeCountFiltered;
-    private JLabel                     lblEpisodeCountTotal;
-    private JLabel                     lblTvShowCountFiltered;
-    private JLabel                     lblTvShowCountTotal;
-    private SplitButton                btnFilter;
-    private JLabel                     lblSelectedEpisodeCount;
+  private TmmTreeTable               tree;
+  private JLabel                     lblEpisodeCountFiltered;
+  private JLabel                     lblEpisodeCountTotal;
+  private JLabel                     lblTvShowCountFiltered;
+  private JLabel                     lblTvShowCountTotal;
+  private SplitButton                btnFilter;
+  private JLabel                     lblSelectedEpisodeCount;
 
-    private Timer                      totalCalculationTimer = null;
+  private Timer                      totalCalculationTimer = null;
 
-    public TvShowTreePanel(TvShowSelectionModel selectionModel) {
-        initComponents();
+  public TvShowTreePanel(TvShowSelectionModel selectionModel) {
+    initComponents();
 
-        this.selectionModel = selectionModel;
-        this.selectionModel.setTreeTable(tree);
+    this.selectionModel = selectionModel;
+    this.selectionModel.setTreeTable(tree);
 
-        // initialize totals
-        updateTotals();
+    // initialize totals
+    updateTotals();
 
-        tvShowList.addPropertyChangeListener(evt -> {
-            switch (evt.getPropertyName()) {
-                case Constants.TV_SHOW_COUNT:
-                case Constants.EPISODE_COUNT:
-                    updateTotals();
-                    break;
+    tvShowList.addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case Constants.TV_SHOW_COUNT:
+        case Constants.EPISODE_COUNT:
+          updateTotals();
+          break;
 
-                default:
-                    break;
+        default:
+          break;
+      }
+    });
+    TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "tvShowCheckMetadata":
+        case "tvShowCheckArtwork":
+        case "seasonCheckArtwork":
+        case "episodeCheckMetadata":
+        case "episodeCheckArtwork":
+        case "episodeSpecialsCheckMissingMetadata":
+        case "episodeSpecialsCheckMissingArtwork":
+          tree.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
+  }
+
+  private void initComponents() {
+    setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:n,grow]0[][][]"));
+
+    final TmmTreeTextFilter<TmmTreeNode> searchField = new TvShowTreeTextFilter<>();
+    add(searchField, "cell 0 0,growx");
+
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(searchField));
+
+    btnFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
+    btnFilter.getActionButton().addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
+    btnFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        JPopupMenu popupMenu = btnFilter.getPopupMenu();
+        popupMenu.removeAll();
+
+        TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
+          FilterPresetAction action = new FilterPresetAction(uiFilter) {
+            @Override
+            protected void processAction(ActionEvent e) {
+              tree.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(presetName));
             }
+          };
+          popupMenu.add(action);
         });
-        TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
-            switch (e.getPropertyName()) {
-                case "tvShowCheckMetadata":
-                case "tvShowCheckArtwork":
-                case "seasonCheckArtwork":
-                case "episodeCheckMetadata":
-                case "episodeCheckArtwork":
-                case "episodeSpecialsCheckMissingMetadata":
-                case "episodeSpecialsCheckMissingArtwork":
-                    tree.invalidate();
-                    break;
+        if (popupMenu.getSubElements().length != 0) {
+          popupMenu.addSeparator();
+        }
 
-                default:
-                    break;
-            }
+        popupMenu.add(new ClearFilterPresetAction() {
+          @Override
+          protected void processAction(ActionEvent e) {
+            tree.setFilterValues(Collections.emptyList());
+          }
         });
+
+        popupMenu.pack();
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
+      }
+    });
+
+    add(btnFilter, "cell 1 0");
+
+    TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
+    tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat) {
+      @Override
+      public void storeFilters() {
+        if (TvShowModuleManager.getInstance().getSettings().isStoreUiFilters()) {
+          List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
+          for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+            if (filter instanceof ITmmUIFilter) {
+              ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+              if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+                uiFilters.id = uiFilter.getId();
+                uiFilters.state = uiFilter.getFilterState();
+                uiFilters.filterValue = uiFilter.getFilterValueAsString();
+                filterValues.add(uiFilters);
+              }
+            }
+          }
+          TvShowModuleManager.getInstance().getSettings().setUiFilters(filterValues);
+          TvShowModuleManager.getInstance().getSettings().saveSettings();
+        }
+      }
+    };
+    tree.getColumnModel().getColumn(0).setCellRenderer(new TvShowTreeCellRenderer());
+    tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
+    tree.setName("tvshows.tvshowTree");
+    TmmUILayoutStore.getInstance().install(tree);
+    TmmTreeTableComparatorChooser.install(tree);
+
+    tree.addFilter(searchField);
+    JScrollPane scrollPane = new JScrollPane();
+    tree.configureScrollPane(scrollPane);
+    add(scrollPane, "cell 0 1 2 1,grow");
+    tree.adjustColumnPreferredWidths(3);
+
+    tree.setRootVisible(false);
+
+    tree.getModel().addTableModelListener(arg0 -> {
+      updateTotals();
+
+      if (tree.getTreeTableModel().getTreeModel() instanceof TmmTreeModel) {
+        if (((TmmTreeModel<?>) tree.getTreeTableModel().getTreeModel()).isAdjusting()) {
+          return;
+        }
+      }
+
+      // select first Tvshow if nothing is selected
+      ListSelectionModel selectionModel1 = tree.getSelectionModel();
+      if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
+        selectionModel1.setSelectionInterval(0, 0);
+      }
+      else if (tree.getModel().getRowCount() == 0) {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+      }
+    });
+
+    tree.getSelectionModel().addListSelectionListener(arg0 -> {
+      if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
+        return;
+      }
+
+      // if nothing is in the tree, set the initial TV show
+      if (tree.getModel().getRowCount() == 0) {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+        return;
+      }
+
+      int index = ((DefaultListSelectionModel) arg0.getSource()).getMinSelectionIndex();
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getValueAt(index, 0);
+      if (node != null) {
+        // click on a tv show
+        if (node.getUserObject() instanceof TvShow) {
+          TvShow tvShow = (TvShow) node.getUserObject();
+          TvShowUIModule.getInstance().setSelectedTvShow(tvShow);
+        }
+
+        // click on a season
+        if (node.getUserObject() instanceof TvShowSeason) {
+          TvShowSeason tvShowSeason = (TvShowSeason) node.getUserObject();
+          TvShowUIModule.getInstance().setSelectedTvShowSeason(tvShowSeason);
+        }
+
+        // click on an episode
+        if (node.getUserObject() instanceof TvShowEpisode) {
+          TvShowEpisode tvShowEpisode = (TvShowEpisode) node.getUserObject();
+          TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
+        }
+      }
+      else {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+      }
+
+      updateSelectionSums();
+    });
+
+    // selecting first TV show at startup
+    if (tvShowList.getTvShows() != null && !tvShowList.getTvShows().isEmpty()) {
+      SwingUtilities.invokeLater(() -> {
+        ListSelectionModel selectionModel1 = tree.getSelectionModel();
+        if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
+          selectionModel1.setSelectionInterval(0, 0);
+        }
+      });
     }
 
-    private void initComponents() {
-        setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:n,grow]0[][][]"));
+    // add double click listener
+    MouseListener mouseListener = new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        if (e.getClickCount() == 2 && !e.isConsumed() && e.getButton() == MouseEvent.BUTTON1) {
+          new TvShowEditAction().actionPerformed(new ActionEvent(e, 0, ""));
+        }
+      }
+    };
+    tree.addMouseListener(mouseListener);
 
-        final TmmTreeTextFilter<TmmTreeNode> searchField = new TvShowTreeTextFilter<>();
-        add(searchField, "cell 0 0,growx");
+    // add key listener
+    KeyListener keyListener = new KeyAdapter() {
+      private long   lastKeypress = 0;
+      private String searchTerm   = "";
 
-        // register global short cut for the search field
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
-        getActionMap().put("search", new RequestFocusAction(searchField));
+      @Override
+      public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+          tree.expandRow(tree.getSelectedRow());
+        }
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+          tree.collapseRow(tree.getSelectedRow());
+        }
+      }
 
-        btnFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
-        btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
-        btnFilter.getActionButton().addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
-        btnFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
-            @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                JPopupMenu popupMenu = btnFilter.getPopupMenu();
-                popupMenu.removeAll();
+      @Override
+      public void keyTyped(KeyEvent e) {
+        long now = System.currentTimeMillis();
+        if (now - lastKeypress > 500) {
+          searchTerm = "";
+        }
+        lastKeypress = now;
 
-                TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
-                    FilterPresetAction action = new FilterPresetAction(uiFilter) {
-                        @Override
-                        protected void processAction(ActionEvent e) {
-                            tree.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(presetName));
-                        }
-                    };
-                    popupMenu.add(action);
-                });
-                if (popupMenu.getSubElements().length != 0) {
-                    popupMenu.addSeparator();
-                }
-
-                popupMenu.add(new ClearFilterPresetAction() {
-                    @Override
-                    protected void processAction(ActionEvent e) {
-                        tree.setFilterValues(Collections.emptyList());
-                    }
-                });
-
-                popupMenu.pack();
-            }
-
-            @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                // do nothing
-            }
-
-            @Override
-            public void popupMenuCanceled(PopupMenuEvent e) {
-                // do nothing
-            }
-        });
-
-        add(btnFilter, "cell 1 0");
-
-        TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
-        tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat) {
-            @Override
-            public void storeFilters() {
-                if (TvShowModuleManager.getInstance().getSettings().isStoreUiFilters()) {
-                    List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
-                    for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
-                        if (filter instanceof ITmmUIFilter) {
-                            ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-                            if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
-                                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
-                                uiFilters.id = uiFilter.getId();
-                                uiFilters.state = uiFilter.getFilterState();
-                                uiFilters.filterValue = uiFilter.getFilterValueAsString();
-                                filterValues.add(uiFilters);
-                            }
-                        }
-                    }
-                    TvShowModuleManager.getInstance().getSettings().setUiFilters(filterValues);
-                    TvShowModuleManager.getInstance().getSettings().saveSettings();
-                }
-            }
-        };
-        tree.getColumnModel().getColumn(0).setCellRenderer(new TvShowTreeCellRenderer());
-        tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
-        tree.setName("tvshows.tvshowTree");
-        TmmUILayoutStore.getInstance().install(tree);
-        TmmTreeTableComparatorChooser.install(tree);
-
-        tree.addFilter(searchField);
-        JScrollPane scrollPane = new JScrollPane();
-        tree.configureScrollPane(scrollPane);
-        add(scrollPane, "cell 0 1 2 1,grow");
-        tree.adjustColumnPreferredWidths(3);
-
-        tree.setRootVisible(false);
-
-        tree.getModel().addTableModelListener(arg0 -> {
-            updateTotals();
-
-            if (tree.getTreeTableModel().getTreeModel() instanceof TmmTreeModel) {
-                if (((TmmTreeModel<?>) tree.getTreeTableModel().getTreeModel()).isAdjusting()) {
-                    return;
-                }
-            }
-
-            // select first Tvshow if nothing is selected
-            ListSelectionModel selectionModel1 = tree.getSelectionModel();
-            if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
-                selectionModel1.setSelectionInterval(0, 0);
-            }
-            else if (tree.getModel().getRowCount() == 0) {
-                TvShowUIModule.getInstance().setSelectedTvShow(null);
-            }
-        });
-
-        tree.getSelectionModel().addListSelectionListener(arg0 -> {
-            if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
-                return;
-            }
-
-            // if nothing is in the tree, set the initial TV show
-            if (tree.getModel().getRowCount() == 0) {
-                TvShowUIModule.getInstance().setSelectedTvShow(null);
-                return;
-            }
-
-            int index = ((DefaultListSelectionModel) arg0.getSource()).getMinSelectionIndex();
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getValueAt(index, 0);
-            if (node != null) {
-                // click on a tv show
-                if (node.getUserObject() instanceof TvShow) {
-                    TvShow tvShow = (TvShow) node.getUserObject();
-                    TvShowUIModule.getInstance().setSelectedTvShow(tvShow);
-                }
-
-                // click on a season
-                if (node.getUserObject() instanceof TvShowSeason) {
-                    TvShowSeason tvShowSeason = (TvShowSeason) node.getUserObject();
-                    TvShowUIModule.getInstance().setSelectedTvShowSeason(tvShowSeason);
-                }
-
-                // click on an episode
-                if (node.getUserObject() instanceof TvShowEpisode) {
-                    TvShowEpisode tvShowEpisode = (TvShowEpisode) node.getUserObject();
-                    TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
-                }
-            }
-            else {
-                TvShowUIModule.getInstance().setSelectedTvShow(null);
-            }
-
-            updateSelectionSums();
-        });
-
-        // selecting first TV show at startup
-        if (tvShowList.getTvShows() != null && !tvShowList.getTvShows().isEmpty()) {
-            SwingUtilities.invokeLater(() -> {
-                ListSelectionModel selectionModel1 = tree.getSelectionModel();
-                if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
-                    selectionModel1.setSelectionInterval(0, 0);
-                }
-            });
+        if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+          searchTerm += e.getKeyChar();
+          searchTerm = searchTerm.toLowerCase();
         }
 
-        // add double click listener
-        MouseListener mouseListener = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getClickCount() == 2 && !e.isConsumed() && e.getButton() == MouseEvent.BUTTON1) {
-                    new TvShowEditAction().actionPerformed(new ActionEvent(e, 0, ""));
-                }
+        if (StringUtils.isNotBlank(searchTerm)) {
+          TableModel model = tree.getModel();
+
+          for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0) instanceof TvShowTreeDataProvider.TvShowTreeNode) {
+              TvShowTreeDataProvider.TvShowTreeNode node = (TvShowTreeDataProvider.TvShowTreeNode) model.getValueAt(i, 0);
+
+              // search in the title
+              String title = node.toString().toLowerCase(Locale.ROOT);
+              if (title.startsWith(searchTerm)) {
+                tree.getSelectionModel().setSelectionInterval(i, i);
+                tree.scrollRectToVisible(new Rectangle(tree.getCellRect(i, 0, true)));
+                break;
+              }
             }
-        };
-        tree.addMouseListener(mouseListener);
-
-        // add key listener
-        KeyListener keyListener = new KeyAdapter() {
-            private long   lastKeypress = 0;
-            private String searchTerm   = "";
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    tree.expandRow(tree.getSelectedRow());
-                }
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    tree.collapseRow(tree.getSelectedRow());
-                }
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-                long now = System.currentTimeMillis();
-                if (now - lastKeypress > 500) {
-                    searchTerm = "";
-                }
-                lastKeypress = now;
-
-                if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
-                    searchTerm += e.getKeyChar();
-                    searchTerm = searchTerm.toLowerCase();
-                }
-
-                if (StringUtils.isNotBlank(searchTerm)) {
-                    TableModel model = tree.getModel();
-
-                    for (int i = 0; i < model.getRowCount(); i++) {
-                        if (model.getValueAt(i, 0) instanceof TvShowTreeDataProvider.TvShowTreeNode) {
-                            TvShowTreeDataProvider.TvShowTreeNode node = (TvShowTreeDataProvider.TvShowTreeNode) model.getValueAt(i, 0);
-
-                            // search in the title
-                            String title = node.toString().toLowerCase(Locale.ROOT);
-                            if (title.startsWith(searchTerm)) {
-                                tree.getSelectionModel().setSelectionInterval(i, i);
-                                tree.scrollRectToVisible(new Rectangle(tree.getCellRect(i, 0, true)));
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        tree.addKeyListener(keyListener);
-
-        JSeparator separator = new JSeparator();
-        add(separator, "cell 0 2 2 1,growx");
-
-        {
-            JPanel panelTotals = new JPanel();
-            add(panelTotals, "cell 0 3 2 1,grow");
-            panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
-
-            JLabel lblTvShowCount = new JLabel(TmmResourceBundle.getString("tmm.tvshows") + ":");
-            panelTotals.add(lblTvShowCount, "flowx,cell 0 0");
-
-            lblTvShowCountFiltered = new JLabel("");
-            panelTotals.add(lblTvShowCountFiltered, "cell 0 0");
-
-            JLabel lblTvShowCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-            panelTotals.add(lblTvShowCountOf, "cell 0 0");
-
-            lblTvShowCountTotal = new JLabel("");
-            panelTotals.add(lblTvShowCountTotal, "cell 0 0");
-
-            JLabel lblEpisodeCount = new JLabel(TmmResourceBundle.getString("metatag.episodes") + ":");
-            panelTotals.add(lblEpisodeCount, "flowx,cell 0 1");
-
-            lblEpisodeCountFiltered = new JLabel("");
-            panelTotals.add(lblEpisodeCountFiltered, "cell 0 1");
-
-            JLabel lblEpisodeCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-            panelTotals.add(lblEpisodeCountOf, "cell 0 1");
-
-            lblEpisodeCountTotal = new JLabel("");
-            panelTotals.add(lblEpisodeCountTotal, "cell 0 1");
-
-            lblSelectedEpisodeCount = new JLabel("");
-            panelTotals.add(lblSelectedEpisodeCount, "cell 1 1");
+          }
         }
+      }
+    };
+    tree.addKeyListener(keyListener);
+
+    JSeparator separator = new JSeparator();
+    add(separator, "cell 0 2 2 1,growx");
+
+    {
+      JPanel panelTotals = new JPanel();
+      add(panelTotals, "cell 0 3 2 1,grow");
+      panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
+
+      JLabel lblTvShowCount = new JLabel(TmmResourceBundle.getString("tmm.tvshows") + ":");
+      panelTotals.add(lblTvShowCount, "flowx,cell 0 0");
+
+      lblTvShowCountFiltered = new JLabel("");
+      panelTotals.add(lblTvShowCountFiltered, "cell 0 0");
+
+      JLabel lblTvShowCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
+      panelTotals.add(lblTvShowCountOf, "cell 0 0");
+
+      lblTvShowCountTotal = new JLabel("");
+      panelTotals.add(lblTvShowCountTotal, "cell 0 0");
+
+      JLabel lblEpisodeCount = new JLabel(TmmResourceBundle.getString("metatag.episodes") + ":");
+      panelTotals.add(lblEpisodeCount, "flowx,cell 0 1");
+
+      lblEpisodeCountFiltered = new JLabel("");
+      panelTotals.add(lblEpisodeCountFiltered, "cell 0 1");
+
+      JLabel lblEpisodeCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
+      panelTotals.add(lblEpisodeCountOf, "cell 0 1");
+
+      lblEpisodeCountTotal = new JLabel("");
+      panelTotals.add(lblEpisodeCountTotal, "cell 0 1");
+
+      lblSelectedEpisodeCount = new JLabel("");
+      panelTotals.add(lblSelectedEpisodeCount, "cell 1 1");
+    }
+  }
+
+  private void updateFilterIndicator() {
+    boolean active = false;
+    if (tree.isFiltersActive()) {
+      for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
+        if (filter instanceof ITmmUIFilter) {
+          ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+          switch (uiFilter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
+
+            default:
+              break;
+          }
+
+          if (active) {
+            break;
+          }
+        }
+      }
     }
 
-    private void updateFilterIndicator() {
-        boolean active = false;
-        if (tree.isFiltersActive()) {
-            for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
-                if (filter instanceof ITmmUIFilter) {
-                    ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-                    switch (uiFilter.getFilterState()) {
-                        case ACTIVE:
-                        case ACTIVE_NEGATIVE:
-                            active = true;
-                            break;
+    if (active) {
+      btnFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
+    }
+    else {
+      btnFilter.getActionButton().setIcon(null);
+    }
+  }
 
-                        default:
-                            break;
-                    }
-
-                    if (active) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (active) {
-            btnFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
-        }
-        else {
-            btnFilter.getActionButton().setIcon(null);
-        }
+  private void updateTotals() {
+    if (this.totalCalculationTimer != null) {
+      return;
     }
 
-    private void updateTotals() {
-        if (this.totalCalculationTimer != null) {
-            return;
-        }
+    totalCalculationTimer = new Timer("updateTotals");
 
-        totalCalculationTimer = new Timer("updateTotals");
+    TimerTask task = new TimerTask() {
+      public void run() {
+        SwingUtilities.invokeLater(() -> {
+          // sum
+          lblTvShowCountTotal.setText(String.valueOf(tvShowList.getTvShowCount()));
+          int dummyEpisodeCount = 0;
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+            dummyEpisodeCount = tvShowList.getDummyEpisodeCount();
+          }
+          if (dummyEpisodeCount > 0) {
+            int episodeCount = tvShowList.getEpisodeCount();
+            lblEpisodeCountTotal.setText(episodeCount + " (" + (episodeCount + dummyEpisodeCount) + ")");
+          }
+          else {
+            lblEpisodeCountTotal.setText(String.valueOf(tvShowList.getEpisodeCount()));
+          }
 
-        TimerTask task = new TimerTask() {
-            public void run() {
-                SwingUtilities.invokeLater(() -> {
-                    // sum
-                    lblTvShowCountTotal.setText(String.valueOf(tvShowList.getTvShowCount()));
-                    int dummyEpisodeCount = 0;
-                    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
-                        dummyEpisodeCount = tvShowList.getDummyEpisodeCount();
-                    }
-                    if (dummyEpisodeCount > 0) {
-                        int episodeCount = tvShowList.getEpisodeCount();
-                        lblEpisodeCountTotal.setText(episodeCount + " (" + (episodeCount + dummyEpisodeCount) + ")");
-                    }
-                    else {
-                        lblEpisodeCountTotal.setText(String.valueOf(tvShowList.getEpisodeCount()));
-                    }
+          // filtered
+          int tvShowCount = 0;
+          int episodeCount = 0;
+          int virtualEpisodeCount = 0;
 
-                    // filtered
-                    int tvShowCount = 0;
-                    int episodeCount = 0;
-                    int virtualEpisodeCount = 0;
+          DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
+          Enumeration<?> enumeration = root.depthFirstEnumeration();
+          while (enumeration.hasMoreElements()) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
 
-                    DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
-                    Enumeration<?> enumeration = root.depthFirstEnumeration();
-                    while (enumeration.hasMoreElements()) {
-                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+            Object userObject = node.getUserObject();
 
-                        Object userObject = node.getUserObject();
-
-                        if (userObject instanceof TvShow) {
-                            tvShowCount++;
-                        }
-                        else if (userObject instanceof TvShowEpisode) {
-                            if (((TvShowEpisode) userObject).isDummy()) {
-                                virtualEpisodeCount++;
-                            }
-                            else {
-                                episodeCount++;
-                            }
-                        }
-                    }
-
-                    lblTvShowCountFiltered.setText(String.valueOf(tvShowCount));
-
-                    if (tvShowList.hasDummyEpisodes()) {
-                        lblEpisodeCountFiltered.setText(episodeCount + " (" + (episodeCount + virtualEpisodeCount) + ")");
-                    }
-                    else {
-                        lblEpisodeCountFiltered.setText(String.valueOf(episodeCount));
-                    }
-
-                    // re-set the timer for the next run
-                    totalCalculationTimer = null;
-                });
+            if (userObject instanceof TvShow) {
+              tvShowCount++;
             }
-        };
+            else if (userObject instanceof TvShowEpisode) {
+              if (((TvShowEpisode) userObject).isDummy()) {
+                virtualEpisodeCount++;
+              }
+              else {
+                episodeCount++;
+              }
+            }
+          }
 
-        totalCalculationTimer.schedule(task, 100L);
-    }
+          lblTvShowCountFiltered.setText(String.valueOf(tvShowCount));
 
-    private void updateSelectionSums() {
-        List<TvShowEpisode> episodes = selectionModel.getSelectedEpisodes();
+          if (tvShowList.hasDummyEpisodes()) {
+            lblEpisodeCountFiltered.setText(episodeCount + " (" + (episodeCount + virtualEpisodeCount) + ")");
+          }
+          else {
+            lblEpisodeCountFiltered.setText(String.valueOf(episodeCount));
+          }
 
-        // episode
-        String selectedEpisodes = TmmResourceBundle.getString("episode.selected").replace("{}", String.valueOf(episodes.size()));
-        double videoFileSize = episodes.stream().mapToLong(TvShowEpisode::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
-        double totalFileSize = episodes.stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+          // re-set the timer for the next run
+          totalCalculationTimer = null;
+        });
+      }
+    };
 
-        String text = String.format("%s (%.2f G)", selectedEpisodes, totalFileSize);
-        lblSelectedEpisodeCount.setText(text);
+    totalCalculationTimer.schedule(task, 100L);
+  }
 
-        String selectedEpisodesHint = selectedEpisodes + " ("
-                + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
-                + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
-        lblSelectedEpisodeCount.setToolTipText(selectedEpisodesHint);
+  private void updateSelectionSums() {
+    List<TvShowEpisode> episodes = selectionModel.getSelectedEpisodes();
+
+    // episode
+    String selectedEpisodes = TmmResourceBundle.getString("episode.selected").replace("{}", String.valueOf(episodes.size()));
+    double videoFileSize = episodes.stream().mapToLong(TvShowEpisode::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = episodes.stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+
+    String text = String.format("%s (%.2f G)", selectedEpisodes, totalFileSize);
+    lblSelectedEpisodeCount.setText(text);
+
+    String selectedEpisodesHint = selectedEpisodes + " ("
+        + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
+        + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
+    lblSelectedEpisodeCount.setToolTipText(selectedEpisodesHint);
+  }
+
+  @Override
+  public ITmmUIModule getUIModule() {
+    return TvShowUIModule.getInstance();
+  }
+
+  public TmmTreeTable getTreeTable() {
+    return tree;
+  }
+
+  @Override
+  public void setPopupMenu(JPopupMenu popupMenu) {
+    // add the tree menu entries on the bottom
+    popupMenu.addSeparator();
+    popupMenu.add(new ExpandAllAction());
+    popupMenu.add(new CollapseAllAction());
+
+    tree.addMouseListener(new TablePopupListener(popupMenu, tree));
+  }
+
+  /**************************************************************************
+   * local helper classes
+   **************************************************************************/
+  public class CollapseAllAction extends AbstractAction {
+    private static final long serialVersionUID = -1444530142931061317L;
+
+    public CollapseAllAction() {
+      putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
 
     @Override
-    public ITmmUIModule getUIModule() {
-        return TvShowUIModule.getInstance();
+    public void actionPerformed(ActionEvent e) {
+      for (int i = tree.getRowCount() - 1; i >= 0; i--) {
+        tree.collapseRow(i);
+      }
     }
+  }
 
-    public TmmTreeTable getTreeTable() {
-        return tree;
+  public class ExpandAllAction extends AbstractAction {
+    private static final long serialVersionUID = 6191727607109012198L;
+
+    public ExpandAllAction() {
+      putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }
 
     @Override
-    public void setPopupMenu(JPopupMenu popupMenu) {
-        // add the tree menu entries on the bottom
-        popupMenu.addSeparator();
-        popupMenu.add(new ExpandAllAction());
-        popupMenu.add(new CollapseAllAction());
-
-        tree.addMouseListener(new TablePopupListener(popupMenu, tree));
+    public void actionPerformed(ActionEvent e) {
+      int i = 0;
+      do {
+        tree.expandRow(i++);
+      } while (i < tree.getRowCount());
     }
-
-    /**************************************************************************
-     * local helper classes
-     **************************************************************************/
-    public class CollapseAllAction extends AbstractAction {
-        private static final long serialVersionUID = -1444530142931061317L;
-
-        public CollapseAllAction() {
-            putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            for (int i = tree.getRowCount() - 1; i >= 0; i--) {
-                tree.collapseRow(i);
-            }
-        }
-    }
-
-    public class ExpandAllAction extends AbstractAction {
-        private static final long serialVersionUID = 6191727607109012198L;
-
-        public ExpandAllAction() {
-            putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int i = 0;
-            do {
-                tree.expandRow(i++);
-            } while (i < tree.getRowCount());
-        }
-    }
+  }
 }

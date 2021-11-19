@@ -86,328 +86,327 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
-    private static final long serialVersionUID = -1681460428331929420L;
+  private static final long serialVersionUID = -1681460428331929420L;
 
-    MovieSelectionModel       selectionModel;
+  MovieSelectionModel       selectionModel;
 
-    private MovieList         movieList;
+  private MovieList         movieList;
 
-    private TmmTable          movieTable;
-    private JLabel            lblMovieCountFiltered;
-    private JLabel            lblMovieCountTotal;
-    private SplitButton       btnExtendedFilter;
-    private JLabel            lblSelectedCount;
+  private TmmTable          movieTable;
+  private JLabel            lblMovieCountFiltered;
+  private JLabel            lblMovieCountTotal;
+  private SplitButton       btnExtendedFilter;
+  private JLabel            lblSelectedCount;
 
-    public MovieListPanel() {
-        initComponents();
-    }
+  public MovieListPanel() {
+    initComponents();
+  }
 
-    private void initComponents() {
-        movieList = MovieModuleManager.getInstance().getMovieList();
-        SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList) movieList.getMovies()),
-                new MovieComparator());
-        sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
+  private void initComponents() {
+    movieList = MovieModuleManager.getInstance().getMovieList();
+    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList) movieList.getMovies()),
+        new MovieComparator());
+    sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
 
-        setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
+    setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
 
-        JTextField searchField = EnhancedTextField.createSearchTextField();
-        add(searchField, "cell 0 0,growx");
+    JTextField searchField = EnhancedTextField.createSearchTextField();
+    add(searchField, "cell 0 0,growx");
 
-        // register global short cut for the search field
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
-        getActionMap().put("search", new RequestFocusAction(searchField));
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(searchField));
 
-        MatcherEditor<Movie> textMatcherEditor = new MovieTextMatcherEditor(searchField);
-        MovieMatcherEditor movieMatcherEditor = new MovieMatcherEditor();
-        FilterList<Movie> extendedFilteredMovies = new FilterList<>(sortedMovies, movieMatcherEditor);
-        FilterList<Movie> textFilteredMovies = new FilterList<>(extendedFilteredMovies, textMatcherEditor);
-        selectionModel = new MovieSelectionModel(sortedMovies, textFilteredMovies, movieMatcherEditor);
-        final TmmTableModel<Movie> movieTableModel = new TmmTableModel<>(textFilteredMovies, new MovieTableFormat());
-        // movieTableModel.setManyToOneTableModelEventAdapter();
+    MatcherEditor<Movie> textMatcherEditor = new MovieTextMatcherEditor(searchField);
+    MovieMatcherEditor movieMatcherEditor = new MovieMatcherEditor();
+    FilterList<Movie> extendedFilteredMovies = new FilterList<>(sortedMovies, movieMatcherEditor);
+    FilterList<Movie> textFilteredMovies = new FilterList<>(extendedFilteredMovies, textMatcherEditor);
+    selectionModel = new MovieSelectionModel(sortedMovies, textFilteredMovies, movieMatcherEditor);
+    final TmmTableModel<Movie> movieTableModel = new TmmTableModel<>(textFilteredMovies, new MovieTableFormat());
+    // movieTableModel.setManyToOneTableModelEventAdapter();
 
-        // build the table
-        movieTable = new TmmTable(movieTableModel);
-        movieTable.setName("movies.movieTable");
-        movieTable.installComparatorChooser(sortedMovies, new MovieTableSortingStrategy());
-        movieTable.getTableComparatorChooser().appendComparator(0, 0, false);
+    // build the table
+    movieTable = new TmmTable(movieTableModel);
+    movieTable.setName("movies.movieTable");
+    movieTable.installComparatorChooser(sortedMovies, new MovieTableSortingStrategy());
+    movieTable.getTableComparatorChooser().appendComparator(0, 0, false);
 
-        movieTable.adjustColumnPreferredWidths(3);
-        TmmUILayoutStore.getInstance().install(movieTable);
+    movieTable.adjustColumnPreferredWidths(3);
+    TmmUILayoutStore.getInstance().install(movieTable);
 
-        movieTableModel.addTableModelListener(arg0 -> {
-            lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
-            // select first movie if nothing is selected
-            ListSelectionModel selectionModel1 = movieTable.getSelectionModel();
-            if (selectionModel1.isSelectionEmpty() && movieTableModel.getRowCount() > 0) {
-                selectionModel1.setSelectionInterval(0, 0);
+    movieTableModel.addTableModelListener(arg0 -> {
+      lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
+      // select first movie if nothing is selected
+      ListSelectionModel selectionModel1 = movieTable.getSelectionModel();
+      if (selectionModel1.isSelectionEmpty() && movieTableModel.getRowCount() > 0) {
+        selectionModel1.setSelectionInterval(0, 0);
+      }
+    });
+
+    JScrollPane scrollPane = new JScrollPane();
+    movieTable.configureScrollPane(scrollPane);
+    add(scrollPane, "cell 0 1 2 1,grow");
+
+    btnExtendedFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnExtendedFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
+    btnExtendedFilter.getActionButton().addActionListener(e -> MovieUIModule.getInstance().setFilterDialogVisible(true));
+    btnExtendedFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        JPopupMenu popupMenu = btnExtendedFilter.getPopupMenu();
+        popupMenu.removeAll();
+
+        MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
+          FilterPresetAction action = new FilterPresetAction(uiFilter) {
+            @Override
+            protected void processAction(ActionEvent e) {
+              MovieUIModule.getInstance()
+                  .getSelectionModel()
+                  .setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(presetName));
             }
+          };
+          popupMenu.add(action);
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        movieTable.configureScrollPane(scrollPane);
-        add(scrollPane, "cell 0 1 2 1,grow");
-
-        btnExtendedFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
-        btnExtendedFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
-        btnExtendedFilter.getActionButton().addActionListener(e -> MovieUIModule.getInstance().setFilterDialogVisible(true));
-        btnExtendedFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
-            @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                JPopupMenu popupMenu = btnExtendedFilter.getPopupMenu();
-                popupMenu.removeAll();
-
-                MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
-                    FilterPresetAction action = new FilterPresetAction(uiFilter) {
-                        @Override
-                        protected void processAction(ActionEvent e) {
-                            MovieUIModule.getInstance()
-                                    .getSelectionModel()
-                                    .setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(presetName));
-                        }
-                    };
-                    popupMenu.add(action);
-                });
-                if (popupMenu.getSubElements().length != 0) {
-                    popupMenu.addSeparator();
-                }
-
-                popupMenu.add(new ClearFilterPresetAction() {
-                    @Override
-                    protected void processAction(ActionEvent e) {
-                        MovieUIModule.getInstance().getSelectionModel().setFilterValues(Collections.emptyList());
-                    }
-                });
-
-                popupMenu.pack();
-            }
-
-            @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                // do nothing
-            }
-
-            @Override
-            public void popupMenuCanceled(PopupMenuEvent e) {
-                // do nothing
-            }
-        });
-
-        selectionModel.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
-        add(btnExtendedFilter, "cell 1 0");
-
-        JSeparator separator = new JSeparator();
-        add(separator, "cell 0 2 2 1, growx");
-
-        {
-            JPanel panelTotals = new JPanel();
-            add(panelTotals, "cell 0 3 2 1,grow");
-            panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
-
-            JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
-            panelTotals.add(lblMovieCount, "cell 0 0");
-
-            lblMovieCountFiltered = new JLabel("");
-            panelTotals.add(lblMovieCountFiltered, "cell 0 0");
-
-            JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
-            panelTotals.add(lblMovieCountOf, "cell 0 0");
-
-            lblMovieCountTotal = new JLabel("");
-            panelTotals.add(lblMovieCountTotal, "cell 0 0");
-
-            lblSelectedCount = new JLabel("");
-            panelTotals.add(lblSelectedCount, "cell 1 0");
+        if (popupMenu.getSubElements().length != 0) {
+          popupMenu.addSeparator();
         }
 
-        selectionModel.addPropertyChangeListener(MovieSelectionModel.SELECTED_MOVIES, evt -> updateSelectionSums());
-
-        // initialize filteredCount
-        lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
-
-        initDataBindings();
-
-        MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
-            switch (e.getPropertyName()) {
-                case "movieCheckMetadata":
-                case "movieCheckArtwork":
-                    movieTable.invalidate();
-                    break;
-
-                default:
-                    break;
-            }
+        popupMenu.add(new ClearFilterPresetAction() {
+          @Override
+          protected void processAction(ActionEvent e) {
+            MovieUIModule.getInstance().getSelectionModel().setFilterValues(Collections.emptyList());
+          }
         });
+
+        popupMenu.pack();
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
+      }
+    });
+
+    selectionModel.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
+    add(btnExtendedFilter, "cell 1 0");
+
+    JSeparator separator = new JSeparator();
+    add(separator, "cell 0 2 2 1, growx");
+
+    {
+      JPanel panelTotals = new JPanel();
+      add(panelTotals, "cell 0 3 2 1,grow");
+      panelTotals.setLayout(new MigLayout("insets 0", "[100lp:n,grow][100lp:n,grow,right]", "[]"));
+
+      JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
+      panelTotals.add(lblMovieCount, "cell 0 0");
+
+      lblMovieCountFiltered = new JLabel("");
+      panelTotals.add(lblMovieCountFiltered, "cell 0 0");
+
+      JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
+      panelTotals.add(lblMovieCountOf, "cell 0 0");
+
+      lblMovieCountTotal = new JLabel("");
+      panelTotals.add(lblMovieCountTotal, "cell 0 0");
+
+      lblSelectedCount = new JLabel("");
+      panelTotals.add(lblSelectedCount, "cell 1 0");
     }
 
-    private void updateSelectionSums() {
-        String selectedMovies = TmmResourceBundle.getString("movie.selected")
-                .replace("{}", String.valueOf(selectionModel.getSelectedMovies().size()));
-        double videoFileSize = selectionModel.getSelectedMovies().stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
-        double totalFileSize = selectionModel.getSelectedMovies().stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    selectionModel.addPropertyChangeListener(MovieSelectionModel.SELECTED_MOVIES, evt -> updateSelectionSums());
 
-        String text = String.format("%s (%.2f G)", selectedMovies, totalFileSize);
-        lblSelectedCount.setText(text);
+    // initialize filteredCount
+    lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
 
-        String selectedMoviesHint = selectedMovies + " ("
-                + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
-                + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
-        lblSelectedCount.setToolTipText(selectedMoviesHint);
-    }
+    initDataBindings();
 
-    private void updateFilterIndicator() {
-        boolean active = false;
-        if (selectionModel.isFiltersActive()) {
-            for (IMovieUIFilter filter : selectionModel.getMatcherEditor().getFilters()) {
-                switch (filter.getFilterState()) {
-                    case ACTIVE:
-                    case ACTIVE_NEGATIVE:
-                        active = true;
-                        break;
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieCheckMetadata":
+        case "movieCheckArtwork":
+          movieTable.invalidate();
+          break;
 
-                    default:
-                        break;
-                }
+        default:
+          break;
+      }
+    });
+  }
 
-                if (active) {
-                    break;
-                }
-            }
+  private void updateSelectionSums() {
+    String selectedMovies = TmmResourceBundle.getString("movie.selected").replace("{}", String.valueOf(selectionModel.getSelectedMovies().size()));
+    double videoFileSize = selectionModel.getSelectedMovies().stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = selectionModel.getSelectedMovies().stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+
+    String text = String.format("%s (%.2f G)", selectedMovies, totalFileSize);
+    lblSelectedCount.setText(text);
+
+    String selectedMoviesHint = selectedMovies + " ("
+        + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
+        + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
+    lblSelectedCount.setToolTipText(selectedMoviesHint);
+  }
+
+  private void updateFilterIndicator() {
+    boolean active = false;
+    if (selectionModel.isFiltersActive()) {
+      for (IMovieUIFilter filter : selectionModel.getMatcherEditor().getFilters()) {
+        switch (filter.getFilterState()) {
+          case ACTIVE:
+          case ACTIVE_NEGATIVE:
+            active = true;
+            break;
+
+          default:
+            break;
         }
 
         if (active) {
-            btnExtendedFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
+          break;
         }
-        else {
-            btnExtendedFilter.getActionButton().setIcon(null);
+      }
+    }
+
+    if (active) {
+      btnExtendedFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
+    }
+    else {
+      btnExtendedFilter.getActionButton().setIcon(null);
+    }
+  }
+
+  public void init() {
+    // set the filter indicator
+    updateFilterIndicator();
+
+    // set the initial selection
+    movieTable.setSelectionModel(selectionModel.getSelectionModel());
+    // selecting first movie at startup
+    if (MovieModuleManager.getInstance().getMovieList().getMovies() != null
+        && !MovieModuleManager.getInstance().getMovieList().getMovies().isEmpty()) {
+      ListSelectionModel selectionModel = movieTable.getSelectionModel();
+      if (selectionModel.isSelectionEmpty()) {
+        int selectionIndex = movieTable.convertRowIndexToModel(0);
+        selectionModel.setSelectionInterval(selectionIndex, selectionIndex);
+      }
+    }
+
+    // add a key listener to jump to the first movie starting with the typed character
+    addKeyListener();
+
+    SwingUtilities.invokeLater(() -> movieTable.requestFocus());
+  }
+
+  private void addKeyListener() {
+    movieTable.addKeyListener(new KeyListener() {
+      private long   lastKeypress = 0;
+      private String searchTerm   = "";
+
+      @Override
+      public void keyTyped(KeyEvent arg0) {
+        long now = System.currentTimeMillis();
+        if (now - lastKeypress > 500) {
+          searchTerm = "";
         }
-    }
+        lastKeypress = now;
 
-    public void init() {
-        // set the filter indicator
-        updateFilterIndicator();
-
-        // set the initial selection
-        movieTable.setSelectionModel(selectionModel.getSelectionModel());
-        // selecting first movie at startup
-        if (MovieModuleManager.getInstance().getMovieList().getMovies() != null
-                && !MovieModuleManager.getInstance().getMovieList().getMovies().isEmpty()) {
-            ListSelectionModel selectionModel = movieTable.getSelectionModel();
-            if (selectionModel.isSelectionEmpty()) {
-                int selectionIndex = movieTable.convertRowIndexToModel(0);
-                selectionModel.setSelectionInterval(selectionIndex, selectionIndex);
-            }
+        if (arg0.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+          searchTerm += arg0.getKeyChar();
+          searchTerm = searchTerm.toLowerCase();
         }
 
-        // add a key listener to jump to the first movie starting with the typed character
-        addKeyListener();
+        if (StringUtils.isNotBlank(searchTerm)) {
+          boolean titleColumn = true;
 
-        SwingUtilities.invokeLater(() -> movieTable.requestFocus());
-    }
+          // look for the first column and check if we should search in the original title
+          TableColumn tableColumn = movieTable.getColumnModel().getColumn(0);
+          if ("originalTitle".equals(tableColumn.getIdentifier())) {
+            titleColumn = false;
+          }
 
-    private void addKeyListener() {
-        movieTable.addKeyListener(new KeyListener() {
-            private long   lastKeypress = 0;
-            private String searchTerm   = "";
+          TableModel model = movieTable.getModel();
 
-            @Override
-            public void keyTyped(KeyEvent arg0) {
-                long now = System.currentTimeMillis();
-                if (now - lastKeypress > 500) {
-                    searchTerm = "";
-                }
-                lastKeypress = now;
+          for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0) instanceof Movie) {
+              Movie movie = (Movie) model.getValueAt(i, 0);
 
-                if (arg0.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
-                    searchTerm += arg0.getKeyChar();
-                    searchTerm = searchTerm.toLowerCase();
-                }
+              // search in the title/originaltitle depending on the visible column
+              String title;
 
-                if (StringUtils.isNotBlank(searchTerm)) {
-                    boolean titleColumn = true;
+              if (titleColumn) {
+                title = movie.getTitleSortable().toLowerCase(Locale.ROOT);
+              }
+              else {
+                title = movie.getOriginalTitleSortable().toLowerCase(Locale.ROOT);
+              }
 
-                    // look for the first column and check if we should search in the original title
-                    TableColumn tableColumn = movieTable.getColumnModel().getColumn(0);
-                    if ("originalTitle".equals(tableColumn.getIdentifier())) {
-                        titleColumn = false;
-                    }
-
-                    TableModel model = movieTable.getModel();
-
-                    for (int i = 0; i < model.getRowCount(); i++) {
-                        if (model.getValueAt(i, 0) instanceof Movie) {
-                            Movie movie = (Movie) model.getValueAt(i, 0);
-
-                            // search in the title/originaltitle depending on the visible column
-                            String title;
-
-                            if (titleColumn) {
-                                title = movie.getTitleSortable().toLowerCase(Locale.ROOT);
-                            }
-                            else {
-                                title = movie.getOriginalTitleSortable().toLowerCase(Locale.ROOT);
-                            }
-
-                            if (title.startsWith(searchTerm)) {
-                                movieTable.getSelectionModel().setSelectionInterval(i, i);
-                                movieTable.scrollRectToVisible(new Rectangle(movieTable.getCellRect(i, 0, true)));
-                                break;
-                            }
-                        }
-                    }
-                }
+              if (title.startsWith(searchTerm)) {
+                movieTable.getSelectionModel().setSelectionInterval(i, i);
+                movieTable.scrollRectToVisible(new Rectangle(movieTable.getCellRect(i, 0, true)));
+                break;
+              }
             }
+          }
+        }
+      }
 
-            @Override
-            public void keyReleased(KeyEvent arg0) {
-                // not needed
-            }
+      @Override
+      public void keyReleased(KeyEvent arg0) {
+        // not needed
+      }
 
-            @Override
-            public void keyPressed(KeyEvent arg0) {
-                // not needed
-            }
-        });
-    }
+      @Override
+      public void keyPressed(KeyEvent arg0) {
+        // not needed
+      }
+    });
+  }
 
-    public MovieSelectionModel getSelectionModel() {
-        return selectionModel;
-    }
+  public MovieSelectionModel getSelectionModel() {
+    return selectionModel;
+  }
 
+  @Override
+  public ITmmUIModule getUIModule() {
+    return MovieUIModule.getInstance();
+  }
+
+  @Override
+  public void setPopupMenu(JPopupMenu popupMenu) {
+    movieTable.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() >= 2 && !e.isConsumed() && e.getButton() == MouseEvent.BUTTON1) {
+          Action editAction = new MovieEditAction();
+          editAction.actionPerformed(null);
+        }
+      }
+    });
+    movieTable.addMouseListener(new TablePopupListener(popupMenu, movieTable));
+  }
+
+  protected void initDataBindings() {
+    BeanProperty<MovieList, Integer> movieListBeanProperty = BeanProperty.create("movieCount");
+    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding<MovieList, Integer, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieList, movieListBeanProperty,
+        lblMovieCountTotal, jLabelBeanProperty);
+    autoBinding.bind();
+  }
+
+  private static class MovieTableSortingStrategy extends MouseKeyboardSortingStrategy {
     @Override
-    public ITmmUIModule getUIModule() {
-        return MovieUIModule.getInstance();
-    }
+    public void finalHook(SortingState sortingState) {
 
-    @Override
-    public void setPopupMenu(JPopupMenu popupMenu) {
-        movieTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() >= 2 && !e.isConsumed() && e.getButton() == MouseEvent.BUTTON1) {
-                    Action editAction = new MovieEditAction();
-                    editAction.actionPerformed(null);
-                }
-            }
-        });
-        movieTable.addMouseListener(new TablePopupListener(popupMenu, movieTable));
+      // install sorting on title too if it is no yet selected
+      if (!sortingState.getSortingColumnIndexes().contains(0)) {
+        sortingState.appendComparator(0, 0, false);
+      }
     }
-
-    protected void initDataBindings() {
-        BeanProperty<MovieList, Integer> movieListBeanProperty = BeanProperty.create("movieCount");
-        BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-        AutoBinding<MovieList, Integer, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieList,
-                movieListBeanProperty, lblMovieCountTotal, jLabelBeanProperty);
-        autoBinding.bind();
-    }
-
-    private static class MovieTableSortingStrategy extends MouseKeyboardSortingStrategy {
-        @Override
-        public void finalHook(SortingState sortingState) {
-
-            // install sorting on title too if it is no yet selected
-            if (!sortingState.getSortingColumnIndexes().contains(0)) {
-                sortingState.appendComparator(0, 0, false);
-            }
-        }
-    }
+  }
 }
