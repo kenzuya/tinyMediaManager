@@ -88,16 +88,16 @@ public class Controller {
     return builder;
   }
 
-  public List<SearchEntity> getSearchInformation(String username, String subscriptionkey, String searchstring, Locale language,
+  public retrofit2.Response<List<SearchEntity>> getSearchInformation(String username, String subscriptionkey, String searchstring, Locale language,
       boolean saga, String format) throws IOException {
 
-    return getService().movieSearch(apiKey, username, subscriptionkey, searchstring, language, saga, format).execute().body();
+    return getService().movieSearch(apiKey, username, subscriptionkey, searchstring, language, saga, format).execute();
   }
 
-  public MovieEntity getScrapeInformation(String username, String subscriptionkey, String id, Locale language, String typeId,
+  public retrofit2.Response<MovieEntity> getScrapeInformation(String username, String subscriptionkey, String id, Locale language, String typeId,
       String format) throws IOException {
 
-    return getService().movieScrapebyID(apiKey, username, subscriptionkey, id, language, typeId, format).execute().body();
+    return getService().movieScrapebyID(apiKey, username, subscriptionkey, id, language, typeId, format).execute();
   }
 
   private MpdbService getService() {

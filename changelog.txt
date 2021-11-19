@@ -3,6 +3,8 @@ Version 4.2.4
 + added support for season fanart #1434 #1572
 x prefer fanart without text to comply with Kodi standards #1565
 x sort the column "date added" by date AND time
+x some enhancements in the MPDb.TV scraper #1574
+x sort filter presets by name #1575 (thx @dimitricappelle)
 
 
 Version 4.2.3
