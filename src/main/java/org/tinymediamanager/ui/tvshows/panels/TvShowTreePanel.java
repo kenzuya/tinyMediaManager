@@ -88,7 +88,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * The class TvShowTreePanel is used to display the tree for TV dhows
- * 
+ *
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
@@ -164,7 +164,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        for (String uiFilter : TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet()) {
+        TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
@@ -172,7 +172,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
             }
           };
           popupMenu.add(action);
-        }
+        });
         if (popupMenu.getSubElements().length != 0) {
           popupMenu.addSeparator();
         }
