@@ -2773,6 +2773,46 @@ public class MediaFileHelper {
     return Collections.singletonList(mediaFile.getFileAsPath());
   }
 
+  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, long pos) {
+    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile)
+        .stream()
+        .map(path -> new MediaInfoFile(path))
+        .collect(Collectors.toList());
+
+    MediaFilePosition result = new MediaFilePosition(mediaFile.getFileAsPath(), pos);
+
+    if (mediaInfoFiles.size() == 1) {
+      return result;
+    }
+
+    long totalDuration = 0;
+    for (MediaInfoFile file : mediaInfoFiles) {
+      try (MediaInfo mediaInfo = new MediaInfo()) {
+        Path filePath = Paths.get(file.getPath(), file.getFilename());
+        if (!mediaInfo.open(filePath)) {
+          LOGGER.error("Mediainfo could not open file: {}", file);
+        }
+        else {
+          file.setSnapshot(mediaInfo.snapshot());
+        }
+
+        int duration = file.getDuration();
+        if (pos <= (totalDuration + duration)) {
+          result = new MediaFilePosition(filePath, pos - totalDuration);
+          break;
+        }
+
+        totalDuration += duration;
+      }
+      // sometimes also an error is thrown
+      catch (Exception | Error e) {
+        LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
+      }
+    }
+
+    return result;
+  }
+
   /**
    * Try to parse the language out of the filename. This happens (like in Kodi) to chop the filename into different chunks and search in the chunks
    * for possible language tags.<br />
