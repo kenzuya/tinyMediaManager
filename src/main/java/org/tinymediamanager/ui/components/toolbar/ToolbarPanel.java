@@ -62,6 +62,7 @@ import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
+import org.tinymediamanager.ui.actions.DeleteTrashAction;
 import org.tinymediamanager.ui.actions.DocsAction;
 import org.tinymediamanager.ui.actions.ExportLogAction;
 import org.tinymediamanager.ui.actions.FaqAction;
@@ -252,6 +253,7 @@ public class ToolbarPanel extends JPanel {
       JDialog messageDialog = MessageHistoryDialog.getInstance();
       messageDialog.setVisible(true);
     });
+
     JMenuItem tmmFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotoinstalldir"));
     menu.add(tmmFolder);
     tmmFolder.addActionListener(arg0 -> {
@@ -269,6 +271,24 @@ public class ToolbarPanel extends JPanel {
       }
     });
 
+    JMenuItem tmpFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gototmpdir"));
+    menu.add(tmpFolder);
+    tmpFolder.addActionListener(arg0 -> {
+      Path path = Paths.get(Utils.getTempFolder());
+      try {
+        // check whether this location exists
+        if (Files.exists(path)) {
+          TmmUIHelper.openFile(path);
+        }
+      }
+      catch (Exception ex) {
+        LOGGER.error("open filemanager", ex);
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+      }
+    });
+
+    menu.add(new DeleteTrashAction());
     menu.addSeparator();
 
     final JMenu menuWakeOnLan = new JMenu(TmmResourceBundle.getString("tmm.wakeonlan"));

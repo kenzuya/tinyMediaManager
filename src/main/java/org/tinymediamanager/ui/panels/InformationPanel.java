@@ -62,6 +62,7 @@ public abstract class InformationPanel extends JPanel {
 
       case FANART:
       case THUMB:
+      case SEASON_FANART:
       case SEASON_THUMB:
         imageLabel.setDesiredAspectRatio(16 / 9f);
         break;

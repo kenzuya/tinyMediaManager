@@ -514,7 +514,7 @@ class MovieUiSettingsPanel extends JPanel {
           btnMoveRatingDown.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
           panelRatingSource.add(btnMoveRatingDown, "cell 1 0,aligny bottom");
 
-          cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes", "user"));
+          cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metacritic", "tomatometerallcritics", "user"));
           panelRatingSource.add(cbRating, "cell 0 1,growx");
 
           btnRemoveRating = new SquareIconButton(IconManager.REMOVE_INV);

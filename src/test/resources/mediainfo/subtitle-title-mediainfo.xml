@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="21.03" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="D:\_qnap_Märchen\Allerleirauh (2012).mkv">
+        <track type="General">
+            <UniqueID>309586732223659466982694629472510269249</UniqueID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <TextCount>2</TextCount>
+            <FileExtension>mkv</FileExtension>
+            <Format>Matroska</Format>
+            <Format_Version>4</Format_Version>
+            <FileSize>820035176</FileSize>
+            <Duration>3508.906</Duration>
+            <OverallBitRate>1869609</OverallBitRate>
+            <FrameRate>50.000</FrameRate>
+            <FrameCount>175439</FrameCount>
+            <IsStreamable>Yes</IsStreamable>
+            <Title>Allerleirauh (2012)</Title>
+            <Movie>Allerleirauh (2012)</Movie>
+            <Encoded_Date>UTC 2021-10-06 17:59:53</Encoded_Date>
+            <File_Created_Date>UTC 2021-10-29 13:31:22.749</File_Created_Date>
+            <File_Created_Date_Local>2021-10-29 15:31:22.749</File_Created_Date_Local>
+            <File_Modified_Date>UTC 2021-10-29 13:32:54.828</File_Modified_Date>
+            <File_Modified_Date_Local>2021-10-29 15:32:54.828</File_Modified_Date_Local>
+            <Encoded_Application>mkvmerge v60.0.0 (&apos;Are We Copies?&apos;) 64-bit</Encoded_Application>
+            <Encoded_Library>libebml v1.4.2 + libmatroska v1.6.4</Encoded_Library>
+        </track>
+        <track type="Video">
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <UniqueID>1709556329746630301</UniqueID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>4</Format_Level>
+            <Format_Tier>Main</Format_Tier>
+            <CodecID>V_MPEGH/ISO/HEVC</CodecID>
+            <Duration>3508.800000000</Duration>
+            <BitRate>1413531</BitRate>
+            <Width>1280</Width>
+            <Height>720</Height>
+            <Sampled_Width>1280</Sampled_Width>
+            <Sampled_Height>720</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <FrameRate_Mode>CFR</FrameRate_Mode>
+            <FrameRate>50.000</FrameRate>
+            <FrameCount>175439</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <BitDepth>10</BitDepth>
+            <Delay>0.000</Delay>
+            <StreamSize>619975103</StreamSize>
+            <Title>Allerleirauh (2012)</Title>
+            <Encoded_Library>x265 - 3.5+1-f0c1022b6:[Windows][clang 12.0.0][64 bit] 10bit</Encoded_Library>
+            <Encoded_Library_Name>x265</Encoded_Library_Name>
+            <Encoded_Library_Version>3.5+1-f0c1022b6:[Windows][clang 12.0.0][64 bit] 10bit</Encoded_Library_Version>
+            <Encoded_Library_Settings>cpuid=1111039 / frame-threads=4 / numa-pools=24 / wpp / no-pmode / no-pme /
+                no-psnr / no-ssim / log-level=2 / input-csp=1 / input-res=1280x720 / interlace=0 / total-frames=0 /
+                level-idc=0 / high-tier=1 / uhd-bd=0 / ref=3 / no-allow-non-conformance / no-repeat-headers / annexb /
+                no-aud / no-hrd / info / hash=0 / no-temporal-layers / open-gop / min-keyint=50 / keyint=500 /
+                gop-lookahead=0 / bframes=4 / b-adapt=2 / b-pyramid / bframe-bias=0 / rc-lookahead=20 /
+                lookahead-slices=4 / scenecut=40 / hist-scenecut=0 / radl=0 / no-splice / no-intra-refresh / ctu=64 /
+                min-cu-size=8 / no-rect / no-amp / max-tu-size=32 / tu-inter-depth=1 / tu-intra-depth=1 / limit-tu=0 /
+                rdoq-level=0 / dynamic-rd=0.00 / no-ssim-rd / signhide / no-tskip / nr-intra=0 / nr-inter=0 /
+                no-constrained-intra / strong-intra-smoothing / max-merge=3 / limit-refs=1 / no-limit-modes / me=1 /
+                subme=2 / merange=57 / temporal-mvp / no-frame-dup / no-hme / weightp / no-weightb / no-analyze-src-pics
+                / deblock=0:0 / sao / no-sao-non-deblock / rd=3 / selective-sao=4 / early-skip / rskip / no-fast-intra /
+                no-tskip-fast / no-cu-lossless / b-intra / no-splitrd-skip / rdpenalty=0 / psy-rd=2.00 / psy-rdoq=0.00 /
+                no-rd-refine / no-lossless / cbqpoffs=0 / crqpoffs=0 / rc=crf / crf=22.0 / qcomp=0.60 / qpstep=4 /
+                stats-write=0 / stats-read=0 / ipratio=1.40 / pbratio=1.30 / aq-mode=2 / aq-strength=1.00 / cutree /
+                zone-count=0 / no-strict-cbr / qg-size=32 / no-rc-grain / qpmax=69 / qpmin=0 / no-const-vbv / sar=1 /
+                overscan=0 / videoformat=5 / range=0 / colorprim=1 / transfer=1 / colormatrix=1 / chromaloc=0 /
+                display-window=0 / cll=0,0 / min-luma=0 / max-luma=1023 / log2-max-poc-lsb=8 / vui-timing-info /
+                vui-hrd-info / slices=1 / no-opt-qp-pps / no-opt-ref-list-length-pps / no-multi-pass-opt-rps /
+                scenecut-bias=0.05 / hist-threshold=0.03 / no-opt-cu-delta-qp / no-aq-motion / no-hdr10 / no-hdr10-opt /
+                no-dhdr10-opt / no-idr-recovery-sei / analysis-reuse-level=0 / analysis-save-reuse-level=0 /
+                analysis-load-reuse-level=0 / scale-factor=0 / refine-intra=0 / refine-inter=0 / refine-mv=1 /
+                refine-ctu-distortion=0 / no-limit-sao / ctu-info=0 / no-lowpass-dct / refine-analysis-type=0 /
+                copy-pic=1 / max-ausize-factor=1.0 / no-dynamic-refine / no-single-sei / no-hevc-aq / no-svt / no-field
+                / qp-adaptation-range=1.00 / scenecut-aware-qp=0conformance-window-offsets / right=0 / bottom=0 /
+                decoder-max-rate=0 / no-vbv-live-multi-pass
+            </Encoded_Library_Settings>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Container / Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Container / Stream</colour_range_Source>
+            <colour_primaries>BT.709</colour_primaries>
+            <colour_primaries_Source>Container / Stream</colour_primaries_Source>
+            <transfer_characteristics>BT.709</transfer_characteristics>
+            <transfer_characteristics_Source>Container / Stream</transfer_characteristics_Source>
+            <matrix_coefficients>BT.709</matrix_coefficients>
+            <matrix_coefficients_Source>Container / Stream</matrix_coefficients_Source>
+        </track>
+        <track type="Audio">
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <UniqueID>12340056252938977616</UniqueID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>A_AC3</CodecID>
+            <Duration>3508.800000000</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>448000</BitRate>
+            <Channels>2</Channels>
+            <ChannelPositions>Front: L R</ChannelPositions>
+            <ChannelLayout>L R</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>168422400</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameCount>109650</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>0.106</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>196492800</StreamSize>
+            <StreamSize_Proportion>0.23962</StreamSize_Proportion>
+            <Language>de</Language>
+            <ServiceKind>CM</ServiceKind>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+            <extra>
+                <bsid>6</bsid>
+                <dialnorm>-23</dialnorm>
+                <compr>-0.28</compr>
+                <dsurmod>1</dsurmod>
+                <acmod>2</acmod>
+                <lfeon>0</lfeon>
+                <dialnorm_Average>-23</dialnorm_Average>
+                <dialnorm_Minimum>-23</dialnorm_Minimum>
+            </extra>
+        </track>
+        <track type="Text" typeorder="1">
+            <StreamOrder>2</StreamOrder>
+            <ID>3</ID>
+            <UniqueID>12544619174927080187</UniqueID>
+            <Format>DVB Subtitle</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_DVBSUB</CodecID>
+            <Duration>3495.500000000</Duration>
+            <BitRate>9432</BitRate>
+            <FrameRate>0.407</FrameRate>
+            <FrameCount>1421</FrameCount>
+            <ElementCount>1421</ElementCount>
+            <StreamSize>4121239</StreamSize>
+            <Title>That&apos;s a DVDSUB subtitle</Title>
+            <Language>de</Language>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Text" typeorder="2">
+            <StreamOrder>3</StreamOrder>
+            <ID>4</ID>
+            <UniqueID>1337450103528013752</UniqueID>
+            <Format>UTF-8</Format>
+            <CodecID>S_TEXT/UTF8</CodecID>
+            <Duration>3492.800000000</Duration>
+            <BitRate>54</BitRate>
+            <FrameRate>0.203</FrameRate>
+            <FrameCount>710</FrameCount>
+            <ElementCount>710</ElementCount>
+            <StreamSize>23907</StreamSize>
+            <Title>and this a simple srt subtitle</Title>
+            <Language>de</Language>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+        </track>
+    </media>
+</MediaInfo>

@@ -35,6 +35,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
@@ -96,6 +97,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
 
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
@@ -163,6 +167,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
 
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
@@ -232,6 +239,9 @@ public class TvShowSettingsDefaults {
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
 
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
+
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
 
@@ -299,6 +309,9 @@ public class TvShowSettingsDefaults {
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);
 
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
+
     tvShowSettings.seasonBannerFilenames.clear();
     tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_FOLDER);
 
@@ -327,10 +340,16 @@ public class TvShowSettingsDefaults {
   public static void setDefaultScrapers() {
     TvShowSettings tvShowSettings = TvShowSettings.getInstance();
 
-    // activate default scrapers
+    // activate default scrapers (hand curated list of defaults)
     tvShowSettings.artworkScrapers.clear();
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
-      tvShowSettings.addTvShowArtworkScraper(ms.getId());
+      switch (ms.getId()) {
+        case "tmdb":
+        case "fanarttv":
+        case "tvdb":
+          tvShowSettings.addTvShowArtworkScraper(ms.getId());
+          break;
+      }
     }
 
     tvShowSettings.trailerScrapers.clear();

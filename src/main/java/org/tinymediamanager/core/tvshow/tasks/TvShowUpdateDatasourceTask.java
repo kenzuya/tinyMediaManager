@@ -607,7 +607,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // STEP 1 - get (or create) TvShow object
       // ******************************
       TvShow tvShow = tvShowList.getTvShowByPath(showDir);
-      // FIXME: create a method to get a MF solely by constant name like
+
       // SHOW_NFO or SEASON_BANNER
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate
       if (tvShow == null) {
@@ -995,8 +995,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // tvShow.addToMediaFiles(mfs); // add remaining
       // not so fast - try to parse S/E from remaining first!
       for (MediaFile mf : mfs) {
-        // a season poster/banner/thumb does not belong to any episode
-        if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_BANNER
+        // a season poster/fanart/banner/thumb does not belong to any episode
+        if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_FANART || mf.getType() == MediaFileType.SEASON_BANNER
             || mf.getType() == MediaFileType.SEASON_THUMB) {
           continue;
         }
@@ -1007,7 +1007,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           for (int epnr : result.episodes) {
             // get any assigned episode
             List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);
-            if (!eps.isEmpty()) {
+            if (eps.size() == 1) {
+              // just one episode for that S/E found -> we can blindly assign it
+              eps.get(0).addToMediaFiles(mf);
+            }
+            else if (eps.size() > 1) {
               for (TvShowEpisode ep : eps) {
                 String episodeBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(ep.getMainVideoFile().getFilename()));
                 // okay, at least one existing episode found.. just check if there is the same base name without stacking markers
@@ -1028,8 +1032,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       mfs.removeAll(tvShow.getEpisodesMediaFiles()); // remove EP files
       tvShow.addToMediaFiles(mfs); // now add remaining
 
-      // fill season posters map
-      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB)) {
+      // fill season artwork map
+      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
+          MediaFileType.SEASON_THUMB)) {
         int season;
         try {
           if (mf.getFilename().startsWith("season-specials")) {
@@ -1055,8 +1060,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
-      // re-evaluate stacking markers
+      // re-evaluate stacking markers & disc folders
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        episode.reEvaluateDiscfolder();
         episode.reEvaluateStacking();
         episode.saveToDb();
       }

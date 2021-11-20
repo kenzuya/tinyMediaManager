@@ -80,6 +80,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.movies.MovieUIModule;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -436,11 +437,15 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private void buildAndInstallMovieArray() {
     cbMovieForPreview.removeAllItems();
     List<Movie> allMovies = new ArrayList<>(MovieModuleManager.getInstance().getMovieList().getMovies());
+    Movie sel = MovieUIModule.getInstance().getSelectionModel().getSelectedMovie();
     allMovies.sort(new MovieComparator());
     for (Movie movie : allMovies) {
       MoviePreviewContainer container = new MoviePreviewContainer();
       container.movie = movie;
       cbMovieForPreview.addItem(container);
+      if (sel != null && movie.equals(sel)) {
+        cbMovieForPreview.setSelectedItem(container);
+      }
     }
   }
 

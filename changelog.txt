@@ -1,11 +1,25 @@
+Version 4.2.4
+=======================
++ added support for season fanart #1434 #1572
++ support for getting FFmpeg thumbs from disk folders
+x prefer fanart without text to comply with Kodi standards #1565
+x sort the column "date added" by date AND time
+x some enhancements in the MPDb.TV scraper #1574
+x sort filter presets by name #1575 (thx @dimitricappelle)
+
+
 Version 4.2.3
 =======================
++ support for multiple trailers in the same language (forced, sdh, ...) #343 #1543
 + make trailer table sortable #1492
 + added a dedicated file name filter for video files #1509
 + updated libmediainfo to 21.09
 + re-added legacy TVDB API v3 (the shutdown of API v3 has been postponed to the first half of 2022)
 + added trailer scraper for Dave's movie trailer page (https://www.davestrailerpage.co.uk/)
 + displaying of artwork is now configurable (for poster, fanart, banner, thumb) #1495
++ enabled editing of person IDs #1559
++ added writing of IMDB ID/TMDB ID for directors in Emby NFO format #1558
+x (movies) fixed regression of #1048 where a duplicate movie may removed the original one #1557
 x (movies) do not update the selected sum too often #1510
 x enhanced display of ratings if a user rating has been added #1513
 x added tmdbid to the movie set NFO #1516
@@ -21,6 +35,10 @@ x fixed occasional double spaces in the renamer results #1541
 x (TV shows) enhanced note filter #1540
 x Plot & note fields render now clickable links #1538
 x enabled growing of the datasource settings panel #1548
+x do not strip <set> tag from TV show NFO files
+x (TV shows) re-set episode IDs when changing the S/E number via the find episode dialog #1462
+x (movies) write the original filename (rather than the actual one) to the NFO #1556
+x Emby: quickfix for multi episodes by writing <episodenumberend> tag #1444
 
 
 Version 4.2.2
@@ -99,6 +117,8 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (TV shows) added context menu for downloading best trailer for selected TV Shows #1417
 + (TV shows) added bulk adding subtitle information #1396
 + (movies) added option to consolidate movies on rename #1048
++ added the action "Tools -> Delete trash folder" to delete all .deletedByTMM folders in your data sources #1551
++ added an action to go to the tmp folder of tinyMediaManager
 x (TV shows) introduced adaptive event processing: this will help the UI to stay responsive on large libraries.
   The drawback here is, that some sorting and filtering in the UI will be delayed for large libraries
 x (TV shows) do not mix in TV show actors to the episode cast #1219

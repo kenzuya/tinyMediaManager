@@ -337,6 +337,7 @@ abstract public class MediaInformationPanel extends JPanel {
   protected static class SubtitleTableFormat extends TmmTableFormat<SubtitleContainer> {
     SubtitleTableFormat() {
       Comparator<String> stringComparator = new StringComparator();
+      Comparator<Boolean> booleanComparator = new BooleanComparator();
 
       /*
        * source
@@ -351,16 +352,33 @@ abstract public class MediaInformationPanel extends JPanel {
       col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> {
         String language = container.subtitle.getLanguage();
 
-        if (container.subtitle.isForced()) {
-          language += " forced";
-        }
-
         if (StringUtils.isNotBlank(container.subtitle.getCodec())) {
           language += " (" + container.subtitle.getCodec() + ")";
         }
 
         return language;
       }, String.class);
+      col.setColumnComparator(stringComparator);
+      addColumn(col);
+
+      /*
+       * forced
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.forced"), "forced", container -> container.subtitle.isForced(), Boolean.class);
+      col.setColumnComparator(booleanComparator);
+      addColumn(col);
+
+      /*
+       * sdh
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.sdh"), "sdh", container -> container.subtitle.isSdh(), Boolean.class);
+      col.setColumnComparator(booleanComparator);
+      addColumn(col);
+
+      /*
+       * title
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.subtitle.getTitle(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
     }

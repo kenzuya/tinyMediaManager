@@ -30,6 +30,7 @@ import static org.tinymediamanager.core.MediaFileType.GRAPHIC;
 import static org.tinymediamanager.core.MediaFileType.KEYART;
 import static org.tinymediamanager.core.MediaFileType.LOGO;
 import static org.tinymediamanager.core.MediaFileType.POSTER;
+import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
@@ -911,7 +912,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movieList.addMovie(movie);
 
       movie.setOffline(isOffline);
-
+      movie.reEvaluateDiscfolder();
       movie.reEvaluateStacking();
       movie.saveToDb();
     }
@@ -1119,6 +1120,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     // check stacking on all movie from this dir (it might have changed!)
     for (Movie m : movieList.getMoviesByPath(movieDir)) {
+      m.reEvaluateDiscfolder();
       m.reEvaluateStacking();
       m.saveToDb();
     }
@@ -1130,14 +1132,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // sort the given media files to bring the video to the front
     mediaFiles.sort(new MovieMediaFileComparator());
 
-    // remember the first video file
+    // remember the first video file (existing first)
     MediaFile mainVideoFile = null;
+
+    if (!movie.getMediaFiles(VIDEO).isEmpty()) {
+      mainVideoFile = movie.getMainVideoFile();
+    }
 
     for (MediaFile mf : mediaFiles) {
       if (!current.contains(mf)) { // a new mediafile was found!
         if (mf.getPath().toUpperCase(Locale.ROOT).contains("BDMV") || mf.getPath().toUpperCase(Locale.ROOT).contains("VIDEO_TS")
             || mf.getPath().toUpperCase(Locale.ROOT).contains("HVDVD_TS") || mf.isDiscFile()) {
-          movie.setDisc(true);
           if (movie.getMediaSource() == MediaSource.UNKNOWN) {
             movie.setMediaSource(MediaSource.parseMediaSource(mf.getPath()));
           }
@@ -1224,7 +1229,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           case SAMPLE:
           case NFO:
           case TEXT:
-          case SEASON_POSTER:
           case EXTRAFANART:
           case EXTRATHUMB:
           case AUDIO:
@@ -1238,6 +1242,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
           case GRAPHIC:
           case UNKNOWN:
+          case SEASON_POSTER:
+          case SEASON_FANART:
           case SEASON_BANNER:
           case SEASON_THUMB:
           case VIDEO_EXTRA:

@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.tvshow;
 
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_FANART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 
@@ -54,6 +55,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
@@ -73,6 +75,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -554,7 +557,7 @@ public class TvShowRenamer {
     Set<MediaFile> needed = new LinkedHashSet<>();
     ArrayList<MediaFile> cleanup = new ArrayList<>();
 
-    List<MediaArtworkType> types = Arrays.asList(SEASON_POSTER, SEASON_BANNER, SEASON_THUMB);
+    List<MediaArtworkType> types = Arrays.asList(SEASON_POSTER, SEASON_FANART, SEASON_BANNER, SEASON_THUMB);
 
     for (MediaArtworkType type : types) {
       Map<Integer, MediaFile> artwork = tvShow.getSeasonArtworks(type);
@@ -568,6 +571,20 @@ public class TvShowRenamer {
         switch (type) {
           case SEASON_POSTER:
             for (TvShowSeasonPosterNaming naming : SETTINGS.getSeasonPosterFilenames()) {
+              filename = naming.getFilename(tvShow, season, mf.getExtension());
+              if (StringUtils.isNotBlank(filename)) {
+                MediaFile newMf = new MediaFile(mf);
+                newMf.setFile(Paths.get(tvShow.getPath(), filename));
+                boolean ok = copyFile(mf.getFileAsPath(), newMf.getFileAsPath());
+                if (ok) {
+                  needed.add(newMf);
+                }
+              }
+            }
+            break;
+
+          case SEASON_FANART:
+            for (TvShowSeasonFanartNaming naming : SETTINGS.getSeasonFanartFilenames()) {
               filename = naming.getFilename(tvShow, season, mf.getExtension());
               if (StringUtils.isNotBlank(filename)) {
                 MediaFile newMf = new MediaFile(mf);
@@ -1156,13 +1173,25 @@ public class TvShowRenamer {
               }
               subtitleFilename = newFilename + "." + lang;
             }
-            if (mfs.isForced()) {
-              subtitleFilename = newFilename + ".forced";
+
+            String additional = "";
+
+            if (StringUtils.isNotBlank(mfs.getTitle())) {
+              additional = "(" + mfs.getTitle().strip() + ")";
             }
+            if (mfs.isForced()) {
+              additional += ".forced";
+            }
+            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED)) {
+              additional += ".sdh"; // double possible?!
+            }
+
+            subtitleFilename += additional;
           }
         }
 
         if (StringUtils.isBlank(subtitleFilename)) {
+          /** SHOULD NOT BE NEEDED ANY MORE?! **/
           // detect from filename, if we don't have a MediaFileSubtitle entry or could not create a file name out of it!
           // remove the filename of episode from subtitle, to ease parsing
           String shortname = mf.getBasename().toLowerCase(Locale.ROOT).replace(eps.get(0).getVideoBasenameWithoutStacking(), "");
@@ -1308,6 +1337,7 @@ public class TvShowRenamer {
       case CHARACTERART:
       case KEYART:
       case SEASON_POSTER:
+      case SEASON_FANART:
       case SEASON_BANNER:
       case SEASON_THUMB:
       default:

@@ -298,6 +298,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       case CHARACTERART:
       case KEYART:
       case SEASON_POSTER:
+      case SEASON_FANART:
       case SEASON_BANNER:
       case SEASON_THUMB:
       case EXTRAFANART:

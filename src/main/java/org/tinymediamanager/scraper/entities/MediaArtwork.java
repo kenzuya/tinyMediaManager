@@ -49,6 +49,7 @@ public class MediaArtwork {
     POSTER, 
     ACTOR,
     SEASON_POSTER,
+    SEASON_FANART,
     SEASON_BANNER,
     SEASON_THUMB,
     THUMB, 

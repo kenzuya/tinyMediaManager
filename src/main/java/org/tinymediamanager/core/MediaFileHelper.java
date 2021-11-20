@@ -90,6 +90,7 @@ public class MediaFileHelper {
   public static final Pattern      BANNER_PATTERN;
   public static final Pattern      THUMB_PATTERN;
   public static final Pattern      SEASON_POSTER_PATTERN;
+  public static final Pattern      SEASON_FANART_PATTERN;
   public static final Pattern      SEASON_BANNER_PATTERN;
   public static final Pattern      SEASON_THUMB_PATTERN;
   public static final Pattern      LOGO_PATTERN;
@@ -166,6 +167,7 @@ public class MediaFileHelper {
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
     SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
+    SEASON_FANART_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-fanart)?\\.(" + extensions + ")$");
     SEASON_BANNER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-banner\\.(" + extensions + ")$");
     SEASON_THUMB_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
     LOGO_PATTERN = Pattern.compile("(?i)(.*-logo|logo)\\.(" + extensions + ")$");
@@ -352,6 +354,13 @@ public class MediaFileHelper {
     matcher = MediaFileHelper.SEASON_POSTER_PATTERN.matcher(filename);
     if (matcher.matches()) {
       return MediaFileType.SEASON_POSTER;
+    }
+
+    // season(XX|-specials)-fanart.*
+    // seasonXX.*
+    matcher = MediaFileHelper.SEASON_FANART_PATTERN.matcher(filename);
+    if (matcher.matches()) {
+      return MediaFileType.SEASON_FANART;
     }
 
     // season(XX|-specials)-banner.*
@@ -1613,11 +1622,16 @@ public class MediaFileHelper {
     List<String> splitted = ParserUtils.splitByPunctuation(shortname);
     if (splitted.contains("forced")) {
       sub.setForced(true);
+      sub.set(Flags.FLAG_FORCED);
       shortname = shortname.replaceAll("\\p{Punct}*forced", "");
     }
     if (splitted.contains("sdh")) {
       sub.set(Flags.FLAG_HEARING_IMPAIRED);
       shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
+    }
+    else if (splitted.contains("cc")) { // basically the same as sdh
+      sub.set(Flags.FLAG_HEARING_IMPAIRED);
+      shortname = shortname.replaceAll("\\p{Punct}*cc", "");
     }
     sub.setLanguage(parseLanguageFromString(shortname));
 
@@ -1677,6 +1691,11 @@ public class MediaFileHelper {
       String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
       boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
       stream.setForced(b);
+
+      String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+      if (StringUtils.isNotBlank(title)) {
+        stream.setTitle(title);
+      }
 
       // "default" subtitle stream?
       String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
@@ -2282,6 +2301,7 @@ public class MediaFileHelper {
       case EXTRAFANART:
       case GRAPHIC:
       case SEASON_POSTER:
+      case SEASON_FANART:
       case SEASON_BANNER:
       case SEASON_THUMB:
       case LOGO:
@@ -2703,5 +2723,130 @@ public class MediaFileHelper {
     }
 
     return mediaFile.getFileAsPath();
+  }
+
+  /**
+   * get all relevant video files. This comes in handy for disc structures
+   * 
+   * @param mediaFile
+   *          the {@link MediaFile} to get all relevant video files
+   * @return a {@link List} of all video files (as {@link Path})
+   */
+  public static List<Path> getVideoFiles(MediaFile mediaFile) {
+    if (Files.isDirectory(mediaFile.getFileAsPath())) {
+      // looks like a disc structure
+      List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
+      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
+        try {
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
+        }
+      }
+
+      if (mediaFile.isDVDFile()) {
+        String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
+        mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
+          if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
+            return false;
+          }
+          if (file.getFilename().startsWith(relevantPrefix)) {
+            return true;
+          }
+          return false;
+        }).sorted().collect(Collectors.toList());
+      }
+      else if (mediaFile.isBlurayFile()) {
+        mediaInfoFiles = detectRelevantBlurayFiles(mediaInfoFiles);
+      }
+      else if (mediaFile.isHDDVDFile()) {
+        mediaInfoFiles = detectRelevantHdDvdFiles(mediaInfoFiles);
+      }
+
+      List<Path> files = new ArrayList<>();
+      mediaInfoFiles.forEach(mediaInfoFile -> files.add(Paths.get(mediaInfoFile.getPath(), mediaInfoFile.getFilename())));
+
+      return files;
+    }
+
+    return Collections.singletonList(mediaFile.getFileAsPath());
+  }
+
+  /**
+   * Try to parse the language out of the filename. This happens (like in Kodi) to chop the filename into different chunks and search in the chunks
+   * for possible language tags.<br />
+   * To make this work flawless we need to chop out the "main" filename part (movie/episode video filename) and look into the rest. For this we need
+   * to pass the basename of the main video file to this method too.<br />
+   * This is only usable for audio and subtitle files
+   *
+   * @param mediaFile
+   *          the {@link MediaFile} to work with
+   * @param commonPart
+   *          the common part of the filename which is shared with the video file
+   */
+  public static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
+    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
+      return;
+    }
+
+    String shortname = mediaFile.getBasename();
+
+    shortname = shortname.replace(commonPart, "");
+
+    // split the shortname into chunks and search from the end to the beginning for the language
+    List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+
+    String language = "";
+    int languageIndex = 0;
+    String title = "";
+    List<Flags> flags = new ArrayList<>();
+
+    for (int i = chunks.size() - 1; i >= 0; i--) {
+      language = LanguageUtils.parseLanguageFromString(chunks.get(i));
+      if (StringUtils.isNotBlank(language)) {
+        languageIndex = i;
+        break;
+      }
+    }
+
+    if (languageIndex < chunks.size() - 1) {
+      // the language index was not the last chunk. Save the part between the language index and the last chunk as title
+      title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+
+      if (title.contains("forced")) {
+        flags.add(Flags.FLAG_FORCED);
+        title = title.replaceAll("\\p{Punct}*forced", "");
+      }
+      if (title.contains("sdh")) {
+        flags.add(Flags.FLAG_HEARING_IMPAIRED);
+        title = title.replaceAll("\\p{Punct}*sdh", "");
+      }
+      else if (title.contains("cc")) { // basically the same as sdh
+        flags.add(Flags.FLAG_HEARING_IMPAIRED);
+        title = title.replaceAll("\\p{Punct}*cc", "");
+      }
+
+      title = title.strip();
+    }
+
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
+      if (StringUtils.isBlank(sub.getLanguage())) {
+        sub.setLanguage(language);
+      }
+      sub.setTitle(title);
+      sub.set(flags);
+    }
+    else if (mediaFile.getType() == MediaFileType.AUDIO) {
+      MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
+      if (StringUtils.isBlank(audio.getLanguage())) {
+        audio.setLanguage(language);
+      }
+      if (StringUtils.isBlank(audio.getTitle())) {
+        audio.setAudioTitle(title);
+      }
+      audio.set(flags);
+    }
   }
 }

@@ -203,11 +203,30 @@ public enum MediaLanguages {
 
   /**
    * Usually, we sort enums based on their ordinal type, or based on name.<br>
-   * This is a convenience method to sort based on toString(), which we defined to be the translated displayTitle.
+   * This is a convenience method to sort based on toString(), which we defined to be the translated displayTitle - but without the "none" language
    * 
    * @return MediaLanguages.values() in a sorted way
    */
   public static MediaLanguages[] valuesSorted() {
+    SortedMap<String, MediaLanguages> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    for (MediaLanguages ml : MediaLanguages.values()) {
+      // we probably don't want "none" is most cases
+      if (ml == none) {
+        continue;
+      }
+
+      map.put(ml.toString(), ml);
+    }
+    return map.values().toArray(new MediaLanguages[] {});
+  }
+
+  /**
+   * Usually, we sort enums based on their ordinal type, or based on name.<br>
+   * This is a convenience method to sort based on toString(), which we defined to be the translated displayTitle.
+   *
+   * @return MediaLanguages.values() in a sorted way
+   */
+  public static MediaLanguages[] allValuesSorted() {
     SortedMap<String, MediaLanguages> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     for (MediaLanguages ml : MediaLanguages.values()) {
       map.put(ml.toString(), ml);

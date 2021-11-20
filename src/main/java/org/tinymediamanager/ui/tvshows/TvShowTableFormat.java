@@ -101,6 +101,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return Float.compare(value1, value2);
     };
     Comparator<Date> dateComparator = new DateComparator();
+    Comparator<Date> dateTimeComparator = new DateTimeComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<String> videoFormatComparator = new VideoFormatComparator();
     Comparator<String> fileSizeComparator = new FileSizeComparator();
@@ -209,7 +210,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     catch (Exception ignored) {
     }
-    col.setColumnComparator(dateComparator);
+    col.setColumnComparator(dateTimeComparator);
     addColumn(col);
 
     /*
@@ -226,7 +227,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     catch (Exception ignored) {
     }
-    col.setColumnComparator(dateComparator);
+    col.setColumnComparator(dateTimeComparator);
     addColumn(col);
 
     /*

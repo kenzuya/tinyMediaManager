@@ -111,11 +111,11 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
     }
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(getProviderInfo().getId());
+    Integer id = options.getIdAsInteger(MediaMetadata.TVDB);
 
     if (id == null || id == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(getProviderInfo().getId());
+      throw new MissingIdException(MediaMetadata.TVDB);
     }
 
     // get artwork from thetvdb

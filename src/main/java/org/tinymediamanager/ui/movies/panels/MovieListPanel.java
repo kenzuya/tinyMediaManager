@@ -156,7 +156,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnExtendedFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        for (String uiFilter : MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet()) {
+        MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
@@ -166,7 +166,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
             }
           };
           popupMenu.add(action);
-        }
+        });
         if (popupMenu.getSubElements().length != 0) {
           popupMenu.addSeparator();
         }

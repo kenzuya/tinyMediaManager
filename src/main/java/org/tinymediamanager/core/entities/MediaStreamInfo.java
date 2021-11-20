@@ -17,6 +17,7 @@
 package org.tinymediamanager.core.entities;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -47,6 +48,9 @@ public class MediaStreamInfo extends AbstractModelObject {
   @JsonProperty
   protected String     language    = "";
   @JsonProperty
+  protected String     title       = "";
+
+  @JsonProperty
   protected Set<Flags> streamFlags = EnumSet.noneOf(Flags.class);
 
   // the stream id for locally mixin in DVD information
@@ -68,12 +72,24 @@ public class MediaStreamInfo extends AbstractModelObject {
     this.language = language;
   }
 
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   public boolean has(Flags flag) {
     return streamFlags.contains(flag);
   }
 
   public void set(Flags... flags) {
     streamFlags.addAll(Arrays.asList(flags));
+  }
+
+  public void set(Collection<Flags> flags) {
+    streamFlags.addAll(flags);
   }
 
   public void remove(Flags... flags) {
@@ -105,6 +121,19 @@ public class MediaStreamInfo extends AbstractModelObject {
     }
     else {
       streamFlags.remove(Flags.FLAG_FORCED);
+    }
+  }
+
+  public boolean isSdh() {
+    return streamFlags.contains(Flags.FLAG_HEARING_IMPAIRED);
+  }
+
+  public void setSdh(boolean sdh) {
+    if (sdh) {
+      streamFlags.add(Flags.FLAG_HEARING_IMPAIRED);
+    }
+    else {
+      streamFlags.remove(Flags.FLAG_HEARING_IMPAIRED);
     }
   }
 

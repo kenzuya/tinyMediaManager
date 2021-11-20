@@ -323,7 +323,7 @@ public class TvShowNfoParserTest extends BasicTest {
         assertThat(actor.thumb).isNotNull();
       }
 
-      assertThat(parser.unsupportedElements).hasSize(4); // season, episode, displayseason, displayepisode
+      assertThat(parser.unsupportedElements).hasSize(5); // set, season, episode, displayseason, displayepisode
       assertThat(parser.trailer).isEmpty();
 
       // xbmc tags
@@ -416,7 +416,7 @@ public class TvShowNfoParserTest extends BasicTest {
         assertThat(actor.thumb).isNotNull();
       }
 
-      assertThat(parser.unsupportedElements).hasSize(4); // season, episode, displayseason, displayepisode
+      assertThat(parser.unsupportedElements).hasSize(5); // set, season, episode, displayseason, displayepisode
       assertThat(parser.trailer).isEmpty();
 
       // xbmc tags
