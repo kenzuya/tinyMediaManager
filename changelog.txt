@@ -7,6 +7,7 @@ x sort the column "date added" by date AND time
 x some enhancements in the MPDb.TV scraper #1574
 x sort filter presets by name #1575 (thx @dimitricappelle)
 x moved the select all/select none items to top #1527
+x (TV shows) fixed writing of <episodenumberend> for Emby NFOs
 
 
 Version 4.2.3
