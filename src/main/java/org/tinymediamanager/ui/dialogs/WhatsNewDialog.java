@@ -113,6 +113,9 @@ public class WhatsNewDialog extends TmmDialog {
   }
 
   private String prepareTextAsHtml(String originalText) {
+    // mask tags
+    originalText = originalText.replace("<", "&lt;").replace(">", "&gt;");
+
     // links
     Pattern pattern = Pattern.compile("(http[s]?://.*?)[\\n\\r\\s)]");
     Matcher matcher = pattern.matcher(originalText);
