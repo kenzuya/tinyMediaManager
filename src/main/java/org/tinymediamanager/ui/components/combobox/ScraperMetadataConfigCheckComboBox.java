@@ -74,16 +74,6 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
 
     TmmCheckComboBoxItem<E> checkComboBoxItem;
 
-    for (E item : items) {
-      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
-      checkComboBoxItem.setText(item.getDescription());
-      checkComboBoxItem.setToolTipText(item.getToolTip());
-      this.checkComboBoxItems.add(checkComboBoxItem);
-      this.comboBoxItemMap.put(item, checkComboBoxItem);
-    }
-
-    checkComboBoxItems.add(nullItem);
-
     checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectall"));
     checkComboBoxItem.setSelected(false);
     checkComboBoxItems.add(checkComboBoxItem);
@@ -91,6 +81,16 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
     checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectnone"));
     checkComboBoxItem.setSelected(true);
     checkComboBoxItems.add(checkComboBoxItem);
+
+    checkComboBoxItems.add(nullItem);
+
+    for (E item : items) {
+      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
+      checkComboBoxItem.setText(item.getDescription());
+      checkComboBoxItem.setToolTipText(item.getToolTip());
+      this.checkComboBoxItems.add(checkComboBoxItem);
+      this.comboBoxItemMap.put(item, checkComboBoxItem);
+    }
 
     model.addAll(checkComboBoxItems);
   }
