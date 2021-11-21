@@ -1059,9 +1059,11 @@ public final class Settings extends AbstractSettings {
     boolean old = this.ignoreSSLProblems;
     this.ignoreSSLProblems = ignoreSSLProblems;
     firePropertyChange("ignoreSSLProblems", old, ignoreSSLProblems);
+
+    System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
+
     // and pass this setting to the HTTP client if it has been changed
     if (old != ignoreSSLProblems) {
-      System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
       TmmHttpClient.recreateHttpClient();
     }
   }
