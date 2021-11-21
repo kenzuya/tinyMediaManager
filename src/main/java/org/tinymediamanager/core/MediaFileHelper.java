@@ -2779,34 +2779,42 @@ public class MediaFileHelper {
         .map(path -> new MediaInfoFile(path))
         .collect(Collectors.toList());
 
-    MediaFilePosition result = new MediaFilePosition(mediaFile.getFileAsPath(), pos);
+    MediaFilePosition result = null;
 
     if (mediaInfoFiles.size() == 1) {
-      return result;
+      return new MediaFilePosition(mediaFile.getFileAsPath(), pos);
     }
 
-    long totalDuration = 0;
-    for (MediaInfoFile file : mediaInfoFiles) {
-      try (MediaInfo mediaInfo = new MediaInfo()) {
-        Path filePath = Paths.get(file.getPath(), file.getFilename());
-        if (!mediaInfo.open(filePath)) {
-          LOGGER.error("Mediainfo could not open file: {}", file);
-        }
-        else {
-          file.setSnapshot(mediaInfo.snapshot());
-        }
+    if (mediaInfoFiles.size() > 1) {
+      long totalDuration = 0;
+      Path filePath = null;
+      int duration = -1;
+      for (MediaInfoFile file : mediaInfoFiles) {
+        try (MediaInfo mediaInfo = new MediaInfo()) {
+          filePath = Paths.get(file.getPath(), file.getFilename());
+          if (!mediaInfo.open(filePath)) {
+            LOGGER.error("Mediainfo could not open file: {}", file);
+          } else {
+            file.setSnapshot(mediaInfo.snapshot());
+          }
 
-        int duration = file.getDuration();
-        if (pos <= (totalDuration + duration)) {
-          result = new MediaFilePosition(filePath, pos - totalDuration);
-          break;
-        }
+          duration = file.getDuration();
+          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration, mediaFile.getDuration());
+          if (pos <= (totalDuration + duration)) {
+            result = new MediaFilePosition(filePath, pos - totalDuration);
+            break;
+          }
 
-        totalDuration += duration;
+          totalDuration += duration;
+        }
+        // sometimes also an error is thrown
+        catch (Exception | Error e) {
+          LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
+        }
       }
-      // sometimes also an error is thrown
-      catch (Exception | Error e) {
-        LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
+
+      if (result == null) {
+        result = new MediaFilePosition(filePath, duration);
       }
     }
 

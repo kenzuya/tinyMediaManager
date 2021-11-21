@@ -137,7 +137,12 @@ public abstract class ARDetectorTask extends TmmTask {
       float seconds = start + increment;
 
       MediaFilePosition position = MediaFileHelper.getPositionInMediaFile(mediaFile, 0);
-      String result = FFmpeg.scanDarkLevel(position.getPosition(), position.getPath()); // first video frame (which is often black)
+      if (position == null) {
+        LOGGER.error("Found no valid position for detection");
+        return;
+      }
+
+      String result = FFmpeg.scanDarkLevel(0, position.getPath()); // first video frame (which is often black)
       parseDarkLevel(result, videoInfo);
       if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct)
         videoInfo.darkLevel = getDarkLevel(videoInfo);
@@ -156,7 +161,11 @@ public abstract class ARDetectorTask extends TmmTask {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
 
+          if (iSec >= videoInfo.duration) {
+            iSec = videoInfo.duration - this.sampleDuration;
+          }
           position = MediaFileHelper.getPositionInMediaFile(mediaFile, iSec);
+
           LOGGER.info("Scanning {} at {}s", position.getPath().toString(), position.getPosition());
           result = FFmpeg.scanSample((int) position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
           parseSample(result, iSec, iInc, videoInfo);
