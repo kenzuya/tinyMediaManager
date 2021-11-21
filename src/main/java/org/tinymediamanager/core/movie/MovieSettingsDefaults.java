@@ -69,6 +69,9 @@ public class MovieSettingsDefaults {
         case "fanarttv":
           movieSettings.addMovieArtworkScraper(ms.getId());
           break;
+
+        default:
+          break;
       }
     }
 
@@ -79,6 +82,9 @@ public class MovieSettingsDefaults {
         case "hd-trailers":
         case "davesTrailer":
           movieSettings.addMovieTrailerScraper(ms.getId());
+          break;
+
+        default:
           break;
       }
     }
@@ -552,7 +558,7 @@ public class MovieSettingsDefaults {
     movieSettings.addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
     // other settings
-    movieSettings.setMovieConnector(MovieConnectors.KODI);
+    movieSettings.setMovieConnector(MovieConnectors.EMBY);
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);

@@ -68,6 +68,8 @@ class TvShowSettingsPanel extends JPanel {
   private JButton              btnPresetMediaPortal1;
   private JButton              btnPresetMediaPortal2;
   private JButton              btnPresetPlex;
+  private JButton              btnPresetJellyfin;
+  private JButton              btnPresetEmby;
   private JCheckBox            chckbxRenameAfterScrape;
   private JCheckBox            chckbxARDAfterScrape;
   private JCheckBox            chckbxAutoUpdateOnStart;
@@ -101,6 +103,8 @@ class TvShowSettingsPanel extends JPanel {
     btnPresetMediaPortal1.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
     btnPresetMediaPortal2.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
     btnPresetPlex.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForPlex());
+    btnPresetEmby.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForEmby());
+    btnPresetJellyfin.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForJellyfin());
   }
 
   private void initComponents() {
@@ -113,7 +117,7 @@ class TvShowSettingsPanel extends JPanel {
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#automatic-tasks"));
-      JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][][][grow]", "[]"));
+      JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[]"));
 
       JLabel lblPresets = new TmmLabel(TmmResourceBundle.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel_1 = new CollapsiblePanel(panelPresets, lblPresets, true);
@@ -122,23 +126,34 @@ class TvShowSettingsPanel extends JPanel {
 
       {
         JLabel lblPresetHintT = new JLabel(TmmResourceBundle.getString("Settings.preset.desc"));
-        panelPresets.add(lblPresetHintT, "cell 1 0 3 1");
+        panelPresets.add(lblPresetHintT, "cell 1 0 7 1");
       }
       {
-        btnPresetKodi = new JButton("Kodi v17+");
-        panelPresets.add(btnPresetKodi, "cell 2 1,growx");
+        {
+          btnPresetKodi = new JButton("Kodi v17+");
+          panelPresets.add(btnPresetKodi, "cell 2 1,growx");
 
-        btnPresetXbmc = new JButton("XBMC/Kodi <v17");
-        panelPresets.add(btnPresetXbmc, "cell 3 1,growx");
+          btnPresetXbmc = new JButton("XBMC/Kodi <v17");
+          panelPresets.add(btnPresetXbmc, "cell 4 1,growx");
 
-        btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
-        panelPresets.add(btnPresetMediaPortal1, "cell 2 2,growx");
+        }
+        {
+          btnPresetPlex = new JButton("Plex");
+          panelPresets.add(btnPresetPlex, "cell 2 2,growx");
 
-        btnPresetMediaPortal2 = new JButton("MediaPortal 2.x");
-        panelPresets.add(btnPresetMediaPortal2, "cell 3 2,growx");
+          btnPresetJellyfin = new JButton("Jellyfin");
+          panelPresets.add(btnPresetJellyfin, "cell 4 2,growx");
 
-        btnPresetPlex = new JButton("Plex");
-        panelPresets.add(btnPresetPlex, "cell 2 3,growx");
+          btnPresetEmby = new JButton("Emby");
+          panelPresets.add(btnPresetEmby, "cell 6 2,growx");
+        }
+        {
+          btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
+          panelPresets.add(btnPresetMediaPortal1, "cell 2 3,growx");
+
+          btnPresetMediaPortal2 = new JButton("MediaPortal 2.x");
+          panelPresets.add(btnPresetMediaPortal2, "cell 4 3,growx");
+        }
       }
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
