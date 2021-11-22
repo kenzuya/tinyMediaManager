@@ -105,7 +105,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       throw new ScrapeException(e);
     }
 
-    if (searchResult == null) {
+    if (searchResult.isEmpty()) {
       LOGGER.warn("no result from MPDB.tv");
       return results;
     }

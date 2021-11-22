@@ -95,6 +95,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       throw new ScrapeException(e);
     }
 
+    if (scrapeResult == null) {
+      LOGGER.warn("no result from MPDB.tv");
+      return Collections.emptyList();
+    }
+
     // Poster
     for (Poster poster : ListUtils.nullSafe(scrapeResult.posters)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);

@@ -335,6 +335,146 @@ public class TvShowSettingsDefaults {
   }
 
   /**
+   * Plex defaults
+   */
+  public static void setDefaultSettingsForJellyfin() {
+    TvShowSettings tvShowSettings = TvShowSettings.getInstance();
+
+    tvShowSettings.nfoFilenames.clear();
+    tvShowSettings.nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
+
+    tvShowSettings.posterFilenames.clear();
+    tvShowSettings.posterFilenames.add(TvShowPosterNaming.POSTER);
+
+    tvShowSettings.fanartFilenames.clear();
+    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.FANART);
+
+    tvShowSettings.extraFanartFilenames.clear();
+    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
+
+    tvShowSettings.bannerFilenames.clear();
+    tvShowSettings.bannerFilenames.add(TvShowBannerNaming.BANNER);
+
+    tvShowSettings.discartFilenames.clear();
+    tvShowSettings.discartFilenames.add(TvShowDiscartNaming.DISCART);
+
+    tvShowSettings.clearartFilenames.clear();
+    tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
+
+    tvShowSettings.logoFilenames.clear();
+    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
+
+    tvShowSettings.clearlogoFilenames.clear();
+    tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
+
+    tvShowSettings.characterartFilenames.clear();
+    tvShowSettings.characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
+
+    tvShowSettings.thumbFilenames.clear();
+    tvShowSettings.thumbFilenames.add(TvShowThumbNaming.THUMB);
+
+    tvShowSettings.keyartFilenames.clear();
+    tvShowSettings.keyartFilenames.add(TvShowKeyartNaming.KEYART);
+
+    tvShowSettings.seasonPosterFilenames.clear();
+    tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
+
+    tvShowSettings.seasonBannerFilenames.clear();
+    tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_FOLDER);
+
+    tvShowSettings.seasonThumbFilenames.clear();
+    tvShowSettings.seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_FOLDER);
+
+    tvShowSettings.episodeNfoFilenames.clear();
+    tvShowSettings.episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
+
+    tvShowSettings.episodeThumbFilenames.clear();
+    tvShowSettings.episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME);
+
+    // other settings
+    tvShowSettings.setTvShowConnector(TvShowConnectors.KODI);
+    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
+    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
+    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    tvShowSettings.setCertificationStyle(CertificationStyle.SHORT);
+
+    tvShowSettings.firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * Emby defaults
+   */
+  public static void setDefaultSettingsForEmby() {
+    TvShowSettings tvShowSettings = TvShowSettings.getInstance();
+
+    tvShowSettings.nfoFilenames.clear();
+    tvShowSettings.nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
+
+    tvShowSettings.posterFilenames.clear();
+    tvShowSettings.posterFilenames.add(TvShowPosterNaming.POSTER);
+
+    tvShowSettings.fanartFilenames.clear();
+    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.FANART);
+
+    tvShowSettings.extraFanartFilenames.clear();
+    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
+
+    tvShowSettings.bannerFilenames.clear();
+    tvShowSettings.bannerFilenames.add(TvShowBannerNaming.BANNER);
+
+    tvShowSettings.discartFilenames.clear();
+    tvShowSettings.discartFilenames.add(TvShowDiscartNaming.DISCART);
+
+    tvShowSettings.clearartFilenames.clear();
+    tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
+
+    tvShowSettings.logoFilenames.clear();
+    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
+
+    tvShowSettings.clearlogoFilenames.clear();
+    tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
+
+    tvShowSettings.characterartFilenames.clear();
+    tvShowSettings.characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
+
+    tvShowSettings.thumbFilenames.clear();
+    tvShowSettings.thumbFilenames.add(TvShowThumbNaming.THUMB);
+
+    tvShowSettings.keyartFilenames.clear();
+    tvShowSettings.keyartFilenames.add(TvShowKeyartNaming.KEYART);
+
+    tvShowSettings.seasonPosterFilenames.clear();
+    tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);
+
+    tvShowSettings.seasonFanartFilenames.clear();
+    tvShowSettings.seasonFanartFilenames.add(TvShowSeasonFanartNaming.SEASON_FANART);
+
+    tvShowSettings.seasonBannerFilenames.clear();
+    tvShowSettings.seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_FOLDER);
+
+    tvShowSettings.seasonThumbFilenames.clear();
+    tvShowSettings.seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_FOLDER);
+
+    tvShowSettings.episodeNfoFilenames.clear();
+    tvShowSettings.episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
+
+    tvShowSettings.episodeThumbFilenames.clear();
+    tvShowSettings.episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME);
+
+    // other settings
+    tvShowSettings.setTvShowConnector(TvShowConnectors.EMBY);
+    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
+    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
+    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    tvShowSettings.setCertificationStyle(CertificationStyle.SHORT);
+
+    tvShowSettings.firePropertyChange("preset", false, true);
+  }
+
+  /**
    * set the default scrapers for the movie module
    */
   public static void setDefaultScrapers() {
@@ -348,6 +488,9 @@ public class TvShowSettingsDefaults {
         case "fanarttv":
         case "tvdb":
           tvShowSettings.addTvShowArtworkScraper(ms.getId());
+          break;
+
+        default:
           break;
       }
     }
