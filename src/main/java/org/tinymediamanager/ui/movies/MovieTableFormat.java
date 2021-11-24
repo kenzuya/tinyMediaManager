@@ -76,6 +76,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     Comparator<Float> floatComparator = new FloatComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<Date> dateComparator = new DateComparator();
+    Comparator<Date> dateTimeComparator = new DateTimeComparator();
     Comparator<String> videoFormatComparator = new VideoFormatComparator();
     Comparator<String> fileSizeComparator = new FileSizeComparator();
     Comparator<Integer> integerComparator = new IntegerComparator();
@@ -122,7 +123,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * date added (hidden per default)
+     * release date (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.releasedate"), "releaseDate", Movie::getReleaseDate, Date.class);
     col.setColumnComparator(dateComparator);
@@ -274,7 +275,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * date added (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", MediaEntity::getDateAddedForUi, Date.class);
-    col.setColumnComparator(dateComparator);
+    col.setColumnComparator(dateTimeComparator);
     col.setHeaderIcon(IconManager.DATE_ADDED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
@@ -292,7 +293,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "fileCreationDate", movie -> movie.getMainVideoFile().getDateCreated(),
         Date.class);
-    col.setColumnComparator(dateComparator);
+    col.setColumnComparator(dateTimeComparator);
     col.setHeaderIcon(IconManager.DATE_CREATED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);

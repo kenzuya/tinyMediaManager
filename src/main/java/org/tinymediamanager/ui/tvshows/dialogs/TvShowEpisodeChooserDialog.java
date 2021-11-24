@@ -227,14 +227,13 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     table.getColumnModel().getColumn(2).setMaxWidth(110);
 
     task = new SearchTask();
-    task.execute();
 
     SwingUtilities.invokeLater(() -> {
       lblProgressAction.setText(TmmResourceBundle.getString("chooser.scrapeepisodes"));
       progressBar.setVisible(true);
       progressBar.setIndeterminate(true);
+      task.execute();
     });
-
   }
 
   @Override

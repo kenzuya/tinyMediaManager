@@ -26,6 +26,7 @@ RUN \
     wget -q -O tmm.tar.gz ${TMM} && \
     tar xzf tmm.tar.gz -C /tmp/ && \
     mv /tmp/tinyMediaManager/* /app/ && \
+    chmod -R 777 /app && \
     rm -R tmm.tar.gz /tmp/tinyMediaManager && \
     mkdir -p /data/data && \
     # Remove some unneeded stuff.

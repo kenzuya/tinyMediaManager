@@ -731,7 +731,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       activeSearchTask.cancel();
     }
     activeSearchTask = new SearchTask(searchTerm, tvShowToScrape, withIds);
-    activeSearchTask.execute();
+    SwingUtilities.invokeLater(activeSearchTask::execute);
   }
 
   private void startProgressBar(final String description) {

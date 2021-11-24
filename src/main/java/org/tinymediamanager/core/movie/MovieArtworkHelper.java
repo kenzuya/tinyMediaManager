@@ -954,8 +954,24 @@ public class MovieArtworkHelper {
     int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
     String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
+    // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
+    // resolution) first
+    // https://kodi.wiki/view/Artwork_types#fanart
+    MediaArtwork fanartWoText = null;
+    for (MediaArtwork art : artwork) {
+      if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("") && art.getSizeOrder() == preferredSizeOrder) {
+        fanartWoText = art;
+        break;
+      }
+    }
+
     // sort artwork due to our preferences
     List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder, preferredLanguage);
+
+    // and insert the text-less in the front
+    if (fanartWoText != null) {
+      sortedFanarts.add(0, fanartWoText);
+    }
 
     // assign and download the fanart
     if (!sortedFanarts.isEmpty()) {

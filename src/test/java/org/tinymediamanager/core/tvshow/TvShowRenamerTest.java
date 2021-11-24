@@ -673,6 +673,9 @@ public class TvShowRenamerTest extends BasicTest {
     mf = new MediaFile(destination.resolve("season01-poster.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
     mf.gatherMediaInformation();
     show.setSeasonArtwork(1, mf);
+    mf = new MediaFile(destination.resolve("season01-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
+    mf.gatherMediaInformation();
+    show.setSeasonArtwork(1, mf);
     mf = new MediaFile(destination.resolve("season01-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
     mf.gatherMediaInformation();
     show.setSeasonArtwork(1, mf);
@@ -683,6 +686,9 @@ public class TvShowRenamerTest extends BasicTest {
     mf = new MediaFile(destination.resolve("Season 2/season02.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
     mf.gatherMediaInformation();
     show.setSeasonArtwork(2, mf);
+    mf = new MediaFile(destination.resolve("Season 2/season02-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
+    mf.gatherMediaInformation();
+    show.setSeasonArtwork(2, mf);
     mf = new MediaFile(destination.resolve("Season 2/season02-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
     mf.gatherMediaInformation();
     show.setSeasonArtwork(2, mf);
@@ -691,6 +697,9 @@ public class TvShowRenamerTest extends BasicTest {
     mf.gatherMediaInformation();
     show.setSeasonArtwork(3, mf);
     mf = new MediaFile(destination.resolve("season03-poster.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
+    mf.gatherMediaInformation();
+    show.setSeasonArtwork(3, mf);
+    mf = new MediaFile(destination.resolve("season03-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
     mf.gatherMediaInformation();
     show.setSeasonArtwork(3, mf);
     mf = new MediaFile(destination.resolve("season03-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
@@ -743,6 +752,8 @@ public class TvShowRenamerTest extends BasicTest {
 
     artwork = showDir.resolve("season01-poster.jpg");
     assertThat(artwork).exists();
+    artwork = showDir.resolve("season01-fanart.jpg");
+    assertThat(artwork).exists();
     artwork = showDir.resolve("season01-banner.jpg");
     assertThat(artwork).exists();
     artwork = showDir.resolve("season01-thumb.jpg");
@@ -755,6 +766,8 @@ public class TvShowRenamerTest extends BasicTest {
 
     artwork = showDir.resolve("season02-poster.jpg");
     assertThat(artwork).exists();
+    artwork = showDir.resolve("season02-fanart.jpg");
+    assertThat(artwork).exists();
     artwork = showDir.resolve("season02-banner.jpg");
     assertThat(artwork).exists();
     artwork = showDir.resolve("season02-thumb.jpg");
@@ -763,6 +776,8 @@ public class TvShowRenamerTest extends BasicTest {
     // season 3 artwork in TV show folder (won't create an own subfolder only for artwork)
     // AND since the banner is not in a season folder, it will have the default name style applied
     artwork = showDir.resolve("season03-poster.jpg");
+    assertThat(artwork).exists();
+    artwork = showDir.resolve("season03-fanart.jpg");
     assertThat(artwork).exists();
     artwork = showDir.resolve("season03-banner.jpg");
     assertThat(artwork).exists();

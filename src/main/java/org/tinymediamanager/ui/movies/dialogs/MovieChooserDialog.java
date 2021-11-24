@@ -712,7 +712,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       activeSearchTask.cancel();
     }
     activeSearchTask = new SearchTask(searchTerm, movieToScrape, withIds);
-    activeSearchTask.execute();
+    SwingUtilities.invokeLater(activeSearchTask::execute);
   }
 
   private void startProgressBar(final String description) {

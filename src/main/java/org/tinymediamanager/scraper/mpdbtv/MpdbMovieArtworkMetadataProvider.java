@@ -16,14 +16,15 @@
 package org.tinymediamanager.scraper.mpdbtv;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
@@ -34,6 +35,9 @@ import org.tinymediamanager.scraper.mpdbtv.entities.HDLogo;
 import org.tinymediamanager.scraper.mpdbtv.entities.MovieEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Poster;
 import org.tinymediamanager.scraper.mpdbtv.services.Controller;
+import org.tinymediamanager.scraper.util.ListUtils;
+
+import retrofit2.Response;
 
 /**
  * The Class {@link MpdbMovieArtworkMetadataProvider}. Movie metdata provider for the site MPDB.tv
@@ -44,7 +48,6 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
   private static final Logger     LOGGER = LoggerFactory.getLogger(MpdbMovieArtworkMetadataProvider.class);
 
   private final MediaProviderInfo providerInfo;
-  private final Controller        controller;
 
   public MpdbMovieArtworkMetadataProvider() {
     this.providerInfo = createMediaProviderInfo();
@@ -61,35 +64,44 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
 
     initAPI();
 
-    MovieEntity scrapeResult;
+    MovieEntity scrapeResult = null;
     List<MediaArtwork> ma = new ArrayList<>();
     String id;
 
-    // search with mpdbtv id, tmdb id and imdb id
-    id = options.getIdAsString("mpdbtv");
-    if (id == null || id.equals("0")) {
-      id = Integer.toString(options.getTmdbId());
-      if (id == null || id.equals("0")) {
-        id = options.getImdbId();
-      }
-    }
-    if (id.equals("0")) {
-      LOGGER.warn("Cannot get artwork - neither imdb/tmdb set");
-      throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
+    // search with mpdbtv id
+    id = options.getIdAsString(providerInfo.getId());
+
+    if ("0".equals(id)) {
+      LOGGER.debug("Cannot get artwork - no mpdb id set");
+      throw new MissingIdException(getId());
     }
 
     LOGGER.info("========= BEGIN MPDB.tv artwork scraping");
     try {
-      scrapeResult = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
-          options.getLanguage().toLocale(), null, FORMAT);
+      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id, null, null, FORMAT);
+      if (response.isSuccessful()) {
+        scrapeResult = response.body();
+      }
+    }
+    catch (HttpException e) {
+      LOGGER.debug("nothing found");
+      if (e.getStatusCode() == 404) {
+        return Collections.emptyList();
+      }
+      throw new ScrapeException(e);
     }
     catch (Exception e) {
       LOGGER.error("error searching: {} ", e.getMessage());
       throw new ScrapeException(e);
     }
 
+    if (scrapeResult == null) {
+      LOGGER.warn("no result from MPDB.tv");
+      return Collections.emptyList();
+    }
+
     // Poster
-    for (Poster poster : scrapeResult.posters) {
+    for (Poster poster : ListUtils.nullSafe(scrapeResult.posters)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
       mediaArtwork.setPreviewUrl(poster.preview);
       mediaArtwork.setDefaultUrl(poster.original);
@@ -100,7 +112,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
     }
 
     // Fanarts
-    for (Fanart fanart : scrapeResult.fanarts) {
+    for (Fanart fanart : ListUtils.nullSafe(scrapeResult.fanarts)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
       mediaArtwork.setPreviewUrl(fanart.preview);
       mediaArtwork.setDefaultUrl(fanart.original);
@@ -111,7 +123,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
     }
 
     // DiscArt
-    for (DiscArt discArt : scrapeResult.discarts) {
+    for (DiscArt discArt : ListUtils.nullSafe(scrapeResult.discarts)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.DISC);
       mediaArtwork.setPreviewUrl(discArt.preview);
       mediaArtwork.setDefaultUrl(discArt.original);
@@ -122,7 +134,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
     }
 
     // HDClearArt
-    for (HDClearArt hdClearArt : scrapeResult.hdcleararts) {
+    for (HDClearArt hdClearArt : ListUtils.nullSafe(scrapeResult.hdcleararts)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.CLEARART);
       mediaArtwork.setPreviewUrl(hdClearArt.preview);
       mediaArtwork.setDefaultUrl(hdClearArt.original);
@@ -133,7 +145,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
     }
 
     // HDLogo
-    for (HDLogo hdLogo : scrapeResult.hdlogos) {
+    for (HDLogo hdLogo : ListUtils.nullSafe(scrapeResult.hdlogos)) {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.CLEARLOGO);
       mediaArtwork.setPreviewUrl(hdLogo.preview);
       mediaArtwork.setDefaultUrl(hdLogo.original);

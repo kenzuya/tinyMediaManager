@@ -154,6 +154,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private final Map<Integer, String>            seasonPosterUrlMap         = new HashMap<>(0);
   @JsonProperty
+  private final Map<Integer, String>            seasonFanartUrlMap         = new HashMap<>(0);
+  @JsonProperty
   private final Map<Integer, String>            seasonBannerUrlMap         = new HashMap<>(0);
   @JsonProperty
   private final Map<Integer, String>            seasonThumbUrlMap          = new HashMap<>(0);
@@ -168,6 +170,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   private final List<TvShowEpisode>             episodes                   = new CopyOnWriteArrayList<>();
   private final Map<Integer, MediaFile>         seasonPosters              = new HashMap<>(0);
+  private final Map<Integer, MediaFile>         seasonFanarts              = new HashMap<>(0);
   private final Map<Integer, MediaFile>         seasonBanners              = new HashMap<>(0);
   private final Map<Integer, MediaFile>         seasonThumbs               = new HashMap<>(0);
   private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
@@ -278,12 +281,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         }
         else {
           switch (mf.getType()) {
-            case SEASON_BANNER:
-              seasonBanners.put(season, mf);
-              break;
-
             case SEASON_POSTER:
               seasonPosters.put(season, mf);
+              break;
+
+            case SEASON_FANART:
+              seasonFanarts.put(season, mf);
+              break;
+
+            case SEASON_BANNER:
+              seasonBanners.put(season, mf);
               break;
 
             case SEASON_THUMB:
@@ -350,6 +357,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       seasonTitleMap.clear();
       seasonPosterUrlMap.clear();
+      seasonFanartUrlMap.clear();
       seasonBannerUrlMap.clear();
       seasonThumbUrlMap.clear();
     }
@@ -363,6 +371,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
     for (Integer season : other.seasonPosterUrlMap.keySet()) {
       seasonPosterUrlMap.putIfAbsent(season, other.seasonPosterUrlMap.get(season));
+    }
+    for (Integer season : other.seasonFanartUrlMap.keySet()) {
+      seasonFanartUrlMap.putIfAbsent(season, other.seasonFanartUrlMap.get(season));
     }
     for (Integer season : other.seasonBannerUrlMap.keySet()) {
       seasonBannerUrlMap.putIfAbsent(season, other.seasonBannerUrlMap.get(season));
@@ -1686,6 +1697,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         seasonPosterUrlMap.put(season, url);
         break;
 
+      case SEASON_FANART:
+        seasonFanartUrlMap.put(season, url);
+        break;
+
       case SEASON_BANNER:
         seasonBannerUrlMap.put(season, url);
         break;
@@ -1714,6 +1729,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     switch (artworkType) {
       case SEASON_POSTER:
         url = seasonPosterUrlMap.get(season);
+        break;
+
+      case SEASON_FANART:
+        url = seasonFanartUrlMap.get(season);
         break;
 
       case SEASON_BANNER:
@@ -1748,6 +1767,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case SEASON_POSTER:
         return MapUtils.sortByKey(seasonPosterUrlMap);
 
+      case SEASON_FANART:
+        return MapUtils.sortByKey(seasonFanartUrlMap);
+
       case SEASON_BANNER:
         return MapUtils.sortByKey(seasonBannerUrlMap);
 
@@ -1774,6 +1796,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     switch (artworkType) {
       case SEASON_POSTER:
         artworkFile = seasonPosters.get(season);
+        break;
+
+      case SEASON_FANART:
+        artworkFile = seasonFanarts.get(season);
         break;
 
       case SEASON_BANNER:
@@ -1808,6 +1834,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case SEASON_POSTER:
         return MapUtils.sortByKey(seasonPosters);
 
+      case SEASON_FANART:
+        return MapUtils.sortByKey(seasonFanarts);
+
       case SEASON_BANNER:
         return MapUtils.sortByKey(seasonBanners);
 
@@ -1831,6 +1860,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case SEASON_POSTER:
         mf = seasonPosters.get(season);
         seasonPosters.remove(season);
+        break;
+
+      case SEASON_FANART:
+        mf = seasonFanarts.get(season);
+        seasonFanarts.remove(season);
         break;
 
       case SEASON_BANNER:
@@ -1858,6 +1892,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     switch (type) {
       case SEASON_POSTER:
         artworkFile = seasonPosters.get(season);
+        break;
+
+      case SEASON_FANART:
+        artworkFile = seasonFanarts.get(season);
         break;
 
       case SEASON_BANNER:
@@ -1899,6 +1937,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         oldMf = seasonPosters.get(season);
         break;
 
+      case SEASON_FANART:
+        oldMf = seasonFanarts.get(season);
+        break;
+
       case SEASON_BANNER:
         oldMf = seasonBanners.get(season);
         break;
@@ -1924,6 +1966,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         seasonPosters.put(season, mf);
         break;
 
+      case SEASON_FANART:
+        seasonFanarts.put(season, mf);
+        break;
+
       case SEASON_BANNER:
         seasonBanners.put(season, mf);
         break;
@@ -1943,6 +1989,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case SEASON_POSTER:
         mf = seasonPosters.get(season);
         seasonPosters.remove(season);
+        break;
+
+      case SEASON_FANART:
+        mf = seasonFanarts.get(season);
+        seasonFanarts.remove(season);
         break;
 
       case SEASON_BANNER:
@@ -1968,6 +2019,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     switch (artworkType) {
       case SEASON_POSTER:
         seasonPosterUrlMap.remove(season);
+        break;
+
+      case SEASON_FANART:
+        seasonFanartUrlMap.remove(season);
         break;
 
       case SEASON_BANNER:
@@ -2437,6 +2492,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       case SEASON_POSTER:
         return getMediaFiles(MediaFileType.SEASON_POSTER);
+
+      case SEASON_FANART:
+        return getMediaFiles(MediaFileType.SEASON_FANART);
 
       case SEASON_BANNER:
         return getMediaFiles(MediaFileType.SEASON_BANNER);

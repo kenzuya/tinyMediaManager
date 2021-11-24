@@ -38,6 +38,7 @@ public class TvShowMediaFileComparator implements Comparator<MediaFile> {
       // sort all video files / season/extra artwork and by name
       case VIDEO:
       case SEASON_POSTER:
+      case SEASON_FANART:
       case SEASON_BANNER:
       case SEASON_THUMB:
       case EXTRAFANART:

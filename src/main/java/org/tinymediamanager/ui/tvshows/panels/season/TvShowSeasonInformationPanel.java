@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.tvshows.panels.season;
 
 import static org.tinymediamanager.core.Constants.ADDED_EPISODE;
 import static org.tinymediamanager.core.Constants.BANNER;
+import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
@@ -122,6 +123,10 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
         setPoster(selectedSeason);
       }
 
+      if ("selectedTvShowSeason".equals(property) || FANART.equals(property)) {
+        setFanart(selectedSeason);
+      }
+
       if ("selectedTvShowSeason".equals(property) || BANNER.equals(property)) {
         setBanner(selectedSeason);
       }
@@ -165,6 +170,10 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
       add(panelLeft, "cell 0 0,grow");
       panelLeft.setLayout(new ColumnLayout());
       for (Component component : generateArtworkComponents(MediaFileType.SEASON_POSTER)) {
+        panelLeft.add(component);
+      }
+
+      for (Component component : generateArtworkComponents(MediaFileType.SEASON_FANART)) {
         panelLeft.add(component);
       }
 
@@ -222,6 +231,19 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
     }
 
     setArtwork(MediaFileType.SEASON_POSTER, posterPath, posterSize);
+  }
+
+  private void setFanart(TvShowSeason season) {
+    String fanartPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_FANART);
+    Dimension fanartSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_FANART);
+
+    if (StringUtils.isBlank(fanartPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
+      // fall back to the show
+      fanartPath = season.getTvShow().getArtworkFilename(MediaFileType.FANART);
+      fanartSize = season.getTvShow().getArtworkDimension(MediaFileType.FANART);
+    }
+
+    setArtwork(MediaFileType.SEASON_FANART, fanartPath, fanartSize);
   }
 
   private void setBanner(TvShowSeason season) {

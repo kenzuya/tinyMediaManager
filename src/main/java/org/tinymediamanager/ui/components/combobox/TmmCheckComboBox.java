@@ -138,14 +138,6 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
     TmmCheckComboBoxItem<E> checkComboBoxItem;
 
-    for (E item : items) {
-      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
-      this.checkComboBoxItems.add(checkComboBoxItem);
-      this.comboBoxItemMap.put(item, checkComboBoxItem);
-    }
-
-    checkComboBoxItems.add(nullItem);
-
     checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectall"));
     checkComboBoxItem.setSelected(false);
     checkComboBoxItems.add(checkComboBoxItem);
@@ -153,6 +145,14 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectnone"));
     checkComboBoxItem.setSelected(true);
     checkComboBoxItems.add(checkComboBoxItem);
+
+    checkComboBoxItems.add(nullItem);
+
+    for (E item : items) {
+      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
+      this.checkComboBoxItems.add(checkComboBoxItem);
+      this.comboBoxItemMap.put(item, checkComboBoxItem);
+    }
 
     model.addAll(checkComboBoxItems);
   }
@@ -263,9 +263,9 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     if (dirty) {
       // update state of the "select all" and "select none" items
       // Select all
-      model.getElementAt(n - 2).setSelected(items.size() == n - 3);
+      model.getElementAt(0).setSelected(items.size() == n - 3);
       // select none
-      model.getElementAt(n - 1).setSelected(items.isEmpty());
+      model.getElementAt(1).setSelected(items.isEmpty());
 
       update();
     }
@@ -295,9 +295,9 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     if (dirty) {
       // update state of the "select all" and "select none" items
       // Select all
-      model.getElementAt(n - 2).setSelected(false);
+      model.getElementAt(0).setSelected(false);
       // select none
-      model.getElementAt(n - 1).setSelected(true);
+      model.getElementAt(1).setSelected(true);
 
       update();
     }
@@ -337,7 +337,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     }
 
     // Set selectedObj = getSelected();
-    if (index < n - 2) {
+    if (index > 1) {
       TmmCheckComboBoxItem<E> cb = model.getElementAt(index);
       if (cb == nullItem) {
         return;
@@ -347,35 +347,35 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
         cb.setSelected(false);
 
         // Select all
-        model.getElementAt(n - 2).setSelected(false);
+        model.getElementAt(0).setSelected(false);
         // select none
-        model.getElementAt(n - 1).setSelected(getSelectedItems() == null);
+        model.getElementAt(1).setSelected(getSelectedItems() == null);
       }
       else {
         cb.setSelected(true);
 
         List<E> sobjs = getSelectedItems();
         // Select all
-        model.getElementAt(n - 2).setSelected(sobjs != null && sobjs.size() == n - 3);
+        model.getElementAt(0).setSelected(sobjs != null && sobjs.size() == n - 3);
         // select none
-        model.getElementAt(n - 1).setSelected(false);
+        model.getElementAt(1).setSelected(false);
       }
     }
-    else if (index == n - 2) {
-      for (int i = 0; i < n - 1; i++) {
+    else if (index == 0) {
+      for (int i = 0; i < n; i++) {
         if (model.getElementAt(i) != nullItem) {
           model.getElementAt(i).setSelected(true);
         }
       }
-      model.getElementAt(n - 1).setSelected(false);
+      model.getElementAt(1).setSelected(false);
     }
-    else if (index == n - 1) {
-      for (int i = 0; i < n - 1; i++) {
+    else if (index == 1) {
+      for (int i = 0; i < n; i++) {
         if (model.getElementAt(i) != nullItem) {
           model.getElementAt(i).setSelected(false);
         }
       }
-      model.getElementAt(n - 1).setSelected(true);
+      model.getElementAt(1).setSelected(true);
     }
   }
 

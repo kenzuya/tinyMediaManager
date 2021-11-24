@@ -208,6 +208,7 @@ public class TvShowEpisodeNfoParser {
     public Date                       lastplayed          = null;
     public String                     code                = "";
     public Date                       dateadded           = null;
+    public String                     episodenumberend    = "";
 
     private Episode(Element root) {
       this.root = root;
@@ -254,6 +255,7 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::parseEpbookmark);
       parseTag(Episode::parseLastplayed);
       parseTag(Episode::parseCode);
+      parseTag(Episode::parseEpisodenumberend);
       parseTag(Episode::parseDateadded);
       parseTag(Episode::parseOriginalFilename);
       parseTag(Episode::parseUserNote);
@@ -1375,6 +1377,20 @@ public class TvShowEpisodeNfoParser {
       Element element = getSingleElement(root, "code");
       if (element != null) {
         code = element.ownText();
+      }
+
+      return null;
+    }
+
+    /**
+     * find episodenumberend for emby relates nfos
+     */
+    private Void parseEpisodenumberend() {
+      supportedElements.add("episodenumberend");
+
+      Element element = getSingleElement(root, "episodenumberend");
+      if (element != null) {
+        episodenumberend = element.ownText();
       }
 
       return null;

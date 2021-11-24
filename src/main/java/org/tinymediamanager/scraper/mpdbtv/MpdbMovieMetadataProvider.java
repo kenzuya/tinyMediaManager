@@ -37,6 +37,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -51,6 +52,8 @@ import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+
+import retrofit2.Response;
 
 /**
  * The Class {@link MpdbMovieMetadataProvider}. Movie metdata provider for the site MPDB.tv
@@ -78,34 +81,31 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     initAPI();
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
-    List<SearchEntity> searchResult;
+    List<SearchEntity> searchResult = new ArrayList<>();
 
     if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {
       LOGGER.warn("no username/ABO Key found");
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
-    // due to the poor API of mpdb we have to check if the selected language is FR
-    // or EN.
-    if (!options.getLanguage().getLanguage().equalsIgnoreCase("FR")) {
-
-      LOGGER.info("Scraper only supports Language FR");
-      return results;
-
-    }
+    // we need to force FR as language (no other language available here)
+    options.setLanguage(MediaLanguages.fr);
 
     LOGGER.info("========= BEGIN MPDB.tv Scraper Search for Movie: {} ", options.getSearchQuery());
 
     try {
-      searchResult = controller.getSearchInformation(getEncodedUserName(), getSubscriptionKey(), options.getSearchQuery(),
+      Response<List<SearchEntity>> response = controller.getSearchInformation(getEncodedUserName(), getSubscriptionKey(), options.getSearchQuery(),
           options.getLanguage().toLocale(), true, FORMAT);
+      if (response.isSuccessful()) {
+        searchResult.addAll(response.body());
+      }
     }
     catch (Exception e) {
       LOGGER.error("error searching: {} ", e.getMessage());
       throw new ScrapeException(e);
     }
 
-    if (searchResult == null) {
+    if (searchResult.isEmpty()) {
       LOGGER.warn("no result from MPDB.tv");
       return results;
     }
@@ -144,7 +144,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     initAPI();
 
     MediaMetadata metadata = new MediaMetadata(providerInfo.getId());
-    MovieEntity scrapeResult;
+    MovieEntity scrapeResult = null;
 
     if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {
       LOGGER.warn("no username/ABO Key found");
@@ -153,8 +153,11 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
 
     LOGGER.info("========= BEGIN MPDB.tv scraping");
     try {
-      scrapeResult = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(),
+      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(),
           mediaScrapeOptions.getIdAsString(providerInfo.getId()), mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
+      if (response.isSuccessful()) {
+        scrapeResult = response.body();
+      }
     }
     catch (Exception e) {
       LOGGER.error("error searching: {} ", e.getMessage());
@@ -247,6 +250,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       }
     }
 
+    metadata.setId(getId(), scrapeResult.id);
     metadata.setId("allocine", scrapeResult.idAllocine);
     if (MetadataUtil.isValidImdbId(scrapeResult.idImdb)) {
       metadata.setId("imdb", scrapeResult.idImdb);

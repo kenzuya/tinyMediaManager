@@ -61,15 +61,32 @@ public class MovieSettingsDefaults {
   public static void setDefaultScrapers() {
     MovieSettings movieSettings = MovieSettings.getInstance();
 
-    // activate default scrapers
+    // activate default scrapers (hand curated list of defaults)
     movieSettings.artworkScrapers.clear();
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_ARTWORK)) {
-      movieSettings.addMovieArtworkScraper(ms.getId());
+      switch (ms.getId()) {
+        case "tmdb":
+        case "fanarttv":
+          movieSettings.addMovieArtworkScraper(ms.getId());
+          break;
+
+        default:
+          break;
+      }
     }
 
     movieSettings.trailerScrapers.clear();
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_TRAILER)) {
-      movieSettings.addMovieTrailerScraper(ms.getId());
+      switch (ms.getId()) {
+        case "tmdb":
+        case "hd-trailers":
+        case "davesTrailer":
+          movieSettings.addMovieTrailerScraper(ms.getId());
+          break;
+
+        default:
+          break;
+      }
     }
 
     movieSettings.subtitleScrapers.clear();
@@ -541,7 +558,7 @@ public class MovieSettingsDefaults {
     movieSettings.addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
     // other settings
-    movieSettings.setMovieConnector(MovieConnectors.KODI);
+    movieSettings.setMovieConnector(MovieConnectors.EMBY);
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
