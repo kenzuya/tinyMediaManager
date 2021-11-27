@@ -155,8 +155,6 @@ public class ImageChooserDialog extends TmmDialog {
   private JButton                           btnMarkExtrafanart;
   private JButton                           btnUnMarkExtrafanart;
 
-  private JSeparator                        separatorMarkAll;
-
   /**
    * Instantiates a new image chooser dialog.
    *
@@ -268,32 +266,32 @@ public class ImageChooserDialog extends TmmDialog {
     /* UI components */
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[][][500lp,grow][shrink 0][][shrink 0][]"));
+    contentPanel.setLayout(new MigLayout("hidemode 3, insets n n 0 n", "[850lp,grow][]", "[][10lp!][500lp,grow][shrink 0][][]"));
     {
       JPanel panelFilter = new JPanel();
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFilter, new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")),
-          true, true);
+          true);
 
       contentPanel.add(collapsiblePanel, "cell 0 0 2 1,grow, wmin 0");
-      panelFilter.setLayout(new MigLayout("insets 0", "[][grow]", "[][][]"));
+      panelFilter.setLayout(new MigLayout("insets 0", "[200lp:n][20lp!][200lp:n][20lp!][200lp:n]", "[][]"));
 
-      JLabel lblScraperT = new JLabel(TmmResourceBundle.getString("scraper.artwork"));
-      panelFilter.add(lblScraperT, "cell 0 0,alignx right");
+      JLabel lblScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
+      panelFilter.add(lblScraperT, "cell 0 0");
+
+      JLabel lblDimensionT = new TmmLabel(TmmResourceBundle.getString("metatag.size"));
+      panelFilter.add(lblDimensionT, "cell 2 0");
+
+      JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
+      panelFilter.add(lblLanguageT, "cell 4 0");
 
       cbScraper = new MediaScraperCheckComboBox(artworkScrapers);
-      panelFilter.add(cbScraper, "cell 1 0,growx, wmin 0");
-
-      JLabel lblDimensionT = new JLabel(TmmResourceBundle.getString("metatag.size"));
-      panelFilter.add(lblDimensionT, "cell 0 1,alignx right");
+      panelFilter.add(cbScraper, "cell 0 1,growx,wmin 0");
 
       cbSize = new TmmCheckComboBox();
-      panelFilter.add(cbSize, "cell 1 1,growx, wmin 0");
-
-      JLabel lblLanguageT = new JLabel(TmmResourceBundle.getString("metatag.language"));
-      panelFilter.add(lblLanguageT, "cell 0 2,alignx trailing");
+      panelFilter.add(cbSize, "cell 2 1,wmin 0");
 
       cbLanguage = new TmmCheckComboBox();
-      panelFilter.add(cbLanguage, "cell 1 2, wmin 0");
+      panelFilter.add(cbLanguage, "cell 4 1,wmin 0");
     }
     {
       scrollPane = new NoBorderScrollPane();
@@ -326,23 +324,16 @@ public class ImageChooserDialog extends TmmDialog {
       });
       contentPanel.add(btnAddImage, "cell 1 4");
     }
-    {
-      if (type == BACKGROUND || type == THUMB) {
-        separatorMarkAll = new JSeparator();
-        separatorMarkAll.setVisible(false);
-        contentPanel.add(separatorMarkAll, "cell 0 5 2 1,growx");
-      }
-    }
 
     {
       // add buttons to select/deselect all extrafanarts/extrathumbs
       if (type == BACKGROUND || type == THUMB) {
         labelThumbs = new JLabel(TmmResourceBundle.getString("mediafiletype.extrathumb") + ":");
-        contentPanel.add(labelThumbs, "flowx,cell 0 6");
+        contentPanel.add(labelThumbs, "flowx,cell 0 5");
         labelThumbs.setVisible(false);
 
         btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
-        contentPanel.add(btnMarkExtrathumbs, "cell 0 6");
+        contentPanel.add(btnMarkExtrathumbs, "cell 0 5");
         btnMarkExtrathumbs.setVisible(false);
         btnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.markall"));
         btnMarkExtrathumbs.addActionListener(arg0 -> {
@@ -355,7 +346,7 @@ public class ImageChooserDialog extends TmmDialog {
         });
 
         btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
-        contentPanel.add(btnUnMarkExtrathumbs, "cell 0 6, gapx n 50lp");
+        contentPanel.add(btnUnMarkExtrathumbs, "cell 0 5, gapx n 50lp");
         btnUnMarkExtrathumbs.setVisible(false);
         btnUnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.unmarkall"));
         btnUnMarkExtrathumbs.addActionListener(arg0 -> {
@@ -371,11 +362,11 @@ public class ImageChooserDialog extends TmmDialog {
     {
       if (type == BACKGROUND) {
         labelFanart = new JLabel(TmmResourceBundle.getString("mediafiletype.extrafanart") + ":");
-        contentPanel.add(labelFanart, "flowx,cell 0 6");
+        contentPanel.add(labelFanart, "flowx,cell 0 5");
         labelFanart.setVisible(false);
 
         btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
-        contentPanel.add(btnMarkExtrafanart, "cell 0 6");
+        contentPanel.add(btnMarkExtrafanart, "cell 0 5");
         btnMarkExtrafanart.setVisible(false);
         btnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.markall"));
         btnMarkExtrafanart.addActionListener(arg0 -> {
@@ -388,7 +379,7 @@ public class ImageChooserDialog extends TmmDialog {
         });
 
         btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
-        contentPanel.add(btnUnMarkExtrafanart, "cell 0 6");
+        contentPanel.add(btnUnMarkExtrafanart, "cell 0 5");
         btnUnMarkExtrafanart.setVisible(false);
         btnUnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.unmarkall"));
         btnUnMarkExtrafanart.addActionListener(arg0 -> {
@@ -445,13 +436,11 @@ public class ImageChooserDialog extends TmmDialog {
     this.extraThumbs = extraThumbs;
 
     if (extraThumbs != null) {
-      separatorMarkAll.setVisible(true);
       labelThumbs.setVisible(true);
       btnMarkExtrathumbs.setVisible(true);
       btnUnMarkExtrathumbs.setVisible(true);
     }
     else {
-      separatorMarkAll.setVisible(false);
       labelThumbs.setVisible(false);
       btnMarkExtrathumbs.setVisible(false);
       btnUnMarkExtrathumbs.setVisible(false);
@@ -466,13 +455,11 @@ public class ImageChooserDialog extends TmmDialog {
     this.extraFanarts = extraFanarts;
 
     if (extraFanarts != null) {
-      separatorMarkAll.setVisible(true);
       labelFanart.setVisible(true);
       btnMarkExtrafanart.setVisible(true);
       btnUnMarkExtrafanart.setVisible(true);
     }
     else {
-      separatorMarkAll.setVisible(false);
       labelFanart.setVisible(false);
       btnMarkExtrafanart.setVisible(false);
       btnUnMarkExtrafanart.setVisible(false);
