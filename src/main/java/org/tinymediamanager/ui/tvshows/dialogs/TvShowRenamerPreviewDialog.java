@@ -23,10 +23,12 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -256,14 +258,21 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
           results.add(container);
         }
       }
+
+      if (results.isEmpty()) {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(TvShowRenamerPreviewDialog.this,
+            TmmResourceBundle.getString("movie.renamerpreview.nothingtorename")));
+      }
+
       return null;
     }
   }
 
   private class ResultSelectionModel extends AbstractModelObject implements ListSelectionListener {
+    private final TvShowRenamerPreviewContainer emptyResult;
+
     private TvShowRenamerPreviewContainer       selectedResult;
     private List<TvShowRenamerPreviewContainer> selectedResults;
-    private final TvShowRenamerPreviewContainer emptyResult;
 
     ResultSelectionModel() {
       emptyResult = new TvShowRenamerPreviewContainer(new TvShow());
