@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -120,6 +121,7 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
       panel.setLayout(new FlowLayout(FlowLayout.LEFT));
       panel.add(checkBox);
       panel.add(label);
+      panel.setBorder(BorderFactory.createEmptyBorder(4, 5, 4, 5));
 
       label.setOpaque(false);
       checkBox.setOpaque(false);
@@ -141,8 +143,9 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     @Override
     public Component getListCellRendererComponent(JList<? extends TmmCheckComboBoxItem<MediaScraper>> list, TmmCheckComboBoxItem<MediaScraper> value,
         int index, boolean isSelected, boolean cellHasFocus) {
-      if (index >= 0 && index <= model.getSize()) {
-        TmmCheckComboBoxItem<MediaScraper> cb = model.getElementAt(index);
+
+      if (value != null) {
+        TmmCheckComboBoxItem<MediaScraper> cb = value;
         if (cb == nullItem) {
           list.setToolTipText(null);
           return separator;
@@ -203,7 +206,9 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
           listWidth = preferredSize.width;
         }
 
-        return panel;
+        if (index > -1) {
+          return panel;
+        }
       }
 
       String str;
@@ -217,11 +222,6 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
           strs.add(obj.toString());
         }
         str = strs.toString();
-      }
-
-      Dimension preferredSize = panel.getPreferredSize();
-      if (listWidth < preferredSize.width) {
-        listWidth = preferredSize.width;
       }
 
       return defaultRenderer.getListCellRendererComponent(list, str, index, isSelected, cellHasFocus);
