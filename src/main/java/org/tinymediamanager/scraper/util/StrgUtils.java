@@ -508,4 +508,18 @@ public class StrgUtils {
     String nfdNormalizedString = Normalizer.normalize(original, Normalizer.Form.NFD);
     return removeDuplicateWhitespace(NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll(""));
   }
+
+  /**
+   * convert a {@link String} in Array notation ([1,2,3,4,5]) into a String Array
+   * 
+   * @param source
+   *          the source String
+   * @return the converted array
+   */
+  public static String[] convertStringToArray(String source) {
+    if (StringUtils.isBlank(source)) {
+      return new String[] {};
+    }
+    return source.replace("[", "").replace("]", "").replaceAll("\\s", "").split(",");
+  }
 }
