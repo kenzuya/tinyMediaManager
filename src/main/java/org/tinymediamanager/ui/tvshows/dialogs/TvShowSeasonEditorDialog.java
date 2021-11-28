@@ -139,7 +139,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[100lp:200lp,grow][20lp:n][300lp:400lp,grow][20lp:n][300lp:400lp,grow]",
+      artworkPanel.setLayout(new MigLayout("", "[150lp:200lp,grow][20lp:n][300lp:400lp,grow][20lp:n][300lp:400lp,grow]",
           "[][][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][]"));
       {
         JLabel lblTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.title"));

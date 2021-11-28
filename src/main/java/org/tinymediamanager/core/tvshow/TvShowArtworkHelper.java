@@ -432,6 +432,10 @@ public class TvShowArtworkHelper {
         downloadSeasonPoster(show, season);
         break;
 
+      case SEASON_FANART:
+        downloadSeasonFanart(show, season);
+        break;
+
       case SEASON_BANNER:
         downloadSeasonBanner(show, season);
         break;
