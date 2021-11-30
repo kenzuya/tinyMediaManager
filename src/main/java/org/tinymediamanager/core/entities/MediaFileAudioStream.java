@@ -31,6 +31,8 @@ public class MediaFileAudioStream extends MediaStreamInfo {
   private int    bitrate       = 0;
   @JsonProperty
   private String audioTitle    = "";
+  @JsonProperty
+  private int    bitDepth      = 0;
 
   @JsonProperty
   @Deprecated
@@ -58,6 +60,18 @@ public class MediaFileAudioStream extends MediaStreamInfo {
 
   public void setBitrate(int bitrate) {
     this.bitrate = bitrate;
+  }
+
+  public int getBitDepth() {
+    return bitDepth;
+  }
+
+  public String getBitDepthAsString() {
+    return bitDepth > 0 ? bitDepth + " bit" : "";
+  }
+
+  public void setBitDepth(int bitDepth) {
+    this.bitDepth = bitDepth;
   }
 
   public void setAudioTitle(String audioTitle) {
