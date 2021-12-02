@@ -116,6 +116,7 @@ public class MovieRenamer {
     Map<String, String> tokenMap = new HashMap<>();
     tokenMap.put("title", "movie.title");
     tokenMap.put("originalTitle", "movie.originalTitle");
+    tokenMap.put("originalFilename", "movie.originalFilename");
     tokenMap.put("sorttitle", "movie.sortTitle");
     tokenMap.put("year", "movie.year");
     tokenMap.put("releaseDate", "movie.releaseDate;date(yyyy-MM-dd)");
@@ -790,6 +791,10 @@ public class MovieRenamer {
     if (newFilename == null || newFilename.isEmpty()) {
       // empty only when first generating basename, so generation here is OK
       newFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
+    }
+    // when renaming with $originalFilename, we get already the extension added!
+    if (newFilename.endsWith(mf.getExtension())) {
+      newFilename = FilenameUtils.getBaseName(newFilename);
     }
 
     // extra clone, just for easy adding the "default" ones ;)

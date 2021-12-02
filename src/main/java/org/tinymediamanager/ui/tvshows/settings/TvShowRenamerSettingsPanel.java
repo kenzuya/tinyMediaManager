@@ -195,6 +195,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     // examples
     exampleEventList.add(new TvShowRenamerExample("${title}"));
     exampleEventList.add(new TvShowRenamerExample("${originalTitle}"));
+    exampleEventList.add(new TvShowRenamerExample("${originalFilename}"));
     exampleEventList.add(new TvShowRenamerExample("${titleSortable}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNr}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNr2}"));
