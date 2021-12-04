@@ -259,10 +259,11 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
         }
       }
 
-      if (results.isEmpty()) {
-        SwingUtilities.invokeLater(
-            () -> JOptionPane.showMessageDialog(MovieRenamerPreviewDialog.this, TmmResourceBundle.getString("movie.renamerpreview.nothingtorename")));
-      }
+      SwingUtilities.invokeLater(() -> {
+        if (results.isEmpty()) { // check has to be in here, since it needs some time to propagate
+          JOptionPane.showMessageDialog(MovieRenamerPreviewDialog.this, TmmResourceBundle.getString("movie.renamerpreview.nothingtorename"));
+        }
+      });
 
       return null;
     }

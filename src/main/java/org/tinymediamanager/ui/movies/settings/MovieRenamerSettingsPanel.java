@@ -194,6 +194,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     // examples
     exampleEventList.add(new MovieRenamerExample("${title}"));
     exampleEventList.add(new MovieRenamerExample("${originalTitle}"));
+    exampleEventList.add(new MovieRenamerExample("${originalFilename}"));
     exampleEventList.add(new MovieRenamerExample("${title[0]}"));
     exampleEventList.add(new MovieRenamerExample("${title;first}"));
     exampleEventList.add(new MovieRenamerExample("${title[0,2]}"));
@@ -486,7 +487,11 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         List<MediaFile> mediaFiles = movie.getMediaFiles(MediaFileType.VIDEO);
         if (!mediaFiles.isEmpty()) {
           String extension = FilenameUtils.getExtension(mediaFiles.get(0).getFilename());
-          filename = MovieRenamer.createDestinationForFilename(tfMovieFilename.getText(), movie) + "." + extension;
+          filename = MovieRenamer.createDestinationForFilename(tfMovieFilename.getText(), movie);
+          // patterns are always w/o extension, but when having the originalFilename, it will be there.
+          if (!filename.endsWith(extension)) {
+            filename += "." + extension;
+          }
         }
       }
       else {

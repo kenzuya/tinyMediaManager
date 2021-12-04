@@ -1870,6 +1870,9 @@ public class MediaFileHelper {
         }
       }
 
+      String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, 0, "BitDepth");
+      stream.setBitDepth(MetadataUtil.parseInt(bd, 0));
+
       String language = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga

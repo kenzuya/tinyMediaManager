@@ -43,28 +43,37 @@ public class MovieRenamerPreview {
     LinkedHashMap<String, MediaFile> oldFiles = new LinkedHashMap<>();
     Set<MediaFile> newFiles = new LinkedHashSet<>();
 
-    String newVideoBasename = "";
-    if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
-      // we are NOT renaming any files, so we keep the same name on renaming ;)
-      newVideoBasename = movie.getVideoBasenameWithoutStacking();
+    // do not rename disc FILES - add them 1:1 without renaming
+    if (movie.isDisc()) {
+      for (MediaFile mf : movie.getMediaFiles()) {
+        oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf)); // clone
+        newFiles.add(mf);
+      }
     }
     else {
-      // since we rename, generate the new basename
-      MediaFile ftr = MovieRenamer.generateFilename(movie, movie.getMediaFiles(MediaFileType.VIDEO).get(0), newVideoBasename).get(0);
-      newVideoBasename = FilenameUtils.getBaseName(ftr.getFilenameWithoutStacking());
-    }
+      String newVideoBasename = "";
+      if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
+        // we are NOT renaming any files, so we keep the same name on renaming ;)
+        newVideoBasename = movie.getVideoBasenameWithoutStacking();
+      }
+      else {
+        // since we rename, generate the new basename
+        MediaFile ftr = MovieRenamer.generateFilename(movie, movie.getMainVideoFile(), newVideoBasename).get(0);
+        newVideoBasename = FilenameUtils.getBaseName(ftr.getFilenameWithoutStacking());
+      }
 
-    // VIDEO needs to be renamed first, since all others depend on that name!!!
-    for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-      oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
-      MediaFile ftr = MovieRenamer.generateFilename(movie, mf, newVideoBasename).get(0); // there can be only one
-      newFiles.add(ftr);
-    }
+      // VIDEO needs to be renamed first, since all others depend on that name!!!
+      for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
+        oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
+        MediaFile ftr = MovieRenamer.generateFilename(movie, mf, newVideoBasename).get(0); // there can be only one
+        newFiles.add(ftr);
+      }
 
-    // all the other MFs...
-    for (MediaFile mf : movie.getMediaFilesExceptType(MediaFileType.VIDEO)) {
-      oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
-      newFiles.addAll(MovieRenamer.generateFilename(movie, mf, newVideoBasename)); // N:M
+      // all the other MFs...
+      for (MediaFile mf : movie.getMediaFilesExceptType(MediaFileType.VIDEO)) {
+        oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
+        newFiles.addAll(MovieRenamer.generateFilename(movie, mf, newVideoBasename)); // N:M
+      }
     }
 
     // movie folder needs a rename?

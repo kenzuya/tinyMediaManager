@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -778,6 +779,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   /**
    * gets the audio title from the mediafile
+   * 
    * @return the audio title
    */
   public List<String> getAudioTitleList() {
@@ -1465,15 +1467,18 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public String getCombinedCodecs() {
     StringBuilder sb = new StringBuilder(videoCodec);
+    Set<String> unique = new HashSet<String>();
 
     for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
+      unique.add(audioStream.getCodec());
+    }
 
+    for (String s : unique) {
       if (sb.length() > 0) {
         sb.append(" / ");
       }
-      sb.append(audioStream.getCodec());
+      sb.append(s);
     }
-
     return sb.toString();
   }
 
