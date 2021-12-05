@@ -10,6 +10,7 @@ x sort filter presets by name #1575 (thx @dimitricappelle)
 x moved the select all/select none items to top #1527
 x (TV shows) fixed writing of <episodenumberend> for Emby NFOs
 x (movies) include the original filename as valid renamer pattern #1578
+x scraping several trailers from davestrailerpage #1584
 
 
 Version 4.2.3

@@ -78,7 +78,17 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
     // 1. search with title
     String title = md.getTitle();
     String firstChar = title.substring(0, 1).toLowerCase(Locale.ROOT);
-    String url = getApiKey() + "trailers_" + firstChar + ".html";
+    String url;
+
+    if (firstChar.matches("[xyz]")) {
+      url = getApiKey() + "trailers_xyz.html";
+    }
+    else if (firstChar.matches("[0-9]")) {
+      url = getApiKey() + "trailers_0to9.html";
+    }
+    else {
+      url = getApiKey() + "trailers_" + firstChar + ".html";
+    }
 
     try {
       Document doc = UrlUtil.parseDocumentFromUrl(url);
