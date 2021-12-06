@@ -1870,7 +1870,7 @@ public class MediaFileHelper {
         }
       }
 
-      String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, 0, "BitDepth");
+      String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitDepth");
       stream.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
       String language = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
