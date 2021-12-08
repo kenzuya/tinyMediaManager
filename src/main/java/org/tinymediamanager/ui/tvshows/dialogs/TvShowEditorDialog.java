@@ -334,22 +334,21 @@ public class TvShowEditorDialog extends TmmDialog {
     tableTrailer.adjustColumnPreferredWidths(5);
 
     // implement listener to simulate button group
-    tableTrailer.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            MediaTrailer changedTrailer = trailers.get(row);
-            // if flag inNFO was changed, change all other trailers flags
-            if (changedTrailer.getInNfo()) {
-              for (MediaTrailer trailer : trailers) {
-                if (trailer != changedTrailer) {
-                  trailer.setInNfo(Boolean.FALSE);
-                }
-              }
+    tableTrailer.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        MediaTrailer changedTrailer = trailers.get(row);
+        // if flag inNFO was changed, change all other trailers flags
+        if (changedTrailer.getInNfo()) {
+          for (MediaTrailer trailer : trailers) {
+            if (trailer != changedTrailer) {
+              trailer.setInNfo(Boolean.FALSE);
             }
           }
-        });
+        }
+      }
+    });
   }
 
   private void initComponents() {
@@ -1293,6 +1292,12 @@ public class TvShowEditorDialog extends TmmDialog {
     else if (StringUtils.isEmpty(textField.getText())) {
       // remove the artwork url
       tvShowToEdit.removeArtworkUrl(type);
+    }
+    else {
+      // they match, but check if there is a need to download the artwork
+      if (StringUtils.isBlank(tvShowToEdit.getArtworkFilename(type))) {
+        tvShowToEdit.downloadArtwork(type);
+      }
     }
   }
 

@@ -2015,6 +2015,29 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
   }
 
+  public void removeSeasonArtwork(MediaFile mediaFile) {
+    switch (mediaFile.getType()) {
+      case SEASON_POSTER:
+        seasonPosters.values().remove(mediaFile);
+        break;
+
+      case SEASON_FANART:
+        seasonFanarts.values().remove(mediaFile);
+        break;
+
+      case SEASON_BANNER:
+        seasonBanners.values().remove(mediaFile);
+        break;
+
+      case SEASON_THUMB:
+        seasonThumbs.values().remove(mediaFile);
+        break;
+
+      default:
+        break;
+    }
+  }
+
   void clearSeasonArtworkUrl(int season, MediaArtworkType artworkType) {
     switch (artworkType) {
       case SEASON_POSTER:

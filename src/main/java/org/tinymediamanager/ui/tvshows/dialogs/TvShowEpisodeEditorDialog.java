@@ -872,6 +872,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // remove the artwork url
       episodeToEdit.removeArtworkUrl(type);
     }
+    else {
+      // they match, but check if there is a need to download the artwork
+      if (StringUtils.isBlank(episodeToEdit.getArtworkFilename(type))) {
+        episodeToEdit.downloadArtwork(type);
+      }
+    }
   }
 
   private class DiscardAction extends AbstractAction {

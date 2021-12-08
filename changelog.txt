@@ -1,5 +1,6 @@
 Version 4.2.5
 =======================
+x download missing artwork when saving movies/TV shows/seasons/episodes #1583
 
 
 Version 4.2.4
