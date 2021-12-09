@@ -165,6 +165,9 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
     // get the amount of disc files and split the amount of stills over every disc file
     List<Path> files = MediaFileHelper.getVideoFiles(mediaFile);
+    if (files.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     int countPerFile = (int) Math.ceil(count / (double) files.size());
     int fileDuration = duration / files.size();
