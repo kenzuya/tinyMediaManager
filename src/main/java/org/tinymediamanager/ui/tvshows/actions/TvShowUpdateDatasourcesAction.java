@@ -34,13 +34,13 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowUpdateDatasourcesAction extends TmmAction {
-  private static final long           serialVersionUID = 5704371143505653741L;
-  
+  private static final long serialVersionUID = 5704371143505653741L;
 
   public TvShowUpdateDatasourcesAction() {
-    putValue(NAME, TmmResourceBundle.getString("update.datasource"));
+    putValue(NAME, TmmResourceBundle.getString("update.datasource.all"));
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);
     putValue(SMALL_ICON, IconManager.REFRESH);
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("update.datasource.all"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 

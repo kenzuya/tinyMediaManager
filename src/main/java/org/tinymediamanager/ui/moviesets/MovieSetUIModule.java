@@ -32,6 +32,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.components.TmmMenuLabel;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.panels.MovieArtworkPanel;
 import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
@@ -55,7 +56,6 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedCollectionT
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedRatingTraktTvAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedWatchedTraktTvAction;
-import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncTraktTvAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetToggleWatchedFlagAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetUpdateMovieAction;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
@@ -194,16 +194,18 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     JPopupMenu popupMenu = new JPopupMenu();
 
     // movieset actions
-    popupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSetEditAction.class));
+    popupMenu.add(new TmmMenuLabel(TmmResourceBundle.getString("metatag.movieset")));
     popupMenu.add(createAndRegisterAction(MovieSetSearchAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetScrapeMissingMoviesAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetEditAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSetScrapeMissingMoviesAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
 
     // movie actions
     popupMenu.addSeparator();
+    popupMenu.add(new TmmMenuLabel(TmmResourceBundle.getString("metatag.movie")));
     popupMenu.add(createAndRegisterAction(MovieSetUpdateMovieAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetReadMovieNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetEditMovieAction.class));
@@ -212,11 +214,8 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetRenameAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetExportMovieAction.class));
 
-    popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
-    traktMenu.add(createAndRegisterAction(MovieSetSyncTraktTvAction.class));
-    traktMenu.addSeparator();
     traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedCollectionTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedWatchedTraktTvAction.class));
