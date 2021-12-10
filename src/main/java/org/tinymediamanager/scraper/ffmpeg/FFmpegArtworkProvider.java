@@ -139,7 +139,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
       }
       catch (Exception e) {
-        throw new ScrapeException(e);
+        // has already been logged in FFmpeg
+        return artworks;
       }
     }
 
@@ -190,7 +191,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           artworks.add(still);
         }
         catch (Exception e) {
-          throw new ScrapeException(e);
+          // has already been logged in FFmpeg
+          return artworks;
         }
       }
     }

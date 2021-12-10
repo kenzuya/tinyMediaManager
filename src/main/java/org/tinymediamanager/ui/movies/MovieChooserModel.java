@@ -371,6 +371,9 @@ public class MovieChooserModel extends AbstractModelObject {
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, movieToScrape, "message.scrape.movieartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
         }
+        catch (Error e) {
+          LOGGER.debug("uncaught error", e);
+        }
       }
 
       // at last take the poster from the result
