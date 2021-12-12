@@ -66,13 +66,14 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
-  private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
+  private static final Logger         LOGGER            = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
 
   private JButton                     btnClose;
   private JCheckBox                   chckbxShowMissingSpecials;
   private JProgressBar                pbListEpisodes;
   private EventList<EpisodeContainer> results;
   private TmmTable                    tblMissingEpisodeList;
+  private SwingWorker<Void, Void>     episodeListWorker = null;
 
   public TvShowMissingEpisodeListDialog(List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("tvshow.missingepisodelist"), "missingepisodelist");
@@ -103,9 +104,12 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       chckbxShowMissingSpecials.addItemListener(new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent e) {
+          if (episodeListWorker != null && !episodeListWorker.isDone()) {
+            episodeListWorker.cancel(true);
+          }
           results.clear();
-          EpisodeListWorker worker = new EpisodeListWorker(tvShows);
-          worker.execute();
+          episodeListWorker = new EpisodeListWorker(tvShows);
+          episodeListWorker.execute();
         }
       });
       infoPanel.add(chckbxShowMissingSpecials, "cell 0 0");
@@ -121,8 +125,8 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       this.addDefaultButton(btnClose);
     }
 
-    EpisodeListWorker worker = new EpisodeListWorker(tvShows);
-    worker.execute();
+    episodeListWorker = new EpisodeListWorker(tvShows);
+    episodeListWorker.execute();
   }
 
   private static class EpisodeContainer {
@@ -207,6 +211,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     protected Void doInBackground() {
 
       btnClose.setEnabled(false);
+      chckbxShowMissingSpecials.setEnabled(false);
       startProgressBar();
       compareTvShows();
 
@@ -293,6 +298,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     protected void done() {
       stopProgressBar();
       btnClose.setEnabled(true);
+      chckbxShowMissingSpecials.setEnabled(true);
       tblMissingEpisodeList.adjustColumnPreferredWidths(3);
     }
   }
