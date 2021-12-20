@@ -5,6 +5,7 @@ x download missing artwork when saving movies/TV shows/seasons/episodes #1583
 x fixed an issue with the FFmpeg artwork provider #1587
 x Consider external files when getting MediaInfo for movie/show #1601
 x fix downloading trailer, if show has not been cleaned yet #1600
+x fix checking for missing season names #1602
 
 
 Version 4.2.4
