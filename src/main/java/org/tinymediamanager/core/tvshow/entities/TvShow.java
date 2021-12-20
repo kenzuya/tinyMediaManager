@@ -98,6 +98,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.connector.ITvShowConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToEmbyConnector;
@@ -1678,7 +1679,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   public String getTrailerFilename(TvShowTrailerNaming trailer) {
     // basename is the TV show title itself
-    return FilenameUtils.removeExtension(trailer.getFilename(getTitle(), "ext"));
+    return FilenameUtils.removeExtension(TvShowRenamer.replaceInvalidCharacters(trailer.getFilename(getTitle(), "ext")));
   }
 
   /**
