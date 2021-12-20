@@ -1550,7 +1550,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioCodecList() {
-    return getMainVideoFile().getAudioCodecList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioCodecList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioCodecList());
+    }
+    return lang;
   }
 
   @Override
@@ -1565,7 +1571,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
-    return getMainVideoFile().getAudioChannelsList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsList());
+    }
+    return lang;
   }
 
   @Override
@@ -1584,12 +1596,24 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioLanguageList() {
-    return getMainVideoFile().getAudioLanguagesList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioLanguagesList());
+    }
+    return lang;
   }
 
   @Override
   public List<String> getMediaInfoSubtitleLanguageList() {
-    return getMainVideoFile().getSubtitleLanguagesList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getSubtitleLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+      lang.addAll(mf.getSubtitleLanguagesList());
+    }
+    return lang;
   }
 
   @Override
