@@ -6,6 +6,7 @@ x fixed an issue with the FFmpeg artwork provider #1587
 x Consider external files when getting MediaInfo for movie/show #1601
 x fix downloading trailer, if show has not been cleaned yet #1600
 x fix checking for missing season names #1602
+x (linux) recompiled the launcher to be run with glib < 2.32 #1597
 
 
 Version 4.2.4
