@@ -146,6 +146,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * folder name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getFolderPath, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", this::getRating, String.class);
@@ -421,6 +430,23 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       if (!((TvShowSeason) userObject).getEpisodes().isEmpty()) {
         return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
       }
+    }
+    return null;
+  }
+
+  private String getFolderPath(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      TvShow tvShow = (TvShow) userObject;
+      return tvShow.getPathNIO().toAbsolutePath().toString();
+    }
+    else if (userObject instanceof TvShowSeason) {
+      TvShowSeason season = (TvShowSeason) userObject;
+      // return getNewIcon(season.isNewlyAdded());
+    }
+    else if (userObject instanceof TvShowEpisode) {
+      TvShowEpisode episode = (TvShowEpisode) userObject;
+      return episode.getPathNIO().toAbsolutePath().toString();
     }
     return null;
   }
