@@ -1,5 +1,6 @@
 Version 4.2.5
 =======================
+x upgraded Java to 15.0.5
 x re-ordered popup menus #1400
 x add "path" column to TV show table settings
 x download missing artwork when saving movies/TV shows/seasons/episodes #1583
