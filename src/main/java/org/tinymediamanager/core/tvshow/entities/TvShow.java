@@ -1012,7 +1012,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
-      removeAllTags();
+      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
+      if (!matchFound || overwriteExistingItems) {
+        removeAllTags();
+      }
+
       addToTags(metadata.getTags());
     }
 

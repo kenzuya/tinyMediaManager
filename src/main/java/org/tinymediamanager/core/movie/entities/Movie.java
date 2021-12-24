@@ -872,7 +872,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
-      removeAllTags();
+      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
+      if (!matchFound || overwriteExistingItems) {
+        removeAllTags();
+      }
+
       addToTags(metadata.getTags());
     }
 
@@ -2479,8 +2483,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioLanguageList() {
-    List<String> lang = new ArrayList<String>();
-    lang.addAll(getMainVideoFile().getAudioLanguagesList());
+    List<String> lang = new ArrayList<>(getMainVideoFile().getAudioLanguagesList());
 
     for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
       lang.addAll(mf.getAudioLanguagesList());
@@ -2490,8 +2493,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoSubtitleLanguageList() {
-    List<String> lang = new ArrayList<String>();
-    lang.addAll(getMainVideoFile().getSubtitleLanguagesList());
+    List<String> lang = new ArrayList<>(getMainVideoFile().getSubtitleLanguagesList());
 
     for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
       lang.addAll(mf.getSubtitleLanguagesList());
