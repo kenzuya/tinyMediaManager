@@ -395,8 +395,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     }
 
     EpisodeExtendedRecord episode;
-    Translation baseTranslation = null;
-    Translation fallbackTranslation = null;
 
     try {
       int id = (int) foundEpisode.getId(getId());
@@ -862,37 +860,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
               // find the corresponding episode in the response
               for (EpisodeBaseRecord translation : ListUtils.nullSafe(response.data.episodes)) {
                 if (Objects.equals(toInject.id, translation.id)) {
-                  if (StringUtils.isBlank(toInject.name)) {
-                    toInject.name = translation.name;
-                  }
-                  if (StringUtils.isBlank(toInject.overview)) {
-                    toInject.overview = translation.overview;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (Exception e) {
-        LOGGER.debug("Could not get episode translations - '{}'  ", e.getMessage());
-      }
-    }
-
-    if (StringUtils.isNotBlank(seriesEpisodesRecord.series.originalLanguage) && !seriesEpisodesRecord.series.originalLanguage.equals(language)) {
-      try {
-        // 3. in base/original language
-        Response<SeriesEpisodesResponse> httpResponse = tvdb.getSeriesService()
-            .getSeriesEpisodes(showId, SeasonType.DEFAULT, seriesEpisodesRecord.series.originalLanguage, counter)
-            .execute();
-        if (httpResponse.isSuccessful()) {
-          SeriesEpisodesResponse response = httpResponse.body();
-          if (response != null && response.data != null) {
-            for (EpisodeBaseRecord toInject : ListUtils.nullSafe(seriesEpisodesRecord.episodes)) {
-              // find the corresponding episode in the response
-              for (EpisodeBaseRecord translation : ListUtils.nullSafe(response.data.episodes)) {
-                if (Objects.equals(toInject.id, translation.id)) {
-                  toInject.originalName = translation.name;
                   if (StringUtils.isBlank(toInject.name)) {
                     toInject.name = translation.name;
                   }
