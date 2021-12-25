@@ -2520,9 +2520,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       case SEASON_NAMES:
         // if matches, we have all season titles
-        if (getSeasonTitles().size() != getSeasonCount()) {
-          return null;
+        for (TvShowSeason season : seasons) {
+          if (season.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata()) {
+            continue;
+          }
+
+          if (StringUtils.isBlank(seasonTitleMap.get(season.getSeason()))) {
+            return null;
+          }
         }
+
         return "all seasonnames found"; // dummy non-null
 
       case SEASON_POSTER:
