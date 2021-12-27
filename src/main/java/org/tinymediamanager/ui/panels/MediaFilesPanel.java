@@ -182,7 +182,7 @@ public abstract class MediaFilesPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.subtitle"), "subtitle", MediaFile::getSubtitlesAsString, String.class);
       col.setColumnResizeable(false);
-      addColumn(col);
+      // addColumn(col); // disabled
 
       /*
        * creation date

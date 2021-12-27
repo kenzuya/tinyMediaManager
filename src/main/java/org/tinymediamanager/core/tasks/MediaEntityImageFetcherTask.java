@@ -17,10 +17,10 @@ package org.tinymediamanager.core.tasks;
 
 import java.io.InterruptedIOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageCache;
@@ -33,6 +33,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
  * The Class MediaEntityImageFetcherTask.
@@ -40,96 +41,104 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
  * @author Manuel Laggner
  */
 public class MediaEntityImageFetcherTask implements Runnable {
-  private static final Logger    LOGGER = LoggerFactory.getLogger(MediaEntityImageFetcherTask.class);
+  private static final Logger    LOGGER    = LoggerFactory.getLogger(MediaEntityImageFetcherTask.class);
 
   private final MediaEntity      entity;
   private final String           url;
   private final MediaArtworkType type;
-  private final String           filename;
-  private final boolean          firstImage;
+  private final List<String>     filenames = new ArrayList<>();
 
-  public MediaEntityImageFetcherTask(MediaEntity entity, String url, MediaArtworkType type, String filename, boolean firstImage) {
+  public MediaEntityImageFetcherTask(MediaEntity entity, String url, MediaArtworkType type, List<String> filenames) {
     this.entity = entity;
     this.url = url;
     this.type = type;
-    this.filename = filename;
-    this.firstImage = firstImage;
+
+    if (ListUtils.isNotEmpty(filenames)) {
+      this.filenames.addAll(filenames);
+    }
   }
 
   @Override
   public void run() {
-    if (StringUtils.isBlank(filename)) {
+    // check for destination file names
+    if (filenames.isEmpty()) {
       return;
     }
 
-    String oldFilename = null;
+    // check for supported artwork types
+    switch (type) {
+      case POSTER:
+      case BACKGROUND:
+      case BANNER:
+      case THUMB:
+      case CLEARART:
+      case DISC:
+      case LOGO:
+      case CLEARLOGO:
+      case CHARACTERART:
+      case KEYART:
+        break;
+
+      default:
+        return;
+    }
+
+    // remember old media files
+    List<MediaFile> oldMediaFiles = entity.getMediaFiles(MediaFileType.getMediaFileType(type));
+    List<MediaFile> newMediaFiles = new ArrayList<>();
     try {
-      // store old filename at the first image
-      if (firstImage) {
-        switch (type) {
-          case POSTER:
-          case BACKGROUND:
-          case BANNER:
-          case THUMB:
-          case CLEARART:
-          case DISC:
-          case LOGO:
-          case CLEARLOGO:
-          case CHARACTERART:
-          case KEYART:
-            oldFilename = entity.getArtworkFilename(MediaFileType.getMediaFileType(type));
-            entity.removeAllMediaFiles(MediaFileType.getMediaFileType(type));
-            break;
+      // try to download the file to the first one
+      String firstFilename = filenames.get(0);
+      LOGGER.debug("writing {} - {}", type, firstFilename);
+      Path destFile = ImageUtils.downloadImage(url, entity.getPathNIO(), firstFilename);
 
-          default:
-            return;
+      // downloading worked (no exception) - so let's remove all old artworks (except the just downloaded one)
+      entity.removeAllMediaFiles(MediaFileType.getMediaFileType(type));
+      for (MediaFile mediaFile : oldMediaFiles) {
+        ImageCache.invalidateCachedImage(mediaFile.getFile());
+        if (!mediaFile.getFile().equals(destFile)) {
+          Utils.deleteFileSafely(mediaFile.getFile());
         }
       }
 
-      // debug message
-      LOGGER.debug("writing {} - {}", type, filename);
-      Path destFile = ImageUtils.downloadImage(url, entity.getPathNIO(), filename);
+      // and copy it to all other variants
+      newMediaFiles.add(new MediaFile(destFile, MediaFileType.getMediaFileType(type)));
 
-      // if the old filename differs from the new one (e.g. .jpg -> .png), remove the old one
-      if (StringUtils.isNotBlank(oldFilename)) {
-        Path oldFile = Paths.get(oldFilename);
-        if (!oldFile.equals(destFile)) {
-          ImageCache.invalidateCachedImage(oldFile);
-          Utils.deleteFileSafely(oldFile);
+      for (String filename : filenames) {
+        if (firstFilename.equals(filename)) {
+          // already processed
+          continue;
         }
+
+        // don't write jpeg -> write jpg
+        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("JPEG")) {
+          filename = FilenameUtils.getBaseName(filename) + ".jpg";
+        }
+
+        LOGGER.debug("writing {} - {}", type, filename);
+        Path destFile2 = entity.getPathNIO().resolve(filename);
+        Utils.copyFileSafe(destFile, destFile2);
+
+        newMediaFiles.add(new MediaFile(destFile2, MediaFileType.getMediaFileType(type)));
       }
 
-      // set the new image if its the first image
-      if (firstImage) {
-        LOGGER.debug("set {} - {}", type, FilenameUtils.getName(filename));
-        ImageCache.invalidateCachedImage(entity.getPathNIO().resolve(filename));
-        switch (type) {
-          case POSTER:
-          case BACKGROUND:
-          case BANNER:
-          case THUMB:
-          case CLEARART:
-          case DISC:
-          case LOGO:
-          case CLEARLOGO:
-          case CHARACTERART:
-          case KEYART:
-            entity.setArtwork(destFile, MediaFileType.getMediaFileType(type));
-            entity.callbackForWrittenArtwork(type);
-            entity.saveToDb();
-
-            // build up image cache
-            ImageCache.cacheImageSilently(destFile);
-            break;
-
-          default:
-            break;
+      // last but not least - set all media files
+      boolean first = true;
+      for (MediaFile artwork : newMediaFiles) {
+        if (first) {
+          // the first one needs to be processed differently (mainly for UI eventing)
+          entity.setArtwork(artwork.getFile(), MediaFileType.getMediaFileType(type));
+          entity.callbackForWrittenArtwork(type);
+          entity.saveToDb();
+          first = false;
         }
-      }
-      else {
-        MediaFile artwork = new MediaFile(destFile, MediaFileType.getMediaFileType(type));
-        artwork.gatherMediaInformation();
-        entity.addToMediaFiles(artwork);
+        else {
+          artwork.gatherMediaInformation();
+          entity.addToMediaFiles(artwork);
+        }
+
+        // build up image cache
+        ImageCache.cacheImageSilently(artwork.getFile());
       }
     }
     catch (InterruptedException | InterruptedIOException e) {
@@ -138,34 +147,6 @@ public class MediaEntityImageFetcherTask implements Runnable {
     }
     catch (Exception e) {
       LOGGER.error("fetch image {} - {}", url, e.getMessage());
-
-      // fallback
-      if (firstImage && StringUtils.isNotBlank(oldFilename)) {
-        switch (type) {
-          case POSTER:
-          case BACKGROUND:
-          case BANNER:
-          case THUMB:
-          case CLEARART:
-          case DISC:
-          case LOGO:
-          case CLEARLOGO:
-          case CHARACTERART:
-          case KEYART:
-            Path oldFile = Paths.get(oldFilename);
-            entity.setArtwork(oldFile, MediaFileType.getMediaFileType(type));
-            entity.callbackForWrittenArtwork(type);
-            entity.saveToDb();
-
-            // build up image cache
-            ImageCache.cacheImageSilently(oldFile);
-            break;
-
-          default:
-            return;
-        }
-      }
-
       MessageManager.instance.pushMessage(
           new Message(MessageLevel.ERROR, "ArtworkDownload", "message.artwork.threadcrashed", new String[] { ":", e.getLocalizedMessage() }));
     }

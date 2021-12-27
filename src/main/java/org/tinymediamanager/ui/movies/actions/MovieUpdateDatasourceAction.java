@@ -38,10 +38,10 @@ public class MovieUpdateDatasourceAction extends TmmAction {
 
 
   public MovieUpdateDatasourceAction() {
-    putValue(NAME, TmmResourceBundle.getString("update.datasource"));
+    putValue(NAME, TmmResourceBundle.getString("update.datasource.all"));
     putValue(SMALL_ICON, IconManager.REFRESH);
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("update.datasource"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("update.datasource.all"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 

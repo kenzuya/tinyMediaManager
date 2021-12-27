@@ -102,6 +102,7 @@ public class IconManager {
   public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              KODI                         = createMenuIcon("kodi.svg");
+  public static final ImageIcon              LIST                         = createMenuIcon("list.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");

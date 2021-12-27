@@ -1,13 +1,39 @@
+Version 4.2.5
+=======================
+x upgraded Java to 15.0.5
+x re-ordered popup menus #1400
+x add "path" column to TV show table settings
+x download missing artwork when saving movies/TV shows/seasons/episodes #1583
+x fixed an issue with the FFmpeg artwork provider #1587
+x Consider external files when getting MediaInfo for movie/show #1601
+x fix downloading trailer, if show has not been cleaned yet #1600
+x fix checking for missing season names #1602
+x (linux) recompiled the launcher to be run with glib < 2.32 #1597
+x remove movies/episodes in background (do not block the UI) #1596
+x (TVDB/TMDB) use only configured languages for title/plot #1605
+
+
 Version 4.2.4
 =======================
 + added support for season fanart #1434 #1572
 + support for getting FFmpeg thumbs from disk folders
++ added bit depth to audio media information #1581
 x prefer fanart without text to comply with Kodi standards #1565
 x sort the column "date added" by date AND time
 x some enhancements in the MPDb.TV scraper #1574
 x sort filter presets by name #1575 (thx @dimitricappelle)
 x moved the select all/select none items to top #1527
 x (TV shows) fixed writing of <episodenumberend> for Emby NFOs
+x (movies) include the original filename as valid renamer pattern #1578
+x scraping several trailers from davestrailerpage #1584
+x some enhancements in the renamer preview
+x some enhancements in the image chooser
+x re-aligned media information panel to show less duplicate data
+x (TV shows) added presets for Emby/Jellyfin
+x properly set the "ignore SSL errors" setting on startup
+x reworked image downloading engine for less needed downloads and better artwork filename cleanup #1598
+x fixed loading of season fanart on startup #1607
+x run aspect ratio detection for episodes too #1608
 
 
 Version 4.2.3

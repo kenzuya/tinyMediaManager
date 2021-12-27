@@ -148,6 +148,7 @@ public class TvShowRenamer {
     tokenMap.put("seasonNrDvd2", "episode.dvdSeason;number(%02d)");
     tokenMap.put("title", "episode.title");
     tokenMap.put("originalTitle", "episode.originalTitle");
+    tokenMap.put("originalFilename", "episode.originalFilename");
     tokenMap.put("titleSortable", "episode.titleSortable");
     tokenMap.put("year", "episode.year");
     tokenMap.put("airedDate", "episode.firstAired;date(yyyy-MM-dd)");
@@ -1106,6 +1107,10 @@ public class TvShowRenamer {
     }
     else {
       newFilename = createDestination(template, eps);
+    }
+    // when renaming with $originalFilename, we get already the extension added!
+    if (newFilename.endsWith(mf.getExtension())) {
+      newFilename = FilenameUtils.getBaseName(newFilename);
     }
 
     String seasonFoldername = getSeasonFoldername(tvShow, eps.get(0));

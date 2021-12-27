@@ -98,6 +98,7 @@ public class MovieRenamer {
   // to not use posix here
   private static final Pattern             TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern             YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             ORIGINAL_FILENAME_PATTERN   = Pattern.compile("\\$\\{.*?originalFilename.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern             TRAILER_STACKING_PATTERN    = Pattern.compile(".*?(\\d)$");
 
   private static final Map<String, String> TOKEN_MAP                   = createTokenMap();
@@ -115,6 +116,7 @@ public class MovieRenamer {
     Map<String, String> tokenMap = new HashMap<>();
     tokenMap.put("title", "movie.title");
     tokenMap.put("originalTitle", "movie.originalTitle");
+    tokenMap.put("originalFilename", "movie.originalFilename");
     tokenMap.put("sorttitle", "movie.sortTitle");
     tokenMap.put("year", "movie.year");
     tokenMap.put("releaseDate", "movie.releaseDate;date(yyyy-MM-dd)");
@@ -790,6 +792,10 @@ public class MovieRenamer {
       // empty only when first generating basename, so generation here is OK
       newFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
     }
+    // when renaming with $originalFilename, we get already the extension added!
+    if (newFilename.endsWith(mf.getExtension())) {
+      newFilename = FilenameUtils.getBaseName(newFilename);
+    }
 
     // extra clone, just for easy adding the "default" ones ;)
     MediaFile defaultMF = new MediaFile(mf);
@@ -1135,12 +1141,6 @@ public class MovieRenamer {
       // *************
       // here we add all others
       // *************
-      case AUDIO:
-      case GRAPHIC:
-      case SEASON_POSTER:
-      case TEXT:
-      case UNKNOWN:
-      case EXTRA:
       default:
         newFiles.add(defaultMF);
         break;
@@ -1451,13 +1451,13 @@ public class MovieRenamer {
 
   /**
    * Check if the FILE rename pattern is valid<br>
-   * What means, pattern has at least title set (${title}|${originalTitle}|${titleSortable})<br>
-   * "empty" is considered as invalid - so not renaming files
+   * What means, that at least title (${title}|${originalTitle}|${titleSortable})<br>
+   * or original filename has been set "empty" is considered as invalid - so not renaming files
    *
    * @return true/false
    */
   public static boolean isFilePatternValid(String pattern) {
-    return TITLE_PATTERN.matcher(pattern).find();
+    return TITLE_PATTERN.matcher(pattern).find() || ORIGINAL_FILENAME_PATTERN.matcher(pattern).find();
   }
 
   /**

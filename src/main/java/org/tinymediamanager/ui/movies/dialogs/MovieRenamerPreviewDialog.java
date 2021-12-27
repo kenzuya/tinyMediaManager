@@ -23,10 +23,12 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -214,7 +216,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       /*
        * movie title
        */
-      Column col = new Column(TmmResourceBundle.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(), String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(),
+          String.class);
       col.setColumnTooltip(container -> container.getMovie().getTitleSortable());
       addColumn(col);
     }
@@ -238,7 +241,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
   }
 
   private class MoviePreviewWorker extends SwingWorker<Void, Void> {
-    private List<Movie> moviesToProcess;
+    private final List<Movie> moviesToProcess;
 
     private MoviePreviewWorker(List<Movie> movies) {
       this.moviesToProcess = new ArrayList<>(movies);
@@ -255,14 +258,22 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
           results.add(container);
         }
       }
+
+      SwingUtilities.invokeLater(() -> {
+        if (results.isEmpty()) { // check has to be in here, since it needs some time to propagate
+          JOptionPane.showMessageDialog(MovieRenamerPreviewDialog.this, TmmResourceBundle.getString("movie.renamerpreview.nothingtorename"));
+        }
+      });
+
       return null;
     }
   }
 
   private class ResultSelectionModel extends AbstractModelObject implements ListSelectionListener {
+    private final MovieRenamerPreviewContainer emptyResult;
+
     private MovieRenamerPreviewContainer       selectedResult;
     private List<MovieRenamerPreviewContainer> selectedResults;
-    private MovieRenamerPreviewContainer       emptyResult;
 
     ResultSelectionModel() {
       emptyResult = new MovieRenamerPreviewContainer(new Movie());
@@ -357,7 +368,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
     }
   }
 
-  private class MediaFileContainer {
+  private static class MediaFileContainer {
     ImageIcon icon = null;
     MediaFile mediaFile;
   }

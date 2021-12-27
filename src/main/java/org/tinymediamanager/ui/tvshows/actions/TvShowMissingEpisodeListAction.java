@@ -36,14 +36,12 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowMissingEpisodeListDialog;
 
 public class TvShowMissingEpisodeListAction extends TmmAction {
 
-
-
   public TvShowMissingEpisodeListAction() {
 
     putValue(NAME, TmmResourceBundle.getString("tvshow.missingepisodelist"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.missingepisodelist.desc"));
-    putValue(LARGE_ICON_KEY, IconManager.SEARCH);
-    putValue(SMALL_ICON, IconManager.SEARCH);
+    putValue(LARGE_ICON_KEY, IconManager.LIST);
+    putValue(SMALL_ICON, IconManager.LIST);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 

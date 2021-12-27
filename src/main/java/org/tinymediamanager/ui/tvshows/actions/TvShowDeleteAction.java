@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -26,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -67,27 +67,27 @@ public class TvShowDeleteAction extends TmmAction {
       return;
     }
 
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    for (Object obj : selectedObjects) {
-      // delete a whole TV show
-      if (obj instanceof TvShow) {
-        TvShow tvShow = (TvShow) obj;
-        TvShowModuleManager.getInstance().getTvShowList().deleteTvShow(tvShow);
-      }
-      // delete a season
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        List<TvShowEpisode> episodes = new ArrayList<>(season.getEpisodes());
-        for (TvShowEpisode episode : episodes) {
-          season.getTvShow().deleteEpisode(episode);
+    TmmTaskManager.getInstance().addUnnamedTask(() -> {
+      for (Object obj : selectedObjects) {
+        // delete a whole TV show
+        if (obj instanceof TvShow) {
+          TvShow tvShow = (TvShow) obj;
+          TvShowModuleManager.getInstance().getTvShowList().deleteTvShow(tvShow);
+        }
+        // delete a season
+        if (obj instanceof TvShowSeason) {
+          TvShowSeason season = (TvShowSeason) obj;
+          List<TvShowEpisode> episodes = new ArrayList<>(season.getEpisodes());
+          for (TvShowEpisode episode : episodes) {
+            season.getTvShow().deleteEpisode(episode);
+          }
+        }
+        // delete episodes
+        if (obj instanceof TvShowEpisode) {
+          TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
+          tvShowEpisode.getTvShow().deleteEpisode(tvShowEpisode);
         }
       }
-      // delete episodes
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-        tvShowEpisode.getTvShow().deleteEpisode(tvShowEpisode);
-      }
-    }
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    });
   }
 }

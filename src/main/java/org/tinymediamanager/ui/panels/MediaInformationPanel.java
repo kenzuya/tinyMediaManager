@@ -311,6 +311,14 @@ abstract public class MediaInformationPanel extends JPanel {
       addColumn(col);
 
       /*
+       * bitdepth
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.bitdepth"), "bitdepth", container -> container.audioStream.getBitDepthAsString(),
+          String.class);
+      col.setColumnComparator(stringComparator);
+      addColumn(col);
+
+      /*
        * language
        */
       col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> container.audioStream.getLanguage(), String.class);

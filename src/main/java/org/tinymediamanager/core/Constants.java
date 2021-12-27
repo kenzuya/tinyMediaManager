@@ -98,6 +98,7 @@ public final class Constants {
   public static final String SEASON                 = "season";
   public static final String SEASON_COUNT           = "seasonCount";
   public static final String SEASON_POSTER          = "seasonPoster";
+  public static final String SEASON_FANART          = "seasonFanart";
   public static final String SEASON_BANNER          = "seasonBanner";
   public static final String SEASON_THUMB           = "seasonThumb";
   public static final String SORT_TITLE             = "sortTitle";

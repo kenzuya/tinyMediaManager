@@ -18,6 +18,8 @@ package org.tinymediamanager.core.tvshow.entities;
 import static org.tinymediamanager.core.Constants.ADDED_EPISODE;
 import static org.tinymediamanager.core.Constants.BANNER;
 import static org.tinymediamanager.core.Constants.BANNER_URL;
+import static org.tinymediamanager.core.Constants.FANART;
+import static org.tinymediamanager.core.Constants.FANART_URL;
 import static org.tinymediamanager.core.Constants.FIRST_AIRED;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.POSTER;
@@ -280,6 +282,10 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
         firePropertyChange(POSTER, oldValue, newValue);
         break;
 
+      case SEASON_FANART:
+        firePropertyChange(FANART, oldValue, newValue);
+        break;
+
       case SEASON_BANNER:
         firePropertyChange(BANNER, oldValue, newValue);
         break;
@@ -303,6 +309,10 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     switch (artworkType) {
       case SEASON_POSTER:
         firePropertyChange(POSTER, null, "");
+        break;
+
+      case SEASON_FANART:
+        firePropertyChange(FANART, null, "");
         break;
 
       case SEASON_BANNER:
@@ -337,6 +347,10 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
         firePropertyChange(POSTER, null, "");
         break;
 
+      case SEASON_FANART:
+        firePropertyChange(FANART, null, "");
+        break;
+
       case SEASON_BANNER:
         firePropertyChange(BANNER, null, "");
         break;
@@ -354,6 +368,10 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     switch (artworkType) {
       case SEASON_POSTER:
         firePropertyChange(POSTER_URL, oldValue, newValue);
+        break;
+
+      case SEASON_FANART:
+        firePropertyChange(FANART_URL, oldValue, newValue);
         break;
 
       case SEASON_BANNER:
@@ -430,6 +448,9 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
       case SEASON_POSTER:
         return getArtworkFilename(MediaArtworkType.SEASON_POSTER);
+
+      case SEASON_FANART:
+        return getArtworkFilename(MediaArtworkType.SEASON_FANART);
 
       case SEASON_BANNER:
         return getArtworkFilename(MediaArtworkType.SEASON_BANNER);

@@ -93,21 +93,19 @@ public class MovieArtworkHelper {
         return;
       }
 
-      int i = 0;
+      List<String> filenames = new ArrayList<>();
       for (IFileNaming fileNaming : fileNamings) {
-        boolean firstImage = false;
-
         String filename = getArtworkFilename(movie, fileNaming, Utils.getArtworkExtensionFromUrl(url));
         if (StringUtils.isBlank(filename)) {
           continue;
         }
 
-        if (++i == 1) {
-          firstImage = true;
-        }
+        filenames.add(filename);
+      }
 
-        // get image in thread
-        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(movie, url, MediaFileType.getMediaArtworkType(type), filename, firstImage);
+      if (!filenames.isEmpty()) {
+        // get images in thread
+        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(movie, url, MediaFileType.getMediaArtworkType(type), filenames);
         TmmTaskManager.getInstance().addImageDownloadTask(task);
       }
     }

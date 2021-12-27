@@ -98,6 +98,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.connector.ITvShowConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToEmbyConnector;
@@ -239,7 +240,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     // create season artwork maps
-    for (MediaFile mf : getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
+        MediaFileType.SEASON_FANART)) {
       // do not process 0 byte files
       if (mf.getFilesize() == 0) {
         continue;
@@ -1011,7 +1013,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
-      removeAllTags();
+      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
+      if (!matchFound || overwriteExistingItems) {
+        removeAllTags();
+      }
+
       addToTags(metadata.getTags());
     }
 
@@ -1678,7 +1684,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   public String getTrailerFilename(TvShowTrailerNaming trailer) {
     // basename is the TV show title itself
-    return FilenameUtils.removeExtension(trailer.getFilename(getTitle(), "ext"));
+    return FilenameUtils.removeExtension(TvShowRenamer.replaceInvalidCharacters(trailer.getFilename(getTitle(), "ext")));
   }
 
   /**
@@ -2012,6 +2018,29 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (mf != null) {
       removeFromMediaFiles(mf);
+    }
+  }
+
+  public void removeSeasonArtwork(MediaFile mediaFile) {
+    switch (mediaFile.getType()) {
+      case SEASON_POSTER:
+        seasonPosters.values().remove(mediaFile);
+        break;
+
+      case SEASON_FANART:
+        seasonFanarts.values().remove(mediaFile);
+        break;
+
+      case SEASON_BANNER:
+        seasonBanners.values().remove(mediaFile);
+        break;
+
+      case SEASON_THUMB:
+        seasonThumbs.values().remove(mediaFile);
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -2489,6 +2518,20 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       case CHARACTERART:
         return getMediaFiles(MediaFileType.CHARACTERART);
+
+      case SEASON_NAMES:
+        // if matches, we have all season titles
+        for (TvShowSeason season : seasons) {
+          if (season.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata()) {
+            continue;
+          }
+
+          if (StringUtils.isBlank(seasonTitleMap.get(season.getSeason()))) {
+            return null;
+          }
+        }
+
+        return "all seasonnames found"; // dummy non-null
 
       case SEASON_POSTER:
         return getMediaFiles(MediaFileType.SEASON_POSTER);

@@ -872,7 +872,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
-      removeAllTags();
+      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
+      if (!matchFound || overwriteExistingItems) {
+        removeAllTags();
+      }
+
       addToTags(metadata.getTags());
     }
 
@@ -2447,7 +2451,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioCodecList() {
-    return getMainVideoFile().getAudioCodecList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioCodecList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioCodecList());
+    }
+    return lang;
   }
 
   @Override
@@ -2457,7 +2467,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
-    return getMainVideoFile().getAudioChannelsList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsList());
+    }
+    return lang;
   }
 
   @Override
@@ -2467,12 +2483,22 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioLanguageList() {
-    return getMainVideoFile().getAudioLanguagesList();
+    List<String> lang = new ArrayList<>(getMainVideoFile().getAudioLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioLanguagesList());
+    }
+    return lang;
   }
 
   @Override
   public List<String> getMediaInfoSubtitleLanguageList() {
-    return getMainVideoFile().getSubtitleLanguagesList();
+    List<String> lang = new ArrayList<>(getMainVideoFile().getSubtitleLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+      lang.addAll(mf.getSubtitleLanguagesList());
+    }
+    return lang;
   }
 
   @Override
