@@ -610,13 +610,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private void writeThumbImage() {
     String thumbUrl = getArtworkUrl(MediaFileType.THUMB);
     if (StringUtils.isNotBlank(thumbUrl)) {
-      boolean firstImage = false;
-
       // create correct filename
       MediaFile mf = getMediaFiles(MediaFileType.VIDEO).get(0);
       String basename = FilenameUtils.getBaseName(mf.getFilename());
 
-      int i = 0;
+      List<String> filenames = new ArrayList<>();
       for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames()) {
         String filename = thumbNaming.getFilename(basename, Utils.getArtworkExtensionFromUrl(thumbUrl));
         if (StringUtils.isBlank(filename)) {
@@ -626,12 +624,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
           filename = "thumb." + FilenameUtils.getExtension(thumbUrl); // DVD/BluRay fixate to thumb.ext
         }
 
-        if (++i == 1) {
-          firstImage = true;
-        }
+        filenames.add(filename);
+      }
 
-        // get image in thread
-        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(this, thumbUrl, MediaArtworkType.THUMB, filename, firstImage);
+      if (!filenames.isEmpty()) {
+        // get images in thread
+        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(this, thumbUrl, MediaArtworkType.THUMB, filenames);
         TmmTaskManager.getInstance().addImageDownloadTask(task);
       }
     }
