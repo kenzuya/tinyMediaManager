@@ -81,20 +81,23 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.connector.ITvShowEpisodeConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToEmbyConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
+import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -794,15 +797,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    // rename the episode if that has been chosen in the settings
-    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      TvShowRenamer.renameEpisode(this);
-    }
-
     // should we write a new thumb?
     if (writeNewThumb) {
       writeThumbImage();
     }
+
+    postProcess(config);
   }
 
   /**
@@ -1885,5 +1885,23 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     return null;
+  }
+
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
+    TmmTaskChain taskChain = new TmmTaskChain();
+
+    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
+      taskChain.add(new TvShowARDetectorTask(Collections.singletonList(this)));
+    }
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+      taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
+
+      List<MediaFile> imageFiles = getImagesToCache();
+      if (!imageFiles.isEmpty()) {
+        taskChain.add(new ImageCacheTask(imageFiles));
+      }
+    }
+
+    taskChain.run();
   }
 }
