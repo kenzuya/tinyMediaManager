@@ -240,7 +240,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     // create season artwork maps
-    for (MediaFile mf : getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
+        MediaFileType.SEASON_FANART)) {
       // do not process 0 byte files
       if (mf.getFilesize() == 0) {
         continue;

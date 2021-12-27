@@ -32,6 +32,7 @@ x re-aligned media information panel to show less duplicate data
 x (TV shows) added presets for Emby/Jellyfin
 x properly set the "ignore SSL errors" setting on startup
 x reworked image downloading engine for less needed downloads and better artwork filename cleanup #1598
+x fixed loading of season fanart on startup #1607
 
 
 Version 4.2.3

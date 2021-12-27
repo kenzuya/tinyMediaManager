@@ -1141,12 +1141,6 @@ public class MovieRenamer {
       // *************
       // here we add all others
       // *************
-      case AUDIO:
-      case GRAPHIC:
-      case SEASON_POSTER:
-      case TEXT:
-      case UNKNOWN:
-      case EXTRA:
       default:
         newFiles.add(defaultMF);
         break;
