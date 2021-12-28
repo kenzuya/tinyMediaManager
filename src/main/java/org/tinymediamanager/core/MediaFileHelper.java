@@ -2787,7 +2787,7 @@ public class MediaFileHelper {
     return Collections.singletonList(mediaFile.getFileAsPath());
   }
 
-  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, long pos) {
+  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
     List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile)
         .stream()
         .map(path -> new MediaInfoFile(path))
@@ -2800,7 +2800,7 @@ public class MediaFileHelper {
     }
 
     if (mediaInfoFiles.size() > 1) {
-      long totalDuration = 0;
+      int totalDuration = 0;
       Path filePath = null;
       int duration = -1;
       for (MediaInfoFile file : mediaInfoFiles) {

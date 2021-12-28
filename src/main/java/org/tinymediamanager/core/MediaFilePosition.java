@@ -5,9 +5,9 @@ import java.nio.file.Path;
 public class MediaFilePosition {
 
     private final Path path;
-    private final long position;
+    private final int position;
 
-    public MediaFilePosition(Path path, long position) {
+    public MediaFilePosition(Path path, int position) {
         this.path = path;
         this.position = position;
     }
@@ -16,7 +16,7 @@ public class MediaFilePosition {
         return path;
     }
 
-    public long getPosition() {
+    public int getPosition() {
         return position;
     }
 }
