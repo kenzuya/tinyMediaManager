@@ -2751,12 +2751,23 @@ public class MediaFileHelper {
       if (mediaFile.isDVDFile()) {
         String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
         mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
+          // we only want .vob files
           if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
             return false;
           }
+
+          // do not use the menu
+          // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
+          // the menu is always in the VTS_nn_0.VOB file
+          if (file.getFilename().toLowerCase(Locale.ROOT).endsWith("_0.vob")) {
+            return false;
+          }
+
+          // only use the right prefix
           if (file.getFilename().startsWith(relevantPrefix)) {
             return true;
           }
+
           return false;
         }).sorted().collect(Collectors.toList());
       }
