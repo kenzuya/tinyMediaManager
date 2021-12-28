@@ -1,5 +1,6 @@
 Version 4.2.5
 =======================
++ enabled aspect ratio detection for disc folders (VIDEO_TS, BDMV) #1573
 x upgraded Java to 15.0.5
 x re-ordered popup menus #1400
 x add "path" column to TV show table settings
@@ -11,6 +12,9 @@ x fix checking for missing season names #1602
 x (linux) recompiled the launcher to be run with glib < 2.32 #1597
 x remove movies/episodes in background (do not block the UI) #1596
 x (TVDB/TMDB) use only configured languages for title/plot #1605
+x reworked image downloading engine for less needed downloads and better artwork filename cleanup #1598
+x fixed loading of season fanart on startup #1607
+x run aspect ratio detection for episodes too #1608
 
 
 Version 4.2.4
@@ -31,9 +35,6 @@ x some enhancements in the image chooser
 x re-aligned media information panel to show less duplicate data
 x (TV shows) added presets for Emby/Jellyfin
 x properly set the "ignore SSL errors" setting on startup
-x reworked image downloading engine for less needed downloads and better artwork filename cleanup #1598
-x fixed loading of season fanart on startup #1607
-x run aspect ratio detection for episodes too #1608
 
 
 Version 4.2.3
