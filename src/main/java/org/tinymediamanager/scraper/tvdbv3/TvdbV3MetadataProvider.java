@@ -175,18 +175,6 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       episode.episodeName = StringUtils.isEmpty(episode.episodeName) ? httpResponse.body().data.episodeName : episode.episodeName;
       episode.overview = StringUtils.isEmpty(episode.overview) ? httpResponse.body().data.overview : episode.overview;
     }
-
-    // STILL empty? check with EN language...
-    if ((StringUtils.isEmpty(episode.episodeName) || StringUtils.isEmpty(episode.overview)) && !fallbackLanguage.equals("en")
-        && !language.equals("en")) {
-      getLogger().trace("Getting episode S{}E{} in fallback language {}", episode.airedSeason, episode.airedEpisodeNumber, "en");
-      httpResponse = tvdb.episodes().get(episode.id, "en").execute();
-      if (!httpResponse.isSuccessful()) {
-        throw new HttpException(httpResponse.code(), httpResponse.message());
-      }
-      episode.episodeName = StringUtils.isEmpty(episode.episodeName) ? httpResponse.body().data.episodeName : episode.episodeName;
-      episode.overview = StringUtils.isEmpty(episode.overview) ? httpResponse.body().data.overview : episode.overview;
-    }
   }
 
   /**

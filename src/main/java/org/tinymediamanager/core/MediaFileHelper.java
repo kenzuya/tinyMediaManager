@@ -2751,12 +2751,23 @@ public class MediaFileHelper {
       if (mediaFile.isDVDFile()) {
         String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
         mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
+          // we only want .vob files
           if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
             return false;
           }
+
+          // do not use the menu
+          // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
+          // the menu is always in the VTS_nn_0.VOB file
+          if (file.getFilename().toLowerCase(Locale.ROOT).endsWith("_0.vob")) {
+            return false;
+          }
+
+          // only use the right prefix
           if (file.getFilename().startsWith(relevantPrefix)) {
             return true;
           }
+
           return false;
         }).sorted().collect(Collectors.toList());
       }
@@ -2774,6 +2785,54 @@ public class MediaFileHelper {
     }
 
     return Collections.singletonList(mediaFile.getFileAsPath());
+  }
+
+  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
+    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile)
+        .stream()
+        .map(path -> new MediaInfoFile(path))
+        .collect(Collectors.toList());
+
+    MediaFilePosition result = null;
+
+    if (mediaInfoFiles.size() == 1) {
+      return new MediaFilePosition(mediaFile.getFileAsPath(), pos);
+    }
+
+    if (mediaInfoFiles.size() > 1) {
+      int totalDuration = 0;
+      Path filePath = null;
+      int duration = -1;
+      for (MediaInfoFile file : mediaInfoFiles) {
+        try (MediaInfo mediaInfo = new MediaInfo()) {
+          filePath = Paths.get(file.getPath(), file.getFilename());
+          if (!mediaInfo.open(filePath)) {
+            LOGGER.error("Mediainfo could not open file: {}", file);
+          } else {
+            file.setSnapshot(mediaInfo.snapshot());
+          }
+
+          duration = file.getDuration();
+          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration, mediaFile.getDuration());
+          if (pos <= (totalDuration + duration)) {
+            result = new MediaFilePosition(filePath, pos - totalDuration);
+            break;
+          }
+
+          totalDuration += duration;
+        }
+        // sometimes also an error is thrown
+        catch (Exception | Error e) {
+          LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
+        }
+      }
+
+      if (result == null) {
+        result = new MediaFilePosition(filePath, duration);
+      }
+    }
+
+    return result;
   }
 
   /**

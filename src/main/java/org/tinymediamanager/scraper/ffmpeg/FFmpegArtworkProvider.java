@@ -139,7 +139,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
       }
       catch (Exception e) {
-        throw new ScrapeException(e);
+        // has already been logged in FFmpeg
+        return artworks;
       }
     }
 
@@ -165,6 +166,9 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
     // get the amount of disc files and split the amount of stills over every disc file
     List<Path> files = MediaFileHelper.getVideoFiles(mediaFile);
+    if (files.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     int countPerFile = (int) Math.ceil(count / (double) files.size());
     int fileDuration = duration / files.size();
@@ -187,7 +191,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           artworks.add(still);
         }
         catch (Exception e) {
-          throw new ScrapeException(e);
+          // has already been logged in FFmpeg
+          return artworks;
         }
       }
     }

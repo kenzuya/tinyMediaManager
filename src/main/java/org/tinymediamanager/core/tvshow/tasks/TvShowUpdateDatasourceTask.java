@@ -450,7 +450,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // and remove the image cache
           if (mf.isGraphic()) {
             ImageCache.invalidateCachedImage(mf);
+
+            // special handling for season artwork
+            tvShow.removeSeasonArtwork(mf);
           }
+
           dirty = true;
         }
       }

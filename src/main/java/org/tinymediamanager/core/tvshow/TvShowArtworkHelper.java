@@ -150,21 +150,20 @@ public class TvShowArtworkHelper {
           return;
       }
 
-      int i = 0;
+      List<String> filenames = new ArrayList<>();
       for (IFileNaming naming : fileNamings) {
-        boolean firstImage = false;
         String filename = naming.getFilename("", Utils.getArtworkExtensionFromUrl(url));
 
         if (StringUtils.isBlank(filename)) {
           continue;
         }
 
-        if (++i == 1) {
-          firstImage = true;
-        }
+        filenames.add(filename);
+      }
 
-        // get image in thread
-        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(show, url, MediaFileType.getMediaArtworkType(type), filename, firstImage);
+      if (!filenames.isEmpty()) {
+        // get images in thread
+        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(show, url, MediaFileType.getMediaArtworkType(type), filenames);
         TmmTaskManager.getInstance().addImageDownloadTask(task);
       }
     }

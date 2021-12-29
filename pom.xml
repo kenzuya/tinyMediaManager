@@ -86,8 +86,8 @@
         <okhttp.version>4.9.0</okhttp.version>
         <slf4j.version>1.7.30</slf4j.version>
         <release.version>2.5.3</release.version>
-        <jre.version>15.0.2-hotspot</jre.version>
-        <launcher.version>1.1.7</launcher.version>
+        <jre.version>15.0.5-hotspot</jre.version>
+        <launcher.version>1.1.8</launcher.version>
         <jackson.version>2.12.3</jackson.version>
     </properties>
 
@@ -300,7 +300,7 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>com.formdev</groupId>

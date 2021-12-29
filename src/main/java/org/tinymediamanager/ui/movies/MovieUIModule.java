@@ -40,7 +40,7 @@ import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
-import org.tinymediamanager.ui.components.PopupMenuScroller;
+import org.tinymediamanager.ui.components.MenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
 import org.tinymediamanager.ui.movies.actions.MovieAddDatasourceAction;
 import org.tinymediamanager.ui.movies.actions.MovieAspectRatioDetectAction;
@@ -145,6 +145,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     movieFilterDialog = new MovieFilterDialog(selectionModel);
 
     createActions();
+    createMenus();
     createPopupMenu();
     registerAccelerators();
 
@@ -186,49 +187,182 @@ public class MovieUIModule extends AbstractTmmUIModule {
     renameAction = createAndRegisterAction(MovieRenameAction.class);
   }
 
+  private void createMenus() {
+    updatePopupMenu = new JPopupMenu();
+    updatePopupMenu.add(createAndRegisterAction(MovieUpdateDatasourceAction.class));
+
+    JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
+    datasourcesMenu.setIcon(IconManager.MENU);
+    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 2, 5);
+    datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        datasourcesMenu.removeAll();
+
+        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
+          datasourcesMenu.add(new MovieUpdateSingleDatasourceAction(ds));
+        }
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // nothing to do
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // nothing to do
+      }
+    });
+    updatePopupMenu.add(datasourcesMenu);
+
+    updatePopupMenu.addSeparator();
+    updatePopupMenu.add(createAndRegisterAction(MovieUpdateAction.class));
+    updatePopupMenu.addSeparator();
+    updatePopupMenu.add(createAndRegisterAction(MovieFindMissingAction.class));
+    updatePopupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
+    updatePopupMenu.addSeparator();
+    updatePopupMenu.add(createAndRegisterAction(MovieAddDatasourceAction.class));
+
+    // search popup menu
+    searchPopupMenu = new JPopupMenu();
+    searchPopupMenu.add(createAndRegisterAction(MovieSingleScrapeAction.class));
+    searchPopupMenu.add(createAndRegisterAction(MovieSelectedScrapeAction.class));
+    searchPopupMenu.add(createAndRegisterAction(MovieSelectedScrapeMetadataAction.class));
+    searchPopupMenu.add(createAndRegisterAction(MovieUnscrapedScrapeAction.class));
+
+    // edit popup menu
+    editPopupMenu = new JPopupMenu();
+    editPopupMenu.add(createAndRegisterAction(MovieEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+
+    editPopupMenu.addSeparator();
+    editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
+
+    editPopupMenu.addSeparator();
+    editPopupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
+
+    editPopupMenu.addSeparator();
+    JMenu traktMenu = new JMenu("Trakt.tv");
+    traktMenu.setIcon(IconManager.MENU);
+    traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    traktMenu.addSeparator();
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
+    editPopupMenu.add(traktMenu);
+
+    editPopupMenu.addSeparator();
+    editPopupMenu.add(createAndRegisterAction(MovieExportAction.class));
+
+    // rename popup menu
+    renamePopupMenu = new JPopupMenu();
+    renamePopupMenu.add(createAndRegisterAction(MovieRenameAction.class));
+    renamePopupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
+    renamePopupMenu.addSeparator();
+    renamePopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
+    renamePopupMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
+  }
+
   private void createPopupMenu() {
     popupMenu = new JPopupMenu();
+
     popupMenu.add(createAndRegisterAction(MovieSingleScrapeAction.class));
     popupMenu.add(createAndRegisterAction(MovieSelectedScrapeAction.class));
-    popupMenu.add(createAndRegisterAction(MovieUnscrapedScrapeAction.class));
     popupMenu.add(createAndRegisterAction(MovieSelectedScrapeMetadataAction.class));
+    popupMenu.add(createAndRegisterAction(MovieUnscrapedScrapeAction.class));
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieUpdateAction.class));
-    popupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
     popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
 
-    JMenu mediainfoMenu = new JMenu(TmmResourceBundle.getString("metatag.mediainformation"));
-    mediainfoMenu.setIcon(IconManager.MENU);
-    mediainfoMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
-    mediainfoMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
-    mediainfoMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
-    popupMenu.add(mediainfoMenu);
+    JMenu updateDatasourcesMenu = new JMenu(TmmResourceBundle.getString("Toolbar.update"));
+    updateDatasourcesMenu.setIcon(IconManager.MENU);
+    updateDatasourcesMenu.add(createAndRegisterAction(MovieUpdateDatasourceAction.class));
+
+    JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
+    datasourcesMenu.setIcon(IconManager.MENU);
+    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 2, 5);
+    datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        datasourcesMenu.removeAll();
+
+        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
+          datasourcesMenu.add(new MovieUpdateSingleDatasourceAction(ds));
+        }
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // nothing to do
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // nothing to do
+      }
+    });
+    updateDatasourcesMenu.add(datasourcesMenu);
+
+    updateDatasourcesMenu.addSeparator();
+    updateDatasourcesMenu.add(createAndRegisterAction(MovieFindMissingAction.class));
+    updateDatasourcesMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
+    updateDatasourcesMenu.addSeparator();
+    updateDatasourcesMenu.add(createAndRegisterAction(MovieAddDatasourceAction.class));
+    popupMenu.add(updateDatasourcesMenu);
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
+
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
+    enhancedEditMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
+    enhancedEditMenu.addSeparator();
+    enhancedEditMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
+    enhancedEditMenu.addSeparator();
+    enhancedEditMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
     popupMenu.add(enhancedEditMenu);
 
-    popupMenu.addSeparator();
-    popupMenu.add(createAndRegisterAction(MovieRenameAction.class));
-    popupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
-    popupMenu.add(createAndRegisterAction(MovieExportAction.class));
+    JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
+    downloadMenu.setIcon(IconManager.MENU);
+    downloadMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieDownloadActorImagesAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
+    popupMenu.add(downloadMenu);
 
     popupMenu.addSeparator();
-    popupMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
-    popupMenu.add(createAndRegisterAction(MovieDownloadActorImagesAction.class));
-    popupMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
+    JMenu renameMenu = new JMenu(TmmResourceBundle.getString("Toolbar.rename"));
+    renameMenu.setIcon(IconManager.MENU);
+    renameMenu.add(createAndRegisterAction(MovieRenameAction.class));
+    renameMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
+    renameMenu.addSeparator();
+    renameMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
+    renameMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
+    popupMenu.add(renameMenu);
+
+    popupMenu.addSeparator();
+    popupMenu.add(createAndRegisterAction(MovieExportAction.class));
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
@@ -249,12 +383,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(postProcessingMenu);
 
     popupMenu.addSeparator();
-    popupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
-    popupMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
-    popupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRemoveAction.class));
     popupMenu.add(createAndRegisterAction(MovieDeleteAction.class));
-    popupMenu.addSeparator();
 
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");
@@ -312,74 +442,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
     listPanel.setPopupMenu(popupMenu);
 
     // update popup menu
-    updatePopupMenu = new JPopupMenu();
-    PopupMenuScroller.setScrollerFor(updatePopupMenu, 20, 25, 2, 5);
-    updatePopupMenu.addPopupMenuListener(new PopupMenuListener() {
-      @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        updatePopupMenu.removeAll();
-        updatePopupMenu.add(createAndRegisterAction(MovieUpdateDatasourceAction.class));
-        updatePopupMenu.addSeparator();
-        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
-          updatePopupMenu.add(new MovieUpdateSingleDatasourceAction(ds));
-        }
-        updatePopupMenu.addSeparator();
-        updatePopupMenu.add(createAndRegisterAction(MovieUpdateAction.class));
-        updatePopupMenu.addSeparator();
-        updatePopupMenu.add(createAndRegisterAction(MovieFindMissingAction.class));
-        updatePopupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
-        updatePopupMenu.addSeparator();
-        updatePopupMenu.add(createAndRegisterAction(MovieAddDatasourceAction.class));
-        updatePopupMenu.pack();
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
-      }
-    });
-
-    // search popup menu
-    searchPopupMenu = new JPopupMenu();
-    searchPopupMenu.add(createAndRegisterAction(MovieSingleScrapeAction.class));
-    searchPopupMenu.add(createAndRegisterAction(MovieSelectedScrapeAction.class));
-    searchPopupMenu.add(createAndRegisterAction(MovieUnscrapedScrapeAction.class));
-    searchPopupMenu.add(createAndRegisterAction(MovieSelectedScrapeMetadataAction.class));
-
-    // edit popup menu
-    editPopupMenu = new JPopupMenu();
-    editPopupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
-
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
-
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
-
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
-
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(MovieExportAction.class));
-
-    // rename popup menu
-    renamePopupMenu = new JPopupMenu();
-    renamePopupMenu.add(createAndRegisterAction(MovieRenameAction.class));
-    renamePopupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
   }
 
   @Override

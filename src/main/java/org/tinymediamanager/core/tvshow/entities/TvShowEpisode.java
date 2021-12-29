@@ -81,20 +81,23 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.connector.ITvShowEpisodeConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToEmbyConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
+import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -610,13 +613,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private void writeThumbImage() {
     String thumbUrl = getArtworkUrl(MediaFileType.THUMB);
     if (StringUtils.isNotBlank(thumbUrl)) {
-      boolean firstImage = false;
-
       // create correct filename
       MediaFile mf = getMediaFiles(MediaFileType.VIDEO).get(0);
       String basename = FilenameUtils.getBaseName(mf.getFilename());
 
-      int i = 0;
+      List<String> filenames = new ArrayList<>();
       for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames()) {
         String filename = thumbNaming.getFilename(basename, Utils.getArtworkExtensionFromUrl(thumbUrl));
         if (StringUtils.isBlank(filename)) {
@@ -626,12 +627,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
           filename = "thumb." + FilenameUtils.getExtension(thumbUrl); // DVD/BluRay fixate to thumb.ext
         }
 
-        if (++i == 1) {
-          firstImage = true;
-        }
+        filenames.add(filename);
+      }
 
-        // get image in thread
-        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(this, thumbUrl, MediaArtworkType.THUMB, filename, firstImage);
+      if (!filenames.isEmpty()) {
+        // get images in thread
+        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(this, thumbUrl, MediaArtworkType.THUMB, filenames);
         TmmTaskManager.getInstance().addImageDownloadTask(task);
       }
     }
@@ -757,7 +758,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
-      removeAllTags();
+      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
+      if (!matchFound || overwriteExistingItems) {
+        removeAllTags();
+      }
+
       addToTags(metadata.getTags());
     }
 
@@ -792,15 +797,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    // rename the episode if that has been chosen in the settings
-    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      TvShowRenamer.renameEpisode(this);
-    }
-
     // should we write a new thumb?
     if (writeNewThumb) {
       writeThumbImage();
     }
+
+    postProcess(config);
   }
 
   /**
@@ -1550,7 +1552,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioCodecList() {
-    return getMainVideoFile().getAudioCodecList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioCodecList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioCodecList());
+    }
+    return lang;
   }
 
   @Override
@@ -1565,7 +1573,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
-    return getMainVideoFile().getAudioChannelsList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsList());
+    }
+    return lang;
   }
 
   @Override
@@ -1584,12 +1598,24 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioLanguageList() {
-    return getMainVideoFile().getAudioLanguagesList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioLanguagesList());
+    }
+    return lang;
   }
 
   @Override
   public List<String> getMediaInfoSubtitleLanguageList() {
-    return getMainVideoFile().getSubtitleLanguagesList();
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getSubtitleLanguagesList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+      lang.addAll(mf.getSubtitleLanguagesList());
+    }
+    return lang;
   }
 
   @Override
@@ -1859,5 +1885,23 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     return null;
+  }
+
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
+    TmmTaskChain taskChain = new TmmTaskChain();
+
+    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
+      taskChain.add(new TvShowARDetectorTask(Collections.singletonList(this)));
+    }
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+      taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
+
+      List<MediaFile> imageFiles = getImagesToCache();
+      if (!imageFiles.isEmpty()) {
+        taskChain.add(new ImageCacheTask(imageFiles));
+      }
+    }
+
+    taskChain.run();
   }
 }

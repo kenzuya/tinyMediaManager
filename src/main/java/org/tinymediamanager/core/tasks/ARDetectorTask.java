@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ArdSettings;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.MediaFilePosition;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -122,6 +123,10 @@ public abstract class ARDetectorTask extends TmmTask {
   protected void analyze(MediaFile mediaFile, int idx) {
     setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
 
+    if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
+      LOGGER.info("Mediafile can not be analyzed.");
+    }
+
     try {
       VideoInfo videoInfo = getPrefilledVideoInfo(mediaFile);
 
@@ -131,7 +136,13 @@ public abstract class ARDetectorTask extends TmmTask {
       float increment = (end - start) / (this.sampleMinNumber + 1f);
       float seconds = start + increment;
 
-      String result = FFmpeg.scanDarkLevel(0, mediaFile.getFile()); // first video frame (which is often black)
+      MediaFilePosition position = MediaFileHelper.getPositionInMediaFile(mediaFile, 0);
+      if (position == null) {
+        LOGGER.error("Found no valid position for detection");
+        return;
+      }
+
+      String result = FFmpeg.scanDarkLevel(0, position.getPath()); // first video frame (which is often black)
       parseDarkLevel(result, videoInfo);
       if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct)
         videoInfo.darkLevel = getDarkLevel(videoInfo);
@@ -149,7 +160,14 @@ public abstract class ARDetectorTask extends TmmTask {
         try {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
-          result = FFmpeg.scanSample(iSec, sampleDuration, videoInfo.darkLevel, mediaFile.getFile());
+
+          if (iSec >= videoInfo.duration) {
+            iSec = videoInfo.duration - this.sampleDuration;
+          }
+          position = MediaFileHelper.getPositionInMediaFile(mediaFile, iSec);
+
+          LOGGER.info("Scanning {} at {}s", position.getPath().toString(), position.getPosition());
+          result = FFmpeg.scanSample((int) position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
           parseSample(result, iSec, iInc, videoInfo);
         }
         catch (Exception ex) {

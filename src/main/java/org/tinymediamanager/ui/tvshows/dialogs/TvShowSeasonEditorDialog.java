@@ -385,6 +385,12 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
       // remove the artwork url
       tvShowSeasonToEdit.removeArtworkUrl(artworkType);
     }
+    else {
+      // they match, but check if there is a need to download the artwork
+      if (StringUtils.isBlank(tvShowSeasonToEdit.getArtworkFilename(artworkType))) {
+        tvShowSeasonToEdit.downloadArtwork(artworkType);
+      }
+    }
   }
 
   private class OKAction extends AbstractAction {
