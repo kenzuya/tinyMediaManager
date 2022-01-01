@@ -15,6 +15,7 @@ x (TVDB/TMDB) use only configured languages for title/plot #1605
 x reworked image downloading engine for less needed downloads and better artwork filename cleanup #1598
 x fixed loading of season fanart on startup #1607
 x run aspect ratio detection for episodes too #1608
+x added automatic text direction detection #1595
 
 
 Version 4.2.4
