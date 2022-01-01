@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 package org.tinymediamanager.ui.movies.filters;
+
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.ACTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.COUNTRY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PLOT;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGLINE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -32,8 +45,6 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
-
-import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.*;
 
 /**
  * the class {@link MovieAllInOneFilter} implements a generic text field filter

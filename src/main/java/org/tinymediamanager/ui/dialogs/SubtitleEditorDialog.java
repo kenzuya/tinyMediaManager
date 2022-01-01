@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,18 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Window;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 
-import javax.swing.*;
-import java.awt.*;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * this dialog is used for editing a subtitle
