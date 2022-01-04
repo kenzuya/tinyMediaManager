@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.tinymediamanager.ui.components;
+
+import java.awt.ComponentOrientation;
 
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
@@ -36,5 +38,29 @@ public class ReadOnlyTextPane extends JTextPane {
     setText(text);
     setFocusable(false);
     setForeground(UIManager.getColor("Label.foreground"));
+  }
+
+  @Override
+  public void setText(String t) {
+    super.setText(t);
+
+    if (isRTL(t)) {
+      setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+    }
+    else {
+      setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+    }
+  }
+
+  private boolean isRTL(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      byte d = Character.getDirectionality(s.charAt(i));
+      if (d == Character.DIRECTIONALITY_RIGHT_TO_LEFT || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+          || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

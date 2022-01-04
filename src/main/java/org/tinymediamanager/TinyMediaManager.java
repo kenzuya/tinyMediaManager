@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,6 @@ import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
-import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmTaskbar;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -158,9 +157,9 @@ public final class TinyMediaManager {
       }
     }
 
-    LOGGER.info("=====================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012-2021 Manuel Laggner ===");
-    LOGGER.info("=====================================================");
+    LOGGER.info("=======================================================");
+    LOGGER.info("=== tinyMediaManager (c) 2012 - 2022 Manuel Laggner ===");
+    LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
     LOGGER.info("os.version       : {}", System.getProperty("os.version"));
@@ -440,15 +439,9 @@ public final class TinyMediaManager {
         catch (IllegalStateException e) {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
-            MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
-            dialog.setImage(IconManager.ERROR);
-            dialog.setText(TmmResourceBundle.getString("tmm.nostart"));
-            dialog.setDescription(TmmResourceBundle.getString("tmm.nostart.instancerunning"));
-            dialog.setResizable(true);
-            dialog.pack();
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setAlwaysOnTop(true);
-            dialog.setVisible(true);
+            JOptionPane.showMessageDialog(null,
+                TmmResourceBundle.getString("tmm.nostart") + "\n" + TmmResourceBundle.getString("tmm.nostart.instancerunning"),
+                TmmResourceBundle.getString("tmm.nostart"), JOptionPane.ERROR_MESSAGE, new LogoCircle());
           }
           shutdownLogger();
           System.exit(1);

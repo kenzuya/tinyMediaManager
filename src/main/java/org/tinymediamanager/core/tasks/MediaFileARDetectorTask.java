@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,11 @@ package org.tinymediamanager.core.tasks;
 
 import org.tinymediamanager.core.entities.MediaFile;
 
+/**
+ * General part of the aspect ratio detector class.
+ *
+ * @author Alex Bruns, Kai Werner
+ */
 public class MediaFileARDetectorTask extends ARDetectorTask {
 
   private final MediaFile mediaFile;
@@ -28,7 +33,8 @@ public class MediaFileARDetectorTask extends ARDetectorTask {
 
   @Override
   protected void doInBackground() {
-    if (!canRun()) return;
+    if (!canRun())
+      return;
 
     analyze(mediaFile);
   }

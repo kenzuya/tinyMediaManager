@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2021 Manuel Laggner
+ * Copyright 2012 - 2022 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,6 +264,13 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     md.setRuntime(MetadataUtil.unboxInteger(show.averageRuntime, 0));
 
+    // scrape networks before all other production companies
+    if (show.originalNetwork != null) {
+      md.addProductionCompany(show.originalNetwork.name);
+    }
+    if (show.latestNetwork != null) {
+      md.addProductionCompany(show.latestNetwork.name);
+    }
     for (CompanyBaseRecord company : ListUtils.nullSafe(show.companies)) {
       md.addProductionCompany(company.name);
     }

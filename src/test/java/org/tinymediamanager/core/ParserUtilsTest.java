@@ -21,6 +21,7 @@ public class ParserUtilsTest extends BasicTest {
   public void testNamingDetection() {
     setTraceLogging();
 
+    assertEqual("Cowboys | 2020", detectTY("Cowboys.(2020).WEB-DL.MicroHD.1080p.AVC.AC3.5.1.SPA-AC3.5.1.ENG.SUBS.mkv"));
     assertEqual("Rocketman | 2019", detectTY("Rocketman-2019-MULTi-UHD-BluRay-2160p-HDR-TrueHD-Atmos-7-1-HEVC-DDR.mkv"));
     assertEqual("Harry Potter 7 Part 1", detectTY("Harry Potter 7 - Part 1.mkv")); // PartX is NOT removed
     assertEqual("Harry Potter 7 Part 2", detectTY("Harry Potter 7 - Part 2 CD1.mkv"));
@@ -127,7 +128,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Vs Once Upon A Time S03xe05 Dd51 Ded", detectTY("vs-once-upon-a-time-_S03XE05_dd51-ded-dl-7p-bd-x264-305.mkv"));
     assertEqual("Live At The Apollo Series 5 Episode 1 B00p86mz Default", detectTY("Live_at_the_Apollo_Series_5_-_Episode_1_b00p86mz_default"));
     assertEqual("The League S06e01", detectTY("The.League.S06E01.720p.WEB-DL.DD5.1.H.264-pcsyndicate.mkv"));
-    assertEqual("Season 02/csi Crime Scene Investigation S02e09 And Then There Were None 360p",
+    assertEqual("Season 02/csi Crime Scene Investigation S02e09 And Then There Were None",
         detectTY("Season 02/CSI.Crime.Scene.Investigation.S02E09.And.Then.There.Were.None.360p.DVDRip.MP3.XviD.avi"));
     assertEqual("The Big Bang Theory S07e15 Eisenbahnromantik",
         detectTY("The.Big.Bang.Theory.S07E15.Eisenbahnromantik.German.DD51.Dubbed.DL.1080p.BD.x264-TVS.mkv"));
