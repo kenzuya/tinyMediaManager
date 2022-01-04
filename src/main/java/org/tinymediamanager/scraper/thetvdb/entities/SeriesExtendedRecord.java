@@ -71,6 +71,12 @@ public class SeriesExtendedRecord {
   @SerializedName("nameTranslations")
   public List<String>              nameTranslations     = null;
 
+  @SerializedName("originalNetwork")
+  public CompanyBaseRecord         originalNetwork      = null;
+
+  @SerializedName("latestNetwork")
+  public CompanyBaseRecord         latestNetwork        = null;
+
   @SerializedName("companies")
   public List<CompanyBaseRecord>   companies            = null;
 

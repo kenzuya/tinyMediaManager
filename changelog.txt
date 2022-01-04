@@ -17,6 +17,7 @@ x fixed loading of season fanart on startup #1607
 x run aspect ratio detection for episodes too #1608
 x added automatic text direction detection #1595
 x further improve naming detection #1614
+x (TVDB/TMDB) add networks in the front of the production companies #1569
 
 
 Version 4.2.4

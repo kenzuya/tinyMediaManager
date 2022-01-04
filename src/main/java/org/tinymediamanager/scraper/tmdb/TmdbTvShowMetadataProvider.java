@@ -69,6 +69,7 @@ import org.tinymediamanager.scraper.tmdb.entities.CrewMember;
 import org.tinymediamanager.scraper.tmdb.entities.FindResults;
 import org.tinymediamanager.scraper.tmdb.entities.Genre;
 import org.tinymediamanager.scraper.tmdb.entities.Image;
+import org.tinymediamanager.scraper.tmdb.entities.Network;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisode;
 import org.tinymediamanager.scraper.tmdb.entities.TvSeason;
 import org.tinymediamanager.scraper.tmdb.entities.TvShow;
@@ -432,6 +433,10 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       md.addMediaArt(ma);
     }
 
+    // scrape networks before all other production companies
+    for (Network network : ListUtils.nullSafe(complete.networks)) {
+      md.addProductionCompany(network.name.trim());
+    }
     for (BaseCompany company : ListUtils.nullSafe(complete.production_companies)) {
       md.addProductionCompany(company.name.trim());
     }
