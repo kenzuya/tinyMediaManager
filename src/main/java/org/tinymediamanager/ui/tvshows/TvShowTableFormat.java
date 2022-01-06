@@ -440,13 +440,11 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       TvShow tvShow = (TvShow) userObject;
       return tvShow.getPathNIO().toAbsolutePath().toString();
     }
-    else if (userObject instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) userObject;
-      // return getNewIcon(season.isNewlyAdded());
-    }
     else if (userObject instanceof TvShowEpisode) {
       TvShowEpisode episode = (TvShowEpisode) userObject;
-      return episode.getPathNIO().toAbsolutePath().toString();
+      if (episode.getPathNIO() != null) {
+        return episode.getPathNIO().toAbsolutePath().toString();
+      }
     }
     return null;
   }

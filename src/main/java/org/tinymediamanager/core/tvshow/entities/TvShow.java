@@ -498,11 +498,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     this.dummyEpisodes.clear();
     this.dummyEpisodes.addAll(dummyEpisodes);
 
+    // link with TV show
+    for (TvShowEpisode dummy : this.dummyEpisodes) {
+      dummy.setTvShow(this);
+    }
+
     // also mix in the episodes if activated
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       for (TvShowEpisode episode : dummyEpisodes) {
-        episode.setTvShow(this);
-
         if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
           continue;
         }
