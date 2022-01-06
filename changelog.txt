@@ -1,12 +1,13 @@
 Version 4.2.5
 =======================
 + enabled aspect ratio detection for disc folders (VIDEO_TS, BDMV) #1573
++ added an option to ignore specials in list missing episodes (thx @dimitricappelle)
 x upgraded Java to 15.0.5
 x re-ordered popup menus #1400
 x add "path" column to TV show table settings
 x download missing artwork when saving movies/TV shows/seasons/episodes #1583
 x fixed an issue with the FFmpeg artwork provider #1587
-x Consider external files when getting MediaInfo for movie/show #1601
+x consider external files when getting MediaInfo for movie/show #1601
 x fix downloading trailer, if show has not been cleaned yet #1600
 x fix checking for missing season names #1602
 x (linux) recompiled the launcher to be run with glib < 2.32 #1597
