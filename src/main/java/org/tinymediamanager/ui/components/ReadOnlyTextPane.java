@@ -53,6 +53,9 @@ public class ReadOnlyTextPane extends JTextPane {
   }
 
   private boolean isRTL(String s) {
+    if (s == null) {
+      return false;
+    }
     for (int i = 0; i < s.length(); i++) {
       byte d = Character.getDirectionality(s.charAt(i));
       if (d == Character.DIRECTIONALITY_RIGHT_TO_LEFT || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC

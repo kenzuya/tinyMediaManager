@@ -50,9 +50,9 @@ public class ParserUtils {
       "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment",
       "fs", "fps", "german", "h264", "hd", "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "local",
       "ma", "md", "microhd", "multi", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5",
-      "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd", "screener", "se", "subbed", "subs", "svcd", "swedish", "tc", "telecine",
-      "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "www", "x264", "xf",
-      "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
+      "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd", "screener", "sd", "se", "subbed", "subs", "svcd", "swedish", "tc",
+      "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "www", "x264",
+      "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
 
   // clean before splitting (needs delimiter in front!)
   protected static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00", "web\\-dl", "web\\-rip", "blue\\-ray", "blu\\-ray",
