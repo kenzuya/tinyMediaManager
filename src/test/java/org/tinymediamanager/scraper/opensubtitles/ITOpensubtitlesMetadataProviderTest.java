@@ -3,19 +3,14 @@ package org.tinymediamanager.scraper.opensubtitles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.LogManager;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
@@ -25,30 +20,12 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 
 public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
-  private static final String CRLF    = "\n";
   private static final String SERVICE = "http://api.opensubtitles.org/xml-rpc";
 
   @Before
   public void setUpBeforeTest() throws Exception {
     BasicTest.setup();
     setLicenseKey();
-  }
-
-  @BeforeClass
-  public static void setUp() {
-    StringBuilder config = new StringBuilder("handlers = java.util.logging.ConsoleHandler\n");
-    config.append(".level = ALL").append(CRLF);
-    config.append("java.util.logging.ConsoleHandler.level = ALL").append(CRLF);
-    // Only works with Java 7 or later
-    config.append("java.util.logging.SimpleFormatter.format = [%1$tH:%1$tM:%1$tS %4$6s] %2$s - %5$s %6$s%n").append(CRLF);
-    // Exclude http logging
-    config.append("sun.net.www.protocol.http.HttpURLConnection.level = OFF").append(CRLF);
-    InputStream ins = new ByteArrayInputStream(config.toString().getBytes());
-    try {
-      LogManager.getLogManager().readConfiguration(ins);
-    }
-    catch (IOException ignored) {
-    }
   }
 
   @Test
@@ -161,7 +138,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
 
       // search with hash
       mapQuery = new HashMap<>();
-      mapQuery.put("moviebytesize", 1478618924);
+      mapQuery.put("moviebytesize", String.valueOf(1478618924));
       mapQuery.put("moviehash", "c00e58454d238c53");
       mapQuery.put("sublanguageid", "ger");
 
@@ -179,7 +156,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
       // search with query and valid movie hash -> works
       mapQuery = new HashMap<>();
       mapQuery.put("query", "X-Men Erste Entscheidung");
-      mapQuery.put("moviebytesize", 1478618924);
+      mapQuery.put("moviebytesize", String.valueOf(1478618924));
       mapQuery.put("moviehash", "c00e58454d238c53");
       mapQuery.put("sublanguageid", "ger");
 
@@ -225,7 +202,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
       // }
       mapQuery = new HashMap<>();
       mapQuery.put("query", "The Matrix");
-      mapQuery.put("moviebytesize", 1475618927);
+      mapQuery.put("moviebytesize", String.valueOf(1475618927));
       mapQuery.put("moviehash", "c00e59454d238c52");
       mapQuery.put("imdbid", "0103064");
       mapQuery.put("sublanguageid", "ger");
