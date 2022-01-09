@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.davestrailer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -74,6 +75,10 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
 
     List<MediaTrailer> trailers = new ArrayList<>();
     MediaMetadata md = options.getMetadata();
+
+    if (md == null) {
+      return Collections.emptyList();
+    }
 
     // 1. search with title
     String title = md.getTitle();
