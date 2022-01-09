@@ -143,6 +143,12 @@ public enum MediaCertification {
     FI_K18(CountryCode.FI, "K-18", new String[] { "K-18" }),
     FI_KE(CountryCode.FI, "K-E", new String[] { "K-E" }),
 
+    HK_I(CountryCode.HK, "I", new String[]{ "I"}),
+    HK_II(CountryCode.HK, "II", new String[]{ "II"}),
+    HK_IIA(CountryCode.HK, "IIA", new String[]{ "IIA"}),
+    HK_IIB(CountryCode.HK, "IIB", new String[]{ "IIB"}),
+    HK_III(CountryCode.HK, "III", new String[]{ "III"}),
+
     HU_KN(CountryCode.HU, "KN", new String[] { "KN" }),
     HU_6(CountryCode.HU, "6", new String[] { "6" }),
     HU_12(CountryCode.HU, "12", new String[] { "12" }),

@@ -409,8 +409,8 @@ public enum CountryCode {
   // /** <a href="http://en.wikipedia.org/wiki/Guyana">Guyana</a> */
   // GY("Guyana", "GUY", 328),
   //
-  // /** <a href="http://en.wikipedia.org/wiki/Hong_Kong">Hong Kong</a> */
-  // HK("Hong Kong", "HKG", 344),
+  /** <a href="http://en.wikipedia.org/wiki/Hong_Kong">Hong Kong</a> */
+  HK("Hong Kong", "HKG", 344),
   //
   // /**
   // * <a href="http://en.wikipedia.org/wiki/Heard_Island_and_McDonald_Islands">
