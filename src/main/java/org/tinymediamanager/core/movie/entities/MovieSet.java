@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -598,20 +597,21 @@ public class MovieSet extends MediaEntity {
       setPlot(metadata.getPlot());
     }
 
-    if (config.contains(MovieSetScraperMetadataConfig.RATING)) {
-      Map<String, MediaRating> newRatings = new HashMap<>();
-
-      if (matchFound) {
-        // only update new ratings, but let the old ones survive
-        newRatings.putAll(getRatings());
-      }
-
-      for (MediaRating mediaRating : metadata.getRatings()) {
-        newRatings.put(mediaRating.getId(), mediaRating);
-      }
-
-      setRatings(newRatings);
-    }
+    // not available at the moment
+    // if (config.contains(MovieSetScraperMetadataConfig.RATING)) {
+    // Map<String, MediaRating> newRatings = new HashMap<>();
+    //
+    // if (matchFound) {
+    // // only update new ratings, but let the old ones survive
+    // newRatings.putAll(getRatings());
+    // }
+    //
+    // for (MediaRating mediaRating : metadata.getRatings()) {
+    // newRatings.put(mediaRating.getId(), mediaRating);
+    // }
+    //
+    // setRatings(newRatings);
+    // }
 
     // set scraped
     setScraped(true);
