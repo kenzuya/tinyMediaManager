@@ -1,6 +1,7 @@
 Version 4.2.6
 =======================
 + added certification support for Hong Kong #1623
++ added button to create movie sets from within the movie editor
 x removed rating for movie set completeness check
 
 
