@@ -6,6 +6,7 @@ Version 4.2.6
 x removed rating for movie set completeness check
 x do not check season names for missing seasons #1602
 x storing of window locations/sizes in batch mode
+x force re-reading mediainfo after exchanging the video file #1631
 
 
 Version 4.2.5.1

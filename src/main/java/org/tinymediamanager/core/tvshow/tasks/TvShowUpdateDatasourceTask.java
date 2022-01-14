@@ -498,7 +498,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
       else {
         // at least update the file dates
-        MediaFileHelper.gatherFileInformation(mf);
+        if (MediaFileHelper.gatherFileInformation(mf)) {
+          // okay, something changed with that movie file - force fetching mediainfo
+          submitTask(new MediaFileInformationFetcherTask(mf, tvShow, true));
+        }
         dirty = true;
       }
     }
@@ -517,7 +520,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
         else {
           // at least update the file dates
-          MediaFileHelper.gatherFileInformation(mf);
+          if (MediaFileHelper.gatherFileInformation(mf)) {
+            // okay, something changed with that movie file - force fetching mediainfo
+            submitTask(new MediaFileInformationFetcherTask(mf, episode, true));
+          }
           dirty = true;
         }
       }
