@@ -5,6 +5,7 @@ Version 4.2.6
 + (movies/TV shows) added support for clearlogo in the information panels #1604
 x removed rating for movie set completeness check
 x do not check season names for missing seasons #1602
+x storing of window locations/sizes in batch mode
 
 
 Version 4.2.5.1
