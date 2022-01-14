@@ -98,6 +98,7 @@ class MovieUiSettingsPanel extends JPanel {
   private JCheckBox                                        chckbxShowFanart;
   private JCheckBox                                        chckbxShowBanner;
   private JCheckBox                                        chckbxShowThumb;
+  private JCheckBox                                        chckbxShowClearlogo;
 
   private JCheckBox                                        chckbxTitle;
   private JCheckBox                                        chckbxSortableTitle;
@@ -212,6 +213,9 @@ class MovieUiSettingsPanel extends JPanel {
     if (chckbxShowThumb.isSelected()) {
       artworkTypes.add(MediaFileType.THUMB);
     }
+    if (chckbxShowClearlogo.isSelected()) {
+      artworkTypes.add(MediaFileType.CLEARLOGO);
+    }
     settings.setShowArtworkTypes(artworkTypes);
 
     // universal filter
@@ -294,6 +298,10 @@ class MovieUiSettingsPanel extends JPanel {
         case THUMB:
           chckbxShowThumb.setSelected(true);
           break;
+
+        case CLEARLOGO:
+          chckbxShowClearlogo.setSelected(true);
+          break;
       }
     }
 
@@ -355,6 +363,7 @@ class MovieUiSettingsPanel extends JPanel {
     chckbxShowFanart.addItemListener(checkBoxListener);
     chckbxShowBanner.addItemListener(checkBoxListener);
     chckbxShowThumb.addItemListener(checkBoxListener);
+    chckbxShowClearlogo.addItemListener(checkBoxListener);
     chckbxUniversalNote.addItemListener(checkBoxListener);
     chckbxUniversalFilename.addItemListener(checkBoxListener);
     chckbxUniversalTags.addItemListener(checkBoxListener);
@@ -423,6 +432,9 @@ class MovieUiSettingsPanel extends JPanel {
 
         chckbxShowThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
         panelUiSettings.add(chckbxShowThumb, "cell 2 1");
+
+        chckbxShowClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
+        panelUiSettings.add(chckbxShowClearlogo, "cell 2 1");
       }
       {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));

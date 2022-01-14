@@ -2,6 +2,7 @@ Version 4.2.6
 =======================
 + added certification support for Hong Kong #1623
 + added button to create movie sets from within the movie editor
++ (movies/TV shows) added support for clearlogo in the information panels #1604
 x removed rating for movie set completeness check
 x do not check season names for missing seasons #1602
 
