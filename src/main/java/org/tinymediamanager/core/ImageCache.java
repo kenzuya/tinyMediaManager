@@ -18,12 +18,14 @@ package org.tinymediamanager.core;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import com.madgag.gif.fmsware.GifDecoder;
 
 /**
  * The Class ImageCache - used to build a local image cache (scaled down versions & thumbnails - also for offline access).
@@ -194,7 +197,17 @@ public class ImageCache {
       int retries = 5;
       do {
         try {
-          originalImage = ImageUtils.createImage(originalFile);
+          byte[] bytes = Files.readAllBytes(originalFile);
+
+          // check if that file is an animated gif
+          GifDecoder decoder = new GifDecoder();
+          int status = decoder.read(new ByteArrayInputStream(bytes));
+          if (status == GifDecoder.STATUS_OK && decoder.getFrameCount() > 1) {
+            // animated gif - we must not scale this (because scaling loses the animation)
+            return writeAnimatedGif(originalFile, cachedFile);
+          }
+
+          originalImage = ImageUtils.createImage(bytes);
           break;
         }
         catch (OutOfMemoryError e) {
@@ -292,6 +305,12 @@ public class ImageCache {
       }
     }
 
+    return cachedFile;
+  }
+
+  // write the animated gif directly
+  private static Path writeAnimatedGif(Path originalFile, Path cachedFile) throws IOException {
+    Files.copy(originalFile, cachedFile, StandardCopyOption.REPLACE_EXISTING);
     return cachedFile;
   }
 
