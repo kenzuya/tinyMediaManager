@@ -42,14 +42,14 @@ public class ReadOnlyTextPane extends JTextPane {
 
   @Override
   public void setText(String t) {
-    super.setText(t);
-
     if (isRTL(t)) {
       setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
     }
     else {
       setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
     }
+
+    super.setText(t);
   }
 
   private boolean isRTL(String s) {
