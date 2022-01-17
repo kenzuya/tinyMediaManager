@@ -21,6 +21,8 @@ import java.awt.ComponentOrientation;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A readonly variant of the JTextPane
  *
@@ -42,18 +44,25 @@ public class ReadOnlyTextPane extends JTextPane {
 
   @Override
   public void setText(String t) {
+    // set the componentorientation if needed (switch from LTR -> RTL and vice versa)
+    ComponentOrientation oldComponentOrientation = getComponentOrientation();
+    ComponentOrientation newComponentOrientation;
     if (isRTL(t)) {
-      setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+      newComponentOrientation = ComponentOrientation.RIGHT_TO_LEFT;
     }
     else {
-      setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+      newComponentOrientation = ComponentOrientation.LEFT_TO_RIGHT;
+    }
+
+    if (newComponentOrientation != oldComponentOrientation) {
+      setComponentOrientation(newComponentOrientation);
     }
 
     super.setText(t);
   }
 
   private boolean isRTL(String s) {
-    if (s == null) {
+    if (StringUtils.isBlank(s)) {
       return false;
     }
     for (int i = 0; i < s.length(); i++) {
