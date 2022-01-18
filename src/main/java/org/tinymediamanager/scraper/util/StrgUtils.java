@@ -258,8 +258,7 @@ public class StrgUtils {
       return null;
     }
 
-    Date date;
-
+    Date date = null;
     String format = determineDateFormat(dateAsString);
     try {
       // try localized
@@ -276,17 +275,26 @@ public class StrgUtils {
         // see https://stackoverflow.com/q/69860992
         // so we try to remove them, to normalize the string again for parsing...
         Calendar cal = Calendar.getInstance();
-        DateFormat df = new SimpleDateFormat("MMM");
-        for (int i = 0; i < 12; i++) {
-          cal.set(Calendar.MONTH, i);
-          dateAsString = dateAsString.replaceAll(df.format(cal.getTime()), "" + (i + 1));
+        for (Locale loc : Locale.getAvailableLocales()) {
+          DateFormat df = new SimpleDateFormat("MMM", loc);
+          for (int i = 0; i < 12; i++) {
+            cal.set(Calendar.MONTH, i);
+            String monthShort = df.format(cal.getTime());
+            if (dateAsString.matches(".*" + monthShort + "\\W.*")) { // non-word must be after!
+              dateAsString = dateAsString.replaceAll(df.format(cal.getTime()), "" + (i + 1));
+              format = determineDateFormat(dateAsString); // do we now get a known format?
+              if (format == null) {
+                dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
+                dateAsString = dateAsString.replaceAll("\\.+", "."); // remove dupes
+                format = determineDateFormat(dateAsString); // do we now get a known format?
+              }
+              if (format != null) {
+                date = new SimpleDateFormat(format).parse(dateAsString);
+              }
+              return date; // we found a match, lets return this (in)valid date...
+            }
+          }
         }
-        format = determineDateFormat(dateAsString); // do we now get a known format?
-        if (format == null) {
-          dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
-          dateAsString = dateAsString.replaceAll("\\.\\.", "."); // remove dupes
-        }
-        date = parseDate(dateAsString);
       }
     }
 
