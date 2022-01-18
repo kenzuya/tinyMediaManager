@@ -15,9 +15,11 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -259,17 +261,36 @@ public class StrgUtils {
     Date date;
 
     String format = determineDateFormat(dateAsString);
-    if (format != null) {
+    try {
+      // try localized
+      date = new SimpleDateFormat(format).parse(dateAsString);
+    }
+    catch (Exception e) {
+      // try US style
       try {
-        // try localized
-        date = new SimpleDateFormat(format).parse(dateAsString);
-      }
-      catch (Exception e) {
-        // try US style
         date = new SimpleDateFormat(format, Locale.US).parse(dateAsString);
       }
+      catch (Exception e2) {
+        // FALLBACK:
+        // German and Canadian have month names with dot added!
+        // see https://stackoverflow.com/q/69860992
+        // so we try to remove them, to normalize the string again for parsing...
+        Calendar cal = Calendar.getInstance();
+        DateFormat df = new SimpleDateFormat("MMM");
+        for (int i = 0; i < 12; i++) {
+          cal.set(Calendar.MONTH, i);
+          dateAsString = dateAsString.replaceAll(df.format(cal.getTime()), "" + (i + 1));
+        }
+        format = determineDateFormat(dateAsString); // do we now get a known format?
+        if (format == null) {
+          dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
+          dateAsString = dateAsString.replaceAll("\\.\\.", "."); // remove dupes
+        }
+        date = parseDate(dateAsString);
+      }
     }
-    else {
+
+    if (date == null) {
       throw new ParseException("could not parse date from: \"" + dateAsString + "\"", 0);
     }
 
