@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,13 +40,14 @@ public class LanguageUtils {
   // Map of all known English/UserLocalized String to base locale, key is LOWERCASE
   public static final Map<String, Locale>  KEY_TO_LOCALE_MAP;
   public static final Map<String, Locale>  KEY_TO_COUNTRY_LOCALE_MAP;
-
+  public static final Map<String, Integer> MONTH_SHORT_TO_NUM;
   private static final Map<Locale, String> ISO_639_2B_EXCEPTIONS;
 
   static {
     ISO_639_2B_EXCEPTIONS = createIso6392BExceptions();
     KEY_TO_LOCALE_MAP = generateLanguageArray();
     KEY_TO_COUNTRY_LOCALE_MAP = generateCountryArray();
+    MONTH_SHORT_TO_NUM = generateMonthNameArray();
   }
 
   private LanguageUtils() {
@@ -193,6 +197,25 @@ public class LanguageUtils {
     }
 
     return sortedMap;
+  }
+
+  // map of month short names to their number
+  // since some names have a dot appended (when using MMM pattern)
+  // we cannot rely on parsing by our regexes
+  // so this map can be used to replace textual month to numeral.
+  private static Map<String, Integer> generateMonthNameArray() {
+    Map<String, Integer> months = new HashMap<>();
+    Calendar cal = Calendar.getInstance();
+    for (Locale loc : Locale.getAvailableLocales()) {
+      DateFormat df = new SimpleDateFormat("MMM", loc);
+      for (int i = 0; i < 12; i++) {
+        cal.set(Calendar.MONTH, i);
+        String monthShort = df.format(cal.getTime());
+        months.put(monthShort, i + 1);
+      }
+
+    }
+    return months;
   }
 
   /**

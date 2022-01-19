@@ -15,11 +15,9 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -274,25 +272,21 @@ public class StrgUtils {
         // German and Canadian have month names with dot added!
         // see https://stackoverflow.com/q/69860992
         // so we try to remove them, to normalize the string again for parsing...
-        Calendar cal = Calendar.getInstance();
-        for (Locale loc : Locale.getAvailableLocales()) {
-          DateFormat df = new SimpleDateFormat("MMM", loc);
-          for (int i = 0; i < 12; i++) {
-            cal.set(Calendar.MONTH, i);
-            String monthShort = df.format(cal.getTime());
-            if (dateAsString.matches(".*" + monthShort + "\\W.*")) { // non-word must be after!
-              dateAsString = dateAsString.replaceAll(df.format(cal.getTime()), "" + (i + 1));
+
+        for (String mon : LanguageUtils.MONTH_SHORT_TO_NUM.keySet()) {
+          if (dateAsString.matches(".*\\W" + mon + "\\W.*")) { // non-word must be around!
+            // we have a match to replace!
+            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_SHORT_TO_NUM.get(mon)));
+            format = determineDateFormat(dateAsString); // do we now get a known format?
+            if (format == null) {
+              dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
+              dateAsString = dateAsString.replaceAll("\\.+", "."); // remove dupes
               format = determineDateFormat(dateAsString); // do we now get a known format?
-              if (format == null) {
-                dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
-                dateAsString = dateAsString.replaceAll("\\.+", "."); // remove dupes
-                format = determineDateFormat(dateAsString); // do we now get a known format?
-              }
-              if (format != null) {
-                date = new SimpleDateFormat(format).parse(dateAsString);
-              }
-              return date; // we found a match, lets return this (in)valid date...
             }
+            if (format != null) {
+              date = new SimpleDateFormat(format).parse(dateAsString);
+            }
+            return date; // we found a match, lets return this (in)valid date...
           }
         }
       }
