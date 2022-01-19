@@ -406,10 +406,16 @@ public final class MovieList extends AbstractModelObject {
    * Load movies from database.
    */
   void loadMoviesFromDatabase(MVMap<UUID, String> movieMap) {
+    ReadWriteLock lock = new ReentrantReadWriteLock();
+
     // load movies
     ObjectReader movieObjectReader = MovieModuleManager.getInstance().getMovieObjectReader();
 
-    for (UUID uuid : new ArrayList<>(movieMap.keyList())) {
+    List<UUID> toRemove = new ArrayList<>();
+
+    long start = System.nanoTime();
+
+    new ArrayList<>(movieMap.keyList()).parallelStream().forEach((uuid) -> {
       String json = "";
       try {
         json = movieMap.get(uuid);
@@ -420,41 +426,76 @@ public final class MovieList extends AbstractModelObject {
         if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource())) {
           // no video file or path or datasource? drop it
           LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
-          movieMap.remove(uuid);
-          continue;
+          lock.writeLock().lock();
+          toRemove.add(uuid);
+          lock.writeLock().unlock();
+          return;
         }
 
         // for performance reasons we add movies directly
+        lock.writeLock().lock();
         movieList.add(movie);
+        lock.writeLock().unlock();
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie: {}", json);
-        movieMap.remove(uuid);
+        lock.writeLock().lock();
+        toRemove.add(uuid);
+        lock.writeLock().unlock();
       }
+    });
+
+    long end = System.nanoTime();
+
+    // remove defect movie sets
+    for (UUID uuid : toRemove) {
+      movieMap.remove(uuid);
     }
+
     LOGGER.info("found {} movies in database", movieList.size());
+    LOGGER.debug("took {} ms", (end - start) / 1000000);
   }
 
   void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap) {
+    ReadWriteLock lock = new ReentrantReadWriteLock();
+
     // load movie sets
     ObjectReader movieSetObjectReader = MovieModuleManager.getInstance().getMovieSetObjectReader();
 
-    for (UUID uuid : new ArrayList<>(movieSetMap.keyList())) {
+    List<UUID> toRemove = new ArrayList<>();
+
+    long start = System.nanoTime();
+
+    new ArrayList<>(movieSetMap.keyList()).parallelStream().forEach((uuid) -> {
       try {
         MovieSet movieSet = movieSetObjectReader.readValue(movieSetMap.get(uuid));
         movieSet.setDbId(uuid);
+
         // for performance reasons we add movies sets directly
+        lock.writeLock().lock();
         movieSetList.add(movieSet);
+        lock.writeLock().unlock();
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie set json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie set");
-        movieSetMap.remove(uuid);
+        lock.writeLock().lock();
+        toRemove.add(uuid);
+        lock.writeLock().unlock();
       }
+    });
+
+    long end = System.nanoTime();
+
+    // remove defect movie sets
+    for (UUID uuid : toRemove) {
+      movieSetMap.remove(uuid);
     }
 
     LOGGER.info("found {} movieSets in database", movieSetList.size());
+    LOGGER.debug("took {} ms", (end - start) / 1000000);
+
   }
 
   void initDataAfterLoading() {
