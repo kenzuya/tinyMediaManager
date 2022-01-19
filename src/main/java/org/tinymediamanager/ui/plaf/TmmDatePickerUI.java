@@ -58,7 +58,12 @@ public class TmmDatePickerUI extends TmmPanelUI {
   private FocusListener focusListener;
 
   public static ComponentUI createUI(JComponent c) {
-    return FlatUIUtils.createSharedUI(TmmDatePickerUI.class, TmmDatePickerUI::new);
+    return (FlatUIUtils.canUseSharedUI(c) ? FlatUIUtils.createSharedUI(TmmDatePickerUI.class, () -> new TmmDatePickerUI(true))
+        : new TmmDatePickerUI(false));
+  }
+
+  protected TmmDatePickerUI(boolean shared) {
+    super(shared);
   }
 
   protected String getPropertyPrefix() {

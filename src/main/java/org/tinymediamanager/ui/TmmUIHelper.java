@@ -35,7 +35,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -64,6 +63,8 @@ import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
 import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
 import org.tinymediamanager.updater.UpdateCheck;
 import org.tinymediamanager.updater.UpdaterTask;
+
+import com.formdev.flatlaf.FlatLaf;
 
 /**
  * The Class TmmUIHelper.
@@ -619,12 +620,12 @@ public class TmmUIHelper {
 
     switch (Settings.getInstance().getTheme()) {
       case "Dark":
-        UIManager.setLookAndFeel(new TmmDarkLaf());
+        FlatLaf.setup(new TmmDarkLaf());
         break;
 
       case "Light":
       default:
-        UIManager.setLookAndFeel(new TmmLightLaf());
+        FlatLaf.setup(new TmmLightLaf());
         break;
     }
   }

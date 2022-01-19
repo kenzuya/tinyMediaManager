@@ -63,7 +63,7 @@ public class MediaInfoIcon extends TmmSvgIcon {
         textElement.addAttribute("x", AnimationElement.AT_XML, String.valueOf(x));
         textElement.appendText(text);
         setFill(getHexString(UIManager.getColor("Label.foreground")), diagram.getRoot());
-        textElement.build();
+        textElement.rebuild();
       }
     }
     catch (Exception ex) {

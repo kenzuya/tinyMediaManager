@@ -58,7 +58,12 @@ public class TmmSplitButtonUI extends TmmPanelUI {
   private FocusListener focusListener;
 
   public static ComponentUI createUI(JComponent c) {
-    return FlatUIUtils.createSharedUI(TmmSplitButtonUI.class, TmmSplitButtonUI::new);
+    return (FlatUIUtils.canUseSharedUI(c) ? FlatUIUtils.createSharedUI(TmmSplitButtonUI.class, () -> new TmmSplitButtonUI(true))
+        : new TmmSplitButtonUI(false));
+  }
+
+  protected TmmSplitButtonUI(boolean shared) {
+    super(shared);
   }
 
   protected String getPropertyPrefix() {

@@ -48,7 +48,7 @@ public class GenericVideoCodecIcon extends MediaInfoIcon {
       textElement.addAttribute("x", AnimationElement.AT_XML, "141");
       textElement.appendText(text);
       setFill(getHexString(UIManager.getColor("Label.foreground")), diagram.getRoot());
-      textElement.build();
+      textElement.rebuild();
     }
     catch (Exception ex) {
       // ignored
