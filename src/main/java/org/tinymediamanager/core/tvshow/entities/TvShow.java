@@ -478,7 +478,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @param episode
    *          the episode
    */
-  public void addEpisode(TvShowEpisode episode) {
+  public synchronized void addEpisode(TvShowEpisode episode) {
     int oldValue = episodes.size();
     episodes.add(episode);
     episode.addPropertyChangeListener(propertyChangeListener);
