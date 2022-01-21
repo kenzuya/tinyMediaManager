@@ -64,19 +64,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieRenamerPreviewDialog extends TmmDialog {
-  private static final long                       serialVersionUID = -8162631708278089277L;
+  private static final long                             serialVersionUID = -8162631708278089277L;
 
-  private EventList<MovieRenamerPreviewContainer> results;
-  private ResultSelectionModel                    resultSelectionModel;
-  private EventList<MediaFileContainer>           oldMediaFileEventList;
-  private EventList<MediaFileContainer>           newMediaFileEventList;
+  private final EventList<MovieRenamerPreviewContainer> results;
+  private final ResultSelectionModel                    resultSelectionModel;
+  private final EventList<MediaFileContainer>           oldMediaFileEventList;
+  private final EventList<MediaFileContainer>           newMediaFileEventList;
 
   /** UI components */
-  private TmmTable                                tableMovies;
-  private JLabel                                  lblTitle;
-  private JLabel                                  lblDatasource;
-  private JLabel                                  lblFolderOld;
-  private JLabel                                  lblFolderNew;
+  private final TmmTable                                tableMovies;
+  private final JLabel                                  lblTitle;
+  private final JLabel                                  lblDatasource;
+  private final JLabel                                  lblFolderOld;
+  private final JLabel                                  lblFolderNew;
 
   public MovieRenamerPreviewDialog(final List<Movie> selectedMovies) {
     super(TmmResourceBundle.getString("movie.renamerpreview"), "movieRenamerPreview");
@@ -223,7 +223,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
     }
   }
 
-  private class MediaFileTableFormat extends TmmTableFormat<MediaFileContainer> {
+  private static class MediaFileTableFormat extends TmmTableFormat<MediaFileContainer> {
     public MediaFileTableFormat() {
       /*
        * indicator
