@@ -37,7 +37,7 @@ public class MovieTrailerPanel extends TrailerPanel {
 
     createLayout();
 
-    table.setName("movies.trailerTable");
+    table.setName(getName() + ".table");
     TmmUILayoutStore.getInstance().install(table);
 
     // install the propertychangelistener
@@ -68,6 +68,11 @@ public class MovieTrailerPanel extends TrailerPanel {
     };
 
     movieSelectionModel.addPropertyChangeListener(propertyChangeListener);
+  }
+
+  @Override
+  public String getName() {
+    return "movie.movietrailer";
   }
 
   @Override

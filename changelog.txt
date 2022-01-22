@@ -11,6 +11,7 @@ x do not check season names for missing seasons #1602
 x storing of window locations/sizes in batch mode
 x force re-reading mediainfo after exchanging the video file #1631
 x rewrote caching of animated gifs (if you have animated gifs, you may need to rebuild the image cache)
+x storing of hidden columns for some tables
 
 
 Version 4.2.5.1

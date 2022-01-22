@@ -30,7 +30,7 @@ import org.tinymediamanager.ui.panels.ImagePanel;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The class MovieArtworkPanel. To display all artwork from a movie in the UI
+ * The class {@link MovieArtworkPanel}. To display all artwork from a movie in the UI
  * 
  * @author Manuel Laggner
  */

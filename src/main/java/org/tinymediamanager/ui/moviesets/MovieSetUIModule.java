@@ -130,10 +130,25 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
       }
     };
     movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.details"), new MovieInformationPanel(movieSelectionModel));
-    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel));
-    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel) {
+      @Override
+      public String getName() {
+        return "movieset.moviecast";
+      }
+    });
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel) {
+      @Override
+      public String getName() {
+        return "movieset.moviemediainformation";
+      }
+    });
     movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(movieSelectionModel));
-    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.trailer"), new MovieTrailerPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.trailer"), new MovieTrailerPanel(movieSelectionModel) {
+      @Override
+      public String getName() {
+        return "movieset.movietrailer";
+      }
+    });
     dataPanel.add(movieDetailPanel, "movie");
 
     movieSetFilterDialog = new MovieSetFilterDialog(treePanel.getTreeTable());
