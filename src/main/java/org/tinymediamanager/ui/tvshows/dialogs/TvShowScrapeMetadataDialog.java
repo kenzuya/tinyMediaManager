@@ -139,9 +139,9 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
       }
       else {
-        cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.values());
+        cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.getValuesWithout(TvShowScraperMetadataConfig.ID));
         cbTvShowScraperConfig.enableFilter(
-            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
+            (tvShowScraperMetadataConfig, s) -> tvShowScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
       }
       panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
     }
@@ -153,12 +153,12 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(
           TvShowEpisodeScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
       cbEpisodeScraperConfig.enableFilter(
-          (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
+          (episodeScraperMetadataConfig, s) -> episodeScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
     else {
       cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.getValues());
       cbEpisodeScraperConfig.enableFilter(
-          (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
+          (episodeScraperMetadataConfig, s) -> episodeScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
     panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
 
