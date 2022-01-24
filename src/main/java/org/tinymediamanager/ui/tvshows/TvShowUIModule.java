@@ -79,6 +79,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeEpisodesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeMissingEpisodesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeNewItemsAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSelectedScrapeAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowSelectedScrapeMetadataAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSingleScrapeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleSearchAction;
@@ -303,6 +304,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     searchPopupMenu = new JPopupMenu();
     searchPopupMenu.add(createAndRegisterAction(TvShowSingleScrapeAction.class));
     searchPopupMenu.add(createAndRegisterAction(TvShowSelectedScrapeAction.class));
+    searchPopupMenu.add(createAndRegisterAction(TvShowSelectedScrapeMetadataAction.class));
     searchPopupMenu.add(createAndRegisterAction(TvShowScrapeEpisodesAction.class));
     searchPopupMenu.add(createAndRegisterAction(TvShowScrapeNewItemsAction.class));
     searchPopupMenu.add(createAndRegisterAction(TvShowScrapeMissingEpisodesAction.class));
@@ -359,6 +361,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu = new JPopupMenu();
     popupMenu.add(createAndRegisterAction(TvShowSingleScrapeAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSelectedScrapeAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowSelectedScrapeMetadataAction.class));
     popupMenu.add(createAndRegisterAction(TvShowScrapeEpisodesAction.class));
     popupMenu.add(createAndRegisterAction(TvShowScrapeNewItemsAction.class));
     popupMenu.add(createAndRegisterAction(TvShowScrapeMissingEpisodesAction.class));
