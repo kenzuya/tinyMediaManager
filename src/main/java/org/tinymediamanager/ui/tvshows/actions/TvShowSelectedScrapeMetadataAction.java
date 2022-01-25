@@ -58,7 +58,7 @@ public class TvShowSelectedScrapeMetadataAction extends TmmAction {
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createScrapeDialog(TmmResourceBundle.getString("tvshow.scrape.selected.force"));
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createScrapeDialog(TmmResourceBundle.getString("tvshow.scrape.metadata"));
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
