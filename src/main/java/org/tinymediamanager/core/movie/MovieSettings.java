@@ -68,6 +68,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
@@ -272,6 +273,10 @@ public final class MovieSettings extends AbstractSettings {
   }
 
   private void addDefaultEntries() {
+    // default skip folders
+    skipFolders.clear();
+    addSkipFolder("MAKEMKV");
+
     // file names
     nfoFilenames.clear();
     addNfoFilename(MovieNfoNaming.FILENAME_NFO);
@@ -1087,6 +1092,12 @@ public final class MovieSettings extends AbstractSettings {
 
   public List<String> getSubtitleScrapers() {
     return subtitleScrapers;
+  }
+
+  @JsonSetter
+  public void setSkipFolder(List<String> newValues) {
+    skipFolders.clear();
+    skipFolders.addAll(newValues);
   }
 
   public void addSkipFolder(String newValue) {
