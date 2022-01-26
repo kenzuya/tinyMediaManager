@@ -169,6 +169,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
             @Override
             protected void processAction(ActionEvent e) {
               tree.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(presetName));
+              tree.storeFilters();
             }
           };
           popupMenu.add(action);
@@ -181,6 +182,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           @Override
           protected void processAction(ActionEvent e) {
             tree.setFilterValues(Collections.emptyList());
+            tree.storeFilters();
           }
         });
 

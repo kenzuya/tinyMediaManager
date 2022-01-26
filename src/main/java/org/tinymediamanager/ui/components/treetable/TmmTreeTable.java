@@ -77,7 +77,10 @@ public class TmmTreeTable extends TmmTable {
     this.dataProvider = dataProvider;
     this.treeFilters = new CopyOnWriteArraySet<>();
     this.treeTableModel = new TmmTreeTableModel(new TmmTreeModelConnector<>(dataProvider), tableFormat);
-    this.filterChangeListener = evt -> updateFiltering();
+    this.filterChangeListener = evt -> {
+      updateFiltering();
+      storeFilters();
+    };
     setModel(treeTableModel);
     initTreeTable();
   }
@@ -491,6 +494,7 @@ public class TmmTreeTable extends TmmTable {
     }
 
     updateFiltering();
+    storeFilters();
   }
 
   /**
@@ -503,8 +507,6 @@ public class TmmTreeTable extends TmmTable {
     // add our filter listener
     newFilter.addPropertyChangeListener(ITmmTreeFilter.TREE_FILTER_CHANGED, filterChangeListener);
     treeFilters.add(newFilter);
-
-    updateFiltering();
   }
 
   /**
@@ -517,8 +519,6 @@ public class TmmTreeTable extends TmmTable {
     // remove our filter listener
     filter.removePropertyChangeListener(filterChangeListener);
     treeFilters.remove(filter);
-
-    updateFiltering();
   }
 
   /**
@@ -543,7 +543,6 @@ public class TmmTreeTable extends TmmTable {
       ((TmmTreeModel<?>) model).updateSortingAndFiltering();
     }
 
-    storeFilters();
     firePropertyChange("filterChanged", null, treeFilters);
   }
 
@@ -590,6 +589,7 @@ public class TmmTreeTable extends TmmTable {
     }
 
     updateFiltering();
+    storeFilters();
   }
 
   /**

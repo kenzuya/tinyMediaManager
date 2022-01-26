@@ -158,6 +158,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
             @Override
             protected void processAction(ActionEvent e) {
               tree.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().get(presetName));
+              tree.storeFilters();
             }
           };
           popupMenu.add(action);
@@ -170,6 +171,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
           @Override
           protected void processAction(ActionEvent e) {
             tree.setFilterValues(Collections.emptyList());
+            tree.storeFilters();
           }
         });
 

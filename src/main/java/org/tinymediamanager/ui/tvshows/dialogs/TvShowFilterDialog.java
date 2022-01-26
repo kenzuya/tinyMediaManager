@@ -130,6 +130,7 @@ public class TvShowFilterDialog extends TmmDialog {
       String filterName = (String) cbPreset.getSelectedItem();
       if (StringUtils.isNotBlank(filterName)) {
         treeTable.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(filterName));
+        treeTable.storeFilters();
       }
       else {
         treeTable.clearFilter();
