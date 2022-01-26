@@ -48,7 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.Binding;
+import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.jdesktop.observablecollections.ObservableCollections;
@@ -86,7 +86,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileEditorPanel extends JPanel {
   private static final long        serialVersionUID = -2416409052145301941L;
 
-  private final Set<Binding>       bindings         = new HashSet<>();
+  private final BindingGroup       bindingGroup     = new BindingGroup();
 
   private TmmTask                  ardTask;
   private List<MediaFileContainer> mediaFiles;
@@ -600,11 +600,7 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   public void unbindBindings() {
-    for (Binding binding : bindings) {
-      if (binding != null && binding.isBound()) {
-        binding.unbind();
-      }
-    }
+    bindingGroup.unbind();
   }
 
   protected void initDataBindings() {
@@ -730,6 +726,10 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_5, tfRuntime,
         jTextFieldBeanProperty_7);
     autoBinding_11.bind();
+    //
+    bindingGroup.addBinding(jTableBinding);
+    bindingGroup.addBinding(jTableBinding_1);
+    bindingGroup.addBinding(jTableBinding_2);
   }
 
   public void cancelTask() {

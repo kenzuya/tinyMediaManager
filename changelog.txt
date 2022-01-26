@@ -14,6 +14,7 @@ x rewrote caching of animated gifs (if you have animated gifs, you may need to r
 x storing of hidden columns for some tables
 x cleaner shutdown of the IMDB id cache #1647
 x added MAKEMKV to skip folders per default #1636
+x proper cleanup of resources in the media files panel #1411
 
 
 Version 4.2.5.1
