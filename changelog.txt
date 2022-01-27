@@ -17,6 +17,7 @@ x added MAKEMKV to skip folders per default #1636
 x proper cleanup of resources in the media files panel #1411
 x (movie sets/TV shows) loading of filters at startup
 x enhanced merging of tags #1588
+x fixed renaming of TV show thumbs when auto renaming is active #1630
 
 
 Version 4.2.5.1

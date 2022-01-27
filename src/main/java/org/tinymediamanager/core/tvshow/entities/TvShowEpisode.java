@@ -797,12 +797,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
+    // need to do the post process before the thumb creation (because thumbs depend on the new filename)
+    postProcess(config);
+
     // should we write a new thumb?
     if (writeNewThumb) {
       writeThumbImage();
     }
-
-    postProcess(config);
   }
 
   /**
