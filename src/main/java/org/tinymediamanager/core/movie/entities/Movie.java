@@ -871,7 +871,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // tags
-    if (config.contains(MovieScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.TAGS)) {
       // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();

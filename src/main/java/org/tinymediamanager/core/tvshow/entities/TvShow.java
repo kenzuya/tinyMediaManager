@@ -1015,7 +1015,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       setGenres(metadata.getGenres());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
+    if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
       // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();

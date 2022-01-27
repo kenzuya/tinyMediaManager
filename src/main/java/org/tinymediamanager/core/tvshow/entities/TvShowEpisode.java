@@ -757,7 +757,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       setRatings(newRatings);
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
       // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
