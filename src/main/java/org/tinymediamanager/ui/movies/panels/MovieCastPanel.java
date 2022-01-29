@@ -44,27 +44,26 @@ import ca.odell.glazedlists.ObservableElementList;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Panel to display the movie actors, writer and director
+ * the class {@link MovieCastPanel} to display the movie actors, writer and director
  * 
  * @author Manuel Laggner
  */
 public class MovieCastPanel extends JPanel {
-  private static final long           serialVersionUID  = 2972207353452870494L;
+  private static final long         serialVersionUID  = 2972207353452870494L;
 
-  
+  private final MovieSelectionModel selectionModel;
 
-  private MovieSelectionModel         selectionModel;
-  private EventList<Person>           actorEventList    = null;
-  private EventList<Person>           producerEventList = null;
+  private EventList<Person>         actorEventList    = null;
+  private EventList<Person>         producerEventList = null;
 
   /**
    * UI elements
    */
-  private JLabel                      lblDirector;
-  private JLabel                      lblWriter;
-  private ActorImageLabel             lblActorThumb;
-  private TmmTable                    tableProducer;
-  private TmmTable                    tableActors;
+  private JLabel                    lblDirector;
+  private JLabel                    lblWriter;
+  private ActorImageLabel           lblActorThumb;
+  private TmmTable                  tableProducer;
+  private TmmTable                  tableActors;
 
   public MovieCastPanel(MovieSelectionModel model) {
     selectionModel = model;
@@ -120,6 +119,11 @@ public class MovieCastPanel extends JPanel {
     selectionModel.addPropertyChangeListener(propertyChangeListener);
   }
 
+  @Override
+  public String getName() {
+    return "movie.moviecast";
+  }
+
   private void initComponents() {
     setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[][][100lp:150lp,grow][150lp:200lp,grow]"));
     {
@@ -143,7 +147,7 @@ public class MovieCastPanel extends JPanel {
       add(lblProducersT, "cell 0 2,aligny top");
 
       tableProducer = new PersonTable(producerEventList);
-      tableProducer.setName("movies.producerTable");
+      tableProducer.setName(getName() + ".producerTable");
       TmmUILayoutStore.getInstance().install(tableProducer);
       JScrollPane scrollPanePerson = new JScrollPane();
       tableProducer.configureScrollPane(scrollPanePerson);
@@ -154,7 +158,7 @@ public class MovieCastPanel extends JPanel {
       add(lblActorsT, "cell 0 3,aligny top");
 
       tableActors = new PersonTable(actorEventList);
-      tableActors.setName("movies.actorTable");
+      tableActors.setName(getName() + ".actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
       JScrollPane scrollPanePersons = new JScrollPane();
       tableActors.configureScrollPane(scrollPanePersons);

@@ -1,3 +1,25 @@
+Version 4.2.6
+=======================
++ added certification support for Hong Kong #1623
++ added button to create movie sets from within the movie editor
++ (movies/TV shows) added support for clearlogo in the information panels #1604
++ enabled displaying of animated gifs in the artwork panel #1621
++ added an action to just (re)scrape TV shows/episodes (without the need to trigger a search)
+x increased loading speed of large libraries #1613
+x removed rating for movie set completeness check
+x do not check season names for missing seasons #1602
+x storing of window locations/sizes in batch mode
+x force re-reading mediainfo after exchanging the video file #1631
+x rewrote caching of animated gifs (if you have animated gifs, you may need to rebuild the image cache)
+x storing of hidden columns for some tables
+x cleaner shutdown of the IMDB id cache #1647
+x added MAKEMKV to skip folders per default #1636
+x proper cleanup of resources in the media files panel #1411
+x (movie sets/TV shows) loading of filters at startup
+x enhanced merging of tags #1588
+x fixed renaming of TV show thumbs when auto renaming is active #1630
+
+
 Version 4.2.5.1
 =======================
 x fixed proper linkage of dummy episodes with the TV show

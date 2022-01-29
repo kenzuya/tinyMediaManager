@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.tvshows.panels.tvshow;
 
 import static org.tinymediamanager.core.Constants.BANNER;
+import static org.tinymediamanager.core.Constants.CLEARLOGO;
 import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
@@ -212,6 +213,10 @@ public class TvShowInformationPanel extends InformationPanel {
         setArtwork(tvShow, MediaFileType.THUMB);
       }
 
+      if ("selectedTvShow".equals(property) || CLEARLOGO.equals(property)) {
+        setArtwork(tvShow, MediaFileType.CLEARLOGO);
+      }
+
       if ("selectedTvShow".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(tvShow);
       }
@@ -251,6 +256,10 @@ public class TvShowInformationPanel extends InformationPanel {
       }
 
       for (Component component : generateArtworkComponents(MediaFileType.THUMB)) {
+        panelLeft.add(component);
+      }
+
+      for (Component component : generateArtworkComponents(MediaFileType.CLEARLOGO)) {
         panelLeft.add(component);
       }
     }

@@ -692,6 +692,20 @@ public class MovieEditorDialog extends TmmDialog {
         cbMovieSet = new JComboBox();
         cbMovieSet.addItem("");
         details2Panel.add(cbMovieSet, "cell 1 4 4 1, growx, wmin 0");
+
+        JButton btnAddMovieSet = new SquareIconButton(IconManager.ADD_INV);
+        btnAddMovieSet.addActionListener(listener -> {
+          String name = JOptionPane.showInputDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movieset.title"), "",
+              JOptionPane.QUESTION_MESSAGE);
+          if (StringUtils.isNotEmpty(name)) {
+            MovieSet movieSet = new MovieSet(name);
+            movieSet.saveToDb();
+            MovieModuleManager.getInstance().getMovieList().addMovieSet(movieSet);
+            cbMovieSet.addItem(movieSet);
+            cbMovieSet.setSelectedItem(movieSet);
+          }
+        });
+        details2Panel.add(btnAddMovieSet, "cell 1 4 4 1");
       }
       {
         JLabel lblShowlinkT = new TmmLabel(TmmResourceBundle.getString("metatag.showlink"));

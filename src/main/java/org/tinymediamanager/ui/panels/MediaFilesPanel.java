@@ -157,9 +157,16 @@ public abstract class MediaFilesPanel extends JPanel {
       addColumn(col);
 
       /*
-       * codec
+       * video codec
        */
-      col = new Column(TmmResourceBundle.getString("metatag.codec"), "codec", MediaFile::getCombinedCodecs, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videocodec", MediaFile::getVideoCodec, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
+
+      /*
+       * audio codec
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.audiocodec"), "audiocodec", MediaFile::getAudioCodecListAsAstring, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
@@ -182,7 +189,7 @@ public abstract class MediaFilesPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.subtitle"), "subtitle", MediaFile::getSubtitlesAsString, String.class);
       col.setColumnResizeable(false);
-      // addColumn(col); // disabled
+      addColumn(col);
 
       /*
        * creation date

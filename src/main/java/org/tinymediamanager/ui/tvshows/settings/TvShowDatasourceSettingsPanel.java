@@ -62,28 +62,26 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowDatasourceSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -675729644848101096L;
-
-
+  private static final long    serialVersionUID = -675729644848101096L;
 
   private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
 
-  private JCheckBox                   chckbxDvdOrder;
-  private JTextField                  tfAddBadword;
-  private JList<String>               listBadWords;
-  private JList<String>               listDatasources;
+  private JCheckBox            chckbxDvdOrder;
+  private JTextField           tfAddBadword;
+  private JList<String>        listBadWords;
+  private JList<String>        listDatasources;
   private JPanel               panelDatasources;
-  private JList<String>               listSkipFolder;
+  private JList<String>        listSkipFolder;
   private JPanel               panelIgnore;
-  private JButton                     btnAddDatasource;
-  private JButton                     btnRemoveDatasource;
-  private JButton                     btnAddSkipFolder;
-  private JButton                     btnRemoveSkipFolder;
-  private JButton                     btnRemoveBadWord;
-  private JButton                     btnAddBadWord;
-  private JButton                     btnMoveUpDatasoure;
-  private JButton                     btnMoveDownDatasource;
-  private JButton                     btnExchangeDatasource;
+  private JButton              btnAddDatasource;
+  private JButton              btnRemoveDatasource;
+  private JButton              btnAddSkipFolder;
+  private JButton              btnRemoveSkipFolder;
+  private JButton              btnRemoveBadWord;
+  private JButton              btnAddBadWord;
+  private JButton              btnMoveUpDatasoure;
+  private JButton              btnMoveDownDatasource;
+  private JButton              btnExchangeDatasource;
 
   TvShowDatasourceSettingsPanel() {
     // UI initializations
@@ -109,9 +107,9 @@ class TvShowDatasourceSettingsPanel extends JPanel {
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          TvShowDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           settings.removeTvShowDataSources(path);
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          TvShowDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }
@@ -181,9 +179,9 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          TvShowDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           TvShowModuleManager.getInstance().getSettings().exchangeTvShowDatasource(path, dialog.getNewDatasource());
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          TvShowDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }

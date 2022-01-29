@@ -43,7 +43,11 @@ public class TmmPanelUI extends FlatPanelUI {
   protected static String BORDER_RADIUS = "borderRadius";
 
   public static ComponentUI createUI(JComponent c) {
-    return FlatUIUtils.createSharedUI(TmmPanelUI.class, TmmPanelUI::new);
+    return (FlatUIUtils.canUseSharedUI(c) ? FlatUIUtils.createSharedUI(TmmPanelUI.class, () -> new TmmPanelUI(true)) : new TmmPanelUI(false));
+  }
+
+  protected TmmPanelUI(boolean shared) {
+    super(shared);
   }
 
   @Override

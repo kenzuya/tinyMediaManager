@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -809,6 +808,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * gets the audio codecs from all streams as delimited string<br>
+   * (w/o punctuation; eg AC-3 => AC3).
+   *
+   * @return the audio codecs as List
+   */
+  public String getAudioCodecListAsAstring() {
+    StringBuilder sb = new StringBuilder();
+    for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
+      if (sb.length() > 0) {
+        sb.append(" / ");
+      }
+      sb.append(audioStream.getCodec());
+    }
+    return sb.toString();
+  }
+
+  /**
    * returns the "best" available audio stream (aka the one with most channels)
    * 
    * @return
@@ -1467,17 +1483,11 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public String getCombinedCodecs() {
     StringBuilder sb = new StringBuilder(videoCodec);
-    Set<String> unique = new HashSet<String>();
-
     for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
-      unique.add(audioStream.getCodec());
-    }
-
-    for (String s : unique) {
       if (sb.length() > 0) {
         sb.append(" / ");
       }
-      sb.append(s);
+      sb.append(audioStream.getCodec());
     }
     return sb.toString();
   }

@@ -39,6 +39,8 @@ public class TmmCheckBoxIcon extends FlatCheckBoxIcon {
   protected void paintIcon(Component c, Graphics2D g2) {
     boolean indeterminate = c instanceof JComponent && clientPropertyEquals((JComponent) c, SELECTED_STATE, SELECTED_STATE_INDETERMINATE);
     boolean selected = indeterminate || (c instanceof AbstractButton && ((AbstractButton) c).isSelected());
+    float bw = selected ? (this.disabledSelectedBorderWidth != 1.4E-45F && !c.isEnabled() ? this.disabledSelectedBorderWidth
+        : (this.selectedBorderWidth != 1.4E-45F ? this.selectedBorderWidth : this.borderWidth)) : this.borderWidth;
 
     // paint focused border
     if (FlatUIUtils.isPermanentFocusOwner(c) && focusWidth > 0) {
@@ -48,15 +50,15 @@ public class TmmCheckBoxIcon extends FlatCheckBoxIcon {
 
     // paint border
     g2.setColor(FlatButtonUI.buttonStateColor(c, selected ? selectedBorderColor : borderColor, disabledBorderColor,
-        selected && selectedFocusedBorderColor != null ? selectedFocusedBorderColor : focusedBorderColor, hoverBorderColor, null));
-    paintBorder(c, g2);
+        selected && focusedSelectedBorderColor != null ? focusedSelectedBorderColor : focusedBorderColor, hoverBorderColor, null));
+    paintBorder(c, g2, bw);
 
     // paint background
     g2.setColor(
         FlatUIUtils.deriveColor(FlatButtonUI.buttonStateColor(c, selected ? this.selectedBackground : this.background, this.disabledBackground,
-            this.focusedBackground, selected && this.selectedHoverBackground != null ? this.selectedHoverBackground : this.hoverBackground,
-            selected && this.selectedPressedBackground != null ? this.selectedPressedBackground : this.pressedBackground), this.background));
-    paintBackground(c, g2);
+            this.focusedBackground, selected && this.hoverSelectedBackground != null ? this.hoverSelectedBackground : this.hoverBackground,
+            selected && this.pressedSelectedBackground != null ? this.pressedSelectedBackground : this.pressedBackground), this.background));
+    paintBackground(c, g2, bw);
 
     g2.setColor(c.isEnabled() ? checkmarkColor : disabledCheckmarkColor);
     // paint tri-state

@@ -171,7 +171,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
             }
 
             // override scraper with one from search result
-            mediaMetadataScraper = tvShowList.getMediaScraperById(result1.getProviderId());
+            if (result1 != null) {
+              mediaMetadataScraper = tvShowList.getMediaScraperById(result1.getProviderId());
+            }
+
             // scrape metadata if wanted
             MediaMetadata md = null;
 

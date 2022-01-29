@@ -60,17 +60,18 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationPanel extends JPanel {
-  private static final long    serialVersionUID = 1610264727610254912L;
+  private static final long          serialVersionUID = 1610264727610254912L;
 
-  private static final Logger  LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
+  private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
-  private TvShowSelectionModel selectionModel;
-  private EventList<MediaFile> mediaFileEventList;
-  private MediaFilesPanel      panelMediaFiles;
+  private final TvShowSelectionModel selectionModel;
+  private final EventList<MediaFile> mediaFileEventList;
 
-  private LinkTextArea         lblTvShowPath;
-  private JLabel               lblDateAdded;
-  private JCheckBox            cbWatched;
+  private MediaFilesPanel            panelMediaFiles;
+
+  private LinkTextArea               lblTvShowPath;
+  private JLabel                     lblDateAdded;
+  private JCheckBox                  cbWatched;
 
   public TvShowMediaInformationPanel(TvShowSelectionModel model) {
     this.selectionModel = model;

@@ -31,7 +31,7 @@ public enum MovieSetScraperMetadataConfig implements ScraperMetadataConfig {
   ID(Type.METADATA),
   TITLE(Type.METADATA),
   PLOT(Type.METADATA),
-  RATING(Type.METADATA),
+  RATING(Type.DEPRECATED), // not available at the moment
 
   // artwork
   POSTER(Type.ARTWORK),

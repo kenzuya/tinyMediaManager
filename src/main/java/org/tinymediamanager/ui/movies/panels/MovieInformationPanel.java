@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies.panels;
 
 import static org.tinymediamanager.core.Constants.BANNER;
+import static org.tinymediamanager.core.Constants.CLEARLOGO;
 import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
@@ -221,6 +222,10 @@ public class MovieInformationPanel extends InformationPanel {
         setArtwork(movie, MediaFileType.THUMB);
       }
 
+      if ("selectedMovie".equals(property) || CLEARLOGO.equals(property)) {
+        setArtwork(movie, MediaFileType.CLEARLOGO);
+      }
+
       if ("selectedMovie".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(movie);
       }
@@ -272,6 +277,10 @@ public class MovieInformationPanel extends InformationPanel {
       }
 
       for (Component component : generateArtworkComponents(MediaFileType.THUMB)) {
+        panelLeft.add(component);
+      }
+
+      for (Component component : generateArtworkComponents(MediaFileType.CLEARLOGO)) {
         panelLeft.add(component);
       }
     }

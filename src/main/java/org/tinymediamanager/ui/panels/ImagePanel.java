@@ -16,8 +16,10 @@
 package org.tinymediamanager.ui.panels;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.SwingConstants.CENTER;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.HierarchyEvent;
@@ -25,11 +27,14 @@ import java.awt.event.HierarchyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -46,7 +51,10 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.WrapLayout;
+import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
+
+import com.madgag.gif.fmsware.GifDecoder;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -156,21 +164,41 @@ public class ImagePanel extends JPanel implements HierarchyListener {
             return null;
           }
           try {
+            JComponent imageLabel = null;
+
             Path file = ImageCache.getCachedFile(mediaFile);
             if (file == null) {
               file = mediaFile.getFileAsPath();
             }
-            BufferedImage bufferedImage = ImageUtils.createImage(file);
-            Point size = ImageUtils.calculateSize(maxWidth, maxHeight, bufferedImage.getWidth(), bufferedImage.getHeight(), true);
-            BufferedImage img = Scalr.resize(bufferedImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size.x, size.y, Scalr.OP_ANTIALIAS);
-            bufferedImage = null;
 
-            if (isCancelled()) {
+            byte[] bytes = Files.readAllBytes(file);
+
+            // check if this file is an animated gif
+            GifDecoder decoder = new GifDecoder();
+            int status = decoder.read(new ByteArrayInputStream(bytes));
+            if (status == GifDecoder.STATUS_OK && decoder.getFrameCount() > 1) {
+              JPanel panel = new JPanel(new BorderLayout());
+              Point size = ImageUtils.calculateSize(maxWidth, maxHeight, decoder.getFrameSize().width, decoder.getFrameSize().height, true);
+              panel.setPreferredSize(new Dimension(size.x, size.y));
+              ImageLabel label = new ImageLabel(false);
+              label.setOriginalImage(bytes);
+              panel.add(label, BorderLayout.CENTER);
+
+              imageLabel = panel;
+            }
+            else {
+              BufferedImage bufferedImage = ImageUtils.createImage(bytes);
+              Point size = ImageUtils.calculateSize(maxWidth, maxHeight, bufferedImage.getWidth(), bufferedImage.getHeight(), true);
+              imageLabel = new JLabel(
+                  new ImageIcon(Scalr.resize(bufferedImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size.x, size.y, Scalr.OP_ANTIALIAS)));
+              imageLabel.addMouseListener(new ImageLabelClickListener(mediaFile.getFileAsPath().toString()));
+            }
+
+            if (isCancelled() || imageLabel == null) {
               return null;
             }
 
-            publish(new ImageChunk(mediaFile.getFileAsPath().toString(), mediaFile.getType(), img));
-            img = null;
+            publish(new ImageChunk(mediaFile.getFileAsPath().toString(), mediaFile.getType(), imageLabel));
           }
           catch (Exception e) {
             LOGGER.trace("scaling image failed: {}", e.getMessage());
@@ -189,13 +217,10 @@ public class ImagePanel extends JPanel implements HierarchyListener {
           }
 
           JPanel panelContainer = new JPanel(new BorderLayout());
-
-          JLabel lblImageJLabel = new JLabel(new ImageIcon(chunk.image));
-          lblImageJLabel.addMouseListener(new ImageLabelClickListener(chunk.pathToImage));
-          panelContainer.add(lblImageJLabel, BorderLayout.CENTER);
+          panelContainer.add(chunk.image, BorderLayout.CENTER);
 
           JLabel lblImageType = new JLabel(TmmResourceBundle.getString("mediafiletype." + chunk.type.name().toLowerCase(Locale.ROOT)));
-          lblImageType.setHorizontalAlignment(JLabel.CENTER);
+          lblImageType.setHorizontalAlignment(CENTER);
           panelContainer.add(lblImageType, BorderLayout.SOUTH);
 
           panelImages.add(panelContainer);
@@ -211,10 +236,10 @@ public class ImagePanel extends JPanel implements HierarchyListener {
 
   protected static class ImageChunk {
     private final String        pathToImage;
-    private final BufferedImage image;
+    private final JComponent    image;
     private final MediaFileType type;
 
-    private ImageChunk(String path, MediaFileType type, BufferedImage image) {
+    private ImageChunk(String path, MediaFileType type, JComponent image) {
       this.pathToImage = path;
       this.type = type;
       this.image = image;

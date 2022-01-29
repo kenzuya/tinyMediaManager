@@ -81,6 +81,7 @@ public class TvShowEpisodeAndSeasonParser {
     }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year
+    basename = basename.replaceFirst("[\\(\\[][A-Fa-f0-9]{8}[\\)\\]]", ""); // remove (xxxxxxxx) or [xxxxxxxx] as 8 byte crc
 
     return removeEpisodeVariantsFromTitle(basename);
   }
@@ -195,6 +196,7 @@ public class TvShowEpisodeAndSeasonParser {
     }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year
+    basename = basename.replaceFirst("[\\(\\[][A-Fa-f0-9]{8}[\\)\\]]", ""); // remove (xxxxxxxx) or [xxxxxxxx] as 8 byte crc
 
     basename = basename + " ";
 

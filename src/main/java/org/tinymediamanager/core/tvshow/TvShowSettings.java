@@ -63,6 +63,7 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
@@ -263,6 +264,11 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   private void addDefaultEntries() {
+    // default skip folders
+    skipFolders.clear();
+    addSkipFolder("MAKEMKV");
+
+    // file names
     nfoFilenames.clear();
     addNfoFilename(TvShowNfoNaming.TV_SHOW);
 
@@ -841,6 +847,12 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.dvdOrder;
     this.dvdOrder = newValue;
     firePropertyChange("dvdOrder", oldValue, newValue);
+  }
+
+  @JsonSetter
+  public void setSkipFolder(List<String> newValues) {
+    skipFolders.clear();
+    skipFolders.addAll(newValues);
   }
 
   public void addSkipFolder(String newValue) {

@@ -112,6 +112,7 @@ class TvShowUiSettingsPanel extends JPanel {
   private JCheckBox                                                chckbxTvShowFanart;
   private JCheckBox                                                chckbxTvShowBanner;
   private JCheckBox                                                chckbxTvShowThumb;
+  private JCheckBox                                                chckbxTvShowClearlogo;
   private JCheckBox                                                chckbxSeasonPoster;
   private JCheckBox                                                chckbxEpisodePoster;
   private JCheckBox                                                chckbxEpisodeThumb;
@@ -154,6 +155,9 @@ class TvShowUiSettingsPanel extends JPanel {
     }
     if (chckbxTvShowThumb.isSelected()) {
       tvShowArtworkTypes.add(MediaFileType.THUMB);
+    }
+    if (chckbxTvShowClearlogo.isSelected()) {
+      tvShowArtworkTypes.add(MediaFileType.CLEARLOGO);
     }
     settings.setShowTvShowArtworkTypes(tvShowArtworkTypes);
 
@@ -285,6 +289,9 @@ class TvShowUiSettingsPanel extends JPanel {
         case THUMB:
           chckbxTvShowThumb.setSelected(true);
           break;
+
+        case CLEARLOGO:
+          chckbxTvShowClearlogo.setSelected(true);
       }
     }
 
@@ -371,6 +378,7 @@ class TvShowUiSettingsPanel extends JPanel {
     chckbxTvShowFanart.addItemListener(checkBoxListener);
     chckbxTvShowBanner.addItemListener(checkBoxListener);
     chckbxTvShowThumb.addItemListener(checkBoxListener);
+    chckbxTvShowClearlogo.addItemListener(checkBoxListener);
     chckbxSeasonPoster.addItemListener(checkBoxListener);
     chckbxSeasonFanart.addItemListener(checkBoxListener);
     chckbxSeasonBanner.addItemListener(checkBoxListener);
@@ -469,7 +477,7 @@ class TvShowUiSettingsPanel extends JPanel {
 
         JPanel panelShowArtwork = new JPanel();
         panelUiSettings.add(panelShowArtwork, "cell 2 1,grow");
-        panelShowArtwork.setLayout(new MigLayout("", "[][][][][]", "[][][]"));
+        panelShowArtwork.setLayout(new MigLayout("", "[][][][][][]", "[][][]"));
 
         JLabel lblTvShowArtwork = new JLabel(TmmResourceBundle.getString("metatag.tvshow"));
         panelShowArtwork.add(lblTvShowArtwork, "flowy,cell 0 0");
@@ -485,6 +493,9 @@ class TvShowUiSettingsPanel extends JPanel {
 
         chckbxTvShowThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
         panelShowArtwork.add(chckbxTvShowThumb, "cell 4 0");
+
+        chckbxTvShowClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
+        panelShowArtwork.add(chckbxTvShowClearlogo, "cell 5 0");
 
         JLabel lblSeasonArtwork = new JLabel(TmmResourceBundle.getString("metatag.season"));
         panelShowArtwork.add(lblSeasonArtwork, "flowy,cell 0 1");

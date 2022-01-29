@@ -139,7 +139,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
         JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.select"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
 
-        cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.values());
+        cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.getValuesWithout(MovieScraperMetadataConfig.ID));
         cbScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbScraperConfig, "cell 0 1 ,wmin 0,grow");

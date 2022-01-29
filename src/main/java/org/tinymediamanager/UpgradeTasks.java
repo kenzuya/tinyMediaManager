@@ -133,6 +133,7 @@ public class UpgradeTasks {
     }
 
     if (StrgUtils.compareVersion(v, "4.1") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 4.1");
       // copy most common scraper settings to the new filename
 
       // Anidb
@@ -365,6 +366,21 @@ public class UpgradeTasks {
             TvShowModuleManager.getInstance().getSettings().setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
             TvShowModuleManager.getInstance().getSettings().saveSettings();
           }
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.2.6") < 0) {
+      // do not run the upgrade task in the git build, since it would always overwrite the values
+      if (!ReleaseInfo.isGitBuild()) {
+        // add MAKEMKV to skip folders
+        if (!MovieModuleManager.getInstance().getSettings().getSkipFolder().contains("MAKEMKV")) {
+          MovieModuleManager.getInstance().getSettings().addSkipFolder("MAKEMKV");
+          MovieModuleManager.getInstance().getSettings().saveSettings();
+        }
+        if (!TvShowModuleManager.getInstance().getSettings().getSkipFolder().contains("MAKEMKV")) {
+          TvShowModuleManager.getInstance().getSettings().addSkipFolder("MAKEMKV");
+          TvShowModuleManager.getInstance().getSettings().saveSettings();
         }
       }
     }

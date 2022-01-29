@@ -370,12 +370,12 @@ public class TmmUILayoutStore implements AWTEventListener {
     // screen insets / taskbar
     Rectangle screenBounds = graphicsConfiguration.getBounds();
     Insets scnMax = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration);
-    if ((rect.x + rect.width) > (screenBounds.x + screenBounds.width - scnMax.left - scnMax.right)) {
+    if ((rect.x - scnMax.left + rect.width) > (screenBounds.x + screenBounds.width - scnMax.right)) {
       rect.x = screenBounds.x + scnMax.left;
       rect.width = screenBounds.width - scnMax.right;
     }
 
-    if ((rect.y + rect.height) > (screenBounds.y + screenBounds.height - scnMax.top - scnMax.bottom)) {
+    if ((rect.y - scnMax.top + rect.height) > (screenBounds.y + screenBounds.height - scnMax.bottom)) {
       rect.y = screenBounds.y + scnMax.top;
       rect.height = screenBounds.height - scnMax.bottom;
     }

@@ -72,6 +72,10 @@ public abstract class InformationPanel extends JPanel {
         imageLabel.setDesiredAspectRatio(25 / 8f);
         break;
 
+      case CLEARLOGO:
+        imageLabel.setDesiredAspectRatio(2.58f); // calculated by the default resolutions of fanart.tv (800 x 310)
+        break;
+
       default:
         return Collections.emptyList();
 

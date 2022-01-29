@@ -97,6 +97,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       String filterName = (String) cbPreset.getSelectedItem();
       if (StringUtils.isNotBlank(filterName)) {
         treeTable.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().get(filterName));
+        treeTable.storeFilters();
       }
       else {
         treeTable.clearFilter();

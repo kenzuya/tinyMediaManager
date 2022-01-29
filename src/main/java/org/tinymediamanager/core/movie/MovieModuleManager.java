@@ -51,6 +51,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 
 /**
  * The class MovieModuleManager. Used to manage the movies module
@@ -119,12 +121,14 @@ public final class MovieModuleManager implements ITmmModule {
   @Override
   public void startUp() {
     // configure JSON
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, false);
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper objectMapper = JsonMapper.builder()
+        .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+        .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
+        .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
+        .configure(MapperFeature.AUTO_DETECT_FIELDS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .addModule(new BlackbirdModule())
+        .build();
     objectMapper.setTimeZone(TimeZone.getDefault());
     objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
     objectMapper.setSerializerProvider(new CustomNullStringSerializerProvider());

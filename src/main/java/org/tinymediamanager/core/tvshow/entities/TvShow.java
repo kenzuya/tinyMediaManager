@@ -478,7 +478,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @param episode
    *          the episode
    */
-  public void addEpisode(TvShowEpisode episode) {
+  public synchronized void addEpisode(TvShowEpisode episode) {
     int oldValue = episodes.size();
     episodes.add(episode);
     episode.addPropertyChangeListener(propertyChangeListener);
@@ -1015,7 +1015,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       setGenres(metadata.getGenres());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
+    if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
       // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
@@ -2525,7 +2525,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case SEASON_NAMES:
         // if matches, we have all season titles
         for (TvShowSeason season : seasons) {
-          if (season.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata()) {
+          if (season.getSeason() < 0) {
+            continue;
+          }
+
+          if (season.isDummy()
+              || season.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata()) {
             continue;
           }
 

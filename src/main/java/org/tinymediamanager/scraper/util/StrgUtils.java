@@ -256,20 +256,43 @@ public class StrgUtils {
       return null;
     }
 
-    Date date;
-
+    Date date = null;
     String format = determineDateFormat(dateAsString);
-    if (format != null) {
+    try {
+      // try localized
+      date = new SimpleDateFormat(format).parse(dateAsString);
+    }
+    catch (Exception e) {
+      // try US style
       try {
-        // try localized
-        date = new SimpleDateFormat(format).parse(dateAsString);
-      }
-      catch (Exception e) {
-        // try US style
         date = new SimpleDateFormat(format, Locale.US).parse(dateAsString);
       }
+      catch (Exception e2) {
+        // FALLBACK:
+        // German and Canadian have month names with dot added!
+        // see https://stackoverflow.com/q/69860992
+        // so we try to remove them, to normalize the string again for parsing...
+
+        for (String mon : LanguageUtils.MONTH_SHORT_TO_NUM.keySet()) {
+          if (dateAsString.matches(".*\\W" + mon + "\\W.*")) { // non-word must be around!
+            // we have a match to replace!
+            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_SHORT_TO_NUM.get(mon)));
+            format = determineDateFormat(dateAsString); // do we now get a known format?
+            if (format == null) {
+              dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
+              dateAsString = dateAsString.replaceAll("\\.+", "."); // remove dupes
+              format = determineDateFormat(dateAsString); // do we now get a known format?
+            }
+            if (format != null) {
+              date = new SimpleDateFormat(format).parse(dateAsString);
+            }
+            return date; // we found a match, lets return this (in)valid date...
+          }
+        }
+      }
     }
-    else {
+
+    if (date == null) {
       throw new ParseException("could not parse date from: \"" + dateAsString + "\"", 0);
     }
 

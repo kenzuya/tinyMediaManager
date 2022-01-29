@@ -100,9 +100,9 @@ class MovieDatasourceSettingsPanel extends JPanel {
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }
@@ -194,9 +194,9 @@ class MovieDatasourceSettingsPanel extends JPanel {
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().exchangeMovieDatasource(path, dialog.getNewDatasource());
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }

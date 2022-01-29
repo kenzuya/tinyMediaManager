@@ -463,11 +463,17 @@ public final class TvShowList extends AbstractModelObject {
    * Load tv shows from database.
    */
   void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> episodesMap) {
+    ReadWriteLock lock = new ReentrantReadWriteLock();
+
     // load all TV shows from the database
     List<TvShow> tvShowsFromDb = new ArrayList<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
-    for (UUID uuid : new ArrayList<>(tvShowMap.keyList())) {
+    List<UUID> toRemove = new ArrayList<>();
+
+    long start = System.nanoTime();
+
+    new ArrayList<>(tvShowMap.keyList()).parallelStream().forEach((uuid) -> {
       String json = "";
       try {
         json = tvShowMap.get(uuid);
@@ -475,22 +481,45 @@ public final class TvShowList extends AbstractModelObject {
         tvShow.setDbId(uuid);
 
         // for performance reasons we add tv shows after loading the episodes
+        lock.writeLock().lock();
         tvShowsFromDb.add(tvShow);
+        lock.writeLock().unlock();
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt TV show: {}", json);
-        tvShowMap.remove(uuid);
+        lock.writeLock().lock();
+        toRemove.add(uuid);
+        lock.writeLock().unlock();
       }
+    });
+
+    long end = System.nanoTime();
+
+    // remove orphaned defect TV shows
+    for (UUID uuid : toRemove) {
+      tvShowMap.remove(uuid);
     }
+
     LOGGER.info("found {} TV shows in database", tvShowsFromDb.size());
+    LOGGER.debug("took {} ms", (end - start) / 1000000);
+
+    // build a map for faster show lookup
+    Map<UUID, TvShow> tvShowUuidMap = new HashMap<>();
+    for (TvShow tvShow : tvShowsFromDb) {
+      tvShowUuidMap.put(tvShow.getDbId(), tvShow);
+    }
 
     // load all episodes from the database
-    List<UUID> orphanedEpisodes = new ArrayList<>();
+    toRemove.clear();
     ObjectReader episodeObjectReader = TvShowModuleManager.getInstance().getEpisodeObjectReader();
-    int episodeCount = 0;
 
-    for (UUID uuid : new ArrayList<>(episodesMap.keyList())) {
+    // just to get the episode count
+    List<TvShowEpisode> episodesToCount = new ArrayList<>();
+
+    start = System.nanoTime();
+
+    new ArrayList<>(episodesMap.keyList()).parallelStream().forEach((uuid) -> {
       String json = "";
       try {
         json = episodesMap.get(uuid);
@@ -501,28 +530,26 @@ public final class TvShowList extends AbstractModelObject {
         if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
           // no video file? drop it
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
-          episodesMap.remove(uuid);
+          lock.writeLock().lock();
+          toRemove.add(uuid);
+          lock.writeLock().unlock();
         }
 
-        // check for orphaned episodes
-        boolean found = false;
+        // assign it to the right TV show
+        TvShow tvShow = tvShowUuidMap.get(episode.getTvShowDbId());
+        if (tvShow != null) {
+          episode.setTvShow(tvShow);
+          tvShow.addEpisode(episode);
 
-        // and assign it the the right TV show
-        for (TvShow tvShow : tvShowsFromDb) {
-          if (tvShow.getDbId().equals(episode.getTvShowDbId())) {
-            episodeCount++;
-            episode.setTvShow(tvShow);
-            tvShow.addEpisode(episode);
-            found = true;
-            break;
-          }
+          lock.writeLock().lock();
+          episodesToCount.add(episode);
+          lock.writeLock().unlock();
         }
-
-        // ONLY DO THE CLEANUP IF NOT IN TRIAL VERSION
-        if (License.getInstance().isValidLicense()) {
-          if (!found) {
-            orphanedEpisodes.add(uuid);
-          }
+        else {
+          // or remove orphans
+          lock.writeLock().lock();
+          toRemove.add(uuid);
+          lock.writeLock().unlock();
         }
       }
       catch (Exception e) {
@@ -530,14 +557,17 @@ public final class TvShowList extends AbstractModelObject {
         LOGGER.info("dropping corrupt episode: {}", json);
         episodesMap.remove(uuid);
       }
-    }
+    });
+
+    end = System.nanoTime();
 
     // remove orphaned episodes
-    for (UUID uuid : orphanedEpisodes) {
+    for (UUID uuid : toRemove) {
       episodesMap.remove(uuid);
     }
 
-    LOGGER.info("found {} episodes in database", episodeCount);
+    LOGGER.info("found {} episodes in database", episodesToCount.size());
+    LOGGER.debug("took {} ms", (end - start) / 1000000);
 
     // and add all TV shows to the UI
     tvShows.addAll(tvShowsFromDb);

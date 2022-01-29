@@ -41,13 +41,14 @@ import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.panels.MediaInformationPanel;
 
 /**
- * @author Manuel Laggner
+ * the class {@link MovieMediaInformationPanel} holds all media information data for movies
  * 
+ * @author Manuel Laggner
  */
 public class MovieMediaInformationPanel extends MediaInformationPanel {
-  private static final long   serialVersionUID = 2513029074142934502L;
+  private static final long         serialVersionUID = 2513029074142934502L;
 
-  private MovieSelectionModel movieSelectionModel;
+  private final MovieSelectionModel movieSelectionModel;
 
   /**
    * Instantiates a new movie media information panel.
@@ -58,7 +59,7 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
   public MovieMediaInformationPanel(MovieSelectionModel model) {
     super();
     this.movieSelectionModel = model;
-    panelMediaFiles.installTmmUILayoutStore("movies");
+    panelMediaFiles.installTmmUILayoutStore(getName() + ".table");
 
     initDataBindings();
 
@@ -94,6 +95,11 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
     };
 
     movieSelectionModel.addPropertyChangeListener(propertyChangeListener);
+  }
+
+  @Override
+  public String getName() {
+    return "movie.mediainformation";
   }
 
   @Override

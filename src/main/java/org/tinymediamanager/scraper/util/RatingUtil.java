@@ -28,6 +28,7 @@ import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
@@ -59,17 +60,24 @@ public class RatingUtil {
       return null;
     }
 
-    String line = ratingMap.get(imdbId);
-    if (StringUtils.isNotBlank(line)) {
-      String[] cols = line.split("\t");
-      if (cols.length > 2 && MetadataUtil.isValidImdbId(cols[0])) {
-        try {
-          return new MediaRating(MediaMetadata.IMDB, Float.parseFloat(cols[1]), Integer.parseInt(cols[2]));
-        }
-        catch (Exception ignored) {
-          // ignored
+    try {
+      String line = ratingMap.get(imdbId);
+      if (StringUtils.isNotBlank(line)) {
+        String[] cols = line.split("\t");
+        if (cols.length > 2 && MetadataUtil.isValidImdbId(cols[0])) {
+          try {
+            return new MediaRating(MediaMetadata.IMDB, Float.parseFloat(cols[1]), Integer.parseInt(cols[2]));
+          }
+          catch (Exception ignored) {
+            return null;
+          }
         }
       }
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not read the MVstore - '{}'", e.getMessage());
+      Utils.deleteFileSafely(Paths.get(Globals.CACHE_FOLDER, IMDB_DB));
+      shutdown();
     }
 
     return null;
@@ -116,15 +124,26 @@ public class RatingUtil {
       Thread.currentThread().interrupt();
     }
     catch (Exception e) {
-      // look if the file is locked by another process (rethrow rather than delete the db file)
-      LOGGER.warn("could not create IMDB ratings database - {}", e.getMessage());
+      LOGGER.warn("could not create IMDB ratings database - '{}'", e.getMessage());
+      Utils.deleteFileSafely(Paths.get(Globals.CACHE_FOLDER, IMDB_DB));
+      shutdown();
     }
   }
 
   public static synchronized void shutdown() {
-    if (mvStore != null && !mvStore.isClosed()) {
-      mvStore.compactMoveChunks();
-      mvStore.close();
+    try {
+      if (mvStore != null && !mvStore.isClosed()) {
+        mvStore.compactMoveChunks();
+        mvStore.close();
+      }
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not close MVstore - deleting the cache");
+      Utils.deleteFileSafely(Paths.get(Globals.CACHE_FOLDER, IMDB_DB));
+    }
+    finally {
+      mvStore = null;
+      ratingMap = null;
     }
   }
 }

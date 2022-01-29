@@ -141,7 +141,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
       getLogger().debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
 
       Map<String, Object> mapQuery = new HashMap<>();
-      mapQuery.put("moviebytesize", fileSize);
+      mapQuery.put("moviebytesize", String.valueOf(fileSize));
       mapQuery.put("moviehash", hash);
       mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
       try {
@@ -151,14 +151,8 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
 
         for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
           // hash search will give a 100% perfect match
-          SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId(), 1.0f);
-          result.setId(movieInfo.id);
-          result.setTitle(movieInfo.movieTitle);
-          result.setReleaseName(movieInfo.movieReleaseName);
-          result.setUrl(movieInfo.zipDownloadLink);
-          result.setRating(movieInfo.subRating);
+          SubtitleSearchResult result = morphSearchResult(movieInfo);
           result.setScore(1.0f);
-          result.setStackCount(movieInfo.subSumCD);
 
           results.add(result);
         }
@@ -209,15 +203,9 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
         Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
 
         for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
+          SubtitleSearchResult result = morphSearchResult(movieInfo);
           // degrade maximal search score of imdb search to 0.9
-          SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId(), 0.9f);
-          result.setId(movieInfo.id);
-          result.setTitle(movieInfo.movieTitle);
-          result.setReleaseName(movieInfo.movieReleaseName);
-          result.setUrl(movieInfo.zipDownloadLink);
-          result.setRating(movieInfo.subRating);
-          result.setStackCount(movieInfo.subSumCD);
-          result.setScore((float) movieInfo.score);
+          result.setScore(0.9f);
 
           results.add(result);
         }
@@ -265,14 +253,9 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
         for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
           // degrade maximal search score of title search to 0.8
           float score = 0.8f * Similarity.compareStrings(options.getSearchQuery(), movieInfo.movieTitle);
-          SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId(), score);
-          result.setId(movieInfo.id);
-          result.setTitle(movieInfo.movieTitle);
-          result.setReleaseName(movieInfo.movieReleaseName);
-          result.setUrl(movieInfo.zipDownloadLink);
-          result.setRating(movieInfo.subRating);
-          result.setStackCount(movieInfo.subSumCD);
-          result.setScore((float) movieInfo.score);
+
+          SubtitleSearchResult result = morphSearchResult(movieInfo);
+          result.setScore(score);
 
           results.add(result);
         }
@@ -305,6 +288,19 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     Collections.reverse(results);
 
     return results;
+  }
+
+  private SubtitleSearchResult morphSearchResult(Info.MovieInfo movieInfo) {
+    SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId());
+    result.setId(movieInfo.id);
+    result.setTitle(movieInfo.movieTitle);
+    result.setReleaseName(movieInfo.movieReleaseName);
+    result.setUrl(movieInfo.zipDownloadLink);
+    result.setRating(movieInfo.subRating);
+    result.setStackCount(movieInfo.subSumCD);
+    result.setScore((float) movieInfo.score);
+
+    return result;
   }
 
   /**

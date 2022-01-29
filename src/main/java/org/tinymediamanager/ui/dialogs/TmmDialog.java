@@ -242,6 +242,7 @@ public abstract class TmmDialog extends JDialog {
       toFront();
     }
     else {
+      TmmUILayoutStore.getInstance().saveSettings(this);
       super.setVisible(false);
       dispose();
     }
