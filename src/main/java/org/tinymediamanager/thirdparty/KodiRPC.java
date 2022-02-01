@@ -40,9 +40,9 @@ import org.tinymediamanager.jsonrpc.api.AbstractCall;
 import org.tinymediamanager.jsonrpc.api.call.Application;
 import org.tinymediamanager.jsonrpc.api.call.AudioLibrary;
 import org.tinymediamanager.jsonrpc.api.call.Files;
-import org.tinymediamanager.jsonrpc.api.call.JSONRPC;
 import org.tinymediamanager.jsonrpc.api.call.System;
 import org.tinymediamanager.jsonrpc.api.call.VideoLibrary;
+import org.tinymediamanager.jsonrpc.api.model.ApplicationModel;
 import org.tinymediamanager.jsonrpc.api.model.FilesModel;
 import org.tinymediamanager.jsonrpc.api.model.GlobalModel;
 import org.tinymediamanager.jsonrpc.api.model.ListModel;
@@ -117,24 +117,12 @@ public class KodiRPC {
   // -----------------------------------------------------------------------------------
 
   /**
-   * asks the API for version, and maps it correctly<br>
-   * http://kodi.wiki/view/JSON-RPC_API#API_versions
+   * gets the Kodi version (cached on connect)
    * 
-   * @return Kodi XX (codename)
+   * @return
    */
   public String getVersion() {
-    return (StringUtils.isBlank(kodiVersion) || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
-  }
-
-  private void getAndSetKodiVersion() {
-    final JSONRPC.Version call = new JSONRPC.Version();
-    send(call);
-    if (call.getResult() != null) {
-      kodiVersion = call.getResult().getKodiVersion();
-    }
-    else {
-      kodiVersion = "";
-    }
+    return "Kodi " + kodiVersion;
   }
 
   // -----------------------------------------------------------------------------------
@@ -624,6 +612,21 @@ public class KodiRPC {
   // -----------------------------------------------------------------------------------
 
   /**
+   * Kodi version
+   */
+  public String getKodiVersion() {
+    final Application.GetProperties call = new Application.GetProperties("version");
+    send(call);
+    if (call.getResults() != null && !call.getResults().isEmpty()) {
+      ApplicationModel.PropertyValue res = call.getResult();
+      int maj = res.version.major;
+      int min = res.version.minor;
+      return maj + "." + min;
+    }
+    return "";
+  }
+
+  /**
    * quit remote Kodi instance
    */
   public void quitApplication() {
@@ -748,7 +751,7 @@ public class KodiRPC {
       }
 
       if (isConnected()) {
-        getAndSetKodiVersion();
+        this.kodiVersion = getKodiVersion();
         getAndSetVideoDataSources();
         getAndSetAudioDataSources();
         getAndSetMovieMappings();
