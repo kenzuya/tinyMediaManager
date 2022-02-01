@@ -345,16 +345,13 @@ public class Url {
       is = getInputstreamInternal(response);
     }
     catch (SSLHandshakeException e) {
+      cleanup();
       // there is something wrong with the SSL certificate
       throw new IOException("SSL verification failed for '" + UrlUtil.getDomainUrl(url) + "'");
     }
-    catch (HttpException e) {
-      // rethrow that to inform the caller that there was an HTTP-Exception
-      throw e;
-    }
     catch (InterruptedIOException | IllegalStateException e) {
-      LOGGER.debug("aborted request: {} - {}", logUrl, e.getMessage());
       cleanup();
+      LOGGER.debug("aborted request: {} - {}", logUrl, e.getMessage());
       throw new InterruptedException();
     }
     catch (UnknownHostException e) {
@@ -363,7 +360,9 @@ public class Url {
     }
     catch (Exception e) {
       cleanup();
+      // rethrow that to inform the caller that there was an HTTP-Exception
       LOGGER.error("Unexpected exception getting url " + logUrl + " - " + e.getMessage(), e); // NOSONAR
+      throw e;
     }
     return is;
   }

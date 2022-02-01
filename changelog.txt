@@ -19,6 +19,7 @@ x (movie sets/TV shows) loading of filters at startup
 x enhanced merging of tags #1588
 x fixed renaming of TV show thumbs when auto renaming is active #1630
 x RPC: fixed Kodi version display #1651
+x avoid downloading of 0byte images #1648
 
 
 Version 4.2.5.1
