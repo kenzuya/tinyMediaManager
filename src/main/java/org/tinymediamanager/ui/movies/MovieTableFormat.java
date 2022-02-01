@@ -337,6 +337,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(videoFormatComparator);
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
