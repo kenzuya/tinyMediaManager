@@ -35,9 +35,9 @@ import javax.swing.tree.TreePath;
  * @author Manuel Laggner
  */
 final class TmmTreeTableTreePathSupport {
-  private List<TreeExpansionListener>  expansionListeners  = new ArrayList<>();
-  private List<TreeWillExpandListener> willExpandListeners = new ArrayList<>();
-  private AbstractLayoutCache          layout;
+  private final List<TreeExpansionListener>  expansionListeners  = new ArrayList<>();
+  private final List<TreeWillExpandListener> willExpandListeners = new ArrayList<>();
+  private final AbstractLayoutCache          layout;
 
   TmmTreeTableTreePathSupport(AbstractLayoutCache layout) {
     this.layout = layout;
@@ -105,7 +105,7 @@ final class TmmTreeTableTreePathSupport {
     }
   }
 
-  boolean isExpanded(TreePath path) {
+  public boolean isExpanded(TreePath path) {
     assert SwingUtilities.isEventDispatchThread();
     if (path == null) {
       return false;
@@ -129,6 +129,15 @@ final class TmmTreeTableTreePathSupport {
     }
 
     return true;
+  }
+
+  public boolean isLeaf(TreePath path) {
+    assert SwingUtilities.isEventDispatchThread();
+    if (path == null) {
+      return false;
+    }
+
+    return layout.getModel().isLeaf(path.getLastPathComponent());
   }
 
   boolean isVisible(TreePath path) {

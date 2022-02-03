@@ -19,9 +19,7 @@ package org.tinymediamanager.ui.moviesets.panels;
 import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -293,21 +291,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
       }
     };
     tree.addMouseListener(mouseListener);
-
-    // add key listener
-    KeyListener keyListener = new KeyAdapter() {
-      @Override
-      public void keyPressed(KeyEvent e) {
-
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-          tree.expandRow(tree.getSelectedRow());
-        }
-        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-          tree.collapseRow(tree.getSelectedRow());
-        }
-      }
-    };
-    tree.addKeyListener(keyListener);
 
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1,growx");
