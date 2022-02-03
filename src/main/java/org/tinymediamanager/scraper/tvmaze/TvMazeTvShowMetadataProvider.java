@@ -24,6 +24,8 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.exceptions.MissingIdException;
+import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvmaze.entities.Cast;
@@ -35,10 +37,8 @@ import org.tinymediamanager.scraper.tvmaze.entities.Shows;
 public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider implements ITvShowMetadataProvider {
 
   private static final Logger LOGGER          = LoggerFactory.getLogger(TvMazeTvShowMetadataProvider.class);
-  DateFormat                  premieredFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-  List<Episode>               episodeList;
-  List<Image>                 imageList;
-  int                         tvMazeId;
+
+  private final DateFormat    premieredFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
   @Override
   public MediaProviderInfo getProviderInfo() {
@@ -52,13 +52,20 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
 
   @Override
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.debug("getMetadata() TvShow: {}", options);
+    LOGGER.debug("getMetadata(): {}", options);
 
+    // lazy initialization of the api
     initAPI();
 
-    String mazeId = (String) options.getIds().get("tvmaze");
-    tvMazeId = Integer.parseInt(mazeId);
     MediaMetadata md = new MediaMetadata(getId());
+
+    // do we have an id from the options?
+    Integer tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
+    if (tvMazeId == 0) {
+      LOGGER.warn("no id available");
+      throw new MissingIdException(MediaMetadata.TVDB);
+    }
+
     Show show = null;
     List<Cast> castList;
 
@@ -138,27 +145,47 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShowEpisode: {}", options);
 
+    // lazy initialization of the api
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+
+    // do we have an id from the options?
+    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault("tvmaze", 0);
+    if (showId == 0) {
+      LOGGER.warn("no id available");
+      throw new MissingIdException(MediaMetadata.TVDB);
+    }
+
     MediaArtwork ma;
 
     // get episode number and season number
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
     int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
-    // Get all Episode and Season Information for the given TvShow
-    try {
-      episodeList = controller.getEpisodes(tvMazeId);
-    }
-    catch (IOException e) {
-      LOGGER.trace("could not get Episode information: {}", e.getMessage());
+    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
+    // get the correct information
+    MediaMetadata foundEpisode = null;
+    for (MediaMetadata episode : episodes) {
+      // found the correct episode
+      if (seasonNr == episode.getSeasonNumber() && episodeNr == episode.getEpisodeNumber()) {
+        foundEpisode = episode;
+        break;
+      }
+    }
+
+    if (foundEpisode != null) {
+      md = foundEpisode;
+    }
+    else {
+      throw new NothingFoundException();
     }
 
     // Get Image Information for the given TV Show
+    List<Image> imageList = new ArrayList<>();
     try {
-      imageList = controller.getImages(tvMazeId);
+      imageList.addAll(controller.getImages(showId));
     }
     catch (IOException e) {
       LOGGER.trace("could not get Image information: {}", e.getMessage());
@@ -190,27 +217,6 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       }
     }
 
-    // get the correct information
-    for (Episode episode : episodeList) {
-
-      // found the correct episode
-      if (seasonNr == episode.season && episodeNr == episode.episode) {
-
-        md.setTitle(episode.name);
-        md.setPlot(Jsoup.parse(episode.summary).text());
-        md.setEpisodeNumber(episode.episode);
-        md.setSeasonNumber(episode.season);
-        md.setRuntime(episode.runtime);
-        try {
-          md.setReleaseDate(premieredFormat.parse(episode.airdate));
-          md.setYear(parseYear(episode.airdate));
-        }
-        catch (ParseException ignored) {
-        }
-
-        break;
-      }
-    }
     return md;
   }
 
@@ -218,6 +224,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
+    // lazy initialization of the api
     initAPI();
 
     SortedSet<MediaSearchResult> searchResults = new TreeSet<>();
@@ -246,7 +253,9 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       if (shows.show.image != null) {
         result.setPosterUrl(shows.show.image.original);
       }
-      result.setOverview(Jsoup.parse(shows.show.summary).text());
+      if (StringUtils.isNotBlank(shows.show.summary)) {
+        result.setOverview(Jsoup.parse(shows.show.summary).text());
+      }
       result.setIMDBId(shows.show.tvShowIds.imdb);
       result.setId("tvrage", String.valueOf(shows.show.tvShowIds.tvrage));
       result.setId(MediaMetadata.TVDB, String.valueOf(shows.show.tvShowIds.thetvdb));
@@ -281,6 +290,22 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     initAPI();
+
+    // do we have an id from the options?
+    int showId = options.getIdAsIntOrDefault("tvmaze", 0);
+    if (showId == 0) {
+      LOGGER.warn("no id available");
+      throw new MissingIdException(MediaMetadata.TVDB);
+    }
+
+    // Get all Episode and Season Information for the given TvShow
+    List<Episode> episodeList = new ArrayList<>();
+    try {
+      episodeList.addAll(controller.getEpisodes(showId));
+    }
+    catch (IOException e) {
+      LOGGER.trace("could not get Episode information: {}", e.getMessage());
+    }
 
     List<MediaMetadata> list = new ArrayList<>();
 
