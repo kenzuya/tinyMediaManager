@@ -19,12 +19,15 @@ package org.tinymediamanager.ui.movies.actions;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmProperties;
@@ -47,14 +50,14 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRebuildMediainfoXmlAction extends TmmAction {
 
-  private static final long           serialVersionUID = -2019243514238173721L;
-  
+  private static final long serialVersionUID = -2019243514238173721L;
 
   public MovieRebuildMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));
     putValue(SMALL_ICON, IconManager.REFRESH);
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override

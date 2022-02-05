@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -38,14 +41,14 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadSubtitleDialog;
  * @author Manuel Laggner
  */
 public class MovieSubtitleDownloadAction extends TmmAction {
-  private static final long           serialVersionUID = -6002932119900795735L;
-
+  private static final long serialVersionUID = -6002932119900795735L;
 
   public MovieSubtitleDownloadAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.download.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);
     putValue(LARGE_ICON_KEY, IconManager.SUBTITLE);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.download.subtitle"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override

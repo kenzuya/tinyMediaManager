@@ -16,12 +16,15 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -42,13 +45,13 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * the class TvShowDownloadMissingArtworkAction is used to search/download missing artwork
  */
 public class TvShowDownloadMissingArtworkAction extends TmmAction {
-  private static final long           serialVersionUID = 6102632119900792735L;
-
+  private static final long serialVersionUID = 6102632119900792735L;
 
   public TvShowDownloadMissingArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);
     putValue(LARGE_ICON_KEY, IconManager.IMAGE);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override
@@ -62,7 +65,8 @@ public class TvShowDownloadMissingArtworkAction extends TmmAction {
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createArtworkScrapeDialog(TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog
+        .createArtworkScrapeDialog(TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
     dialog.setVisible(true);
 
     if (!dialog.shouldStartScrape()) {

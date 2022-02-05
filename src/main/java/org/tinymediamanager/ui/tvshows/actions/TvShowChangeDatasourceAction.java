@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -35,13 +38,13 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowChangeDatasourceDialog;
  * @author Manuel Laggner
  */
 public class TvShowChangeDatasourceAction extends TmmAction {
-  private static final long           serialVersionUID = -2731782311579049379L;
-  
+  private static final long serialVersionUID = -2731782311579049379L;
 
   public TvShowChangeDatasourceAction() {
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);
     putValue(NAME, TmmResourceBundle.getString("tvshow.changedatasource"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override
