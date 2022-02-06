@@ -109,7 +109,19 @@ public class TvShowRenamerPreview {
     for (TvShowEpisode episode : episodes) {
       MediaFile mainVideoFile = episode.getMainVideoFile();
 
-      if (episode.isDisc()) {
+      // test for valid season/episode number
+      if (episode.getSeason() < 0 || episode.getEpisode() < 0) {
+        // nothing to rename if S/E < 0
+        for (MediaFile mf : episode.getMediaFiles()) {
+          MediaFile oldMf = new MediaFile(mf);
+          oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
+
+          MediaFile newMf = new MediaFile(mf);
+          newFiles.add(newMf);
+        }
+
+      }
+      else if (episode.isDisc()) {
         String seasonFoldername = getSeasonFoldername(episode.getTvShow(), episode);
         Path seasonFolder = episode.getTvShow().getPathNIO();
         if (StringUtils.isNotBlank(seasonFoldername)) {

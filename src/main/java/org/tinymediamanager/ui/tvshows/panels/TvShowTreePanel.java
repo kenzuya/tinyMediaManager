@@ -324,16 +324,6 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
       private String searchTerm   = "";
 
       @Override
-      public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-          tree.expandRow(tree.getSelectedRow());
-        }
-        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-          tree.collapseRow(tree.getSelectedRow());
-        }
-      }
-
-      @Override
       public void keyTyped(KeyEvent e) {
         long now = System.currentTimeMillis();
         if (now - lastKeypress > 500) {

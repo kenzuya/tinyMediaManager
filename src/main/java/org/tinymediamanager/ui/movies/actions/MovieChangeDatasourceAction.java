@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -35,13 +38,13 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChangeDatasourceDialog;
  * @author Manuel Laggner
  */
 public class MovieChangeDatasourceAction extends TmmAction {
-  private static final long           serialVersionUID = -2731782311579049379L;
-
+  private static final long serialVersionUID = -2731782311579049379L;
 
   public MovieChangeDatasourceAction() {
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);
     putValue(NAME, TmmResourceBundle.getString("movie.changedatasource"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override

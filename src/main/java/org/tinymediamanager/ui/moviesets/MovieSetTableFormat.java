@@ -207,6 +207,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
     col.setColumnComparator(videoFormatComparator);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
     addColumn(col);
 
     /*

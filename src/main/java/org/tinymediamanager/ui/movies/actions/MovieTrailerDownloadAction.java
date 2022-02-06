@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -38,12 +41,12 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 public class MovieTrailerDownloadAction extends TmmAction {
   private static final long serialVersionUID = -8668265401054434251L;
 
-
   public MovieTrailerDownloadAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.downloadtrailer"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.downloadtrailer"));
     putValue(SMALL_ICON, IconManager.DOWNLOAD);
     putValue(LARGE_ICON_KEY, IconManager.DOWNLOAD);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override

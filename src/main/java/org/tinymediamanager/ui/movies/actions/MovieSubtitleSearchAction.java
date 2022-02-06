@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -37,14 +40,14 @@ import org.tinymediamanager.ui.movies.dialogs.MovieSubtitleChooserDialog;
  * @author Manuel Laggner
  */
 public class MovieSubtitleSearchAction extends TmmAction {
-  private static final long           serialVersionUID = -6006932119900795735L;
-
+  private static final long serialVersionUID = -6006932119900795735L;
 
   public MovieSubtitleSearchAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.search.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);
     putValue(LARGE_ICON_KEY, IconManager.SUBTITLE);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.search.subtitle"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override

@@ -28,18 +28,6 @@ test:jdk11:
   artifacts:
     expire_in: 1 days
 
-test:jdk14:
-  stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk14
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
 test:jdk15:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk15
@@ -55,6 +43,18 @@ test:jdk15:
 test:jdk16:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk16
+  except:
+    - main@tinyMediaManager/tinyMediaManager
+  only:
+    - pushes
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
+test:jdk17:
+  stage: test
+  image: registry.gitlab.com/tinymediamanager/docker/jdk17
   except:
     - main@tinyMediaManager/tinyMediaManager
   only:

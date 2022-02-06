@@ -1,10 +1,13 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -22,6 +25,7 @@ public class TvShowTrailerDownloadAction extends TmmAction {
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.downloadtrailer"));
     putValue(SMALL_ICON, IconManager.DOWNLOAD);
     putValue(LARGE_ICON_KEY, IconManager.DOWNLOAD);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override

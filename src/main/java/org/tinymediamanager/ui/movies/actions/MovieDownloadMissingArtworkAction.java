@@ -17,10 +17,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -41,13 +44,13 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadMissingArtworkDialog;
  * @author Manuel Laggner
  */
 public class MovieDownloadMissingArtworkAction extends TmmAction {
-  private static final long           serialVersionUID = -4006932829840795735L;
-  
+  private static final long serialVersionUID = -4006932829840795735L;
 
   public MovieDownloadMissingArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);
     putValue(LARGE_ICON_KEY, IconManager.IMAGE);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
   }
 
   @Override

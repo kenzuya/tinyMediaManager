@@ -272,7 +272,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
-    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 2, 5);
+    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 0, 0);
     datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {

@@ -1052,8 +1052,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movies.add(movie); // add to our cached copy
       }
 
+      // try to parse the imdb id from the filename
       if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
         movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
+      }
+      // try to parse the Tmdb id from the filename
+      if (movie.getTmdbId() == 0) {
+        movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
       }
       if (movie.getMediaSource() == MediaSource.UNKNOWN) {
         movie.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
@@ -1147,9 +1152,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             movie.setMediaSource(MediaSource.parseMediaSource(mf.getPath()));
           }
         }
-
+        // try to parse the imdb id from the filename
         if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
           movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
+        }
+        // try to parse the tmdb id from the filename
+        if (movie.getTmdbId() == 0) {
+          movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
         }
 
         LOGGER.debug("| parsing {} {}", mf.getType().name(), mf.getFileAsPath());

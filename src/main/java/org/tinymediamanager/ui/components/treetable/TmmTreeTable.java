@@ -21,6 +21,8 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -112,6 +114,9 @@ public class TmmTreeTable extends TmmTable {
     // setOpaque(false);
     // turn off grid painting as we'll handle this manually in order to paint grid lines over the entire viewport.
     setShowGrid(false);
+
+    // install the keyadapter for navigation
+    addKeyListener(new TmmTreeTableKeyAdapter(this));
   }
 
   @Override
@@ -214,6 +219,10 @@ public class TmmTreeTable extends TmmTable {
 
   public boolean isExpanded(TreePath path) {
     return getTreePathSupport().isExpanded(path);
+  }
+
+  public boolean isLeaf(TreePath path) {
+    return getTreePathSupport().isLeaf(path);
   }
 
   public void collapsePath(TreePath path) {
@@ -746,6 +755,51 @@ public class TmmTreeTable extends TmmTable {
       }
       else {
         startUpdateSortAndFilterTimer();
+      }
+    }
+  }
+
+  private static class TmmTreeTableKeyAdapter extends KeyAdapter {
+    final TmmTreeTable treeTable;
+
+    TmmTreeTableKeyAdapter(TmmTreeTable treeTable) {
+      this.treeTable = treeTable;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+      int selectedRow = treeTable.getSelectedRow();
+
+      try {
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+          TreePath treePath = treeTable.getTreeTableModel().getLayout().getPathForRow(selectedRow);
+          if (!treeTable.isLeaf(treePath)) {
+            if (!treeTable.isExpanded(treePath)) {
+              treeTable.expandRow(treeTable.getSelectedRow());
+            }
+            else {
+              treeTable.getSelectionModel().setSelectionInterval(selectedRow + 1, selectedRow + 1);
+            }
+          }
+        }
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+          TreePath treePath = treeTable.getTreeTableModel().getLayout().getPathForRow(selectedRow);
+          if (!treeTable.isLeaf(treePath) && treeTable.isExpanded(treePath)) {
+            treeTable.collapseRow(treeTable.getSelectedRow());
+          }
+          else if (treeTable.isLeaf(treePath) || !treeTable.isExpanded(treePath)) {
+            TreePath parent = treePath.getParentPath();
+            if (parent != treeTable.getTreeTableModel().getTreeModel().getRoot()) {
+              int parentRow = treeTable.getTreeTableModel().getLayout().getRowForPath(parent);
+              if (parentRow > -1) {
+                treeTable.getSelectionModel().setSelectionInterval(parentRow, parentRow);
+              }
+            }
+          }
+        }
+      }
+      catch (Exception ex) {
+        // just not crash the UI!
       }
     }
   }

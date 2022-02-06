@@ -16,9 +16,12 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -35,11 +38,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRewriteEpisodeNfoAction extends TmmAction {
-  private static final long           serialVersionUID = 5762347331284295996L;
-  
+  private static final long serialVersionUID = 5762347331284295996L;
 
   public TvShowRewriteEpisodeNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshowepisode.rewritenfo"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override

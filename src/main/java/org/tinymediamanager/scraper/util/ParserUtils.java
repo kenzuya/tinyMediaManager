@@ -40,26 +40,28 @@ import org.w3c.tidy.Tidy;
  */
 public class ParserUtils {
 
-  private static final Logger     LOGGER     = LoggerFactory.getLogger(ParserUtils.class);
-  private static final String     DELIMITER  = "[\\[\\](){} _,.-]";
+  private static final Logger     LOGGER          = LoggerFactory.getLogger(ParserUtils.class);
+  private static final String     DELIMITER       = "[\\[\\](){} _,.-]";
 
-  protected static final String[] STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "360p", "360i",
-      "720", "720i", "720p", "ac3", "ac3ld", "ac3d", "ac3md", "aoe", "atmos", "avc", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip", "cam",
-      "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6",
-      "disc7", "disc8", "disc9", "divx", "divx5", "dl", "docu", "doku", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2",
-      "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment",
-      "fs", "fps", "german", "h264", "hd", "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "local",
-      "ma", "md", "microhd", "multi", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5",
-      "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd", "screener", "sd", "se", "subbed", "subs", "svcd", "swedish", "tc",
-      "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "www", "x264",
-      "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
+  protected static final String[] STOPWORDS       = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "360p",
+      "360i", "720", "720i", "720p", "ac3", "ac3ld", "ac3d", "ac3md", "aoe", "atmos", "avc", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip",
+      "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5",
+      "disc6", "disc7", "disc8", "disc9", "divx", "divx5", "dl", "docu", "doku", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1",
+      "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended",
+      "fragment", "fs", "fps", "german", "h264", "hd", "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld",
+      "limited", "local", "ma", "md", "microhd", "multi", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper",
+      "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd", "screener", "sd", "se", "subbed", "subs", "svcd",
+      "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint",
+      "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
 
   // clean before splitting (needs delimiter in front!)
-  protected static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00", "web\\-dl", "web\\-rip", "blue\\-ray", "blu\\-ray",
-      "dvd\\-rip" };
+  protected static final String[] CLEANWORDS      = { "24\\.000", "23\\.976", "23\\.98", "24\\.00", "web\\-dl", "web\\-rip", "blue\\-ray",
+      "blu\\-ray", "dvd\\-rip" };
+
+  protected static final Pattern  TMDB_ID_PATTERN = Pattern.compile("(tmdbid|tmdb)[ ._-]?(\\d*)", Pattern.CASE_INSENSITIVE);
 
   private ParserUtils() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -229,7 +231,7 @@ public class ParserUtils {
    */
   public static String detectImdbId(String text) {
     String imdb = "";
-    if (text != null && !text.isEmpty()) {
+    if (StringUtils.isNotBlank(text)) {
       imdb = StrgUtils.substr(text, "(tt\\d{6,})");
       if (imdb.isEmpty()) {
         imdb = StrgUtils.substr(text, "imdb\\.com\\/Title\\?(\\d{6,})");
@@ -239,6 +241,32 @@ public class ParserUtils {
       }
     }
     return imdb;
+  }
+
+  /**
+   * gets TMDB id out of filename (in the form tmdb-xxxxx
+   *
+   * @param text
+   *          a string
+   * @return tmdbid or 0
+   */
+  public static int detectTmdbId(String text) {
+    int tmdbId = 0;
+    if (StringUtils.isNotBlank(text)) {
+      Matcher matcher = TMDB_ID_PATTERN.matcher(text);
+      if (matcher.find() && matcher.groupCount() >= 2) {
+        try {
+          tmdbId = Integer.parseInt(matcher.group(2));
+        }
+        catch (Exception e) {
+          LOGGER.trace("Could not parse TMDB id - '{}'", e.getMessage());
+        }
+      }
+      else {
+        tmdbId = MetadataUtil.parseInt(StrgUtils.substr(text, "themoviedb\\.org\\/movie\\/(\\d+)"), 0);
+      }
+    }
+    return tmdbId;
   }
 
   /**
