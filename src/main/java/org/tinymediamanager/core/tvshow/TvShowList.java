@@ -1229,6 +1229,9 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, TvShowEpisode> episodeMap = new HashMap<>();
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        if (episode.getSeason() == -1 || episode.getEpisode() == -1) {
+          continue;
+        }
         String se = "S" + episode.getSeason() + "E" + episode.getEpisode();
 
         TvShowEpisode duplicate = episodeMap.get(se);
