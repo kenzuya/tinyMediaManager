@@ -51,21 +51,9 @@ public class TvShowNoteFilter extends AbstractTextTvShowUIFilter {
     }
 
     try {
-      boolean foundShow = false;
-      Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getNote()));
-      if (matcher.find()) {
-        foundShow = true;
-      }
-      if (!invert && foundShow) {
-        return true;
-      }
-      else if (invert && foundShow) {
-        return false;
-      }
-
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
-        matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getNote()));
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getNote()));
         if (matcher.find()) {
           foundEpisode = true;
         }
@@ -76,6 +64,18 @@ public class TvShowNoteFilter extends AbstractTextTvShowUIFilter {
         else if (!invert && foundEpisode) {
           return true;
         }
+      }
+
+      boolean foundShow = false;
+      Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getNote()));
+      if (matcher.find()) {
+        foundShow = true;
+      }
+      if (!invert && foundShow) {
+        return true;
+      }
+      else if (invert && foundShow) {
+        return false;
       }
     }
     catch (Exception e) {

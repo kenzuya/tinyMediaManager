@@ -79,24 +79,7 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
       selectedItems.add(container.type);
     }
 
-    // first: filter on the media files of the TV show
-    boolean foundShow = false;
-    for (MediaFile mf : tvShow.getMediaFiles()) {
-      if (selectedItems.contains(mf.getType())) {
-        foundShow = true;
-        break;
-      }
-    }
-
-    // if we found anything in the show we can quit here
-    if (!invert && foundShow) {
-      return true;
-    }
-    else if (invert && foundShow) {
-      return false;
-    }
-
-    // second: filter on the media files from seasons
+    // first: filter on the media files from episodes
     for (TvShowEpisode episode : episodes) {
       boolean foundEpisode = false;
       List<MediaFile> mfs = episode.getMediaFiles();
@@ -114,6 +97,23 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
       else if (!invert && foundEpisode) {
         return true;
       }
+    }
+
+    // second: filter on the media files of the TV show
+    boolean foundShow = false;
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (selectedItems.contains(mf.getType())) {
+        foundShow = true;
+        break;
+      }
+    }
+
+    // if we found anything in the show we can quit here
+    if (!invert && foundShow) {
+      return true;
+    }
+    else if (invert && foundShow) {
+      return false;
     }
 
     return false;
