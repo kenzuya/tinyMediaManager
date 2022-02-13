@@ -29,6 +29,7 @@ x some fixes to the TVmaze scraper
 x do not process episodes with season < 0 in the renamer preview
 x moved the scroll buttons in the update data source submenu to the right place
 x (TV shows) reworked filter for media files/notes #1656
+x mitigate errors of invalid expressions in Kodi scrapers #1661
 
 
 Version 4.2.5.1

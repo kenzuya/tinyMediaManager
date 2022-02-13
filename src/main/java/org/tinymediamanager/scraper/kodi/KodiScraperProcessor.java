@@ -348,7 +348,7 @@ class KodiScraperProcessor {
       }
       catch (Exception e) {
         LOGGER.error("Failed to process function: " + text, e);
-        text = "\n<error>" + text + "\n<msg>" + e.getMessage() + "</msg></error>\n";
+        text = "";
       }
     }
 
