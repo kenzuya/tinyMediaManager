@@ -211,7 +211,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     if (!isActive()) {
@@ -377,17 +377,23 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
         }
         for (Element episodeInfo : e.children()) {
           if ("epno".equalsIgnoreCase(episodeInfo.tagName())) {
+            String type = episodeInfo.attr("type");
             try {
               // looks like anidb is storing anything in a single season, so put
-              // 1 to season, if type = 1
-              if ("1".equals(episodeInfo.attr("type"))) {
+              if ("1".equals(type)) {
+                // 1 to season, if type = 1
                 episode.season = 1;
                 episode.episode = Integer.parseInt(episodeInfo.text());
               }
-              else {
-                // else - we see them as "specials"
+              else if ("2".equals(type)) {
+                // 2 is a special
                 episode.season = 0;
                 episode.episode = Integer.parseInt(episodeInfo.text().replaceAll("[^0-9]+", ""));
+              }
+              else {
+                // no valid type -> no valid episode
+                episode = null;
+                break;
               }
 
             }
@@ -438,7 +444,10 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
             continue;
           }
         }
-        episodes.add(episode);
+
+        if (episode != null) {
+          episodes.add(episode);
+        }
       }
     }
 
