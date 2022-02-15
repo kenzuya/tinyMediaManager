@@ -63,6 +63,9 @@ public class TvShowDuplicateEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
+    if (invert ^ tvShow.isDuplicate()) {
+      return true;
+    }
     for (TvShowEpisode episode : episodes) {
       if (invert ^ episode.isDuplicate()) {
         return true;

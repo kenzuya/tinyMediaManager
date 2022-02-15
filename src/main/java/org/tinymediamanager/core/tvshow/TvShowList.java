@@ -1225,10 +1225,34 @@ public final class TvShowList extends AbstractModelObject {
    * search all episodes of all TV shows for duplicates (duplicate S/E)
    */
   public void searchDuplicateEpisodes() {
+    Map<String, TvShow> showMap = new HashMap<>();
     for (TvShow tvShow : getTvShows()) {
-      Map<String, TvShowEpisode> episodeMap = new HashMap<>();
+      Map<String, Object> ids = tvShow.getIds();
+      for (var entry : ids.entrySet()) {
+        // ignore collection "IDs"
+        if (entry.getKey().equals(Constants.TMDB_SET)) {
+          continue;
+        }
+        String id = entry.getKey() + String.valueOf(entry.getValue());
 
+        if (showMap.containsKey(id)) {
+          // yes - set duplicate flag on both tvShows
+          tvShow.setDuplicate();
+          TvShow show2 = showMap.get(id);
+          show2.setDuplicate();
+        }
+        else {
+          // no, store show
+          showMap.put(id, tvShow);
+        }
+      }
+
+      // check for every episode
+      Map<String, TvShowEpisode> episodeMap = new HashMap<>();
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        if (episode.getSeason() == -1 || episode.getEpisode() == -1) {
+          continue;
+        }
         String se = "S" + episode.getSeason() + "E" + episode.getEpisode();
 
         TvShowEpisode duplicate = episodeMap.get(se);
