@@ -1234,6 +1234,7 @@ public final class MovieList extends AbstractModelObject {
 
     for (Movie movie : movieList) {
       movie.clearDuplicate();
+
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
@@ -1241,7 +1242,6 @@ public final class MovieList extends AbstractModelObject {
           continue;
         }
         String id = entry.getKey() + String.valueOf(entry.getValue());
-
         if (duplicates.containsKey(id)) {
           // yes - set duplicate flag on both movies
           movie.setDuplicate();
@@ -1252,6 +1252,17 @@ public final class MovieList extends AbstractModelObject {
           // no, store movie
           duplicates.put(id, movie);
         }
+      }
+
+      // search per name/year
+      String nameYear = movie.getTitle() + movie.getYear();
+      if (duplicates.containsKey(nameYear)) {
+        movie.setDuplicate();
+        Movie movie2 = duplicates.get(nameYear);
+        movie2.setDuplicate();
+      }
+      else {
+        duplicates.put(nameYear, movie);
       }
     }
   }
