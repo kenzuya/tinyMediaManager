@@ -34,6 +34,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -270,7 +271,8 @@ class UiSettingsPanel extends JPanel {
         JLabel lblDatefield = new JLabel(TmmResourceBundle.getString("Settings.datefield"));
         panelMisc.add(lblDatefield, "cell 1 0 2 1");
 
-        cbDatefield = new JComboBox(DateField.values());
+        // add all except the RELEASE_DATE
+        cbDatefield = new JComboBox(ArrayUtils.removeElement(DateField.values(), DateField.RELEASE_DATE));
         panelMisc.add(cbDatefield, "cell 1 0");
 
         JLabel lblDatefieldHint = new JLabel(TmmResourceBundle.getString("Settings.datefield.desc"));

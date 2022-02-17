@@ -484,6 +484,17 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
         }
         break;
 
+      case RELEASE_DATE:
+        if (episode.getFirstAired() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getFirstAired()));
+        }
+        else {
+          // fall back to date added
+          if (episode.getDateAdded() != null) {
+            dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getDateAdded()));
+          }
+        }
+
     }
     root.appendChild(dateadded);
   }

@@ -555,6 +555,16 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         }
         break;
 
+      case RELEASE_DATE:
+        if (movie.getReleaseDate() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getReleaseDate()));
+        }
+        else {
+          // fall back to date added
+          if (movie.getDateAdded() != null) {
+            dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getDateAdded()));
+          }
+        }
     }
     root.appendChild(dateadded);
   }

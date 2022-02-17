@@ -9,6 +9,7 @@ Version 4.2.6
 + (movie sets/TV shows) added enhanced keyboard navigation for tables #1408
 + also parse TMDB id from the filename in update data sources
   needs to be in the form tmdb-xxxxx or tmdbid-xxxxx
++ added the option to use the release date as <date_added> in the NFO files
 x enhanced the ISO parser for BluRays and DVDs
 x increased loading speed of large libraries #1613
 x removed rating for movie set completeness check
