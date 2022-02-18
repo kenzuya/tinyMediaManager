@@ -83,7 +83,9 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -797,13 +799,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    // need to do the post process before the thumb creation (because thumbs depend on the new filename)
-    postProcess(config);
-
-    // should we write a new thumb?
-    if (writeNewThumb) {
-      writeThumbImage();
-    }
+    postProcess(config, writeNewThumb);
   }
 
   /**
@@ -1888,7 +1884,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return null;
   }
 
-  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean writeNewThumb) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
@@ -1896,7 +1892,21 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
+    }
 
+    // should we write a new thumb?
+    if (writeNewThumb) {
+      // need to queue a task here which triggers a new download task... otherwise the download task would
+      // be triggered, before the renamer has finished
+      taskChain.add(new TmmTask("writeThumbTask", 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        @Override
+        protected void doInBackground() {
+          writeThumbImage();
+        }
+      });
+    }
+
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape() || writeNewThumb) {
       List<MediaFile> imageFiles = getImagesToCache();
       if (!imageFiles.isEmpty()) {
         taskChain.add(new ImageCacheTask(imageFiles));
