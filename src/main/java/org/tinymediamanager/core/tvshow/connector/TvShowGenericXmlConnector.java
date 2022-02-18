@@ -16,9 +16,6 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.core.DateField.DATE_ADDED;
-import static org.tinymediamanager.core.DateField.FILE_CREATION_DATE;
-import static org.tinymediamanager.core.DateField.FILE_LAST_MODIFIED_DATE;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
@@ -51,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -652,31 +650,51 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == DATE_ADDED) {
-      if (tvShow.getDateAdded() != null) {
-        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
-      }
+
+    DateField dateField = TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField();
+
+    switch (dateField) {
+      case DATE_ADDED:
+        if (tvShow.getDateAdded() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
+        }
+        break;
+
+      case FILE_CREATION_DATE:
+        MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
+            .stream()
+            .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateCreated() != null)
+            .min(Comparator.comparing(MediaFile::getDateCreated))
+            .orElse(null);
+        if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
+        }
+        break;
+
+      case FILE_LAST_MODIFIED_DATE:
+        mainMediaFile = tvShow.getEpisodesMediaFiles()
+            .stream()
+            .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateLastModified() != null)
+            .min(Comparator.comparing(MediaFile::getDateLastModified))
+            .orElse(null);
+        if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
+        }
+        break;
+
+      case RELEASE_DATE:
+        if (tvShow.getFirstAired() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getFirstAired()));
+        }
+        else {
+          // fall back to date added
+          if (tvShow.getDateAdded() != null) {
+            dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
+          }
+        }
+        break;
     }
-    else if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == FILE_CREATION_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
-          .stream()
-          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateCreated() != null)
-          .min(Comparator.comparing(MediaFile::getDateCreated))
-          .orElse(null);
-      if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
-        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
-      }
-    }
-    else if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
-          .stream()
-          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateLastModified() != null)
-          .min(Comparator.comparing(MediaFile::getDateLastModified))
-          .orElse(null);
-      if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
-        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
-      }
-    }
+
     root.appendChild(dateadded);
   }
 

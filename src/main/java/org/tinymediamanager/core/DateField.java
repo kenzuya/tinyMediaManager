@@ -24,9 +24,10 @@ package org.tinymediamanager.core;
 public enum DateField {
   DATE_ADDED("metatag.dateadded"), // dateAdded from MediaEntity
   FILE_CREATION_DATE("metatag.filecreationdate"), // fileCreation date
-  FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"); // fileLastModified date
+  FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"), // fileLastModified date
+  RELEASE_DATE("metatag.releasedate"); // release date
 
-  private final String                description;
+  private final String description;
 
   DateField(String description) {
     this.description = description;

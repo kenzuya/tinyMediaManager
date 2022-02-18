@@ -143,7 +143,7 @@ public final class MovieSettings extends AbstractSettings {
   final List<String>                        skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
 
   // data sources / NFO settings
-  boolean                                   buildImageCacheOnImport                = false;
+  boolean                                   buildImageCacheOnImport                = true;
   MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
   CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
   boolean                                   writeCleanNfo                          = false;
