@@ -3,19 +3,14 @@ package org.tinymediamanager.core.tvshow;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -23,25 +18,17 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 
-public class TvShowRenamerTest extends BasicTest {
+public class TvShowRenamerTest extends BasicTvShowTest {
 
-  private static final String FOLDER = getSettingsFolder();
-
-  private static TvShow       single = new TvShow();
-  private static TvShow       multi  = new TvShow();
-  private static TvShow       disc   = new TvShow();
-  private static TvShow       discEP = new TvShow();
-
-  @BeforeClass
-  public static void init() {
-    BasicTest.setup();
-
+  private TvShow createSingleTvShow() {
     // setup dummy
     MediaFile dmf = new MediaFile(Paths.get("/path/to", "video.avi"));
 
+    TvShow single = new TvShow();
     single.setTitle("singleshow");
     single.setYear(2009);
     single.setPath("singleshow");
+
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("singleEP");
     ep.setSeason(1);
@@ -52,10 +39,19 @@ public class TvShowRenamerTest extends BasicTest {
     ep.setTvShow(single);
     single.addEpisode(ep);
 
+    return single;
+  }
+
+  private TvShow createMultiTvShow() {
+    // setup dummy
+    MediaFile dmf = new MediaFile(Paths.get("/path/to", "video.avi"));
+
+    TvShow multi = new TvShow();
     multi.setTitle("multishow");
     multi.setYear(2009);
     multi.setPath("multishow");
-    ep = new TvShowEpisode();
+
+    TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("multiEP2");
     ep.setSeason(1);
     ep.setEpisode(2);
@@ -64,6 +60,7 @@ public class TvShowRenamerTest extends BasicTest {
     ep.addToMediaFiles(dmf);
     ep.setTvShow(multi);
     multi.addEpisode(ep);
+
     ep = new TvShowEpisode();
     ep.setTitle("multiEP3");
     ep.setSeason(1);
@@ -74,37 +71,53 @@ public class TvShowRenamerTest extends BasicTest {
     ep.setTvShow(multi);
     multi.addEpisode(ep);
 
-    disc.setTitle("Janosik");
+    return multi;
+  }
+
+  private TvShow createDiscTvShow(String path) {
+    TvShow disc = new TvShow();
+    disc.setTitle(path);
     disc.setYear(2009);
-    disc.setPath(FOLDER + "/tv/Janosik DVD");
-    ep = new TvShowEpisode();
-    ep.setPath(FOLDER + "/tv/Janosik DVD/Janosik S01E07E08E09");
+    disc.setPath(getWorkFolder().resolve(path).toString());
+
+    TvShowEpisode ep = new TvShowEpisode();
+    ep.setPath(getWorkFolder().resolve(path).resolve("S01E07E08E09").toString());
     ep.setTvShow(disc);
     ep.setDisc(true);
     ep.setTitle("discfile");
     ep.setAiredSeason(1);
     ep.setAiredEpisode(2);
-    ep.addToMediaFiles(new MediaFile(Paths.get(FOLDER, "/tv/Janosik DVD", "Janosik S01E07E08E09", "VIDEO_TS", "VTS_01_1.VOB").toAbsolutePath()));
-    ep.addToMediaFiles(new MediaFile(Paths.get(FOLDER, "/tv/Janosik DVD", "Janosik S01E07E08E09", "VIDEO_TS-thumb.jpg").toAbsolutePath()));
+    ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01E07E08E09/VIDEO_TS/VTS_01_1.VOB")));
+    ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01E07E08E09/VIDEO_TS-thumb.jpg")));
     disc.addEpisode(ep);
 
-    discEP.setTitle("DVDEpisodeInRoot");
+    return disc;
+  }
+
+  private TvShow createDiscEpTvShow(String path) {
+
+    TvShow discEP = new TvShow();
+    discEP.setTitle(path);
     discEP.setYear(2009);
-    discEP.setPath(FOLDER + "/tv/DVDEpisodeInRoot");
-    ep = new TvShowEpisode();
-    ep.setPath(FOLDER + "/tv/DVDEpisodeInRoot/S01EP01 title");
+    discEP.setPath(getWorkFolder().resolve(path).toString());
+
+    TvShowEpisode ep = new TvShowEpisode();
+    ep.setPath(getWorkFolder().resolve(path).resolve("S01EP01 title").toString());
     ep.setTvShow(discEP);
     ep.setDisc(true);
     ep.setTitle("disc ep");
     ep.setAiredSeason(1);
     ep.setAiredEpisode(1);
-    ep.addToMediaFiles(new MediaFile(Paths.get(FOLDER, "/tv/DVDEpisodeInRoot", "S01EP01 title", "VTS_01_1.VOB").toAbsolutePath()));
+    ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01EP01 title/VTS_01_1.VOB")));
     discEP.addEpisode(ep);
+
+    return discEP;
   }
 
   @Test
   public void tvRenamerPatterns() {
     // SINGLE - RECOMMENDED
+    TvShow single = createSingleTvShow();
     assertEqual(p("singleshow (2009)/Season 1/singleshow - S01E02 - singleEP.avi"),
         gen(single, "${showTitle} (${showYear})", "Season ${seasonNr}", "${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}", true));
     assertEqual(p("singleshow (2009)/Season 1/E02 - singleEP.avi"),
@@ -141,6 +154,7 @@ public class TvShowRenamerTest extends BasicTest {
     // *******************
 
     // MULTI - RECOMMENDED
+    TvShow multi = createMultiTvShow();
     assertEqual(p("multishow (2009)/Season 1/multishow - S01E02 S01E03 - multiEP2 - multiEP3.avi"),
         gen(multi, "${showTitle} (${showYear})", "Season ${seasonNr}", "${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}", true));
     assertEqual(p("multishow (2009)/Season 1/E02 E03 - multiEP2 - multiEP3.avi"),
@@ -176,10 +190,14 @@ public class TvShowRenamerTest extends BasicTest {
   }
 
   @Test
-  public void testDiscEpisode() throws IOException {
-    Utils.copyDirectoryRecursive(Paths.get("target/test-classes/testtvshows"), Paths.get(FOLDER, "tv"));
-    TvShowRenamer.renameEpisode(discEP.getEpisode(1, 1).get(0));
+  public void testDiscEpisode() throws Exception {
+    copyResourceFolderToWorkFolder("testtvshows");
+
+    TvShow disc = createDiscTvShow("testtvshows/Janosik DVD");
     TvShowRenamer.renameEpisode(disc.getEpisode(1, 2).get(0));
+
+    TvShow discEp = createDiscEpTvShow("testtvshows/DVDEpisodeInRoot");
+    TvShowRenamer.renameEpisode(discEp.getEpisode(1, 1).get(0));
   }
 
   private Path gen(TvShow show, String showPattern, String seasonPattern, String filePattern, boolean recommended) {
@@ -202,20 +220,13 @@ public class TvShowRenamerTest extends BasicTest {
    * just a test of a simple episode (one EP file with some extra files)
    */
   @Test
-  public void testSimpleEpisode() {
-    // run with default settings
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
-
+  public void testSimpleEpisode() throws Exception {
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/simple");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_simple/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/simple");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/simple");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");
@@ -268,20 +279,13 @@ public class TvShowRenamerTest extends BasicTest {
    * just a test of a simple episode with extras (two EP files with some extra files)
    */
   @Test
-  public void testSimpleEpisodeWithExtras() {
-    // run with default settings
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
-
+  public void testSimpleEpisodeWithExtras() throws Exception {
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/extra");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_extra/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/extra");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/extra");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");
@@ -369,20 +373,13 @@ public class TvShowRenamerTest extends BasicTest {
    * multi episode file test
    */
   @Test
-  public void testMultiEpisode() {
-    // run with default settings
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
-
+  public void testMultiEpisode() throws Exception {
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/multi");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_multi/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/multi");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/multi");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");
@@ -457,20 +454,13 @@ public class TvShowRenamerTest extends BasicTest {
    * just a test of a parted episode (two EP files with some extra files)
    */
   @Test
-  public void testPartedEpisode() {
-    // run with default settings
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
-
+  public void testPartedEpisode() throws Exception {
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/parted");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_parted/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/parted");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/parted");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");
@@ -529,20 +519,13 @@ public class TvShowRenamerTest extends BasicTest {
    * this is a really sick test: a parted multi episode (two EP files containing two EPs with some extra files)
    */
   @Test
-  public void testComplexEpisode() {
-    // run with default settings
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
-
+  public void testComplexEpisode() throws Exception {
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/complex");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_complex/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/complex");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/complex");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");
@@ -643,22 +626,17 @@ public class TvShowRenamerTest extends BasicTest {
    * just a test of a simple episode (two EPs file with some season artwork)
    */
   @Test
-  public void testSimpleEpisodeWithSeasonArtwork() {
-    // run with default settings, except season poster filename
-    TvShowSettings settings = TvShowSettings.getInstance("target/settings");
+  public void testSimpleEpisodeWithSeasonArtwork() throws Exception {
+    TvShowSettings settings = TvShowSettings.getInstance();
     settings.addSeasonPosterFilename(TvShowSeasonPosterNaming.SEASON_FOLDER);
     settings.addSeasonBannerFilename(TvShowSeasonBannerNaming.SEASON_FOLDER);
 
     // copy over the test files to a new folder
-    Path source = Paths.get("target/test-classes/testtvshows/renamer_test/season_artwork");
-    Path destination = Paths.get("target/test-classes/tv_show_renamer_season_artwork/ShowForRenamer");
-    try {
-      FileUtils.deleteDirectory(destination.getParent().toFile());
-      FileUtils.copyDirectory(source.toFile(), destination.toFile());
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    copyResourceFolderToWorkFolder("testtvshows/renamer_test/season_artwork");
+
+    Path source = getWorkFolder().resolve("testtvshows/renamer_test/season_artwork");
+    Path destination = getWorkFolder().resolve("tv_show_renamer_simple/ShowForRenamer");
+    FileUtils.copyDirectory(source.toFile(), destination.toFile());
 
     TvShow show = new TvShow();
     show.setTitle("Breaking Bad");

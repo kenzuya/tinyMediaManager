@@ -1,16 +1,10 @@
 package org.tinymediamanager.scraper.util;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 
 public class TvUtilsTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void testEpisodeNumber() {

@@ -4,16 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 
 public class LanguageUtilsTest extends BasicTest {
 
-  @BeforeClass
-  public static void setUp() {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
     Locale.setDefault(Locale.ENGLISH);
   }
 
@@ -49,17 +48,5 @@ public class LanguageUtilsTest extends BasicTest {
     assertEqual("Tamil", LanguageUtils.getEnglishLanguageNameFromLocalizedString("tam"));
     assertEqual("Telugu", LanguageUtils.getLocalizedLanguageNameFromLocalizedString(Locale.GERMAN, "tel"));
     // ??? assertEqual("Tsongaisch", LanguageUtils.getLocalizedLanguageNameFromLocalizedString(Locale.GERMAN, "tam"));
-  }
-
-  // own method to get some logging ;)
-  public static void assertEqual(Object expected, Object actual) {
-    try {
-      Assert.assertEquals(expected, actual);
-      System.out.println(expected + " - passed");
-    }
-    catch (AssertionError e) {
-      System.err.println(expected + " - FAILED: " + e.getMessage());
-      throw e;
-    }
   }
 }

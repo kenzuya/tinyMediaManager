@@ -1,6 +1,5 @@
 package org.tinymediamanager.core;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -8,11 +7,6 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaType;
 
 public class MediaSearchResultTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void test() {

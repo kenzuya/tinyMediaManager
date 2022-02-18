@@ -10,19 +10,12 @@ import static org.tinymediamanager.core.movie.MovieEdition.THEATRICAL_EDITION;
 import static org.tinymediamanager.core.movie.MovieEdition.UNCUT;
 import static org.tinymediamanager.core.movie.MovieEdition.UNRATED;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 
 /**
  * @author Manuel Laggner
  */
-public class MovieEditionTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
+public class MovieEditionTest extends BasicMovieTest {
 
   @Test
   public void testMovieEditionRegexp() {

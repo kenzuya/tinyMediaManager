@@ -197,10 +197,18 @@ public final class MovieList extends AbstractModelObject {
    * @return single instance of MovieList
    */
   static synchronized MovieList getInstance() {
-    if (MovieList.instance == null) {
-      MovieList.instance = new MovieList();
+    if (instance == null) {
+      instance = new MovieList();
     }
-    return MovieList.instance;
+    return instance;
+  }
+
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
   }
 
   /**

@@ -19,21 +19,21 @@ package org.tinymediamanager.core.tvshow.connector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import java.nio.file.Paths;
-
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowNfoParserTest extends BasicTest {
+public class TvShowNfoParserTest extends BasicTvShowTest {
 
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
+    copyResourceFolderToWorkFolder("tvshow_nfo");
   }
 
   @Test
@@ -59,7 +59,7 @@ public class TvShowNfoParserTest extends BasicTest {
   private void testKodi17_0() {
     // Kodi version 17.0
     try {
-      TvShowNfoParser parser = TvShowNfoParser.parseNfo(Paths.get("target/test-classes/tvshow_nfo/kodi17.0.nfo"));
+      TvShowNfoParser parser = TvShowNfoParser.parseNfo(getWorkFolder().resolve("tvshow_nfo/kodi17.0.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -153,7 +153,7 @@ public class TvShowNfoParserTest extends BasicTest {
   private void testKodi16_1() {
     // Kodi version 16.1
     try {
-      TvShowNfoParser parser = TvShowNfoParser.parseNfo(Paths.get("target/test-classes/tvshow_nfo/kodi16.1.nfo"));
+      TvShowNfoParser parser = TvShowNfoParser.parseNfo(getWorkFolder().resolve("tvshow_nfo/kodi16.1.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -247,7 +247,7 @@ public class TvShowNfoParserTest extends BasicTest {
   private void testKodi15_2() {
     // Kodi version 15.2
     try {
-      TvShowNfoParser parser = TvShowNfoParser.parseNfo(Paths.get("target/test-classes/tvshow_nfo/kodi15.2.nfo"));
+      TvShowNfoParser parser = TvShowNfoParser.parseNfo(getWorkFolder().resolve("tvshow_nfo/kodi15.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -340,7 +340,7 @@ public class TvShowNfoParserTest extends BasicTest {
   private void testKodi14_2() {
     // Kodi version 14.2
     try {
-      TvShowNfoParser parser = TvShowNfoParser.parseNfo(Paths.get("target/test-classes/tvshow_nfo/kodi14.2.nfo"));
+      TvShowNfoParser parser = TvShowNfoParser.parseNfo(getWorkFolder().resolve("tvshow_nfo/kodi14.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();

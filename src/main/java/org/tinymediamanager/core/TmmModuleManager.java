@@ -48,6 +48,15 @@ public final class TmmModuleManager {
     return instance;
   }
 
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstances() {
+    instance = null;
+    Settings.clearInstance();
+  }
+
   public void registerModule(ITmmModule module) {
     modules.add(module);
   }

@@ -9,17 +9,11 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.apache.commons.io.FilenameUtils;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 public class UtilsTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   // @Test
   // public void parseIp() throws UnknownHostException, SecurityException {

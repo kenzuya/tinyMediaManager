@@ -108,6 +108,16 @@ public final class TvShowModuleManager implements ITmmModule {
     return instance;
   }
 
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstances() {
+    instance = null;
+    TvShowSettings.clearInstance();
+    TvShowList.clearInstance();
+  }
+
   public TvShowSettings getSettings() {
     return TvShowSettings.getInstance();
   }

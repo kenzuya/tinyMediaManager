@@ -1,16 +1,9 @@
 package org.tinymediamanager.core.movie;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaSource;
 
-public class MovieMediaSourceTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
+public class MovieMediaSourceTest extends BasicMovieTest {
 
   @Test
   public void performTest() {
@@ -80,5 +73,4 @@ public class MovieMediaSourceTest extends BasicTest {
     assertEqual(MediaSource.DVDSCR, MediaSource.parseMediaSource("/media/jets/movies/Planes.DVDSCR.xxx.avi"));
     assertEqual(MediaSource.DVDSCR, MediaSource.parseMediaSource("/media/jets/movies/Planes.dvdscr.avi"));
   }
-
 }

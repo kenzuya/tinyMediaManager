@@ -461,8 +461,7 @@
                         <exclude>**/IT*.java</exclude>
                         <exclude>**/*IT.java</exclude>
                         <exclude>**/*ITCase.java</exclude>
-                        <exclude>**/integrationtest/**/*.java</exclude>
-                        <exclude>**/integrationtests/**/*.java</exclude>
+                        <exclude>**/integration-test/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

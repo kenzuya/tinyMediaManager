@@ -163,11 +163,19 @@ public final class TvShowList extends AbstractModelObject {
    * @return single instance of TvShowList
    */
   static synchronized TvShowList getInstance() {
-    if (TvShowList.instance == null) {
-      TvShowList.instance = new TvShowList();
+    if (instance == null) {
+      instance = new TvShowList();
     }
 
-    return TvShowList.instance;
+    return instance;
+  }
+
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
   }
 
   /**

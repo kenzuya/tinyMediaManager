@@ -283,6 +283,14 @@ public final class Settings extends AbstractSettings {
   }
 
   /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
+  }
+
+  /**
    * is our settings file up to date?
    */
   public boolean isCurrentVersion() {

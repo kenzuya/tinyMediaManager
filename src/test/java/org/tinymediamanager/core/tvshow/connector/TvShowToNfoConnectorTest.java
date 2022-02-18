@@ -22,48 +22,40 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowToNfoConnectorTest extends BasicTest {
+public class TvShowToNfoConnectorTest extends BasicTvShowTest {
 
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
+    TvShowModuleManager.getInstance().startUp();
   }
 
   @Test
-  public void testXbmcNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "xbmc_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "xbmc_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testXbmcNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("xbmc_nfo"));
 
     try {
       TvShow tvShow = createTvShow("xbmc_nfo");
@@ -73,7 +65,7 @@ public class TvShowToNfoConnectorTest extends BasicTest {
       TvShowToXbmcConnector connector = new TvShowToXbmcConnector(tvShow);
       connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "xbmc_nfo/tvshow.nfo");
+      Path nfoFile = getWorkFolder().resolve("xbmc_nfo/tvshow.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -87,14 +79,8 @@ public class TvShowToNfoConnectorTest extends BasicTest {
   }
 
   @Test
-  public void testKodiNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "kodi_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "kodi_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testKodiNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("kodi_nfo"));
 
     try {
       TvShow tvShow = createTvShow("kodi_nfo");
@@ -104,7 +90,7 @@ public class TvShowToNfoConnectorTest extends BasicTest {
       TvShowToKodiConnector connector = new TvShowToKodiConnector(tvShow);
       connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "kodi_nfo/tvshow.nfo");
+      Path nfoFile = getWorkFolder().resolve("kodi_nfo/tvshow.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -118,43 +104,32 @@ public class TvShowToNfoConnectorTest extends BasicTest {
   }
 
   @Test
-  public void testWriteUnsupportedTags() {
+  public void testWriteUnsupportedTags() throws Exception {
+    copyResourceFolderToWorkFolder("tvshow_nfo");
+
     TvShowModuleManager.getInstance().getSettings().setWriteCleanNfo(false);
-    // Kodi version 17.0
-    try {
-      Path showPath = Paths.get(getSettingsFolder(), "kodi_nfo_unsupported");
-      FileUtils.deleteQuietly(new File(getSettingsFolder(), "kodi_nfo_unsupported"));
-      try {
-        Files.createDirectories(showPath);
-      }
-      catch (Exception e) {
-        Assertions.fail(e.getMessage());
-      }
+    Files.createDirectories(getWorkFolder().resolve("kodi_nfo_unsupported"));
 
-      // copy the existing NFO to the target folder
-      Path targetNfo = Paths.get(getSettingsFolder(), "kodi_nfo_unsupported", "tvshow.nfo");
-      Files.copy(Paths.get("target/test-classes/tvshow_nfo/kodi17.0.nfo"), targetNfo);
+    // copy the existing NFO to the target folder
+    Path targetNfo = getWorkFolder().resolve("kodi_nfo_unsupported/tvshow.nfo");
+    Files.copy(getWorkFolder().resolve("tvshow_nfo/kodi17.0.nfo"), targetNfo);
 
-      TvShowNfoParser parser = TvShowNfoParser.parseNfo(targetNfo);
-      TvShow tvShow = parser.toTvShow();
-      tvShow.setPath(showPath.toString());
-      tvShow.addToMediaFiles(new MediaFile(targetNfo));
+    TvShowNfoParser parser = TvShowNfoParser.parseNfo(targetNfo);
+    TvShow tvShow = parser.toTvShow();
+    tvShow.setPath(getWorkFolder().resolve("kodi_nfo_unsupported").toString());
+    tvShow.addToMediaFiles(new MediaFile(targetNfo));
 
-      // write it
-      List<TvShowNfoNaming> nfoNames = Collections.singletonList(TvShowNfoNaming.TV_SHOW);
-      TvShowToKodiConnector connector = new TvShowToKodiConnector(tvShow);
-      connector.write(nfoNames);
+    // write it
+    List<TvShowNfoNaming> nfoNames = Collections.singletonList(TvShowNfoNaming.TV_SHOW);
+    TvShowToKodiConnector connector = new TvShowToKodiConnector(tvShow);
+    connector.write(nfoNames);
 
-      Path nfoFile = showPath.resolve("tvshow.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
+    Path nfoFile = getWorkFolder().resolve("kodi_nfo_unsupported/tvshow.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      // unmarshal it
-      TvShowNfoParser tvShowNfoParser = TvShowNfoParser.parseNfo(nfoFile);
-      assertThat(tvShowNfoParser.episodeguide).isNotEmpty();
-    }
-    catch (Exception e) {
-      fail(e.getMessage());
-    }
+    // unmarshal it
+    TvShowNfoParser tvShowNfoParser = TvShowNfoParser.parseNfo(nfoFile);
+    assertThat(tvShowNfoParser.episodeguide).isNotEmpty();
   }
 
   private void compareTvShows(TvShow tvShow, TvShow newTvShow) {
@@ -203,7 +178,7 @@ public class TvShowToNfoConnectorTest extends BasicTest {
 
   private TvShow createTvShow(String path) throws Exception {
     TvShow tvShow = new TvShow();
-    tvShow.setPath(Paths.get(getSettingsFolder(), path).toString());
+    tvShow.setPath(getWorkFolder().resolve(path).toString());
     tvShow.setTitle("21 Jump Street");
     tvShow.setRating(new MediaRating(MediaRating.NFO, 9.0f, 8));
     tvShow.setYear(1987);

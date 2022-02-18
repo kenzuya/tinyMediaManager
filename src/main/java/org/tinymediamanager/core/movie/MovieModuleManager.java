@@ -105,6 +105,16 @@ public final class MovieModuleManager implements ITmmModule {
     return instance;
   }
 
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstances() {
+    instance = null;
+    MovieSettings.clearInstance();
+    MovieList.clearInstance();
+  }
+
   public MovieSettings getSettings() {
     return MovieSettings.getInstance();
   }
