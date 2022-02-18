@@ -242,7 +242,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   void merge(Movie other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
     super.merge(other, force);
@@ -721,6 +721,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("movie locked, but setMetadata has been called!");
+      return;
+    }
+
     if (metadata == null) {
       LOGGER.error("metadata was null");
       return;

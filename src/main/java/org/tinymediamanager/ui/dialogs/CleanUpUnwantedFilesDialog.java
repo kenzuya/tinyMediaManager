@@ -69,7 +69,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
   private final JProgressBar             progressBar;
   private final JLabel                   lblProgressAction;
 
-  public CleanUpUnwantedFilesDialog(List<MediaEntity> selectedEntities) {
+  public CleanUpUnwantedFilesDialog(List<? extends MediaEntity> selectedEntities) {
     super(TmmResourceBundle.getString("cleanupfiles"), "cleanupEntities");
 
     results = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
@@ -107,7 +107,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
       }
     }
 
-    TvShowCleanUpWorker worker = new TvShowCleanUpWorker(selectedEntities);
+    CleanUpWorker worker = new CleanUpWorker(selectedEntities);
     worker.execute();
 
   }
@@ -118,7 +118,8 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
       /*
        * filename
        */
-      Column col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(), String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(),
+          String.class);
       col.setColumnTooltip(fileContainer -> fileContainer.file.toString());
       addColumn(col);
 
@@ -156,11 +157,11 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
     }
   }
 
-  private class TvShowCleanUpWorker extends SwingWorker<Void, Void> {
+  private class CleanUpWorker extends SwingWorker<Void, Void> {
 
-    private final List<MediaEntity> selectedEntities;
+    private final List<? extends MediaEntity> selectedEntities;
 
-    private TvShowCleanUpWorker(List<MediaEntity> entities) {
+    private CleanUpWorker(List<? extends MediaEntity> entities) {
       this.selectedEntities = entities;
     }
 

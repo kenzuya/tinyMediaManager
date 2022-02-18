@@ -19,6 +19,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 import static org.tinymediamanager.scraper.entities.MediaType.TV_SHOW;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -53,13 +54,13 @@ import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowMissingArtworkDownloadTask.class);
 
-  private final List<TvShow>                             tvShows;
-  private final List<TvShowEpisode>                      episodes;
+  private final Collection<TvShow>                       tvShows;
+  private final Collection<TvShowEpisode>                episodes;
   private final TvShowSearchAndScrapeOptions             scrapeOptions;
   private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig;
   private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig;
 
-  public TvShowMissingArtworkDownloadTask(List<TvShow> tvShows, List<TvShowEpisode> episodes, TvShowSearchAndScrapeOptions scrapeOptions,
+  public TvShowMissingArtworkDownloadTask(Collection<TvShow> tvShows, Collection<TvShowEpisode> episodes, TvShowSearchAndScrapeOptions scrapeOptions,
       List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
     super(TmmResourceBundle.getString("task.missingartwork"));
     this.tvShows = new ArrayList<>(tvShows);

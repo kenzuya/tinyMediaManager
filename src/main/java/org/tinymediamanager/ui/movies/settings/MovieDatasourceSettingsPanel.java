@@ -45,6 +45,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -100,9 +101,9 @@ class MovieDatasourceSettingsPanel extends JPanel {
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
-          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
-          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }
@@ -194,9 +195,9 @@ class MovieDatasourceSettingsPanel extends JPanel {
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
-          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           MovieModuleManager.getInstance().getSettings().exchangeMovieDatasource(path, dialog.getNewDatasource());
-          MovieDatasourceSettingsPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           panelDatasources.revalidate();
         }
       }

@@ -201,7 +201,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
 
-      // fin movie set NFOs
+      // find movie set NFOs
       updateMovieSets();
 
       if (moviesToUpdate.isEmpty()) {
@@ -369,8 +369,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           MovieSet movieSetInDb = matchMovieSetInDb(path, movieSet);
 
           if (movieSetInDb != null) {
-            // just add the media file if needed
-            movieSetInDb.addToMediaFiles(new MediaFile(path));
+            // just add the media file if needed - if it is not locked
+            if (!movieSetInDb.isLocked()) {
+              movieSetInDb.addToMediaFiles(new MediaFile(path));
+            }
           }
           else {
             // add this new one
@@ -428,7 +430,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     // get distinct data sources
     Set<String> movieDatasources = new HashSet<>();
-    moviesToUpdate.forEach(movie -> movieDatasources.add(movie.getDataSource()));
+    moviesToUpdate.stream().filter(movie -> !movie.isLocked()).forEach(movie -> movieDatasources.add(movie.getDataSource()));
 
     List<Movie> moviesToCleanup = new ArrayList<>();
 
@@ -550,8 +552,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private void parseMovieDirectory(Path movieDir, Path dataSource) {
     List<Path> movieDirList = listFilesAndDirs(movieDir);
-    ArrayList<Path> files = new ArrayList<>();
-    HashSet<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
+    List<Path> files = new ArrayList<>();
+    Set<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
 
     boolean isDiscFolder = false;
     boolean isMultiMovieDir = false;
@@ -731,6 +733,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     Movie movie = movieList.getMovieByPath(movieDir);
+    if (movie != null && movie.isLocked()) {
+      LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
+      return;
+    }
+
     Set<Path> allFiles = getAllFilesRecursive(movieDir);
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
@@ -1013,6 +1020,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // }
         // }
       }
+
+      if (movie != null && movie.isLocked()) {
+        LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
+        continue;
+      }
+
       if (movie == null) {
         // 2) create if not found
         movie = parseNFOs(sameName);

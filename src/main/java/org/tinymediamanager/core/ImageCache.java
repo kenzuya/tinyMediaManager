@@ -27,8 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -550,15 +549,27 @@ public class ImageCache {
    *          the media entity
    */
   public static void clearImageCacheForMediaEntity(MediaEntity entity) {
-    List<MediaFile> mediaFiles = new ArrayList<>(entity.getMediaFiles());
-    for (MediaFile mediaFile : mediaFiles) {
-      if (mediaFile.isGraphic()) {
-        Path file = ImageCache.getCachedFile(mediaFile);
-        if (file != null) {
-          Utils.deleteFileSafely(file);
-        }
-      }
+    clearImageCache(entity.getMediaFiles());
+
+  }
+
+  /**
+   * clear the image cache for all given {@link MediaFile}s
+   *
+   * @param mediaFiles
+   *          all {@link MediaFile}s to check/invalidate
+   */
+  public static void clearImageCache(Collection<MediaFile> mediaFiles) {
+    if (mediaFiles == null || mediaFiles.isEmpty()) {
+      return;
     }
+
+    mediaFiles.parallelStream().filter(MediaFile::isGraphic).forEach(mediaFile -> {
+      Path file = ImageCache.getCachedFile(mediaFile);
+      if (file != null) {
+        Utils.deleteFileSafely(file);
+      }
+    });
   }
 
 }

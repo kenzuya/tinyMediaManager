@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -22,40 +23,39 @@ import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.tasks.MovieAssignMovieSetTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 /**
- * The MovieAssignMovieSetAction - assign selected movies to the corresponding movie set
- * 
+ * the class {@link MovieLockAction} is used to lock a movie against modifications
+ *
  * @author Manuel Laggner
  */
-public class MovieAssignMovieSetAction extends TmmAction {
-  private static final long           serialVersionUID = -4213315298837335636L;
+public class MovieLockAction extends TmmAction {
 
-
-  public MovieAssignMovieSetAction() {
-    putValue(NAME, TmmResourceBundle.getString("movie.assignmovieset"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.assignmovieset.desc"));
-    putValue(SMALL_ICON, IconManager.SEARCH);
-    putValue(LARGE_ICON_KEY, IconManager.SEARCH);
+  public MovieLockAction() {
+    putValue(LARGE_ICON_KEY, IconManager.LOCK_BLUE);
+    putValue(SMALL_ICON, IconManager.LOCK_BLUE);
+    putValue(NAME, TmmResourceBundle.getString("movie.lock"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.lock.desc"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
+    final List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies(true);
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    TmmThreadPool scrapeTask = new MovieAssignMovieSetTask(selectedMovies);
-    TmmTaskManager.getInstance().addMainTask(scrapeTask);
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    for (Movie movie : selectedMovies) {
+      movie.setLocked(true);
+      movie.saveToDb();
+    }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

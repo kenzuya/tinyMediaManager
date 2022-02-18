@@ -618,6 +618,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // ******************************
       TvShow tvShow = tvShowList.getTvShowByPath(showDir);
 
+      if (tvShow != null && tvShow.isLocked()) {
+        LOGGER.info("TV show '{}' found in uds, but is locked", tvShow.getPath());
+        return "";
+      }
+
       // SHOW_NFO or SEASON_BANNER
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate
       if (tvShow == null) {

@@ -16,13 +16,17 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
 /**
  * The class {@link TvShowSyncTraktTvAction}. To synchronize your TV show library with trakt.tv (collection and watched)
@@ -30,8 +34,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowSyncTraktTvAction extends TmmAction {
-  private static final long           serialVersionUID = 6640292090443882545L;
-  
+  private static final long serialVersionUID = 6640292090443882545L;
 
   public TvShowSyncTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt"));
@@ -42,11 +45,30 @@ public class TvShowSyncTraktTvAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
-    task.setSyncCollection(true);
-    task.setSyncWatched(true);
-    task.setSyncRating(true);
 
-    TmmTaskManager.getInstance().addUnnamedTask(task);
+    List<TvShow> tvShows = new ArrayList<>();
+    boolean lockedFound = false;
+
+    for (TvShow tvShow : new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows())) {
+      if (tvShow.isLocked()) {
+        lockedFound = true;
+        continue;
+      }
+
+      tvShows.add(tvShow);
+    }
+
+    if (lockedFound) {
+      TvShowSelectionModel.showLockedInformation();
+    }
+
+    if (!tvShows.isEmpty()) {
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShows);
+      task.setSyncCollection(true);
+      task.setSyncWatched(true);
+      task.setSyncRating(true);
+
+      TmmTaskManager.getInstance().addUnnamedTask(task);
+    }
   }
 }

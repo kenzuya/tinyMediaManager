@@ -16,7 +16,7 @@
 package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -37,12 +37,12 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowReloadMediaInformationTask extends TmmThreadPool {
-  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
+  private static final Logger             LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
 
-  private final List<TvShow>        tvShows;
-  private final List<TvShowEpisode> episodes;
+  private final Collection<TvShow>        tvShows;
+  private final Collection<TvShowEpisode> episodes;
 
-  public TvShowReloadMediaInformationTask(List<TvShow> tvShows, List<TvShowEpisode> episodes) {
+  public TvShowReloadMediaInformationTask(Collection<TvShow> tvShows, Collection<TvShowEpisode> episodes) {
     super(TmmResourceBundle.getString("tvshow.updatemediainfo"));
     this.tvShows = new ArrayList<>(tvShows);
     this.episodes = new ArrayList<>(episodes);

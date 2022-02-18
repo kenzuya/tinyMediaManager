@@ -16,11 +16,8 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -32,8 +29,9 @@ import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -56,38 +54,34 @@ public class TvShowRebuildImageCacheAction extends TmmAction {
       return;
     }
 
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
     Set<MediaFile> imageFiles = new HashSet<>();
 
     // get data of all files within all selected TV shows/episodes
-    for (TvShow tvShow : selectedTvShows) {
+    for (TvShow tvShow : selectedObjects.getTvShows()) {
       imageFiles.addAll(tvShow.getImagesToCache());
-      ImageCache.clearImageCacheForMediaEntity(tvShow);
     }
 
-    for (TvShowEpisode episode : selectedEpisodes) {
+    for (TvShowSeason season : selectedObjects.getSeasonsRecursive()) {
+      imageFiles.addAll(season.getImagesToCache());
+    }
+
+    for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
       imageFiles.addAll(episode.getImagesToCache());
-      ImageCache.clearImageCacheForMediaEntity(episode);
     }
 
-    ImageCacheTask task = new ImageCacheTask(imageFiles.stream().distinct().collect(Collectors.toList()));
+    ImageCache.clearImageCache(imageFiles);
+
+    ImageCacheTask task = new ImageCacheTask(imageFiles);
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

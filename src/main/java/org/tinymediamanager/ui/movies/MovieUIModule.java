@@ -58,6 +58,7 @@ import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
 import org.tinymediamanager.ui.movies.actions.MovieFetchImdbRatingAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
+import org.tinymediamanager.ui.movies.actions.MovieLockAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildImageCacheAction;
@@ -78,6 +79,7 @@ import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedWatchedTraktTvAct
 import org.tinymediamanager.ui.movies.actions.MovieSyncTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieToggleWatchedFlagAction;
 import org.tinymediamanager.ui.movies.actions.MovieTrailerDownloadAction;
+import org.tinymediamanager.ui.movies.actions.MovieUnlockAction;
 import org.tinymediamanager.ui.movies.actions.MovieUnscrapedScrapeAction;
 import org.tinymediamanager.ui.movies.actions.MovieUpdateAction;
 import org.tinymediamanager.ui.movies.actions.MovieUpdateDatasourceAction;
@@ -235,6 +237,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu = new JPopupMenu();
     editPopupMenu.add(createAndRegisterAction(MovieEditAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieLockAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
@@ -328,6 +332,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieLockAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));

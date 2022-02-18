@@ -18,8 +18,6 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -28,7 +26,6 @@ import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -38,8 +35,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowReadEpisodeNfoAction extends TmmAction {
-  private static final long           serialVersionUID = 5762347331284295996L;
-  
+  private static final long serialVersionUID = 5762347331284295996L;
 
   public TvShowReadEpisodeNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshowepisode.readnfo"));
@@ -51,7 +47,6 @@ public class TvShowReadEpisodeNfoAction extends TmmAction {
     final List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

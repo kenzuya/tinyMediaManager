@@ -103,6 +103,7 @@ public class IconManager {
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              KODI                         = createMenuIcon("kodi.svg");
   public static final ImageIcon              LIST                         = createMenuIcon("list.svg");
+  public static final ImageIcon              LOCK_BLUE                    = createMenuIcon("lock-alt.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");
@@ -116,6 +117,7 @@ public class IconManager {
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
   public static final ImageIcon              THUMB                        = createMenuIcon("photo-video.svg");
+  public static final ImageIcon              UNLOCK_BLUE                  = createMenuIcon("lock-open-alt.svg");
   public static final ImageIcon              VOLUME                       = createMenuIcon("volume.svg");
   public static final ImageIcon              WATCHED_MENU                 = createMenuIcon("play.svg");
 
@@ -183,6 +185,7 @@ public class IconManager {
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
   public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
+  public static final ImageIcon              LOCK                         = createTableHeaderIcon("lock-alt.svg");
   public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
   public static final ImageIcon              MUSIC_HEADER                 = createTableHeaderIcon("music.svg");
   public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");

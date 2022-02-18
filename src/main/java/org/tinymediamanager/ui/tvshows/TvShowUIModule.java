@@ -64,6 +64,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRatingAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowLockAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMissingEpisodeListAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowReadEpisodeNfoAction;
@@ -90,6 +91,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvA
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowTrailerDownloadAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowUnlockAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateSingleDatasourceAction;
@@ -314,6 +316,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu = new JPopupMenu();
     editPopupMenu.add(createAndRegisterAction(TvShowEditAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowLockAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
@@ -411,6 +415,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowLockAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRatingAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));

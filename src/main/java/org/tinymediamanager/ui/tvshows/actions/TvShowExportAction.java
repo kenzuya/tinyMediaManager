@@ -20,7 +20,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -37,8 +36,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowExporterDialog;
  * @author Manuel Laggner
  */
 public class TvShowExportAction extends TmmAction {
-  private static final long           serialVersionUID = 6746506855715337027L;
-  
+  private static final long serialVersionUID = 6746506855715337027L;
 
   public TvShowExportAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);
@@ -52,7 +50,6 @@ public class TvShowExportAction extends TmmAction {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

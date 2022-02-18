@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -50,7 +49,7 @@ public class MovieDeleteAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

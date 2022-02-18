@@ -17,13 +17,12 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -32,8 +31,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class MovieCleanUpFilesAction extends TmmAction {
 
-  private static final long           serialVersionUID = -2029243504238273721L;
-
+  private static final long serialVersionUID = -2029243504238273721L;
 
   public MovieCleanUpFilesAction() {
 
@@ -46,8 +44,7 @@ public class MovieCleanUpFilesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-
-    List<MediaEntity> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

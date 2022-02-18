@@ -15,37 +15,47 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
-import org.tinymediamanager.ui.tvshows.dialogs.TvShowRenamerPreviewDialog;
 
 /**
- * The class {@link TvShowRenamePreviewAction}. This action is for creating a preview of the renamer
+ * the class {@link TvShowLockAction} is used to lock a movie against modifications
  *
  * @author Manuel Laggner
  */
-public class TvShowRenamePreviewAction extends TmmAction {
-  private static final long serialVersionUID = 5167114686702295145L;
+public class TvShowLockAction extends TmmAction {
 
-  public TvShowRenamePreviewAction() {
-    putValue(NAME, TmmResourceBundle.getString("tvshow.renamepreview"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.renamepreview.hint"));
+  public TvShowLockAction() {
+    putValue(LARGE_ICON_KEY, IconManager.LOCK_BLUE);
+    putValue(SMALL_ICON, IconManager.LOCK_BLUE);
+    putValue(NAME, TmmResourceBundle.getString("tvshow.lock"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.lock.desc"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
+    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows(true);
 
     if (selectedTvShows.isEmpty()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    TvShowRenamerPreviewDialog dialog = new TvShowRenamerPreviewDialog(selectedTvShows);
-    dialog.setVisible(true);
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    for (TvShow tvShow : selectedTvShows) {
+      tvShow.setLocked(true);
+      tvShow.saveToDb();
+    }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

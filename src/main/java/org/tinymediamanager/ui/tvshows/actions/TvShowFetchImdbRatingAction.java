@@ -20,11 +20,7 @@ import static org.tinymediamanager.core.Constants.IMDB;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.slf4j.Logger;
@@ -38,8 +34,8 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 public class TvShowFetchImdbRatingAction extends TmmAction {
@@ -54,35 +50,25 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
-    }
-
-    selectedTvShows.forEach(tvShow -> selectedEpisodes.addAll(tvShow.getEpisodes()));
-
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
+
     TmmTaskManager.getInstance()
-        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.refetchimdbrating"), selectedTvShows.size() + selectedEpisodes.size(),
-            TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.refetchimdbrating"),
+            selectedObjects.getTvShows().size() + selectedObjects.getEpisodesRecursive().size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
           @Override
           protected void doInBackground() {
             int i = 0;
 
-            for (TvShow tvShow : selectedTvShows) {
+            for (TvShow tvShow : selectedObjects.getTvShows()) {
               MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
               if (rating != null) {
                 tvShow.setRating(rating);
@@ -96,7 +82,7 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
               }
             }
 
-            for (TvShowEpisode episode : selectedEpisodes) {
+            for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
               MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
               if (rating != null) {
                 episode.setRating(rating);

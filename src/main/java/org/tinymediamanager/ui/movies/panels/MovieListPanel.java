@@ -240,9 +240,10 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   }
 
   private void updateSelectionSums() {
-    String selectedMovies = TmmResourceBundle.getString("movie.selected").replace("{}", String.valueOf(selectionModel.getSelectedMovies().size()));
-    double videoFileSize = selectionModel.getSelectedMovies().stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
-    double totalFileSize = selectionModel.getSelectedMovies().stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    String selectedMovies = TmmResourceBundle.getString("movie.selected")
+        .replace("{}", String.valueOf(selectionModel.getSelectedMovies(true).size()));
+    double videoFileSize = selectionModel.getSelectedMovies(true).stream().mapToLong(Movie::getVideoFilesize).sum() / (1000.0 * 1000.0 * 1000);
+    double totalFileSize = selectionModel.getSelectedMovies(true).stream().mapToLong(MediaEntity::getTotalFilesize).sum() / (1000.0 * 1000.0 * 1000);
 
     String text = String.format("%s (%.2f G)", selectedMovies, totalFileSize);
     lblSelectedCount.setText(text);

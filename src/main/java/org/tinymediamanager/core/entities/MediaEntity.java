@@ -26,6 +26,7 @@ import static org.tinymediamanager.core.Constants.DISC;
 import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.HAS_IMAGES;
 import static org.tinymediamanager.core.Constants.KEYART;
+import static org.tinymediamanager.core.Constants.LOCKED;
 import static org.tinymediamanager.core.Constants.LOGO;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
@@ -96,6 +97,9 @@ public abstract class MediaEntity extends AbstractModelObject {
   protected UUID                       dbId               = UUID.randomUUID();
 
   @JsonProperty
+  protected boolean                    locked             = false;
+
+  @JsonProperty
   protected String                     dataSource         = "";
 
   /** The ids to store the ID from several metadataproviders. */
@@ -141,15 +145,12 @@ public abstract class MediaEntity extends AbstractModelObject {
   protected boolean                    duplicate          = false;
   protected final ReadWriteLock        readWriteLock      = new ReentrantReadWriteLock();
 
-  public MediaEntity() {
-  }
-
   /**
    * get the main file for this entity
    * 
    * @return the main file
    */
-  abstract public MediaFile getMainFile();
+  public abstract MediaFile getMainFile();
 
   /**
    * Overwrites all null/empty elements with "other" value (but might be empty also)<br>
@@ -175,7 +176,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   protected void merge(MediaEntity other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
 
@@ -243,6 +244,27 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void setDbId(UUID id) {
     this.dbId = id;
+  }
+
+  /**
+   * checks whether this {@link MediaEntity} is locked or not
+   * 
+   * @return true/false
+   */
+  public boolean isLocked() {
+    return locked;
+  }
+
+  /**
+   * set the locked status for this {@link MediaEntity}
+   * 
+   * @param newValue
+   *          the locked status
+   */
+  public void setLocked(boolean newValue) {
+    boolean oldValue = this.locked;
+    this.locked = newValue;
+    firePropertyChange(LOCKED, oldValue, newValue);
   }
 
   /**

@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -204,7 +205,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   void merge(TvShowEpisode other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
     super.merge(other, force);
@@ -234,6 +235,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  /**
+   * checks whether the parent {@link TvShow} is locked
+   *
+   * @return true/false
+   */
+  @Override
+  public boolean isLocked() {
+    return getTvShow() == null || getTvShow().isLocked();
   }
 
   /**
@@ -653,6 +664,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    *          the new metadata
    */
   public void setMetadata(MediaMetadata metadata, List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("episode locked, but setMetadata has been called!");
+      return;
+    }
+
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -1143,17 +1159,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * 
    * @return the images to cache
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
-    // get files to cache
-    List<MediaFile> filesToCache = new ArrayList<>();
-
-    for (MediaFile mf : new ArrayList<>(getMediaFiles())) {
-      if (mf.isGraphic()) {
-        filesToCache.add(mf);
-      }
-    }
-
-    return filesToCache;
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
   }
 
   @Override

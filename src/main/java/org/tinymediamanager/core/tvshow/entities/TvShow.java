@@ -338,7 +338,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   void merge(TvShow other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
 
@@ -885,6 +885,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("TV show locked, but setMetadata has been called!");
+      return;
+    }
+
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");

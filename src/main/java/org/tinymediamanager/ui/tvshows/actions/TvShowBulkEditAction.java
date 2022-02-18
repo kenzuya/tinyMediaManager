@@ -18,21 +18,14 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowBulkEditorDialog;
 
@@ -42,8 +35,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowBulkEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditAction extends TmmAction {
-  private static final long           serialVersionUID = -1193886444149690516L;
-
+  private static final long serialVersionUID = -1193886444149690516L;
 
   public TvShowBulkEditAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.bulkedit"));
@@ -55,34 +47,17 @@ public class TvShowBulkEditAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    List<TvShow> selectedTvShows = new ArrayList<>();
-    Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    for (Object obj : selectedObjects) {
-      if (obj instanceof TvShow) {
-        TvShow tvShow = (TvShow) obj;
-        selectedTvShows.add(tvShow);
-        selectedEpisodes.addAll(tvShow.getEpisodes());
-      }
-
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        selectedEpisodes.addAll(season.getEpisodes());
-      }
-
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-        selectedEpisodes.add(tvShowEpisode);
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
-    TvShowBulkEditorDialog dialog = new TvShowBulkEditorDialog(selectedTvShows, new ArrayList<>(selectedEpisodes));
+    TvShowBulkEditorDialog dialog = new TvShowBulkEditorDialog(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive());
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
   }

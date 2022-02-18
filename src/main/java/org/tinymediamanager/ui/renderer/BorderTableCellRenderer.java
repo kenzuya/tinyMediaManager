@@ -31,7 +31,8 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class BorderTableCellRenderer extends DefaultTableCellRenderer {
   private static final long serialVersionUID = -6545791732880295743L;
-  private Border            border;
+
+  private final Border      border;
 
   /**
    * create the CellRenderer with the default inset (2 px left)
@@ -60,7 +61,6 @@ public class BorderTableCellRenderer extends DefaultTableCellRenderer {
     }
     else {
       setBackground(table.getBackground());
-
     }
 
     // left margin

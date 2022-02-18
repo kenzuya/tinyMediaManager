@@ -548,6 +548,11 @@ public class MovieSet extends MediaEntity {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<MovieSetScraperMetadataConfig> config) {
+    if (locked) {
+      LOGGER.debug("movie set locked, but setMetadata has been called!");
+      return;
+    }
+
     if (metadata == null) {
       LOGGER.error("metadata was null");
       return;

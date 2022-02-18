@@ -68,7 +68,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   @Override
-  public Class<? extends Object> getColumnClass(int i) {
+  public Class<?> getColumnClass(int i) {
     return columns.get(i).columnClass;
   }
 
@@ -128,11 +128,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   protected class Column {
-    private String              columnTitle;
-    private String              columnIdentifier;
-    private Function<E, ?>      columnValue;
+    private final String         columnTitle;
+    private final String         columnIdentifier;
+    private final Function<E, ?> columnValue;
+    private final Class<?>       columnClass;
+
     private Function<E, String> columnTooltip    = null;
-    private Class<?>            columnClass;
     private Comparator<?>       columnComparator = null;
     private TableCellRenderer   cellRenderer     = null;
     private ImageIcon           headerIcon       = null;

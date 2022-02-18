@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
 
 /**
@@ -34,6 +35,13 @@ public class MovieBorderTableCellRenderer extends BorderTableCellRenderer {
     String text;
     if (value instanceof Movie) {
       Movie movie = (Movie) value;
+
+      if (movie.isLocked()) {
+        setIcon(IconManager.LOCK_BLUE);
+      }
+      else {
+        setIcon(null);
+      }
 
       // get the column
       TableColumn tableColumn = table.getColumnModel().getColumn(column);

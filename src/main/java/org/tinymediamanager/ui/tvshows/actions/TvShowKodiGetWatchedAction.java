@@ -16,23 +16,16 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -51,34 +44,19 @@ public class TvShowKodiGetWatchedAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    Set<TvShowEpisode> eps = new HashSet<>();
-
-    // if we specify show, we want it recursive for all episodes
-    // so remove all single episode calls to not sent them twice...
-    for (Object obj : selectedObjects) {
-      if (obj instanceof TvShow) {
-        TvShow show = (TvShow) obj;
-        eps.addAll(show.getEpisodes());
-      }
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        eps.add(episode);
-      }
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        eps.addAll(season.getEpisodes());
-      }
-    }
-
     TmmTaskManager.getInstance()
-        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("kodi.rpc.getwatched"), eps.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("kodi.rpc.getwatched"), selectedObjects.getEpisodesRecursive().size(),
+            TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
           @Override
           protected void doInBackground() {
@@ -86,7 +64,7 @@ public class TvShowKodiGetWatchedAction extends TmmAction {
             int i = 0;
 
             // get watched state
-            for (TvShowEpisode episode : eps) {
+            for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
               kodiRPC.readWatchedState(episode);
 
               publishState(++i);

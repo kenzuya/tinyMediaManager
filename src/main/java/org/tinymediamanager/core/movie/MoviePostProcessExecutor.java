@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.core.movie;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
   }
 
   public void execute() {
-    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
 
     for (Movie movie : selectedMovies) {
       LOGGER.info("PostProcessing: START {}", postProcess);

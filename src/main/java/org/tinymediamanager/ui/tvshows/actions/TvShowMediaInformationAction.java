@@ -18,21 +18,16 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowReloadMediaInformationTask;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -41,8 +36,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationAction extends TmmAction {
-  private static final long           serialVersionUID = -1274423130095036944L;
-  
+  private static final long serialVersionUID = -1274423130095036944L;
 
   public TvShowMediaInformationAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.updatemediainfo"));
@@ -53,26 +47,18 @@ public class TvShowMediaInformationAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
     // get data of all files within all selected TV shows/episodes
-    TmmThreadPool task = new TvShowReloadMediaInformationTask(selectedTvShows, selectedEpisodes);
+    TmmThreadPool task = new TvShowReloadMediaInformationTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive());
     TmmTaskManager.getInstance().addMainTask(task);
   }
 }
