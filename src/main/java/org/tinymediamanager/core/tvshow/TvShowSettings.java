@@ -212,7 +212,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        subtitleForceBestMatch                 = false;
 
   // misc
-  boolean                                        buildImageCacheOnImport                = false;
+  boolean                                        buildImageCacheOnImport                = true;
   boolean                                        syncTrakt                              = false;
   boolean                                        syncTraktCollection                    = true;
   boolean                                        syncTraktWatched                       = true;
