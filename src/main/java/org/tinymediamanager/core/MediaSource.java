@@ -62,8 +62,8 @@ public class MediaSource extends DynaEnum<MediaSource> {
   // and our fallback
   public static final MediaSource              UNKNOWN     = new MediaSource("UNKNOWN", 14, "");
 
-  private static final String                  START_TOKEN = "[ _\\,\\.\\(\\)\\[\\]\\-]";
-  private static final String                  END_TOKEN   = "([ _\\,\\.\\(\\)\\[\\]\\-]|$)";
+  private static final String                  START_TOKEN = "[\\/\\\\ _,.()\\[\\]-]";
+  private static final String                  END_TOKEN   = "([\\/\\\\ _,.()\\[\\]-]|$)";
 
   private final String                         title;
   private final Pattern                        pattern;

@@ -1,5 +1,7 @@
 Version 4.2.7
 =======================
+x fix startup problems if your Kodi RPC credentials are wrong
+x fix MediaSource detection for extracted DVD folders
 
 
 Version 4.2.6
