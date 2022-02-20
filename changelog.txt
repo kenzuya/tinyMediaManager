@@ -1,3 +1,7 @@
+Version 4.2.7
+=======================
+
+
 Version 4.2.6
 =======================
 + added certification support for Hong Kong #1623
