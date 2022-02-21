@@ -17,7 +17,6 @@
 package org.tinymediamanager.ui.components;
 
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,16 +37,15 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
   public ReadOnlyTextPaneHTML() {
     super();
 
-    addHyperlinkListener(new HyperlinkListener() {
-      @Override
-      public void hyperlinkUpdate(HyperlinkEvent e) {
-        if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
-          try {
-            TmmUIHelper.browseUrl(e.getURL().toURI().toString());
-          }
-          catch (Exception ex) {
-            // ex.printStackTrace();
-          }
+    setContentType("text/html");
+
+    addHyperlinkListener(e -> {
+      if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+        try {
+          TmmUIHelper.browseUrl(e.getURL().toURI().toString());
+        }
+        catch (Exception ex) {
+          // ex.printStackTrace();
         }
       }
     });
@@ -56,12 +54,11 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
   @Override
   public void setText(String t) {
     if (t == null || t.isEmpty()) {
-      super.setText(t);
+      super.setText("<html></html>");
     }
     else {
       if (t.startsWith("<html>")) {
         // already HTML? just set correct content type - no replacement done here
-        setContentType("text/html");
         super.setText(t);
       }
       else {
@@ -76,7 +73,6 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
           // whitespace before WWW to not include former style!!!
           t = t.replaceAll("(?:^|\\s)(www\\.[^\\s]+)", " <a href=\"https://$1\">$1</a>");
 
-          setContentType("text/html");
           super.setText("<html>" + t + "</html>");
         }
         else {
@@ -86,5 +82,4 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
       }
     }
   }
-
 }
