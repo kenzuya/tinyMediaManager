@@ -16,9 +16,10 @@
 
 package org.tinymediamanager.addon;
 
-import static org.tinymediamanager.addon.AddonManager.getAddonFolder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.TmmOsUtils;
 
 /**
  * the interface {@link IAddon} is used to provide extra addons (external tools) for tinyMediaManager
@@ -27,18 +28,20 @@ import org.tinymediamanager.core.Utils;
  */
 public interface IAddon {
   /**
+   * get the {@link Path} to the addon folder
+   * 
+   * @return a {@link Path} to the addon folder
+   */
+  default Path getAddonFolder() {
+    return Paths.get(TmmOsUtils.getNativeFolderName()).resolve("addons").toAbsolutePath();
+  }
+
+  /**
    * get the addon name
    * 
    * @return the addon name
    */
   String getAddonName();
-
-  /**
-   * get the full addon name (including OS/arch)
-   * 
-   * @return the full name of the addon including OS/arch
-   */
-  String getFullAddonName();
 
   /**
    * checks whether this addon is available or not
@@ -48,19 +51,18 @@ public interface IAddon {
   boolean isAvailable();
 
   /**
-   * get the installed version of this addon
+   * gets the executable filename
    * 
-   * @return a {@link String} containing the installed version (or an empty {@link String} is not installed)
+   * @return the filename of the executable
    */
-  default String getVersion() {
-    if (isAvailable()) {
-      try {
-        return Utils.readFileToString(getAddonFolder().resolve(getAddonName() + ".v"));
-      }
-      catch (Exception e) {
-        return "";
-      }
-    }
-    return "";
+  String getExecutableFilename();
+
+  /**
+   * get the full path to the executable
+   * 
+   * @return the full path to the executable
+   */
+  default String getExecutablePath() {
+    return getAddonFolder().resolve(getExecutableFilename()).toAbsolutePath().toString();
   }
 }

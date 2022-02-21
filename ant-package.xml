@@ -58,7 +58,9 @@
         <copy file="target/${tmmName}-${tmmVersion}.jar" tofile="${build.dir}/tmm.jar"/>
 
         <copy todir="${build.dir}/native">
-            <fileset dir="native"/>
+            <fileset dir="native">
+                <exclude name="native/addons/**"/>
+            </fileset>
         </copy>
 
         <!-- zip templates -->
@@ -73,6 +75,28 @@
         <!-- JRE -->
         <copy todir="${build.dir}/jre">
             <fileset dir="target/jre"/>
+        </copy>
+
+        <!-- addons -->
+        <copy todir="${build.dir}/native/windows/addons">
+            <fileset dir="target/addons">
+                <include name="*windows_*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/macos/addons">
+            <fileset dir="target/addons">
+                <include name="*macos_*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/linux/addons">
+            <fileset dir="target/addons">
+                <include name="*linux_x64*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/arm/addons">
+            <fileset dir="target/addons">
+                <include name="*linux_arm*"/>
+            </fileset>
         </copy>
 
         <!-- ===================================================== -->

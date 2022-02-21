@@ -246,6 +246,30 @@ public class UpgradeTasks {
         Utils.deleteFileSafely(config);
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.3") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 4.3");
+
+      // delete all old ffmpeg addons
+      final File[] files = Paths.get("native/addons").toFile().listFiles();
+      if (files != null) {
+        for (File file : files) {
+          if (file.getName().contains("ffmpeg")) {
+            try {
+              if (file.isFile()) {
+                Files.delete(file.toPath());
+              }
+              else {
+                Utils.deleteDirectoryRecursive(file.toPath());
+              }
+            }
+            catch (Exception e) {
+              LOGGER.debug("could not delete file '{}' - '{}'", file.getName(), e.getMessage());
+            }
+          }
+        }
+      }
+    }
   }
 
   private static void copyFileSilently(Path source, Path destination) {

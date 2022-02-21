@@ -139,7 +139,7 @@ public class FFmpeg {
     cmdList.add("-i");
     cmdList.add(videoFile.toAbsolutePath().toString());
     cmdList.add("-vf");
-    cmdList.add("cropdetect=" + Integer.toString(darkLevel) + ":2:0");
+    cmdList.add("cropdetect=" + darkLevel + ":2:0");
     cmdList.add("-f");
     cmdList.add("null");
     cmdList.add("pipe:1");
@@ -184,6 +184,7 @@ public class FFmpeg {
     return ((Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable())
         || StringUtils.isNotEmpty(Settings.getInstance().getMediaFramework()));
   }
+
   private static String getFfmpegExecutable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 

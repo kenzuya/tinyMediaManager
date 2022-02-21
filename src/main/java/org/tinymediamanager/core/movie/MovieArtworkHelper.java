@@ -16,11 +16,8 @@
 package org.tinymediamanager.core.movie;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -50,7 +46,6 @@ import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
-import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 /**
@@ -1302,67 +1297,5 @@ public class MovieArtworkHelper {
     }
 
     return -1;
-  }
-
-  /**
-   * create a still/thumb of the given {@link Movie} via FFmpeg
-   *
-   * @param movie
-   *          the movie to create a thumb for
-   */
-  public static void createThumbWithFfmpeg(Movie movie) throws Exception {
-    if (movie.isDisc()) {
-      throw new UnsupportedOperationException("This cannot be done for disc images");
-    }
-
-    MediaFile mf = movie.getMainVideoFile();
-    String fileType = "." + FilenameUtils.getExtension(mf.getFilename().toLowerCase(Locale.ROOT));
-    if (!Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
-      throw new UnsupportedOperationException("invalid video file for FFmpeg");
-    }
-
-    int seconds = (Settings.getInstance().getFfmpegPercentage() * mf.getDuration()) / 100;
-    // extract the thumb to a temp folder
-    Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
-
-    FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
-
-    // give the filesystem a bit to write the file
-    try {
-      Thread.sleep(150);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      return;
-    }
-
-    if (Files.exists(tempFile)) {
-      movie.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-
-      boolean first = true;
-
-      // and copy it to all desired locations
-      for (MovieThumbNaming thumbNaming : getThumbNamesForMovie(movie)) {
-        Path thumb = movie.getPathNIO().resolve(getArtworkFilename(movie, thumbNaming, "jpg"));
-
-        if (Files.exists(thumb)) {
-          Utils.deleteFileSafely(thumb);
-        }
-
-        Utils.copyFileSafe(tempFile, thumb);
-
-        if (first) {
-          movie.setArtwork(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-          movie.callbackForWrittenArtwork(MediaArtworkType.THUMB);
-          first = false;
-        }
-
-        MediaFile artwork = new MediaFile(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-        artwork.gatherMediaInformation();
-        movie.addToMediaFiles(artwork);
-      }
-
-      movie.saveToDb();
-    }
   }
 }
