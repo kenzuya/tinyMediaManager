@@ -5,6 +5,7 @@ x fix MediaSource detection for extracted DVD folders
 x revert duplicate filter changes - too many false positives
 x some enhancements for the TVmaze scraper
 x fixed displaying of links in plot #1676
+x clear inputbox when adding a tag #1669
 
 
 Version 4.2.6
