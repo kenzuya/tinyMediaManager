@@ -21,6 +21,8 @@ import static org.tinymediamanager.ui.TmmFontHelper.L2;
 import java.awt.Dimension;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,6 +99,11 @@ class SystemSettingsPanel extends JPanel {
   private JSpinner             spMaximumDownloadThreads;
   private JRadioButton         rdbtnFfmpegInternal;
   private JRadioButton         rdbtnFFmpegExternal;
+  private JLabel               lblFfmpegVersion;
+  private JButton              btnDownloadFfmpeg;
+  private JTextField           tfHttpPort;
+  private JTextField           tfHttpApiKey;
+  private JCheckBox            chkbxEnableHttpServer;
 
   /**
    * Instantiates a new general settings panel.
@@ -146,7 +153,7 @@ class SystemSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelMediaPlayer = new JPanel();
       panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
@@ -282,12 +289,49 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][grow]", "[][][][grow]")); // 16lp ~ width of the
+
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.api"), H3);
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+
+      chkbxEnableHttpServer = new JCheckBox(TmmResourceBundle.getString("Settings.api.enable"));
+      panelMisc.add(chkbxEnableHttpServer, "cell 1 0 2 1");
+
+      JLabel lblHttpPortT = new JLabel(TmmResourceBundle.getString("Settings.api.port"));
+      panelMisc.add(lblHttpPortT, "cell 1 1,alignx trailing");
+
+      tfHttpPort = new JTextField();
+      panelMisc.add(tfHttpPort, "cell 2 1");
+      tfHttpPort.setColumns(10);
+      tfHttpPort.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+          char c = e.getKeyChar();
+          if (((c < '0') || (c > '9')) && (c != KeyEvent.VK_BACK_SPACE)) {
+            e.consume(); // if it's not a number, ignore the event
+          }
+        }
+      });
+
+      JLabel lblHttpApiKey = new JLabel(TmmResourceBundle.getString("Settings.api.key"));
+      panelMisc.add(lblHttpApiKey, "cell 1 2,alignx trailing");
+
+      tfHttpApiKey = new JTextField();
+      panelMisc.add(tfHttpApiKey, "cell 2 2");
+      tfHttpApiKey.setColumns(30);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#api-settings"));
+
+      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+    }
+    {
+      JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][grow]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-1"));
-      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+
+      add(collapsiblePanel, "cell 0 10,growx,wmin 0");
       {
         JLabel lblParallelDownloadCountT = new JLabel(TmmResourceBundle.getString("Settings.paralleldownload"));
         panelMisc.add(lblParallelDownloadCountT, "cell 1 0 2 1");
@@ -430,5 +474,22 @@ class SystemSettingsPanel extends JPanel {
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_8, rdbtnFfmpegInternal,
         jCheckBoxBeanProperty);
     autoBinding_6.bind();
+    //
+    Property settingsBeanProperty_9 = BeanProperty.create("enableHttpServer");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_9, chkbxEnableHttpServer,
+        jCheckBoxBeanProperty);
+    autoBinding_7.bind();
+    //
+    Property settingsBeanProperty_10 = BeanProperty.create("httpServerPort");
+    Property jTextFieldBeanProperty_5 = BeanProperty.create("text");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_10, tfHttpPort,
+        jTextFieldBeanProperty_5);
+    autoBinding_8.bind();
+    //
+    Property settingsBeanProperty_11 = BeanProperty.create("httpApiKey");
+    Property jTextFieldBeanProperty_6 = BeanProperty.create("text");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_11, tfHttpApiKey,
+        jTextFieldBeanProperty_6);
+    autoBinding_12.bind();
   }
 }

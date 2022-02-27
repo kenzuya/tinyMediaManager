@@ -59,6 +59,7 @@ import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
@@ -272,6 +273,16 @@ public final class TinyMediaManager {
           MediaGenres.init();
           LanguageUtils.init();
 
+          // init http server
+          // if(Globals.settings.isStartWebserver()) {
+          try {
+            TmmHttpServer.getInstance().start();
+          }
+          catch (Exception e) {
+            LOGGER.error("could not start webserver: {}", e.getMessage());
+          }
+          // }
+
           // load modules //////////////////////////////////////////////////
           if (g2 != null) {
             updateProgress(g2, "loading movie module", 30);
@@ -343,7 +354,6 @@ public final class TinyMediaManager {
             splash.update();
           }
           if (!GraphicsEnvironment.isHeadless()) {
-
             MainWindow window = MainWindow.getInstance();
 
             // finished ////////////////////////////////////////////////////

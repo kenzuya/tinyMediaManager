@@ -64,11 +64,17 @@ public class MovieScrapeTask extends TmmThreadPool {
 
   private final MovieScrapeParams movieScrapeParams;
   private final List<Movie>       smartScrapeList;
+  private boolean                 runInBackground;
 
   public MovieScrapeTask(final MovieScrapeParams movieScrapeParams) {
     super(TmmResourceBundle.getString("movie.scraping"));
     this.movieScrapeParams = movieScrapeParams;
     this.smartScrapeList = new ArrayList<>(0);
+    this.runInBackground = false;
+  }
+
+  public void setRunInBackground(boolean runInBackground) {
+    this.runInBackground = runInBackground;
   }
 
   @Override
@@ -87,7 +93,7 @@ public class MovieScrapeTask extends TmmThreadPool {
     waitForCompletionOrCancel();
 
     // initiate smart scrape
-    if (!smartScrapeList.isEmpty() && !GraphicsEnvironment.isHeadless()) {
+    if (!smartScrapeList.isEmpty() && !GraphicsEnvironment.isHeadless() && !runInBackground) {
       try {
         SwingUtilities.invokeAndWait(() -> {
           int selectedCount = smartScrapeList.size();

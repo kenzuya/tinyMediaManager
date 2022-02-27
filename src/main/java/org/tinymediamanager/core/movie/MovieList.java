@@ -1263,15 +1263,16 @@ public final class MovieList extends AbstractModelObject {
       }
 
       // search per name/year
-      String nameYear = movie.getTitle() + movie.getYear();
-      if (duplicates.containsKey(nameYear)) {
-        movie.setDuplicate();
-        Movie movie2 = duplicates.get(nameYear);
-        movie2.setDuplicate();
-      }
-      else {
-        duplicates.put(nameYear, movie);
-      }
+      // nope - too many dupes https://www.reddit.com/r/tinyMediaManager/comments/sxj4hu/incorrect_flagging_of_duplicate_movies_in_version/
+      // String nameYear = movie.getTitle() + movie.getYear();
+      // if (duplicates.containsKey(nameYear)) {
+      // movie.setDuplicate();
+      // Movie movie2 = duplicates.get(nameYear);
+      // movie2.setDuplicate();
+      // }
+      // else {
+      // duplicates.put(nameYear, movie);
+      // }
     }
   }
 

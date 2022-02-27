@@ -112,6 +112,10 @@ public class Controller {
     return getService().episodeList(id).execute().body();
   }
 
+  public Episode getEpisode(int showId, int seasonNr, int episodeNr) throws Exception {
+    return getService().episode(showId, seasonNr, episodeNr).execute().body();
+  }
+
   public List<Image> getImages(int id) throws IOException {
     return getService().imagesList(id).execute().body();
   }

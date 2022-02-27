@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.ImageCache.CacheSize;
 import org.tinymediamanager.core.ImageCache.CacheType;
+import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.scraper.http.ProxySettings;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -118,6 +120,10 @@ public final class Settings extends AbstractSettings {
 
   private boolean                                          deleteTrashOnExit           = false;
   private boolean                                          showMemory                  = true;
+
+  private boolean                                          enableHttpServer            = false;
+  private int                                              httpServerPort              = 7878;
+  private String                                           httpApiKey                  = UUID.randomUUID().toString();
 
   private boolean                                          upnpShareLibrary            = false;
   private boolean                                          upnpRemotePlay              = false;
@@ -532,11 +538,15 @@ public final class Settings extends AbstractSettings {
     return new ArrayList<>(set);
   }
 
+  @Override
   public void saveSettings() {
     super.saveSettings();
 
     // set proxy information
     setProxy();
+
+    // set HTTP API
+    setHttpApi();
 
     // clear dirty flag
     clearDirty();
@@ -1293,4 +1303,51 @@ public final class Settings extends AbstractSettings {
     return ardSampleSettings.get(mode);
   }
 
+  public boolean isEnableHttpServer() {
+    return enableHttpServer;
+  }
+
+  public void setEnableHttpServer(boolean newValue) {
+    boolean oldValue = this.enableHttpServer;
+    this.enableHttpServer = newValue;
+    firePropertyChange("enableHttpServer", oldValue, newValue);
+  }
+
+  public int getHttpServerPort() {
+    return httpServerPort;
+  }
+
+  public void setHttpServerPort(int newValue) {
+    int oldValue = this.httpServerPort;
+    this.httpServerPort = newValue;
+    firePropertyChange("httpServerPort", oldValue, newValue);
+  }
+
+  public void setHttpServerPort(String port) {
+    try {
+      setHttpServerPort(Integer.parseInt(port));
+    }
+    catch (Exception ingored) {
+      // just ignore
+    }
+  }
+
+  public String getHttpApiKey() {
+    return httpApiKey;
+  }
+
+  public void setHttpApiKey(String newValue) {
+    String oldValue = this.httpApiKey;
+    this.httpApiKey = newValue;
+    firePropertyChange("httpApiKey", oldValue, newValue);
+  }
+
+  private void setHttpApi() {
+    try {
+      TmmHttpServer.getInstance().updateConfiguration(enableHttpServer, httpServerPort, httpApiKey);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not update HTTP server configuration - '{}'", e.getMessage());
+    }
+  }
 }

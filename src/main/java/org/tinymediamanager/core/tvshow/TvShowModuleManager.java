@@ -42,8 +42,10 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.http.TvShowCommandHandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -164,6 +166,13 @@ public final class TvShowModuleManager implements ITmmModule {
     };
     databaseTimer = new Timer();
     databaseTimer.schedule(databaseWriteTask, COMMIT_DELAY, COMMIT_DELAY);
+
+    try {
+      TmmHttpServer.getInstance().createContext("tvshow", new TvShowCommandHandler());
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not register TV show API - '{}'", e.getMessage());
+    }
   }
 
   /**

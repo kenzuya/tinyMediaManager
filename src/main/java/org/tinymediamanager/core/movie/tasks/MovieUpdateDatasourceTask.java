@@ -44,6 +44,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -122,7 +123,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>        dataSources;
-  private final List<Pattern>       skipFolders;
+  private final List<Pattern>       skipFolders      = new ArrayList<>();
   private final List<Movie>         moviesToUpdate   = new ArrayList<>();
   private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
   private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
@@ -131,9 +132,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private final List<MediaFile>     imageFiles       = new ArrayList<>();
 
   public MovieUpdateDatasourceTask() {
+    this(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
+  }
+
+  public MovieUpdateDatasourceTask(Collection<String> datasources) {
     super(TmmResourceBundle.getString("update.datasource"));
-    dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
-    skipFolders = new ArrayList<>();
+    dataSources = new ArrayList<>(datasources);
 
     init();
   }
@@ -142,7 +146,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
-    skipFolders = new ArrayList<>();
 
     init();
   }
@@ -151,7 +154,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     moviesToUpdate.addAll(movies);
-    skipFolders = new ArrayList<>();
 
     init();
   }
@@ -265,6 +267,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       List<Path> newMovieDirs = new ArrayList<>();
       List<Path> existingMovieDirs = new ArrayList<>();
       List<Path> rootList = listFilesAndDirs(dsAsPath);
+
+      LOGGER.debug("Found '{}' folders in the data source", rootList.size());
 
       // when there is _nothing_ found in the ds root, it might be offline - skip further processing
       // not in Windows since that won't happen there
@@ -1855,7 +1859,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * check if the given folder is a skip folder
-   * 
+   *
    * @param dir
    *          the folder to check
    * @return true/false
@@ -1892,7 +1896,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
-   * 
+   *
    * @param dir
    *          the folder to check
    * @return true/false
