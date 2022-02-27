@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.wizard;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.jdesktop.beansbinding.AutoBinding;
@@ -43,6 +45,7 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -96,23 +99,22 @@ class TvShowScraperPanel extends JPanel {
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            TvShowScraper changedScraper = scrapers.get(row);
-            // if flag default scraper was changed, change all other flags
-            if (changedScraper.getDefaultScraper()) {
-              settings.setScraper(changedScraper.getScraperId());
-              for (TvShowScraper scraper : scrapers) {
-                if (scraper != changedScraper) {
-                  scraper.setDefaultScraper(Boolean.FALSE);
-                }
-              }
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        TvShowScraper changedScraper = scrapers.get(row);
+        // if flag default scraper was changed, change all other flags
+        if (changedScraper.getDefaultScraper()) {
+          settings.setScraper(changedScraper.getScraperId());
+          for (TvShowScraper scraper : scrapers) {
+            if (scraper != changedScraper) {
+              scraper.setDefaultScraper(Boolean.FALSE);
             }
           }
-        });
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -148,8 +150,17 @@ class TvShowScraperPanel extends JPanel {
     JScrollPane scrollPaneScraper = new JScrollPane();
     panelTvShowScrapers.add(scrollPaneScraper, "cell 0 0 2 1,grow");
 
-    tableScraper = new TmmTable();
+    tableScraper = new TmmTable() {
+      @Override
+      public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+        ScraperInTable scraper = scrapers.get(row);
+        comp.setEnabled(scraper.isEnabled());
+        return comp;
+      }
+    };
     tableScraper.setRowHeight(29);
+    tableScraper.setShowGrid(true);
     scrollPaneScraper.setViewportView(tableScraper);
 
     {

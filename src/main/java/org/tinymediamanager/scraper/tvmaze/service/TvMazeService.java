@@ -43,6 +43,9 @@ public interface TvMazeService {
   @GET("/shows/{id}/episodes")
   Call<List<Episode>> episodeList(@Path("id") int id);
 
+  @GET("/shows/{id}/episodebynumber")
+  Call<Episode> episode(@Path("id") int id, @Query("season") int season, @Query("number") int episode);
+
   @GET("/shows/{id}/images")
   Call<List<Image>> imagesList(@Path("id") int id);
 

@@ -141,7 +141,7 @@ deploy:DOCKER-RELEASE:
   services:
     - name: docker:dind
   variables:
-    TMM_VERSION: "4.2.6"
+    TMM_VERSION: "4.2.7"
     IMAGE_NAME: tinymediamanager/tinymediamanager:${TMM_VERSION}
   script:
     # login
