@@ -62,12 +62,12 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         super.setText(t);
       }
       else {
-        t = t.replace("\\n", " <br/> ");
-
         // performance: just do a quick contains, before doing all the fancy stuff
         if (t.contains("http") || t.contains("www")) {
           // remove all existing href tags, to not reHTMLify existing ones
           t = Jsoup.clean(t, "", Whitelist.simpleText(), NO_PRETTYPRINT);
+
+          t = t.replaceAll("\\n", " <br/> ");
 
           // with space around, so a line concatenating has a whitespace delimiter
           t = t.replaceAll("(?:https|http)://([^\\s]+)", "<a href=\"$0\">$1</a>");
@@ -78,6 +78,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         }
         else {
           // no HTML links found to upgrade
+          t = t.replaceAll("\\n", " <br/> ");
           super.setText(t);
         }
       }
