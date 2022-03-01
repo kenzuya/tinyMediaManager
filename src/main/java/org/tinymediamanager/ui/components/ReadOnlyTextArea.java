@@ -22,7 +22,9 @@ import java.awt.Point;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -52,6 +54,18 @@ public class ReadOnlyTextArea extends JTextArea {
     setFocusable(false);
     setForeground(UIManager.getColor("Label.foreground"));
     setCaret(new NullCaret());
+  }
+
+  @Override
+  public void setText(String t) {
+    try {
+      Document doc = getDocument();
+      doc.remove(0, doc.getLength());
+      doc.insertString(0, t, null);
+    }
+    catch (BadLocationException e) {
+      UIManager.getLookAndFeel().provideErrorFeedback(ReadOnlyTextArea.this);
+    }
   }
 
   /**
