@@ -1,5 +1,6 @@
 Version 4.2.7
 =======================
++ added an action to rewrite movie set NFO files
 x fix startup problems if your Kodi RPC credentials are wrong
 x fix MediaSource detection for extracted DVD folders
 x revert duplicate filter changes - too many false positives
