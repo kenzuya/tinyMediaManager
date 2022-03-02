@@ -795,6 +795,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     public void cancel() {
       cancel = true;
+      super.cancel(true);
     }
 
     @Override

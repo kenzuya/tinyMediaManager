@@ -8,6 +8,7 @@ x some enhancements for the TVmaze scraper
 x fixed displaying of links in plot #1676
 x clear inputbox when adding a tag #1669
 x fixed errors when displaying plots #1679
+x faster cancelling of an aborted search #1685
 
 
 Version 4.2.6
