@@ -16,77 +16,78 @@
 package org.tinymediamanager.scraper.thetvdb.entities;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
 
 public class SearchResultRecord {
   @SerializedName("aliases")
-  public List<String> aliases              = null;
+  public List<String>        aliases         = null;
 
   @SerializedName("companies")
-  public List<String> companies            = null;
+  public List<String>        companies       = null;
 
   @SerializedName("companyType")
-  public String       companyType          = null;
+  public String              companyType     = null;
 
   @SerializedName("country")
-  public String       country              = null;
+  public String              country         = null;
 
   @SerializedName("director")
-  public String       director             = null;
+  public String              director        = null;
 
   @SerializedName("extendedTitle")
-  public String       extendedTitle        = null;
+  public String              extendedTitle   = null;
 
   @SerializedName("genres")
-  public List<String> genres               = null;
+  public List<String>        genres          = null;
 
   @SerializedName("id")
-  public String       id                   = null;
+  public String              id              = null;
 
   @SerializedName("image_url")
-  public String       imageUrl             = null;
+  public String              imageUrl        = null;
 
   @SerializedName("name")
-  public String       name                 = null;
+  public String              name            = null;
 
   @SerializedName("name_translated")
-  public String       nameTranslated       = null;
+  public String              nameTranslated  = null;
 
   @SerializedName("network")
-  public String       network              = null;
+  public String              network         = null;
 
   @SerializedName("officialList")
-  public String       officialList         = null;
+  public String              officialList    = null;
 
   @SerializedName("overview")
-  public String       overview             = null;
+  public String              overview        = null;
 
-  @SerializedName("overview_translated")
-  public List<String> overviewTranslated   = null;
+  @SerializedName("overviews")
+  public Map<String, String> overviews       = null;
 
   @SerializedName("posters")
-  public List<String> posters              = null;
+  public List<String>        posters         = null;
 
   @SerializedName("primaryLanguage")
-  public String       primaryLanguage      = null;
+  public String              primaryLanguage = null;
 
   @SerializedName("primaryType")
-  public String       primaryType          = null;
+  public String              primaryType     = null;
 
   @SerializedName("status")
-  public String       status               = null;
+  public String              status          = null;
 
-  @SerializedName("translationsWithLang")
-  public List<String> translationsWithLang = null;
+  @SerializedName("translations")
+  public Map<String, String> translations    = null;
 
   @SerializedName("tvdb_id")
-  public String       tvdbId               = null;
+  public String              tvdbId          = null;
 
   @SerializedName("type")
-  public String       type                 = null;
+  public String              type            = null;
 
   @SerializedName("year")
-  public String       year                 = null;
+  public String              year            = null;
 
 }

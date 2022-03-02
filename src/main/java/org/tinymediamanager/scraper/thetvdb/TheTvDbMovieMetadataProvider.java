@@ -196,13 +196,13 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
         fallbackLanguage = MediaLanguages.get(getProviderInfo().getConfig().getValue(FALLBACK_LANGUAGE));
       }
 
-      String title = parseLocalizedText(baseLanguage, searchResultRecord.nameTranslated);
+      String title = parseLocalizedText(baseLanguage, searchResultRecord.translations);
       if (StringUtils.isNotBlank(title)) {
         result.setTitle(title);
       }
       else {
         // try fallback
-        title = parseLocalizedText(fallbackLanguage, searchResultRecord.nameTranslated);
+        title = parseLocalizedText(fallbackLanguage, searchResultRecord.translations);
         if (StringUtils.isNotBlank(title)) {
           result.setTitle(title);
         }
@@ -211,13 +211,13 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
         }
       }
 
-      String overview = parseLocalizedText(baseLanguage, searchResultRecord.overviewTranslated);
+      String overview = parseLocalizedText(baseLanguage, searchResultRecord.overviews);
       if (StringUtils.isNotBlank(overview)) {
         result.setOverview(overview);
       }
       else {
         // try fallback
-        overview = parseLocalizedText(fallbackLanguage, searchResultRecord.overviewTranslated);
+        overview = parseLocalizedText(fallbackLanguage, searchResultRecord.overviews);
         if (StringUtils.isNotBlank(overview)) {
           result.setOverview(overview);
         }
