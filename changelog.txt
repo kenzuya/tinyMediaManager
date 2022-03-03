@@ -1,3 +1,17 @@
+Version 4.2.7
+=======================
++ added an action to rewrite movie set NFO files
+x fix startup problems if your Kodi RPC credentials are wrong
+x fix MediaSource detection for extracted DVD folders
+x revert duplicate filter changes - too many false positives
+x some enhancements for the TVmaze scraper
+x fixed displaying of links in plot #1676
+x clear inputbox when adding a tag #1669
+x fixed errors when displaying plots #1679
+x faster cancelling of an aborted search #1685
+x fixed multi-language search results with TVDB API #1654
+
+
 Version 4.2.6
 =======================
 + added certification support for Hong Kong #1623

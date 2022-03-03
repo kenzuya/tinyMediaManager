@@ -50,6 +50,7 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetReadMovieNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetRewriteNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetScrapeMissingMoviesAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSearchAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedCollectionTraktTvAction;
@@ -214,6 +215,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetScrapeMissingMoviesAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetEditAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetRewriteNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
@@ -222,10 +224,10 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(new TmmMenuLabel(TmmResourceBundle.getString("metatag.movie")));
     popupMenu.add(createAndRegisterAction(MovieSetUpdateMovieAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSetReadMovieNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetEditMovieAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetBatchEditMovieAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetToggleWatchedFlagAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetReadMovieNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetRenameAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetExportMovieAction.class));
 

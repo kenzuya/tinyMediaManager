@@ -63,7 +63,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     Integer tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
     if (tvMazeId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(MediaMetadata.TVDB);
+      throw new MissingIdException("tvmaze");
     }
 
     Show show = null;
@@ -82,6 +82,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     }
 
     if (show != null) {
+      md.setId("tvmaze", show.id);
       md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
       md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
       md.setId("tvrage", show.tvShowIds.tvrage);
@@ -148,8 +149,6 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     // lazy initialization of the api
     initAPI();
 
-    MediaMetadata md = new MediaMetadata(getId());
-
     // do we have an id from the options?
     int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault("tvmaze", 0);
     if (showId == 0) {
@@ -157,29 +156,36 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       throw new MissingIdException(MediaMetadata.TVDB);
     }
 
-    MediaArtwork ma;
-
     // get episode number and season number
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
     int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
-    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
-
-    // get the correct information
-    MediaMetadata foundEpisode = null;
-    for (MediaMetadata episode : episodes) {
-      // found the correct episode
-      if (seasonNr == episode.getSeasonNumber() && episodeNr == episode.getEpisodeNumber()) {
-        foundEpisode = episode;
-        break;
-      }
+    // Get all Episode and Season Information for the given TvShow
+    Episode episode = null;
+    try {
+      episode = controller.getEpisode(showId, seasonNr, episodeNr);
+    }
+    catch (Exception e) {
+      LOGGER.trace("could not get Episode information: {}", e.getMessage());
     }
 
-    if (foundEpisode != null) {
-      md = foundEpisode;
-    }
-    else {
+    if (episode == null) {
       throw new NothingFoundException();
+    }
+
+    MediaMetadata md = new MediaMetadata(getId());
+    // found the correct episode
+    md.setId("tvmaze", episode.id);
+    md.setTitle(episode.name);
+    md.setPlot(Jsoup.parse(episode.summary).text());
+    md.setEpisodeNumber(episode.episode);
+    md.setSeasonNumber(episode.season);
+    md.setRuntime(episode.runtime);
+    try {
+      md.setReleaseDate(premieredFormat.parse(episode.airdate));
+      md.setYear(parseYear(episode.airdate));
+    }
+    catch (ParseException ignored) {
     }
 
     // Get Image Information for the given TV Show
@@ -190,6 +196,8 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     catch (IOException e) {
       LOGGER.trace("could not get Image information: {}", e.getMessage());
     }
+
+    MediaArtwork ma;
 
     for (Image image : imageList) {
       if (StringUtils.isBlank(image.type)) {

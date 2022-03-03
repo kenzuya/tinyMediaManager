@@ -1874,18 +1874,16 @@ public class MovieEditorDialog extends TmmDialog {
         }
       }
 
-      // search if this tag already has been added
-      boolean tagFound = false;
-      for (String tag : tags) {
-        if (tag.equals(newTag)) {
-          tagFound = true;
-          break;
-        }
-      }
-
-      // add tag
-      if (!tagFound) {
+      // add genre if it is not already in the list
+      if (newTag != null && !tags.contains(newTag)) {
         tags.add(newTag);
+
+        // set text combobox text input to ""
+        if (editorComponent instanceof JTextField) {
+          cbTagsAutoCompleteSupport.setFirstItem(null);
+          cbTags.setSelectedIndex(0);
+          cbTagsAutoCompleteSupport.removeFirstItem();
+        }
       }
     }
   }

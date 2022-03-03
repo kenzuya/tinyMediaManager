@@ -55,10 +55,6 @@ import org.tinymediamanager.scraper.thetvdb.service.Controller;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 /**
  * The Class TheTvDbMetadataProvider.
  *
@@ -180,10 +176,10 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
    * @param desiredLanguage
    *          the desired {@link MediaLanguages} to get the text in
    * @param localizedTexts
-   *          a {@link List} of translated texts
+   *          a {@link Map} of translated texts
    * @return the translated text or an empty {@link String}
    */
-  protected String parseLocalizedText(MediaLanguages desiredLanguage, List<String> localizedTexts) {
+  protected String parseLocalizedText(MediaLanguages desiredLanguage, Map<String, String> localizedTexts) {
     if (localizedTexts == null) {
       return "";
     }
@@ -195,37 +191,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       iso3LanguageTag = "pt";
     }
 
-    for (String text : localizedTexts) {
-      if (text.startsWith(iso3LanguageTag + ": ")) {
-        return text.replace(iso3LanguageTag + ": ", "");
-      }
+    String text = localizedTexts.get(iso3LanguageTag);
+    if (StringUtils.isNotBlank(text)) {
+      return text;
     }
 
     return "";
-  }
-
-  /**
-   * parse the localized text from the JSON String - LEGACY to avoid a bug in the API
-   * 
-   * @param desiredLanguage
-   *          the desired {@link MediaLanguages} to get the text in
-   * @param localizedTextsInJson
-   *          a {@link String} with the JSON of translated texts
-   * @return the translated text or an empty {@link String}
-   */
-  protected String parseLocalizedText(MediaLanguages desiredLanguage, String localizedTextsInJson) {
-    if (localizedTextsInJson == null) {
-      return "";
-    }
-
-    // parse the JSON into a List with the same structure as the other translations
-    List<String> localizedTexts = new ArrayList<>();
-
-    JsonObject jsonObject = new JsonParser().parse(localizedTextsInJson).getAsJsonObject();
-    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-      localizedTexts.add(entry.getKey() + ": " + entry.getValue().getAsString());
-    }
-    return parseLocalizedText(desiredLanguage, localizedTexts);
   }
 
   protected List<Person> parseCastMembers(List<Character> characters) {

@@ -617,7 +617,7 @@ public class KodiRPC {
   public String getKodiVersion() {
     final Application.GetProperties call = new Application.GetProperties("version");
     send(call);
-    if (call.getResults() != null && !call.getResults().isEmpty()) {
+    if (call.getResult() != null) {
       ApplicationModel.PropertyValue res = call.getResult();
       int maj = res.version.major;
       int min = res.version.minor;
