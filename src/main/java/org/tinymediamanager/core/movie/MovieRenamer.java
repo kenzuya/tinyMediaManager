@@ -59,6 +59,7 @@ import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
@@ -1266,6 +1267,8 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
+
+    engine.registerAnnotationProcessor(new RegexpProcessor());
 
     return engine;
   }

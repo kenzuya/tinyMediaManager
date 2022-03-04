@@ -32,6 +32,7 @@ import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -83,6 +84,8 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieRenamer.MovieNamedIndexOfMovieSetRenderer());
+
+    engine.registerAnnotationProcessor(new RegexpProcessor());
 
     engine.setModelAdaptor(new TmmModelAdaptor());
 

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
+import org.tinymediamanager.core.jmte.RegexpProcessor;
 
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
@@ -94,6 +95,7 @@ public abstract class MediaEntityExporter {
 
     // set up engine
     engine = Engine.createEngine();
+    engine.registerAnnotationProcessor(new RegexpProcessor());
 
     if ("html".equals(fileExtension)) {
       engine.setEncoder(new HtmlEncoder()); // special char replacement

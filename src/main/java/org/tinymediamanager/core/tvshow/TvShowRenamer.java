@@ -66,6 +66,7 @@ import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
@@ -1471,6 +1472,7 @@ public class TvShowRenamer {
           return TvShowRenamer.replaceInvalidCharacters(text);
         }
       });
+      engine.registerAnnotationProcessor(new RegexpProcessor());
 
       Map<String, Object> root = new HashMap<>();
       if (episode != null) {

@@ -4,3 +4,4 @@ Version 4.3
 + updated the bundled Java version to 17.0.2
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
 + added an HTTP API for remote control of tinyMediaManager
++ added an regular expression based JMTE annotation #1611
