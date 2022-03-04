@@ -10,6 +10,7 @@ x clear inputbox when adding a tag #1669
 x fixed errors when displaying plots #1679
 x faster cancelling of an aborted search #1685
 x fixed multi-language search results with TVDB API #1654
+x fixed actor image loading from IMDb #1680
 
 
 Version 4.2.6
