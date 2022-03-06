@@ -12,6 +12,7 @@ x faster cancelling of an aborted search #1685
 x fixed multi-language search results with TVDB API #1654
 x fixed actor image loading from IMDb #1680
 x fixed calculating of movie counts in the movie set panel
+x enhanced getting alternative trailer qualities for trailers
 
 
 Version 4.2.6
