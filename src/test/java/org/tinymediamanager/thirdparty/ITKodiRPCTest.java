@@ -13,7 +13,6 @@ import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.MovieDetail;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
-import org.tinymediamanager.jsonrpc.io.ApiException;
 
 public class ITKodiRPCTest extends BasicTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ITKodiRPCTest.class);
@@ -87,7 +86,7 @@ public class ITKodiRPCTest extends BasicTest {
       HostConfig config = new HostConfig("127.0.0.1", 8080, "kodi", "kodi");
       KodiRPC.getInstance().connect(config);
     }
-    catch (ApiException e) {
+    catch (Exception e) {
       System.err.println(e.getMessage());
       Assert.fail(e.getMessage());
     }

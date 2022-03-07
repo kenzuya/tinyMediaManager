@@ -158,12 +158,17 @@ public class KodiRPC {
 
     send(call);
     if (call.getResults() != null && !call.getResults().isEmpty()) {
-      for (ListModel.SourceItem res : call.getResults()) {
-        LOGGER.debug("Kodi datasource: {}", res.file);
-        this.videodatasourcesAsString.add(res.file);
+      try {
+        for (ListModel.SourceItem res : call.getResults()) {
+          LOGGER.debug("Kodi datasource: {}", res.file);
+          this.videodatasourcesAsString.add(res.file);
 
-        SplitUri s = new SplitUri(res.file, "", res.label, connectionManager.getHostConfig().getAddress());
-        this.videodatasources.add(s);
+          SplitUri s = new SplitUri(res.file, "", res.label, connectionManager.getHostConfig().getAddress());
+          this.videodatasources.add(s);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
       // sort by length (longest first)
@@ -197,11 +202,16 @@ public class KodiRPC {
       LOGGER.debug("TMM {} items", tmmFiles.size());
 
       // iterate over all Kodi resources
-      for (MovieDetail res : call.getResults()) {
-        Movie foundMovie = findMatchingMovie(res, tmmFiles, imdbIds, titles);
-        if (foundMovie != null) {
-          moviemappings.put(foundMovie.getDbId(), res.movieid);
+      try {
+        for (MovieDetail res : call.getResults()) {
+          Movie foundMovie = findMatchingMovie(res, tmmFiles, imdbIds, titles);
+          if (foundMovie != null) {
+            moviemappings.put(foundMovie.getDbId(), res.movieid);
+          }
         }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
       LOGGER.debug("mapped {} items", moviemappings.size());
@@ -328,11 +338,16 @@ public class KodiRPC {
       LOGGER.debug("TMM {} items", tmmFiles.size());
 
       // iterate over all Kodi shows
-      for (TVShowDetail show : tvShowCall.getResults()) {
-        TvShow foundTvShow = findMatchingTvShow(show, tmmFiles, idMap);
-        if (foundTvShow != null) {
-          tvshowmappings.put(foundTvShow.getDbId(), show.tvshowid);
+      try {
+        for (TVShowDetail show : tvShowCall.getResults()) {
+          TvShow foundTvShow = findMatchingTvShow(show, tmmFiles, idMap);
+          if (foundTvShow != null) {
+            tvshowmappings.put(foundTvShow.getDbId(), show.tvshowid);
+          }
         }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
       LOGGER.debug("mapped {} items", tvshowmappings.size());
@@ -603,8 +618,13 @@ public class KodiRPC {
     send(call);
 
     if (call.getResults() != null && !call.getResults().isEmpty()) {
-      for (ListModel.SourceItem res : call.getResults()) {
-        this.audiodatasources.add(new SplitUri(res.file, res.file, res.label, connectionManager.getHostConfig().getAddress()));
+      try {
+        for (ListModel.SourceItem res : call.getResults()) {
+          this.audiodatasources.add(new SplitUri(res.file, res.file, res.label, connectionManager.getHostConfig().getAddress()));
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
     }
   }
@@ -617,11 +637,14 @@ public class KodiRPC {
   public String getKodiVersion() {
     final Application.GetProperties call = new Application.GetProperties("version");
     send(call);
-    if (call.getResult() != null) {
+    try {
       ApplicationModel.PropertyValue res = call.getResult();
       int maj = res.version.major;
       int min = res.version.minor;
       return maj + "." + min;
+    }
+    catch (Exception ignored) {
+      // just ignore
     }
     return "";
   }
@@ -732,10 +755,10 @@ public class KodiRPC {
    * 
    * @param config
    *          Host configuration
-   * @throws ApiException
-   *           Throws ApiException when something goes wrong with the initialization of the API.
+   * @throws Exception
+   *           Throws {@link Exception} when something goes wrong with the initialization of the API.
    */
-  public void connect(HostConfig config) throws ApiException {
+  public void connect(HostConfig config) throws Exception {
     if (isConnected()) {
       connectionManager.disconnect();
     }
@@ -744,18 +767,17 @@ public class KodiRPC {
       try {
         LOGGER.info("Connecting...");
         connectionManager.connect(config);
-      }
-      catch (ApiException e) {
-        LOGGER.error("Error connecting to Kodi - '{}'", e.getMessage());
-        return;
-      }
 
-      if (isConnected()) {
-        this.kodiVersion = getKodiVersion();
-        getAndSetVideoDataSources();
-        getAndSetAudioDataSources();
-        getAndSetMovieMappings();
-        getAndSetTvShowMappings();
+        if (isConnected()) {
+          this.kodiVersion = getKodiVersion();
+          getAndSetVideoDataSources();
+          getAndSetAudioDataSources();
+          getAndSetMovieMappings();
+          getAndSetTvShowMappings();
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("Error connecting to Kodi - '{}'", e.getMessage());
       }
     }).start();
   }
@@ -769,7 +791,7 @@ public class KodiRPC {
     try {
       connect(new HostConfig(s.getKodiHost(), s.getKodiHttpPort(), s.getKodiTcpPort(), s.getKodiUsername(), s.getKodiPassword()));
     }
-    catch (ApiException cex) {
+    catch (Exception cex) {
       LOGGER.error("Error connecting to Kodi instance! {}", cex.getMessage());
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "KodiRPC", "Could not connect to Kodi: " + cex.getMessage()));
     }
