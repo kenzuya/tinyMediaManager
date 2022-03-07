@@ -385,7 +385,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
       if (userObject instanceof MovieSet) {
         movieSetCount++;
       }
-      else if (userObject instanceof Movie) {
+      else if (userObject instanceof Movie && !(userObject instanceof MovieSet.MovieSetMovie)) {
         movieCount++;
       }
     }

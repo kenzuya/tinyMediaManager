@@ -56,7 +56,7 @@ public class UnlockDialog extends TmmDialog {
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
-    panelContent.setLayout(new MigLayout("", "[][400lp,grow]", "[][][][10lp:n][][][100lp:150lp,grow][grow]"));
+    panelContent.setLayout(new MigLayout("", "[][500lp,grow]", "[][][20lp!][10lp:n][20lp!][][100lp:150lp,grow][]"));
     {
       JTextArea taLicenseHint = new ReadOnlyTextArea(
           TmmResourceBundle.getString("tmm.license.hint") + "\n\n" + TmmResourceBundle.getString("tmm.license.hint2"));

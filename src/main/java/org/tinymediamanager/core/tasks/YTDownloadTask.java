@@ -81,7 +81,7 @@ public abstract class YTDownloadTask extends TmmTask {
   private long                 bytesDonePrevious = 0;
   private double               speed             = 0;
 
-  public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
+  protected YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
     this.mediaTrailer = mediaTrailer;
     this.desiredQuality = desiredQuality;
@@ -261,8 +261,8 @@ public abstract class YTDownloadTask extends TmmTask {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
-        else if (bestQuality.ordinal() >= audioVideoFormat.videoQuality().ordinal()) {
-          // >= because we prefer combined over separate streams
+        else if (bestQuality.ordinal() <= audioVideoFormat.videoQuality().ordinal()) {
+          // <= because we prefer combined over separate streams
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
@@ -274,7 +274,7 @@ public abstract class YTDownloadTask extends TmmTask {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
-        else if (bestQuality.ordinal() > audioVideoFormat.videoQuality().ordinal()) {
+        else if (bestQuality.ordinal() < audioVideoFormat.videoQuality().ordinal()) {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
