@@ -50,6 +50,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.CodeSource;
@@ -88,6 +89,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
 import org.brotli.dec.BrotliInputStream;
@@ -689,7 +691,8 @@ public class Utils {
                 }
                 continue;
               }
-              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              fixDateAttributes(source, destination);
             }
 
             // delete source files
@@ -733,6 +736,22 @@ public class Utils {
       }
     }
     return true; // dir are equal
+  }
+
+  private static void fixDateAttributes(Path source, Path destination) {
+    // fix date attributes in Windows due to _incomplete_ system operations
+    // see https://stackoverflow.com/a/58205668
+    if (SystemUtils.IS_OS_WINDOWS) {
+      try {
+        BasicFileAttributes srcAttrs = Files.readAttributes(source, BasicFileAttributes.class);
+        BasicFileAttributeView tgtView = Files.getFileAttributeView(destination, BasicFileAttributeView.class);
+
+        tgtView.setTimes(srcAttrs.lastModifiedTime(), srcAttrs.lastAccessTime(), srcAttrs.creationTime());
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not set date attributes for '{}' - '{}'", destination, e.getMessage());
+      }
+    }
   }
 
   /**
@@ -793,7 +812,8 @@ public class Utils {
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that
           try {
-            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            fixDateAttributes(srcFile, destFile);
             Files.delete(srcFile);
             rename = true; // no exception
           }
@@ -903,6 +923,7 @@ public class Utils {
         try {
           // replace existing for changing cASE
           Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+          fixDateAttributes(srcFile, destFile);
           rename = true;// no exception
         }
         catch (UnsupportedOperationException u) {
@@ -910,6 +931,7 @@ public class Utils {
           try {
             // replace existing for changing cASE
             Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
+            fixDateAttributes(srcFile, destFile);
             rename = true;// no exception
           }
           catch (IOException e) {
@@ -1483,7 +1505,8 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             final Path destFile = Paths.get(destDir.toString(), file.toString());
             LOGGER.debug("Extracting file {} to {}", file, destFile);
-            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            fixDateAttributes(file, destFile);
             return FileVisitResult.CONTINUE;
           }
 
@@ -1543,7 +1566,8 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toString().equals(fileToExtract.toString())) {
               LOGGER.debug("Extracting file {} to {}", file, destFile);
-              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              fixDateAttributes(file, destFile);
             }
             return FileVisitResult.CONTINUE;
           }
@@ -1824,7 +1848,8 @@ public class Utils {
 
     @Override
     public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+      fixDateAttributes(file, targetPath);
       return FileVisitResult.CONTINUE;
     }
   }
