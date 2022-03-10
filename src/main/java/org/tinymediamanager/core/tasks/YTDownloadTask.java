@@ -153,7 +153,7 @@ public abstract class YTDownloadTask extends TmmTask {
         downloadSeparateStreams((VideoFormat) streams[0], (AudioFormat) streams[1]);
       }
     }
-    catch (Exception e) {
+    catch (Exception | Error e) { // Error due to some AssertionErrors which may be thrown by the mp4parser
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Youtube trailer downloader", "message.trailer.downloadfailed",
           new String[] { getMediaEntityToAdd().getTitle() }));
       setState(TaskState.FAILED);
