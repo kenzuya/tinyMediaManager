@@ -26,9 +26,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
-import org.tinymediamanager.scraper.util.UrlUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -247,7 +247,7 @@ public class Person extends AbstractModelObject {
   public String getNameForStorage() {
     String n = name.replace(" ", "_");
     n = n.replaceAll("([\"\\\\:<>|/?*])", "");
-    String ext = UrlUtil.getExtension(this.thumbUrl);
+    String ext = Utils.getArtworkExtensionFromUrl(this.thumbUrl);
     if (ext.isEmpty()) {
       ext = "jpg";
     }
