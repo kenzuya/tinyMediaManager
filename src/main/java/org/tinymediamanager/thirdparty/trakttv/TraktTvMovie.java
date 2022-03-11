@@ -329,11 +329,11 @@ class TraktTvMovie {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedMovie>> traktRatingResponse = api.sync().ratingsMovies(RatingsFilter.ALL, null).execute();
+      Response<List<RatedMovie>> traktRatingResponse = api.sync().ratingsMovies(RatingsFilter.ALL, null, null, null).execute();
       if (!traktRatingResponse.isSuccessful() && traktRatingResponse.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        traktRatingResponse = api.sync().ratingsMovies(null, null).execute();
+        traktRatingResponse = api.sync().ratingsMovies(null, null, null, null).execute();
       }
       if (!traktRatingResponse.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktRatingResponse.code(), traktRatingResponse.message());

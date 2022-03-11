@@ -298,11 +298,11 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+        response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
@@ -319,11 +319,11 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
