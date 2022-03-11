@@ -77,6 +77,7 @@ public abstract class ImdbParser {
   static final Pattern                TV_SERIES_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((TV Series|TV Mini[ -]Series)\\)$");
   static final Pattern                SHORT_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((Short|Video)\\)$");
   static final Pattern                VIDEOGAME_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\(Video Game\\)$");
+  static final Pattern                IMAGE_SCALING_PATTERN    = Pattern.compile("S([XY])(.*?)_CR(\\d*),(\\d*),(\\d*),(\\d*)");
 
   static final String                 INCLUDE_MOVIE            = "includeMovieResults";
   static final String                 INCLUDE_TV_MOVIE         = "includeTvMovieResults";
@@ -1212,21 +1213,10 @@ public abstract class ImdbParser {
     if (imageElement != null) {
       String imageSrc = imageElement.attr("loadlate");
 
-      if (!StringUtils.isEmpty(imageSrc)) {
-        int fileStart = imageSrc.lastIndexOf('/');
-        if (fileStart > 0) {
-          // parse out the rescale/crop params
-          int parameterStart = imageSrc.indexOf("._", fileStart);
-          if (parameterStart > 0) {
-            int startOfExtension = imageSrc.lastIndexOf('.');
-            if (startOfExtension > parameterStart) {
-              // rebuild the path - scaled to 632 px height as in tmdb scraper
-              imageSrc = imageSrc.substring(0, parameterStart) + "._UY632" + imageSrc.substring(startOfExtension);
-            }
-          }
-        }
-        image = imageSrc;
+      if (StringUtils.isNotBlank(imageSrc)) {
+        imageSrc = scaleImage(imageSrc, 300, 450);
       }
+      image = imageSrc;
     }
 
     // profile path
@@ -1254,6 +1244,57 @@ public abstract class ImdbParser {
     return cm;
   }
 
+  private String scaleImage(String url, int desiredX, int desiredY) {
+    String imageSrc = url;
+
+    // parse out the rescale/crop params
+    Matcher matcher = IMAGE_SCALING_PATTERN.matcher(imageSrc);
+    if (matcher.find()) {
+      try {
+        String direction = matcher.group(1);
+        int scaling = MetadataUtil.parseInt(matcher.group(2), 0);
+        int x0 = MetadataUtil.parseInt(matcher.group(3));
+        int y0 = MetadataUtil.parseInt(matcher.group(4));
+        int x1 = MetadataUtil.parseInt(matcher.group(5));
+        int y1 = MetadataUtil.parseInt(matcher.group(6));
+
+        int x0new = x0;
+        int x1new = x1;
+        int y0new = y0;
+        int y1new = y1;
+
+        if (scaling > 0) {
+          int desiredSize = 0;
+          if ("X".equals(direction)) {
+            // scale horizontally
+            imageSrc = imageSrc.replace("SX" + scaling, "SX" + desiredX);
+            desiredSize = desiredX;
+
+          }
+          else if ("Y".equals(direction)) {
+            // scale vertically
+            imageSrc = imageSrc.replace("SY" + scaling, "SY" + desiredY);
+            desiredSize = desiredY;
+          }
+
+          if (x0 > 0 || y0 > 0 || x1 > 0 || y1 > 0) {
+            x0new = (int) (x0 * desiredSize / (1.0f * scaling));
+            y0new = (int) (y0 * desiredSize / (1.0f * scaling));
+            x1new = (int) (x1 * desiredSize / (1.0f * scaling));
+            y1new = (int) (y1 * desiredSize / (1.0f * scaling));
+          }
+
+          imageSrc = imageSrc.replace("CR" + x0 + "," + y0 + "," + x1 + "," + y1, "CR" + x0new + "," + y0new + "," + x1new + "," + y1new);
+        }
+      }
+      catch (Exception e) {
+        getLogger().debug("Could not parse scaling/cropping params - '{}'", e.getMessage());
+      }
+    }
+
+    return imageSrc;
+  }
+
   protected Date parseDate(String dateAsSting) {
     try {
       return StrgUtils.parseDate(dateAsSting);
@@ -1268,10 +1309,10 @@ public abstract class ImdbParser {
    * local helper classes
    ****************************************************************************/
   protected class ImdbWorker implements Callable<Document> {
-    private String  pageUrl;
-    private String  language;
-    private String  country;
-    private boolean useCachedUrl;
+    private final String  pageUrl;
+    private final String  language;
+    private final String  country;
+    private final boolean useCachedUrl;
 
     ImdbWorker(String url, String language, String country) {
       this(url, language, country, true);

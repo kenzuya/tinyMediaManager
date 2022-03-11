@@ -782,6 +782,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     public void cancel() {
       cancel = true;
+      super.cancel(true);
     }
 
     @Override

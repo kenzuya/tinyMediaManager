@@ -81,7 +81,7 @@ public abstract class YTDownloadTask extends TmmTask {
   private long                 bytesDonePrevious = 0;
   private double               speed             = 0;
 
-  public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
+  protected YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
     this.mediaTrailer = mediaTrailer;
     this.desiredQuality = desiredQuality;
@@ -153,7 +153,7 @@ public abstract class YTDownloadTask extends TmmTask {
         downloadSeparateStreams((VideoFormat) streams[0], (AudioFormat) streams[1]);
       }
     }
-    catch (Exception e) {
+    catch (Exception | Error e) { // Error due to some AssertionErrors which may be thrown by the mp4parser
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Youtube trailer downloader", "message.trailer.downloadfailed",
           new String[] { getMediaEntityToAdd().getTitle() }));
       setState(TaskState.FAILED);
@@ -261,8 +261,8 @@ public abstract class YTDownloadTask extends TmmTask {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
-        else if (bestQuality.ordinal() >= audioVideoFormat.videoQuality().ordinal()) {
-          // >= because we prefer combined over separate streams
+        else if (bestQuality.ordinal() <= audioVideoFormat.videoQuality().ordinal()) {
+          // <= because we prefer combined over separate streams
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
@@ -274,7 +274,7 @@ public abstract class YTDownloadTask extends TmmTask {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }
-        else if (bestQuality.ordinal() > audioVideoFormat.videoQuality().ordinal()) {
+        else if (bestQuality.ordinal() < audioVideoFormat.videoQuality().ordinal()) {
           bestQuality = audioVideoFormat.videoQuality();
           videoStreamInBestQuality = format;
         }

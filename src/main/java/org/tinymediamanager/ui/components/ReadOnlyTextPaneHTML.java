@@ -67,8 +67,9 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
           // remove all existing href tags, to not reHTMLify existing ones
           t = Jsoup.clean(t, "", Whitelist.simpleText(), NO_PRETTYPRINT);
 
-          // with space around, so a line concatenating has a whitespace delimiter
           t = t.replaceAll("\\n", " <br/> ");
+
+          // with space around, so a line concatenating has a whitespace delimiter
           t = t.replaceAll("(?:https|http)://([^\\s]+)", "<a href=\"$0\">$1</a>");
           // whitespace before WWW to not include former style!!!
           t = t.replaceAll("(?:^|\\s)(www\\.[^\\s]+)", " <a href=\"https://$1\">$1</a>");
@@ -77,6 +78,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         }
         else {
           // no HTML links found to upgrade
+          t = t.replaceAll("\\n", " <br/> ");
           super.setText(t);
         }
       }

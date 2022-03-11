@@ -42,7 +42,6 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
-import org.tinymediamanager.jsonrpc.io.ApiException;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -166,7 +165,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
           try {
             KodiRPC.getInstance().connect(c);
           }
-          catch (ApiException cex) {
+          catch (Exception cex) {
             LOGGER.error("Error connecting to Kodi instance! {}", cex.getMessage());
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "KodiRPC", "Could not connect to Kodi: " + cex.getMessage()));
           }
