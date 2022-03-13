@@ -36,6 +36,7 @@ public final class TmmModuleManager {
   private final Set<ITmmModule>   modules;
 
   private Timer                   statisticsTimer;
+  private boolean                 isActive;
 
   private TmmModuleManager() {
     modules = new LinkedHashSet<>();
@@ -89,6 +90,10 @@ public final class TmmModuleManager {
     statisticsTimer.schedule(new TimerTask() {
       @Override
       public void run() {
+        if (!isActive) {
+          return;
+        }
+
         Runtime rt = Runtime.getRuntime();
         long totalMem = rt.totalMemory();
         long maxMem = rt.maxMemory(); // = Xmx
@@ -100,8 +105,13 @@ public final class TmmModuleManager {
         long free = (maxMem - totalMem + freeMem) / megs;
 
         LOGGER.debug("Memory usage: used - {} M | free - {} M", used, free);
+
+        isActive = false;
       }
     }, 0, 60000);
+
+    // trigger the first log entry
+    isActive = true;
   }
 
   /**
@@ -158,5 +168,12 @@ public final class TmmModuleManager {
         LOGGER.error("saving settings " + module.getModuleTitle() + ": " + e.getMessage());
       }
     }
+  }
+
+  /**
+   * informs the statistics timer that tmm is active
+   */
+  public void setActive() {
+    isActive = true;
   }
 }

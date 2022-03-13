@@ -22,6 +22,7 @@ import javax.swing.AbstractAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.license.TmmFeature;
 
 /**
@@ -33,6 +34,9 @@ public abstract class TmmAction extends AbstractAction implements TmmFeature {
   @Override
   public final void actionPerformed(ActionEvent e) {
     LOGGER.debug("action fired: {}", this.getClass().getSimpleName());
+
+    // inform the statistics timer that tmm is active
+    TmmModuleManager.getInstance().setActive();
 
     if (isEnabled()) {
       processAction(e);
