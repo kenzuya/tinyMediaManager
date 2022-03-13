@@ -474,7 +474,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       chckbxDoNotOverwrite.setSelected(MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
 
       textFieldSearchString.setText(movieToScrape.getTitle());
-      lblPath.setText(movieToScrape.getPathNIO().resolve(movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0).getFilename()).toString());
+      lblPath.setText(movieToScrape.getPathNIO().resolve(movieToScrape.getMainFile().getFilename()).toString());
       // initial search with IDs
       searchMovie(textFieldSearchString.getText(), true);
     }
