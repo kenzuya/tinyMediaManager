@@ -431,7 +431,7 @@ public final class MovieList extends AbstractModelObject {
         movie.setDbId(uuid);
 
         // sanity check: only movies with a video file are valid
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource())) {
+        if (isMovieCorrupt(movie)) {
           // no video file or path or datasource? drop it
           LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
           lock.writeLock().lock();
@@ -524,29 +524,24 @@ public final class MovieList extends AbstractModelObject {
     }
   }
 
-  public void persistMovie(Movie movie) {
-    // remove this movie from the database
-    try {
-      MovieModuleManager.getInstance().persistMovie(movie);
-    }
-    catch (Exception e) {
-      LOGGER.error("failed to persist movie: {} - {}", movie.getTitle(), e.getMessage());
-    }
+  private boolean isMovieCorrupt(Movie movie) {
+    return movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource());
   }
 
-  public void removeMovieFromDb(Movie movie) {
-    // remove this movie from the database
-    try {
-      MovieModuleManager.getInstance().removeMovieFromDb(movie);
+  public void persistMovie(Movie movie) {
+    // sanity check
+    if (isMovieCorrupt(movie)) {
+      // not valid -> remove
+      LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
+      removeMovies(Collections.singletonList(movie));
     }
-    catch (Exception e) {
-      LOGGER.error("failed to remove movie: {}", movie.getTitle());
-    }
-
-    // and remove the image cache
-    for (MediaFile mf : movie.getMediaFiles()) {
-      if (mf.isGraphic()) {
-        ImageCache.invalidateCachedImage(mf);
+    else {
+      // save
+      try {
+        MovieModuleManager.getInstance().persistMovie(movie);
+      }
+      catch (Exception e) {
+        LOGGER.error("failed to persist movie: {} - {}", movie.getTitle(), e.getMessage());
       }
     }
   }
@@ -558,23 +553,6 @@ public final class MovieList extends AbstractModelObject {
     }
     catch (Exception e) {
       LOGGER.error("failed to persist movie set: {}", movieSet.getTitle());
-    }
-  }
-
-  public void removeMovieSetFromDb(MovieSet movieSet) {
-    // remove this movie set from the database
-    try {
-      MovieModuleManager.getInstance().removeMovieSetFromDb(movieSet);
-    }
-    catch (Exception e) {
-      LOGGER.error("failed to remove movie set: {}", movieSet.getTitle());
-    }
-
-    // and remove the image cache
-    for (MediaFile mf : movieSet.getMediaFiles()) {
-      if (mf.isGraphic()) {
-        ImageCache.invalidateCachedImage(mf);
-      }
     }
   }
 

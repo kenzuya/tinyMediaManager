@@ -2150,12 +2150,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
   }
 
-  @Override
-  public void deleteFromDb() {
-    // remove this TV show from the database
-    TvShowModuleManager.getInstance().getTvShowList().removeTvShow(this);
-  }
-
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
     if (season == -1 || episode == -1) {
       return Collections.emptyList();

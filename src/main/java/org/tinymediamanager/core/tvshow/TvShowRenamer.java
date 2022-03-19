@@ -749,6 +749,10 @@ public class TvShowRenamer {
         // if we move the episode in its own folder, we might need to upgrade the path as well!
         episode.setPath(newMF.getPath());
       }
+      else {
+        // not OK? just abort!
+        return;
+      }
       needed.add(vid); // add vid, since we're updating existing MF object
     }
 

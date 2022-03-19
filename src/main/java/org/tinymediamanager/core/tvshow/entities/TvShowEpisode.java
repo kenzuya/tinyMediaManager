@@ -1322,12 +1322,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     TvShowModuleManager.getInstance().getTvShowList().persistEpisode(this);
   }
 
-  @Override
-  public void deleteFromDb() {
-    // delete this episode from the database
-    TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(this);
-  }
-
   /**
    * Event to trigger a season artwork changed for the UI
    */

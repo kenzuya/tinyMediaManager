@@ -200,18 +200,6 @@ public final class TvShowList extends AbstractModelObject {
     return newEp;
   }
 
-  public List<TvShowEpisode> getEpisodesWithoutSubtitles() {
-    List<TvShowEpisode> subEp = new ArrayList<>();
-    for (TvShow show : tvShows) {
-      for (TvShowEpisode ep : show.getEpisodes()) {
-        if (!ep.getHasSubtitles()) {
-          subEp.add(ep);
-        }
-      }
-    }
-    return subEp;
-  }
-
   /**
    * get all specified trailer scrapers.
    *
@@ -535,12 +523,13 @@ public final class TvShowList extends AbstractModelObject {
         episode.setDbId(uuid);
 
         // sanity check: only episodes with a video file are valid
-        if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+        if (isEpisodeCorrupt(episode)) {
           // no video file? drop it
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
           lock.writeLock().lock();
           toRemove.add(uuid);
           lock.writeLock().unlock();
+          return;
         }
 
         // assign it to the right TV show
@@ -606,6 +595,10 @@ public final class TvShowList extends AbstractModelObject {
     updateMediaInformationLists(episodes);
   }
 
+  private boolean isEpisodeCorrupt(TvShowEpisode episode) {
+    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty() || episode.getPathNIO() == null || StringUtils.isBlank(episode.getDataSource());
+  }
+
   public void persistTvShow(TvShow tvShow) {
     // update/insert this TV show to the database
     try {
@@ -617,13 +610,21 @@ public final class TvShowList extends AbstractModelObject {
   }
 
   public void persistEpisode(TvShowEpisode episode) {
-    // update/insert this episode to the database
-    try {
-      TvShowModuleManager.getInstance().persistEpisode(episode);
+    // sanity check
+    if (isEpisodeCorrupt(episode)) {
+      // remove corrupt episode
+      LOGGER.info("episode \"S{}E{}\" without video file/path - dropping", episode.getSeason(), episode.getEpisode());
+      removeEpisodeFromDb(episode);
     }
-    catch (Exception e) {
-      LOGGER.error("failed to persist episode: {} - S{}E{} - {} : {}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode(),
-          episode.getTitle(), e.getMessage());
+    else {
+      // update/insert this episode to the database
+      try {
+        TvShowModuleManager.getInstance().persistEpisode(episode);
+      }
+      catch (Exception e) {
+        LOGGER.error("failed to persist episode: {} - S{}E{} - {} : {}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode(),
+            episode.getTitle(), e.getMessage());
+      }
     }
   }
 

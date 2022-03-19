@@ -1396,8 +1396,6 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public abstract void saveToDb();
 
-  public abstract void deleteFromDb();
-
   public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
   protected abstract Comparator<MediaFile> getMediaFileComparator();

@@ -534,11 +534,6 @@ public class MovieSet extends MediaEntity {
     MovieModuleManager.getInstance().getMovieList().persistMovieSet(this);
   }
 
-  @Override
-  public void deleteFromDb() {
-    MovieModuleManager.getInstance().getMovieList().removeMovieSetFromDb(this);
-  }
-
   /**
    * Sets the metadata.
    *

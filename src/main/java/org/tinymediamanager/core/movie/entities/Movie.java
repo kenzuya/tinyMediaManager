@@ -73,7 +73,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1924,12 +1923,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
-  public void deleteFromDb() {
-    // remove this movie from the database
-    MovieModuleManager.getInstance().getMovieList().removeMovieFromDb(this);
-  }
-
-  @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
     if (MovieModuleManager.getInstance().getSettings().getMovieConnector() == MovieConnectors.MP) {
       writeNFO();
@@ -2865,10 +2858,5 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     Movie movie = (Movie) o;
     return path.equals(movie.path) && getMainFile().getFile().equals(movie.getMainFile().getFile());
-  }
-
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder().append(path).append(getMainFile().getFile()).build();
   }
 }
