@@ -8,3 +8,4 @@ Version 4.3
 + added a renamer token for movie set index respecting missing movies #1702
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
+x changed imdb actor image loading/scaling algorithm
