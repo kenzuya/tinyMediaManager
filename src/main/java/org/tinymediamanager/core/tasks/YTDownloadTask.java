@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +69,7 @@ import com.github.kiulian.downloader.model.videos.quality.VideoQuality;
 public abstract class YTDownloadTask extends TmmTask {
 
   private static final Logger  LOGGER            = LoggerFactory.getLogger(YTDownloadTask.class);
+  private static final int     MAX_CHUNK_SIZE    = 10 * 1024 * 1024;                             // 8M
 
   private final MediaTrailer   mediaTrailer;
   private final TrailerQuality desiredQuality;
@@ -400,6 +402,7 @@ public abstract class YTDownloadTask extends TmmTask {
       }
       catch (Exception e) {
         LOGGER.error("Could not download video stream: {}", e.getMessage());
+        setState(TaskState.FAILED);
         return null;
       }
 
@@ -411,6 +414,7 @@ public abstract class YTDownloadTask extends TmmTask {
       }
       catch (Exception e) {
         LOGGER.error("Could not download audio stream: {}", e.getMessage());
+        setState(TaskState.FAILED);
         return null;
       }
     });
@@ -456,9 +460,11 @@ public abstract class YTDownloadTask extends TmmTask {
    *          Video or Audio Format
    * @return a {@link Path} object of the downloaded file
    * @throws IOException
-   *           any {@link Exception} occurred while downloading
+   *           any {@link IOException} occurred while downloading
+   * @throws InterruptedException
+   *           a {@link InterruptedException} if the download is cancelled
    */
-  private Path download(Format format) throws Exception {
+  private Path download(Format format) throws IOException, InterruptedException {
     String fileName;
     Path tempDir = Paths.get(Utils.getTempFolder());
 
@@ -472,30 +478,49 @@ public abstract class YTDownloadTask extends TmmTask {
       fileName = video.details().title() + "(A)." + format.extension().value();
     }
     Path outputFile = tempDir.resolve(cleanFilename(fileName));
+    addContentLength(format.contentLength());
 
-    StreamingUrl url = new StreamingUrl(format.url());
-    try (InputStream is = url.getInputStream();
-        BufferedInputStream bis = new BufferedInputStream(is);
-        FileOutputStream fileOutputStream = new FileOutputStream(outputFile.toFile())) {
-      addContentLength(url.getContentLength());
+    int rangeStart = 0;
 
-      byte[] buffer = new byte[2048];
-      int count;
+    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile.toFile())) {
+      while (rangeStart < format.contentLength() - 1) {
+        StreamingUrl url = new StreamingUrl(format.url());
 
-      while ((count = bis.read(buffer, 0, buffer.length)) != -1) {
-        if (cancel) {
-          Thread.currentThread().interrupt();
-          LOGGER.info("download of {} aborted", url);
-          return null;
+        // chunks > 10M will be throttled by yt - cap then to a random chunk between 95% - 99% of 10M
+        int chunkSize;
+        int remaining = (int) (format.contentLength() - rangeStart - 1);
+
+        if (remaining > MAX_CHUNK_SIZE) {
+          chunkSize = ThreadLocalRandom.current().nextInt((int) (MAX_CHUNK_SIZE * 0.95), (int) (MAX_CHUNK_SIZE * 0.99));
+        }
+        else {
+          chunkSize = remaining;
         }
 
-        fileOutputStream.write(buffer, 0, count);
-        addBytesDone(count);
-      }
+        url.addHeader("Range", "bytes=" + rangeStart + "-" + (rangeStart + chunkSize));
 
+        try (InputStream is = url.getInputStream(); BufferedInputStream bis = new BufferedInputStream(is)) {
+          byte[] buffer = new byte[2048];
+          int count;
+
+          while ((count = bis.read(buffer, 0, buffer.length)) != -1) {
+            if (cancel) {
+              Thread.currentThread().interrupt();
+              LOGGER.info("download of {} aborted", url);
+              return null;
+            }
+
+            fileOutputStream.write(buffer, 0, count);
+            addBytesDone(count);
+          }
+
+        }
+        rangeStart = rangeStart + chunkSize + 1;
+
+      }
       Utils.flushFileOutputStreamToDisk(fileOutputStream);
-      return outputFile;
     }
+    return outputFile;
   }
 
   private synchronized void addContentLength(long length) {
