@@ -36,7 +36,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 class DownloaderImpl implements Downloader {
-  private final MediaType JSON = MediaType.parse("application/json");
+  private static final MediaType JSON = MediaType.parse("application/json");
 
   @Override
   public Response<String> downloadWebpage(RequestWebpage requestWebpage) {

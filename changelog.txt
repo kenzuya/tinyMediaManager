@@ -6,3 +6,4 @@ Version 4.3
 + added an HTTP API for remote control of tinyMediaManager
 + added a regular expression based JMTE annotation #1611
 x copy file-date attributes on Windows #1674
+x improved download speed of trailers
