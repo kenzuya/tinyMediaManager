@@ -448,8 +448,26 @@ public class MovieSet extends MediaEntity {
     return getTitle();
   }
 
+  /**
+   * gets the index of the movies from this movie set
+   * 
+   * @param movie
+   *          the {@link Movie} to get the index of
+   * @return the index
+   */
   public int getMovieIndex(Movie movie) {
     return movies.indexOf(movie);
+  }
+
+  /**
+   * gets the index of the movies from this movie set respecting dummies too
+   * 
+   * @param movie
+   *          the {@link Movie} to get the index of
+   * @return the index
+   */
+  public int getMovieIndexWithDummy(Movie movie) {
+    return getMoviesForDisplay().indexOf(movie);
   }
 
   public void rewriteAllImages() {

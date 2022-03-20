@@ -5,5 +5,6 @@ Version 4.3
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
 + added an HTTP API for remote control of tinyMediaManager
 + added a regular expression based JMTE annotation #1611
++ added a renamer token for movie set index respecting missing movies #1702
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
