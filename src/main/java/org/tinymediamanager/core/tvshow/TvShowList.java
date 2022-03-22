@@ -596,7 +596,7 @@ public final class TvShowList extends AbstractModelObject {
   }
 
   private boolean isEpisodeCorrupt(TvShowEpisode episode) {
-    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty() || episode.getPathNIO() == null || StringUtils.isBlank(episode.getDataSource());
+    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty();
   }
 
   public void persistTvShow(TvShow tvShow) {
