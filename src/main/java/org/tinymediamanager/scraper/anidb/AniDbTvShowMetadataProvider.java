@@ -96,6 +96,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
     // configure/load settings
     info.getConfig().addInteger("numberOfTags", 10);
     info.getConfig().addInteger("minimumTagsWeight", 200);
+    info.getConfig().addBoolean("characterImage", false);
     info.getConfig().load();
 
     return info;
@@ -247,17 +248,29 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   }
 
   private void getActors(MediaMetadata md, Element e) {
+    boolean getCharacterImage = providerInfo.getConfig().getValueAsBool("characterImage");
+
     for (Element character : e.children()) {
       Person member = new Person(Person.Type.ACTOR);
       for (Element characterInfo : character.children()) {
         if ("name".equalsIgnoreCase(characterInfo.tagName())) {
           member.setRole(characterInfo.text());
         }
-        if ("seiyuu".equalsIgnoreCase(characterInfo.tagName())) {
-          member.setName(characterInfo.text());
-          String image = characterInfo.attr("picture");
+        if ("picture".equalsIgnoreCase(characterInfo.tagName()) && getCharacterImage) {
+          // get character image
+          String image = characterInfo.text();
           if (StringUtils.isNotBlank(image)) {
             member.setThumbUrl("http://img7.anidb.net/pics/anime/" + image);
+          }
+        }
+        if ("seiyuu".equalsIgnoreCase(characterInfo.tagName())) {
+          member.setName(characterInfo.text());
+          if (!getCharacterImage) {
+            // get actor image
+            String image = characterInfo.attr("picture");
+            if (StringUtils.isNotBlank(image)) {
+              member.setThumbUrl("http://img7.anidb.net/pics/anime/" + image);
+            }
           }
         }
       }
