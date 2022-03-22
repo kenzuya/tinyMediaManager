@@ -110,21 +110,30 @@ public class Person extends AbstractModelObject {
   }
 
   public void merge(Person other) {
+    merge(other, false);
+  }
+
+  public void merge(Person other, boolean force) {
     if (other == null) {
       return;
     }
 
-    setName(StringUtils.isBlank(name) ? other.name : name);
-    setRole(StringUtils.isBlank(role) ? other.role : role);
-    setThumbUrl(StringUtils.isBlank(thumbUrl) ? other.thumbUrl : thumbUrl);
-    setProfileUrl(StringUtils.isBlank(profileUrl) ? other.profileUrl : profileUrl);
+    setName(StringUtils.isBlank(name) || force ? other.name : name);
+    setRole(StringUtils.isBlank(role) || force ? other.role : role);
+    setThumbUrl(StringUtils.isBlank(thumbUrl) || force ? other.thumbUrl : thumbUrl);
+    setProfileUrl(StringUtils.isBlank(profileUrl) || force ? other.profileUrl : profileUrl);
 
     if (ids == null && !other.getIds().isEmpty()) {
       ids = new HashMap<>(other.ids);
     }
     else if (ids != null) {
       for (String key : other.getIds().keySet()) {
-        ids.putIfAbsent(key, other.getId(key));
+        if (force) {
+          ids.put(key, other.getId(key));
+        }
+        else {
+          ids.putIfAbsent(key, other.getId(key));
+        }
       }
     }
   }

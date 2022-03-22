@@ -1430,7 +1430,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
         // merge the entries (e.g. use thumb url/profile/ids from both)
         Person oldPerson = baseList.get(indexOldList);
-        oldPerson.merge(entry);
+        oldPerson.merge(entry, true);
 
         if (i != indexOldList) {
           Person oldEntry = baseList.remove(indexOldList); // NOSONAR
