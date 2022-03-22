@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.tinymediamanager</groupId>
@@ -57,7 +56,7 @@
     </mailingLists>
 
     <prerequisites>
-        <maven>3.3.9</maven><!-- although it should not be used here, it is needed for version update plugin -->
+        <maven>3.3.9</maven> <!-- although it should not be used here, it is needed for version update plugin -->
     </prerequisites>
 
     <scm>
@@ -76,7 +75,8 @@
         <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>11</maven.compiler.release>
-        <skipTests>true</skipTests><!-- to override on command line -->
+        <skipTests>true</skipTests> <!-- to override on command line -->
+        <skipITests>true</skipITests> <!-- to override on command line -->
 
         <jar.version>3.2.0</jar.version>
         <surefire.version>3.0.0-M5</surefire.version>
@@ -462,7 +462,8 @@
                         <exclude>**/IT*.java</exclude>
                         <exclude>**/*IT.java</exclude>
                         <exclude>**/*ITCase.java</exclude>
-                        <exclude>**/integration-test/**/*.java</exclude>
+                        <exclude>**/integrationtest/**/*.java</exclude>
+                        <exclude>**/integrationtests/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -481,7 +482,7 @@
                 </executions>
                 <configuration>
                     <testFailureIgnore>true</testFailureIgnore>
-                    <skip>${skipTests}</skip>
+                    <skip>${skipITests}</skip>
                     <includes>
                         <include>**/IT*.java</include>
                         <include>**/*IT.java</include>
@@ -491,7 +492,8 @@
                     </includes>
                 </configuration>
             </plugin>
-            <plugin><!-- get SVN/GIT revision numbers -->
+            <plugin>
+                <!-- get SVN/GIT revision numbers -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>1.4</version>
@@ -507,7 +509,8 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin><!-- generate a timestamp -->
+            <plugin>
+                <!-- generate a timestamp -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.2.0</version>
@@ -522,6 +525,18 @@
                             <name>timestamp</name>
                             <pattern>yyyy-MM-dd HH:mm</pattern>
                             <timeZone>GMT+1</timeZone>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-itest-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/integration-test/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
@@ -715,7 +730,8 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin><!-- call our ant file, since it's too complicated to do our packaging solely in maven -->
+                    <plugin>
+                        <!-- call our ant file, since it's too complicated to do our packaging solely in maven -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>3.0.0</version>
@@ -731,13 +747,13 @@
                         <configuration>
                             <exportAntProperties>true</exportAntProperties>
                             <target>
-                                <property name="tmmName" value="${project.artifactId}"/>
-                                <property name="tmmVersion" value="${project.version}"/>
-                                <property name="tmmRevision" value="${buildNumber}"/>
-                                <property name="tmmTimestamp" value="${timestamp}"/>
+                                <property name="tmmName" value="${project.artifactId}" />
+                                <property name="tmmVersion" value="${project.version}" />
+                                <property name="tmmRevision" value="${buildNumber}" />
+                                <property name="tmmTimestamp" value="${timestamp}" />
 
                                 <ant antfile="${project.basedir}/ant-package.xml">
-                                    <target name="package-app"/>
+                                    <target name="package-app" />
                                 </ant>
                             </target>
                         </configuration>
@@ -750,7 +766,8 @@
             <build>
                 <plugins>
                     <!-- skip getting revision number on ci build -->
-                    <plugin><!-- get SVN/GIT revision numbers -->
+                    <plugin>
+                        <!-- get SVN/GIT revision numbers -->
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>buildnumber-maven-plugin</artifactId>
                         <version>1.4</version>
@@ -816,8 +833,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                        </configuration>
+                        <configuration></configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -826,7 +842,8 @@
             <id>qa</id>
             <build>
                 <plugins>
-                    <plugin><!-- skip packaging on QA build -->
+                    <plugin>
+                        <!-- skip packaging on QA build -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <executions>

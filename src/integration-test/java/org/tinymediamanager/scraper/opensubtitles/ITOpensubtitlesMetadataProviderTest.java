@@ -26,10 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -38,12 +36,6 @@ import org.tinymediamanager.scraper.opensubtitles.model.Info;
 
 public class ITOpensubtitlesMetadataProviderTest extends BasicITest {
   private static final String SERVICE = "http://api.opensubtitles.org/xml-rpc";
-
-  @Before
-  public void setUpBeforeTest() throws Exception {
-    BasicTest.setup();
-    setLicenseKey();
-  }
 
   @Test
   public void testSearchByMovieHash() {
@@ -83,6 +75,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicITest {
     }
     catch (Exception e) {
       e.printStackTrace();
+      fail(e.getMessage());
     }
   }
 
