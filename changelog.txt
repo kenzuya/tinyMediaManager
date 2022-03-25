@@ -1,6 +1,7 @@
 Version 4.2.8
 =======================
 x (movies/TV shows) fixed losing of entries after loading #1714
+x (TV shows) fixed incomplete missing episodes list #1713
 
 
 Version 4.2.7
