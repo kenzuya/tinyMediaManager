@@ -24,19 +24,25 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class Globals {
   private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean READONLY;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
   public static final String   BACKUP_FOLDER;
   public static final String   LOG_FOLDER;
+  public static final String   TEMPLATE_FOLDER;
 
   static {
+    // detect whether this installation is readonly or not
+    READONLY = TmmOsUtils.checkReadonlyInstance();
+
     // first we look for a dedicated folder property
     // after that we look for tmm.contentfolder
     String dataFolder = System.getProperty("tmm.datafolder");
     String cacheFolder = System.getProperty("tmm.cachefolder");
     String backupFolder = System.getProperty("tmm.backupfolder");
     String logFolder = System.getProperty("tmm.logfolder");
+    String templateFolder = System.getProperty("tmm.templatefolder");
 
     String contentFolder = System.getProperty("tmm.contentfolder");
 
@@ -83,6 +89,17 @@ public final class Globals {
     else {
       LOG_FOLDER = "logs";
     }
+
+    // templates
+    if (StringUtils.isNotBlank(templateFolder)) {
+      TEMPLATE_FOLDER = templateFolder;
+    }
+    else if (StringUtils.isNotBlank(contentFolder)) {
+      TEMPLATE_FOLDER = contentFolder + "/templates";
+    }
+    else {
+      TEMPLATE_FOLDER = "templates";
+    }
   }
 
   private Globals() {
@@ -99,28 +116,11 @@ public final class Globals {
   }
 
   /**
-   * Are we running from a webstart instance?
+   * check if this installation is readonly
    * 
    * @return true/false
    */
-  public static boolean isRunningJavaWebStart() {
-    boolean hasJNLP = false;
-    try {
-      Class.forName("javax.jnlp.ServiceManager");
-      hasJNLP = true;
-    }
-    catch (ClassNotFoundException ex) {
-      hasJNLP = false;
-    }
-    return hasJNLP;
-  }
-
-  /**
-   * Are we running on a jetty webswing instance?
-   * 
-   * @return true/false
-   */
-  public static boolean isRunningWebSwing() {
-    return System.getProperty("webswing.classPath") != null;
+  public static boolean isReadonly() {
+    return READONLY;
   }
 }

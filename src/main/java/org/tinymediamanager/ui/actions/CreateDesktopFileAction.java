@@ -51,13 +51,5 @@ public class CreateDesktopFileAction extends TmmAction {
         }
       }
     }
-
-    // create in tmm folder
-    {
-      Path desktop = Paths.get(TmmOsUtils.DESKTOP_FILE).toAbsolutePath();
-      if (Files.isWritable(desktop.getParent())) {
-        TmmOsUtils.createDesktopFileForLinux(desktop.toFile());
-      }
-    }
   }
 }

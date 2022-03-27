@@ -18,6 +18,7 @@ package org.tinymediamanager.core;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,10 +29,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
@@ -43,16 +52,17 @@ import com.floreysoft.jmte.RenderFormatInfo;
 import com.floreysoft.jmte.encoder.XMLEncoder;
 
 public abstract class MediaEntityExporter {
-  private static final Logger   LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
-  protected static final String TEMPLATE_DIRECTORY = "templates";
+  private static final Logger   LOGGER                   = LoggerFactory.getLogger(MediaEntityExporter.class);
+  protected static final String LOCAL_TEMPLATE_DIRECTORY = "templates";
+  protected static final String LOCAL_TEMPLATE_ARCHIVE   = "templates.tar.bz2";
 
   protected Engine              engine;
   protected Properties          properties;
   protected String              fileExtension;
-  protected String              listTemplate       = "";
-  protected String              detailTemplate     = "";
+  protected String              listTemplate             = "";
+  protected String              detailTemplate           = "";
   protected Path                templateDir;
-  protected boolean             cancel             = false;
+  protected boolean             cancel                   = false;
 
   public enum TemplateType {
     MOVIE,
@@ -99,9 +109,11 @@ public abstract class MediaEntityExporter {
 
     if ("html".equals(fileExtension)) {
       engine.setEncoder(new HtmlEncoder()); // special char replacement
-    } else if ("xml".equals(fileExtension)) {
+    }
+    else if ("xml".equals(fileExtension)) {
       engine.setEncoder(new XMLEncoder()); // special char replacement
-    } else if ("json".equals(fileExtension)) {
+    }
+    else if ("json".equals(fileExtension)) {
       engine.setEncoder(new JSONEncoder());
     }
 
@@ -129,13 +141,96 @@ public abstract class MediaEntityExporter {
    * @return the list of all found template types
    */
   public static List<ExportTemplate> findTemplates(TemplateType type) {
-    List<ExportTemplate> templatesFound = new ArrayList<>();
+    Map<String, ExportTemplate> templatesFound = new TreeMap<>();
 
-    // search in template folder for templates
-    Path root = Paths.get(TEMPLATE_DIRECTORY);
-    if (!Files.isDirectory(root)) {
-      return templatesFound;
+    // search in templates.tar.bz2 folder for templates
+    for (ExportTemplate template : getTemplatesFromArchive(type)) {
+      templatesFound.put(template.getName(), template);
     }
+
+    // and add the other ones from the data/templates folder
+    for (ExportTemplate template : getTemplatesFromDataFolder(type)) {
+      if (!templatesFound.containsKey(template.getName())) {
+        templatesFound.put(template.getName(), template);
+      }
+    }
+
+    return new ArrayList<>(templatesFound.values());
+  }
+
+  static List<ExportTemplate> getTemplatesFromArchive(TemplateType type) {
+    List<ExportTemplate> templates = new ArrayList<>();
+
+    Path archive = Paths.get(LOCAL_TEMPLATE_DIRECTORY, LOCAL_TEMPLATE_ARCHIVE);
+
+    if (!Files.exists(archive)) {
+      return templates;
+    }
+
+    try (InputStream fi = Files.newInputStream(archive);
+        InputStream bi = new BufferedInputStream(fi);
+        InputStream b2i = new BZip2CompressorInputStream(bi);
+        ArchiveInputStream ais = new TarArchiveInputStream(b2i)) {
+
+      ArchiveEntry entry;
+
+      while ((entry = ais.getNextEntry()) != null) {
+        if (!ais.canReadEntryData(entry)) {
+          continue;
+        }
+
+        if (entry instanceof TarArchiveEntry && entry.getName().contains("template.conf")) {
+          // load settings from template
+          Properties properties = new Properties();
+          try (BufferedInputStream bis = new BufferedInputStream(ais)) {
+            properties.load(bis);
+          }
+          catch (Exception e) {
+            LOGGER.warn("error in config \"{}\" - {} ", ((TarArchiveEntry) entry).getPath(), e.getMessage());
+            continue;
+          }
+
+          // get template type
+          String typeInConfig = properties.getProperty("type");
+          if (StringUtils.isBlank(typeInConfig)) {
+            continue;
+          }
+
+          if (typeInConfig.equalsIgnoreCase(type.name())) {
+            ExportTemplate template = new ExportTemplate();
+            template.setName(properties.getProperty("name"));
+            template.setType(type);
+            template.setPath(FilenameUtils.getPathNoEndSeparator(entry.getName()));
+            template.setUrl(properties.getProperty("url"));
+            template.setDescription(properties.getProperty("description"));
+            if (StringUtils.isNotBlank(properties.getProperty("detail"))) {
+              template.setDetail(true);
+            }
+            else {
+              template.setDetail(false);
+            }
+
+            templates.add(template);
+          }
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.warn("Could not extract templates - '{}'", e.getMessage());
+    }
+
+    return templates;
+  }
+
+  static List<ExportTemplate> getTemplatesFromDataFolder(TemplateType type) {
+    List<ExportTemplate> templates = new ArrayList<>();
+
+    Path root = Paths.get(Globals.TEMPLATE_FOLDER);
+    if (!Files.isDirectory(root)) {
+      return templates;
+    }
+
+    // also search for custom templates in the data folder/templates
 
     // search ever subdir
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(root)) {
@@ -178,7 +273,7 @@ public abstract class MediaEntityExporter {
               template.setDetail(false);
             }
 
-            templatesFound.add(template);
+            templates.add(template);
           }
         }
       }
@@ -187,7 +282,7 @@ public abstract class MediaEntityExporter {
       // nothing to do
     }
 
-    return templatesFound;
+    return templates;
   }
 
   /**
