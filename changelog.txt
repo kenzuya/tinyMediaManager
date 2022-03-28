@@ -5,6 +5,7 @@ x (movies/TV shows) fixed losing of entries after loading #1714
 x (TV shows) fixed incomplete missing episodes list #1713
 x (TV shows) smaller fixes for displaying missing episodes
 x improved download speed of trailers
+x (TV shows) allow episode numbers up to 6 digits long #1712
 
 
 Version 4.2.7
