@@ -2686,6 +2686,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 

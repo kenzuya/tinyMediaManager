@@ -263,6 +263,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }
