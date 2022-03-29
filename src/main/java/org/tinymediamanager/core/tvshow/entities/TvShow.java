@@ -516,7 +516,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         boolean found = false;
         for (TvShowEpisode e : season.getEpisodesForDisplay()) {
           if ((e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode())
-              || (e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
+              || (e.getDvdSeason() > 0 && e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
             found = true;
             break;
           }
