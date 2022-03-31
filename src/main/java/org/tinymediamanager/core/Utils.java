@@ -1372,7 +1372,7 @@ public class Utils {
       return;
     }
 
-    LOGGER.info("Deleting complete directory: {}", dir);
+    LOGGER.info("Deleting empty directories in: {}", dir);
     Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
