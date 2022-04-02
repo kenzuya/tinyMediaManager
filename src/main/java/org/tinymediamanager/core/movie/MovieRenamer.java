@@ -167,6 +167,7 @@ public class MovieRenamer {
     tokenMap.put("decadeLong", "movie.decadeLong");
     tokenMap.put("decadeShort", "movie.decadeShort");
     tokenMap.put("movieSetIndex", "movie;indexOfMovieSet");
+    tokenMap.put("movieSetIndex2", "movie;indexOfMovieSetWithDummy");
 
     return tokenMap;
   }
@@ -1266,6 +1267,7 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
+    engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetWithDummyRenderer());
 
     return engine;
   }
@@ -1558,6 +1560,39 @@ public class MovieRenamer {
     @Override
     public String getName() {
       return "indexOfMovieSet";
+    }
+
+    @Override
+    public RenderFormatInfo getFormatInfo() {
+      return null;
+    }
+
+    @Override
+    public Class<?>[] getSupportedClasses() {
+      return new Class[] { Movie.class };
+    }
+  }
+
+  public static class MovieNamedIndexOfMovieSetWithDummyRenderer implements NamedRenderer {
+
+    @Override
+    public String render(Object o, String s, Locale locale, Map<String, Object> map) {
+      if (o instanceof Movie) {
+        Movie movie = (Movie) o;
+        MovieSet movieSet = movie.getMovieSet();
+        if (movieSet == null) {
+          return null;
+        }
+
+        return String.valueOf(movieSet.getMovieIndexWithDummy(movie) + 1);
+      }
+
+      return null;
+    }
+
+    @Override
+    public String getName() {
+      return "indexOfMovieSetWithDummy";
     }
 
     @Override

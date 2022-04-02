@@ -1244,7 +1244,7 @@ public abstract class ImdbParser {
     return cm;
   }
 
-  private String scaleImage(String url, int desiredX, int desiredY) {
+  private String scaleImage(String url, int desiredWidth, int desiredHeight) {
     String imageSrc = url;
 
     // parse out the rescale/crop params
@@ -1253,38 +1253,42 @@ public abstract class ImdbParser {
       try {
         String direction = matcher.group(1);
         int scaling = MetadataUtil.parseInt(matcher.group(2), 0);
-        int x0 = MetadataUtil.parseInt(matcher.group(3));
-        int y0 = MetadataUtil.parseInt(matcher.group(4));
-        int x1 = MetadataUtil.parseInt(matcher.group(5));
-        int y1 = MetadataUtil.parseInt(matcher.group(6));
-
-        int x0new = x0;
-        int x1new = x1;
-        int y0new = y0;
-        int y1new = y1;
+        int cropLeft = MetadataUtil.parseInt(matcher.group(3));
+        int cropTop = MetadataUtil.parseInt(matcher.group(4));
+        int actualWidth = MetadataUtil.parseInt(matcher.group(5));
+        int actualHeight = MetadataUtil.parseInt(matcher.group(6));
 
         if (scaling > 0) {
-          int desiredSize = 0;
           if ("X".equals(direction)) {
             // scale horizontally
-            imageSrc = imageSrc.replace("SX" + scaling, "SX" + desiredX);
-            desiredSize = desiredX;
-
+            imageSrc = imageSrc.replace("SX" + scaling, "UY" + desiredHeight);
           }
           else if ("Y".equals(direction)) {
             // scale vertically
-            imageSrc = imageSrc.replace("SY" + scaling, "SY" + desiredY);
-            desiredSize = desiredY;
+            imageSrc = imageSrc.replace("SY" + scaling, "UY" + desiredHeight);
           }
 
-          if (x0 > 0 || y0 > 0 || x1 > 0 || y1 > 0) {
-            x0new = (int) (x0 * desiredSize / (1.0f * scaling));
-            y0new = (int) (y0 * desiredSize / (1.0f * scaling));
-            x1new = (int) (x1 * desiredSize / (1.0f * scaling));
-            y1new = (int) (y1 * desiredSize / (1.0f * scaling));
+          int newCropLeft = cropLeft;
+          int newCropTop = cropTop;
+
+          float scaleFactor;
+
+          if (actualWidth / (float) actualHeight > desiredWidth / (float) desiredHeight) {
+            scaleFactor = desiredHeight / (float) actualHeight;
+          }
+          else {
+            scaleFactor = desiredWidth / (float) actualWidth;
           }
 
-          imageSrc = imageSrc.replace("CR" + x0 + "," + y0 + "," + x1 + "," + y1, "CR" + x0new + "," + y0new + "," + x1new + "," + y1new);
+          if (cropLeft > 0) {
+            newCropLeft = (int) (cropLeft * scaleFactor + (actualWidth * scaleFactor - desiredWidth) / 2);
+          }
+          if (cropTop > 0) {
+            newCropTop = (int) (cropTop * scaleFactor + (actualHeight * scaleFactor - desiredHeight) / 2);
+          }
+
+          imageSrc = imageSrc.replace("CR" + cropLeft + "," + cropTop + "," + actualWidth + "," + actualHeight,
+              "CR" + newCropLeft + "," + newCropTop + "," + desiredWidth + "," + desiredHeight);
         }
       }
       catch (Exception e) {

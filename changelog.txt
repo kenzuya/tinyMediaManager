@@ -1,11 +1,16 @@
 Version 4.2.8
 =======================
 + enabled multi line notes #1710
++ updated libmediainfo to 22.03
++ added a renamer token for movie set index respecting missing movies #1702
 x (movies/TV shows) fixed losing of entries after loading #1714
 x (TV shows) fixed incomplete missing episodes list #1713
 x (TV shows) smaller fixes for displaying missing episodes
 x improved download speed of trailers
 x (TV shows) allow episode numbers up to 6 digits long #1712
+x prevent adding duplicate data sources
+x prevent an occasional crash in the movie search dialog #1695
+x changed imdb actor image loading/scaling algorithm
 
 
 Version 4.2.7

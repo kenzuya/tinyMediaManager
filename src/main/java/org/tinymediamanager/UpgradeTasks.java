@@ -24,9 +24,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -382,6 +384,21 @@ public class UpgradeTasks {
           TvShowModuleManager.getInstance().getSettings().addSkipFolder("MAKEMKV");
           TvShowModuleManager.getInstance().getSettings().saveSettings();
         }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.2.8") < 0) {
+      // remove duplicate data sources
+      Set<String> movieDataSources = new LinkedHashSet<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
+      if (movieDataSources.size() != MovieModuleManager.getInstance().getSettings().getMovieDataSource().size()) {
+        MovieModuleManager.getInstance().getSettings().setMovieDataSources(movieDataSources);
+        MovieModuleManager.getInstance().getSettings().saveSettings();
+      }
+
+      Set<String> tvShowDataSources = new LinkedHashSet<>(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
+      if (tvShowDataSources.size() != TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().size()) {
+        TvShowModuleManager.getInstance().getSettings().setTvShowDataSources(tvShowDataSources);
+        TvShowModuleManager.getInstance().getSettings().saveSettings();
       }
     }
   }
