@@ -29,6 +29,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -107,27 +108,29 @@ public class ImdbMovieParser extends ImdbParser {
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
-    // worker for imdb request (/reference)
-    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, "/reference"), options.getLanguage().getLanguage(),
+    // workers for imdb requests
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = executor.submit(worker);
 
-    // worker for imdb request (/plotsummary) (from chosen site)
     Future<Document> futurePlotsummary;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, "/plotsummary"), options.getLanguage().getLanguage(),
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
     futurePlotsummary = executor.submit(worker);
 
-    // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, "/releaseinfo"), options.getLanguage().getLanguage(),
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
     futureReleaseinfo = executor.submit(worker);
 
-    // worker for imdb keywords (/keywords)
+    Future<Document> futureCritics;
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
+    futureCritics = executor.submit(worker);
+
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, "/keywords"), options.getLanguage().getLanguage(),
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2());
       futureKeywords = executor.submit(worker);
     }
@@ -179,6 +182,12 @@ public class ImdbMovieParser extends ImdbParser {
 
         // get the date from the releaseinfo page
         parseReleaseinfoPage(releaseinfoDoc, options, md);
+      }
+
+      // get critics
+      Document criticsDoc = futureCritics.get();
+      if (criticsDoc != null) {
+        parseCritics(criticsDoc, md);
       }
 
       // if everything worked so far, we can set the given id
@@ -248,8 +257,39 @@ public class ImdbMovieParser extends ImdbParser {
     return md;
   }
 
+  private void parseCritics(Document doc, MediaMetadata md) {
+    // <div class="metascore_block" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating">
+    // <span itemprop="ratingValue">53</span>
+    // Based on <span itemprop="ratingCount">36</span>
+    // </div>
+    for (Element div : doc.getElementsByClass("metascore_block")) {
+      int value = 0;
+      int count = 0;
+
+      Elements spans = div.getElementsByTag("span");
+      for (Element span : spans) {
+        if ("ratingValue".equals(span.attr("itemprop"))) {
+          value = MetadataUtil.parseInt(span.text(), 0);
+        }
+        if ("ratingCount".equals(span.attr("itemprop"))) {
+          count = MetadataUtil.parseInt(span.text(), 0);
+        }
+      }
+
+      if (value > 0) {
+        MediaRating rating = new MediaRating("metacritic");
+        rating.setRating(value);
+        rating.setVotes(count);
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+
+      break;
+    }
+  }
+
   // AKAs and original title
-  private MediaMetadata parseReleaseinfoPageAKAs(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+  private void parseReleaseinfoPageAKAs(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
     // <table id="akas" class="subpage_data spEven2Col">
     // <tr class="even">
     // <td>(original title)</td>
@@ -285,8 +325,6 @@ public class ImdbMovieParser extends ImdbParser {
         break;
       }
     }
-
-    return md;
   }
 
   public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
