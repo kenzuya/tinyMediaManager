@@ -32,7 +32,9 @@
         <summary lang="pt_BR">Scraper de Seriados TMDb</summary>
         <summary lang="ru">TMDB ТВ шоу инфоресурс</summary>
         <summary lang="sv">TMDB TV-serie skrapa</summary>
-        <summary lang="zh">TMDB 剧集刮削器</summary>
+        <summary lang="zh">TMDB 電視節目擷取器</summary>
+        <summary lang="zh_CN">TMDB 剧集刮削器</summary>
+        <summary lang="zh_TW">TMDB 電視節目擷取器</summary>
         <description lang="af">themoviedb.org is 'n verniet en oop fliek databasis. Dit is totaal gebruiker gedryf deur
             mense soos jy. TMDB word huidiglik deur miljoene mense elke maand gebruik, en met hulle kragtige API word
             dit ook deur baie gewilde media sentrums soos Kodi gebruik om Fliek Metadata, Plakkate en Ondersteunerkuns
@@ -268,11 +270,14 @@
             trợ của bộ API mạnh mẽ nó cũng được sử dụng bởi những thiết bị giải trí cá nhân như Kodi cho việc lấy dữ
             liệu về Phim ảnh, Poster và Fanart để làm tăng trải nghiệm của người sử dụng
         </description>
+        <description lang="zh">themoviedb.org是一個免費和開放的電影資料庫。它是完全由與您一樣的廣大使用者來更新資訊。
+           TMDb目前擁有數以百萬計的使用人次並且有著強大的API，許多受歡迎的媒體中心平台像Kodi藉由TMDB獲取電影的數據資料庫，海報和影片資訊，以豐富使用者體驗。
+        </description>
         <description lang="zh">themoviedb.org 是一个开放和自由的电影数据库。它完全由象你一样的用户来掌控。TMDb 每月为上百万用户提供服务，并通过强大的 API 界面为许多流行的媒体中心系统如
             Kodi 提供电影资料、封面海报和同人画以丰富用户的体验。
         </description>
         <description lang="zh_TW">themoviedb.org是一個免費和開放的電影資料庫。它是完全由與您一樣的廣大使用者來更新資訊。
-            TMDb目前擁有數以百萬計的使用人次並且有著強大的API，許多受歡迎的媒體中心平台像Kodi藉由TMDb獲取電影的數據資料庫，海報和影片資訊，以豐富使用者體驗。
+            TMDb目前擁有數以百萬計的使用人次並且有著強大的API，許多受歡迎的媒體中心平台像Kodi藉由TMDB獲取電影的數據資料庫，海報和影片資訊，以豐富使用者體驗。
         </description>
         <platform>all</platform>
         <license>GPL v2.0</license>
