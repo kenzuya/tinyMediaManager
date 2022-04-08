@@ -746,7 +746,7 @@ public final class MovieList extends AbstractModelObject {
           sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
         }
         catch (ScrapeException e) {
-          LOGGER.error("searchMovieFallback", e);
+          LOGGER.error("searchMovieFallback - '{}'", e.getMessage());
           // just swallow those errors here
         }
 
