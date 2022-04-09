@@ -12,6 +12,7 @@ x prevent adding duplicate data sources
 x prevent an occasional crash in the movie search dialog #1695
 x changed imdb actor image loading/scaling algorithm
 x (TV shows) removed duplicated shortcut CTRL+SHIFT+N #1719
+x removed some well known words from being deleted in the title detection #1721
 
 
 Version 4.2.7
