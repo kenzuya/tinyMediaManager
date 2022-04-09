@@ -124,7 +124,7 @@ public abstract class ARDetectorTask extends TmmTask {
     setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
 
     if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
-      LOGGER.info("Mediafile can not be analyzed.");
+      LOGGER.warn("Mediafile '{}' can not be analyzed.", mediaFile.getFilename());
     }
 
     try {
@@ -138,7 +138,7 @@ public abstract class ARDetectorTask extends TmmTask {
 
       MediaFilePosition position = MediaFileHelper.getPositionInMediaFile(mediaFile, 0);
       if (position == null) {
-        LOGGER.error("Found no valid position for detection");
+        LOGGER.warn("Found no valid position for AR detection for '{}'", mediaFile.getFilename());
         return;
       }
 
@@ -147,8 +147,8 @@ public abstract class ARDetectorTask extends TmmTask {
       if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct)
         videoInfo.darkLevel = getDarkLevel(videoInfo);
 
-      LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
-      LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}", videoInfo.width,
+      LOGGER.debug("Filename: {}", mediaFile.getFileAsPath());
+      LOGGER.trace("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}", videoInfo.width,
           videoInfo.height, mediaFile.getAspectRatio(), videoInfo.arSample, videoInfo.bitDepth, videoInfo.darkLevel, mediaFile.getDurationHHMMSS());
 
       if (increment > this.sampleMaxGap) {
@@ -166,12 +166,12 @@ public abstract class ARDetectorTask extends TmmTask {
           }
           position = MediaFileHelper.getPositionInMediaFile(mediaFile, iSec);
 
-          LOGGER.info("Scanning {} at {}s", position.getPath().toString(), position.getPosition());
-          result = FFmpeg.scanSample((int) position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
+          LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
+          result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
           parseSample(result, iSec, iInc, videoInfo);
         }
         catch (Exception ex) {
-          LOGGER.warn("Error scanning sample", ex);
+          LOGGER.trace("Error scanning sample - '{}'", ex.getMessage());
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
@@ -187,7 +187,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
 
       if (videoInfo.sampleCount == 0) {
-        LOGGER.warn("No results from scanning");
+        LOGGER.debug("No results from scanning");
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed", new String[] { ":", mediaFile.getFilename() }));
         return;
@@ -203,16 +203,16 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.height = videoInfo.heightPrimary;
         videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
-        LOGGER.debug("Multi format:      disabled");
+        LOGGER.trace("Multi format:      disabled");
       }
       videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
       mediaFile.setAspectRatio(videoInfo.arPrimary);
-      LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
+      LOGGER.trace("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
       if (videoInfo.arSecondary > 0f && ArdSettings.Mode.ACCURATE.equals(this.mode)) {
         videoInfo.arSecondary = roundAR(videoInfo.arSecondary);
         mediaFile.setAspectRatio2(videoInfo.arSecondary);
-        LOGGER.debug("AR_Secondary:      {}", String.format("%.2f", videoInfo.arSecondary));
+        LOGGER.trace("AR_Secondary:      {}", String.format("%.2f", videoInfo.arSecondary));
       }
 
       mediaFile.setVideoHeight(videoInfo.height);
