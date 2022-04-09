@@ -343,7 +343,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     int tmdbId = options.getTmdbId();
 
     // try to get via imdb id
-    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (tmdbId == 0 && MetadataUtil.isValidImdbId(options.getImdbId())) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
       }
@@ -353,7 +353,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     // try to get via tvdb id
-    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+    if (tmdbId == 0 && options.getIdAsIntOrDefault(TVDB, 0) > 0) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
       }
