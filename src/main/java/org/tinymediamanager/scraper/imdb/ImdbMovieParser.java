@@ -44,6 +44,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -178,7 +179,7 @@ public class ImdbMovieParser extends ImdbParser {
       Document releaseinfoDoc = futureReleaseinfo.get();
       // parse original title here!!
       if (releaseinfoDoc != null) {
-        parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
+        parseReleaseinfoPageAKAs(releaseinfoDoc, md);
 
         // get the date from the releaseinfo page
         parseReleaseinfoPage(releaseinfoDoc, options, md);
@@ -257,6 +258,39 @@ public class ImdbMovieParser extends ImdbParser {
     return md;
   }
 
+  public List<MediaRating> getRatings(Map<String, Object> ids) throws ScrapeException {
+    LOGGER.debug("getRatings(): {}", ids);
+
+    String imdbId = MediaIdUtil.getStringFromIdMap(ids, MediaMetadata.IMDB);
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      throw new MissingIdException(MediaMetadata.IMDB);
+    }
+
+    MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+
+    // get critics
+    Callable<Document> worker = new ImdbParser.ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), "en", "US");
+    Future<Document> futureCritics = executor.submit(worker);
+
+    try {
+      Document criticsDoc = futureCritics.get();
+      if (criticsDoc != null) {
+        parseCritics(criticsDoc, md);
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("Could not get ratings - '{}'", e.getMessage());
+    }
+
+    // get IMDB rating
+    MediaRating imdbRating = RatingProvider.getImdbRating(imdbId);
+    if (imdbRating != null) {
+      md.addRating(imdbRating);
+    }
+
+    return md.getRatings();
+  }
+
   private void parseCritics(Document doc, MediaMetadata md) {
     // <div class="metascore_block" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating">
     // <span itemprop="ratingValue">53</span>
@@ -289,7 +323,7 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   // AKAs and original title
-  private void parseReleaseinfoPageAKAs(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+  private void parseReleaseinfoPageAKAs(Document doc, MediaMetadata md) {
     // <table id="akas" class="subpage_data spEven2Col">
     // <tr class="even">
     // <td>(original title)</td>

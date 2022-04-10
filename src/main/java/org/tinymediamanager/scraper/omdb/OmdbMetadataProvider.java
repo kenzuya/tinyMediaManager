@@ -45,10 +45,10 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
-import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * Central metadata provider class
@@ -217,7 +217,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
 
     // IMDB rating
     try {
-      MediaRating rating = new MediaRating("imdb");
+      MediaRating rating = new MediaRating(MediaMetadata.IMDB);
       rating.setRating(Float.parseFloat(movie.attr("imdbRating")));
       rating.setVotes(MetadataUtil.parseInt(movie.attr("imdbVotes")));
       rating.setMaxValue(10);
@@ -286,7 +286,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
     // outdated rating from omdb)
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
       MediaRating omdbRating = md.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
       if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
         md.getRatings().remove(omdbRating);
         md.addRating(imdbRating);

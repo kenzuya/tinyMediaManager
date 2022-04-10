@@ -52,6 +52,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.CompanyBaseRecord;
@@ -75,7 +76,6 @@ import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import retrofit2.Response;
@@ -296,7 +296,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     // also try to get the IMDB rating
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
       if (imdbRating != null) {
         md.addRating(imdbRating);
       }

@@ -1,5 +1,6 @@
 Version 4.3
 =======================
++ added an action to scrape ratings from multiple scrapers #1672
 + added an action to lock objects on movie/TV show level
 + updated the bundled Java version to 17.0.2
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)

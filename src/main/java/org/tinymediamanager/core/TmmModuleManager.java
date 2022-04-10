@@ -22,7 +22,7 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.util.RatingUtil;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 
 /**
  * The class TmmModuleManager. Used to manage all modules inside tmm
@@ -131,7 +131,7 @@ public final class TmmModuleManager {
     }
 
     // do cleanup tasks
-    RatingUtil.shutdown();
+    RatingProvider.shutdown();
     Utils.clearTempFolder();
   }
 

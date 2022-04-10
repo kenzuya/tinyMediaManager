@@ -29,18 +29,25 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.scraper.util.RatingUtil;
+import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.movies.dialogs.MovieFetchRatingsDialog;
 
-public class MovieFetchImdbRatingAction extends TmmAction {
+/**
+ * the class {@link MovieFetchRatingsAction} is used to download ratings from various sources
+ *
+ * @author Manuel Laggner
+ */
+public class MovieFetchRatingsAction extends TmmAction {
 
-  public MovieFetchImdbRatingAction() {
+  public MovieFetchRatingsAction() {
     putValue(LARGE_ICON_KEY, IconManager.RATING_BLUE);
     putValue(SMALL_ICON, IconManager.RATING_BLUE);
-    putValue(NAME, TmmResourceBundle.getString("movie.refetchimdbrating"));
+    putValue(NAME, TmmResourceBundle.getString("movie.fetchratings"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -53,28 +60,35 @@ public class MovieFetchImdbRatingAction extends TmmAction {
       return;
     }
 
-    TmmTaskManager.getInstance()
-        .addUnnamedTask(
-            new TmmTask(TmmResourceBundle.getString("movie.refetchimdbrating"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+    MovieFetchRatingsDialog dialog = new MovieFetchRatingsDialog();
+    dialog.setVisible(true);
 
-              @Override
-              protected void doInBackground() {
-                int i = 0;
+    List<RatingProvider.RatingSource> sources = dialog.getSelectedRatingSources();
 
-                for (Movie movie : selectedMovies) {
-                  MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
-                  if (rating != null) {
-                    movie.setRating(rating);
-                    movie.saveToDb();
-                    movie.writeNFO();
-                  }
+    if (!sources.isEmpty()) {
+      TmmTaskManager.getInstance()
+          .addUnnamedTask(
+              new TmmTask(TmmResourceBundle.getString("movie.fetchratings"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
-                  publishState(++i);
-                  if (cancel) {
-                    break;
+                @Override
+                protected void doInBackground() {
+                  int i = 0;
+
+                  for (Movie movie : selectedMovies) {
+                    List<MediaRating> ratings = RatingProvider.getRatings(movie.getIds(), sources, MediaType.MOVIE);
+                    ratings.forEach(movie::setRating);
+                    if (!ratings.isEmpty()) {
+                      movie.saveToDb();
+                      movie.writeNFO();
+                    }
+
+                    publishState(++i);
+                    if (cancel) {
+                      break;
+                    }
                   }
                 }
-              }
-            });
+              });
+    }
   }
 }

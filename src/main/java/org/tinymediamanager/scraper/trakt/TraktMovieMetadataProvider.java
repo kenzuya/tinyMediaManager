@@ -22,7 +22,9 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -44,10 +46,11 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IRatingProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 
 import com.uwetrottmann.trakt5.entities.CastMember;
 import com.uwetrottmann.trakt5.entities.Credits;
@@ -63,7 +66,7 @@ import retrofit2.Response;
  * The class TraktMovieMetadataProvider is used to provide metadata for movies from trakt.tv
  */
 
-public class TraktMovieMetadataProvider extends TraktMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
+public class TraktMovieMetadataProvider extends TraktMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktMovieMetadataProvider.class);
 
   @Override
@@ -209,15 +212,17 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
     md.addCertification(MediaCertification.findCertification(movie.certification));
     md.setReleaseDate(TraktUtils.toDate(movie.released));
 
-    try {
-      MediaRating rating = new MediaRating("trakt");
-      rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
-      rating.setVotes(movie.votes);
-      rating.setMaxValue(10);
-      md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    if (movie.rating != null && movie.votes != null) {
+      try {
+        MediaRating rating = new MediaRating("trakt");
+        rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
+        rating.setVotes(movie.votes);
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
     }
 
     // ids
@@ -255,12 +260,73 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
 
     // also try to get the IMDB rating
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
       if (imdbRating != null) {
         md.addRating(imdbRating);
       }
     }
 
     return md;
+  }
+
+  @Override
+  public List<MediaRating> getRatings(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyList();
+    }
+
+    LOGGER.debug("getRatings(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    String id = MetadataUtil.getIdAsString(ids, getId());
+
+    // alternatively we can take the imdbid
+    if (StringUtils.isBlank(id)) {
+      id = MetadataUtil.getIdAsString(ids, IMDB);
+    }
+
+    if (StringUtils.isBlank(id)) {
+      LOGGER.warn("no id available");
+      throw new MissingIdException(MediaMetadata.IMDB, getId());
+    }
+
+    // scrape
+    LOGGER.debug("Trakt.tv: getMetadata: id = {}", id);
+
+    Movie movie;
+    try {
+      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      movie = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (movie == null) {
+      LOGGER.debug("nothing found");
+      throw new NothingFoundException();
+    }
+
+    if (movie.rating != null && movie.votes != null) {
+      try {
+        MediaRating rating = new MediaRating("trakt");
+        rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
+        rating.setVotes(movie.votes);
+        rating.setMaxValue(10);
+        return Collections.singletonList(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
+    }
+
+    return Collections.emptyList();
   }
 }

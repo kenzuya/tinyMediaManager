@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.scraper.entities;
 
-import java.util.Locale;
-
 /**
  * The enum MediaType. This enum represents all type of media tinyMediaManager understands
  * 
@@ -35,7 +33,6 @@ public enum MediaType {
       return null;
     }
 
-    id = id.toLowerCase(Locale.ROOT);
     if ("movie".equalsIgnoreCase(id) || "movies".equalsIgnoreCase(id)) {
       return MOVIE;
     }

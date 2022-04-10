@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.scraper.util;
+package org.tinymediamanager.scraper.rating;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -33,27 +33,29 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
-public class RatingUtil {
-  private static final Logger          LOGGER  = LoggerFactory.getLogger(RatingUtil.class);
+/**
+ * the class {@link ImdbRating} provides IMDB ratings via their database dump
+ * 
+ * @author Manuel Laggner
+ */
+class ImdbRating {
+  private static final Logger          LOGGER  = LoggerFactory.getLogger(ImdbRating.class);
   private static final String          IMDB_DB = "imdb_ratings.db";
 
   private static MVStore               mvStore;
   private static MVMap<String, String> ratingMap;
 
-  private RatingUtil() {
-    throw new IllegalAccessError();
-  }
-
-  public static synchronized MediaRating getImdbRating(String imdbId) {
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
-      return null;
-    }
-
+  private static synchronized void initMap() {
     if (mvStore == null) {
       // no rating here yet
       initImdbRatings();
     }
+  }
+
+  MediaRating getImdbRating(String imdbId) {
+    initMap();
 
     if (ratingMap == null) {
       // still null? we obviously have a problem opening the cache - so just ignore that
@@ -130,7 +132,7 @@ public class RatingUtil {
     }
   }
 
-  public static synchronized void shutdown() {
+  static synchronized void shutdown() {
     try {
       if (mvStore != null && !mvStore.isClosed()) {
         mvStore.compactMoveChunks();

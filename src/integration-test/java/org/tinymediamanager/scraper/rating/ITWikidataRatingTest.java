@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.scraper.util;
+package org.tinymediamanager.scraper.rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
-import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.scraper.rating.RatingProvider;
+import java.util.List;
 
-public class ITRatingUtilTest extends BasicITest {
+import org.junit.Test;
+import org.tinymediamanager.core.entities.MediaRating;
+
+public class ITWikidataRatingTest {
 
   @Test
-  public void testRatings() throws Exception {
-    assertThat(RatingProvider.getImdbRating("tt5719388").getRating()).isPositive();
-    assertThat(RatingProvider.getImdbRating("tt57193881111")).isNull();
+  public void testGetRatings() throws Exception {
+    WikidataRating wikidataRating = new WikidataRating();
+
+    List<MediaRating> ratings = wikidataRating.getRatings("tt3315342");
+    assertThat(ratings).isNotEmpty();
+
+    ratings = wikidataRating.getRatings("tt3315342");
+    assertThat(ratings).isNotEmpty();
   }
 }

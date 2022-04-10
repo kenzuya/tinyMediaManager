@@ -284,17 +284,38 @@ public class MetadataUtil {
 
   /**
    * any ID as int or 0
-   *
-   * @return the ID-value as int or an empty string
+   * 
+   * @param ids
+   *          a {@link Map} of all available IDs
+   * @param key
+   *          the provider ID
+   * 
+   * @return the ID-value as int or 0
    */
   public static int getIdAsInt(Map<String, Object> ids, String key) {
+    return getIdAsIntOrDefault(ids, key, 0);
+  }
+
+  /**
+   * any ID as int or the default value
+   * 
+   * @param ids
+   *          a {@link Map} of all available IDs
+   * @param key
+   *          the provider ID
+   * @param defaultValue
+   *          the default value to return
+   *
+   * @return the ID-value as int or the default value
+   */
+  public static int getIdAsIntOrDefault(Map<String, Object> ids, String key, int defaultValue) {
     if (ids == null) {
-      return 0;
+      return defaultValue;
     }
 
     Object obj = ids.get(key);
     if (obj == null) {
-      return 0;
+      return defaultValue;
     }
     if (obj instanceof Integer) {
       return (Integer) obj;
@@ -309,6 +330,6 @@ public class MetadataUtil {
       }
     }
 
-    return 0;
+    return defaultValue;
   }
 }

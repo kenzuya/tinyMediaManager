@@ -46,9 +46,9 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -333,7 +333,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     // also try to get the IMDB rating
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
       if (imdbRating != null) {
         md.addRating(imdbRating);
       }
@@ -497,7 +497,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     // also try to get the IMDB rating
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
       if (imdbRating != null) {
         md.addRating(imdbRating);
       }

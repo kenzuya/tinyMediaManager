@@ -32,7 +32,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.scraper.util.RatingUtil;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
@@ -69,7 +69,7 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
             int i = 0;
 
             for (TvShow tvShow : selectedObjects.getTvShows()) {
-              MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
+              MediaRating rating = RatingProvider.getImdbRating(tvShow.getImdbId());
               if (rating != null) {
                 tvShow.setRating(rating);
                 tvShow.saveToDb();
@@ -83,7 +83,7 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
             }
 
             for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
-              MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
+              MediaRating rating = RatingProvider.getImdbRating(episode.getIdAsString(IMDB));
               if (rating != null) {
                 episode.setRating(rating);
                 episode.saveToDb();

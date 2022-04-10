@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,7 @@ public class MediaIdUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(MediaIdUtil.class);
 
   private MediaIdUtil() {
-    // empty constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -132,5 +134,22 @@ public class MediaIdUtil {
     }
 
     return "";
+  }
+
+  /**
+   * get the ID out of the {@link Map} as {@link String}
+   * 
+   * @param ids
+   *          the {@link Map} with all IDs
+   * @param id
+   *          the ID to get
+   * @return the ID as {@link String} or an empty {@link String}
+   */
+  public static String getStringFromIdMap(Map<String, Object> ids, String id) {
+    Object obj = ids.get(id);
+    if (obj == null) {
+      return "";
+    }
+    return obj.toString();
   }
 }
