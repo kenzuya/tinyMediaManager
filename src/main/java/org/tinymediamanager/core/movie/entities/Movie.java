@@ -1247,11 +1247,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!MovieModuleManager.getInstance().getSettings().isWriteActorImages() || isMultiMovieDir()) {
-      return;
-    }
-
     MovieActorImageFetcherTask task = new MovieActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
@@ -2835,7 +2830,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // write actor images after possible rename (to have a good folder structure)
-    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages() && !isMultiMovieDir()) {
+    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages()) {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {

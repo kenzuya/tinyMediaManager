@@ -11,3 +11,4 @@ Version 4.3
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm
+x enabled downloading actor images for multi movie folders
