@@ -626,18 +626,26 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       // actor.appendChild(type);
 
       // TMDB id
-      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
+      int tmdbId = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbId > 0) {
         Element id = document.createElement("tmdbid");
-        id.setTextContent(String.valueOf(tmdbid));
+        id.setTextContent(String.valueOf(tmdbId));
         actor.appendChild(id);
       }
 
       // IMDB id
-      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbid)) {
+      String imdbId = tvShowActor.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbId)) {
         Element id = document.createElement("imdbid");
-        id.setTextContent(imdbid);
+        id.setTextContent(imdbId);
+        actor.appendChild(id);
+      }
+
+      // TVDB id
+      int tvdbId = tvShowActor.getIdAsInt(MediaMetadata.TVDB);
+      if (tvdbId > 0) {
+        Element id = document.createElement("tvdbid");
+        id.setTextContent(String.valueOf(tvdbId));
         actor.appendChild(id);
       }
 
