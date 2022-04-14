@@ -234,6 +234,9 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       if (StringUtils.isNotBlank(character.image)) {
         member.setThumbUrl(character.image);
       }
+      if (StringUtils.isNotBlank(character.url)) {
+        member.setProfileUrl(character.url);
+      }
 
       members.add(member);
     }
