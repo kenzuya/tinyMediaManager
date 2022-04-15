@@ -255,12 +255,6 @@ public final class TinyMediaManager {
             Settings.getInstance().saveSettings();
           }
 
-          // proxy settings
-          if (Settings.getInstance().useProxy()) {
-            LOGGER.info("setting proxy");
-            Settings.getInstance().setProxy();
-          }
-
           // MediaInfo /////////////////////////////////////////////////////
           if (g2 != null) {
             updateProgress(g2, "loading internals", 20);

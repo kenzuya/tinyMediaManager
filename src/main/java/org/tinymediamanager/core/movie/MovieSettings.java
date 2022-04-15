@@ -429,6 +429,11 @@ public final class MovieSettings extends AbstractSettings {
     return LOGGER;
   }
 
+  @Override
+  protected void afterLoading() {
+    // nothing to do here
+  }
+
   /**
    * the tmm defaults
    */

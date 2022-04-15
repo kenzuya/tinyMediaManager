@@ -182,6 +182,15 @@ public final class Settings extends AbstractSettings {
   }
 
   @Override
+  protected void afterLoading() {
+    // create a new HTTP client to force setting the right proxy/SSL params
+    setProxy();
+    System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
+
+    TmmHttpClient.recreateHttpClient();
+  }
+
+  @Override
   protected void writeDefaultSettings() {
     version = ReleaseInfo.getVersion();
 
@@ -667,7 +676,7 @@ public final class Settings extends AbstractSettings {
   /**
    * Sets the TMM proxy.
    */
-  public void setProxy() {
+  private void setProxy() {
     if (useProxy()) {
       System.setProperty("proxyHost", getProxyHost());
 
@@ -683,14 +692,13 @@ public final class Settings extends AbstractSettings {
         System.setProperty("http.proxyPassword", getProxyPassword());
         System.setProperty("https.proxyPassword", getProxyPassword());
       }
-      // System.setProperty("java.net.useSystemProxies", "true");
     }
     try {
       ProxySettings.setProxySettings(getProxyHost(), getProxyPort() == null ? 0 : Integer.parseInt(getProxyPort().trim()), getProxyUsername(),
           getProxyPassword());
     }
     catch (NumberFormatException e) {
-      LOGGER.error("could not parse proxy port: " + e.getMessage());
+      LOGGER.error("could not parse proxy port: {}", e.getMessage());
     }
   }
 

@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * The class AbstractSettings is the base class for our settings structure. Loading/saving is handled by this class
@@ -75,16 +76,17 @@ public abstract class AbstractSettings extends AbstractModelObject {
   }
 
   protected static ObjectMapper createObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, true);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, true);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, true);
-    objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, true);
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true);
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objectMapper.setTimeZone(TimeZone.getDefault());
-    objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+    ObjectMapper objectMapper = JsonMapper.builder()
+        .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
+        .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, true)
+        .configure(MapperFeature.AUTO_DETECT_SETTERS, true)
+        .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .defaultTimeZone(TimeZone.getDefault())
+        .serializationInclusion(JsonInclude.Include.ALWAYS)
+        .build();
     objectMapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
 
     return objectMapper;
@@ -132,6 +134,11 @@ public abstract class AbstractSettings extends AbstractModelObject {
    * create the object writer for the settings instance
    */
   protected abstract ObjectWriter createObjectWriter();
+
+  /**
+   * hook for an after loading event
+   */
+  protected abstract void afterLoading();
 
   /**
    * write the default settings values
@@ -238,6 +245,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
 
         ObjectReader objectReader = objectMapper.readerFor(clazz);
         instance = objectReader.readValue(settingsAsJson);
+        instance.afterLoading();
       }
       catch (Exception e) {
         if (!(e instanceof FileNotFoundException)) {

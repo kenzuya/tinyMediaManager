@@ -414,6 +414,11 @@ public final class TvShowSettings extends AbstractSettings {
     return LOGGER;
   }
 
+  @Override
+  protected void afterLoading() {
+    // nothing to do here
+  }
+
   /**
    * the tmm defaults
    */
