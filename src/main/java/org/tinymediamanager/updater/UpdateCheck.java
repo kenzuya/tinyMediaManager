@@ -18,6 +18,7 @@ package org.tinymediamanager.updater;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ public class UpdateCheck {
       return false;
     }
 
-    Path getdownFile = Paths.get("getdown.txt");
-    Path digestFile = Paths.get("digest.txt");
+    Path getdownFile = getFile("getdown.txt");
+    Path digestFile = getFile("digest.txt");
     LOGGER.info("Checking for updates...");
 
     ArrayList<String> updateUrls = new ArrayList<>();
@@ -179,5 +180,17 @@ public class UpdateCheck {
    */
   public boolean isForcedUpdate() {
     return forceUpdate;
+  }
+
+  // FROM GETDOWN:
+  // try reading data from our backup config file; thanks to funny windows
+  // bullshit, we have to do this backup file fiddling in case we got screwed while
+  // updating getdown.txt during normal operation
+  private Path getFile(String file) {
+    Path ret = Paths.get(file);
+    if (!Files.exists(ret)) {
+      ret = Paths.get(file + "_old");
+    }
+    return ret;
   }
 }
