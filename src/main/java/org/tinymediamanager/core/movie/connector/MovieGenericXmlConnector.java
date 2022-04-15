@@ -686,18 +686,26 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       // actor.appendChild(type);
 
       // TMDB id
-      int tmdbid = movieActor.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
+      int tmdbId = movieActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbId > 0) {
         Element id = document.createElement("tmdbid");
-        id.setTextContent(String.valueOf(tmdbid));
+        id.setTextContent(String.valueOf(tmdbId));
         actor.appendChild(id);
       }
 
       // IMDB id
-      String imdbid = movieActor.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbid)) {
+      String imdbId = movieActor.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbId)) {
         Element id = document.createElement("imdbid");
-        id.setTextContent(imdbid);
+        id.setTextContent(imdbId);
+        actor.appendChild(id);
+      }
+
+      // TVDB id
+      int tvdbId = movieActor.getIdAsInt(MediaMetadata.TVDB);
+      if (tvdbId > 0) {
+        Element id = document.createElement("tvdbid");
+        id.setTextContent(String.valueOf(tvdbId));
         actor.appendChild(id);
       }
 
