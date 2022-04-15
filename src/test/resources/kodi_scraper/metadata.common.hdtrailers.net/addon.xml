@@ -18,7 +18,9 @@
         <summary lang="pl">Scraper zwiastunów HD-Trailers.net</summary>
         <summary lang="pt">Scraper de trailers de HD-Trailers.net</summary>
         <summary lang="ru">Обработчик для трейлеров с HD-Trailers.net</summary>
-        <summary lang="zh">HD-Trailers.net刮削器代码库</summary>
+        <summary lang="zh">HD-Trailers.net 擷取器資料庫</summary>
+        <summary lang="zh_CN">HD-Trailers.net刮削器代码库</summary>
+        <summary lang="zh_TW">HD-Trailers.net 擷取器資料庫</summary>
         <description lang="en">Download Movie Trailers from www.hd-trailers.net</description>
         <description lang="de">Downloade Trailer von www.hd-trailers.net</description>
         <description lang="es">Descarga trailers de www.hd-trailers.net</description>
@@ -28,7 +30,9 @@
         <description lang="pl">Pobieraj zwiastuny filmowe z www.hd-trailers.net</description>
         <description lang="pt">Descarregar trailers de www.hd-trailers.net</description>
         <description lang="ru">Загружать трейлеры с www.hd-trailers.net</description>
-        <description lang="zh">从www.hd-trailers.net下载电影预告片</description>
+        <description lang="zh">從 www.hd-trailers.net 下載電影預告片</description>
+        <description lang="zh_CN">从www.hd-trailers.net下载电影预告片</description>
+        <description lang="zh_TW">從 www.hd-trailers.net 下載電影預告片</description>
         <platform>all</platform>
     </extension>
 </addon>
