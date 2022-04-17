@@ -139,7 +139,7 @@ public class ParserUtils {
           }
         }
       }
-      if (MetadataUtil.isValidImdbId(s[i])) {
+      if (MediaIdUtil.isValidImdbId(s[i])) {
         s[i] = ""; // delete imdbId from name
       }
     }

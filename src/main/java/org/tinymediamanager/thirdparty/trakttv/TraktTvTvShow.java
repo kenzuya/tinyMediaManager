@@ -42,6 +42,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -588,7 +589,7 @@ class TraktTvTvShow {
     boolean hasId = false;
 
     ShowIds ids = new ShowIds();
-    if (MetadataUtil.isValidImdbId(tmmShow.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmShow.getImdbId())) {
       ids.imdb = tmmShow.getImdbId();
       hasId = true;
     }
@@ -732,7 +733,7 @@ class TraktTvTvShow {
     boolean hasId = false;
 
     ShowIds ids = new ShowIds();
-    if (MetadataUtil.isValidImdbId(tmmShow.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmShow.getImdbId())) {
       ids.imdb = tmmShow.getImdbId();
       hasId = true;
     }

@@ -59,6 +59,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -768,11 +769,11 @@ public class MovieNfoParser {
 
     // id tag & check against imdb pattern (otherwise we cannot say for which provider this id is)
     Element element = getSingleElement(root, "id");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
     element = getSingleElement(root, "imdb");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
 

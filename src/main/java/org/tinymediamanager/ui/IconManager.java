@@ -78,7 +78,7 @@ public class IconManager {
   public static final ImageIcon              RATING_USER                  = createSVGIcon("rating-user.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_IMDB                  = createSVGIcon("rating-imdb.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_TMDB                  = createSVGIcon("rating-tmdb.svg", new Dimension(36, 36), true);
-  public static final ImageIcon              RATING_ROTTEN_TOMATOES       = createSVGIcon("rating-rottentomatoes.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_TOMATOMETER           = createSVGIcon("rating-tomatometer.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(53, 36), true);
   public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(36, 36), true);
@@ -87,6 +87,7 @@ public class IconManager {
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
   public static final ImageIcon              APPLY                        = createMenuIcon("check-circle.svg");
   public static final ImageIcon              ASPECT_RATIO_BLUE            = createMenuIcon("ruler-combined-solid.svg");
+  public static final ImageIcon              BARCODE                      = createMenuIcon("barcode.svg");
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
   public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");
   public static final ImageIcon              CONNECT                      = createMenuIcon("link.svg");

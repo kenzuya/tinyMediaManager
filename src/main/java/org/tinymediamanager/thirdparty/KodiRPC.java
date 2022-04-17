@@ -61,6 +61,7 @@ import org.tinymediamanager.jsonrpc.io.JavaConnectionManager;
 import org.tinymediamanager.jsonrpc.io.JsonApiRequest;
 import org.tinymediamanager.jsonrpc.notification.AbstractEvent;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 public class KodiRPC {
@@ -243,7 +244,7 @@ public class KodiRPC {
     Map<String, Movie> imdbIdMap = new HashMap<>();
 
     for (Movie movie : movies) {
-      if (MetadataUtil.isValidImdbId(movie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId())) {
         imdbIdMap.put(movie.getImdbId(), movie);
       }
     }
@@ -295,7 +296,7 @@ public class KodiRPC {
     }
 
     // try to match by imdb id
-    if (MetadataUtil.isValidImdbId(movieDetail.imdbnumber)) {
+    if (MediaIdUtil.isValidImdbId(movieDetail.imdbnumber)) {
       Movie foundMovie = imdbIdMap.get(movieDetail.imdbnumber);
       if (foundMovie != null) {
         return foundMovie;
@@ -368,7 +369,7 @@ public class KodiRPC {
     Map<String, TvShow> idMap = new HashMap<>();
 
     for (TvShow tvShow : tvShows) {
-      if (MetadataUtil.isValidImdbId(tvShow.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(tvShow.getImdbId())) {
         idMap.put(tvShow.getImdbId(), tvShow);
       }
       if (MetadataUtil.parseInt(tvShow.getTvdbId(), 0) > 0) {
@@ -410,7 +411,7 @@ public class KodiRPC {
     }
 
     // try to match by imdb id
-    if (MetadataUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
+    if (MediaIdUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
       TvShow tvShow = idMap.get(tvShowDetail.imdbnumber);
       if (tvShow != null) {
         return tvShow;

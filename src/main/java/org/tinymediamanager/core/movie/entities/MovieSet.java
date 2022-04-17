@@ -61,7 +61,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -307,7 +307,7 @@ public class MovieSet extends MediaEntity {
       if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
         found = true;
       }
-      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
         found = true;
       }
 
@@ -357,7 +357,7 @@ public class MovieSet extends MediaEntity {
       if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
         found = true;
       }
-      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
         found = true;
       }
 
@@ -392,7 +392,7 @@ public class MovieSet extends MediaEntity {
             found = true;
             break;
           }
-          if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+          if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
             found = true;
             break;
           }

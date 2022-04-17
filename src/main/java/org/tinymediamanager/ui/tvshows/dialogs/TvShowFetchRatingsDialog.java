@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.ui.movies.dialogs;
+package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -32,17 +32,17 @@ import org.tinymediamanager.ui.dialogs.TmmDialog;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The class {@link MovieFetchRatingsDialog} is used to choose which sources should be used for rating fetching.
+ * The class {@link TvShowFetchRatingsDialog} is used to choose which sources should be used for rating fetching.
  * 
  * @author Manuel Laggner
  */
-public class MovieFetchRatingsDialog extends TmmDialog {
+public class TvShowFetchRatingsDialog extends TmmDialog {
   private static final long                                   serialVersionUID = -8515248104217313279L;
 
   private final TmmCheckComboBox<RatingProvider.RatingSource> cbSources;
 
-  public MovieFetchRatingsDialog() {
-    super(TmmResourceBundle.getString("movie.fetchratings"), "movieFetchRatings");
+  public TvShowFetchRatingsDialog() {
+    super(TmmResourceBundle.getString("tvshow.fetchratings"), "tvShowFetchRatings");
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
@@ -51,7 +51,7 @@ public class MovieFetchRatingsDialog extends TmmDialog {
     JLabel lblRatingSource = new TmmLabel(TmmResourceBundle.getString("metatag.rating.source"));
     panelContent.add(lblRatingSource, "cell 0 0,alignx right");
 
-    cbSources = new TmmCheckComboBox<>(RatingProvider.RatingSource.getRatingSourcesForMovies());
+    cbSources = new TmmCheckComboBox<>(RatingProvider.RatingSource.getRatingSourcesForTvShows());
     panelContent.add(cbSources, "cell 1 0,growx");
 
     {

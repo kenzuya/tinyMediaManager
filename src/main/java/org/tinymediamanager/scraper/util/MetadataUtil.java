@@ -16,7 +16,6 @@
 package org.tinymediamanager.scraper.util;
 
 import java.util.Calendar;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +34,7 @@ public class MetadataUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(MetadataUtil.class);
 
   private MetadataUtil() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -132,21 +131,6 @@ public class MetadataUtil {
       return null;
     }
     return s.replaceAll("[\\\\[\\\\]_.:|]", " ");
-  }
-
-  /**
-   * Checks if is valid imdb id.
-   * 
-   * @param imdbId
-   *          the imdb id
-   * @return true, if is valid imdb id
-   */
-  public static boolean isValidImdbId(String imdbId) {
-    if (StringUtils.isBlank(imdbId)) {
-      return false;
-    }
-
-    return imdbId.matches("tt\\d{6,}");
   }
 
   /**
@@ -263,73 +247,5 @@ public class MetadataUtil {
    */
   public static double unboxDouble(Double original) {
     return Optional.ofNullable(original).orElse(0d);
-  }
-
-  /**
-   * any ID as String or empty
-   *
-   * @return the ID-value as String or an empty string
-   */
-  public static String getIdAsString(Map<String, Object> ids, String key) {
-    if (ids == null) {
-      return "";
-    }
-
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return "";
-    }
-    return String.valueOf(obj);
-  }
-
-  /**
-   * any ID as int or 0
-   * 
-   * @param ids
-   *          a {@link Map} of all available IDs
-   * @param key
-   *          the provider ID
-   * 
-   * @return the ID-value as int or 0
-   */
-  public static int getIdAsInt(Map<String, Object> ids, String key) {
-    return getIdAsIntOrDefault(ids, key, 0);
-  }
-
-  /**
-   * any ID as int or the default value
-   * 
-   * @param ids
-   *          a {@link Map} of all available IDs
-   * @param key
-   *          the provider ID
-   * @param defaultValue
-   *          the default value to return
-   *
-   * @return the ID-value as int or the default value
-   */
-  public static int getIdAsIntOrDefault(Map<String, Object> ids, String key, int defaultValue) {
-    if (ids == null) {
-      return defaultValue;
-    }
-
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return defaultValue;
-    }
-    if (obj instanceof Integer) {
-      return (Integer) obj;
-    }
-
-    if (obj instanceof String) {
-      try {
-        return Integer.parseInt((String) obj);
-      }
-      catch (Exception e) {
-        LOGGER.trace("could not parse int: {}", e.getMessage());
-      }
-    }
-
-    return defaultValue;
   }
 }

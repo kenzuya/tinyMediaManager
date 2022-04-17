@@ -43,7 +43,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 import org.tinymediamanager.scraper.util.LanguageUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.Similarity;
 
 /**
@@ -182,7 +182,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     }
 
     // second try: search by IMDB Id
-    if (results.isEmpty() && MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (results.isEmpty() && MediaIdUtil.isValidImdbId(options.getImdbId())) {
       Map<String, Object> mapQuery = new HashMap<>();
 
       getLogger().debug("searching subtitle for imdb id: {}", options.getImdbId());

@@ -79,7 +79,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
@@ -666,18 +666,18 @@ public final class MovieList extends AbstractModelObject {
 
     if (!searchTerm.isEmpty()) {
       String query = searchTerm.toLowerCase(Locale.ROOT);
-      if (MetadataUtil.isValidImdbId(query)) {
+      if (MediaIdUtil.isValidImdbId(query)) {
         options.setImdbId(query);
       }
       else if (query.startsWith("imdb:")) {
         String imdbId = query.replace("imdb:", "");
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
       else if (query.startsWith("https://www.imdb.com/title/")) {
         String imdbId = query.split("/")[4];
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }

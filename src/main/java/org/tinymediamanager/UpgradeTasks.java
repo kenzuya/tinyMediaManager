@@ -48,6 +48,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -405,6 +406,32 @@ public class UpgradeTasks {
         if (!TvShowModuleManager.getInstance().getSettings().getSkipFolder().contains("MAKEMKV")) {
           TvShowModuleManager.getInstance().getSettings().addSkipFolder("MAKEMKV");
           TvShowModuleManager.getInstance().getSettings().saveSettings();
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.3") < 0) {
+      // replace imdbId with imdb
+      for (Movie movie : movieList.getMovies()) {
+        Object value = movie.getId("imdbId");
+        if (value != null && movie.getId(MediaMetadata.IMDB) == null) {
+          movie.setId(MediaMetadata.IMDB, value);
+        }
+        movie.setId("imdbId", null);
+      }
+
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        Object value = tvShow.getId("imdbId");
+        if (value != null && tvShow.getId(MediaMetadata.IMDB) == null) {
+          tvShow.setId(MediaMetadata.IMDB, value);
+        }
+        tvShow.setId("imdbId", null);
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          value = episode.getId("imdbId");
+          if (value != null && episode.getId(MediaMetadata.IMDB) == null) {
+            episode.setId(MediaMetadata.IMDB, value);
+          }
+          episode.setId("imdbId", null);
         }
       }
     }

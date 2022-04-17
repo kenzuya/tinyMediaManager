@@ -53,6 +53,7 @@ import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -986,11 +987,11 @@ public class TvShowNfoParser {
 
     // imdb id and pattern check
     element = getSingleElement(root, "imdb");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
     element = getSingleElement(root, "imdbid");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
 

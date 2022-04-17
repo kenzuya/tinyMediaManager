@@ -90,6 +90,9 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
@@ -939,6 +942,16 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LOGGER.info(options.toString());
         LOGGER.info("=====================================================");
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
+
+        // also fill other ratings if ratings are requested
+        for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
+          if (!metadata.getRatings().contains(rating)) {
+            metadata.addRating(rating);
+          }
+        }
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");

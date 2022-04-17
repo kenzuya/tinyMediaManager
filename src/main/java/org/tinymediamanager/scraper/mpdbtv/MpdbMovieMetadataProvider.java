@@ -51,7 +51,7 @@ import org.tinymediamanager.scraper.mpdbtv.entities.Release;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import retrofit2.Response;
 
@@ -122,7 +122,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
         result.setTitle(StringEscapeUtils.unescapeHtml4(entity.title));
       }
       result.setYear(entity.year);
-      if (MetadataUtil.isValidImdbId(entity.id_imdb)) {
+      if (MediaIdUtil.isValidImdbId(entity.id_imdb)) {
         result.setId("imdb_id", entity.id_imdb);
       }
       result.setId("allocine_id", entity.id_allocine);
@@ -252,7 +252,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
 
     metadata.setId(getId(), scrapeResult.id);
     metadata.setId("allocine", scrapeResult.idAllocine);
-    if (MetadataUtil.isValidImdbId(scrapeResult.idImdb)) {
+    if (MediaIdUtil.isValidImdbId(scrapeResult.idImdb)) {
       metadata.setId("imdb", scrapeResult.idImdb);
     }
     metadata.setId("tmdb", scrapeResult.idTmdb);

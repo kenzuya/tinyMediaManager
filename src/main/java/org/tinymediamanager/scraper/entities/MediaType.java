@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.entities;
 
+import org.tinymediamanager.scraper.ScraperType;
+
 /**
  * The enum MediaType. This enum represents all type of media tinyMediaManager understands
  * 
@@ -28,6 +30,13 @@ public enum MediaType {
   MOVIE_SET,
   SUBTITLE;
 
+  /**
+   * parses the given {@link String} to the corresponding {@link MediaType}
+   * 
+   * @param id
+   *          the {@link String} to parse
+   * @return the {@link MediaType} or null
+   */
   public static MediaType toMediaType(String id) {
     if (id == null) {
       return null;
@@ -49,5 +58,29 @@ public enum MediaType {
     }
 
     return null;
+  }
+
+  /**
+   * get the corresponding {@link ScraperType} for the given {@link MediaType}
+   * 
+   * @param mediaType
+   *          the {@link MediaType}
+   * @return the {@link ScraperType} or null
+   */
+  public static ScraperType getScraperTypeForMediaType(MediaType mediaType) {
+    switch (mediaType) {
+      case MOVIE:
+        return ScraperType.MOVIE;
+
+      case MOVIE_SET:
+        return ScraperType.MOVIE_SET;
+
+      case TV_SHOW:
+      case TV_EPISODE:
+        return ScraperType.TV_SHOW;
+
+      default:
+        return null;
+    }
   }
 }

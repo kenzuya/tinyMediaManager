@@ -22,7 +22,7 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-import static org.tinymediamanager.scraper.util.MetadataUtil.isValidImdbId;
+import static org.tinymediamanager.scraper.util.MediaIdUtil.isValidImdbId;
 
 import java.io.IOException;
 import java.text.Format;
@@ -84,6 +84,7 @@ import org.tinymediamanager.scraper.tmdb.enumerations.ExternalSource;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
@@ -262,7 +263,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     int tmdbId = options.getTmdbId();
 
     // try to get via imdb id
-    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
       }
@@ -315,7 +316,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
         }
         for (TvEpisode episode : ListUtils.nullSafe(seasonResponse.body().episodes)) {
           // season does not send translations, get em only with full episode scrape
-          // verifyTvEpisodeTitleLanguage(episode, options);
           seasonEpisodes.add(morphTvEpisodeToMediaMetadata(episode));
         }
         episodes.addAll(seasonEpisodes);
@@ -347,7 +347,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     int tmdbId = options.getTmdbId();
 
     // try to get via imdb id
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
       }
@@ -550,7 +550,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
     // if we don't have season/episode yet but a imdb id -> do the find lookup
-    if ((seasonNr == -1 || episodeNr == -1) && MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if ((seasonNr == -1 || episodeNr == -1) && MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByImdbId(options.getImdbId());
         if (baseTvEpisode != null) {
@@ -585,7 +585,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       tmdbId = tvShowSearchAndScrapeOptions.getTmdbId();
 
       // try to get via imdb id
-      if (tmdbId == 0 && MetadataUtil.isValidImdbId(tvShowSearchAndScrapeOptions.getImdbId())) {
+      if (tmdbId == 0 && MediaIdUtil.isValidImdbId(tvShowSearchAndScrapeOptions.getImdbId())) {
         try {
           tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, tvShowSearchAndScrapeOptions.getImdbId());
         }
@@ -704,7 +704,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       if (MetadataUtil.unboxInteger(episode.external_ids.tvdb_id) > 0) {
         md.setId(TVDB, episode.external_ids.tvdb_id);
       }
-      if (MetadataUtil.isValidImdbId(episode.external_ids.imdb_id)) {
+      if (MediaIdUtil.isValidImdbId(episode.external_ids.imdb_id)) {
         md.setId(IMDB, episode.external_ids.imdb_id);
       }
       if (MetadataUtil.unboxInteger(episode.external_ids.tvrage_id) > 0) {
@@ -891,11 +891,11 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     // lazy initialization of the api
     initAPI();
 
-    int tmdbId = MetadataUtil.getIdAsInt(ids, MediaMetadata.TMDB);
-    String imdbId = MetadataUtil.getIdAsString(ids, MediaMetadata.IMDB);
+    int tmdbId = MediaIdUtil.getIdAsInt(ids, MediaMetadata.TMDB);
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
 
     // try to get via imdb id
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(imdbId)) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, imdbId);
       }
@@ -905,9 +905,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     // try to get via tvdb id
-    if (tmdbId == 0 && MetadataUtil.getIdAsInt(ids, MediaMetadata.TVDB) > 0) {
+    if (tmdbId == 0 && MediaIdUtil.getIdAsInt(ids, MediaMetadata.TVDB) > 0) {
       try {
-        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, MetadataUtil.getIdAsInt(ids, MediaMetadata.TVDB));
+        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, MediaIdUtil.getIdAsInt(ids, MediaMetadata.TVDB));
       }
       catch (Exception e) {
         LOGGER.debug("could not get tmdb id via tvdb id - {}", e.getMessage());
@@ -960,7 +960,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     int showTmdbId = 0;
 
     try {
-      showIds.putAll((Map<? extends String, ?>) ids.get("showIds"));
+      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
     }
     catch (Exception e) {
       LOGGER.debug("could not get TV show ids - '{}'", e.getMessage());
@@ -971,13 +971,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     // b) we get the episode id (tmdb, imdb or tvdb) -> we need to do the lookup to get the season/episode number
 
     // get episode number and season number
-    int seasonNr = MetadataUtil.getIdAsIntOrDefault(ids, MediaMetadata.SEASON_NR, -1);
-    int episodeNr = MetadataUtil.getIdAsIntOrDefault(ids, MediaMetadata.EPISODE_NR, -1);
+    int seasonNr = MediaIdUtil.getIdAsIntOrDefault(ids, MediaMetadata.SEASON_NR, -1);
+    int episodeNr = MediaIdUtil.getIdAsIntOrDefault(ids, MediaMetadata.EPISODE_NR, -1);
 
     // if we don't have season/episode yet but a imdb id -> do the find lookup
-    if ((seasonNr == -1 || episodeNr == -1) && MetadataUtil.isValidImdbId(MetadataUtil.getIdAsString(ids, IMDB))) {
+    if ((seasonNr == -1 || episodeNr == -1) && MediaIdUtil.isValidImdbId(MediaIdUtil.getIdAsString(ids, IMDB))) {
       try {
-        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByImdbId(MetadataUtil.getIdAsString(ids, IMDB));
+        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByImdbId(MediaIdUtil.getIdAsString(ids, IMDB));
         if (baseTvEpisode != null) {
           showTmdbId = MetadataUtil.unboxInteger(baseTvEpisode.show_id);
           seasonNr = MetadataUtil.unboxInteger(baseTvEpisode.season_number, -1);
@@ -990,9 +990,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     // if we don't have season/episode yet but a tvdb id -> do the find lookup
-    if ((seasonNr == -1 || episodeNr == -1) && MetadataUtil.getIdAsInt(ids, TVDB) > 0) {
+    if ((seasonNr == -1 || episodeNr == -1) && MediaIdUtil.getIdAsInt(ids, TVDB) > 0) {
       try {
-        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByTvdbId(MetadataUtil.getIdAsInt(ids, TVDB));
+        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByTvdbId(MediaIdUtil.getIdAsInt(ids, TVDB));
         if (baseTvEpisode != null) {
           showTmdbId = MetadataUtil.unboxInteger(baseTvEpisode.show_id);
           seasonNr = MetadataUtil.unboxInteger(baseTvEpisode.season_number, -1);
@@ -1005,13 +1005,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     // get the tv show ids
-    if (showTmdbId == 0 && ids.get("showIds") instanceof Map) {
-      showTmdbId = MetadataUtil.getIdAsInt(showIds, TMDB);
+    if (showTmdbId == 0 && ids.get("tvShowIds") instanceof Map) {
+      showTmdbId = MediaIdUtil.getIdAsInt(showIds, TMDB);
 
       // try to get via imdb id
-      if (showTmdbId == 0 && MetadataUtil.isValidImdbId(MetadataUtil.getIdAsString(showIds, IMDB))) {
+      if (showTmdbId == 0 && MediaIdUtil.isValidImdbId(MediaIdUtil.getIdAsString(showIds, IMDB))) {
         try {
-          showTmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, MetadataUtil.getIdAsString(showIds, IMDB));
+          showTmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, MediaIdUtil.getIdAsString(showIds, IMDB));
         }
         catch (Exception e) {
           LOGGER.debug("could not get tmdb id via imdb id - {}", e.getMessage());
@@ -1019,9 +1019,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       }
 
       // try to get via tvdb id
-      if (showTmdbId == 0 && MetadataUtil.getIdAsInt(showIds, TVDB) > 0) {
+      if (showTmdbId == 0 && MediaIdUtil.getIdAsInt(showIds, TVDB) > 0) {
         try {
-          showTmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, MetadataUtil.getIdAsInt(showIds, TVDB));
+          showTmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, MediaIdUtil.getIdAsInt(showIds, TVDB));
         }
         catch (Exception e) {
           LOGGER.debug("could not get tmdb id via tvdb id - {}", e.getMessage());
@@ -1036,11 +1036,11 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     // if we don't have season/episode yet but a tmdb id -> do the episodelist lookup
-    if ((seasonNr == -1 || episodeNr == -1) && MetadataUtil.getIdAsInt(ids, TMDB) > 0) {
+    if ((seasonNr == -1 || episodeNr == -1) && MediaIdUtil.getIdAsInt(ids, TMDB) > 0) {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setIds(showIds);
 
-      int episodeTmdbId = MetadataUtil.getIdAsInt(ids, TMDB);
+      int episodeTmdbId = MediaIdUtil.getIdAsInt(ids, TMDB);
 
       List<MediaMetadata> episodes = getEpisodeList(options);
       for (MediaMetadata episode : episodes) {
@@ -1074,26 +1074,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
           break;
         }
       }
-
-      // get full episode data
-      if (episode != null) {
-        Response<TvEpisode> episodeResponse = api.tvEpisodesService()
-            .episode(showTmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), null,
-                null)
-            .execute();
-
-        if (!episodeResponse.isSuccessful()) {
-          throw new HttpException(seasonResponse.code(), seasonResponse.message());
-        }
-        episode = episodeResponse.body();
-      }
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
       throw new ScrapeException(e);
     }
 
-    if (episode == null || fullSeason == null) {
+    if (episode == null) {
       throw new NothingFoundException();
     }
 

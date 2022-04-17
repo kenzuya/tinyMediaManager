@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -202,7 +202,7 @@ public class Person extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    return MetadataUtil.getIdAsString(ids, key);
+    return MediaIdUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -211,7 +211,7 @@ public class Person extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    return MetadataUtil.getIdAsInt(ids, key);
+    return MediaIdUtil.getIdAsInt(ids, key);
   }
 
   /**
@@ -254,6 +254,10 @@ public class Person extends AbstractModelObject {
    * @return the <i>cleaned</i> name for storing
    */
   public String getNameForStorage() {
+    if (StringUtils.isBlank(this.thumbUrl)) {
+      return "";
+    }
+
     String n = name.replace(" ", "_");
     n = n.replaceAll("([\"\\\\:<>|/?*])", "");
     String ext = Utils.getArtworkExtensionFromUrl(this.thumbUrl);

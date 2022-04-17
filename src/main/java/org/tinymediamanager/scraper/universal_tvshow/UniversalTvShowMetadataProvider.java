@@ -51,7 +51,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * This is a metadata provider which is highly configurable and combines the results of various other providers
@@ -275,7 +275,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = new HashMap<>();
 
     for (ITvShowMetadataProvider mp : metadataProviders) {
-      if (mp instanceof ITvShowImdbMetadataProvider && MetadataUtil.isValidImdbId(imdbId)) {
+      if (mp instanceof ITvShowImdbMetadataProvider && MediaIdUtil.isValidImdbId(imdbId)) {
         // everything is good ;)
         continue;
       }
@@ -290,7 +290,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
       // we've come here, so we have not the needed ID
       // TMDB offers scraping by all of them and returns them all too (if available)
-      if (tmdbId > 0 || MetadataUtil.isValidImdbId(imdbId) || tvdbId > 0) {
+      if (tmdbId > 0 || MediaIdUtil.isValidImdbId(imdbId) || tvdbId > 0) {
         // try to get the meta data via TMDB
         // anything cached?
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
@@ -329,7 +329,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
               }
             }
           }
-          if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
+          if (!MediaIdUtil.isValidImdbId(imdbId) && MediaIdUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
             imdbId = (String) md.getId(MediaMetadata.IMDB);
           }
           if (tvdbId == 0) {
@@ -355,7 +355,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // inject the found TVDB id, TMDB id and IMDB id into the search options
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       options.setImdbId(imdbId);
     }
     if (tmdbId > 0) {
@@ -565,7 +565,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = new HashMap<>();
 
     for (ITvShowMetadataProvider mp : metadataProviders) {
-      if (mp instanceof ITvShowImdbMetadataProvider && MetadataUtil.isValidImdbId(imdbId)) {
+      if (mp instanceof ITvShowImdbMetadataProvider && MediaIdUtil.isValidImdbId(imdbId)) {
         // everything is good ;)
         continue;
       }
@@ -580,7 +580,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
       // we've come here, so we have not the needed ID
       // TMDB offers scraping by all of them and returns them all too (if available)
-      if (tmdbId > 0 || MetadataUtil.isValidImdbId(imdbId) || tvdbId > 0) {
+      if (tmdbId > 0 || MediaIdUtil.isValidImdbId(imdbId) || tvdbId > 0) {
         // try to get the meta data via TMDB
         // anything cached?
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
@@ -619,7 +619,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
               }
             }
           }
-          if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
+          if (!MediaIdUtil.isValidImdbId(imdbId) && MediaIdUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
             imdbId = (String) md.getId(MediaMetadata.IMDB);
           }
           if (tvdbId == 0) {
@@ -645,7 +645,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // inject the found TVDB id, TMDB id and IMDB id into the search options
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       options.setImdbId(imdbId);
     }
     if (tmdbId > 0) {

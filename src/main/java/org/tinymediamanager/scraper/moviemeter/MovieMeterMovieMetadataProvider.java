@@ -43,6 +43,7 @@ import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import retrofit2.Response;
@@ -142,7 +143,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     // imdbid
     String imdbId = options.getImdbId();
 
-    if (!MetadataUtil.isValidImdbId(imdbId) && mmId == 0) {
+    if (!MediaIdUtil.isValidImdbId(imdbId) && mmId == 0) {
       LOGGER.warn("not possible to scrape from Moviemeter.bl - no mmId/imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB, providerInfo.getId());
     }
@@ -183,7 +184,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
       throw new NothingFoundException();
     }
 
-    if (MetadataUtil.isValidImdbId(fd.imdb)) {
+    if (MediaIdUtil.isValidImdbId(fd.imdb)) {
       md.setId(MediaMetadata.IMDB, fd.imdb);
     }
     md.setTitle(fd.title);
@@ -259,14 +260,14 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     String imdb = options.getImdbId();
     String searchString = options.getSearchQuery();
 
-    if (StringUtils.isBlank(searchString) && !MetadataUtil.isValidImdbId(imdb)) {
+    if (StringUtils.isBlank(searchString) && !MediaIdUtil.isValidImdbId(imdb)) {
       LOGGER.debug("cannot search without a search string");
       return results;
     }
 
     searchString = MetadataUtil.removeNonSearchCharacters(searchString);
 
-    if (MetadataUtil.isValidImdbId(searchString)) {
+    if (MediaIdUtil.isValidImdbId(searchString)) {
       // hej, our entered value was an IMDBid :)
       imdb = searchString;
     }
@@ -315,7 +316,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     if (fd != null) { // imdb film detail page
       MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
       sr.setId(String.valueOf(fd.id));
-      if (MetadataUtil.isValidImdbId(fd.imdb)) {
+      if (MediaIdUtil.isValidImdbId(fd.imdb)) {
         sr.setIMDBId(fd.imdb);
       }
       sr.setTitle(fd.title);
@@ -327,7 +328,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     for (MMFilm film : moviesFound) {
       MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
       sr.setId(String.valueOf(film.id));
-      if (MetadataUtil.isValidImdbId(film.imdb)) {
+      if (MediaIdUtil.isValidImdbId(film.imdb)) {
         sr.setIMDBId(film.imdb);
       }
       sr.setTitle(film.title);

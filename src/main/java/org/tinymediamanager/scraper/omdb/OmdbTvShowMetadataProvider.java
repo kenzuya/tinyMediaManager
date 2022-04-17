@@ -42,6 +42,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -69,7 +70,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     String imdbId = getImdbId(options);
 
     // imdbid check
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("no imdb id found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -126,7 +127,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       }
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.debug("no imdb id found for season '{}' episode '{}'", seasonNr, episodeNr);
       throw new MissingIdException();
     }
@@ -166,7 +167,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
     // if the imdb id is given, directly fetch the result
-    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         MediaMetadata md = getMetadata(options);
 
@@ -349,7 +350,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     for (Element result : results) {
       MediaMetadata md = new MediaMetadata(getId());
 
-      if (MetadataUtil.isValidImdbId(result.attr("imdbID"))) {
+      if (MediaIdUtil.isValidImdbId(result.attr("imdbID"))) {
         md.setId(MediaMetadata.IMDB, result.attr("imdbID"));
       }
 

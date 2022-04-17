@@ -33,7 +33,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * the class {@link ImdbRating} provides IMDB ratings via their database dump
@@ -66,7 +66,7 @@ class ImdbRating {
       String line = ratingMap.get(imdbId);
       if (StringUtils.isNotBlank(line)) {
         String[] cols = line.split("\t");
-        if (cols.length > 2 && MetadataUtil.isValidImdbId(cols[0])) {
+        if (cols.length > 2 && MediaIdUtil.isValidImdbId(cols[0])) {
           try {
             return new MediaRating(MediaMetadata.IMDB, Float.parseFloat(cols[1]), Integer.parseInt(cols[2]));
           }
@@ -107,7 +107,7 @@ class ImdbRating {
             for (String line : lines) {
               try {
                 String[] cols = line.split("\t");
-                if (cols.length > 2 && MetadataUtil.isValidImdbId(cols[0])) {
+                if (cols.length > 2 && MediaIdUtil.isValidImdbId(cols[0])) {
                   ratingMap.put(cols[0], line);
                 }
               }

@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -365,7 +366,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     }
 
     // legacy ID
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       obj = ids.get("imdbId");
       if (obj != null) {
         imdbId = obj.toString();
@@ -425,7 +426,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
    *          the IMDB id
    */
   public void setIMDBId(String imdbid) {
-    if (MetadataUtil.isValidImdbId(imdbid)) {
+    if (MediaIdUtil.isValidImdbId(imdbid)) {
       ids.put(MediaMetadata.IMDB, imdbid);
     }
   }

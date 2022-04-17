@@ -30,6 +30,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -53,6 +54,9 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -222,6 +226,16 @@ public class MovieChooserModel extends AbstractModelObject {
       LOGGER.info("=====================================================");
       try {
         metadata = ((IMovieMetadataProvider) metadataProvider.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.MOVIE);
+
+        // also fill other ratings if ratings are requested
+        for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.MOVIE))) {
+          if (!metadata.getRatings().contains(rating)) {
+            metadata.addRating(rating);
+          }
+        }
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");

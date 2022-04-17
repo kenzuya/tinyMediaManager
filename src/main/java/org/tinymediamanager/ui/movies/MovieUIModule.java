@@ -56,6 +56,7 @@ import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
+import org.tinymediamanager.ui.movies.actions.MovieFetchIdsAction;
 import org.tinymediamanager.ui.movies.actions.MovieFetchRatingsAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieLockAction;
@@ -240,6 +241,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieLockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieFetchIdsAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
@@ -335,6 +337,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieLockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchIdsAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));

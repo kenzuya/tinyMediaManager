@@ -26,12 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
-import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * the class {@link RatingProvider} is a utility to have quick access to several various ratings
@@ -58,6 +56,33 @@ public class RatingProvider {
     @Override
     public String toString() {
       return title;
+    }
+
+    /**
+     * get all relevant {@link RatingSource}s for movies
+     * 
+     * @return a {@link List} of all relevant {@link RatingSource}s
+     */
+    public static List<RatingSource> getRatingSourcesForMovies() {
+      return Arrays.asList(values());
+    }
+
+    /**
+     * get all relevant {@link RatingSource}s for TV shows
+     * 
+     * @return a {@link List} of all relevant {@link RatingSource}s
+     */
+    public static List<RatingSource> getRatingSourcesForTvShows() {
+      List<RatingSource> ratingSources = new ArrayList<>();
+
+      for (RatingSource ratingSource : values()) {
+        if (ratingSource == METACRITIC || ratingSource == ROTTEN_TOMATOES_AVG_RATING || ratingSource == ROTTEN_TOMATOES_TOMATOMETER) {
+          continue;
+        }
+        ratingSources.add(ratingSource);
+      }
+
+      return ratingSources;
     }
   }
 
@@ -107,10 +132,15 @@ public class RatingProvider {
   public static List<MediaRating> getRatings(Map<String, Object> ids, List<RatingSource> sources, MediaType mediaType) {
     List<MediaRating> ratings = new ArrayList<>();
 
-    String imdbId = MediaIdUtil.getStringFromIdMap(ids, MediaMetadata.IMDB);
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
+
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
+      // no valid imdb id here - try to fetch all relevant ids via trakt.tv
+      MediaIdUtil.injectMissingIds(ids, mediaType);
+    }
 
     // IMDB comes directly from the IMDB data dump
-    if (sources.contains(RatingSource.IMDB) && MetadataUtil.isValidImdbId(imdbId)) {
+    if (sources.contains(RatingSource.IMDB) && MediaIdUtil.isValidImdbId(imdbId)) {
       MediaRating rating = new ImdbRating().getImdbRating(imdbId);
       if (rating != null) {
         ratings.add(rating);
@@ -124,7 +154,7 @@ public class RatingProvider {
 
     // Wikidata offers Metacritic, Rotten Tomatoes and IMDB
     if (ListUtils.containsAny(sources, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.ROTTEN_TOMATOES_AVG_RATING)
-        && MetadataUtil.isValidImdbId(imdbId)) {
+        && MediaIdUtil.isValidImdbId(imdbId)) {
       List<MediaRating> ratingsFromWikidata = new WikidataRating().getRatings(imdbId);
 
       for (MediaRating rating : ratingsFromWikidata) {
@@ -150,7 +180,7 @@ public class RatingProvider {
 
   private static void callScraper(String scraperId, MediaType mediaType, List<RatingSource> sources, Map<String, Object> ids,
       List<MediaRating> ratings) {
-    MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, getScraperTypeForMediaType(mediaType));
+    MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, MediaType.getScraperTypeForMediaType(mediaType));
     if (scraper != null && scraper.isEnabled() && scraper.getMediaProvider() instanceof IRatingProvider) {
       try {
         List<MediaRating> ratingsFromScraper = ((IRatingProvider) scraper.getMediaProvider()).getRatings(ids, mediaType);
@@ -194,20 +224,6 @@ public class RatingProvider {
 
       case "trakt":
         return RatingSource.TRAKT_TV;
-
-      default:
-        return null;
-    }
-  }
-
-  private static ScraperType getScraperTypeForMediaType(MediaType mediaType) {
-    switch (mediaType) {
-      case MOVIE:
-        return ScraperType.MOVIE;
-
-      case TV_SHOW:
-      case TV_EPISODE:
-        return ScraperType.TV_SHOW;
 
       default:
         return null;

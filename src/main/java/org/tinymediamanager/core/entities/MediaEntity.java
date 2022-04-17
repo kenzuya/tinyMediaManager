@@ -81,7 +81,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -770,7 +770,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     }
     else {
       // if the given ID is an imdb id but is not valid, then do not add
-      if (Constants.IMDB.equals(key) && !MetadataUtil.isValidImdbId(v)) {
+      if (Constants.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
         return;
       }
 
@@ -814,7 +814,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    return MetadataUtil.getIdAsString(ids, key);
+    return MediaIdUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -823,7 +823,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    return MetadataUtil.getIdAsInt(ids, key);
+    return MediaIdUtil.getIdAsInt(ids, key);
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {

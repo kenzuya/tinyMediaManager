@@ -92,6 +92,7 @@ import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -1070,7 +1071,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // try to parse the imdb id from the filename
-      if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+      if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
         movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
       }
       // try to parse the Tmdb id from the filename
@@ -1170,7 +1171,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         // try to parse the imdb id from the filename
-        if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+        if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
           movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
         }
         // try to parse the tmdb id from the filename

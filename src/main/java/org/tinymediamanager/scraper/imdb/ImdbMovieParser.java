@@ -92,16 +92,16 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     // imdbid from scraper option
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       imdbId = options.getImdbId();
     }
 
     // imdbid via tmdbid
-    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+    if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
       imdbId = MediaIdUtil.getMovieImdbIdViaTmdbId(options.getTmdbId());
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("not possible to scrape from IMDB - imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -261,8 +261,8 @@ public class ImdbMovieParser extends ImdbParser {
   public List<MediaRating> getRatings(Map<String, Object> ids) throws ScrapeException {
     LOGGER.debug("getRatings(): {}", ids);
 
-    String imdbId = MediaIdUtil.getStringFromIdMap(ids, MediaMetadata.IMDB);
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       throw new MissingIdException(MediaMetadata.IMDB);
     }
 
@@ -365,16 +365,16 @@ public class ImdbMovieParser extends ImdbParser {
     String imdbId = "";
 
     // imdbid from scraper option
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       imdbId = options.getImdbId();
     }
 
     // imdbid via tmdbid
-    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+    if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
       imdbId = MediaIdUtil.getMovieImdbIdViaTmdbId(options.getTmdbId());
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("not possible to scrape from IMDB - imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }

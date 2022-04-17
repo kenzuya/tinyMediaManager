@@ -83,9 +83,9 @@ public class ActorImageLabel extends ImageLabel {
    * inner class for loading the actor images
    */
   protected class ActorImageLoader extends SwingWorker<Void, Void> {
-    private Person      actor;
-    private MediaEntity mediaEntity;
-    private Path        imagePath = null;
+    private final Person      actor;
+    private final MediaEntity mediaEntity;
+    private Path              imagePath = null;
 
     private ActorImageLoader(Person actor, MediaEntity mediaEntity) {
       this.actor = actor;

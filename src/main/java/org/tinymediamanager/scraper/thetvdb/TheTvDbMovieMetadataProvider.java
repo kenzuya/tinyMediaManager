@@ -59,6 +59,7 @@ import org.tinymediamanager.scraper.thetvdb.entities.Translation;
 import org.tinymediamanager.scraper.thetvdb.entities.TranslationResponse;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -333,7 +334,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
       switch (remoteID.sourceName) {
         case "IMDB":
-          if (MetadataUtil.isValidImdbId(remoteID.id)) {
+          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
             md.setId(MediaMetadata.IMDB, remoteID.id);
           }
           break;

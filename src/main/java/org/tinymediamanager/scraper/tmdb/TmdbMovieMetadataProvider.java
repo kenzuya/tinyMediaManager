@@ -18,12 +18,15 @@ package org.tinymediamanager.scraper.tmdb;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +54,7 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
@@ -77,6 +81,7 @@ import org.tinymediamanager.scraper.tmdb.enumerations.AppendToResponseItem;
 import org.tinymediamanager.scraper.tmdb.enumerations.ExternalSource;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import retrofit2.Response;
@@ -86,8 +91,8 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
-    implements IMovieMetadataProvider, IMovieSetMetadataProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider {
+public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMetadataProvider,
+    IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider, IMediaIdProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmdbMovieMetadataProvider.class);
 
   @Override
@@ -135,10 +140,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     searchString = MetadataUtil.removeNonSearchCharacters(searchString);
 
     String imdbId = options.getImdbId();
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       imdbId = "";
     }
-    if (MetadataUtil.isValidImdbId(searchString)) {
+    if (MediaIdUtil.isValidImdbId(searchString)) {
       imdbId = searchString;
     }
 
@@ -315,7 +320,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     // imdbId from option
     String imdbId = options.getImdbId();
 
-    if (tmdbId == 0 && !MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && !MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.debug("not possible to scrape from TMDB - no tmdbId/imdbId found");
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
@@ -325,7 +330,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     // scrape
     Movie movie = null;
     // we do not have the tmdbId?!? hmm.. get it from imdb...
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(imdbId)) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, options.getMediaType(), imdbId);
       }
@@ -588,10 +593,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     // lazy initialization of the api
     initAPI();
 
-    int tmdbId = MetadataUtil.getIdAsInt(ids, MediaMetadata.TMDB);
-    String imdbId = MetadataUtil.getIdAsString(ids, MediaMetadata.IMDB);
+    int tmdbId = MediaIdUtil.getIdAsInt(ids, MediaMetadata.TMDB);
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
 
-    if (tmdbId == 0 && !MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && !MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.debug("not possible to scrape from TMDB - no tmdbId/imdbId found");
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
@@ -599,7 +604,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     // scrape
     Movie movie = null;
     // we do not have the tmdbId?!? hmm.. get it from imdb...
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(imdbId)) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.MOVIE, imdbId);
       }
@@ -635,6 +640,73 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     rating.setMaxValue(10);
 
     return Collections.singletonList(rating);
+  }
+
+  @Override
+  public Map<String, Object> getMediaIds(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyMap();
+    }
+
+    LOGGER.debug("getMediaIds(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    int tmdbId = MediaIdUtil.getIdAsInt(ids, MediaMetadata.TMDB);
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
+
+    if (tmdbId == 0 && !MediaIdUtil.isValidImdbId(imdbId)) {
+      LOGGER.debug("not possible to scrape from TMDB - no tmdbId/imdbId found");
+      throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
+    }
+
+    // TMDB only offers the tmdb id and the imdb id
+    Map<String, Object> scrapedIds = new HashMap<>();
+
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(imdbId)) {
+      // we have the imdb id and just need the tmdb id
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.MOVIE, imdbId);
+      }
+      catch (Exception e) {
+        LOGGER.debug("problem getting tmdbId from imdbId: {}", e.getMessage());
+      }
+
+      scrapedIds.put(IMDB, imdbId);
+      if (tmdbId > 0) {
+        scrapedIds.put(TMDB, tmdbId);
+      }
+
+      return scrapedIds;
+    }
+
+    // scrape
+    Movie movie;
+
+    try {
+      Response<Movie> httpResponse = api.moviesService().summary(tmdbId, "en", null).execute();
+      if (!httpResponse.isSuccessful()) {
+        throw new HttpException(httpResponse.code(), httpResponse.message());
+      }
+      movie = httpResponse.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("problem getting data from tmdb: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (movie == null) {
+      throw new NothingFoundException();
+    }
+
+    scrapedIds.put(TMDB, movie.id);
+
+    if (MediaIdUtil.isValidImdbId(movie.imdb_id)) {
+      scrapedIds.put(IMDB, movie.imdb_id);
+    }
+
+    return scrapedIds;
   }
 
   /**
@@ -801,7 +873,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       }
     }
 
-    if (MetadataUtil.isValidImdbId(movie.imdb_id)) {
+    if (MediaIdUtil.isValidImdbId(movie.imdb_id)) {
       md.setId(MediaMetadata.IMDB, movie.imdb_id);
     }
 
@@ -922,7 +994,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       md.addGenre(TmdbMetadataProvider.getTmmGenre(genre));
     }
     // "adult" on TMDB is always some pr0n stuff, and not just rated 18+ content
-    if (movie.adult) {
+    if (Boolean.TRUE.equals(movie.adult)) {
       md.addGenre(MediaGenres.EROTIC);
     }
 

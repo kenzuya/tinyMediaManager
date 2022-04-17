@@ -49,7 +49,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * This is a metadata provider which is highly configurable and combines the results of various other providers
@@ -226,7 +226,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     Map<String, MediaMetadata> metadataMap = new HashMap<>();
 
     for (IMovieMetadataProvider mp : metadataProviders) {
-      if (mp instanceof IMovieImdbMetadataProvider && MetadataUtil.isValidImdbId(imdbId)) {
+      if (mp instanceof IMovieImdbMetadataProvider && MediaIdUtil.isValidImdbId(imdbId)) {
         // everything is good ;)
         continue;
       }
@@ -237,7 +237,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
       // we've come here, so we have not the needed ID
       // TMDB offers scraping by both and returns both (if available)
-      if (tmdbId > 0 || MetadataUtil.isValidImdbId(imdbId)) {
+      if (tmdbId > 0 || MediaIdUtil.isValidImdbId(imdbId)) {
         // try to get the meta data via TMDB
         // anything cached?
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
@@ -275,7 +275,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
               }
             }
           }
-          if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
+          if (!MediaIdUtil.isValidImdbId(imdbId) && MediaIdUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
             imdbId = (String) md.getId(MediaMetadata.IMDB);
           }
         }
@@ -283,7 +283,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     // inject the found TMDB id and IMDB id into the search options
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       options.setImdbId(imdbId);
     }
     if (tmdbId > 0) {
