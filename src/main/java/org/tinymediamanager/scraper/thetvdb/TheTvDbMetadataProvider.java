@@ -228,7 +228,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           continue;
       }
 
-      member.setId(getId(), character.id);
+      member.setId(getId(), character.peopleId);
       member.setName(character.personName);
       member.setRole(character.name);
       if (StringUtils.isNotBlank(character.image)) {

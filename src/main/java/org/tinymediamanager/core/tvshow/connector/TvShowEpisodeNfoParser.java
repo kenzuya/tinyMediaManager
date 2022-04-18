@@ -371,6 +371,7 @@ public class TvShowEpisodeNfoParser {
           season = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -389,6 +390,7 @@ public class TvShowEpisodeNfoParser {
           episode = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -407,6 +409,7 @@ public class TvShowEpisodeNfoParser {
           displayseason = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -425,6 +428,7 @@ public class TvShowEpisodeNfoParser {
           displayepisode = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -453,6 +457,7 @@ public class TvShowEpisodeNfoParser {
           r.rating = Float.parseFloat(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
         element = getSingleElement(root, "votes");
         if (element != null) {
@@ -480,6 +485,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -556,6 +562,7 @@ public class TvShowEpisodeNfoParser {
           year = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -574,6 +581,7 @@ public class TvShowEpisodeNfoParser {
           top250 = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -648,6 +656,7 @@ public class TvShowEpisodeNfoParser {
           runtime = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -724,6 +733,7 @@ public class TvShowEpisodeNfoParser {
           ids.put(MediaMetadata.TVDB, MetadataUtil.parseInt(element.ownText()));
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -734,6 +744,7 @@ public class TvShowEpisodeNfoParser {
           ids.put(MediaMetadata.TVDB, MetadataUtil.parseInt(element.ownText()));
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -767,6 +778,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -904,6 +916,7 @@ public class TvShowEpisodeNfoParser {
           watched = Boolean.parseBoolean(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -917,6 +930,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -973,6 +987,7 @@ public class TvShowEpisodeNfoParser {
           studios.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -1007,6 +1022,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -1043,6 +1059,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -1279,6 +1296,7 @@ public class TvShowEpisodeNfoParser {
           source = MediaSource.getMediaSource(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 

@@ -391,6 +391,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 

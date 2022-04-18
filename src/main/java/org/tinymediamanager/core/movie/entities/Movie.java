@@ -769,7 +769,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // set chosen metadata
-    if (config.contains(MovieScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
+    if (config.contains(MovieScraperMetadataConfig.TITLE) && StringUtils.isNotBlank(metadata.getTitle())
+        && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of title if setting is set!
       if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -2679,6 +2680,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 

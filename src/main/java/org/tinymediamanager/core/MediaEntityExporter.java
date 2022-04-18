@@ -99,9 +99,11 @@ public abstract class MediaEntityExporter {
 
     if ("html".equals(fileExtension)) {
       engine.setEncoder(new HtmlEncoder()); // special char replacement
-    } else if ("xml".equals(fileExtension)) {
+    }
+    else if ("xml".equals(fileExtension)) {
       engine.setEncoder(new XMLEncoder()); // special char replacement
-    } else if ("json".equals(fileExtension)) {
+    }
+    else if ("json".equals(fileExtension)) {
       engine.setEncoder(new JSONEncoder());
     }
 
@@ -236,6 +238,7 @@ public abstract class MediaEntityExporter {
           value = d[1].trim();
         }
         catch (Exception ignored) {
+          // ignored
         }
 
         if (StringUtils.isAnyBlank(key, value)) {

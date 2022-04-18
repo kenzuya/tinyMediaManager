@@ -710,7 +710,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE) && StringUtils.isNotBlank(metadata.getTitle())
+        && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));

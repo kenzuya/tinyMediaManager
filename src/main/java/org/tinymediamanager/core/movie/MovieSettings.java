@@ -17,6 +17,7 @@ package org.tinymediamanager.core.movie;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -456,6 +457,13 @@ public final class MovieSettings extends AbstractSettings {
     saveSettings();
   }
 
+  public void setMovieDataSources(Collection<String> dataSources) {
+    movieDataSources.clear();
+    movieDataSources.addAll(dataSources);
+    firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
+  }
+
   public void addMovieDataSources(String path) {
     if (!movieDataSources.contains(path)) {
       movieDataSources.add(path);
@@ -476,7 +484,10 @@ public final class MovieSettings extends AbstractSettings {
     int index = movieDataSources.indexOf(oldDatasource);
     if (index > -1) {
       movieDataSources.remove(oldDatasource);
-      movieDataSources.add(index, newDatasource);
+      if (!movieDataSources.contains(newDatasource)) {
+        // just to prevent adding duplicates
+        movieDataSources.add(index, newDatasource);
+      }
       MovieModuleManager.getInstance().getMovieList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);

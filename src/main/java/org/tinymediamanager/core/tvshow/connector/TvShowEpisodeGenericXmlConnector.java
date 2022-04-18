@@ -100,6 +100,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           break;
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }

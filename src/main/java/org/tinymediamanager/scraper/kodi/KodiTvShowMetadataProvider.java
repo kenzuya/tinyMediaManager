@@ -279,6 +279,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
           md.setReleaseDate(StrgUtils.parseDate(DOMUtils.getElementValue(el, "aired")));
         }
         catch (Exception ignored) {
+          // ignored
         }
 
         episodeList.add(md);

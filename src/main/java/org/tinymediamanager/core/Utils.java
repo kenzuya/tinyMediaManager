@@ -1950,8 +1950,20 @@ public class Utils {
           if (!parent.isDirectory() && !parent.mkdirs()) {
             throw new IOException("failed to create directory " + parent);
           }
-          try (OutputStream o = Files.newOutputStream(f.toPath())) {
-            IOUtils.copy(ais, o);
+
+          if (entry instanceof TarArchiveEntry && ((TarArchiveEntry) entry).isSymbolicLink()) {
+            try {
+              TarArchiveEntry tae = (TarArchiveEntry) entry;
+              Files.createSymbolicLink(f.toPath(), Paths.get(tae.getLinkName()));
+            }
+            catch (Exception e) {
+              LOGGER.debug("could not create symbolic link - '{}'", e.getMessage());
+            }
+          }
+          else {
+            try (OutputStream o = Files.newOutputStream(f.toPath())) {
+              IOUtils.copy(ais, o);
+            }
           }
 
           if (entry instanceof TarArchiveEntry) {

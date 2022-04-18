@@ -18,8 +18,6 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -101,16 +99,13 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       chckbxShowMissingSpecials = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingespecials"));
       chckbxShowMissingSpecials.setSelected(TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials());
 
-      chckbxShowMissingSpecials.addItemListener(new ItemListener() {
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-          if (episodeListWorker != null && !episodeListWorker.isDone()) {
-            episodeListWorker.cancel(true);
-          }
-          results.clear();
-          episodeListWorker = new EpisodeListWorker(tvShows);
-          episodeListWorker.execute();
+      chckbxShowMissingSpecials.addItemListener(e -> {
+        if (episodeListWorker != null && !episodeListWorker.isDone()) {
+          episodeListWorker.cancel(true);
         }
+        results.clear();
+        episodeListWorker = new EpisodeListWorker(tvShows);
+        episodeListWorker.execute();
       });
       infoPanel.add(chckbxShowMissingSpecials, "cell 0 0");
 
@@ -255,7 +250,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       for (TvShow tvshow : tvShows) {
         if (tvshow.getIds().isEmpty()) {
           LOGGER.info("we cannot scrape (no ID): {}", tvshow.getTitle());
-          return;
+          continue;
         }
 
         List<TvShowEpisode> scrapedEpisodes = tvshow.getEpisodes();

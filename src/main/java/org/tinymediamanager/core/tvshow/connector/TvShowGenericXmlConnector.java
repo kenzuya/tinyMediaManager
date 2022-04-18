@@ -104,6 +104,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           break;
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }

@@ -55,8 +55,11 @@ public class TvShowScrapeMissingEpisodesAction extends TmmAction {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.loadDefaults();
 
-    TmmThreadPool scrapeTask = new TvShowScrapeTask(
-        new TvShowScrapeTask.TvShowScrapeParams(selectedTvShows, options, new ArrayList<>(), new ArrayList<>()));
+    TvShowScrapeTask.TvShowScrapeParams tvShowScrapeParams = new TvShowScrapeTask.TvShowScrapeParams(selectedTvShows, options, new ArrayList<>(),
+        new ArrayList<>());
+    tvShowScrapeParams.setDoSearch(false);
+
+    TmmThreadPool scrapeTask = new TvShowScrapeTask(tvShowScrapeParams);
     TmmTaskManager.getInstance().addMainTask(scrapeTask);
   }
 }

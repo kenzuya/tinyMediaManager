@@ -26,6 +26,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Not Guaranteed | 2012", detectTY("[Safety] Not Guaranteed [HEVC-1080p] [2012].mkv"));
     assertEqual("Safety Not Guaranteed | 2012", detectTY("[Safety not [guaranteed] , , , [HEVC-, , ,,,1080p] [2012].mkv"));
     assertEqual("Safety Not Guaranteed", detectTY("[Safety Not Guaranteed].mkv"));
+    assertEqual("Por Fin Se Casa Zamora | 1926", detectTY("Por fin se casa Zamora (1926)"));
 
     assertEqual("Gemma Bovery | 2014", detectTY("Gemma.Bovery.2014.[1920x800].24.000fps.1080p.BRRip.x264.JYK.mkv"));
     assertEqual("Ai No Korīda | 1976", detectTY("Ai.No.Korīda.1976.[1280x772].23.976fps.720p.x264.CiNEFiLE.mkv"));
@@ -133,7 +134,6 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Looney Tunes 1960x05 Episodename", detectTY("Looney Tunes - 1960x05 - Episodename"));
     assertEqual("The Big Bang Theory S04e01 31 Liebhaber Aufgerundet", detectTY("The Big Bang Theory_S04E01_31 Liebhaber, aufgerundet.m4v"));
     assertEqual("Shaun Das Schaf S01e02 1x04 Badetag Summen Der Bienen", detectTY("Shaun das Schaf - S01E02_1x04 - Badetag_Summen der Bienen.ts"));
-
   }
 
   @Test

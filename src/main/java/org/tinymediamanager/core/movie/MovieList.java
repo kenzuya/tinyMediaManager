@@ -732,7 +732,7 @@ public final class MovieList extends AbstractModelObject {
           sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
         }
         catch (ScrapeException e) {
-          LOGGER.error("searchMovieFallback", e);
+          LOGGER.error("searchMovieFallback - '{}'", e.getMessage());
           // just swallow those errors here
         }
 
@@ -1393,6 +1393,7 @@ public final class MovieList extends AbstractModelObject {
           Thread.sleep(15000);
         }
         catch (Exception ignored) {
+          // ignored
         }
         Message message = new Message(MessageLevel.SEVERE, "tmm.movies", "message.database.corrupteddata");
         MessageManager.instance.pushMessage(message);
