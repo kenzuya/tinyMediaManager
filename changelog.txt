@@ -11,6 +11,7 @@ Version 4.3
 + (AniDB) added an option to get the character image instead of the actor image
 + (movies/TV shows) write <tvdbid> tag for actors in the NFO file #1722
 + allow editing of cast from within the cast panels #1639
++ (TMDB) enabled logo scraping
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm
