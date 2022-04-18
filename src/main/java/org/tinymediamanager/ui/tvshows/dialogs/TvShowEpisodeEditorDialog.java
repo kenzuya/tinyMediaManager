@@ -537,7 +537,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblGuests = new TmmLabel(TmmResourceBundle.getString("metatag.guests"));
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
-        tableGuests = new PersonTable(guests, true);
+        tableGuests = new PersonTable(guests);
 
         JScrollPane scrollPane = new JScrollPane();
         tableGuests.configureScrollPane(scrollPane);
@@ -547,7 +547,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        tableDirectors = new PersonTable(directors, true);
+        tableDirectors = new PersonTable(directors);
 
         JScrollPane scrollPane = new JScrollPane();
         tableDirectors.configureScrollPane(scrollPane);
@@ -557,7 +557,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        tableWriters = new PersonTable(writers, true);
+        tableWriters = new PersonTable(writers);
 
         JScrollPane scrollPane = new JScrollPane();
         tableWriters.configureScrollPane(scrollPane);

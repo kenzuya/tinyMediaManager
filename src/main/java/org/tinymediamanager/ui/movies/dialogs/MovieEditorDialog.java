@@ -802,7 +802,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         crewPanel.add(lblActors, "flowy,cell 0 0,alignx right,aligny top");
 
-        tableActors = new PersonTable(cast, true);
+        tableActors = new PersonTable(cast);
 
         JScrollPane scrollPane = new JScrollPane();
         tableActors.configureScrollPane(scrollPane);
@@ -812,7 +812,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblProducers = new TmmLabel(TmmResourceBundle.getString("metatag.producers"));
         crewPanel.add(lblProducers, "flowy,cell 3 0,alignx right,aligny top");
 
-        tableProducers = new PersonTable(producers, true);
+        tableProducers = new PersonTable(producers);
 
         JScrollPane scrollPane = new JScrollPane();
         tableProducers.configureScrollPane(scrollPane);
@@ -822,7 +822,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        tableDirectors = new PersonTable(directors, true);
+        tableDirectors = new PersonTable(directors);
 
         JScrollPane scrollPane = new JScrollPane(tableDirectors);
         tableDirectors.configureScrollPane(scrollPane);
@@ -832,7 +832,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        tableWriters = new PersonTable(writers, true);
+        tableWriters = new PersonTable(writers);
 
         JScrollPane scrollPane = new JScrollPane(tableWriters);
         tableWriters.configureScrollPane(scrollPane);
