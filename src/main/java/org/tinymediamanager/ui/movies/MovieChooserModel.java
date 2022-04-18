@@ -249,12 +249,16 @@ public class MovieChooserModel extends AbstractModelObject {
         return;
       }
 
+      if (StringUtils.isNotBlank(metadata.getTitle())) {
+        // re-set this because the scrape could get a better title than the search
+        setTitle(metadata.getTitle());
+      }
       setOriginalTitle(metadata.getOriginalTitle());
 
-      List<Person> castMembers = new ArrayList<>();
+      List<Person> cast = new ArrayList<>();
       int i = 0;
       for (Person castMember : metadata.getCastMembers(DIRECTOR)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
 
         // display at max 2 directors
         if (++i >= 2) {
@@ -264,7 +268,7 @@ public class MovieChooserModel extends AbstractModelObject {
 
       i = 0;
       for (Person castMember : metadata.getCastMembers(PRODUCER)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
 
         // display at max 2 producers
         if (++i >= 2) {
@@ -273,9 +277,9 @@ public class MovieChooserModel extends AbstractModelObject {
       }
 
       for (Person castMember : metadata.getCastMembers(ACTOR)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
       }
-      setCastMembers(castMembers);
+      setCastMembers(cast);
       setOverview(metadata.getPlot());
       setTagline(metadata.getTagline());
 
