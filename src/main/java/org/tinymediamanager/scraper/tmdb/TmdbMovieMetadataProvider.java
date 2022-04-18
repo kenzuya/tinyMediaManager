@@ -22,7 +22,6 @@ import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -187,7 +186,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
         for (BaseMovie movie : ListUtils.nullSafe(httpResponse.body().movie_results)) { // should be only one
-          injectTranslations(Locale.forLanguageTag(language), movie);
           results.add(morphMovieToSearchResult(movie, options));
         }
         LOGGER.debug("found {} results with IMDB id", results.size());
@@ -211,7 +209,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
             throw new HttpException(httpResponse.code(), httpResponse.message());
           }
           for (BaseMovie movie : ListUtils.nullSafe(httpResponse.body().results)) {
-            injectTranslations(Locale.forLanguageTag(language), movie);
             results.add(morphMovieToSearchResult(movie, options));
           }
 
@@ -236,7 +233,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         MovieResultsPage resultsPage = api.searchService().movie(searchString, 1, language, null, adult, null, null).execute().body();
         if (resultsPage != null && resultsPage.results != null) {
           for (BaseMovie movie : resultsPage.results) {
-            injectTranslations(Locale.forLanguageTag(language), movie);
             results.add(morphMovieToSearchResult(movie, options));
           }
         }
@@ -739,57 +735,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         movie.title = val[0];
       }
       if (StringUtils.isNotBlank(val[1])) {
-        movie.overview = val[1];
-      }
-    }
-  }
-
-  /**
-   * Fallback Language Mechanism - For IMDB & searches
-   *
-   * @param language
-   *          the language to verify
-   * @param movie
-   *          the already found movie
-   * @throws IOException
-   */
-  private void injectTranslations(Locale language, BaseMovie movie) throws IOException {
-    // NOT doing a fallback scrape when overview empty, used only for SEARCH - unneeded!
-    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
-      Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
-
-      // tmdb provides title = originalTitle if no title in the requested language has been found,
-      // so get the title in a alternative language
-      if ((movie.title.equals(movie.original_title) && !movie.original_language.equals(language.getLanguage()))
-          && !language.equals(fallbackLanguage)) {
-        LOGGER.debug("checking for title fallback {} for movie {}", fallbackLanguage, movie.title);
-        String lang = getProviderInfo().getConfig().getValue("titleFallbackLanguage").replace("_", "-");
-        Response<Movie> httpResponse = api.moviesService().summary(movie.id, lang, new AppendToResponse(AppendToResponseItem.TRANSLATIONS)).execute();
-        if (!httpResponse.isSuccessful()) {
-          throw new HttpException(httpResponse.code(), httpResponse.message());
-        }
-        Movie m = httpResponse.body();
-
-        // get in desired localization
-        String[] val = new String[] { "", "" };
-        if (StringUtils.isNotBlank(movie.title)) {
-          val[0] = movie.title;
-        }
-        if (StringUtils.isNotBlank(movie.overview)) {
-          val[1] = movie.overview;
-        }
-
-        // merge empty ones with fallback
-        String[] temp = getValuesFromTranslation(m.translations, fallbackLanguage);
-        if (StringUtils.isBlank(val[0])) {
-          val[0] = temp[0];
-        }
-        if (StringUtils.isBlank(val[1])) {
-          val[1] = temp[1];
-        }
-
-        // finally SET the values
-        movie.title = val[0];
         movie.overview = val[1];
       }
     }
