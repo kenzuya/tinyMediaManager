@@ -1152,6 +1152,10 @@ public class MovieNfoParser {
             actor.tmdbId = child.ownText();
             break;
 
+          case "tvdbid":
+            actor.tvdbId = child.ownText();
+            break;
+
           case "imdbid":
             actor.imdbId = child.ownText();
             break;
@@ -1802,6 +1806,11 @@ public class MovieNfoParser {
       person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
     }
 
+    int tvdbId = MetadataUtil.parseInt(nfoPerson.tvdbId, 0);
+    if (tvdbId > 0) {
+      person.setId(MediaMetadata.TVDB, tvdbId);
+    }
+
     return person;
   }
 
@@ -1827,6 +1836,7 @@ public class MovieNfoParser {
     String profile = "";
     String tmdbId  = "";
     String imdbId  = "";
+    String tvdbId  = "";
   }
 
   static class Fileinfo {
