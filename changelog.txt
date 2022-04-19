@@ -18,3 +18,4 @@ x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm
 x enabled downloading actor images for multi movie folders
 x loading of "ignore SSL errors" on startup
+x use collection as root node of the collection NFO #1731
