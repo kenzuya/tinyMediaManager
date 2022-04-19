@@ -78,29 +78,4 @@ public class TvShowEpisodeToEmbyConnector extends TvShowEpisodeToKodiConnector {
 
     root.appendChild(lockdata);
   }
-
-  /**
-   * add directors in <director>xxx</director> tags (mulitple)
-   */
-  @Override
-  protected void addDirectors(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    for (Person director : episode.getDirectors()) {
-      Element element = document.createElement("director");
-
-      // imdb id
-      String imdbId = director.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", imdbId);
-      }
-
-      // tmdb id
-      int tmdbid = director.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
-        element.setAttribute("tmdbid", String.valueOf(tmdbid));
-      }
-
-      element.setTextContent(director.getName());
-      root.appendChild(element);
-    }
-  }
 }
