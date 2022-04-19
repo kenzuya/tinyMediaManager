@@ -284,8 +284,8 @@
         <echo message="====================================================="/>
         <echo message="package for Linux arm32"/>
         <echo message="====================================================="/>
-        <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
-        <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
+        <copy file="${build.dir}/digest.txt" todir="${dist.dir}/arm"/>
+        <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/arm"/>
         <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux-arm.tar.gz">
             <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
             <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/arm"
