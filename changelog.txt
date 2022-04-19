@@ -12,6 +12,7 @@ Version 4.3
 + (movies/TV shows) write <tvdbid> tag for actors in the NFO file #1722
 + allow editing of cast from within the cast panels #1639
 + (TMDB) enabled logo scraping
++ added writing of TMDB/IMDB/TVDB ids for writers and directors in the NFO files #1731
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm

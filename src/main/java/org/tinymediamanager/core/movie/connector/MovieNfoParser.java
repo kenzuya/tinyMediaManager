@@ -1059,6 +1059,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           credits.add(person);
         }
       }
@@ -1094,6 +1107,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           directors.add(person);
         }
       }
