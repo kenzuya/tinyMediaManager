@@ -642,13 +642,13 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       // IMDB id
       String imdbId = writer.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(tmdbId));
+        element.setAttribute("imdbid", String.valueOf(imdbId));
       }
 
       // TVDB id
       int tvdbId = writer.getIdAsInt(MediaMetadata.TVDB);
       if (tvdbId > 0) {
-        element.setAttribute("tvdbid", String.valueOf(tmdbId));
+        element.setAttribute("tvdbid", String.valueOf(tvdbId));
       }
 
       root.appendChild(element);
@@ -672,13 +672,13 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       // IMDB id
       String imdbId = director.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(tmdbId));
+        element.setAttribute("imdbid", String.valueOf(imdbId));
       }
 
       // TVDB id
       int tvdbId = director.getIdAsInt(MediaMetadata.TVDB);
       if (tvdbId > 0) {
-        element.setAttribute("tvdbid", String.valueOf(tmdbId));
+        element.setAttribute("tvdbid", String.valueOf(tvdbId));
       }
 
       root.appendChild(element);
