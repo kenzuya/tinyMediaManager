@@ -95,7 +95,8 @@ public class UnlockDialog extends TmmDialog {
       JButton btnUnlock = new JButton(TmmResourceBundle.getString("tmm.license.unlock"));
       btnUnlock.addActionListener(arg0 -> {
         try {
-          License.getInstance().setLicenseCode(taLicenseCode.getText());
+          String cleanedLicenseCode = taLicenseCode.getText().replaceAll("\\s", "");
+          License.getInstance().setLicenseCode(cleanedLicenseCode);
 
           if (License.getInstance().validUntil() != null && License.getInstance().validUntil().isBefore(LocalDate.now())) {
             // license already expired
@@ -105,7 +106,7 @@ public class UnlockDialog extends TmmDialog {
             // if we're reaching this, the license code was valid!
 
             // persist the license code
-            Utils.writeStringToFile(Paths.get(Globals.DATA_FOLDER, "tmm.lic"), taLicenseCode.getText());
+            Utils.writeStringToFile(Paths.get(Globals.DATA_FOLDER, "tmm.lic"), cleanedLicenseCode);
 
             JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.thanks"));
             JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.restart"));
