@@ -17,10 +17,7 @@ package org.tinymediamanager.core.tvshow.connector;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**

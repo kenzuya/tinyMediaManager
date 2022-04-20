@@ -15,10 +15,7 @@
  */
 package org.tinymediamanager.core.movie.connector;
 
-import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
