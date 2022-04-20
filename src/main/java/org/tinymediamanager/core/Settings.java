@@ -118,6 +118,7 @@ public final class Settings extends AbstractSettings {
   private boolean                                          storeWindowPreferences      = true;
   private DateField                                        dateField                   = DateField.DATE_ADDED;
 
+  private boolean                                          enableTrash                 = true;
   private boolean                                          deleteTrashOnExit           = false;
   private boolean                                          showMemory                  = true;
 
@@ -1015,6 +1016,16 @@ public final class Settings extends AbstractSettings {
 
   public String getFontFamily() {
     return this.fontFamily;
+  }
+
+  public void setEnableTrash(boolean newValue) {
+    boolean oldValue = enableTrash;
+    enableTrash = newValue;
+    firePropertyChange("enableTrash", oldValue, newValue);
+  }
+
+  public boolean isEnableTrash() {
+    return enableTrash;
   }
 
   public void setDeleteTrashOnExit(boolean newValue) {
