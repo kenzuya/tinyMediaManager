@@ -270,7 +270,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
       }
 
       int index = ((DefaultListSelectionModel) arg0.getSource()).getMinSelectionIndex();
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getValueAt(index, 0);
+      DefaultMutableTreeNode node = tree.getTreeNode(index);
       if (node != null) {
         // click on a tv show
         if (node.getUserObject() instanceof TvShow) {

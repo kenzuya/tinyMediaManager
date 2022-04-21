@@ -247,7 +247,8 @@ public class TvShowSelectionModel extends AbstractModelObject {
     SelectedObjects selectedObjects = new SelectedObjects();
 
     for (int row : treeTable.getSelectedRows()) {
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeTable.getValueAt(row, 0);
+
+      DefaultMutableTreeNode node = treeTable.getTreeNode(row);
       if (node != null) {
         Object userObject = node.getUserObject();
         if (userObject instanceof TvShow) {
