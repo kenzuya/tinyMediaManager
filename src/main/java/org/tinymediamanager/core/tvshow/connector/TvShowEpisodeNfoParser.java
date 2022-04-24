@@ -53,6 +53,7 @@ import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -783,7 +784,7 @@ public class TvShowEpisodeNfoParser {
 
       // imdb id and pattern check
       element = getSingleElement(root, "imdb");
-      if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+      if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
         ids.put(MediaMetadata.IMDB, element.ownText());
       }
 
@@ -1029,6 +1030,19 @@ public class TvShowEpisodeNfoParser {
           if (StringUtils.isNotBlank(element.ownText())) {
             Person person = new Person();
             person.name = element.ownText();
+
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+
             credits.add(person);
           }
         }
@@ -1066,6 +1080,19 @@ public class TvShowEpisodeNfoParser {
           if (StringUtils.isNotBlank(element.ownText())) {
             Person person = new Person();
             person.name = element.ownText();
+
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+
             directors.add(person);
           }
         }
@@ -1122,6 +1149,10 @@ public class TvShowEpisodeNfoParser {
 
             case "tmdbid":
               actor.tmdbId = child.ownText();
+              break;
+
+            case "tvdbid":
+              actor.tvdbId = child.ownText();
               break;
 
             case "imdbid":
@@ -1562,6 +1593,12 @@ public class TvShowEpisodeNfoParser {
       if (StringUtils.isNotBlank(nfoPerson.imdbId)) {
         person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
       }
+
+      int tvdbId = MetadataUtil.parseInt(nfoPerson.tvdbId, 0);
+      if (tvdbId > 0) {
+        person.setId(MediaMetadata.TVDB, tvdbId);
+      }
+
       return person;
     }
   }
@@ -1586,6 +1623,7 @@ public class TvShowEpisodeNfoParser {
     public String profile = "";
     public String tmdbId  = "";
     public String imdbId  = "";
+    public String tvdbId  = "";
   }
 
   public static class Fileinfo {

@@ -1,7 +1,6 @@
 package org.tinymediamanager.thirdparty;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 
@@ -20,11 +19,6 @@ public class SplitUriTests extends BasicTest {
   // Aufbruch nach Pandora (2009) (7.0) cd1.avi ,
   // zip://C%3a%5cUsers%5cmamk%5cVideos%5cFilme%5cAvatar%20-%20Aufbruch%20nach%20Pandora%20(2009).zip/Avatar - Aufbruch nach Pandora (2009)/Avatar -
   // Aufbruch nach Pandora (2009) (7.0) cd2.avi
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void testUris() {

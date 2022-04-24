@@ -73,7 +73,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,7 +241,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   void merge(Movie other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
     super.merge(other, force);
@@ -721,6 +720,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("movie locked, but setMetadata has been called!");
+      return;
+    }
+
     if (metadata == null) {
       LOGGER.error("metadata was null");
       return;
@@ -1244,11 +1248,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!MovieModuleManager.getInstance().getSettings().isWriteActorImages() || isMultiMovieDir()) {
-      return;
-    }
-
     MovieActorImageFetcherTask task = new MovieActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
@@ -1917,12 +1916,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void saveToDb() {
     // update/insert this movie to the database
     MovieModuleManager.getInstance().getMovieList().persistMovie(this);
-  }
-
-  @Override
-  public void deleteFromDb() {
-    // remove this movie from the database
-    MovieModuleManager.getInstance().getMovieList().removeMovieFromDb(this);
   }
 
   @Override
@@ -2839,7 +2832,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // write actor images after possible rename (to have a good folder structure)
-    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages() && !isMultiMovieDir()) {
+    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages()) {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
@@ -2862,10 +2855,5 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     Movie movie = (Movie) o;
     return path.equals(movie.path) && getMainFile().getFile().equals(movie.getMainFile().getFile());
-  }
-
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder().append(path).append(getMainFile().getFile()).build();
   }
 }

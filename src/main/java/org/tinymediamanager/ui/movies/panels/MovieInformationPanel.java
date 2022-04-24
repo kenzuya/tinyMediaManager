@@ -71,6 +71,7 @@ import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
+import org.tinymediamanager.ui.converter.LockedConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.movies.MovieOtherIdsConverter;
@@ -571,6 +572,13 @@ public class MovieInformationPanel extends InformationPanel {
         jLabelBeanProperty);
     autoBinding_5.bind();
     //
+    Property movieSelectionModelBeanProperty_2 = BeanProperty.create("selectedMovie.locked");
+    Property jLabelBeanProperty_2 = BeanProperty.create("icon");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_2, lblMovieName,
+        jLabelBeanProperty_2);
+    autoBinding_2.setConverter(new LockedConverter());
+    autoBinding_2.bind();
+    //
     Property movieSelectionModelBeanProperty = BeanProperty.create("selectedMovie.certification.localizedName");
     AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty, lblCertification,
         jLabelBeanProperty);
@@ -634,7 +642,6 @@ public class MovieInformationPanel extends InformationPanel {
     autoBinding_22.bind();
     //
     Property movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");
-    Property jLabelBeanProperty_2 = BeanProperty.create("icon");
     AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_23,
         lblCertificationLogo, jLabelBeanProperty_2);
     autoBinding_23.setConverter(new CertificationImageConverter());

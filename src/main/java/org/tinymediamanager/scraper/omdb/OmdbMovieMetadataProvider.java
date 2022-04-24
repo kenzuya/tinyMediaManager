@@ -34,7 +34,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -68,7 +68,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     String imdbId = getImdbId(options);
 
     // imdbid check
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("no imdb id found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -108,7 +108,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
     // if the imdb id is given, directly fetch the result
-    if (MetadataUtil.isValidImdbId(query.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(query.getImdbId())) {
       try {
         MediaMetadata md = getMetadata(query);
 

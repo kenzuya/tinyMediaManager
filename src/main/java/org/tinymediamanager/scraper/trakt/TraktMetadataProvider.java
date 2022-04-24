@@ -30,7 +30,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
@@ -134,7 +134,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
 
     // get known IDs
     String imdbId = options.getImdbId().isEmpty() ? null : options.getImdbId();
-    if (MetadataUtil.isValidImdbId(options.getSearchQuery())) {
+    if (MediaIdUtil.isValidImdbId(options.getSearchQuery())) {
       imdbId = options.getSearchQuery();
     }
     String traktId = options.getIdAsString(providerInfo.getId());

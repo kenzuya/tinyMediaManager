@@ -26,6 +26,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
 
@@ -35,8 +36,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowChangeSeasonArtworkAction extends TmmAction {
-  private static final long           serialVersionUID = 8356413227405772558L;
-
+  private static final long serialVersionUID = 8356413227405772558L;
 
   public TvShowChangeSeasonArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.changeseasonartwork"));
@@ -47,26 +47,24 @@ public class TvShowChangeSeasonArtworkAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    List<TvShowSeason> selectTvShowSeasons = new ArrayList<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    for (Object obj : selectedObjects) {
-      // display image chooser
-      if (obj instanceof TvShowSeason) {
-        selectTvShowSeasons.add((TvShowSeason) obj);
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectTvShowSeasons.isEmpty()) {
+    if (selectedObjects.getSeasons().isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    int selectedCount = selectTvShowSeasons.size();
+    List<TvShowSeason> selectedTvShowSeasons = new ArrayList<>(selectedObjects.getSeasons());
+
+    int selectedCount = selectedTvShowSeasons.size();
     int index = 0;
 
     do {
-      TvShowSeason season = selectTvShowSeasons.get(index);
+      TvShowSeason season = selectedTvShowSeasons.get(index);
       TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount);
       editor.setVisible(true);
       if (!editor.isContinueQueue()) {

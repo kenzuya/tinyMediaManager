@@ -42,8 +42,10 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.movie.http.MovieCommandHandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -105,6 +107,16 @@ public final class MovieModuleManager implements ITmmModule {
     return instance;
   }
 
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstances() {
+    instance = null;
+    MovieSettings.clearInstance();
+    MovieList.clearInstance();
+  }
+
   public MovieSettings getSettings() {
     return MovieSettings.getInstance();
   }
@@ -151,6 +163,13 @@ public final class MovieModuleManager implements ITmmModule {
     };
     databaseTimer = new Timer();
     databaseTimer.schedule(databaseWriteTask, COMMIT_DELAY, COMMIT_DELAY);
+
+    try {
+      TmmHttpServer.getInstance().createContext("movie", new MovieCommandHandler());
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not register movie API - '{}'", e.getMessage());
+    }
   }
 
   /**

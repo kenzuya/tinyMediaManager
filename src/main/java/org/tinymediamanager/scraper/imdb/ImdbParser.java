@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -291,6 +292,10 @@ public abstract class ImdbParser {
     catch (Exception e) {
       throw new ScrapeException(e);
     }
+  }
+
+  protected String decode(String source) {
+    return new String(Base64.getDecoder().decode(source), StandardCharsets.UTF_8);
   }
 
   protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {

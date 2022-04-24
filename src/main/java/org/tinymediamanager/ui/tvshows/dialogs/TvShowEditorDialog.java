@@ -576,7 +576,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
 
-        tableActors = new PersonTable(actors, true);
+        tableActors = new PersonTable(actors);
 
         JScrollPane scrollPaneActors = new JScrollPane();
         tableActors.configureScrollPane(scrollPaneActors);

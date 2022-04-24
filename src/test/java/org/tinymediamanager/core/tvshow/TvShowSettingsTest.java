@@ -19,32 +19,23 @@ package org.tinymediamanager.core.tvshow;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.file.Paths;
-
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.Utils;
 
-public class TvShowSettingsTest extends BasicTest {
-
-  @BeforeClass
-  public static void beforeClass() {
-    BasicTest.setup();
-  }
+public class TvShowSettingsTest extends BasicTvShowTest {
 
   @Test
   public void testTvShowSettings() {
     try {
-      TvShowSettings settings = TvShowSettings.getInstance(getSettingsFolder());
+      TvShowSettings settings = TvShowSettings.getInstance();
       assertThat(settings).isNotNull();
       settings.setAsciiReplacement(true);
       Thread.sleep(1000); // sleep here because the dirty listener is async
       settings.saveSettings();
 
       // cannot re-instantiate settings - need to check plain file
-      String config = Utils.readFileToString(Paths.get(getSettingsFolder(), TvShowModuleManager.getInstance().getSettings().getConfigFilename()));
+      String config = Utils.readFileToString(getSettingsFolder().resolve(TvShowModuleManager.getInstance().getSettings().getConfigFilename()));
       assertTrue(config.contains("\"asciiReplacement\" : true"));
     }
     catch (Exception e) {

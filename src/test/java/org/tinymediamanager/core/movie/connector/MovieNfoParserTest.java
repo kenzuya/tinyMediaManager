@@ -19,32 +19,32 @@ package org.tinymediamanager.core.movie.connector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.movie.BasicMovieTest;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class MovieNfoParserTest extends BasicTest {
+public class MovieNfoParserTest extends BasicMovieTest {
 
-  @BeforeClass
-  public static void init() throws Exception {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+    copyResourceFolderToWorkFolder("movie_nfo");
   }
 
   @Test
   public void testImdbUrl() {
     List<MediaFile> mfs = new ArrayList<>();
-    mfs.add(new MediaFile(Paths.get("target/test-classes/movie_nfo/justImdbUrl.nfo")));
+    mfs.add(new MediaFile(getWorkFolder().resolve("movie_nfo").resolve("justImdbUrl.nfo")));
 
     Movie m = MovieUpdateDatasourceTask.parseNFOs(mfs);
     assertThat(m.getImdbId()).isEqualTo("tt0499549");
@@ -54,7 +54,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi17_0() {
     // Kodi version 17.0
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi17.0.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi17.0.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -135,7 +135,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi16_1() {
     // Kodi version 16.1
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi16.1.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi16.1.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -214,7 +214,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi15_2() {
     // Kodi version 15.2
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi15.2.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi15.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -293,7 +293,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi14_2() {
     // Kodi version 14.2
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi14.2.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi14.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -372,7 +372,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testMpLegacy() {
     // MediaPortal
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/mp-legacy.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("mp-legacy.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -444,7 +444,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testMpMovingPictures() {
     // MediaPortal
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/mp-moving_pictures.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("mp-moving_pictures.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -510,7 +510,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testMpMyVideo() {
     // MediaPortal
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/mp-myvideo.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("mp-myvideo.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -580,7 +580,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi1() {
     // Kodi 1
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -671,7 +671,7 @@ public class MovieNfoParserTest extends BasicTest {
   public void testKodi2() {
     // Kodi 2
     try {
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi2.nfo"));
+      MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("kodi2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.title).isNotEmpty();
@@ -781,7 +781,7 @@ public class MovieNfoParserTest extends BasicTest {
 
   @Test
   public void testNetpvrXml() throws Exception {
-    MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/nextpvr.xml"));
+    MovieNfoParser parser = MovieNfoParser.parseNfo(getWorkFolder().resolve("movie_nfo").resolve("nextpvr.xml"));
 
     assertThat(parser.title).isEqualTo("Gran Torino");
     assertThat(parser.plot).isEqualTo("Gran Torino\\nDrama, USA 2008\\nAltersfreigabe: ab 12");

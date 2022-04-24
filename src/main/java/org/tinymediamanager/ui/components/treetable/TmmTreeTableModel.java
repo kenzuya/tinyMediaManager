@@ -67,12 +67,7 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
 
   @Override
   public String getColumnName(int columnIndex) {
-    // if (columnIndex == 0) {
-    // return NODES_COLUMN_LABEL;
-    // }
-    // else {
     return tableModel.getColumnName(columnIndex - 1);
-    // }
   }
 
   @Override

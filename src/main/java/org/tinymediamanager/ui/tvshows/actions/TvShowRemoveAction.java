@@ -19,8 +19,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -38,6 +36,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -57,10 +56,13 @@ public class TvShowRemoveAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
@@ -85,25 +87,18 @@ public class TvShowRemoveAction extends TmmAction {
     }
 
     TmmTaskManager.getInstance().addUnnamedTask(() -> {
-      for (Object obj : selectedObjects) {
-        // remove a whole TV show
-        if (obj instanceof TvShow) {
-          TvShow tvShow = (TvShow) obj;
-          TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
+      for (TvShow tvShow : selectedObjects.getTvShows()) {
+        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
+      }
+
+      for (TvShowSeason season : selectedObjects.getSeasons()) {
+        for (TvShowEpisode episode : season.getEpisodes()) {
+          season.getTvShow().removeEpisode(episode);
         }
-        // remove seasons
-        if (obj instanceof TvShowSeason) {
-          TvShowSeason season = (TvShowSeason) obj;
-          List<TvShowEpisode> episodes = new ArrayList<>(season.getEpisodes());
-          for (TvShowEpisode episode : episodes) {
-            season.getTvShow().removeEpisode(episode);
-          }
-        }
-        // remove episodes
-        if (obj instanceof TvShowEpisode) {
-          TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-          tvShowEpisode.getTvShow().removeEpisode(tvShowEpisode);
-        }
+      }
+
+      for (TvShowEpisode episode : selectedObjects.getEpisodes()) {
+        episode.getTvShow().removeEpisode(episode);
       }
     });
   }

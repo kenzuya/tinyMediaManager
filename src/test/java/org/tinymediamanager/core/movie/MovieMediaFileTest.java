@@ -5,26 +5,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
-public class MovieMediaFileTest extends BasicTest {
-
-  @BeforeClass
-  public static void beforeClass() {
-    BasicTest.setup();
-  }
+public class MovieMediaFileTest extends BasicMovieTest {
 
   @Test
   public void testUpdateMediaFilePath() {
     Movie movie = new Movie();
-    movie.setPath("/private/Test_Filme/Alien Collecion/Alien 1");
-    Path mediaFile = Paths.get("/private/Test_Filme/Alien Collecion/Alien 1/asdf/jklö/VIDEO_TS/VIDEO_TS.IFO");
+    movie.setPath(getWorkFolder().resolve("Alien Collecion/Alien 1").toString());
+    Path mediaFile = getWorkFolder().resolve("Alien Collecion/Alien 1/asdf/jklö/VIDEO_TS/VIDEO_TS.IFO");
     MediaFile mf = new MediaFile(mediaFile);
     movie.addToMediaFiles(mf);
 
@@ -32,7 +25,7 @@ public class MovieMediaFileTest extends BasicTest {
     System.out.println("File Path:  " + movie.getMediaFiles().get(0).getFileAsPath());
 
     Path oldPath = movie.getPathNIO();
-    Path newPath = Paths.get("/private/Test_Filme/Alien 1");
+    Path newPath = getWorkFolder().resolve("Alien 1");
     movie.updateMediaFilePath(oldPath, newPath);
     movie.setPath(newPath.toAbsolutePath().toString());
 
@@ -53,10 +46,10 @@ public class MovieMediaFileTest extends BasicTest {
   public void testGetMainVideoFile() {
     Movie movie = new Movie();
 
-    MediaFile first = new MediaFile(Paths.get("target/test-classes/testmovies/Stack/StackSingle/StackSingleFile CD1.avi"));
+    MediaFile first = new MediaFile(getWorkFolder().resolve("Stack/StackSingle/StackSingleFile CD1.avi"));
     movie.addToMediaFiles(first);
 
-    MediaFile second = new MediaFile(Paths.get("target/test-classes/testmovies/Stack/StackSingle/StackSingleFile CD2.avi"));
+    MediaFile second = new MediaFile(getWorkFolder().resolve("Stack/StackSingle/StackSingleFile CD2.avi"));
     movie.addToMediaFiles(second);
 
     movie.reEvaluateStacking();

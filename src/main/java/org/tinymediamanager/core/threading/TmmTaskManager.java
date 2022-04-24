@@ -233,7 +233,6 @@ public class TmmTaskManager implements TmmTaskListener {
    * 
    * @param newTask
    *          the task to be added
-   * @return true if there is already a main task running
    */
   public void addMainTask(TmmThreadPool newTask) {
     if (isShutdown) {

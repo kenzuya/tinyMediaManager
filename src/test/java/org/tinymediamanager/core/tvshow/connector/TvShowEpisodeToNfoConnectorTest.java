@@ -17,27 +17,20 @@
 package org.tinymediamanager.core.tvshow.connector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -47,29 +40,26 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
+public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
+
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+    TvShowModuleManager.getInstance().startUp();
   }
 
   @Test
-  public void testXbmcNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "xbmc_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "xbmc_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testXbmcNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("xbmc_nfo"));
 
-    try {
       TvShow tvShow = createTvShow("xbmc_nfo");
       List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
 
@@ -78,7 +68,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
       TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
       connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "xbmc_nfo/S01E01E02.nfo");
+      Path nfoFile = getWorkFolder().resolve("xbmc_nfo/S01E01E02.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -88,24 +78,13 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
         episode.setTvShow(tvShow);
       }
       compareEpisodes(episodes, newEpisodes);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
   }
 
   @Test
-  public void testKodiNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "kodi_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "kodi_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testKodiNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("kodi_nfo"));
 
-    try {
+
       TvShow tvShow = createTvShow("kodi_nfo");
       List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
 
@@ -114,7 +93,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
       TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
       connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "kodi_nfo/S01E01E02.nfo");
+      Path nfoFile = getWorkFolder().resolve("kodi_nfo/S01E01E02.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -124,55 +103,11 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
         episode.setTvShow(tvShow);
       }
       compareEpisodes(episodes, newEpisodes);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
-  }
-
-  private void compareTvShows(TvShow tvShow, TvShow newTvShow) {
-    assertThat(newTvShow.getTitle()).isEqualTo(tvShow.getTitle());
-    assertThat(newTvShow.getSortTitle()).isEqualTo(tvShow.getSortTitle());
-    assertThat(newTvShow.getRating().getRating()).isEqualTo(tvShow.getRating().getRating());
-    assertThat(newTvShow.getRating().getVotes()).isEqualTo(tvShow.getRating().getVotes());
-    assertThat(newTvShow.getYear()).isEqualTo(tvShow.getYear());
-    assertThat(newTvShow.getPlot()).isEqualTo(tvShow.getPlot());
-    assertThat(newTvShow.getRuntime()).isEqualTo(tvShow.getRuntime());
-    assertThat(newTvShow.getArtworkUrl(MediaFileType.POSTER)).isEqualTo(tvShow.getArtworkUrl(MediaFileType.POSTER));
-    assertThat(newTvShow.getArtworkUrl(MediaFileType.FANART)).isEqualTo(tvShow.getArtworkUrl(MediaFileType.FANART));
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_POSTER).entrySet()) {
-      String seasonPoster = newTvShow.getSeasonArtworkUrl(entry.getKey(), SEASON_POSTER);
-      assertThat(seasonPoster).isEqualTo(entry.getValue());
-    }
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_BANNER).entrySet()) {
-      String seasonBanner = newTvShow.getSeasonArtworkUrl(entry.getKey(), SEASON_BANNER);
-      assertThat(seasonBanner).isEqualTo(entry.getValue());
-    }
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_THUMB).entrySet()) {
-      String seasonThumb = newTvShow.getSeasonArtworkUrl(entry.getKey(), SEASON_THUMB);
-      assertThat(seasonThumb).isEqualTo(entry.getValue());
-    }
-    assertThat(newTvShow.getImdbId()).isEqualTo(tvShow.getImdbId());
-    assertThat(newTvShow.getTvdbId()).isEqualTo(tvShow.getTvdbId());
-    assertThat(newTvShow.getProductionCompany()).isEqualTo(tvShow.getProductionCompany());
-    assertThat(newTvShow.getCertification()).isEqualTo(tvShow.getCertification());
-    assertThat(newTvShow.getIds().size()).isEqualTo(tvShow.getIds().size());
-    assertThat(newTvShow.getId("trakt")).isEqualTo(tvShow.getId("trakt"));
-    assertThat(newTvShow.getFirstAired()).isEqualTo(tvShow.getFirstAired());
-    assertThat(newTvShow.getGenres().size()).isEqualTo(tvShow.getGenres().size());
-    assertThat(newTvShow.getGenres().get(0)).isEqualTo(tvShow.getGenres().get(0));
-    assertThat(newTvShow.getTags().size()).isEqualTo(tvShow.getTags().size());
-    if (!newTvShow.getTags().isEmpty()) {
-      assertThat(newTvShow.getTags().get(0)).isEqualTo(tvShow.getTags().get(0));
-    }
-    assertThat(newTvShow.getActors().size()).isEqualTo(tvShow.getActors().size());
-    assertThat(newTvShow.getActors().get(0)).isEqualTo(tvShow.getActors().get(0));
   }
 
   private TvShow createTvShow(String path) throws Exception {
     TvShow tvShow = new TvShow();
-    tvShow.setPath(Paths.get(getSettingsFolder(), path).toString());
+    tvShow.setPath(getWorkFolder().resolve(path).toString());
     tvShow.setTitle("21 Jump Street");
     tvShow.setRating(new MediaRating(MediaRating.NFO, 9.0f, 8));
     tvShow.setYear(1987);
@@ -272,6 +207,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
 
     MediaFile mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
+    mf.setPath(getWorkFolder().resolve(tvShow.getTitle()).toString());
     mf.setFilename("S01E01E02.mkv");
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);
@@ -319,6 +255,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
 
       mf = new MediaFile();
       mf.setType(MediaFileType.VIDEO);
+      mf.setPath(getWorkFolder().resolve(tvShow.getTitle()).toString());
       mf.setFilename("S01E01E02.mkv");
       mf.setVideoCodec("h264");
       mf.setVideoHeight(720);

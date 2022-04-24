@@ -18,16 +18,13 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
@@ -38,8 +35,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
  * @author Manuel Laggner
  */
 public class MovieEditAction extends TmmAction {
-  private static final long           serialVersionUID = -8473181347332963044L;
-
+  private static final long serialVersionUID = -8473181347332963044L;
 
   @Deprecated
   public MovieEditAction(boolean withTitle) {
@@ -61,15 +57,14 @@ public class MovieEditAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
+
+    if (selectedMovies.isEmpty()) {
+      return;
+    }
 
     int selectedCount = selectedMovies.size();
     int index = 0;
-
-    if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
-      return;
-    }
 
     do {
       Movie movie = selectedMovies.get(index);

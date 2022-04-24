@@ -19,8 +19,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -28,8 +28,8 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowEditorDialog;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowEpisodeEditorDialog;
@@ -53,18 +53,34 @@ public class TvShowEditAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedTreeObjects();
 
-    int selectedCount = selectedObjects.size();
-    int index = 0;
+    List<Object> selectedObjectWoLocked = selectedObjects.stream().filter(obj -> {
+      if (obj instanceof TvShow && !((TvShow) obj).isLocked()) {
+        return true;
+      }
+      else if (obj instanceof TvShowSeason && !((TvShowSeason) obj).isLocked()) {
+        return true;
+      }
+      else if (obj instanceof TvShowEpisode && !((TvShowEpisode) obj).isLocked()) {
+        return true;
+      }
+      return false;
+    }).collect(Collectors.toList());
 
-    if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.size() != selectedObjectWoLocked.size()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
+
+    if (selectedObjectWoLocked.isEmpty()) {
       return;
     }
 
+    int selectedCount = selectedObjectWoLocked.size();
+    int index = 0;
+
     do {
-      Object obj = selectedObjects.get(index);
+      Object obj = selectedObjectWoLocked.get(index);
 
       // display tv show editor
       if (obj instanceof TvShow) {

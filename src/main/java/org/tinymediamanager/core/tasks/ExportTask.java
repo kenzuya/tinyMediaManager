@@ -33,9 +33,9 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 public class ExportTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(ExportTask.class);
 
-  private MediaEntityExporter         exporter;
-  private List<? extends MediaEntity> entities;
-  private Path                        exportPath;
+  private final MediaEntityExporter         exporter;
+  private final List<? extends MediaEntity> entities;
+  private final Path                        exportPath;
 
   public ExportTask(String taskName, MediaEntityExporter exporter, List<? extends MediaEntity> entities, Path exportPath) {
     super(taskName);

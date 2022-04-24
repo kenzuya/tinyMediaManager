@@ -17,8 +17,10 @@
 package org.tinymediamanager.core.tvshow;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tinymediamanager.core.jmte.JmteUtils.morphTemplate;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
+import org.tinymediamanager.core.ExportTemplate;
+import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -51,14 +53,9 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 
-public class TvShowJmteTests extends BasicTest {
+public class TvShowJmteTests extends BasicTvShowTest {
   private Engine              engine;
   private Map<String, Object> root;
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void testTvshowPatterns() {
@@ -181,6 +178,34 @@ public class TvShowJmteTests extends BasicTest {
       e.printStackTrace();
       Assertions.fail(e.getMessage());
     }
+  }
+
+  @Test
+  public void testAllTvShowTemplates() throws Exception {
+    createFakeShow("Best Show");
+    createFakeShow("THE show");
+    createFakeShow("Show 3");
+
+    TvShowList tv = TvShowModuleManager.getInstance().getTvShowList();
+    for (ExportTemplate t : TvShowExporter.findTemplates(MediaEntityExporter.TemplateType.TV_SHOW)) {
+      System.out.println("\nTEMPLATE: " + t.getPath());
+      TvShowExporter ex = new TvShowExporter(Paths.get(t.getPath()));
+      ex.export(tv.getTvShows(), getWorkFolder().resolve(t.getName()));
+    }
+  }
+
+  @Test
+  public void testTvShowReplacements() throws Exception {
+    Map<String, String> tokenMap = TvShowRenamer.getTokenMap();
+
+    assertThat(morphTemplate("${episode.title}", tokenMap)).isEqualTo("${episode.title}");
+    assertThat(morphTemplate("${title}", tokenMap)).isEqualTo("${episode.title}");
+    assertThat(morphTemplate("${title[2]}", tokenMap)).isEqualTo("${episode.title[2]}");
+    assertThat(morphTemplate("${episode.title[2]}", tokenMap)).isEqualTo("${episode.title[2]}");
+    assertThat(morphTemplate("${if title}${title[2]}${end}", tokenMap)).isEqualTo("${if episode.title}${episode.title[2]}${end}");
+    assertThat(morphTemplate("${foreach audioCodecList codec}${codec}${end}", tokenMap))
+        .isEqualTo("${foreach episode.mediaInfoAudioCodecList codec}${codec}${end}");
+    assertThat(morphTemplate("${title;lower}", tokenMap)).isEqualTo("${episode.title;lower}");
   }
 
   private void compare(String template, String expectedValue) {

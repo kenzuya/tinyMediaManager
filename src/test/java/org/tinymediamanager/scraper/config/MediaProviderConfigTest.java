@@ -20,19 +20,18 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 
 public class MediaProviderConfigTest extends BasicTest {
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-    BasicTest.setup();
-    FileUtils.deleteQuietly(new File("target/scraper_config.conf"));
-    FileUtils.copyFile(new File("target/test-classes/scraper_config.conf.tmpl"), new File("target/scraper_config.conf"));
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
+    FileUtils.copyFile(new File("src/test/resources/scraper_config.conf.tmpl"), getWorkFolder().resolve("scraper_config.conf").toFile());
   }
 
   @Test
@@ -47,8 +46,9 @@ public class MediaProviderConfigTest extends BasicTest {
     mpi.getConfig().addBoolean("someBool", true);
     mpi.getConfig().addText("someInput", "none");
     mpi.getConfig().addSelect("language", new String[] { "aa", "bb", "cc", "dd", "ee" }, "dd");
-    mpi.getConfig().addSelectIndex("languageInt",
-        "bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nb|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|zh".split("\\|"), "en");
+    mpi.getConfig()
+        .addSelectIndex("languageInt", "bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nb|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|zh".split("\\|"),
+            "en");
     mpi.getConfig().addText("encrypted", "This is some encrypted text", true);
 
     // check default settings
@@ -59,7 +59,7 @@ public class MediaProviderConfigTest extends BasicTest {
     assertEqual("5", mpi.getConfig().getValue("languageInt"));
 
     // load actual values
-    mpi.getConfig().loadFromDir("target");
+    mpi.getConfig().loadFromDir(getWorkFolder().toString());
 
     // tests
     mpi.getConfig().setValue("someBool", false);
@@ -81,7 +81,7 @@ public class MediaProviderConfigTest extends BasicTest {
 
     System.out.println("--- current settings ---");
     System.out.println(mpi.getConfig());
-    mpi.getConfig().saveToDir("target");
+    mpi.getConfig().saveToDir(getWorkFolder().toString());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class MediaProviderConfigTest extends BasicTest {
   public void emptySettingsLoadSave() {
     MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().load();
-    mpi.getConfig().saveToDir("target");
+    mpi.getConfig().saveToDir(getWorkFolder().toString());
   }
 
   @Test
@@ -113,13 +113,13 @@ public class MediaProviderConfigTest extends BasicTest {
     MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().addText("language", "de");
     mpi.getConfig().load();
-    mpi.getConfig().saveToDir("target");
+    mpi.getConfig().saveToDir(getWorkFolder().toString());
   }
 
   @Test
   public void getUnknownValue() {
     MediaProviderInfo mpi = new MediaProviderInfo("config", "config", "name", "description");
-    mpi.getConfig().loadFromDir("target");
+    mpi.getConfig().loadFromDir(getWorkFolder().toString());
     assertEqual("", mpi.getConfig().getValue("asdfasdfasdfasdf"));
     assertEqual(false, mpi.getConfig().getValueAsBool("sdfgsdfgsdfg"));
   }
@@ -128,17 +128,5 @@ public class MediaProviderConfigTest extends BasicTest {
   public void setNotAvailableConfig() {
     MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().setValue("language", "de");
-  }
-
-  // own method to get some logging ;)
-  public static void assertEqual(Object expected, Object actual) {
-    try {
-      Assert.assertEquals(expected, actual);
-      System.out.println(expected + " - passed");
-    }
-    catch (AssertionError e) {
-      System.err.println(expected + " - FAILED: " + e.getMessage());
-      throw e;
-    }
   }
 }

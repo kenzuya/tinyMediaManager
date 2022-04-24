@@ -17,7 +17,7 @@ package org.tinymediamanager.core.tasks;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -35,16 +35,16 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  * @author Manuel Laggner
  */
 public class ImageCacheTask extends TmmThreadPool {
-  private static final Logger   LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
+  private static final Logger         LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
 
-  private final List<MediaFile> filesToCache = new ArrayList<>();
+  private final Collection<MediaFile> filesToCache = new ArrayList<>();
 
   @Override
   public void callback(Object obj) {
     publishState(progressDone);
   }
 
-  public ImageCacheTask(List<MediaFile> files) {
+  public ImageCacheTask(Collection<MediaFile> files) {
     super(TmmResourceBundle.getString("tmm.rebuildimagecache"));
     filesToCache.addAll(files);
   }

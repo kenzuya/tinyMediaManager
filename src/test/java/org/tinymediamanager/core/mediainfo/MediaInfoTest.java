@@ -18,13 +18,13 @@ package org.tinymediamanager.core.mediainfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_HSBS;
-import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_SBS;
 import static org.tinymediamanager.core.MediaFileHelper.gatherLanguageInformation;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.BasicTest;
@@ -37,112 +37,100 @@ import org.tinymediamanager.thirdparty.MediaInfo;
 
 public class MediaInfoTest extends BasicTest {
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
     TmmOsUtils.loadNativeLibs();
   }
 
   @Test
-  public void testAudiofiles() {
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/samples/AAC-HE_LC_6ch.mka"));
+  public void testAudiofiles() throws Exception {
+    copyResourceFolderToWorkFolder("samples");
+    Path samplesFolder = getWorkFolder().resolve("samples");
+
+    MediaFile mf = new MediaFile(samplesFolder.resolve("AAC-HE_LC_6ch.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("AAC");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/AAC-HE_LC_8ch.mka"));
+    mf = new MediaFile(samplesFolder.resolve("AAC-HE_LC_8ch.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("AAC");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/DTS-X.mka"));
+    mf = new MediaFile(samplesFolder.resolve("DTS-X.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("DTS-X");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
     assertThat(mf.getAudioLanguage()).isEqualTo("eng");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/DTS-ES_Discrete.ts"));
+    mf = new MediaFile(samplesFolder.resolve("DTS-ES_Discrete.ts"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("DTS-ES");
     assertThat(mf.getAudioChannels()).isEqualTo("7ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/DTSHD-HRA.mka"));
+    mf = new MediaFile(samplesFolder.resolve("DTSHD-HRA.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("DTSHD-HRA");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
     assertThat(mf.getAudioLanguage()).isEqualTo("eng");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/DTSHD-MA.mka"));
+    mf = new MediaFile(samplesFolder.resolve("DTSHD-MA.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("DTSHD-MA");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
     assertThat(mf.getAudioLanguage()).isEqualTo("eng");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/DTS.mka"));
+    mf = new MediaFile(samplesFolder.resolve("DTS.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("DTS");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/TrueHD.mka"));
+    mf = new MediaFile(samplesFolder.resolve("TrueHD.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("TrueHD");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
     assertThat(mf.getAudioLanguage()).isEqualTo("eng");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/TrueHD-Atmos.mka"));
+    mf = new MediaFile(samplesFolder.resolve("TrueHD-Atmos.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("TrueHD/Atmos");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/EAC3-Atmos.mkv"));
+    mf = new MediaFile(samplesFolder.resolve("EAC3-Atmos.mkv"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("EAC3/Atmos");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/AC-3.mka"));
+    mf = new MediaFile(samplesFolder.resolve("AC-3.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("AC3");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/PCM.mka"));
+    mf = new MediaFile(samplesFolder.resolve("PCM.mka"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("PCM");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/E-AC3.ac3"));
+    mf = new MediaFile(samplesFolder.resolve("E-AC3.ac3"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
 
-    mf = new MediaFile(Paths.get("src/test/resources/samples/E-AC3-2.ac3"));
+    mf = new MediaFile(samplesFolder.resolve("E-AC3-2.ac3"));
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
   }
 
-  // @Test
-  public void testVideofiles() {
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/samples/3D-FSBS.mkv"));
-    mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_SBS);
-
-    mf = new MediaFile(Paths.get("src/test/resources/samples/3D-HSBS.mkv"));
-    mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_HSBS);
-
-    mf = new MediaFile(Paths.get("src/test/resources/samples/3D-FTAB.mkv"));
-    mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(MediaFileHelper.VIDEO_3D_TAB);
-
-    mf = new MediaFile(Paths.get("src/test/resources/samples/3D-HTAB.mkv"));
-    mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(MediaFileHelper.VIDEO_3D_HTAB);
-  }
-
   @Test
-  public void testIsoXmlOldFormat() {
+  public void testIsoXmlOldFormat() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // DVD ISO - old format
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.0.7.99.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo.0.7.99.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -164,9 +152,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testIsoXmlNewFormat() {
+  public void testIsoXmlNewFormat() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // DVD ISO - new format
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.17.10.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo.17.10.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -188,9 +179,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testBdIsoXml() {
+  public void testBdIsoXml() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // BD ISO
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo-BD.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -212,9 +206,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testBdIsoMplsXml() {
+  public void testBdIsoMplsXml() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // BD-MPLS ISO
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-mpls.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo-BD-mpls.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -236,9 +233,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testBdIsoXmlNosize() {
+  public void testBdIsoXmlNosize() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // BD ISO without size in xml
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-nosize.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo-BD-nosize.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -260,9 +260,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testCdIsoXml() {
+  public void testCdIsoXml() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // CD ISO
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo-CD.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -281,9 +284,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testCdIsoXmlWoLanguage() {
+  public void testCdIsoXmlWoLanguage() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // CD ISO without language information
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD-nolang.iso"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo-CD-nolang.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -302,9 +308,12 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testMkvXml() {
+  public void testMkvXml() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
     // MKV FILE
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfoMKV.mkv"));
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfoMKV.mkv"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -323,8 +332,11 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testBdXml2003() {
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.BD.20.03.iso"));
+  public void testBdXml2003() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("MediaInfo.BD.20.03.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(3840);
@@ -380,10 +392,13 @@ public class MediaInfoTest extends BasicTest {
   // }
 
   @Test
-  public void mediaFile() {
+  public void mediaFile() throws Exception {
     setTraceLogging();
 
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/tags.mkv"));
+    copyResourceFolderToWorkFolder("testmovies/MediainfoXML");
+    Path mediainfoXmlFolder = getWorkFolder().resolve("testmovies/MediainfoXML");
+
+    MediaFile mf = new MediaFile(mediainfoXmlFolder.resolve("tags.mkv"));
     mf.gatherMediaInformation();
 
     System.out.println("----------------------");
@@ -420,7 +435,10 @@ public class MediaInfoTest extends BasicTest {
    */
   @Test
   public void testDirect() throws Exception {
-    String FileName = "src/test/resources/samples/DTS-X.mka";
+    copyResourceFolderToWorkFolder("samples");
+    Path samplesFolder = getWorkFolder().resolve("samples");
+
+    String FileName = samplesFolder.resolve("DTS-X.mka").toString();
     String To_Display = "";
 
     // Info about the library
@@ -471,6 +489,8 @@ public class MediaInfoTest extends BasicTest {
 
   @Test
   public void testSubtitleLanguageDetection() throws Exception {
+    copyResourceFolderToWorkFolder("subtitles");
+
     compareSubtitle("en.srt", "eng");
     compareSubtitle("eng_sdh.srt", "eng");
     compareSubtitle("moviename.en.srt", "eng");
@@ -493,7 +513,9 @@ public class MediaInfoTest extends BasicTest {
   }
 
   private void compareSubtitle(String filename, String expectedLanguage, String expectedTitle) throws Exception {
-    MediaFile mf = new MediaFile(Paths.get("target/test-classes/subtitles/" + filename));
+    Path subtitlesFolder = getWorkFolder().resolve("subtitles");
+
+    MediaFile mf = new MediaFile(subtitlesFolder.resolve(filename));
     mf.gatherMediaInformation();
     gatherLanguageInformation(mf, "moviename");
     assertThat(mf.getType()).isEqualTo(MediaFileType.SUBTITLE);
@@ -540,41 +562,44 @@ public class MediaInfoTest extends BasicTest {
 
   @Test
   public void testHdrDetection() throws Exception {
+    copyResourceFolderToWorkFolder("mediainfo");
+    Path mediainfoFolder = getWorkFolder().resolve("mediainfo");
+
     // Dolby Vision
-    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision.avi"));
+    MediaFile mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
     assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
 
-    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision2.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("dolby_vision2.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
     assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
 
     // HDR10
-    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("hdr10.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
 
-    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10-2.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("hdr10-2.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
 
     // HDR10+
-    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10plus.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("hdr10plus.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
 
     // HLG
-    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hlg.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("hlg.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
@@ -583,8 +608,11 @@ public class MediaInfoTest extends BasicTest {
 
   @Test
   public void test3d() throws Exception {
+    copyResourceFolderToWorkFolder("mediainfo");
+    Path mediainfoFolder = getWorkFolder().resolve("mediainfo");
+
     // Dolby Vision
-    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/3d_sbs.avi"));
+    MediaFile mf = new MediaFile(mediainfoFolder.resolve("3d_sbs.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 
@@ -595,8 +623,11 @@ public class MediaInfoTest extends BasicTest {
 
   @Test
   public void testSubtitleTitle() throws Exception {
+    copyResourceFolderToWorkFolder("mediainfo");
+    Path mediainfoFolder = getWorkFolder().resolve("mediainfo");
+
     // Dolby Vision
-    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/subtitle-title.avi"));
+    MediaFile mf = new MediaFile(mediainfoFolder.resolve("subtitle-title.avi"));
     mf.setContainerFormat("avi");
     MediaFileHelper.gatherMediaInformation(mf, true);
 

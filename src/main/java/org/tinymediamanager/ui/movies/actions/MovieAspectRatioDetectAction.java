@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -33,7 +32,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class MovieAspectRatioDetectAction extends TmmAction {
 
-  private static final long           serialVersionUID = 2040242768614719459L;
+  private static final long serialVersionUID = 2040242768614719459L;
 
   public MovieAspectRatioDetectAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.ard"));
@@ -43,7 +42,7 @@ public class MovieAspectRatioDetectAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    final List<Movie> selectedMovies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies();
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

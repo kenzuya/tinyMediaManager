@@ -102,8 +102,7 @@ public class ImageLabel extends JComponent {
 
     try {
       // create the icon
-      URI uri = IconManager.class.getResource("images/svg/image.svg")
-          .toURI();
+      URI uri = IconManager.class.getResource("images/svg/image.svg").toURI();
       return new TmmSvgIcon(uri);
     }
     catch (Exception e) {
@@ -154,7 +153,6 @@ public class ImageLabel extends JComponent {
       animatedGif = new ImageIcon(originalImageBytes);
       originalImageSize = new Dimension(decoder.getFrameSize().width, decoder.getFrameSize().height);
       scaledImage = animatedGif.getImage();
-      // setIcon(animatedGif);
     }
     else {
       // this is just a normal pic
@@ -391,7 +389,6 @@ public class ImageLabel extends JComponent {
           drawRectangle.y += 4;
 
           drawImageAtScale1x(scaledImage, g2d, scaleHiDpi(g2d.getTransform(), drawRectangle));
-          // g.drawImage(scaledImage, offsetX + 4, offsetY + 4, newWidth, newHeight, this);
         }
         else if (drawShadow && !drawFullWidth) {
           Point size = ImageUtils.calculateSize(this.getMaxWidth() - SHADOW_SIZE, this.getMaxHeight() - SHADOW_SIZE, originalImageSize.width,
@@ -480,8 +477,7 @@ public class ImageLabel extends JComponent {
         // draw the _no image found_ icon
         if (NO_IMAGE != null) {
           BufferedImage tmp = new BufferedImage(hiDpi.width, hiDpi.height, BufferedImage.TYPE_INT_ARGB);
-          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment()
-              .createGraphics(tmp);
+          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
 
           try {
             FlatUIUtils.setRenderingHints(g2);
@@ -752,7 +748,7 @@ public class ImageLabel extends JComponent {
 
       // not available in the path and not preferred from the cache..
       // well just try to read it from the cache
-      if ((file == null || !Files.exists(file)) && !preferCache) {
+      if ((!Files.exists(file)) && !preferCache) {
         file = ImageCache.getCachedFile(Paths.get(imagePath));
       }
 
@@ -800,8 +796,7 @@ public class ImageLabel extends JComponent {
     public void mouseClicked(MouseEvent arg0) {
 
       if (arg0.getClickCount() == 1 && scaledImage != null) {
-        MainWindow.getInstance()
-            .createLightbox(getImagePath(), getImageUrl());
+        MainWindow.getInstance().createLightbox(getImagePath(), getImageUrl());
       }
     }
   }

@@ -632,6 +632,25 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     for (Person writer : movie.getWriters()) {
       Element element = document.createElement("credits");
       element.setTextContent(writer.getName());
+
+      // TMDB id
+      int tmdbId = writer.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbId > 0) {
+        element.setAttribute("tmdbid", String.valueOf(tmdbId));
+      }
+
+      // IMDB id
+      String imdbId = writer.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbId)) {
+        element.setAttribute("imdbid", String.valueOf(imdbId));
+      }
+
+      // TVDB id
+      int tvdbId = writer.getIdAsInt(MediaMetadata.TVDB);
+      if (tvdbId > 0) {
+        element.setAttribute("tvdbid", String.valueOf(tvdbId));
+      }
+
       root.appendChild(element);
     }
   }
@@ -643,6 +662,25 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     for (Person director : movie.getDirectors()) {
       Element element = document.createElement("director");
       element.setTextContent(director.getName());
+
+      // TMDB id
+      int tmdbId = director.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbId > 0) {
+        element.setAttribute("tmdbid", String.valueOf(tmdbId));
+      }
+
+      // IMDB id
+      String imdbId = director.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbId)) {
+        element.setAttribute("imdbid", String.valueOf(imdbId));
+      }
+
+      // TVDB id
+      int tvdbId = director.getIdAsInt(MediaMetadata.TVDB);
+      if (tvdbId > 0) {
+        element.setAttribute("tvdbid", String.valueOf(tvdbId));
+      }
+
       root.appendChild(element);
     }
   }

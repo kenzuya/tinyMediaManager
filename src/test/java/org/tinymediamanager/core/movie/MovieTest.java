@@ -19,9 +19,7 @@ import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -31,13 +29,8 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  * 
  */
-public class MovieTest extends BasicTest {
+public class MovieTest extends BasicMovieTest {
   private Movie m = new Movie();
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void testNamingDetection() {

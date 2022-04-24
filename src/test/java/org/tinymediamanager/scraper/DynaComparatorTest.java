@@ -18,11 +18,6 @@ public class DynaComparatorTest extends BasicTest {
   private static List<Person> p = new ArrayList<>();
 
   @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
-
-  @BeforeClass
   public static void init() throws ParseException {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
     p.add(new Person("Myron", 1, 2.0f, true, df.parse("2013-05-17")));

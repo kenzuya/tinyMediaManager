@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -129,6 +130,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
+    skipFolders = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getSkipFolder());
+  }
+
+  /**
+   * Instantiates a new scrape task - to update a single datasource
+   *
+   * @param datasources
+   *          the data sources to start the task for
+   */
+  public TvShowUpdateDatasourceTask(Collection<String> datasources) {
+    super(TmmResourceBundle.getString("update.datasource"));
+    tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+    dataSources = new ArrayList<>(datasources);
     skipFolders = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
@@ -617,6 +631,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // STEP 1 - get (or create) TvShow object
       // ******************************
       TvShow tvShow = tvShowList.getTvShowByPath(showDir);
+
+      if (tvShow != null && tvShow.isLocked()) {
+        LOGGER.info("TV show '{}' found in uds, but is locked", tvShow.getPath());
+        return "";
+      }
 
       // SHOW_NFO or SEASON_BANNER
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate

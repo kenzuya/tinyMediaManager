@@ -31,7 +31,6 @@ import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
  * The class MediaEntityActorImageFetcherTask.
@@ -74,7 +73,8 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
                   found = true;
 
                   // trick it to get rid of wrong extensions
-                  if (!FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase(UrlUtil.getExtension(actor.getThumbUrl()))) {
+                  if (!FilenameUtils.getExtension(path.getFileName().toString())
+                      .equalsIgnoreCase(Utils.getArtworkExtensionFromUrl(actor.getThumbUrl()))) {
                     found = false;
                   }
                   break;

@@ -129,7 +129,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
         String dat = formatter.format(new Date());
         document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
-        root = document.createElement("movie");
+        root = document.createElement("collection");
         document.appendChild(root);
 
         // add well known tags

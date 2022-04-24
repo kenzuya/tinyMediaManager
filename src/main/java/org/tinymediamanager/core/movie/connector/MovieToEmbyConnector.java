@@ -15,10 +15,7 @@
  */
 package org.tinymediamanager.core.movie.connector;
 
-import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
@@ -48,30 +45,5 @@ public class MovieToEmbyConnector extends MovieToKodiConnector {
     lockdata.setTextContent("true");
 
     root.appendChild(lockdata);
-  }
-
-  /**
-   * add directors in <director>xxx</director> tags (mulitple)
-   */
-  @Override
-  protected void addDirectors() {
-    for (Person director : movie.getDirectors()) {
-      Element element = document.createElement("director");
-
-      // imdb id
-      String imdbId = director.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", imdbId);
-      }
-
-      // tmdb id
-      int tmdbid = director.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
-        element.setAttribute("tmdbid", String.valueOf(tmdbid));
-      }
-
-      element.setTextContent(director.getName());
-      root.appendChild(element);
-    }
   }
 }

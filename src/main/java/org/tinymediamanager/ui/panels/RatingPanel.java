@@ -157,7 +157,7 @@ public class RatingPanel extends JPanel {
           break;
 
         case "tomatometerallcritics":
-          logo = new JLabel(IconManager.RATING_ROTTEN_TOMATOES);
+          logo = new JLabel(IconManager.RATING_TOMATOMETER);
           text = new JLabel(String.format("%.0f%%", rating.getRating()));
           break;
 

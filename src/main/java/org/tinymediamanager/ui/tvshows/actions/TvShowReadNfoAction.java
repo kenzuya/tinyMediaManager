@@ -18,8 +18,6 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -28,7 +26,6 @@ import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -38,8 +35,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowReadNfoAction extends TmmAction {
-  private static final long           serialVersionUID = -6575156436788397648L;
-
+  private static final long serialVersionUID = -6575156436788397648L;
 
   public TvShowReadNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.readnfo"));
@@ -51,52 +47,52 @@ public class TvShowReadNfoAction extends TmmAction {
     final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
-      @Override
-      protected void doInBackground() {
-        int i = 0;
-        for (TvShow tvShow : selectedTvShows) {
-          TvShow tempTvShow = null;
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
+          @Override
+          protected void doInBackground() {
+            int i = 0;
+            for (TvShow tvShow : selectedTvShows) {
+              TvShow tempTvShow = null;
 
-          // process all registered NFOs
-          for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.NFO)) {
-            // at the first NFO we get a movie object
-            if (tempTvShow == null) {
-              try {
-                tempTvShow = TvShowNfoParser.parseNfo(mf.getFileAsPath()).toTvShow();
+              // process all registered NFOs
+              for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.NFO)) {
+                // at the first NFO we get a movie object
+                if (tempTvShow == null) {
+                  try {
+                    tempTvShow = TvShowNfoParser.parseNfo(mf.getFileAsPath()).toTvShow();
+                  }
+                  catch (Exception ignored) {
+                  }
+                  continue;
+                }
+
+                // every other NFO gets merged into that temp. movie object
+                if (tempTvShow != null) {
+                  try {
+                    tempTvShow.merge(TvShowNfoParser.parseNfo(mf.getFileAsPath()).toTvShow());
+                  }
+                  catch (Exception ignored) {
+                  }
+                }
               }
-              catch (Exception ignored) {
+
+              // did we get movie data from our NFOs
+              if (tempTvShow != null) {
+                // force merge it to the actual movie object
+                tvShow.forceMerge(tempTvShow);
+                tvShow.saveToDb();
               }
-              continue;
+              publishState(++i);
+              if (cancel) {
+                break;
+              }
             }
-
-            // every other NFO gets merged into that temp. movie object
-            if (tempTvShow != null) {
-              try {
-                tempTvShow.merge(TvShowNfoParser.parseNfo(mf.getFileAsPath()).toTvShow());
-              }
-              catch (Exception ignored) {
-              }
-            }
           }
-
-          // did we get movie data from our NFOs
-          if (tempTvShow != null) {
-            // force merge it to the actual movie object
-            tvShow.forceMerge(tempTvShow);
-            tvShow.saveToDb();
-          }
-          publishState(++i);
-          if (cancel) {
-            break;
-          }
-        }
-      }
-    });
+        });
   }
 }

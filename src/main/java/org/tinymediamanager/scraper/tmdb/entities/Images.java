@@ -8,5 +8,6 @@ public class Images {
   public List<Image> backdrops;
   public List<Image> posters;
   public List<Image> stills;
+  public List<Image> logos;
 
 }

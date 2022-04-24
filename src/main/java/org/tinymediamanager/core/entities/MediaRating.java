@@ -142,6 +142,11 @@ public class MediaRating {
   }
 
   @Override
+  public String toString() {
+    return String.format("%s - %.2f/%d", id, rating, maxValue);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

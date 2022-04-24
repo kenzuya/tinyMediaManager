@@ -1,21 +1,13 @@
 package org.tinymediamanager.core.movie;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.movie.entities.Movie;
 
-public class MovieRenamerTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
+public class MovieRenamerTest extends BasicMovieTest {
 
   @Test
   public void special() {
@@ -29,13 +21,14 @@ public class MovieRenamerTest extends BasicTest {
   }
 
   @Test
-  public void testRename() {
+  public void testRename() throws Exception {
     // MediaInfoUtils.loadMediaInfo(); // no MI on buildserver
+    copyResourceFolderToWorkFolder("samples");
 
     Movie m = new Movie();
     m.setTitle("The Dish");
     m.setYear(2000);
-    MediaFile mf = new MediaFile(Paths.get("target/test-classes/samples", "thx_scarface-DWEU.vob"));
+    MediaFile mf = new MediaFile(getWorkFolder().resolve("samples").resolve("thx_scarface-DWEU.vob"));
 
     // mf.gatherMediaInformation();
     mf.setVideoCodec("MPEG");

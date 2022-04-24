@@ -37,6 +37,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -156,7 +157,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.COLLECTION));
       }
       else {
@@ -281,7 +282,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmWatchedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.WATCHED));
       }
       else {
@@ -329,11 +330,11 @@ class TraktTvMovie {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedMovie>> traktRatingResponse = api.sync().ratingsMovies(RatingsFilter.ALL, null).execute();
+      Response<List<RatedMovie>> traktRatingResponse = api.sync().ratingsMovies(RatingsFilter.ALL, null, null, null).execute();
       if (!traktRatingResponse.isSuccessful() && traktRatingResponse.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        traktRatingResponse = api.sync().ratingsMovies(null, null).execute();
+        traktRatingResponse = api.sync().ratingsMovies(null, null, null, null).execute();
       }
       if (!traktRatingResponse.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktRatingResponse.code(), traktRatingResponse.message());
@@ -416,7 +417,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmRatedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.RATING));
       }
       else {
@@ -629,7 +630,7 @@ class TraktTvMovie {
     SyncMovie movie = null;
 
     MovieIds ids = new MovieIds();
-    if (MetadataUtil.isValidImdbId(tmmMovie.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmMovie.getImdbId())) {
       ids.imdb = tmmMovie.getImdbId();
       hasId = true;
     }

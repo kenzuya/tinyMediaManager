@@ -17,15 +17,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -37,8 +32,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowChangeToAiredOrderAction extends TmmAction {
-  private static final long           serialVersionUID = 7866485217093335182L;
-
+  private static final long serialVersionUID = 7866485217093335182L;
 
   public TvShowChangeToAiredOrderAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.changefromdvdorder"));
@@ -49,28 +43,9 @@ public class TvShowChangeToAiredOrderAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
-
-    for (Object obj : selectedObjects) {
-      // display tv show editor
-      if (obj instanceof TvShow) {
-        TvShow tvShow = (TvShow) obj;
-        selectedEpisodes.addAll(tvShow.getEpisodes());
-      }
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        selectedEpisodes.addAll(season.getEpisodes());
-      }
-      // display tv episode editor
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-        selectedEpisodes.add(tvShowEpisode);
-      }
-    }
+    List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

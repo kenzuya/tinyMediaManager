@@ -59,6 +59,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -768,11 +769,11 @@ public class MovieNfoParser {
 
     // id tag & check against imdb pattern (otherwise we cannot say for which provider this id is)
     Element element = getSingleElement(root, "id");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
     element = getSingleElement(root, "imdb");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
 
@@ -1058,6 +1059,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           credits.add(person);
         }
       }
@@ -1093,6 +1107,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           directors.add(person);
         }
       }
@@ -1149,6 +1176,10 @@ public class MovieNfoParser {
 
           case "tmdbid":
             actor.tmdbId = child.ownText();
+            break;
+
+          case "tvdbid":
+            actor.tvdbId = child.ownText();
             break;
 
           case "imdbid":
@@ -1801,6 +1832,11 @@ public class MovieNfoParser {
       person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
     }
 
+    int tvdbId = MetadataUtil.parseInt(nfoPerson.tvdbId, 0);
+    if (tvdbId > 0) {
+      person.setId(MediaMetadata.TVDB, tvdbId);
+    }
+
     return person;
   }
 
@@ -1826,6 +1862,7 @@ public class MovieNfoParser {
     String profile = "";
     String tmdbId  = "";
     String imdbId  = "";
+    String tvdbId  = "";
   }
 
   static class Fileinfo {

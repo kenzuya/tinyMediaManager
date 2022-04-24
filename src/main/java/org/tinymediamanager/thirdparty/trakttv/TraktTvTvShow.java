@@ -42,6 +42,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -298,11 +299,11 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+        response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
@@ -319,11 +320,11 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         traktTv.refreshAccessToken();
-        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
@@ -588,7 +589,7 @@ class TraktTvTvShow {
     boolean hasId = false;
 
     ShowIds ids = new ShowIds();
-    if (MetadataUtil.isValidImdbId(tmmShow.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmShow.getImdbId())) {
       ids.imdb = tmmShow.getImdbId();
       hasId = true;
     }
@@ -732,7 +733,7 @@ class TraktTvTvShow {
     boolean hasId = false;
 
     ShowIds ids = new ShowIds();
-    if (MetadataUtil.isValidImdbId(tmmShow.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmShow.getImdbId())) {
       ids.imdb = tmmShow.getImdbId();
       hasId = true;
     }

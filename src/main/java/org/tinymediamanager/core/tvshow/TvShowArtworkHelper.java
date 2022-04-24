@@ -38,7 +38,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +52,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -62,7 +60,6 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
-import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
@@ -70,7 +67,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowExtraImageFetcherTask;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
-import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 /**
@@ -1003,62 +999,5 @@ public class TvShowArtworkHelper {
     }
 
     return -1;
-  }
-
-  /**
-   * create a still/thumb of the given {@link TvShowEpisode} via FFmpeg
-   *
-   * @param episode
-   *          the episode to create a thumb for
-   */
-  public static void createThumbWithFfmpeg(TvShowEpisode episode) throws Exception {
-
-    if (episode.isDisc()) {
-      throw new UnsupportedOperationException("This cannot be done for disc images");
-    }
-
-    // extract the thumb to a temp folder
-    Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
-
-    MediaFile mf = episode.getMainVideoFile();
-
-    String fileType = "." + FilenameUtils.getExtension(mf.getFilename().toLowerCase(Locale.ROOT));
-    int seconds = (Settings.getInstance().getFfmpegPercentage() * mf.getDuration()) / 100;
-
-    if (!Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
-      throw new UnsupportedOperationException("invalid video file for FFmpeg");
-    }
-
-    FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
-
-    if (Files.exists(tempFile)) {
-      episode.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-
-      boolean first = true;
-      String basename = FilenameUtils.getBaseName(mf.getFilename());
-
-      // and copy it to all desired locations
-      for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames()) {
-        Path thumb = episode.getPathNIO().resolve(thumbNaming.getFilename(basename, "jpg"));
-
-        if (Files.exists(thumb)) {
-          Utils.deleteFileSafely(thumb);
-        }
-
-        Utils.copyFileSafe(tempFile, thumb);
-
-        if (first) {
-          episode.setArtwork(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-          episode.callbackForWrittenArtwork(MediaArtworkType.THUMB);
-          first = false;
-        }
-
-        MediaFile artwork = new MediaFile(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
-        artwork.gatherMediaInformation();
-        episode.addToMediaFiles(artwork);
-      }
-
-      episode.saveToDb();
-    }
   }
 }

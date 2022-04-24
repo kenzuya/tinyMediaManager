@@ -91,6 +91,9 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
@@ -534,7 +537,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblGuests = new TmmLabel(TmmResourceBundle.getString("metatag.guests"));
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
-        tableGuests = new PersonTable(guests, true);
+        tableGuests = new PersonTable(guests);
 
         JScrollPane scrollPane = new JScrollPane();
         tableGuests.configureScrollPane(scrollPane);
@@ -544,7 +547,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        tableDirectors = new PersonTable(directors, true);
+        tableDirectors = new PersonTable(directors);
 
         JScrollPane scrollPane = new JScrollPane();
         tableDirectors.configureScrollPane(scrollPane);
@@ -554,7 +557,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        tableWriters = new PersonTable(writers, true);
+        tableWriters = new PersonTable(writers);
 
         JScrollPane scrollPane = new JScrollPane();
         tableWriters.configureScrollPane(scrollPane);
@@ -946,6 +949,16 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LOGGER.info(options.toString());
         LOGGER.info("=====================================================");
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
+
+        // also fill other ratings if ratings are requested
+        for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
+          if (!metadata.getRatings().contains(rating)) {
+            metadata.addRating(rating);
+          }
+        }
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");

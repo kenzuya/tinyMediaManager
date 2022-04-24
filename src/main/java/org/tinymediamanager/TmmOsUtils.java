@@ -35,8 +35,6 @@ import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
-import com.sun.jna.Platform;
-
 /**
  * The class TmmOsUtils. Utility class for OS specific tasks
  * 
@@ -143,26 +141,7 @@ public class TmmOsUtils {
    * load shipped natives info from /native/*
    */
   public static void loadNativeLibs() {
-    // we do ship 64 bit libs only
-    if (!Platform.is64Bit()) {
-      return;
-    }
-
-    String nativepath = "native/";
-
-    // windows
-    if (SystemUtils.IS_OS_WINDOWS) {
-      nativepath += "windows";
-    }
-    // linux
-    else if (SystemUtils.IS_OS_LINUX) {
-      nativepath += "linux";
-    }
-    // osx
-    else if (SystemUtils.IS_OS_MAC) {
-      nativepath += "mac";
-    }
-
+    String nativepath = getNativeFolderName();
     Path tmmNativeDir = Paths.get(nativepath).toAbsolutePath();
 
     try {
@@ -194,5 +173,34 @@ public class TmmOsUtils {
         LOGGER.info("Using libmediainfo version '{}'", miv);
       }
     }
+  }
+
+  /**
+   * get the relative to the native folder for the current system
+   * 
+   * @return the relative path to the native folder
+   */
+  public static String getNativeFolderName() {
+    String nativepath = "native/";
+
+    // windows
+    if (SystemUtils.IS_OS_WINDOWS) {
+      nativepath += "windows";
+    }
+    // linux
+    else if (SystemUtils.IS_OS_LINUX) {
+      if (System.getProperty("os.arch").contains("arm")) {
+        nativepath += "arm";
+      }
+      else {
+        nativepath += "linux";
+      }
+    }
+    // osx
+    else if (SystemUtils.IS_OS_MAC) {
+      nativepath += "mac";
+    }
+
+    return nativepath;
   }
 }

@@ -16,7 +16,7 @@
 
 package org.tinymediamanager.core;
 
-import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -29,6 +29,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -51,14 +54,34 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
 public abstract class BasicTest {
-  private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lacus libero. Ut vel lacus erat. Maecenas maximus vestibulum ante at efficitur. Sed id ex eget purus commodo feugiat. Suspendisse ultricies felis sed interdum luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc et scelerisque nibh. Donec maximus nunc nunc, non commodo nulla rhoncus id. Curabitur pharetra maximus tellus non porta. Ut vehicula elit nec ante elementum, ut semper ligula consectetur.";
+  private static final String LOREM     = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lacus libero. Ut vel lacus erat. Maecenas maximus vestibulum ante at efficitur. Sed id ex eget purus commodo feugiat. Suspendisse ultricies felis sed interdum luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc et scelerisque nibh. Donec maximus nunc nunc, non commodo nulla rhoncus id. Curabitur pharetra maximus tellus non porta. Ut vehicula elit nec ante elementum, ut semper ligula consectetur.";
 
-  protected static void setup() {
-    deleteSettingsFolder(3);
-    Settings.getInstance(getSettingsFolder(3));
+  @Rule
+  public TemporaryFolder      tmpFolder = new TemporaryFolder();
+
+  private Path                settingsFolder;
+  private Path                workFolder;
+
+  @Before
+  public void setup() throws Exception {
+    settingsFolder = tmpFolder.newFolder("data").toPath();
+    workFolder = tmpFolder.newFolder("work").toPath();
+
+    settingsFolder.toFile().mkdir();
+    workFolder.toFile().mkdir();
+
+    TmmModuleManager.clearInstances();
+    Settings.getInstance(settingsFolder.toString());
+
+    try {
+      setLicenseKey();
+    }
+    catch (Exception e) {
+      System.out.println("COULD NOT SET LICENSE KEY");
+    }
   }
 
-  protected static void setLicenseKey() throws Exception {
+  private void setLicenseKey() throws Exception {
     String key = "";
     // take the env variable for the license key (offered in CI)
     if (StringUtils.isNotBlank(System.getenv("TMM_BUILD_LICENSE"))) {
@@ -79,8 +102,21 @@ public abstract class BasicTest {
     }
   }
 
+  protected Path getSettingsFolder() {
+    return settingsFolder;
+  }
+
+  protected Path getWorkFolder() {
+    return workFolder;
+  }
+
+  protected void copyResourceFolderToWorkFolder(String resourceFolderName) throws Exception {
+    Path src = Paths.get("src/test/resources/", resourceFolderName);
+    Utils.copyDirectoryRecursive(src, getWorkFolder().resolve(resourceFolderName));
+  }
+
   // own method to get some logging ;)
-  public static void assertEqual(Object expected, Object actual) {
+  protected void assertEqual(Object expected, Object actual) {
     try {
       Assert.assertEquals(expected, actual);
       // System.out.println(actual + " - passed");
@@ -91,7 +127,7 @@ public abstract class BasicTest {
     }
   }
 
-  public static void assertEqual(String message, Object expected, Object actual) {
+  protected void assertEqual(String message, Object expected, Object actual) {
     try {
       Assert.assertEquals(message, expected, actual);
       // System.out.println(expected + " - passed");
@@ -102,35 +138,12 @@ public abstract class BasicTest {
     }
   }
 
-  public static void setTraceLogging() {
+  protected void setTraceLogging() {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.getLogger("org.tinymediamanager").setLevel(Level.TRACE);
   }
 
-  protected static String getSettingsFolder() {
-    return getSettingsFolder(2);
-  }
-
-  private static String getSettingsFolder(int stackLocation) {
-    StackTraceElement ste = Thread.currentThread().getStackTrace()[stackLocation];
-    return "target/testdata/" + ste.getClassName();
-  }
-
-  protected static void deleteSettingsFolder() {
-    deleteSettingsFolder(2);
-  }
-
-  private static void deleteSettingsFolder(int stackLocation) {
-    StackTraceElement ste = Thread.currentThread().getStackTrace()[stackLocation];
-    try {
-      Utils.deleteDirectoryRecursive(Paths.get("target", "testdata", ste.getClassName()));
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public static Date getRandomDate() {
+  protected Date getRandomDate() {
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     cal.set(1950, 1, 1, 0, 0, 0);
     Date startInclusive = cal.getTime();
@@ -141,12 +154,14 @@ public abstract class BasicTest {
     return new Date(randomMillisSinceEpoch);
   }
 
-  public static void createFakeMovie(String title) {
+  protected void createFakeMovie(String title) {
     Movie movie = new Movie();
     movie.setDbId(getUUID(title)); // fixate
 
+    Path path = workFolder.resolve(title);
+
     movie.setTitle(title);
-    movie.setPath("/media/movies/" + title);
+    movie.setPath(path.toString());
     movie.setOriginalTitle("Original " + title);
     movie.setSortTitle(title);
     movie.setRating(new MediaRating(MediaRating.NFO, (float) ThreadLocalRandom.current().nextDouble(1.0d, 9.0d), 5987, 10));
@@ -176,6 +191,7 @@ public abstract class BasicTest {
     // MF video
     MediaFile mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
+    mf.setPath(path.toString());
     mf.setFilename(title + ".mkv");
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);
@@ -196,10 +212,10 @@ public abstract class BasicTest {
     movie.addToMediaFiles(mf);
 
     // MF poster
-    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"));
+    mf = new MediaFile(path.resolve("dummy-poster.jpg"));
     movie.addToMediaFiles(mf);
     // MF fanart
-    mf = new MediaFile(Paths.get("target/test-classes/dummy-fanart.jpg"));
+    mf = new MediaFile(path.resolve("dummy-fanart.jpg"));
     movie.addToMediaFiles(mf);
 
     movie.setWatched(true);
@@ -228,12 +244,14 @@ public abstract class BasicTest {
     System.out.println("Created movie " + movie.getDbId());
   }
 
-  public static void createFakeShow(String title) {
+  protected void createFakeShow(String title) {
     TvShow tvShow = new TvShow();
     tvShow.setDbId(getUUID(title)); // fixate
 
+    Path path = workFolder.resolve(title);
+
     tvShow.setTitle(title);
-    tvShow.setPath("/media/tvshows/" + title);
+    tvShow.setPath(path.toString());
     tvShow.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
     tvShow.setRating(new MediaRating(MediaRating.NFO, (float) ThreadLocalRandom.current().nextDouble(1.0d, 9.0d), 5987, 10));
     tvShow.setCertification(MediaCertification.US_TVPG);
@@ -246,12 +264,11 @@ public abstract class BasicTest {
     tvShow.setProductionCompany("FOX (US)");
     tvShow.setPlot(LOREM);
 
-    MediaFile mf = new MediaFile();
     // show MF poster
-    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"));
+    MediaFile mf = new MediaFile(path.resolve("dummy-poster.jpg"));
     tvShow.addToMediaFiles(mf);
     // show MF fanart
-    mf = new MediaFile(Paths.get("target/test-classes/dummy-fanart.jpg"));
+    mf = new MediaFile(path.resolve("dummy-fanart.jpg"));
     tvShow.addToMediaFiles(mf);
 
     // ========= EPISODE start =========
@@ -270,6 +287,7 @@ public abstract class BasicTest {
 
     mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
+    mf.setPath(path.toString());
     mf.setFilename(title + ".mkv");
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);
@@ -291,7 +309,7 @@ public abstract class BasicTest {
     episode.addToMediaFiles(mf);
 
     // EP MF poster
-    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"), MediaFileType.THUMB);
+    mf = new MediaFile(path.resolve("dummy-poster.jpg"), MediaFileType.THUMB);
     episode.addToMediaFiles(mf);
     episode.saveToDb();
 

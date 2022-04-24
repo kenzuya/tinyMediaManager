@@ -25,7 +25,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
+
+import jakarta.xml.bind.DatatypeConverter;
 
 public class AesUtil {
   public static final String  DEFAULT_VECTOR   = "727DEC2725991751BDFE3DBD0C6BF137";

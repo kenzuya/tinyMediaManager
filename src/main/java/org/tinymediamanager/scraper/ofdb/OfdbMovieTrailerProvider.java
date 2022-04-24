@@ -31,7 +31,7 @@ import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -57,7 +57,7 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
     }
 
     List<MediaTrailer> trailers = new ArrayList<>();
-    if (!MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (!MediaIdUtil.isValidImdbId(options.getImdbId())) {
       LOGGER.debug("IMDB id not found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }

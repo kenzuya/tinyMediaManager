@@ -338,7 +338,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   void merge(TvShow other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
 
@@ -885,6 +885,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("TV show locked, but setMetadata has been called!");
+      return;
+    }
+
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -2144,12 +2149,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public void saveToDb() {
     // update/insert this TV show to the database
     TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
-  }
-
-  @Override
-  public void deleteFromDb() {
-    // remove this TV show from the database
-    TvShowModuleManager.getInstance().getTvShowList().removeTvShow(this);
   }
 
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {

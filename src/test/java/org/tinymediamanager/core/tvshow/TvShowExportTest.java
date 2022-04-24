@@ -3,16 +3,15 @@ package org.tinymediamanager.core.tvshow;
 import java.nio.file.Paths;
 
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 
-public class TvShowExportTest extends BasicTest {
+public class TvShowExportTest extends BasicTvShowTest {
 
-  @BeforeClass
-  public static void init() throws Exception {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
 
     TmmModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
@@ -32,6 +31,6 @@ public class TvShowExportTest extends BasicTest {
     TvShowList list = TvShowModuleManager.getInstance().getTvShowList();
 
     TvShowExporter exporter = new TvShowExporter(Paths.get("templates", "TvShowDetailExampleXml"));
-    exporter.export(list.getTvShows(), Paths.get(getSettingsFolder(), "TvShowDetailExampleXml"));
+    exporter.export(list.getTvShows(), getWorkFolder().resolve("TvShowDetailExampleXml"));
   }
 }

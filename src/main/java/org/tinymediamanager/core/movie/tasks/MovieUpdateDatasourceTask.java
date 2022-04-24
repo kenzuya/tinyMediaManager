@@ -44,6 +44,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -91,6 +92,7 @@ import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -122,7 +124,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>        dataSources;
-  private final List<Pattern>       skipFolders;
+  private final List<Pattern>       skipFolders      = new ArrayList<>();
   private final List<Movie>         moviesToUpdate   = new ArrayList<>();
   private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
   private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
@@ -131,9 +133,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private final List<MediaFile>     imageFiles       = new ArrayList<>();
 
   public MovieUpdateDatasourceTask() {
+    this(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
+  }
+
+  public MovieUpdateDatasourceTask(Collection<String> datasources) {
     super(TmmResourceBundle.getString("update.datasource"));
-    dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
-    skipFolders = new ArrayList<>();
+    dataSources = new ArrayList<>(datasources);
 
     init();
   }
@@ -142,7 +147,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
-    skipFolders = new ArrayList<>();
 
     init();
   }
@@ -151,7 +155,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     moviesToUpdate.addAll(movies);
-    skipFolders = new ArrayList<>();
 
     init();
   }
@@ -201,7 +204,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
 
-      // fin movie set NFOs
+      // find movie set NFOs
       updateMovieSets();
 
       if (moviesToUpdate.isEmpty()) {
@@ -265,6 +268,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       List<Path> newMovieDirs = new ArrayList<>();
       List<Path> existingMovieDirs = new ArrayList<>();
       List<Path> rootList = listFilesAndDirs(dsAsPath);
+
+      LOGGER.debug("Found '{}' folders in the data source", rootList.size());
 
       // when there is _nothing_ found in the ds root, it might be offline - skip further processing
       // not in Windows since that won't happen there
@@ -369,8 +374,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           MovieSet movieSetInDb = matchMovieSetInDb(path, movieSet);
 
           if (movieSetInDb != null) {
-            // just add the media file if needed
-            movieSetInDb.addToMediaFiles(new MediaFile(path));
+            // just add the media file if needed - if it is not locked
+            if (!movieSetInDb.isLocked()) {
+              movieSetInDb.addToMediaFiles(new MediaFile(path));
+            }
           }
           else {
             // add this new one
@@ -428,7 +435,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     // get distinct data sources
     Set<String> movieDatasources = new HashSet<>();
-    moviesToUpdate.forEach(movie -> movieDatasources.add(movie.getDataSource()));
+    moviesToUpdate.stream().filter(movie -> !movie.isLocked()).forEach(movie -> movieDatasources.add(movie.getDataSource()));
 
     List<Movie> moviesToCleanup = new ArrayList<>();
 
@@ -550,8 +557,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private void parseMovieDirectory(Path movieDir, Path dataSource) {
     List<Path> movieDirList = listFilesAndDirs(movieDir);
-    ArrayList<Path> files = new ArrayList<>();
-    HashSet<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
+    List<Path> files = new ArrayList<>();
+    Set<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
 
     boolean isDiscFolder = false;
     boolean isMultiMovieDir = false;
@@ -731,6 +738,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     Movie movie = movieList.getMovieByPath(movieDir);
+    if (movie != null && movie.isLocked()) {
+      LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
+      return;
+    }
+
     Set<Path> allFiles = getAllFilesRecursive(movieDir);
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
@@ -1013,6 +1025,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // }
         // }
       }
+
+      if (movie != null && movie.isLocked()) {
+        LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
+        continue;
+      }
+
       if (movie == null) {
         // 2) create if not found
         movie = parseNFOs(sameName);
@@ -1053,7 +1071,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // try to parse the imdb id from the filename
-      if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+      if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
         movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
       }
       // try to parse the Tmdb id from the filename
@@ -1153,7 +1171,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         // try to parse the imdb id from the filename
-        if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+        if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
           movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
         }
         // try to parse the tmdb id from the filename
@@ -1842,7 +1860,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * check if the given folder is a skip folder
-   * 
+   *
    * @param dir
    *          the folder to check
    * @return true/false
@@ -1879,7 +1897,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
-   * 
+   *
    * @param dir
    *          the folder to check
    * @return true/false
