@@ -139,8 +139,8 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodeRatings", "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
 
-    config.addLabel("fallbackLabel", "scraperstouse");
-    config.addMultiSelect(FALLBACK_SCRAPERS, "scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
+    config.addLabel("fallbackLabel", "scraper.universal_tvshow.scraperstouse");
+    config.addMultiSelect(FALLBACK_SCRAPERS, "scraper.universal_tvshow.scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
 
     config.load();
   }

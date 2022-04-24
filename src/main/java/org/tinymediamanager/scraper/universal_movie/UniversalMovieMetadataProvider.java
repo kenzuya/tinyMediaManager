@@ -133,8 +133,8 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         compatibleScraperIds.contains(MediaMetadata.TMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.TMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
 
-    config.addLabel("fallbackLabel", "scraperstouse");
-    config.addMultiSelect(FALLBACK_SCRAPERS, "scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
+    config.addLabel("fallbackLabel", "scraper.universal_movie.scraperstouse");
+    config.addMultiSelect(FALLBACK_SCRAPERS, "scraper.universal_movie.scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
 
     config.load();
   }
