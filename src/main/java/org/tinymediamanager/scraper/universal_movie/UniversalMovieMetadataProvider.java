@@ -19,9 +19,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,10 +38,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.FeatureNotEnabledException;
-import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -51,6 +55,8 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 
+import com.google.gson.Gson;
+
 /**
  * This is a metadata provider which is highly configurable and combines the results of various other providers
  *
@@ -61,9 +67,9 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   private static final String                              UNDEFINED           = "-";
   private static final String                              SEARCH              = "search";
-  private static final String                              RATINGS             = "ratings";
+  private static final String                              FALLBACK_SCRAPERS   = "fallbackScrapers";
   private static final Logger                              LOGGER              = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
-  private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
+  private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new LinkedHashMap<>();
   private static final ExecutorService                     EXECUTOR            = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS,
       new LinkedBlockingQueue<>());
 
@@ -112,7 +118,6 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
-    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("top250", "metatag.top250",
         compatibleScraperIds.contains(MediaMetadata.IMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.IMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
@@ -127,6 +132,10 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.addSelect("collectionName", "metatag.movieset",
         compatibleScraperIds.contains(MediaMetadata.TMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.TMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
+
+    config.addLabel("fallbackLabel", "scraperstouse");
+    config.addMultiSelect(FALLBACK_SCRAPERS, "scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
+
     config.load();
   }
 
@@ -206,10 +215,24 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   private Set<IMovieMetadataProvider> getRelevantMetadataProviders() {
     Set<IMovieMetadataProvider> metadataProviders = new HashSet<>();
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
-      if (!UNDEFINED.equals(entry.getValue())) {
-        IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
-        if (mp != null && mp.isActive()) {
-          metadataProviders.add(mp);
+      List<String> values;
+
+      if (FALLBACK_SCRAPERS.equals(entry.getKey())) {
+        // values are in a list
+        values = Arrays.asList(new Gson().fromJson(entry.getValue(), String[].class));
+
+      }
+      else {
+        // plain value
+        values = Collections.singletonList(entry.getValue());
+      }
+
+      for (String value : values) {
+        if (!UNDEFINED.equals(value)) {
+          IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(value);
+          if (mp != null && mp.isActive()) {
+            metadataProviders.add(mp);
+          }
         }
       }
     }
@@ -324,38 +347,66 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     // assign the requested metadata
+    List<String> fallbackScrapers = Arrays.asList(new Gson().fromJson(providerInfo.getConfig().getValue(FALLBACK_SCRAPERS), String[].class));
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
-      if (!SEARCH.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
-        // all specified fields should be filled from the desired scraper
-        MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
-        if (mediaMetadata != null) {
-          try {
-            Method getter = new PropertyDescriptor(entry.getKey(), MediaMetadata.class).getReadMethod();
-            Method setter = new PropertyDescriptor(entry.getKey(), MediaMetadata.class).getWriteMethod();
+      if (!SEARCH.equals(entry.getKey()) && !FALLBACK_SCRAPERS.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
+        List<String> scrapers = new ArrayList<>(fallbackScrapers);
+        scrapers.remove(entry.getValue());
+        scrapers.add(0, entry.getValue());
+        assignValue(scrapers, md, metadataMap, entry.getKey());
+      }
+    }
+  }
 
-            setter.invoke(md, getter.invoke(mediaMetadata));
+  private void assignValue(List<String> scrapers, MediaMetadata md, Map<String, MediaMetadata> metadataMap, String field) {
+    // all specified fields should be filled from the desired scraper
+    for (String scraper : scrapers) {
+      MediaMetadata mediaMetadata = metadataMap.get(scraper);
+      if (mediaMetadata != null) {
+        try {
+          Method getter = new PropertyDescriptor(field, MediaMetadata.class).getReadMethod();
+          Method setter = new PropertyDescriptor(field, MediaMetadata.class).getWriteMethod();
+
+          Object value = getter.invoke(mediaMetadata);
+
+          if (isValueFilled(value)) {
+            setter.invoke(md, value);
+            return;
           }
-          catch (Exception e) {
-            LOGGER.warn("Problem assigning {} - {}", entry.getKey(), e.getMessage());
-          }
+
         }
-
-        // last but not least we take all ratings we got ;) the more the better
-        if (RATINGS.equals(entry.getKey())) {
-          for (Map.Entry<String, MediaMetadata> mediaMetadataEntry : metadataMap.entrySet()) {
-            // do not process the desired scraper again
-            if (mediaMetadataEntry.getKey().equals(entry.getValue())) {
-              continue;
-            }
-            for (MediaRating rating : mediaMetadataEntry.getValue().getRatings()) {
-              if (!md.getRatings().contains(rating)) {
-                md.addRating(rating);
-              }
-            }
-          }
+        catch (Exception e) {
+          LOGGER.warn("Problem assigning {} - {}", scraper, e.getMessage());
         }
       }
     }
+  }
+
+  private boolean isValueFilled(Object value) {
+    if (value == null) {
+      return false;
+    }
+
+    if (value instanceof String) {
+      return StringUtils.isNotBlank((String) value);
+    }
+    else if (value instanceof Integer) {
+      return (Integer) value != 0;
+    }
+    else if (value instanceof Float) {
+      return (Float) value != 0;
+    }
+    else if (value instanceof Collection) {
+      return !((Collection<?>) value).isEmpty();
+    }
+    else if (value instanceof Date) {
+      return true; // already checked with != null
+    }
+    else if (value instanceof MediaAiredStatus) {
+      return value != MediaAiredStatus.UNKNOWN;
+    }
+
+    return false;
   }
 
   /****************************************************************************

@@ -63,7 +63,7 @@ public class MediaMetadata {
   private final String                   providerId;
 
   // this map contains all set ids
-  private final HashMap<String, Object>  ids                  = new HashMap<>();
+  private final Map<String, Object>      ids                  = new HashMap<>();
 
   // multi value
   private final List<MediaRating>        ratings              = new ArrayList<>();

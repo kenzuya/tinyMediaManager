@@ -17,10 +17,11 @@ package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -83,8 +84,8 @@ import org.tinymediamanager.scraper.util.ListUtils;
  * @author Manuel Laggner
  */
 public class MediaProviders {
-  private static final Logger                                LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
-  private static final HashMap<String, List<IMediaProvider>> MEDIA_PROVIDERS = new HashMap<>();
+  private static final Logger                            LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
+  private static final Map<String, List<IMediaProvider>> MEDIA_PROVIDERS = new LinkedHashMap<>();
 
   private MediaProviders() {
     // private constructor for utility classes
@@ -115,14 +116,14 @@ public class MediaProviders {
     // MOVIE
     /////////////////////////////////////////////
     loadProvider(TmdbMovieMetadataProvider.class);
-    loadProvider(OmdbMovieMetadataProvider.class);
-    loadProvider(TheTvDbMovieMetadataProvider.class);
     loadProvider(ImdbMovieMetadataProvider.class);
-    loadProvider(KodiMetadataProvider.class);
-    loadProvider(MovieMeterMovieMetadataProvider.class);
-    loadProvider(OfdbMovieMetadataProvider.class);
+    loadProvider(OmdbMovieMetadataProvider.class);
     loadProvider(TraktMovieMetadataProvider.class);
+    loadProvider(MovieMeterMovieMetadataProvider.class);
+    loadProvider(TheTvDbMovieMetadataProvider.class);
+    loadProvider(OfdbMovieMetadataProvider.class);
     loadProvider(MpdbMovieMetadataProvider.class);
+    loadProvider(KodiMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieMetadataProvider.class);
@@ -186,6 +187,14 @@ public class MediaProviders {
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
 
     // register all compatible scrapers in the universal scraper
+    // FIX: to put tvdb in the front
+    List<IMediaProvider> tvdb = MEDIA_PROVIDERS.get(MediaMetadata.TVDB);
+    for (IMediaProvider mediaProvider : ListUtils.nullSafe(tvdb)) {
+      if (mediaProvider instanceof ITvShowMetadataProvider) {
+        UniversalTvShowMetadataProvider.addProvider((ITvShowMetadataProvider) mediaProvider);
+      }
+    }
+
     MEDIA_PROVIDERS.forEach((key, value) -> {
       for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
         if (mediaProvider instanceof ITvShowMetadataProvider) {
