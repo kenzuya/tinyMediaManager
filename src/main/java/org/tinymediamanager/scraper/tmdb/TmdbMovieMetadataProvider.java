@@ -907,15 +907,12 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         Person cm = new Person();
         if ("Director".equals(crewMember.job)) {
           cm.setType(DIRECTOR);
-          cm.setRole(crewMember.department);
         }
         else if ("Writing".equals(crewMember.department)) {
           cm.setType(WRITER);
-          cm.setRole(crewMember.department);
         }
         else if ("Production".equals(crewMember.department)) {
           cm.setType(PRODUCER);
-          cm.setRole(crewMember.job);
         }
         else {
           continue;

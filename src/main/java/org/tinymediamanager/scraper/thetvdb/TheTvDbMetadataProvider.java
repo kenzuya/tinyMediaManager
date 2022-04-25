@@ -226,6 +226,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         case 3:
         case 4:
           member = new Person(ACTOR);
+          member.setRole(character.name);
           break;
 
         case 7:
@@ -238,7 +239,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
       member.setId(getId(), character.peopleId);
       member.setName(character.personName);
-      member.setRole(character.name);
+
       if (StringUtils.isNotBlank(character.image)) {
         member.setThumbUrl(character.image);
       }
