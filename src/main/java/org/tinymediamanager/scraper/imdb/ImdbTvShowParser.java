@@ -142,26 +142,27 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // get reference data (/reference)
-    String url = apiKey + "title/" + imdbId + "/reference";
-    Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = executor.submit(worker);
 
     // worker for imdb request (/plotsummary)
     Future<Document> futurePlotsummary;
-    url = apiKey + "title/" + imdbId + "/plotsummary";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futurePlotsummary = executor.submit(worker);
 
     // worker for imdb request (/releaseinfo)
-    // Future<Document> futureReleaseinfo;
-    // url = apiKey + "title/" + imdbId + "/releaseinfo";
-    // worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Future<Document> futureReleaseinfo;
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
+    futureReleaseinfo = executor.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = apiKey + "title/" + imdbId + "/keywords";
-      worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
       futureKeywords = executor.submit(worker);
     }
 
@@ -177,14 +178,11 @@ public class ImdbTvShowParser extends ImdbParser {
         parsePlotsummaryPage(doc, options, md);
       }
 
-      // did we get a release date?
-      if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
+      // get the release info page
+      Document releaseinfoDoc = futureReleaseinfo.get();
+      if (releaseinfoDoc != null) {
         // get the date from the releaseinfo page
-        Document releaseinfoDoc = executor.submit(worker).get();
-        // parse original title here!!
-        if (releaseinfoDoc != null) {
-          parseReleaseinfoPage(releaseinfoDoc, options, md);
-        }
+        parseReleaseinfoPage(releaseinfoDoc, options, md);
       }
 
       if (futureKeywords != null) {
