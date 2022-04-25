@@ -1255,7 +1255,7 @@ public class TvShowNfoParser {
             actor.tmdbId = child.ownText();
             break;
 
-          case "tvdbId":
+          case "tvdbid":
             actor.tvdbId = child.ownText();
             break;
 

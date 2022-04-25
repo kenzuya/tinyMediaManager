@@ -1044,9 +1044,30 @@ public class MovieNfoParser {
     // if there is exactly one credits tag, split the credits at the comma
     if (elements.size() == 1) {
       try {
-        for (String credit : ParserUtils.split(elements.get(0).ownText())) {
+        Element element = elements.get(0);
+
+        // split on , or / and remove whitespace around
+        List<String> creditsNames = ParserUtils.split(element.ownText());
+
+        for (String credit : creditsNames) {
           Person person = new Person();
           person.name = credit;
+
+          // parse IDs, only if exactly one director is in the tag
+          if (creditsNames.size() == 1) {
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+          }
+
           credits.add(person);
         }
       }
@@ -1092,9 +1113,30 @@ public class MovieNfoParser {
     // if there is exactly one director tag, split the directors at the comma
     if (elements.size() == 1) {
       try {
-        for (String director : ParserUtils.split(elements.get(0).ownText())) {
+        Element element = elements.get(0);
+
+        // split on , or / and remove whitespace around
+        List<String> directorNames = ParserUtils.split(element.ownText());
+
+        for (String director : directorNames) {
           Person person = new Person();
           person.name = director;
+
+          // parse IDs, only if exactly one director is in the tag
+          if (directorNames.size() == 1) {
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+          }
+
           directors.add(person);
         }
       }

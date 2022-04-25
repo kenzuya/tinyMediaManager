@@ -571,7 +571,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         Element episodeguide = document.createElement("episodeguide");
 
         // parse content of episodeguide into own elements
-        Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes("UTF-8")));
+        Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes(StandardCharsets.UTF_8)));
         episodeguide.appendChild(document.importNode(unsupported.getFirstChild(), true));
 
         // and append it
@@ -892,9 +892,9 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the user note in <user_note>xxx</user_note>
    */
   protected void addUserNote() {
-    Element user_note = document.createElement("user_note");
-    user_note.setTextContent(tvShow.getNote());
-    root.appendChild(user_note);
+    Element userNote = document.createElement("user_note");
+    userNote.setTextContent(tvShow.getNote());
+    root.appendChild(userNote);
   }
 
   /**

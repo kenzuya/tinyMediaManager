@@ -19,6 +19,7 @@ package org.tinymediamanager.core.movie.connector;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -642,7 +643,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       // IMDB id
       String imdbId = writer.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(imdbId));
+        element.setAttribute("imdbid", imdbId);
       }
 
       // TVDB id
@@ -672,7 +673,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       // IMDB id
       String imdbId = director.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(imdbId));
+        element.setAttribute("imdbid", imdbId);
       }
 
       // TVDB id
@@ -835,7 +836,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
       for (String unsupportedString : parser.unsupportedElements) {
         try {
-          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes("UTF-8")));
+          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes(StandardCharsets.UTF_8)));
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
@@ -860,9 +861,9 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    * add the user note in <user_note>xxx</user_note>
    */
   protected void addUserNote() {
-    Element user_note = document.createElement("user_note");
-    user_note.setTextContent(movie.getNote());
-    root.appendChild(user_note);
+    Element userNote = document.createElement("user_note");
+    userNote.setTextContent(movie.getNote());
+    root.appendChild(userNote);
   }
 
   /**

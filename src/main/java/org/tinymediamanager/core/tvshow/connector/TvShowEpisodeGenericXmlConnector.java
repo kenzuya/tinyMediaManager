@@ -594,7 +594,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       // IMDB id
       String imdbId = writer.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(imdbId));
+        element.setAttribute("imdbid", imdbId);
       }
 
       // TVDB id
@@ -624,7 +624,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       // IMDB id
       String imdbId = director.getIdAsString(MediaMetadata.IMDB);
       if (StringUtils.isNotBlank(imdbId)) {
-        element.setAttribute("imdbid", String.valueOf(imdbId));
+        element.setAttribute("imdbid", imdbId);
       }
 
       // TVDB id
@@ -735,9 +735,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    * add the user note in <user_note>xxx</user_note>
    */
   protected void addUserNote(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    Element user_note = document.createElement("user_note");
-    user_note.setTextContent(episode.getNote());
-    root.appendChild(user_note);
+    Element userNote = document.createElement("user_note");
+    userNote.setTextContent(episode.getNote());
+    root.appendChild(userNote);
   }
 
   /**

@@ -55,6 +55,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -1013,11 +1014,30 @@ public class TvShowEpisodeNfoParser {
       // if there is exactly one credits tag, split the credits at the comma
       if (elements.size() == 1) {
         try {
-          // split on , or / and remove whitespace around)
-          String[] creditsNames = elements.get(0).ownText().split("\\s*[,\\/]\\s*");
+          Element element = elements.get(0);
+
+          // split on , or / and remove whitespace around
+          List<String> creditsNames = ParserUtils.split(element.ownText());
+
           for (String credit : creditsNames) {
             Person person = new Person();
             person.name = credit;
+
+            // parse IDs, only if exactly one director is in the tag
+            if (creditsNames.size() == 1) {
+              if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+                person.tmdbId = element.attr("tmdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+                person.imdbId = element.attr("imdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+                person.tvdbId = element.attr("tvdbid");
+              }
+            }
+
             credits.add(person);
           }
         }
@@ -1063,11 +1083,30 @@ public class TvShowEpisodeNfoParser {
       // if there is exactly one director tag, split the directors at the comma
       if (elements.size() == 1) {
         try {
-          // split on , or / and remove whitespace around)
-          String[] directorNames = elements.get(0).ownText().split("\\s*[,\\/]\\s*");
+          Element element = elements.get(0);
+
+          // split on , or / and remove whitespace around
+          List<String> directorNames = ParserUtils.split(element.ownText());
+
           for (String director : directorNames) {
             Person person = new Person();
             person.name = director;
+
+            // parse IDs, only if exactly one director is in the tag
+            if (directorNames.size() == 1) {
+              if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+                person.tmdbId = element.attr("tmdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+                person.imdbId = element.attr("imdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+                person.tvdbId = element.attr("tvdbid");
+              }
+            }
+
             directors.add(person);
           }
         }
