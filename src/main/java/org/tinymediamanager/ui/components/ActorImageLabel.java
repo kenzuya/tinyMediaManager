@@ -65,7 +65,7 @@ public class ActorImageLabel extends ImageLabel {
         return;
       }
       else if (StringUtils.isNotBlank(imageUrl)) {
-        worker = new ImageFetcher(this.getSize());
+        worker = new ImageFetcher(imageUrl, this.getSize());
         worker.execute();
         return;
       }
