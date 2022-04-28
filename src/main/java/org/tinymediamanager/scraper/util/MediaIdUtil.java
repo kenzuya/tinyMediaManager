@@ -151,6 +151,9 @@ public class MediaIdUtil {
    *          the {@link MediaType}
    */
   public static void injectMissingIds(Map<String, Object> ids, MediaType mediaType) {
+    if (mediaType == null) {
+      return;
+    }
     switch (mediaType) {
       case MOVIE:
         injectMovieIds(ids);
@@ -162,6 +165,9 @@ public class MediaIdUtil {
 
       case TV_EPISODE:
         injectEpisodeIds(ids);
+        break;
+
+      default:
         break;
     }
   }
