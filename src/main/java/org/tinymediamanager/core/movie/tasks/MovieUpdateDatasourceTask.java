@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -106,31 +106,32 @@ import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
  * @author Myron Boyle
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger       LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
+  private static final Logger          LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
 
-  private static long               preDir           = 0;
-  private static long               postDir          = 0;
-  private static long               visFile          = 0;
-  private static long               preDirAll        = 0;
-  private static long               postDirAll       = 0;
-  private static long               visFileAll       = 0;
+  private static long                  preDir           = 0;
+  private static long                  postDir          = 0;
+  private static long                  visFile          = 0;
+  private static long                  preDirAll        = 0;
+  private static long                  postDirAll       = 0;
+  private static long                  visFileAll       = 0;
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String> SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+  private static final List<String>    SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
       "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
-  private static final String       SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
-  private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
+  private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
+  private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
-  private final List<String>        dataSources;
-  private final List<Pattern>       skipFolders      = new ArrayList<>();
-  private final List<Movie>         moviesToUpdate   = new ArrayList<>();
-  private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
-  private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
-  private final List<Runnable>      miTasks          = Collections.synchronizedList(new ArrayList<>());
-  private final List<Path>          existingMovies   = new ArrayList<>();
-  private final List<MediaFile>     imageFiles       = new ArrayList<>();
+  private final List<String>           dataSources;
+  private final List<Pattern>          skipFolders      = new ArrayList<>();
+  private final List<Movie>            moviesToUpdate   = new ArrayList<>();
+  private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
+  private final Set<Path>              filesFound       = new HashSet<>();
+  private final ReentrantReadWriteLock fileLock         = new ReentrantReadWriteLock();
+  private final List<Runnable>         miTasks          = Collections.synchronizedList(new ArrayList<>());
+  private final List<Path>             existingMovies   = new ArrayList<>();
+  private final List<MediaFile>        imageFiles       = new ArrayList<>();
 
   public MovieUpdateDatasourceTask() {
     this(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
@@ -744,8 +745,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     Set<Path> allFiles = getAllFilesRecursive(movieDir);
+    fileLock.writeLock().lock();
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
+    fileLock.writeLock().unlock();
 
     // convert to MFs (we need it anyways at the end)
     List<MediaFile> mfs = new ArrayList<>();
@@ -971,8 +974,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 
+    fileLock.writeLock().lock();
     filesFound.add(movieDir); // our global cache
     filesFound.addAll(allFiles); // our global cache
+    fileLock.writeLock().unlock();
 
     // convert to MFs
     ArrayList<MediaFile> mfs = new ArrayList<>();
@@ -1352,7 +1357,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       Path movieDir = movie.getPathNIO();
-      if (!filesFound.contains(movieDir)) {
+      fileLock.readLock().lock();
+      boolean dirFound = filesFound.contains(movieDir);
+      fileLock.readLock().unlock();
+
+      if (!dirFound) {
         // dir is not in hashset - check with exists to be sure it is not here
         if (!Files.exists(movieDir)) {
           LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
@@ -1360,7 +1369,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
         else {
           // can be; MMD and/or dir=DS root
-          LOGGER.warn("dir {} not in hashset, but on hdd!", movieDir);
+          LOGGER.debug("dir {} not in hashset, but on hdd!", movieDir);
         }
       }
 
@@ -1370,7 +1379,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // check and delete all not found MediaFiles
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
-          if (!filesFound.contains(mf.getFileAsPath())) {
+          fileLock.readLock().lock();
+          boolean fileFound = filesFound.contains(mf.getFileAsPath());
+          fileLock.readLock().unlock();
+
+          if (!fileFound) {
             LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
             movie.removeFromMediaFiles(mf);
             dirty = true;
@@ -1408,7 +1421,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
-      if (!filesFound.contains(movieDir)) {
+      fileLock.readLock().lock();
+      boolean fileFound = filesFound.contains(movieDir);
+      fileLock.readLock().unlock();
+
+      if (!fileFound) {
         // dir is not in hashset - check with exists to be sure it is not here
         if (!Files.exists(movieDir)) {
           LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
@@ -1426,7 +1443,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // check and delete all not found MediaFiles
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
-          if (!filesFound.contains(mf.getFileAsPath())) {
+          fileLock.readLock().lock();
+          fileFound = filesFound.contains(mf.getFileAsPath());
+          fileLock.readLock().unlock();
+
+          if (!fileFound) {
             LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
             movie.removeFromMediaFiles(mf);
             // invalidate the image cache
