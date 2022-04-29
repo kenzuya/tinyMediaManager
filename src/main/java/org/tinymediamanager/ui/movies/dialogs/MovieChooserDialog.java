@@ -206,7 +206,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
-          MediaFile mf = movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0);
+          MediaFile mf = movieToScrape.getMainVideoFile();
           try {
             TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
           }
