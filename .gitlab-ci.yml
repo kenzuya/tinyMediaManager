@@ -11,14 +11,8 @@ cache:
     - .m2/repository/
 
 stages:
-  - compile
   - test
   - deploy
-
-compile:
-  stage: compile
-  script:
-    - mvn $MAVEN_CLI_OPTS -U clean compile  # re-fetch snapshots every time
 
 test:jdk8:
   stage: test
@@ -27,6 +21,8 @@ test:jdk8:
     - master@tinyMediaManager/tinyMediaManager
   only:
     - pushes
+  tags:
+    - tmm # run on our runner
   script:
     # install libmediainfo for unit tests
     - apt-get update && apt-get install -y --no-install-recommends libmms0 libglib2.0-0
@@ -43,6 +39,8 @@ test:jdk11:
     - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
+  tags:
+    - tmm # run on our runner
   script:
     - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
   artifacts:
@@ -55,6 +53,8 @@ test:jdk14:
     - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
+  tags:
+    - tmm # run on our runner
   script:
     - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
   artifacts:
@@ -67,6 +67,8 @@ test:jdk15:
     - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
+  tags:
+    - tmm # run on our runner
   script:
     - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
   artifacts:
@@ -104,9 +106,14 @@ deploy:nightly:
   only:
     variables:
       - $NIGHTLY_BUILD == "true"
+  tags:
+    - tmm # run on our runner
   except:
     - pushes                                          # do not run packaging on push-builds
   script:
+    # just run on changes from the last 24 hrs
+    - if [ "$NIGHTLY_BUILD_FORCE" = "false" ] && [ $(git rev-list --after="24 hours" --count "$CI_COMMIT_SHA") -eq 0 ]; then exit 0; fi
+
     # update package sources and install ant, 32 bit libs, git and lftp
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 git lftp curl
     # generate changelog.txt for nightly builds
