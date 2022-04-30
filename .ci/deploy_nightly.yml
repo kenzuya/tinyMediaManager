@@ -10,7 +10,7 @@ build:
     url: https://nightly.tinymediamanager.org
   allow_failure: false
   tags:
-    - docker # force running on gitlab  
+    - tmm # force running on own runners
   script:
     # generate changelog.txt for nightly builds
     - sh generate_changelog.sh
