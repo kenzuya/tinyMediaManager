@@ -1147,9 +1147,9 @@ public class Utils {
       String language = matcher.group(1);
       String country = matcher.group(2);
 
-      if (country != null) {
+      if (StringUtils.isNotBlank(country)) {
         // found language & country
-        myloc = new Locale(language, country);
+        myloc = getLocaleFromLanguage(language + "_" + country);
       }
       else {
         // found only language
@@ -1181,8 +1181,11 @@ public class Utils {
         // Whoopsie. try to fix string....
         if (language.matches("^\\w\\w_\\w\\w.*")) {
           // okay, maybe some special locale - try to detect all exceptions
-          if ("zh_HANT".equals(language)) {
-            return new Locale("zh", "HANT");
+          if ("zh_Hant".equalsIgnoreCase(language)) {
+            return Locale.TRADITIONAL_CHINESE;
+          }
+          else if ("zh_Hans".equalsIgnoreCase(language)) {
+            return Locale.SIMPLIFIED_CHINESE;
           }
           return LocaleUtils.toLocale(language.substring(0, 5));
         }
