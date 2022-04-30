@@ -13,7 +13,7 @@ build:
     - tmm # force running on own runners
   script:
     # just run on changes from the last 24 hrs
-    - if [ "$NIGHTLY_BUILD_FORCE" = "false" ] && [ $(git rev-list --after="24 hours" --count "$CI_COMMIT_SHA") -eq 0 ]; then exit 0 fi
+    - if [ "$NIGHTLY_BUILD_FORCE" = "false" ] && [ $(git rev-list --after="24 hours" --count "$CI_COMMIT_SHA") -eq 0 ]; then exit 0; fi
 
     # generate changelog.txt for nightly builds
     - sh generate_changelog.sh
