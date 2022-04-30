@@ -1014,7 +1014,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
-      writeActorImages();
     }
 
     if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
@@ -2194,11 +2193,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      return;
-    }
-
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }

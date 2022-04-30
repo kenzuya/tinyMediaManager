@@ -77,6 +77,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -788,7 +789,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (ScraperMetadataConfig.containsAnyCast(config)) {
       if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
         setActors(metadata.getCastMembers(Person.Type.ACTOR));
-        writeActorImages();
       }
 
       if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
@@ -1757,11 +1757,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      return;
-    }
-
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
@@ -1914,6 +1909,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       if (!imageFiles.isEmpty()) {
         taskChain.add(new ImageCacheTask(imageFiles));
       }
+    }
+
+    // write actor images after possible rename (to have a good folder structure)
+    if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
+      taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        @Override
+        protected void doInBackground() {
+          writeActorImages();
+        }
+      });
     }
 
     taskChain.run();
