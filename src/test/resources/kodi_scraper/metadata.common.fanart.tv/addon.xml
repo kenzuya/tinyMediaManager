@@ -22,7 +22,9 @@
         <summary lang="pt">Biblioteca de fundos fanart.tv</summary>
         <summary lang="ru">Обработчик Фоновых изображений с fanart.tv</summary>
         <summary lang="se">Skrapa för fanart.tv</summary>
-        <summary lang="zh">fanart.tv刮削器代码库</summary>
+        <summary lang="zh">fanart.tv 擷取器資料庫</summary>
+        <summary lang="zh_CN">fanart.tv刮削器代码库</summary>
+        <summary lang="zh_TW">fanart.tv 擷取器資料庫</summary>
         <description lang="bg">Сваля декорации от www.fanart.tv.com</description>
         <description lang="en">Download backdrops from www.fanart.tv.com</description>
         <description lang="de">Downloade Hintergründe von www.fanart.tv.com</description>
@@ -35,6 +37,8 @@
         <description lang="pt">Descarregar fundos de www.fanart.tv.com</description>
         <description lang="ru">Загружать фоновые изображения с www.fanart.tv.com</description>
         <description lang="se">Ladda ner bakgrundsbilder från www.fanart.tv.com</description>
-        <description lang="zh">从www.fanart.tv.com下载背景图</description>
+        <description lang="zh">從 www.fanart.tv.com 下載背景圖</description>
+        <description lang="zh_CN">从www.fanart.tv.com下载背景图</description>
+        <description lang="zh_TW">從 www.fanart.tv.com 下載背景圖</description>
     </extension>
 </addon>
