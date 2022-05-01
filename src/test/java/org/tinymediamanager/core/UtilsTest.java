@@ -6,7 +6,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
@@ -322,5 +326,33 @@ public class UtilsTest extends BasicTest {
     assertEqual("Test ", Utils.replacePlaceholders("Test {}", new String[] {}));
     assertEqual("Test one two three", Utils.replacePlaceholders("Test {} {} {}", new String[] { "one", "two", "three" }));
     assertEqual("Test with empty spaces", Utils.replacePlaceholders("Test {} with {}{}empty spaces", new String[] {}));
+  }
+
+  @Test
+  public void testRemoveCaseInsensitiveDuplicates() {
+    Set<String> set = new HashSet<>();
+
+    set.add("text");
+    set.add("Text");
+    set.add("TEXT");
+    set.add("another text");
+    set.add("Another Text");
+
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(set);
+    assertThat(set.size()).isEqualTo(2);
+
+    List<String> list = new ArrayList<>();
+    list.add("text");
+    list.add("Text");
+    list.add("Text");
+    list.add("Text");
+    list.add("TEXT");
+    list.add("TEXT");
+    list.add("another text");
+    list.add("Another Text");
+    list.add("Another Text");
+
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(list);
+    assertThat(list.size()).isEqualTo(2);
   }
 }
