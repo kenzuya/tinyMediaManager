@@ -51,7 +51,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 //TODO: Consolidate the common code of two Anidb metadata providers
-//TODO: Finish adding Javadoc
 //TODO: Add more unit tests?
 public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
 
@@ -80,7 +79,7 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
 
     private MediaProviderInfo createMediaProviderInfo() {
         MediaProviderInfo info = new MediaProviderInfo(ID,
-                                                       "tvshow",
+                                                       "movie",
                                                        "aniDB",
                                                        "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. " +
                                                                "AniDB is a non-profit anime database that is open " +
@@ -159,13 +158,13 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
                               .stream()
                               .flatMap(entry -> entry.getValue().stream())
                               .map(movie -> new MediaSearchResult.Builder(MediaType.MOVIE).providerId(providerInfo.getId())
-                                                                                          .id(String.valueOf(movie.aniDbId))
-                                                                                          .title(movie.title)
-                                                                                          .score(Similarity.compareStrings(
-                                                                                                  movie.title,
-                                                                                                  finalSearchString
-                                                                                          ))
-                                                                                          .build()
+                                      .id(String.valueOf(movie.aniDbId))
+                                      .title(movie.title)
+                                      .score(Similarity.compareStrings(
+                                              movie.title,
+                                              finalSearchString
+                                      ))
+                                      .build()
 
                               )
                               .collect(Collectors.toCollection(TreeSet::new));
@@ -246,7 +245,8 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
         return md;
     }
 
-    /**
+    /** Example of XML returned from Animdb call:
+     *
      * <pre>{@code
      * <anime id="777" restricted="false">
      *     <episodecount>1</episodecount>
@@ -262,12 +262,13 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
      * </anime>
      * }</pre>
      *
+     * NOTE: TMM does not use all of the data provided in the XML
+     *
      * @param md
      * @param language
      *         Language of desired Title and Language to set on Artwork. This must match the {@code xml:lang} attribute
      *         exactly.
-     * @param anime
-     *         XML Element for {@code <characters></characters>} as shown in example above.
+     * @param anime XML Element for {@code <anime></anime>} as shown in example above.
      */
     private void fillAnimeMetadata(MediaMetadata md, String language, Element anime) {
         for (Element e : anime.children()) {
@@ -298,7 +299,7 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
         }
     }
 
-    /**
+    /** Example of XML returned from Animdb call:
      * <pre>{@code <startdate>1989-07-15</startdate>}</pre>
      *
      * @param md
@@ -308,6 +309,7 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
     private void fillDateMetadata(MediaMetadata md, Element startDate) {
         try {
             Date date = StrgUtils.parseDate(startDate.text());
+            if (date == null) return;
             md.setReleaseDate(date);
 
             Calendar calendar = Calendar.getInstance();
@@ -318,12 +320,20 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
         }
     }
 
-    private void fillArtworkMetadata(MediaMetadata md, String language, Element e) {
+    /** Example of XML returned from Animdb call:
+     *
+     * {@code <picture>83834.jpg</picture>}
+     *
+     * @param md
+     * @param language Language to set on Artwork.
+     * @param picture XML Element for {@code <picture></picture>} as shown in example above.
+     */
+    private void fillArtworkMetadata(MediaMetadata md, String language, Element picture) {
         // Poster
         MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
-        ma.setPreviewUrl(IMAGE_SERVER + e.text());
-        ma.setDefaultUrl(IMAGE_SERVER + e.text());
-        ma.setOriginalUrl(IMAGE_SERVER + e.text());
+        ma.setPreviewUrl(IMAGE_SERVER + picture.text());
+        ma.setDefaultUrl(IMAGE_SERVER + picture.text());
+        ma.setOriginalUrl(IMAGE_SERVER + picture.text());
         ma.setLanguage(language);
         md.addMediaArt(ma);
     }
@@ -357,11 +367,12 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
      * <p>
      * NOTE: Animdb's name field maps to TMM's role field while Anidb's seiyuu text maps to TMM's name. This is b/c
      * seiyuu means voice actor in Japanese.
+     * NOTE: TMM does not use all of the data provided in these tags
      * </p>
      *
      * @param md
      * @param characters
-     *         XML Element for <pre>&lt;characters&gt;&lt;/characters&gt;</pre> as shown in example above.
+     *         XML Element for {@code <characters></characters>} as shown in example above.
      */
     private void fillActorsMetadata(MediaMetadata md, Element characters) {
         for (Element character : characters.children()) {
@@ -383,7 +394,7 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
         }
     }
 
-    /**
+    /** Example of XML returned from Animdb call:
      * <pre>{@code
      *     <ratings>
      *         <permanent count="1558">7.40</permanent>
@@ -416,6 +427,8 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     /**
+     * Example of XML returned from Animdb call:
+     *
      * <pre>{@code
      *     <tags>
      *         <tag id="308" parentid="2611" infobox="true" weight="400" localspoiler="false" globalspoiler="false" verified="true" update="2017-12-17">
@@ -433,9 +446,10 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
      *     <tags>
      * }</pre>
      *
+     *  NOTE: TMM does not use all of the data provided in these tags
+     *
      * @param md
-     * @param tags
-     *         XML Element for {@code <tags></tags>}> as shown in example above.
+     * @param tags XML Element for {@code <tags></tags>}> as shown in example above.
      */
     private void fillTagsMetadata(MediaMetadata md, Element tags) {
         Integer maxTags = providerInfo.getConfig().getValueAsInteger("numberOfTags");
@@ -458,7 +472,8 @@ public class AnidbMovieMetadataProvider implements IMovieMetadataProvider {
         }
     }
 
-    /**
+    /** Example of XML returned from Animdb call:
+     *
      * <pre>{@code
      *     <titles>
      *         <title xml:lang="x-jat" type="main">Kidou Keisatsu Patlabor</title>
