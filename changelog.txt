@@ -15,6 +15,7 @@ Version 4.3
 + (TMDB) enabled logo scraping
 + added writing of TMDB/IMDB/TVDB ids for writers and directors in the NFO files #1731
 + added an option to disable the trash bin (.deletedByTMM) #1727
++ added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm

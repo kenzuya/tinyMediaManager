@@ -147,6 +147,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   buildImageCacheOnImport                = true;
   MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
   CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
+  boolean                                   nfoDiscFolderInside                    = true;
   boolean                                   writeCleanNfo                          = false;
   DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
   MediaLanguages                            nfoLanguage                            = MediaLanguages.en;
@@ -1574,6 +1575,16 @@ public final class MovieSettings extends AbstractSettings {
     scraperMetadataConfig.clear();
     scraperMetadataConfig.addAll(newValues);
     firePropertyChange("scraperMetadataConfig", null, scraperMetadataConfig);
+  }
+
+  public boolean isNfoDiscFolderInside() {
+    return nfoDiscFolderInside;
+  }
+
+  public void setNfoDiscFolderInside(boolean newValue) {
+    boolean oldValue = this.nfoDiscFolderInside;
+    this.nfoDiscFolderInside = newValue;
+    firePropertyChange("nfoDiscFolderInside", oldValue, newValue);
   }
 
   public boolean isWriteCleanNfo() {

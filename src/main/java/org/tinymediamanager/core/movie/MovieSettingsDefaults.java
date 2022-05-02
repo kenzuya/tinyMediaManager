@@ -169,6 +169,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -248,6 +249,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -327,6 +329,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -406,6 +409,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -484,6 +488,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -562,6 +567,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -640,6 +646,7 @@ public class MovieSettingsDefaults {
     movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
     movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
+    movieSettings.setNfoDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }

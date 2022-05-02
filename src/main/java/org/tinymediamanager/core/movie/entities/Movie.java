@@ -1150,7 +1150,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * all XBMC supported NFO names. (without path!)
    * 
    * @param nfo
-   *          the nfo filenaming
+   *          the nfo file naming
    * @param newMovieFilename
    *          the new/desired movie filename (stacking marker should already be set correct here!)
    * @return the nfo filename
@@ -1162,7 +1162,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
       case FILENAME_NFO:
         if (isDisc()) {
           // in case of disc, this is the name of the "main" disc identifier file!
-          filename = FilenameUtils.removeExtension(findDiscMainFile());
+          if (MovieModuleManager.getInstance().getSettings().isNfoDiscFolderInside()) {
+            filename = FilenameUtils.removeExtension(findDiscMainFile());
+          }
+          else {
+            filename = "movie.nfo";
+          }
         }
         else {
           filename = FilenameUtils.removeExtension(newMovieFilename);
