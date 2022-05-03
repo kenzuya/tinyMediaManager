@@ -292,7 +292,7 @@ public class MediaFileHelper {
       return parseImageType(pathToFile);
     }
 
-    if (basename.matches("(?i).*[_.-]+theme\\d*$") || basename.matches("(?i)theme\\d*")) {
+    if (basename.matches("(?i).*[_.-]+(theme|soundtrack)\\d*$") || basename.matches("(?i)(theme|soundtrack)\\d*")) {
       return MediaFileType.THEME;
     }
 

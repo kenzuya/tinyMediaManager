@@ -51,6 +51,13 @@ public class MediaFileTest extends BasicTest {
 
     // VIDEO
     checkMediaFileType("This.is.Trailer.park.Boys.mkv", MediaFileType.VIDEO);
+
+    // THEME
+    checkMediaFileType("This.is.Trailer.park.Boys.theme.mp3", MediaFileType.THEME);
+    checkMediaFileType("This.is.Trailer.park.Boys.SoundTrack.wav", MediaFileType.THEME);
+    checkMediaFileType("SoundTrack.ogg", MediaFileType.THEME);
+    checkMediaFileType("theme.aac", MediaFileType.THEME);
+
   }
 
   private void checkMediaFileType(String filename, MediaFileType trailer) {
