@@ -1028,10 +1028,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
       } // end for all video MFs loop
 
-      if (showDir.toString().endsWith("Bad")) {
-        System.out.println("sdf");
-      }
-
       // ******************************
       // STEP 3 - now we have a working show/episode object
       // remove all used episode MFs, rest must be show MFs ;)
