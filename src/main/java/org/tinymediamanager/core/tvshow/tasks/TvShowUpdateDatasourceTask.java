@@ -743,7 +743,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         else {
           // normal episode file - get all same named files (in same directory!)
           String basename = Utils.cleanStackingMarkers(FilenameUtils.getBaseName(mf.getFilename()));
-          LOGGER.trace("UDS: basename - {}", showDir.relativize(mf.getFileAsPath().getParent()) + "/" + basename);
+          basename = showDir.relativize(mf.getFileAsPath().getParent()) + "/" + basename;
+          LOGGER.trace("UDS: basename - {}", basename);
           for (MediaFile em : mfs) {
             String emBasename = FilenameUtils.getBaseName(em.getFilename());
             emBasename = showDir.relativize(em.getFileAsPath().getParent()) + "/" + emBasename;
@@ -1026,6 +1027,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       } // end for all video MFs loop
+
+      if (showDir.toString().endsWith("Bad")) {
+        System.out.println("sdf");
+      }
 
       // ******************************
       // STEP 3 - now we have a working show/episode object
