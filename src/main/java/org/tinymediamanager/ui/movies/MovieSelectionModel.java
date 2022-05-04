@@ -235,8 +235,8 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-      Object[] params = { TmmResourceBundle.getString("tvshow.lockedfound.desc"), checkBox };
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.lockedfound"),
+      Object[] params = { TmmResourceBundle.getString("movie.lockedfound.desc"), checkBox };
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.lockedfound"),
           JOptionPane.INFORMATION_MESSAGE);
 
       // the user don't want to show this dialog again
