@@ -1203,9 +1203,6 @@ public class Utils {
           if ("zh_Hant".equalsIgnoreCase(language)) {
             return Locale.TRADITIONAL_CHINESE;
           }
-          else if ("zh_Hans".equalsIgnoreCase(language)) {
-            return Locale.SIMPLIFIED_CHINESE;
-          }
           return LocaleUtils.toLocale(language.substring(0, 5));
         }
       }
@@ -1222,10 +1219,6 @@ public class Utils {
         // map to main countries; de->de_DE (and not de_CH)
         l = locale;
       }
-    }
-    if (l == null && !countries.isEmpty()) {
-      // well, take the first one
-      l = countries.get(0);
     }
 
     if (l == null) {
