@@ -19,18 +19,14 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 public class DebugDumpMovieSetAction extends TmmAction {
-  private static final long           serialVersionUID = -8473181347332963044L;
-  
+  private static final long serialVersionUID = -8473181347332963044L;
 
   public DebugDumpMovieSetAction() {
     putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
@@ -42,7 +38,6 @@ public class DebugDumpMovieSetAction extends TmmAction {
     List<MovieSet> selectedMovieSets = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets());
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

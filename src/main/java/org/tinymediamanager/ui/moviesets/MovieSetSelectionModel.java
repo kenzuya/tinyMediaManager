@@ -113,16 +113,34 @@ public class MovieSetSelectionModel extends AbstractModelObject {
   }
 
   /**
-   * get all selected movies. selected movie sets will NOT return all their movies
-   * 
-   * @return list of all selected movies
+   * Gets the selected movies (without locked ones).
+   *
+   * @return the selected movies
    */
   public List<Movie> getSelectedMovies() {
+    return getSelectedMovies(false);
+  }
+
+  /**
+   * Gets the selected movies.
+   *
+   * @param withLocked
+   *          also get locked movies
+   * @return the selected movies
+   */
+  public List<Movie> getSelectedMovies(boolean withLocked) {
     List<Movie> selectedMovies = new ArrayList<>();
 
     for (Object obj : getSelectedObjects()) {
       if (obj instanceof Movie) {
-        selectedMovies.add((Movie) obj);
+        Movie movie = (Movie) obj;
+        if (withLocked) {
+          selectedMovies.add(movie);
+        }
+        else if (!movie.isLocked()) {
+          // just unlocked
+          selectedMovies.add(movie);
+        }
       }
     }
 
