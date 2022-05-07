@@ -57,7 +57,7 @@ public class MovieToEmbyConnector extends MovieToKodiConnector {
     root.appendChild(set);
 
     // mix in old sets
-    if (parser.sets.size() > 0) {
+    if (!parser.sets.isEmpty()) {
       for (MovieNfoParser.Set parserSet : parser.sets) {
         // check if we just added the same set as in the existing NFO
         if (movieSet != null
