@@ -17,22 +17,16 @@
 package org.tinymediamanager.core.movie.connector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -43,6 +37,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.movie.BasicMovieTest;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -51,111 +46,78 @@ import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class MovieToNfoConnectorTest extends BasicTest {
+public class MovieToNfoConnectorTest extends BasicMovieTest {
 
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
     MovieModuleManager.getInstance().startUp();
   }
 
   @Test
-  public void testXbmcNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "xbmc_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "xbmc_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testXbmcNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("xbmc_nfo"));
 
-    try {
-      Movie movie = createMovie("xbmc_nfo");
+    Movie movie = createMovie("xbmc_nfo");
 
-      // write it
-      List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.MOVIE_NFO);
-      MovieToXbmcConnector connector = new MovieToXbmcConnector(movie);
-      connector.write(nfoNames);
+    // write it
+    List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.MOVIE_NFO);
+    MovieToXbmcConnector connector = new MovieToXbmcConnector(movie);
+    connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "xbmc_nfo/movie.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
+    Path nfoFile = getWorkFolder().resolve("xbmc_nfo").resolve("movie.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      // unmarshal it
-      MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
-      Movie newMovie = movieNfoParser.toMovie();
-      compareMovies(movie, newMovie);
-    }
-    catch (Exception e) {
-      fail(e.getMessage());
-    }
+    // unmarshal it
+    MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
+    Movie newMovie = movieNfoParser.toMovie();
+    compareMovies(movie, newMovie);
   }
 
   @Test
-  public void testKodiNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "kodi_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "kodi_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testKodiNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("kodi_nfo"));
 
-    try {
-      Movie movie = createMovie("kodi_nfo");
+    Movie movie = createMovie("kodi_nfo");
 
-      // also add a second rating
-      movie.setRating(new MediaRating(MediaMetadata.TMDB, 7.7f, 56987));
+    // also add a second rating
+    movie.setRating(new MediaRating(MediaMetadata.TMDB, 7.7f, 56987));
 
-      // write it
-      List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.MOVIE_NFO);
-      MovieToKodiConnector connector = new MovieToKodiConnector(movie);
-      connector.write(nfoNames);
+    // write it
+    List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.MOVIE_NFO);
+    MovieToKodiConnector connector = new MovieToKodiConnector(movie);
+    connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "kodi_nfo/movie.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
+    Path nfoFile = getWorkFolder().resolve("kodi_nfo").resolve("movie.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      // unmarshal it
-      MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
-      Movie newMovie = movieNfoParser.toMovie();
-      compareMovies(movie, newMovie);
-    }
-    catch (Exception e) {
-      fail(e.getMessage());
-    }
+    // unmarshal it
+    MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
+    Movie newMovie = movieNfoParser.toMovie();
+    compareMovies(movie, newMovie);
   }
 
   @Test
-  public void testMediaPortalNfo() {
-    FileUtils.deleteQuietly(new File(getSettingsFolder(), "mp_nfo"));
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "mp_nfo"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  public void testMediaPortalNfo() throws Exception {
+    Files.createDirectories(getWorkFolder().resolve("mp_nfo"));
 
-    try {
-      Movie movie = createMovie("mp_nfo");
+    Movie movie = createMovie("mp_nfo");
 
-      // MP is not supporting top250 - strip it out
-      movie.setTop250(0);
+    // MP is not supporting top250 - strip it out
+    movie.setTop250(0);
 
-      // write it
-      List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.FILENAME_NFO);
-      MovieToMpLegacyConnector connector = new MovieToMpLegacyConnector(movie);
-      connector.write(nfoNames);
+    // write it
+    List<MovieNfoNaming> nfoNames = Collections.singletonList(MovieNfoNaming.FILENAME_NFO);
+    MovieToMpLegacyConnector connector = new MovieToMpLegacyConnector(movie);
+    connector.write(nfoNames);
 
-      Path nfoFile = Paths.get(getSettingsFolder(), "mp_nfo/Aladdin.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
+    Path nfoFile = getWorkFolder().resolve("mp_nfo").resolve("Aladdin.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      // unmarshal it
-      MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
-      Movie newMovie = movieNfoParser.toMovie();
-      compareMovies(movie, newMovie);
-    }
-    catch (Exception e) {
-      fail(e.getMessage());
-    }
+    // unmarshal it
+    MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfoFile);
+    Movie newMovie = movieNfoParser.toMovie();
+    compareMovies(movie, newMovie);
   }
 
   private void compareMovies(Movie movie, Movie newMovie) {
@@ -203,7 +165,7 @@ public class MovieToNfoConnectorTest extends BasicTest {
 
   private Movie createMovie(String path) throws Exception {
     Movie movie = new Movie();
-    movie.setPath(Paths.get(getSettingsFolder(), path).toString());
+    movie.setPath(getWorkFolder().resolve(path).toString());
     movie.setTitle("Aladdin");
     movie.setOriginalTitle("Disneys Aladdin");
     movie.setSortTitle("Aladdin");
@@ -245,6 +207,7 @@ public class MovieToNfoConnectorTest extends BasicTest {
     // ToDo fileinfo
     MediaFile mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
+    mf.setPath(getWorkFolder().resolve(path).toString());
     mf.setFilename("Aladdin.mkv");
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);
@@ -290,8 +253,9 @@ public class MovieToNfoConnectorTest extends BasicTest {
   }
 
   @Test
-  public void parseNFO() throws Exception {
-    Path dir = Paths.get("target/test-classes/testmovies/MovieSets/");
+  public void parseMovieSetNFO() throws Exception {
+    copyResourceFolderToWorkFolder("testmovies/MovieSets/");
+    Path dir = getWorkFolder().resolve("testmovies").resolve("MovieSets");
 
     System.out.println("is valid? " + MovieConnectors.isValidNFO(dir.resolve("MSold.nfo")));
     MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(dir.resolve("MSold.nfo"));

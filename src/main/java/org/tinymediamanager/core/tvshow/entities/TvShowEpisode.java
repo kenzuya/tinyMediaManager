@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +77,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -204,7 +206,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   void merge(TvShowEpisode other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
     super.merge(other, force);
@@ -234,6 +236,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  /**
+   * checks whether the parent {@link TvShow} is locked
+   *
+   * @return true/false
+   */
+  @Override
+  public boolean isLocked() {
+    return getTvShow() == null || getTvShow().isLocked();
   }
 
   /**
@@ -653,6 +665,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    *          the new metadata
    */
   public void setMetadata(MediaMetadata metadata, List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("episode locked, but setMetadata has been called!");
+      return;
+    }
+
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -772,7 +789,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (ScraperMetadataConfig.containsAnyCast(config)) {
       if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
         setActors(metadata.getCastMembers(Person.Type.ACTOR));
-        writeActorImages();
       }
 
       if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
@@ -1144,17 +1160,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * 
    * @return the images to cache
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
-    // get files to cache
-    List<MediaFile> filesToCache = new ArrayList<>();
-
-    for (MediaFile mf : new ArrayList<>(getMediaFiles())) {
-      if (mf.isGraphic()) {
-        filesToCache.add(mf);
-      }
-    }
-
-    return filesToCache;
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
   }
 
   @Override
@@ -1313,12 +1321,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public void saveToDb() {
     // update/insert this episode to the database
     TvShowModuleManager.getInstance().getTvShowList().persistEpisode(this);
-  }
-
-  @Override
-  public void deleteFromDb() {
-    // delete this episode from the database
-    TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(this);
   }
 
   /**
@@ -1755,11 +1757,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      return;
-    }
-
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
@@ -1912,6 +1909,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       if (!imageFiles.isEmpty()) {
         taskChain.add(new ImageCacheTask(imageFiles));
       }
+    }
+
+    // write actor images after possible rename (to have a good folder structure)
+    if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
+      taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        @Override
+        protected void doInBackground() {
+          writeActorImages();
+        }
+      });
     }
 
     taskChain.run();

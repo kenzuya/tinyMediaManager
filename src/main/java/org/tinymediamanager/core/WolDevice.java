@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.core;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * The class WolDevice - to reprensent a Wake On LAN device

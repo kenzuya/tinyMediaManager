@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,12 +31,10 @@ import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
@@ -46,8 +44,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -56,7 +54,6 @@ import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.LauncherExtraConfig;
-import org.tinymediamanager.addon.AddonManager;
 import org.tinymediamanager.addon.FFmpegAddon;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
@@ -69,9 +66,6 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.dialogs.SettingsDialog;
-
-import com.sun.jna.Platform;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -107,6 +101,9 @@ class SystemSettingsPanel extends JPanel {
   private JRadioButton         rdbtnFFmpegExternal;
   private JLabel               lblFfmpegVersion;
   private JButton              btnDownloadFfmpeg;
+  private JTextField           tfHttpPort;
+  private JTextField           tfHttpApiKey;
+  private JCheckBox            chkbxEnableHttpServer;
 
   /**
    * Instantiates a new general settings panel.
@@ -123,7 +120,7 @@ class SystemSettingsPanel extends JPanel {
     btnSearchMediaPlayer.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseplayer.path");
       Path file = TmmUIHelper.selectApplication(TmmResourceBundle.getString("Button.chooseplayer"), path);
-      if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
+      if (file != null && (Utils.isRegularFile(file) || SystemUtils.IS_OS_MAC)) {
         tfMediaPlayer.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseplayer.path", file.getParent().toString());
       }
@@ -132,7 +129,7 @@ class SystemSettingsPanel extends JPanel {
     btnSearchFFMpegBinary.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseffmpeg.path");
       Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("Button.chooseffmpeglocation"), path, null);
-      if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
+      if (file != null && (Utils.isRegularFile(file) || SystemUtils.IS_OS_MAC)) {
         tfMediaFramework.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseffmpeg.path", file.getParent().toString());
       }
@@ -147,37 +144,16 @@ class SystemSettingsPanel extends JPanel {
     }
 
     if (fFmpegAddon.isAvailable()) {
-      lblFfmpegVersion.setText(TmmResourceBundle.getString("Settings.mediaframework.internal.found") + " " + fFmpegAddon.getVersion());
-      btnDownloadFfmpeg.setVisible(false);
       rdbtnFfmpegInternal.setEnabled(true);
     }
     else {
       rdbtnFFmpegExternal.setSelected(true);
       rdbtnFfmpegInternal.setEnabled(false);
-      lblFfmpegVersion.setText(TmmResourceBundle.getString("Settings.mediaframework.internal.notfound"));
     }
-
-    btnDownloadFfmpeg.addActionListener(l -> SwingUtilities.invokeLater(() -> {
-      setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-      try {
-
-        AddonManager.downloadLatestVersionForAddon(fFmpegAddon);
-        lblFfmpegVersion.setText(TmmResourceBundle.getString("Settings.mediaframework.internal.found") + " " + fFmpegAddon.getVersion());
-        rdbtnFfmpegInternal.setEnabled(true);
-        btnDownloadFfmpeg.setVisible(false);
-      }
-      catch (Exception e) {
-        LOGGER.error("could not download FFmpeg addon - '{}'", e.getMessage());
-        JOptionPane.showMessageDialog(SettingsDialog.getInstance(),
-            TmmResourceBundle.getString("Settings.mediaframework.downloaderror") + " - " + e.getLocalizedMessage(),
-            TmmResourceBundle.getString("Settings.mediaframework.downloaderror"), JOptionPane.ERROR_MESSAGE);
-      }
-      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }));
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelMediaPlayer = new JPanel();
       panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
@@ -201,7 +177,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMediaFramework = new JPanel();
-      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][400lp,grow][]", "[][][10lp!][][][]"));
+      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][400lp,grow][]", "[][][][]"));
       JLabel lblMediaFrameworkT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaframework"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaFramework, lblMediaFrameworkT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
@@ -210,30 +186,21 @@ class SystemSettingsPanel extends JPanel {
         rdbtnFfmpegInternal = new JRadioButton(TmmResourceBundle.getString("Settings.mediaframework.internal"));
         buttonGroupFfmpeg.add(rdbtnFfmpegInternal);
         panelMediaFramework.add(rdbtnFfmpegInternal, "cell 1 0 2 1");
-
-        lblFfmpegVersion = new JLabel("");
-        panelMediaFramework.add(lblFfmpegVersion, "flowx,cell 2 1");
-
-        Component horizontalStrut = Box.createHorizontalStrut(20);
-        panelMediaFramework.add(horizontalStrut, "cell 2 1");
-
-        btnDownloadFfmpeg = new JButton(TmmResourceBundle.getString("Settings.mediaframework.download"));
-        panelMediaFramework.add(btnDownloadFfmpeg, "cell 2 1");
       }
       {
         rdbtnFFmpegExternal = new JRadioButton(TmmResourceBundle.getString("Settings.mediaframework.external"));
         buttonGroupFfmpeg.add(rdbtnFFmpegExternal);
-        panelMediaFramework.add(rdbtnFFmpegExternal, "cell 1 3 2 1");
+        panelMediaFramework.add(rdbtnFFmpegExternal, "cell 1 1 2 1");
 
         tfMediaFramework = new JTextField();
-        panelMediaFramework.add(tfMediaFramework, "cell 2 4");
+        panelMediaFramework.add(tfMediaFramework, "cell 2 2");
         tfMediaFramework.setColumns(35);
 
         btnSearchFFMpegBinary = new JButton(TmmResourceBundle.getString("Button.chooseffmpeglocation"));
-        panelMediaFramework.add(btnSearchFFMpegBinary, "cell 2 4");
+        panelMediaFramework.add(btnSearchFFMpegBinary, "cell 2 2");
 
         JTextArea tpFFMpegLocation = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.mediaframework.hint"));
-        panelMediaFramework.add(tpFFMpegLocation, "cell 2 5,growx");
+        panelMediaFramework.add(tpFFMpegLocation, "cell 2 3,growx");
         TmmFontHelper.changeFont(tpFFMpegLocation, L2);
       }
     }
@@ -322,12 +289,49 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][grow]", "[][][][grow]")); // 16lp ~ width of the
+
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.api"), H3);
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+
+      chkbxEnableHttpServer = new JCheckBox(TmmResourceBundle.getString("Settings.api.enable"));
+      panelMisc.add(chkbxEnableHttpServer, "cell 1 0 2 1");
+
+      JLabel lblHttpPortT = new JLabel(TmmResourceBundle.getString("Settings.api.port"));
+      panelMisc.add(lblHttpPortT, "cell 1 1,alignx trailing");
+
+      tfHttpPort = new JTextField();
+      panelMisc.add(tfHttpPort, "cell 2 1");
+      tfHttpPort.setColumns(10);
+      tfHttpPort.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+          char c = e.getKeyChar();
+          if (((c < '0') || (c > '9')) && (c != KeyEvent.VK_BACK_SPACE)) {
+            e.consume(); // if it's not a number, ignore the event
+          }
+        }
+      });
+
+      JLabel lblHttpApiKey = new JLabel(TmmResourceBundle.getString("Settings.api.key"));
+      panelMisc.add(lblHttpApiKey, "cell 1 2,alignx trailing");
+
+      tfHttpApiKey = new JTextField();
+      panelMisc.add(tfHttpApiKey, "cell 2 2");
+      tfHttpApiKey.setColumns(30);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#api-settings"));
+
+      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+    }
+    {
+      JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][grow]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-1"));
-      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+
+      add(collapsiblePanel, "cell 0 10,growx,wmin 0");
       {
         JLabel lblParallelDownloadCountT = new JLabel(TmmResourceBundle.getString("Settings.paralleldownload"));
         panelMisc.add(lblParallelDownloadCountT, "cell 1 0 2 1");
@@ -470,5 +474,22 @@ class SystemSettingsPanel extends JPanel {
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_8, rdbtnFfmpegInternal,
         jCheckBoxBeanProperty);
     autoBinding_6.bind();
+    //
+    Property settingsBeanProperty_9 = BeanProperty.create("enableHttpServer");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_9, chkbxEnableHttpServer,
+        jCheckBoxBeanProperty);
+    autoBinding_7.bind();
+    //
+    Property settingsBeanProperty_10 = BeanProperty.create("httpServerPort");
+    Property jTextFieldBeanProperty_5 = BeanProperty.create("text");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_10, tfHttpPort,
+        jTextFieldBeanProperty_5);
+    autoBinding_8.bind();
+    //
+    Property settingsBeanProperty_11 = BeanProperty.create("httpApiKey");
+    Property jTextFieldBeanProperty_6 = BeanProperty.create("text");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_11, tfHttpApiKey,
+        jTextFieldBeanProperty_6);
+    autoBinding_12.bind();
   }
 }

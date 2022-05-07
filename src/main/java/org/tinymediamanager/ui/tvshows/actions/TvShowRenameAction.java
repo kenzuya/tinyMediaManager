@@ -20,10 +20,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -34,23 +30,20 @@ import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The class TvShowRenameAction. To rename TV shows/episodes
+ * The class {@link TvShowRenameAction}. To rename TV shows/episodes
  * 
  * @author Manuel Laggner
  */
 public class TvShowRenameAction extends TmmAction {
-  private static final long           serialVersionUID = -8988748633666277616L;
-
+  private static final long serialVersionUID = -8988748633666277616L;
 
   public TvShowRenameAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rename"));
@@ -60,25 +53,13 @@ public class TvShowRenameAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        selectedEpisodes.addAll(season.getEpisodes());
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
@@ -89,8 +70,8 @@ public class TvShowRenameAction extends TmmAction {
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
       Object[] params = { TmmResourceBundle.getString("tvshow.rename.desc"), checkBox };
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE, null, options, null);
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.rename"),
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
       if (checkBox.isSelected()) {
@@ -103,7 +84,7 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     // rename
-    TmmThreadPool renameTask = new TvShowRenameTask(selectedTvShows, new ArrayList<>(selectedEpisodes), true);
+    TmmThreadPool renameTask = new TvShowRenameTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive(), true);
     TmmTaskManager.getInstance().addMainTask(renameTask);
   }
 }

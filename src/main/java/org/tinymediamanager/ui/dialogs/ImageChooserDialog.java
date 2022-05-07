@@ -843,6 +843,10 @@ public class ImageChooserDialog extends TmmDialog {
             art = new MediaArtwork("", MediaArtworkType.SEASON_POSTER);
             break;
 
+          case SEASON_FANART:
+            art = new MediaArtwork("", MediaArtworkType.SEASON_FANART);
+            break;
+
           case SEASON_BANNER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_BANNER);
             break;
@@ -1167,6 +1171,10 @@ public class ImageChooserDialog extends TmmDialog {
 
             case SEASON_POSTER:
               options.setArtworkType(MediaArtworkType.SEASON_POSTER);
+              break;
+
+            case SEASON_FANART:
+              options.setArtworkType(MediaArtworkType.SEASON_FANART);
               break;
 
             case SEASON_BANNER:

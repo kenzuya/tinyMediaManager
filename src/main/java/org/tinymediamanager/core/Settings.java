@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.ImageCache.CacheSize;
 import org.tinymediamanager.core.ImageCache.CacheType;
+import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.scraper.http.ProxySettings;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -116,8 +118,13 @@ public final class Settings extends AbstractSettings {
   private boolean                                          storeWindowPreferences      = true;
   private DateField                                        dateField                   = DateField.DATE_ADDED;
 
+  private boolean                                          enableTrash                 = true;
   private boolean                                          deleteTrashOnExit           = false;
   private boolean                                          showMemory                  = true;
+
+  private boolean                                          enableHttpServer            = false;
+  private int                                              httpServerPort              = 7878;
+  private String                                           httpApiKey                  = UUID.randomUUID().toString();
 
   private boolean                                          upnpShareLibrary            = false;
   private boolean                                          upnpRemotePlay              = false;
@@ -173,6 +180,15 @@ public final class Settings extends AbstractSettings {
   @Override
   protected Logger getLogger() {
     return LOGGER;
+  }
+
+  @Override
+  protected void afterLoading() {
+    // create a new HTTP client to force setting the right proxy/SSL params
+    setProxy();
+    System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
+
+    TmmHttpClient.recreateHttpClient();
   }
 
   @Override
@@ -280,6 +296,14 @@ public final class Settings extends AbstractSettings {
       instance = (Settings) getInstance(folder, CONFIG_FILE, Settings.class);
     }
     return instance;
+  }
+
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
   }
 
   /**
@@ -524,11 +548,15 @@ public final class Settings extends AbstractSettings {
     return new ArrayList<>(set);
   }
 
+  @Override
   public void saveSettings() {
     super.saveSettings();
 
     // set proxy information
     setProxy();
+
+    // set HTTP API
+    setHttpApi();
 
     // clear dirty flag
     clearDirty();
@@ -649,7 +677,7 @@ public final class Settings extends AbstractSettings {
   /**
    * Sets the TMM proxy.
    */
-  public void setProxy() {
+  private void setProxy() {
     if (useProxy()) {
       System.setProperty("proxyHost", getProxyHost());
 
@@ -665,14 +693,13 @@ public final class Settings extends AbstractSettings {
         System.setProperty("http.proxyPassword", getProxyPassword());
         System.setProperty("https.proxyPassword", getProxyPassword());
       }
-      // System.setProperty("java.net.useSystemProxies", "true");
     }
     try {
       ProxySettings.setProxySettings(getProxyHost(), getProxyPort() == null ? 0 : Integer.parseInt(getProxyPort().trim()), getProxyUsername(),
           getProxyPassword());
     }
     catch (NumberFormatException e) {
-      LOGGER.error("could not parse proxy port: " + e.getMessage());
+      LOGGER.error("could not parse proxy port: {}", e.getMessage());
     }
   }
 
@@ -991,6 +1018,16 @@ public final class Settings extends AbstractSettings {
     return this.fontFamily;
   }
 
+  public void setEnableTrash(boolean newValue) {
+    boolean oldValue = enableTrash;
+    enableTrash = newValue;
+    firePropertyChange("enableTrash", oldValue, newValue);
+  }
+
+  public boolean isEnableTrash() {
+    return enableTrash;
+  }
+
   public void setDeleteTrashOnExit(boolean newValue) {
     boolean oldValue = deleteTrashOnExit;
     deleteTrashOnExit = newValue;
@@ -1285,4 +1322,51 @@ public final class Settings extends AbstractSettings {
     return ardSampleSettings.get(mode);
   }
 
+  public boolean isEnableHttpServer() {
+    return enableHttpServer;
+  }
+
+  public void setEnableHttpServer(boolean newValue) {
+    boolean oldValue = this.enableHttpServer;
+    this.enableHttpServer = newValue;
+    firePropertyChange("enableHttpServer", oldValue, newValue);
+  }
+
+  public int getHttpServerPort() {
+    return httpServerPort;
+  }
+
+  public void setHttpServerPort(int newValue) {
+    int oldValue = this.httpServerPort;
+    this.httpServerPort = newValue;
+    firePropertyChange("httpServerPort", oldValue, newValue);
+  }
+
+  public void setHttpServerPort(String port) {
+    try {
+      setHttpServerPort(Integer.parseInt(port));
+    }
+    catch (Exception ingored) {
+      // just ignore
+    }
+  }
+
+  public String getHttpApiKey() {
+    return httpApiKey;
+  }
+
+  public void setHttpApiKey(String newValue) {
+    String oldValue = this.httpApiKey;
+    this.httpApiKey = newValue;
+    firePropertyChange("httpApiKey", oldValue, newValue);
+  }
+
+  private void setHttpApi() {
+    try {
+      TmmHttpServer.getInstance().updateConfiguration(enableHttpServer, httpServerPort, httpApiKey);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not update HTTP server configuration - '{}'", e.getMessage());
+    }
+  }
 }

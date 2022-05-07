@@ -18,7 +18,6 @@ jvmOpts:
   - '-Dsun.jnu.encoding=UTF-8'
   - '-Djna.nosys=true'
   - '-Dtmm.consoleloglevel=NONE'
-  - '[windows] -Dsun.java2d.d3d=false'
   - '[macos] -Dapple.awt.graphics.UseQuartz=true'
   - '[macos] -Xdock:name=tinyMediaManager'
   - '[macos] -Dapple.eawt.quitStrategy=CLOSE_ALL_WINDOWS'

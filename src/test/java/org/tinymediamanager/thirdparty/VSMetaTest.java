@@ -3,18 +3,12 @@ package org.tinymediamanager.thirdparty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
 public class VSMetaTest extends BasicTest {
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void checkEmpty() {

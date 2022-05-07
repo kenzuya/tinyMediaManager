@@ -21,7 +21,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -36,8 +35,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowToggleWatchedFlagAction extends TmmAction {
-  private static final long           serialVersionUID = 5762347331284295996L;
-
+  private static final long serialVersionUID = 5762347331284295996L;
 
   public TvShowToggleWatchedFlagAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshowepisode.togglewatchedflag"));
@@ -49,7 +47,6 @@ public class TvShowToggleWatchedFlagAction extends TmmAction {
     final List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

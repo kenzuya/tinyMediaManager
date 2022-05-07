@@ -26,6 +26,7 @@ import static org.tinymediamanager.core.Constants.DISC;
 import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.HAS_IMAGES;
 import static org.tinymediamanager.core.Constants.KEYART;
+import static org.tinymediamanager.core.Constants.LOCKED;
 import static org.tinymediamanager.core.Constants.LOGO;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
@@ -80,7 +81,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -94,6 +95,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public abstract class MediaEntity extends AbstractModelObject {
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
+
+  @JsonProperty
+  protected boolean                    locked             = false;
 
   @JsonProperty
   protected String                     dataSource         = "";
@@ -141,15 +145,12 @@ public abstract class MediaEntity extends AbstractModelObject {
   protected boolean                    duplicate          = false;
   protected final ReadWriteLock        readWriteLock      = new ReentrantReadWriteLock();
 
-  public MediaEntity() {
-  }
-
   /**
    * get the main file for this entity
    * 
    * @return the main file
    */
-  abstract public MediaFile getMainFile();
+  public abstract MediaFile getMainFile();
 
   /**
    * Overwrites all null/empty elements with "other" value (but might be empty also)<br>
@@ -175,7 +176,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   protected void merge(MediaEntity other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
 
@@ -218,8 +219,9 @@ public abstract class MediaEntity extends AbstractModelObject {
   public void initializeAfterLoading() {
     sortMediaFiles();
 
-    // remove empty tag and null values
+    // remove empty tag, null values and case insensitive duplicates
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
   }
 
   protected void sortMediaFiles() {
@@ -243,6 +245,27 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void setDbId(UUID id) {
     this.dbId = id;
+  }
+
+  /**
+   * checks whether this {@link MediaEntity} is locked or not
+   * 
+   * @return true/false
+   */
+  public boolean isLocked() {
+    return locked;
+  }
+
+  /**
+   * set the locked status for this {@link MediaEntity}
+   * 
+   * @param newValue
+   *          the locked status
+   */
+  public void setLocked(boolean newValue) {
+    boolean oldValue = this.locked;
+    this.locked = newValue;
+    firePropertyChange(LOCKED, oldValue, newValue);
   }
 
   /**
@@ -748,7 +771,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     }
     else {
       // if the given ID is an imdb id but is not valid, then do not add
-      if (Constants.IMDB.equals(key) && !MetadataUtil.isValidImdbId(v)) {
+      if (Constants.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
         return;
       }
 
@@ -792,7 +815,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    return MetadataUtil.getIdAsString(ids, key);
+    return MediaIdUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -801,7 +824,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    return MetadataUtil.getIdAsInt(ids, key);
+    return MediaIdUtil.getIdAsInt(ids, key);
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {
@@ -1290,7 +1313,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
     // do not accept duplicates or empty tags
     for (String tag : ListUtils.nullSafe(newTags)) {
-      if (StringUtils.isBlank(tag) || tags.contains(tag)) {
+      if (StringUtils.isBlank(tag) || tags.stream().anyMatch(tag::equalsIgnoreCase)) {
         continue;
       }
       newItems.add(tag);
@@ -1329,6 +1352,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     // two way sync of tags
     ListUtils.mergeLists(tags, newTags);
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
 
     firePropertyChange(TAGS, null, newTags);
     firePropertyChange(TAGS_AS_STRING, null, newTags);
@@ -1374,8 +1398,6 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public abstract void saveToDb();
 
-  public abstract void deleteFromDb();
-
   public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
   protected abstract Comparator<MediaFile> getMediaFileComparator();
@@ -1410,7 +1432,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
         // merge the entries (e.g. use thumb url/profile/ids from both)
         Person oldPerson = baseList.get(indexOldList);
-        oldPerson.merge(entry);
+        oldPerson.merge(entry, true);
 
         if (i != indexOldList) {
           Person oldEntry = baseList.remove(indexOldList); // NOSONAR

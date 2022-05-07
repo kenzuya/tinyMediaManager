@@ -1,0 +1,49 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>base</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>LICENSE*</include>
+                <include>changelog*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <!-- dependencysets can not remove version from filename -->
+            <directory>${project.build.directory}/dependency</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>AppBundler</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>env.txt</include>
+                <include>launcher.yml</include>
+                <include>restart.jar</include>
+                <include>splash*</include>
+                <include>tmm*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
+            <destName>tmm.jar</destName>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <!-- TEMPLATES from former assembly -->
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2</source>
+            <destName>templates.tar.bz2</destName>
+            <outputDirectory>/templates</outputDirectory>
+        </file>
+    </files>
+</assembly>

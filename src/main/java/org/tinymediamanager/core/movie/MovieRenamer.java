@@ -59,6 +59,7 @@ import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
@@ -967,7 +968,6 @@ public class MovieRenamer {
           }
           else if (movie.isDisc()) {
             nfonames.add(MovieNfoNaming.FILENAME_NFO);
-            nfonames.add(MovieNfoNaming.MOVIE_NFO); // unneeded, but "TMM style"
           }
           else {
             nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();
@@ -1268,6 +1268,8 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetWithDummyRenderer());
+
+    engine.registerAnnotationProcessor(new RegexpProcessor());
 
     return engine;
   }

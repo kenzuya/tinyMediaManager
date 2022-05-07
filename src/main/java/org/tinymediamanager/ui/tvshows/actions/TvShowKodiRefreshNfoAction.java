@@ -16,12 +16,6 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -29,11 +23,10 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -52,75 +45,50 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    List<TvShowEpisode> eps = new ArrayList<>();
-    Set<TvShow> shows = new HashSet<>();
-
-    // if we specify show, we want it recursive for all episodes
-    // so remove all single episode calls to not sent them twice...
-    for (Object obj : selectedObjects) {
-      if (obj instanceof TvShow) {
-        TvShow show = (TvShow) obj;
-        shows.add(show);
-      }
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        eps.add(episode);
-      }
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        eps.addAll(season.getEpisodes());
-      }
-    }
-
-    // remove all EPs, where we already have the show
-    for (int i = eps.size() - 1; i >= 0; i--) {
-      TvShowEpisode ep = eps.get(i);
-      if (shows.contains(ep.getTvShow())) {
-        eps.remove(i);
-      }
-    }
-
     TmmTaskManager.getInstance()
-        .addUnnamedTask(
-            new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"), shows.size() + eps.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"),
+            selectedObjects.getTvShows().size() + selectedObjects.getEpisodesRecursive().size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
-              @Override
-              protected void doInBackground() {
-                KodiRPC kodiRPC = KodiRPC.getInstance();
-                int i = 0;
+          @Override
+          protected void doInBackground() {
+            KodiRPC kodiRPC = KodiRPC.getInstance();
+            int i = 0;
 
-                // update show + all EPs
-                for (TvShow tvShow : shows) {
-                  kodiRPC.refreshFromNfo(tvShow);
+            // update show + all EPs
+            for (TvShow tvShow : selectedObjects.getTvShows()) {
+              kodiRPC.refreshFromNfo(tvShow);
 
-                  publishState(++i);
-                  if (cancel) {
-                    return;
-                  }
-                }
-
-                // update single EP only
-                for (TvShowEpisode episode : eps) {
-                  kodiRPC.refreshFromNfo(episode);
-
-                  publishState(++i);
-                  if (cancel) {
-                    return;
-                  }
-                }
-
-                // if we have updated at least one movie, we need to re-match the movies
-                if (progressDone > 0) {
-                  kodiRPC.updateTvShowMappings();
-                }
+              publishState(++i);
+              if (cancel) {
+                return;
               }
-            });
+            }
+
+            // update single EP only
+            for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
+              kodiRPC.refreshFromNfo(episode);
+
+              publishState(++i);
+              if (cancel) {
+                return;
+              }
+            }
+
+            // if we have updated at least one movie, we need to re-match the movies
+            if (progressDone > 0) {
+              kodiRPC.updateTvShowMappings();
+            }
+          }
+        });
   }
 }

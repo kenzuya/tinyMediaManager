@@ -32,6 +32,19 @@ public class MovieSetToEmbyConnector extends MovieSetGenericXmlConnector {
   @Override
   protected void addOwnTags() {
     // no own tags here
+
+    addLockdata();
+  }
+
+  /**
+   * write the <lockdata> tag for Emby<br />
+   * This will be protect the NFO from being modified by emby
+   */
+  protected void addLockdata() {
+    Element lockdata = document.createElement("lockdata");
+    lockdata.setTextContent("true");
+
+    root.appendChild(lockdata);
   }
 
   @Override

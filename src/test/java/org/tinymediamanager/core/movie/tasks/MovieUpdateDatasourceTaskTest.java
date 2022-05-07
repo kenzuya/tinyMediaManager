@@ -16,18 +16,11 @@
 
 package org.tinymediamanager.core.movie.tasks;
 
-import java.io.File;
-import java.nio.file.Paths;
-
-import org.apache.commons.io.FileUtils;
-import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.movie.BasicMovieTest;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 
@@ -38,35 +31,28 @@ import org.tinymediamanager.core.movie.entities.Movie;
  * @author Myron Boyle
  *
  */
-public class MovieUpdateDatasourceTaskTest extends BasicTest {
+public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
   private static final int NUMBER_OF_EXPECTED_MOVIES = 71;
   private static final int NUMBER_OF_STACKED_MOVIES  = 12;
   private static final int NUMBER_OF_DISC_MOVIES     = 6;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-    BasicTest.setup();
-  }
-
   @Before
-  public void setUpBeforeTest() throws Exception {
-    setLicenseKey();
+  public void setup() throws Exception {
+    super.setup();
 
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
 
     // just a copy; we might have another movie test which uses these files
-    FileUtils.copyDirectory(new File("target/test-classes/testmovies"), new File(getSettingsFolder(), "testmovies"));
-    MovieModuleManager.getInstance().getSettings().addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies").toAbsolutePath().toString());
+    copyResourceFolderToWorkFolder("testmovies");
+    MovieModuleManager.getInstance().getSettings().addMovieDataSources(getWorkFolder().resolve("testmovies").toAbsolutePath().toString());
   }
 
   @After
   public void tearDownAfterTest() throws Exception {
     MovieModuleManager.getInstance().shutDown();
     TmmModuleManager.getInstance().shutDown();
-    Utils.deleteDirectoryRecursive(Paths.get(getSettingsFolder(), "testmovies"));
-    Files.delete(new File(getSettingsFolder(), "movies.db"));
   }
 
   @Test

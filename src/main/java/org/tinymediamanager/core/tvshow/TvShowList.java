@@ -57,6 +57,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -74,7 +75,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
@@ -163,11 +164,19 @@ public final class TvShowList extends AbstractModelObject {
    * @return single instance of TvShowList
    */
   static synchronized TvShowList getInstance() {
-    if (TvShowList.instance == null) {
-      TvShowList.instance = new TvShowList();
+    if (instance == null) {
+      instance = new TvShowList();
     }
 
-    return TvShowList.instance;
+    return instance;
+  }
+
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
   }
 
   /**
@@ -190,18 +199,6 @@ public final class TvShowList extends AbstractModelObject {
       newEp.addAll(show.getEpisodes());
     }
     return newEp;
-  }
-
-  public List<TvShowEpisode> getEpisodesWithoutSubtitles() {
-    List<TvShowEpisode> subEp = new ArrayList<>();
-    for (TvShow show : tvShows) {
-      for (TvShowEpisode ep : show.getEpisodes()) {
-        if (!ep.getHasSubtitles()) {
-          subEp.add(ep);
-        }
-      }
-    }
-    return subEp;
   }
 
   /**
@@ -527,12 +524,13 @@ public final class TvShowList extends AbstractModelObject {
         episode.setDbId(uuid);
 
         // sanity check: only episodes with a video file are valid
-        if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+        if (isEpisodeCorrupt(episode)) {
           // no video file? drop it
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
           lock.writeLock().lock();
           toRemove.add(uuid);
           lock.writeLock().unlock();
+          return;
         }
 
         // assign it to the right TV show
@@ -598,6 +596,10 @@ public final class TvShowList extends AbstractModelObject {
     updateMediaInformationLists(episodes);
   }
 
+  private boolean isEpisodeCorrupt(TvShowEpisode episode) {
+    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty();
+  }
+
   public void persistTvShow(TvShow tvShow) {
     // update/insert this TV show to the database
     try {
@@ -609,13 +611,21 @@ public final class TvShowList extends AbstractModelObject {
   }
 
   public void persistEpisode(TvShowEpisode episode) {
-    // update/insert this episode to the database
-    try {
-      TvShowModuleManager.getInstance().persistEpisode(episode);
+    // sanity check
+    if (isEpisodeCorrupt(episode)) {
+      // remove corrupt episode
+      LOGGER.info("episode \"S{}E{}\" without video file/path - dropping", episode.getSeason(), episode.getEpisode());
+      removeEpisodeFromDb(episode);
     }
-    catch (Exception e) {
-      LOGGER.error("failed to persist episode: {} - S{}E{} - {} : {}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode(),
-          episode.getTitle(), e.getMessage());
+    else {
+      // update/insert this episode to the database
+      try {
+        TvShowModuleManager.getInstance().persistEpisode(episode);
+      }
+      catch (Exception e) {
+        LOGGER.error("failed to persist episode: {} - S{}E{} - {} : {}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode(),
+            episode.getTitle(), e.getMessage());
+      }
     }
   }
 
@@ -753,18 +763,18 @@ public final class TvShowList extends AbstractModelObject {
     if (!searchTerm.isEmpty()) {
       String query = searchTerm.toLowerCase(Locale.ROOT);
 
-      if (MetadataUtil.isValidImdbId(query)) {
+      if (MediaIdUtil.isValidImdbId(query)) {
         options.setImdbId(query);
       }
       else if (query.startsWith("imdb:")) {
         String imdbId = query.replace("imdb:", "");
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
       else if (query.startsWith("https://www.imdb.com/title/")) {
         String imdbId = query.split("/")[4];
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
@@ -822,6 +832,7 @@ public final class TvShowList extends AbstractModelObject {
     tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInTvShows);
       firePropertyChange(TAGS, null, tagsInTvShows);
     }
   }
@@ -844,6 +855,7 @@ public final class TvShowList extends AbstractModelObject {
     episodes.forEach(episode -> tags.addAll(episode.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInEpisodes);
       firePropertyChange(TAGS, null, tagsInEpisodes);
     }
   }

@@ -177,6 +177,12 @@ class TmdbArtworkProvider {
     if (tmdbArtwork.backdrops != null) {
       tmdbArtwork.backdrops.sort(new ImageComparator(options.getLanguage().toLocale()));
     }
+    if (tmdbArtwork.stills != null) {
+      tmdbArtwork.stills.sort(new ImageComparator(options.getLanguage().toLocale()));
+    }
+    if (tmdbArtwork.logos != null) {
+      tmdbArtwork.logos.sort(new ImageComparator(options.getLanguage().toLocale()));
+    }
 
     // prepare posters
     if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtworkType.SEASON_POSTER
@@ -248,6 +254,55 @@ class TmdbArtworkProvider {
 
         // categorize image size and write default url
         prepareDefaultFanart(ma, options);
+
+        artwork.add(ma);
+      }
+    }
+
+    // stills
+    if (artworkType == MediaArtworkType.THUMB || artworkType == MediaArtwork.MediaArtworkType.ALL) {
+      for (Image image : ListUtils.nullSafe(tmdbArtwork.stills)) {
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
+        ma.setOriginalUrl(baseUrl + "original" + image.file_path);
+        ma.setLanguage(image.iso_639_1);
+        ma.setTmdbId(tmdbId);
+
+        // add different sizes
+        // original
+        ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
+
+        // w300
+        if (300 < image.width) {
+          ma.addImageSize(300, image.height * 300 / image.width, baseUrl + "w300" + image.file_path);
+        }
+
+        artwork.add(ma);
+      }
+    }
+
+    // logos
+    if (artworkType == MediaArtworkType.LOGO || artworkType == MediaArtwork.MediaArtworkType.ALL) {
+      for (Image image : ListUtils.nullSafe(tmdbArtwork.logos)) {
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
+        ma.setOriginalUrl(baseUrl + "original" + image.file_path);
+        ma.setLanguage(image.iso_639_1);
+        ma.setTmdbId(tmdbId);
+
+        // add different sizes
+        // original
+        ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
+
+        // w500
+        if (500 < image.width) {
+          ma.addImageSize(500, image.height * 500 / image.width, baseUrl + "w500" + image.file_path);
+        }
+
+        // w300
+        if (300 < image.width) {
+          ma.addImageSize(300, image.height * 300 / image.width, baseUrl + "w300" + image.file_path);
+        }
 
         artwork.add(ma);
       }

@@ -151,6 +151,9 @@ public class MediaProviderConfig {
   public Map<String, String> getConfigKeyValuePairs() {
     Map<String, String> result = new HashMap<>();
     for (Map.Entry<String, MediaProviderConfigObject> entry : this.settings.entrySet()) {
+      if (entry.getValue().type == MediaProviderConfigObject.ConfigType.LABEL) {
+        continue;
+      }
       result.put(entry.getKey(), entry.getValue().getValue());
     }
     return result;
@@ -567,6 +570,35 @@ public class MediaProviderConfig {
     }
     co.setDefaultValue(defaultValue);
     co.setValue(defaultValue);
+    settings.put(key, co);
+  }
+
+  /**
+   * adds a multiple value selection to the configuration (List version)
+   *
+   * @param key
+   *          the config key
+   * @param keyDescription
+   *          the key description
+   * @param possibleValues
+   *          a list of possible values
+   * @param defaultValues
+   *          the default values
+   */
+  public void addMultiSelect(String key, String keyDescription, List<String> possibleValues, String... defaultValues) {
+    MediaProviderConfigObject co = new MediaProviderConfigObject();
+    co.setType(MediaProviderConfigObject.ConfigType.MULTI_SELECT);
+    co.setKey(key);
+    co.setKeyDescription(keyDescription);
+    for (String s : possibleValues) {
+      co.addPossibleValues(s);
+    }
+
+    if (defaultValues != null) {
+      co.setDefaultValue(Arrays.toString(defaultValues));
+      co.setValue(Arrays.toString(defaultValues));
+    }
+
     settings.put(key, co);
   }
 

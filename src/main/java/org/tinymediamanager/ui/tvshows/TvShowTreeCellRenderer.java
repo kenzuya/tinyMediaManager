@@ -23,8 +23,10 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
 
 /**
@@ -34,9 +36,6 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
  */
 public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
   private Color colorDummy;
-
-  public TvShowTreeCellRenderer() {
-  }
 
   @Override
   public void updateUI() {
@@ -48,6 +47,17 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
     DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
         column);
+
+    if (value instanceof TvShowTreeDataProvider.TvShowTreeNode) {
+      TvShow tvShow = (TvShow) ((TvShowTreeDataProvider.TvShowTreeNode) value).getUserObject();
+
+      if (tvShow.isLocked()) {
+        setIcon(IconManager.LOCK_BLUE);
+      }
+      else {
+        setIcon(null);
+      }
+    }
 
     if (value instanceof TvShowTreeDataProvider.TvShowSeasonTreeNode) {
       TvShowSeason season = (TvShowSeason) ((TvShowTreeDataProvider.TvShowSeasonTreeNode) value).getUserObject();

@@ -18,25 +18,21 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
  * The Class TvShowDownloadActorImagesAction To download images from actors / producers for selected TvShows
  *
- * @author wjanes
+ * @author Wolfgang Janes
  */
 public class TvShowDownloadActorImagesAction extends TmmAction {
 
@@ -49,34 +45,21 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.downloadactorimages.activate"));
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
+
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
+    }
+
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
-
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
-    }
-
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
-      return;
-    }
-
-    for (TvShow tvShow : selectedTvShows) {
+    for (TvShow tvShow : selectedObjects.getTvShows()) {
       tvShow.writeActorImages();
     }
 
-    for (TvShowEpisode episode : selectedEpisodes) {
+    for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
       episode.writeActorImages();
     }
   }

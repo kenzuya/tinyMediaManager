@@ -19,28 +19,28 @@ package org.tinymediamanager.core.tvshow.connector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowEpisodeNfoParserTest extends BasicTest {
+public class TvShowEpisodeNfoParserTest extends BasicTvShowTest {
 
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+    copyResourceFolderToWorkFolder("tvshowepisode_nfo");
   }
 
   @Test
   public void testKodi17_0() {
     // Kodi version 17.0
     try {
-      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/kodi17.0.nfo"));
+      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/kodi17.0.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.episodes.size()).isEqualTo(2);
@@ -119,7 +119,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
   public void testKodi16_1() {
     // Kodi version 16.1
     try {
-      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/kodi16.1.nfo"));
+      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/kodi16.1.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.episodes.size()).isEqualTo(1);
@@ -198,7 +198,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
   public void testKodi15_2() {
     // Kodi version 15.2
     try {
-      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/kodi15.2.nfo"));
+      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/kodi15.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.episodes.size()).isEqualTo(1);
@@ -277,7 +277,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
   public void testKodi14_2() {
     // Kodi version 14.2
     try {
-      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/kodi14.2.nfo"));
+      TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/kodi14.2.nfo"));
 
       assertThat(parser).isNotNull();
       assertThat(parser.episodes.size()).isEqualTo(2);
@@ -354,7 +354,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
 
   @Test
   public void testNetpvrXml() throws Exception {
-    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr.xml"));
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/nextpvr.xml"));
 
     List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
     assertThat(episodes.size()).isEqualTo(1);
@@ -370,7 +370,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
 
   @Test
   public void testNetpvrXml2() throws Exception {
-    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr2.xml"));
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/nextpvr2.xml"));
 
     List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
     assertThat(episodes.size()).isEqualTo(1);
@@ -386,7 +386,7 @@ public class TvShowEpisodeNfoParserTest extends BasicTest {
 
   @Test
   public void testNetpvrXml3() throws Exception {
-    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr3.xml"));
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(getWorkFolder().resolve("tvshowepisode_nfo/nextpvr3.xml"));
 
     List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
     assertThat(episodes.size()).isEqualTo(1);

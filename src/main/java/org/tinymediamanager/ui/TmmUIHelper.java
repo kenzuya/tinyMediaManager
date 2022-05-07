@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TmmOsUtils;
@@ -302,6 +303,10 @@ public class TmmUIHelper {
     String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
     String abs = file.toAbsolutePath().toString();
 
+    if (StringUtils.isBlank(abs)) {
+      return;
+    }
+
     if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
         exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
@@ -375,6 +380,10 @@ public class TmmUIHelper {
    *           any exception occurred
    */
   public static void browseUrl(String url) throws Exception {
+    if (StringUtils.isBlank(url)) {
+      return;
+    }
+
     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
       Desktop.getDesktop().browse(new URI(url));
     }
@@ -447,7 +456,7 @@ public class TmmUIHelper {
    * @param cmdline
    *          the command including all parameters
    * @throws IOException
-   * @see {@link Runtime#exec(String[])}
+   *           any {@link IOException} thrown while processing
    */
   private static void exec(String[] cmdline) throws IOException {
     Process p = Runtime.getRuntime().exec(cmdline);
@@ -467,6 +476,17 @@ public class TmmUIHelper {
   private static class NirvanaOutputStream extends OutputStream {
     @Override
     public void write(int b) throws IOException {
+      // nothing to write
+    }
+
+    @Override
+    public void write(@NotNull byte[] b) throws IOException {
+      // nothing to write
+    }
+
+    @Override
+    public void write(@NotNull byte[] b, int off, int len) throws IOException {
+      // nothing to write
     }
   }
 

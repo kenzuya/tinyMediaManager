@@ -16,8 +16,10 @@
 package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -35,10 +38,14 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
@@ -110,6 +117,22 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         LOGGER.info(options.toString());
         LOGGER.info("=====================================================");
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
+
+        // also fill other ratings if ratings are requested
+        if (config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
+          Map<String, Object> ids = new HashMap<>(metadata.getIds());
+          ids.put("tvShowIds", episode.getTvShow().getIds());
+
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(ids, MediaType.TV_EPISODE))) {
+            if (!metadata.getRatings().contains(rating)) {
+              metadata.addRating(rating);
+            }
+          }
+        }
+
         if (StringUtils.isNotBlank(metadata.getTitle())) {
           episode.setMetadata(metadata, config, overwrite);
           episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());

@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -70,14 +71,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditorDialog extends TmmDialog {
-  private static final long         serialVersionUID = 3527478264068979388L;
+  private static final long               serialVersionUID = 3527478264068979388L;
 
-  private final TvShowList          tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
-  private final List<TvShow>        tvShowsToEdit;
-  private final List<TvShowEpisode> tvShowEpisodesToEdit;
+  private final TvShowList                tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
+  private final Collection<TvShow>        tvShowsToEdit;
+  private final Collection<TvShowEpisode> tvShowEpisodesToEdit;
 
-  private boolean                   episodesChanged  = false;
-  private boolean                   tvShowsChanged   = false;
+  private boolean                         episodesChanged  = false;
+  private boolean                         tvShowsChanged   = false;
 
   /**
    * Instantiates a new movie batch editor.
@@ -87,7 +88,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
    * @param episodes
    *          the episodes
    */
-  public TvShowBulkEditorDialog(final List<TvShow> tvShows, final List<TvShowEpisode> episodes) {
+  public TvShowBulkEditorDialog(final Collection<TvShow> tvShows, final Collection<TvShowEpisode> episodes) {
     super(TmmResourceBundle.getString("tvshow.bulkedit"), "tvShowBulkEditor");
 
     tvShowsToEdit = tvShows;

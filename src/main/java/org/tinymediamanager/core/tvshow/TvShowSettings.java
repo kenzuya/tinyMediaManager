@@ -397,6 +397,14 @@ public final class TvShowSettings extends AbstractSettings {
     return instance;
   }
 
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstance() {
+    instance = null;
+  }
+
   @Override
   public String getConfigFilename() {
     return CONFIG_FILE;
@@ -405,6 +413,11 @@ public final class TvShowSettings extends AbstractSettings {
   @Override
   protected Logger getLogger() {
     return LOGGER;
+  }
+
+  @Override
+  protected void afterLoading() {
+    // nothing to do here
   }
 
   /**

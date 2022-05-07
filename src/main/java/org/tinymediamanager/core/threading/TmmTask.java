@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.license.TmmFeature;
 
 /**
@@ -80,19 +81,19 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
     return state;
   }
 
-  protected void setTaskName(String taskName) {
+  protected final void setTaskName(String taskName) {
     this.taskName = taskName;
   }
 
-  protected void setWorkUnits(int workUnits) {
+  protected final void setWorkUnits(int workUnits) {
     this.workUnits = workUnits;
   }
 
-  protected void setProgressDone(int progressDone) {
+  protected final void setProgressDone(int progressDone) {
     this.progressDone = progressDone;
   }
 
-  protected void setTaskDescription(String taskDescription) {
+  protected final void setTaskDescription(String taskDescription) {
     this.taskDescription = taskDescription;
   }
 
@@ -100,7 +101,7 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
     listeners.add(listener);
   }
 
-  protected void setState(TaskState newState) {
+  protected final void setState(TaskState newState) {
     this.state = newState;
     informListeners();
   }
@@ -109,7 +110,10 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
     listeners.remove(listener);
   }
 
-  protected void informListeners() {
+  protected final void informListeners() {
+    // inform the statistics timer that tmm is active
+    TmmModuleManager.getInstance().setActive();
+
     for (TmmTaskListener listener : listeners) {
       listener.processTaskEvent(this);
     }

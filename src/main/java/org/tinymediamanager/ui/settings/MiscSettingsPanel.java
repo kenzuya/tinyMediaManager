@@ -44,16 +44,15 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MiscSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 500841588272296493L;
+  private static final long serialVersionUID = 500841588272296493L;
 
-
-
-  private final Settings              settings         = Settings.getInstance();
-  private JComboBox                   cbImageCacheQuality;
-  private JCheckBox                   chckbxImageCache;
-  private JCheckBox                   chckbxDeleteTrash;
-  private JCheckBox                   chckbxMediaInfoXml;
-  private JComboBox                   cbImageCacheSize;
+  private final Settings    settings         = Settings.getInstance();
+  private JComboBox         cbImageCacheQuality;
+  private JCheckBox         chckbxImageCache;
+  private JCheckBox         chckbxDeleteTrash;
+  private JCheckBox         chckbxMediaInfoXml;
+  private JComboBox         cbImageCacheSize;
+  private JCheckBox         chckbxEnableTrash;
 
   /**
    * Instantiates a new general settings panel.
@@ -68,7 +67,7 @@ class MiscSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][]"));
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanelMisc = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -95,7 +94,8 @@ class MiscSettingsPanel extends JPanel {
           JTextArea lblImageCacheSizeBigT = new ReadOnlyTextArea("BIG - " + TmmResourceBundle.getString("Settings.imagecachesize.big"));
           panel.add(lblImageCacheSizeBigT, "cell 1 0,growx, wmin 0");
 
-          JTextArea lblImageCacheSizeOriginalT = new ReadOnlyTextArea("ORIGINAL - " + TmmResourceBundle.getString("Settings.imagecachesize.original"));
+          JTextArea lblImageCacheSizeOriginalT = new ReadOnlyTextArea(
+              "ORIGINAL - " + TmmResourceBundle.getString("Settings.imagecachesize.original"));
           panel.add(lblImageCacheSizeOriginalT, "cell 1 0,growx, wmin 0");
         }
         JLabel lblImageCacheQuality = new JLabel(TmmResourceBundle.getString("Settings.imagecachetype"));
@@ -109,7 +109,8 @@ class MiscSettingsPanel extends JPanel {
           panelMisc.add(panel, "cell 2 4,grow");
           panel.setLayout(new MigLayout("", "[10lp:n][grow]", "[]"));
 
-          JTextArea lblImageCacheTypeBalancedT = new ReadOnlyTextArea("BALANCED - " + TmmResourceBundle.getString("Settings.imagecachetype.balanced"));
+          JTextArea lblImageCacheTypeBalancedT = new ReadOnlyTextArea(
+              "BALANCED - " + TmmResourceBundle.getString("Settings.imagecachetype.balanced"));
           panel.add(lblImageCacheTypeBalancedT, "flowy,cell 1 0,growx, wmin 0");
 
           JTextArea lblImageCacheTypeQualityT = new ReadOnlyTextArea("QUALITY - " + TmmResourceBundle.getString("Settings.imagecachetype.quality"));
@@ -120,11 +121,15 @@ class MiscSettingsPanel extends JPanel {
           panel.add(lblImageCacheTypeUltraQualityT, "cell 1 0,growx, wmin 0");
         }
 
+        chckbxEnableTrash = new JCheckBox(TmmResourceBundle.getString("Settings.enabletrash"));
+        chckbxEnableTrash.setToolTipText(TmmResourceBundle.getString("Settings.enabletrash.desc"));
+        panelMisc.add(chckbxEnableTrash, "cell 1 6 2 1");
+
         chckbxDeleteTrash = new JCheckBox(TmmResourceBundle.getString("Settings.deletetrash"));
-        panelMisc.add(chckbxDeleteTrash, "cell 1 6 2 1");
+        panelMisc.add(chckbxDeleteTrash, "cell 1 7 2 1");
 
         chckbxMediaInfoXml = new JCheckBox(TmmResourceBundle.getString("Settings.writemediainfoxml"));
-        panelMisc.add(chckbxMediaInfoXml, "cell 1 7 2 1");
+        panelMisc.add(chckbxMediaInfoXml, "cell 1 8 2 1");
       }
     }
   }
@@ -156,5 +161,10 @@ class MiscSettingsPanel extends JPanel {
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, cbImageCacheSize,
         jComboBoxBeanProperty);
     autoBinding_1.bind();
+    //
+    Property settingsBeanProperty_2 = BeanProperty.create("enableTrash");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2, chckbxEnableTrash,
+        jCheckBoxBeanProperty);
+    autoBinding_2.bind();
   }
 }

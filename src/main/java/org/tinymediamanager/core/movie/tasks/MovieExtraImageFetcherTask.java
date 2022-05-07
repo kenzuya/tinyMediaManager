@@ -138,7 +138,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
     int i = 1;
     for (String urlAsString : fanarts) {
       try {
-        String extension = FilenameUtils.getExtension(urlAsString);
+        String extension = Utils.getArtworkExtensionFromUrl(urlAsString);
         String filename = MovieArtworkHelper.getArtworkFilename(movie, fileNaming, extension);
 
         // split the filename again and attach the counter

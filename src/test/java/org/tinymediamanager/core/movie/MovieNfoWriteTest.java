@@ -17,40 +17,31 @@ package org.tinymediamanager.core.movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 
-public class MovieNfoWriteTest extends BasicTest {
+public class MovieNfoWriteTest extends BasicMovieTest {
 
   private static final int NUMBER_OF_EXPECTED_MOVIES = 6;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-    BasicTest.setup();
-  }
-
   @Before
-  public void setUpBeforeTest() throws Exception {
-    setLicenseKey();
+  public void setup() throws Exception {
+    super.setup();
 
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
 
     // just a copy; we might have another movie test which uses these files
-    FileUtils.copyDirectory(new File("target/test-classes/testmovies_nfo"), new File(getSettingsFolder(), "testmovies_nfo"));
-    MovieModuleManager.getInstance().getSettings().addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies_nfo").toAbsolutePath().toString());
+    copyResourceFolderToWorkFolder("testmovies_nfo");
+    MovieModuleManager.getInstance().getSettings().addMovieDataSources(getWorkFolder().resolve("testmovies_nfo").toAbsolutePath().toString());
   }
 
   @After
@@ -80,7 +71,7 @@ public class MovieNfoWriteTest extends BasicTest {
     }
 
     // and now check the file names
-    Path base = Paths.get(getSettingsFolder(), "testmovies_nfo");
+    Path base = getWorkFolder().resolve("testmovies_nfo");
 
     // bluray
     Path nfo = Paths.get(base.toString(), "BluRay", "BDMV", "index.nfo");

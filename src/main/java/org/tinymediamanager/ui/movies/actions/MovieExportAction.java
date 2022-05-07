@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -50,7 +49,7 @@ public class MovieExportAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> movies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> movies = MovieUIModule.getInstance().getSelectionModel().getSelectedMovies(true);
 
     if (movies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

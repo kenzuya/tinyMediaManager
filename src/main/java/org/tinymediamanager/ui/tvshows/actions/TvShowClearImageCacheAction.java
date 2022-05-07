@@ -17,17 +17,15 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -36,8 +34,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowClearImageCacheAction extends TmmAction {
-  private static final long           serialVersionUID = 3452373237085274937L;
-  
+  private static final long serialVersionUID = 3452373237085274937L;
 
   public TvShowClearImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.clearimagecache"));
@@ -45,31 +42,23 @@ public class TvShowClearImageCacheAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects(false, true);
 
-    // add all episodes which are not part of a selected tv show
-    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) obj;
-        if (!selectedTvShows.contains(episode.getTvShow())) {
-          selectedEpisodes.add(episode);
-        }
-      }
-    }
-
-    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
     // clear the cache
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    for (TvShow tvShow : selectedTvShows) {
+    for (TvShow tvShow : selectedObjects.getTvShows()) {
       ImageCache.clearImageCacheForMediaEntity(tvShow);
     }
 
-    for (TvShowEpisode episode : selectedEpisodes) {
+    for (TvShowSeason tvShowSeason : selectedObjects.getSeasonsRecursive()) {
+      ImageCache.clearImageCache(tvShowSeason.getMediaFiles());
+    }
+
+    for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
       ImageCache.clearImageCacheForMediaEntity(episode);
     }
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

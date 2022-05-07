@@ -18,7 +18,9 @@ package org.tinymediamanager.cli;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -160,27 +162,32 @@ class MovieCommand implements Runnable {
   }
 
   private void scrapeMovies(List<Movie> moviesToScrape) {
+    Set<Movie> movies = new LinkedHashSet<>();
+
     if (scrape.scrapeAll) {
       LOGGER.info("scraping ALL movies...");
-      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getMovies());
+      movies.addAll(MovieModuleManager.getInstance().getMovieList().getMovies());
     }
     else if (scrape.scrapeNew) {
       LOGGER.info("scraping NEW movies...");
-      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getNewMovies());
+      movies.addAll(MovieModuleManager.getInstance().getMovieList().getNewMovies());
     }
     else if (scrape.scrapeUnscraped) {
       LOGGER.info("scraping UNSCRAPED movies...");
-      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getUnscrapedMovies());
+      movies.addAll(MovieModuleManager.getInstance().getMovieList().getUnscrapedMovies());
     }
 
-    if (!moviesToScrape.isEmpty()) {
+    if (!movies.isEmpty()) {
+      moviesToScrape.addAll(movies);
+
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       List<MovieScraperMetadataConfig> config = MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig();
       options.loadDefaults();
 
       MovieScrapeTask.MovieScrapeParams movieScrapeParams = new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config);
       movieScrapeParams.setOverwriteExistingItems(!MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
-      Runnable task = new MovieScrapeTask(movieScrapeParams);
+      MovieScrapeTask task = new MovieScrapeTask(movieScrapeParams);
+      task.setRunInBackground(true); // to avoid smart scrape dialog
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)
@@ -275,7 +282,7 @@ class MovieCommand implements Runnable {
   }
 
   private void exportMovies() {
-    for (ExportTemplate exportTemplate : MovieExporter.findTemplates(MediaEntityExporter.TemplateType.MOVIE)) {
+    for (ExportTemplate exportTemplate : MediaEntityExporter.findTemplates(MediaEntityExporter.TemplateType.MOVIE)) {
       if (exportTemplate.getPath().endsWith(export.template)) {
         // ok, our template has been found under templates
         LOGGER.info("exporting movies...");

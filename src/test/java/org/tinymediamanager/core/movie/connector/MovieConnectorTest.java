@@ -17,89 +17,69 @@
 package org.tinymediamanager.core.movie.connector;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collections;
 
-import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.BasicMovieTest;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 
-public class MovieConnectorTest extends BasicTest {
+public class MovieConnectorTest extends BasicMovieTest {
 
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-    try {
-      Files.createDirectories(Paths.get(getSettingsFolder(), "movie_nfo_out"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+    copyResourceFolderToWorkFolder("movie_nfo");
+    Files.createDirectories(getWorkFolder().resolve("movie_nfo_out"));
   }
 
   @Test
-  public void testMovieToXbmcConnectorKodi() {
-    try {
-      // load data from a given NFO (with unsupported tags)
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi.nfo"));
-      Movie movie = parser.toMovie();
-      movie.setPath(Paths.get(getSettingsFolder(), "movie_nfo_out").toString());
-      movie.addToMediaFiles(new MediaFile(Paths.get(getSettingsFolder(), "movie_nfo/kodi.nfo"), MediaFileType.NFO));
+  public void testMovieToXbmcConnectorKodi() throws Exception {
+    // load data from a given NFO (with unsupported tags)
+    Path existingNfo = getWorkFolder().resolve("movie_nfo").resolve("kodi.nfo");
+    MovieNfoParser parser = MovieNfoParser.parseNfo(existingNfo);
+    Movie movie = parser.toMovie();
+    movie.setPath(getWorkFolder().resolve("movie_nfo_out").toString());
+    movie.addToMediaFiles(new MediaFile(existingNfo, MediaFileType.NFO));
 
-      // and write it again
-      IMovieConnector connector = new MovieToXbmcConnector(movie);
-      connector.write(Collections.singletonList(MovieNfoNaming.MOVIE_NFO));
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      Assertions.fail(e.getMessage());
-    }
+    // and write it again
+    IMovieConnector connector = new MovieToXbmcConnector(movie);
+    connector.write(Collections.singletonList(MovieNfoNaming.MOVIE_NFO));
   }
 
   @Test
-  public void testMovieToXbmcConnectorKodi2() {
-    try {
-      // load data from a given NFO (with unsupported tags)
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/kodi2.nfo"));
-      Movie movie = parser.toMovie();
-      MediaFile video = new MediaFile(Paths.get(getSettingsFolder(), "movie_nfo_out/test2.avi"));
-      movie.addToMediaFiles(video);
-      movie.setPath(Paths.get(getSettingsFolder(), "movie_nfo_out").toString());
-      movie.addToMediaFiles(new MediaFile(Paths.get(getSettingsFolder(), "movie_nfo/kodi2.nfo"), MediaFileType.NFO));
+  public void testMovieToXbmcConnectorKodi2() throws Exception {
+    // load data from a given NFO (with unsupported tags)
+    Path existingNfo = getWorkFolder().resolve("movie_nfo").resolve("kodi2.nfo");
+    MovieNfoParser parser = MovieNfoParser.parseNfo(existingNfo);
+    Movie movie = parser.toMovie();
+    MediaFile video = new MediaFile(getWorkFolder().resolve("movie_nfo_out").resolve("test2.avi"));
+    movie.addToMediaFiles(video);
+    movie.setPath(getWorkFolder().resolve("movie_nfo_out").toString());
+    movie.addToMediaFiles(new MediaFile(existingNfo, MediaFileType.NFO));
 
-      // and write it again
-      IMovieConnector connector = new MovieToKodiConnector(movie);
-      connector.write(Collections.singletonList(MovieNfoNaming.FILENAME_NFO));
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      Assertions.fail(e.getMessage());
-    }
+    // and write it again
+    IMovieConnector connector = new MovieToKodiConnector(movie);
+    connector.write(Collections.singletonList(MovieNfoNaming.FILENAME_NFO));
   }
 
   @Test
-  public void testMovieToXbmcConnectorMpLegacy() {
-    try {
-      // load data from a given NFO (with unsupported tags)
-      MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/mp-legacy.nfo"));
-      Movie movie = parser.toMovie();
-      MediaFile video = new MediaFile(Paths.get(getSettingsFolder(), "movie_nfo_out/test3.avi"));
-      movie.addToMediaFiles(video);
-      movie.setPath(Paths.get(getSettingsFolder(), "movie_nfo_out").toString());
-      movie.addToMediaFiles(new MediaFile(Paths.get(getSettingsFolder(), "movie_nfo/mp-legacy.nfo"), MediaFileType.NFO));
+  public void testMovieToXbmcConnectorMpLegacy() throws Exception {
+    // load data from a given NFO (with unsupported tags)
+    Path existingNfo = getWorkFolder().resolve("movie_nfo").resolve("mp-legacy.nfo");
+    MovieNfoParser parser = MovieNfoParser.parseNfo(existingNfo);
+    Movie movie = parser.toMovie();
+    MediaFile video = new MediaFile(getWorkFolder().resolve("movie_nfo_out").resolve("test3.avi"));
+    movie.addToMediaFiles(video);
+    movie.setPath(getWorkFolder().resolve("movie_nfo_out").toString());
+    movie.addToMediaFiles(new MediaFile(existingNfo, MediaFileType.NFO));
 
-      // and write it again
-      IMovieConnector connector = new MovieToMpLegacyConnector(movie);
-      connector.write(Collections.singletonList(MovieNfoNaming.FILENAME_NFO));
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      Assertions.fail(e.getMessage());
-    }
+    // and write it again
+    IMovieConnector connector = new MovieToMpLegacyConnector(movie);
+    connector.write(Collections.singletonList(MovieNfoNaming.FILENAME_NFO));
   }
 }

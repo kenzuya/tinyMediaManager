@@ -22,7 +22,7 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.util.RatingUtil;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 
 /**
  * The class TmmModuleManager. Used to manage all modules inside tmm
@@ -36,6 +36,7 @@ public final class TmmModuleManager {
   private final Set<ITmmModule>   modules;
 
   private Timer                   statisticsTimer;
+  private boolean                 isActive;
 
   private TmmModuleManager() {
     modules = new LinkedHashSet<>();
@@ -46,6 +47,15 @@ public final class TmmModuleManager {
       instance = new TmmModuleManager();
     }
     return instance;
+  }
+
+  /**
+   * removes the active instance <br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   */
+  static void clearInstances() {
+    instance = null;
+    Settings.clearInstance();
   }
 
   public void registerModule(ITmmModule module) {
@@ -80,6 +90,10 @@ public final class TmmModuleManager {
     statisticsTimer.schedule(new TimerTask() {
       @Override
       public void run() {
+        if (!isActive) {
+          return;
+        }
+
         Runtime rt = Runtime.getRuntime();
         long totalMem = rt.totalMemory();
         long maxMem = rt.maxMemory(); // = Xmx
@@ -91,8 +105,13 @@ public final class TmmModuleManager {
         long free = (maxMem - totalMem + freeMem) / megs;
 
         LOGGER.debug("Memory usage: used - {} M | free - {} M", used, free);
+
+        isActive = false;
       }
     }, 0, 60000);
+
+    // trigger the first log entry
+    isActive = true;
   }
 
   /**
@@ -112,7 +131,7 @@ public final class TmmModuleManager {
     }
 
     // do cleanup tasks
-    RatingUtil.shutdown();
+    RatingProvider.shutdown();
     Utils.clearTempFolder();
   }
 
@@ -149,5 +168,12 @@ public final class TmmModuleManager {
         LOGGER.error("saving settings " + module.getModuleTitle() + ": " + e.getMessage());
       }
     }
+  }
+
+  /**
+   * informs the statistics timer that tmm is active
+   */
+  public void setActive() {
+    isActive = true;
   }
 }

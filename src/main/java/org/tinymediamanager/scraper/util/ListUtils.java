@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ListUtils {
 
   private ListUtils() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -170,5 +170,26 @@ public class ListUtils {
     else {
       return list.addAllAbsent(values) > 0;
     }
+  }
+
+  /**
+   * checks if the given {@link List} at least contains one of the given arguments
+   * 
+   * @param list
+   *          the {@link List} to check
+   * @param values
+   *          value values to compare
+   * @param <E>
+   *          the type of the value
+   * @return true if at least one value is found inside the list - false otherwise
+   */
+  public static <E> boolean containsAny(List<E> list, E... values) {
+    for (E value : values) {
+      if (list.contains(value)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

@@ -17,12 +17,9 @@ package org.tinymediamanager.core.tvshow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Paths;
-
 import org.apache.commons.io.FilenameUtils;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
@@ -35,11 +32,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
  * 
  * @author Manuel Laggner
  */
-public class TvShowTest extends BasicTest {
+public class TvShowTest extends BasicTvShowTest {
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
     setTraceLogging();
   }
 
@@ -80,13 +77,13 @@ public class TvShowTest extends BasicTest {
   @Test
   public void testRenamerParams() throws Exception {
     // setup dummy
-    MediaFile dmf = new MediaFile(Paths.get("/path/to", "video.avi"));
+    MediaFile dmf = new MediaFile(getWorkFolder().resolve("video.avi"));
 
     TmmModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
 
     TvShow show = new TvShow();
-    show.setPath("target/test-classes/");
+    show.setPath(getWorkFolder().toString());
     show.setTitle("showname");
 
     TvShowEpisode ep = new TvShowEpisode();
@@ -195,6 +192,7 @@ public class TvShowTest extends BasicTest {
 
     assertEqual("S:1 E:2", detectEpisode("season 1\\nam.e.2.mkv"));
     assertEqual("S:1 E:2", detectEpisode("season 1/nam.e.2.mkv"));
+    assertEqual("S:-1 E:1", detectEpisode("Wisher.2021.E01.V2.WEB-DL.4k.H265.DDP.AAC-HDCTV.mp4"));
 
     // TODO: currently we take the FIRST number and treat it as episode
     // NO multi matching for just numbers!!
@@ -311,43 +309,43 @@ public class TvShowTest extends BasicTest {
 
   @Test
   public void testSeasonFolderDetection() {
-    TvShowSettings.getInstance(getSettingsFolder()).setRenamerSeasonFoldername("S${seasonNr}");
+    TvShowSettings.getInstance().setRenamerSeasonFoldername("S${seasonNr}");
     TvShow tvShow = new TvShow();
-    tvShow.setPath("/media/tvshows/show");
+    tvShow.setPath(getWorkFolder().resolve("show").toString());
 
     // Season 1: 80% of the episodes are in the subfolder "Season 01"
     TvShowEpisode episode = new TvShowEpisode();
     episode.setSeason(1);
     episode.setEpisode(1);
-    MediaFile mf = new MediaFile(Paths.get("/media/tvshows/show/Season 01/s01e01.avi"));
+    MediaFile mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(1);
     episode.setEpisode(2);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 01/ep2/s01e02.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep2/s01e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(1);
     episode.setEpisode(3);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 01/ep3/extract/s01e03.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep3/extract/s01e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(1);
     episode.setEpisode(4);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 1/s01e04.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 1/s01e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(1);
     episode.setEpisode(5);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 01/s01e05.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
@@ -357,35 +355,35 @@ public class TvShowTest extends BasicTest {
     episode = new TvShowEpisode();
     episode.setSeason(2);
     episode.setEpisode(1);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 2/s02e01.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 2/s02e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(2);
     episode.setEpisode(2);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/Season 02/ep2/s02e02.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/Season 02/ep2/s02e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(2);
     episode.setEpisode(3);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/S2/ep3/extract/s02e03.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/S2/ep3/extract/s02e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(2);
     episode.setEpisode(4);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/s02e04.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/s02e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
     episode.setSeason(2);
     episode.setEpisode(5);
-    mf = new MediaFile(Paths.get("/media/tvshows/show/s02e05/s02e05.avi"));
+    mf = new MediaFile(getWorkFolder().resolve("show/s02e05/s02e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 

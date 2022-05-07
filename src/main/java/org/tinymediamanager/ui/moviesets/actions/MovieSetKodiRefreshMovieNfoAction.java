@@ -48,7 +48,7 @@ public class MovieSetKodiRefreshMovieNfoAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> selectedMovies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies(true));
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

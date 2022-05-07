@@ -49,8 +49,7 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * @author Manuel Laggner
  */
 public class PersonTable extends TmmTable {
-
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(PersonTable.class);
 
   /**
    * create a PersonTable for display only
@@ -59,22 +58,9 @@ public class PersonTable extends TmmTable {
    *          the EventList containing the Persons
    */
   public PersonTable(EventList<Person> personEventList) {
-    this(personEventList, false);
-  }
-
-  /**
-   * create a PersonTable for either displaying or editing
-   * 
-   * @param personEventList
-   *          the EventList containing the Persons
-   * @param edit
-   *          editable or not
-   */
-  public PersonTable(EventList<Person> personEventList, boolean edit) {
     super();
 
-    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList), new PersonTableFormat(edit)));
-    // init();
+    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList), new PersonTableFormat()));
 
     adjustColumnPreferredWidths(3);
     PersonTableButtonListener listener = new PersonTableButtonListener(this, personEventList, TmmResourceBundle.getString("cast.edit"));
@@ -86,7 +72,7 @@ public class PersonTable extends TmmTable {
    * helper class for the table model
    */
   private static class PersonTableFormat extends TmmTableFormat<Person> {
-    private PersonTableFormat(boolean edit) {
+    private PersonTableFormat() {
       /*
        * name
        */
@@ -130,20 +116,21 @@ public class PersonTable extends TmmTable {
       /*
        * edit
        */
-      if (edit) {
-        col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
-        col.setColumnResizeable(false);
-        col.setHeaderIcon(IconManager.EDIT_HEADER);
-        addColumn(col);
-      }
+      col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
+      col.setColumnResizeable(false);
+      col.setHeaderIcon(IconManager.EDIT_HEADER);
+      addColumn(col);
     }
+  }
+
+  public void onPersonChanged(Person person) {
+    // to override
   }
 
   /**
    * helper class for listening to the edit button
    */
-  private static class PersonTableButtonListener implements MouseListener, MouseMotionListener {
-    private static final Logger     LOGGER = LoggerFactory.getLogger(PersonTableButtonListener.class);
+  private class PersonTableButtonListener implements MouseListener, MouseMotionListener {
     private final JTable            personTable;
     private final EventList<Person> personEventList;
     private final String            windowTitle;
@@ -167,6 +154,10 @@ public class PersonTable extends TmmTable {
           if (isEditorColumn(col)) {
             PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(personTable), windowTitle, person);
             dialog.setVisible(true);
+
+            if (dialog.isSavePressed()) {
+              onPersonChanged(person);
+            }
           }
           else if (isProfileColumn(row, col)) {
             try {
@@ -226,14 +217,17 @@ public class PersonTable extends TmmTable {
 
     @Override
     public void mousePressed(MouseEvent e) {
+      // nothing to do
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+      // nothing to do
     }
 
     @Override
     public void mouseDragged(MouseEvent arg0) {
+      // nothing to do
     }
 
     /**

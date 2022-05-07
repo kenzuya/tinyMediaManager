@@ -28,23 +28,29 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_LANGUAGE_NAMES
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_UNCREDITED_ACTORS;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_MOVIES;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.tinymediamanager.core.FeatureNotEnabledException;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 
 /**
  * the class {@link ImdbMovieMetadataProvider} provides meta data for movies
  *
  * @author Manuel Laggner
  */
-public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
+public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider {
 
   @Override
   protected String getSubId() {
@@ -76,7 +82,6 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
 
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
-
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
@@ -86,11 +91,23 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
 
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
-
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     return (new ImdbMovieParser(this, EXECUTOR)).getMovieMetadata(options);
+  }
+
+  @Override
+  public List<MediaRating> getRatings(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyList();
+    }
+
+    return (new ImdbMovieParser(this, EXECUTOR)).getRatings(ids);
   }
 }

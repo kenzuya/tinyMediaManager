@@ -22,9 +22,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.exceptions.HttpException;
@@ -34,16 +34,16 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 public class UrlTest extends BasicTest {
-  private static final MockWebServer mockWebServer = new MockWebServer();
+  private final MockWebServer mockWebServer = new MockWebServer();
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    BasicTest.setup();
+  @Before
+  public void setup() throws Exception {
+    super.setup();
     mockWebServer.start();
   }
 
-  @AfterClass
-  public static void shutDown() throws Exception {
+  @After
+  public void shutDown() throws Exception {
     mockWebServer.shutdown();
   }
 

@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
@@ -32,23 +32,22 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 public class MovieChangeDatasourceTaskTest extends BasicTest {
-  @BeforeClass
-  public static void init() throws Exception {
-    BasicTest.setup();
+
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
+    copyResourceFolderToWorkFolder("testmovies");
   }
 
   @Test
   public void testMoveNormalMovie() throws Exception {
-    String sourceFolder = Paths.get("target/test-classes/testmovies_from").toAbsolutePath().toString();
-    String destinationFolder = Paths.get("target/test-classes/testmovies_to").toAbsolutePath().toString();
-
-    // cleanup
-    FileUtils.deleteQuietly(new File(sourceFolder));
-    FileUtils.deleteQuietly(new File(destinationFolder));
+    String sourceFolder = getWorkFolder().resolve("testmovies_from").toAbsolutePath().toString();
+    String destinationFolder = getWorkFolder().resolve("testmovies_to").toAbsolutePath().toString();
 
     // first copy our movie files to a safe new place to do not interfere with other unit tests
     Files.createDirectories(Paths.get(sourceFolder));
-    FileUtils.copyDirectory(new File("target/test-classes/testmovies/Single"), new File(sourceFolder + "/Single"));
+    FileUtils.copyDirectory(getWorkFolder().resolve("testmovies").resolve("Single").toFile(), new File(sourceFolder + "/Single"));
 
     Movie movie = new Movie();
     movie.setDataSource(sourceFolder);
@@ -72,16 +71,12 @@ public class MovieChangeDatasourceTaskTest extends BasicTest {
 
   @Test
   public void testMovieMMDMovie() throws Exception {
-    String sourceFolder = Paths.get("target/test-classes/testmovies_from").toAbsolutePath().toString();
-    String destinationFolder = Paths.get("target/test-classes/testmovies_to").toAbsolutePath().toString();
-
-    // cleanup
-    FileUtils.deleteQuietly(new File(sourceFolder));
-    FileUtils.deleteQuietly(new File(destinationFolder));
+    String sourceFolder = getWorkFolder().resolve("testmovies_from").toAbsolutePath().toString();
+    String destinationFolder = getWorkFolder().resolve("testmovies_to").toAbsolutePath().toString();
 
     // first copy our movie files to a safe new place to do not interfere with other unit tests
     Files.createDirectories(Paths.get(sourceFolder));
-    FileUtils.copyDirectory(new File("target/test-classes/testmovies/Multi1"), new File(sourceFolder + "/Multi1"));
+    FileUtils.copyDirectory(getWorkFolder().resolve("testmovies").resolve("Multi1").toFile(), new File(sourceFolder + "/Multi1"));
 
     Movie movie = new Movie();
     movie.setDataSource(sourceFolder);

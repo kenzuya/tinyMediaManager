@@ -24,6 +24,7 @@ import java.nio.file.FileSystemLoopException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public abstract class AbstractFileVisitor implements FileVisitor<Path> {
   // If there is some error accessing the file, let the user know.
   // If you don't override this method and an error occurs, an IOException is thrown.
   @Override
-  public FileVisitResult visitFileFailed(Path path, IOException e) throws IOException {
+  public FileVisitResult visitFileFailed(Path path, IOException e) {
     if (e instanceof FileSystemLoopException) {
       LOGGER.trace("FileSystemLoopException detected: {}", path);
       LOGGER.trace("Problematic path: {} - isDir: {} - isFile: {}", path, path.toFile().isDirectory(), path.toFile().isFile());
@@ -73,6 +74,10 @@ public abstract class AbstractFileVisitor implements FileVisitor<Path> {
       else {
         traverseTreeAlternate(path.getParent());
       }
+      return FileVisitResult.SKIP_SUBTREE;
+    }
+    else if (e instanceof NoSuchFileException) {
+      LOGGER.error("visit file failed (not found): {}", e.getMessage());
       return FileVisitResult.SKIP_SUBTREE;
     }
     else {

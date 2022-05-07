@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.addon;
 
-import static org.tinymediamanager.addon.AddonManager.getAddonFolder;
-import static org.tinymediamanager.addon.AddonManager.getOsArch;
-import static org.tinymediamanager.addon.AddonManager.getOsName;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -38,13 +34,8 @@ public class FFmpegAddon implements IAddon {
   }
 
   @Override
-  public String getFullAddonName() {
-    return getAddonName() + "-" + getOsName() + "-" + getOsArch();
-  }
-
-  @Override
   public boolean isAvailable() {
-    Path addonFolder = getAddonFolder().resolve(getAddonName());
+    Path addonFolder = getAddonFolder();
 
     if (!Files.exists(addonFolder)) {
       return false;
@@ -57,11 +48,8 @@ public class FFmpegAddon implements IAddon {
     return false;
   }
 
-  public String getExecutablePath() {
-    return getAddonFolder().resolve(getAddonName()).resolve(getExecutableFilename()).toAbsolutePath().toString();
-  }
-
-  private String getExecutableFilename() {
+  @Override
+  public String getExecutableFilename() {
     if (SystemUtils.IS_OS_WINDOWS) {
       return "ffmpeg.exe";
     }

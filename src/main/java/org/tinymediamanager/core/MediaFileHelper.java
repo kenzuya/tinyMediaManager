@@ -54,6 +54,7 @@ import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.mediainfo.MediaInfoXMLParser;
 import org.tinymediamanager.core.mediainfo.MediaInfoXmlCreator;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -291,7 +292,7 @@ public class MediaFileHelper {
       return parseImageType(pathToFile);
     }
 
-    if (basename.matches("(?i).*[_.-]+theme\\d*$") || basename.matches("(?i)theme\\d*")) {
+    if (basename.matches("(?i).*[_.-]+(theme|soundtrack)\\d*$") || basename.matches("(?i)(theme|soundtrack)\\d*")) {
       return MediaFileType.THEME;
     }
 
@@ -1992,7 +1993,7 @@ public class MediaFileHelper {
 
   private static void gatherExtraData(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     String imdbId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "id");
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       mediaFile.addExtraData("imdbId", imdbId);
     }
 

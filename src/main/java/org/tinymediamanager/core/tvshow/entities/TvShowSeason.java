@@ -37,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
@@ -89,6 +90,15 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public int getSeason() {
     return season;
+  }
+
+  /**
+   * checks whether the parent {@link TvShow} is locked
+   * 
+   * @return true/false
+   */
+  public boolean isLocked() {
+    return getTvShow() == null || getTvShow().isLocked();
   }
 
   public void setTitle(String newValue) {
@@ -430,6 +440,16 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
       }
     }
     return false;
+  }
+
+  /**
+   * Gets the images to cache.
+   *
+   * @return the images to cache
+   */
+  public List<MediaFile> getImagesToCache() {
+    // get files to cache
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
   }
 
   public Date getLastWatched() {

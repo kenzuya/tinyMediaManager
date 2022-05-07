@@ -22,7 +22,9 @@
         <summary lang="pt">Biblioteca de fundos HTBackdrops</summary>
         <summary lang="ru">Обработчик Фоновых изображений с HTBackdrops</summary>
         <summary lang="se">Skrapa för HTBackdrops</summary>
-        <summary lang="zh">HTBackdrops刮削器代码库</summary>
+        <summary lang="zh">HTBackdrops擷取器資料庫</summary>
+        <summary lang="zh_CN">HTBackdrops刮削器代码库</summary>
+        <summary lang="zh_TW">HTBackdrops擷取器資料庫</summary>
         <description lang="bg">Сваля декорации от www.htbackdrops.com</description>
         <description lang="en">Download backdrops from www.htbackdrops.com</description>
         <description lang="de">Downloade Hintergründe von www.htbackdrops.com</description>
@@ -35,6 +37,8 @@
         <description lang="pt">Descarregar fundos de www.htbackdrops.com</description>
         <description lang="ru">Загружать фоновые изображения с www.htbackdrops.com</description>
         <description lang="se">Ladda ner bakgrundsbilder från www.htbackdrops.com</description>
-        <description lang="zh">从www.htbackdrops.com下载背景图</description>
+        <description lang="zh">從 www.htbackdrops.com 下載背景圖</description>
+        <description lang="zh_CN">从www.htbackdrops.com下载背景图</description>
+        <description lang="zh_TW">從 www.htbackdrops.com 下載背景圖</description>
     </extension>
 </addon>

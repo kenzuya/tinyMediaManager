@@ -20,10 +20,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -35,11 +31,11 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -49,8 +45,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowDeleteMediainfoXmlAction extends TmmAction {
 
-  private static final long           serialVersionUID = -2029243504238273761L;
-
+  private static final long serialVersionUID = -2029243504238273761L;
 
   public TvShowDeleteMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.deletemediainfoxml"));
@@ -61,35 +56,18 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    List<TvShow> selectedTvShows = new ArrayList<>();
-    Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
+    TvShowSelectionModel.SelectedObjects selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
-    for (Object obj : selectedObjects) {
-      if (obj instanceof TvShow) {
-        TvShow tvShow = (TvShow) obj;
-        selectedTvShows.add(tvShow);
-        selectedEpisodes.addAll(tvShow.getEpisodes());
-      }
-
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) obj;
-        selectedEpisodes.addAll(season.getEpisodes());
-      }
-
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-        selectedEpisodes.add(tvShowEpisode);
-      }
+    if (selectedObjects.isLockedFound()) {
+      TvShowSelectionModel.showLockedInformation();
     }
 
-    if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedObjects.isEmpty()) {
       return;
     }
 
     // display warning and ask the user again
-    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hidedeletemediainfoxmlhint")) {
+    if (Boolean.FALSE.equals(TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hidedeletemediainfoxmlhint"))) {
       JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -110,13 +88,14 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
     }
 
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    for (TvShow tvShow : selectedTvShows) {
+    for (TvShow tvShow : selectedObjects.getTvShows()) {
       tvShow.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
         Utils.deleteFileSafely(mediaFile.getFileAsPath());
         tvShow.removeFromMediaFiles(mediaFile);
       });
     }
-    for (TvShowEpisode episode : selectedEpisodes) {
+
+    for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
       episode.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
         Utils.deleteFileSafely(mediaFile.getFileAsPath());
         episode.removeFromMediaFiles(mediaFile);

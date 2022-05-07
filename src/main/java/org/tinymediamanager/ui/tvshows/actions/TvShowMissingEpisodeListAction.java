@@ -19,25 +19,25 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowMissingEpisodeListDialog;
 
+/**
+ * the class {@link TvShowMissingEpisodeListAction} is used to display a list of missing episodes for the selected shows/seasons
+ *
+ * @author Wolfgang Janes
+ */
 public class TvShowMissingEpisodeListAction extends TmmAction {
 
   public TvShowMissingEpisodeListAction() {
-
     putValue(NAME, TmmResourceBundle.getString("tvshow.missingepisodelist"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.missingepisodelist.desc"));
     putValue(LARGE_ICON_KEY, IconManager.LIST);
@@ -47,33 +47,13 @@ public class TvShowMissingEpisodeListAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-
-    List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    List<TvShow> selectedTvShows = new ArrayList<>();
-
-    for (Object obj : selectedObjects) {
-      // get all selected TV Shows
-      if (obj instanceof TvShow) {
-        TvShow tvShow = (TvShow) obj;
-        selectedTvShows.add(tvShow);
-      }
-      // get all selected Seasons
-      if (obj instanceof TvShowSeason) {
-        TvShowSeason tvShowSeason = (TvShowSeason) obj;
-        if (!selectedTvShows.contains(tvShowSeason.getTvShow())) {
-          selectedTvShows.add(tvShowSeason.getTvShow());
-        }
-      }
-    }
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     TvShowMissingEpisodeListDialog dialog = new TvShowMissingEpisodeListDialog(selectedTvShows);
     dialog.setVisible(true);
-
   }
-
 }

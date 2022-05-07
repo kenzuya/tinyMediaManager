@@ -1,43 +1,6 @@
 stages:
-  - test
   - build
   - deploy
-
-test:jdk11:
-  stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk11
-  allow_failure: true
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk14:
-  stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk14
-  allow_failure: true
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk15:
-  stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk15
-  allow_failure: true
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk16:
-  stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk16
-  allow_failure: true
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
 
 build:
   stage: build
@@ -47,8 +10,12 @@ build:
     url: https://nightly.tinymediamanager.org
   allow_failure: false
   tags:
-    - docker # force running on gitlab  
+    - tmm # force running on own runners
   script:
+    # just run on changes from the last 24 hrs
+    # does not work at the moment since we cannot abort subsequent jobs
+    # if [ "$NIGHTLY_BUILD_FORCE" = "false" ] && [ $(git rev-list --after="24 hours" --count "$CI_COMMIT_SHA") -eq 0 ]; then exit 0; fi
+
     # generate changelog.txt for nightly builds
     - sh generate_changelog.sh
 

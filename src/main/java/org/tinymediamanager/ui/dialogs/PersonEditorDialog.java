@@ -63,6 +63,8 @@ public class PersonEditorDialog extends TmmDialog {
   private JTextField               tfProfileUrl;
   private TmmTable                 tableIds;
 
+  private boolean                  savePressed      = false;
+
   public PersonEditorDialog(Window owner, String title, Person person) {
     super(owner, title, "personEditor");
     personToEdit = person;
@@ -74,10 +76,6 @@ public class PersonEditorDialog extends TmmDialog {
     tfRole.setText(personToEdit.getRole());
     tfImageUrl.setText(personToEdit.getThumbUrl());
     tfProfileUrl.setText(personToEdit.getProfileUrl());
-
-    if (person.getType() != Person.Type.ACTOR) {
-      tfRole.setEnabled(false);
-    }
   }
 
   private void initComponents() {
@@ -121,6 +119,7 @@ public class PersonEditorDialog extends TmmDialog {
               dialog.setVisible(true);
             }
             catch (Exception ignored) {
+              // ignored
             }
           }
         });
@@ -166,11 +165,6 @@ public class PersonEditorDialog extends TmmDialog {
         // sync of media ids
         // first round -> add existing ids
         for (MediaId id : ids) {
-          // only process non empty ids
-          // changed; if empty/0/null value gets set, it is removed in setter ;)
-          // if (StringUtils.isAnyBlank(id.key, id.value)) {
-          // continue;
-          // }
           // first try to cast it into an Integer
           try {
             Integer value = Integer.parseInt(id.value);
@@ -195,10 +189,16 @@ public class PersonEditorDialog extends TmmDialog {
           personToEdit.setId(id, null);
         }
 
+        savePressed = true;
+
         setVisible(false);
       });
       addDefaultButton(btnOk);
     }
+  }
+
+  public boolean isSavePressed() {
+    return savePressed;
   }
 
   private class AddIdAction extends AbstractAction {

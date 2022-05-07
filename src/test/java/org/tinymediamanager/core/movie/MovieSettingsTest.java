@@ -19,39 +19,24 @@ package org.tinymediamanager.core.movie;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.file.Paths;
-
-import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.Utils;
 
-public class MovieSettingsTest extends BasicTest {
-
-  @BeforeClass
-  public static void beforeClass() {
-    BasicTest.setup();
-  }
+public class MovieSettingsTest extends BasicMovieTest {
 
   @Test
-  public void testMovieSettings() {
-    try {
-      MovieSettings settings = MovieSettings.getInstance(getSettingsFolder());
-      assertThat(settings).isNotNull();
-      settings.setAsciiReplacement(true);
+  public void testMovieSettings() throws Exception {
+    MovieSettings settings = MovieSettings.getInstance();
+    assertThat(settings).isNotNull();
+    settings.setAsciiReplacement(true);
 
-      // let the dirty flag set by the async propertychange listener
-      Thread.sleep(100);
+    // let the dirty flag set by the async propertychange listener
+    Thread.sleep(100);
 
-      settings.saveSettings();
+    settings.saveSettings();
 
-      // cannot re-instantiate settings - need to check plain file
-      String config = Utils.readFileToString(Paths.get(getSettingsFolder(), MovieModuleManager.getInstance().getSettings().getConfigFilename()));
-      assertTrue(config.contains("\"asciiReplacement\" : true"));
-    }
-    catch (Exception e) {
-      Assertions.fail(e.getMessage());
-    }
+    // cannot re-instantiate settings - need to check plain file
+    String config = Utils.readFileToString(getSettingsFolder().resolve(MovieModuleManager.getInstance().getSettings().getConfigFilename()));
+    assertTrue(config.contains("\"asciiReplacement\" : true"));
   }
 }

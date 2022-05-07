@@ -338,7 +338,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   void merge(TvShow other, boolean force) {
-    if (other == null) {
+    if (locked || other == null) {
       return;
     }
 
@@ -885,6 +885,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the config
    */
   public void setMetadata(MediaMetadata metadata, List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
+    if (locked) {
+      LOGGER.debug("TV show locked, but setMetadata has been called!");
+      return;
+    }
+
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -1009,7 +1014,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
-      writeActorImages();
     }
 
     if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
@@ -2146,12 +2150,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
   }
 
-  @Override
-  public void deleteFromDb() {
-    // remove this TV show from the database
-    TvShowModuleManager.getInstance().getTvShowList().removeTvShow(this);
-  }
-
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
     if (season == -1 || episode == -1) {
       return Collections.emptyList();
@@ -2195,11 +2193,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      return;
-    }
-
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }

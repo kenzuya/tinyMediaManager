@@ -18,41 +18,34 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
-public class TvShowUpdateDatasourceTaskTest extends BasicTest {
-  private static final String FOLDER                   = getSettingsFolder();
-  private static final int    NUMBER_OF_EXPECTED_SHOWS = 14;
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-    BasicTest.setup();
-  }
+public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
+  private static final int NUMBER_OF_EXPECTED_SHOWS = 14;
 
   @Before
-  public void setUpBeforeTest() throws Exception {
-    setLicenseKey();
+  public void setup() throws Exception {
+    super.setup();
 
     TmmModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
-    Utils.copyDirectoryRecursive(Paths.get("target/test-classes/testtvshows"), Paths.get(FOLDER, "testtvshows"));
-    TvShowModuleManager.getInstance().getSettings().addTvShowDataSources(FOLDER + "/testtvshows");
+
+    // just a copy; we might have another movie test which uses these files
+    copyResourceFolderToWorkFolder("testtvshows");
+    TvShowModuleManager.getInstance().getSettings().addTvShowDataSources(getWorkFolder().resolve("testtvshows").toAbsolutePath().toString());
   }
 
   @After
@@ -98,7 +91,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     ///////////////////////////////////////////////////////////////////////////////////////
     // Breaking Bad
     ///////////////////////////////////////////////////////////////////////////////////////
-    TvShow show = tvShowList.getTvShowByPath(Paths.get(FOLDER + "/testtvshows/Breaking Bad"));
+    TvShow show = tvShowList.getTvShowByPath(getWorkFolder().resolve("testtvshows/Breaking Bad"));
     assertThat(show).isNotNull();
     assertThat(show.getTitle()).isEqualTo("Breaking Bad");
     assertThat(show.getEpisodes().size()).isEqualTo(62);
@@ -126,7 +119,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     ///////////////////////////////////////////////////////////////////////////////////////
     // Firefly
     ///////////////////////////////////////////////////////////////////////////////////////
-    show = tvShowList.getTvShowByPath(Paths.get(FOLDER + "/testtvshows/Firefly"));
+    show = tvShowList.getTvShowByPath(getWorkFolder().resolve("testtvshows/Firefly"));
     assertThat(show).isNotNull();
     assertThat(show.getTitle()).isEqualTo("Firefly");
     assertThat(show.getEpisodes().size()).isEqualTo(14);
@@ -146,7 +139,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     ///////////////////////////////////////////////////////////////////////////////////////
     // Futurama
     ///////////////////////////////////////////////////////////////////////////////////////
-    show = tvShowList.getTvShowByPath(Paths.get(FOLDER + "/testtvshows/Futurama (1999)"));
+    show = tvShowList.getTvShowByPath(getWorkFolder().resolve("testtvshows/Futurama (1999)"));
     assertThat(show).isNotNull();
     assertThat(show.getTitle()).isEqualTo("Futurama");
     assertThat(show.getEpisodes().size()).isEqualTo(44);

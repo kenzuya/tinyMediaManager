@@ -24,32 +24,30 @@ import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
-public class TvShowChangeDatasourceTaskTest extends BasicTest {
-  @BeforeClass
-  public static void init() throws Exception {
-    BasicTest.setup();
+public class TvShowChangeDatasourceTaskTest extends BasicTvShowTest {
+
+  @Before
+  public void setup() throws Exception {
+    super.setup();
+
+    copyResourceFolderToWorkFolder("testtvshows");
   }
 
   @Test
   public void testMoveTvShow() throws Exception {
-    String sourceFolder = Paths.get("target/test-classes/testtvshows_from").toAbsolutePath().toString();
-    String destinationFolder = Paths.get("target/test-classes/testtvshows_to").toAbsolutePath().toString();
-
-    // cleanup
-    FileUtils.deleteQuietly(new File(sourceFolder));
-    FileUtils.deleteQuietly(new File(destinationFolder));
-
+    String sourceFolder = getWorkFolder().resolve("testtvshows_from").toAbsolutePath().toString();
+    String destinationFolder = getWorkFolder().resolve("testtvshows_to").toAbsolutePath().toString();
     // first copy our movie files to a safe new place to do not interfere with other unit tests
     Files.createDirectories(Paths.get(sourceFolder));
-    FileUtils.copyDirectory(new File("target/test-classes/testtvshows/Futurama (1999)"), new File(sourceFolder + "/Futurama (1999)"));
+    FileUtils.copyDirectory(getWorkFolder().resolve("testtvshows/Futurama (1999)").toFile(), new File(sourceFolder + "/Futurama (1999)"));
 
     TvShow tvShow = new TvShow();
     tvShow.setDataSource(sourceFolder);

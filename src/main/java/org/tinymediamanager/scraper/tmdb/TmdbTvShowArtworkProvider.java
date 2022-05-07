@@ -31,7 +31,6 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
-import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * the class {@link TmdbTvShowArtworkProvider} is used to provide artwork for TV shows
@@ -93,9 +92,9 @@ public class TmdbTvShowArtworkProvider extends TmdbMetadataProvider implements I
     }
 
     // populate imdbid from tvdb if no tmdb/imdb id is set
-    if (options.getTmdbId() == 0 && !MetadataUtil.isValidImdbId(options.getImdbId()) && options.getIdAsInt(MediaMetadata.TVDB) > 0) {
+    if (options.getTmdbId() == 0 && !MediaIdUtil.isValidImdbId(options.getImdbId()) && options.getIdAsInt(MediaMetadata.TVDB) > 0) {
       String imdbId = MediaIdUtil.getImdbIdFromTvdbId(options.getIdAsString(MediaMetadata.TVDB));
-      if (MetadataUtil.isValidImdbId(imdbId)) {
+      if (MediaIdUtil.isValidImdbId(imdbId)) {
         options.setImdbId(imdbId);
       }
     }

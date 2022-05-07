@@ -17,8 +17,10 @@
 package org.tinymediamanager.core.movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tinymediamanager.core.jmte.JmteUtils.morphTemplate;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,9 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.BasicTest;
+import org.tinymediamanager.core.ExportTemplate;
+import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -52,15 +54,10 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 
-public class MovieJmteTests extends BasicTest {
+public class MovieJmteTests extends BasicMovieTest {
 
   private Engine              engine;
   private Map<String, Object> root;
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void testMoviePatterns() {
@@ -157,6 +154,33 @@ public class MovieJmteTests extends BasicTest {
     }
   }
 
+  @Test
+  public void testAllMovieTemplates() throws Exception {
+    createFakeMovie("Movie 1");
+    createFakeMovie("Another Movie");
+    createFakeMovie("Cool Movie");
+
+    MovieList ml = MovieModuleManager.getInstance().getMovieList();
+    for (ExportTemplate t : MovieExporter.findTemplates(MediaEntityExporter.TemplateType.MOVIE)) {
+      System.out.println("\nTEMPLATE: " + t.getPath());
+      MovieExporter ex = new MovieExporter(Paths.get(t.getPath()));
+      ex.export(ml.getMovies(), getWorkFolder().resolve(t.getName()));
+    }
+  }
+
+  @Test
+  public void testMovieReplacements() throws Exception {
+    Map<String, String> tokenMap = MovieRenamer.getTokenMap();
+
+    assertThat(morphTemplate("${movie.title}", tokenMap)).isEqualTo("${movie.title}");
+    assertThat(morphTemplate("${title}", tokenMap)).isEqualTo("${movie.title}");
+    assertThat(morphTemplate("${title[2]}", tokenMap)).isEqualTo("${movie.title[2]}");
+    assertThat(morphTemplate("${movie.title[2]}", tokenMap)).isEqualTo("${movie.title[2]}");
+    assertThat(morphTemplate("${if title}${title[2]}${end}", tokenMap)).isEqualTo("${if movie.title}${movie.title[2]}${end}");
+    assertThat(morphTemplate("${foreach genres genre}${genre}${end}", tokenMap)).isEqualTo("${foreach movie.genres genre}${genre}${end}");
+    assertThat(morphTemplate("${title;lower}", tokenMap)).isEqualTo("${movie.title;lower}");
+  }
+
   private void compare(String template, String expectedValue) {
     String actualValue = engine.transform(JmteUtils.morphTemplate(template, MovieRenamer.getTokenMap()), root);
     assertThat(actualValue).isEqualTo(expectedValue);
@@ -164,8 +188,8 @@ public class MovieJmteTests extends BasicTest {
 
   private Movie createMovie() throws Exception {
     Movie movie = new Movie();
-    movie.setDataSource("/media/movies");
-    movie.setPath("/media/movies/A/1992/Aladdin");
+    movie.setDataSource(getWorkFolder().toString());
+    movie.setPath(getWorkFolder().resolve("A/1992/Aladdin").toString());
     movie.setTitle("Aladdin");
     movie.setOriginalTitle("Disneys Aladdin");
     movie.setSortTitle("Aladdin");
@@ -200,6 +224,7 @@ public class MovieJmteTests extends BasicTest {
     // ToDo fileinfo
     MediaFile mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
+    mf.setPath(getWorkFolder().resolve("A/1992/Aladdin").toString());
     mf.setFilename("Aladdin.mkv");
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);

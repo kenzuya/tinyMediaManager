@@ -67,6 +67,7 @@ public final class Constants {
   public static final String HAS_IMAGES             = "hasImages";
   public static final String HAS_NFO_FILE           = "hasNfoFile";
   public static final String KEYART                 = "keyart";
+  public static final String LOCKED                 = "locked";
   public static final String LOGO                   = "logo";
   public static final String MEDIA_FILES            = "mediaFiles";
   public static final String MEDIA_INFORMATION      = "mediaInformation";

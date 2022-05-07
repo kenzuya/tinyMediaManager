@@ -28,6 +28,8 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,6 @@ import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
 import org.tinymediamanager.scraper.thetvdb.service.Controller;
 import org.tinymediamanager.scraper.util.LanguageUtils;
-import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
  * The Class TheTvDbMetadataProvider.
@@ -200,9 +201,16 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   }
 
   protected List<Person> parseCastMembers(List<Character> characters) {
+    if (characters == null) {
+      return Collections.emptyList();
+    }
+
+    // sort by the field sort
+    characters.sort(Comparator.comparingInt(o -> o.sort));
+
     List<Person> members = new ArrayList<>();
 
-    for (Character character : ListUtils.nullSafe(characters)) {
+    for (Character character : characters) {
       Person member;
 
       switch (character.type) {
@@ -218,6 +226,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         case 3:
         case 4:
           member = new Person(ACTOR);
+          member.setRole(character.name);
           break;
 
         case 7:
@@ -230,7 +239,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
       member.setId(getId(), character.peopleId);
       member.setName(character.personName);
-      member.setRole(character.name);
+
       if (StringUtils.isNotBlank(character.image)) {
         member.setThumbUrl(character.image);
       }

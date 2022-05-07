@@ -576,7 +576,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
 
-        tableActors = new PersonTable(actors, true);
+        tableActors = new PersonTable(actors);
 
         JScrollPane scrollPaneActors = new JScrollPane();
         tableActors.configureScrollPane(scrollPaneActors);
@@ -1382,6 +1382,9 @@ public class TvShowEditorDialog extends TmmDialog {
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+          actor.setRole("");
+        }
         actors.add(0, actor);
       }
     }

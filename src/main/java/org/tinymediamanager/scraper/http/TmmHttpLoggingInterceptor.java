@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.scraper.http;
 
+import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -33,7 +36,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http.HttpHeaders;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
@@ -45,8 +47,10 @@ import okio.GzipSource;
  * @author Manuel Laggner
  */
 public class TmmHttpLoggingInterceptor implements Interceptor {
-  private static final Logger  LOGGER = LoggerFactory.getLogger(TmmHttpLoggingInterceptor.class);
-  private static final Charset UTF8   = StandardCharsets.UTF_8;
+  private static final Logger  LOGGER               = LoggerFactory.getLogger(TmmHttpLoggingInterceptor.class);
+  private static final Charset UTF8                 = StandardCharsets.UTF_8;
+  private static final int     HTTP_CONTINUE        = 100;
+  private static final int     MAX_TEXT_BODY_LENGTH = 1000;
 
   @Override
   public Response intercept(Chain chain) throws IOException {
@@ -61,24 +65,9 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
       LOGGER.trace(requestStartMessage);
 
-      if (hasRequestBody) {
-        // Request body headers are only present when installed as a network interceptor. Force
-        // them to be included (when available) so there values are known.
-        if (requestBody.contentType() != null) {
-          LOGGER.trace("Content-Type: {}", requestBody.contentType());
-        }
-        if (requestBody.contentLength() != -1) {
-          LOGGER.trace("Content-Length: {}", requestBody.contentLength());
-        }
-      }
-
       Headers headersRequest = request.headers();
-      for (int i = 0, count = headersRequest.size(); i < count; i++) {
-        String name = headersRequest.name(i);
-        // Skip headers from the request body as they are explicitly logged above.
-        if (!"Content-Type".equalsIgnoreCase(name) && !"Content-Length".equalsIgnoreCase(name)) {
-          LOGGER.trace("{} : {}", headersRequest.name(i), headersRequest.value(i));
-        }
+      if (headersRequest.size() > 0) {
+        LOGGER.trace("{}", headersRequest.toMultimap());
       }
 
       if (!hasRequestBody || bodyHasUnknownEncoding(request.headers())) {
@@ -98,8 +87,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         if (isPlaintext(buffer)) {
           String content = buffer.readString(charset);
           // only log the first 1k characters
-          if (content.length() > 1000) {
-            LOGGER.trace("{}...", content.substring(0, 1000)); // NOSONAR
+          if (content.length() > MAX_TEXT_BODY_LENGTH) {
+            LOGGER.trace("{}...", content.substring(0, MAX_TEXT_BODY_LENGTH)); // NOSONAR
           }
           else {
             LOGGER.trace(content);
@@ -142,17 +131,17 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           + ", " + bodySize + " body" + ')');
 
       Headers headersResponse = response.headers();
-      for (int i = 0, count = headersResponse.size(); i < count; i++) {
-        LOGGER.trace("{} : {}", headersResponse.name(i), headersResponse.value(i));
+      if (headersResponse.size() > 0) {
+        LOGGER.trace("{}", headersResponse.toMultimap());
       }
 
-      if (!HttpHeaders.hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
+      if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
         LOGGER.trace("<-- END HTTP");
       }
       else if (isTextResponse(response)) {
         BufferedSource source = responseBody.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
-        buffer = source.buffer();
+        buffer = source.getBuffer();
 
         Long gzippedLength = null;
         if ("gzip".equalsIgnoreCase(headersResponse.get("Content-Encoding"))) {
@@ -185,9 +174,9 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         if (contentLength != 0) {
           LOGGER.trace("");
           String content = buffer.clone().readString(charset);
-          // only log the first 10k characters
-          if (content.length() > 10000) {
-            LOGGER.trace("{}...", content.substring(0, 10000)); // NOSONAR
+          // only log the first 1k characters
+          if (content.length() > MAX_TEXT_BODY_LENGTH) {
+            LOGGER.trace("{}...", content.substring(0, MAX_TEXT_BODY_LENGTH)); // NOSONAR
           }
           else {
             LOGGER.trace(content);
@@ -231,6 +220,38 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       default:
         return false;
     }
+  }
+
+  private static long contentLength(Headers headers) {
+    return stringToLong(headers.get("Content-Length"));
+  }
+
+  private static long stringToLong(String s) {
+    if (s == null)
+      return -1;
+    try {
+      return Long.parseLong(s);
+    }
+    catch (NumberFormatException e) {
+      return -1;
+    }
+  }
+
+  /** Returns true if the response must have a (possibly 0-length) body. See RFC 7231. */
+  public static boolean hasBody(Response response) {
+    // HEAD requests never yield a body regardless of the response headers.
+    if (response.request().method().equals("HEAD")) {
+      return false;
+    }
+
+    int responseCode = response.code();
+    if ((responseCode < HTTP_CONTINUE || responseCode >= 200) && responseCode != HTTP_NO_CONTENT && responseCode != HTTP_NOT_MODIFIED) {
+      return true;
+    }
+
+    // If the Content-Length or Transfer-Encoding headers disagree with the response code, the
+    // response is malformed. For best compatibility, we honor the headers.
+    return contentLength(response.headers()) != -1 || "chunked".equalsIgnoreCase(response.header("Transfer-Encoding"));
   }
 
   /**

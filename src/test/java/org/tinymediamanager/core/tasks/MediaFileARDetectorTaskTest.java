@@ -6,18 +6,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
 
 public class MediaFileARDetectorTaskTest extends BasicTest {
 
   private final List<Float> customARs = Arrays.asList(1.78f, 1.85f, 2.35f, 2.4f);
-
-  @BeforeClass
-  public static void setup() {
-    BasicTest.setup();
-  }
 
   @Test
   public void calculateARPrimaryAndSecondaryRaw_both() {

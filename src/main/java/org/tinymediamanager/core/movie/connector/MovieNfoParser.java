@@ -59,6 +59,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -78,7 +79,6 @@ public class MovieNfoParser {
   public String               originaltitle       = "";
   public String               sorttitle           = "";
   public int                  year                = -1;
-  public Set                  set                 = null;
   public int                  top250              = 0;
   public String               plot                = "";
   public String               outline             = "";
@@ -91,13 +91,13 @@ public class MovieNfoParser {
   public String               languages           = "";
   public MediaSource          source              = MediaSource.UNKNOWN;
   public MovieEdition         edition             = MovieEdition.NONE;
-  public String               trailer             = "";
   public String               originalFilename    = "";
   public String               userNote            = "";
 
   public Map<String, Object>  ids                 = new HashMap<>();
   public Map<String, Rating>  ratings             = new HashMap<>();
 
+  public List<Set>            sets                = new ArrayList<>();
   public List<String>         posters             = new ArrayList<>();
   public List<String>         banners             = new ArrayList<>();
   public List<String>         cleararts           = new ArrayList<>();
@@ -116,6 +116,7 @@ public class MovieNfoParser {
   public List<Person>         directors           = new ArrayList<>();
   public List<Person>         credits             = new ArrayList<>();
   public List<String>         showlinks           = new ArrayList<>();
+  public List<String>         trailers            = new ArrayList<>();
 
   public List<String>         unsupportedElements = new ArrayList<>();
 
@@ -272,6 +273,10 @@ public class MovieNfoParser {
     return elements.get(0);
   }
 
+  private Elements getMultipleElements(Element parent, String tag) {
+    return parent.select(parent.tagName() + " > " + tag);
+  }
+
   /**
    * the title usually comes in the title tag
    */
@@ -324,6 +329,7 @@ public class MovieNfoParser {
     supportedElements.add("userrating");
     supportedElements.add("ratings");
     supportedElements.add("votes");
+    supportedElements.add("criticrating");
 
     // old style
     // <rating>6.5</rating>
@@ -433,6 +439,20 @@ public class MovieNfoParser {
       }
     }
 
+    // something from Emby
+    // <criticrating>87</criticrating>
+    element = getSingleElement(root, "criticrating");
+    if (element != null) {
+      Rating r = new Rating();
+      r.id = "tomatometerallcritics";
+      r.rating = MetadataUtil.parseInt(element.ownText(), 0);
+      r.maxValue = 100;
+
+      if (StringUtils.isNotBlank(r.id) && r.rating > 0) {
+        ratings.put(r.id, r);
+      }
+    }
+
     return null;
   }
 
@@ -451,50 +471,56 @@ public class MovieNfoParser {
     // <sets> <set order="1">set name</set> </sets>
     Element element = getSingleElement(root, "sets");
     if (element != null) {
-      element = getSingleElement(element, "set");
-      if (element != null && StringUtils.isNotBlank(element.ownText())) {
-        set = new Set();
-        set.name = element.ownText();
+      for (Element child : getMultipleElements(element, "set")) {
+        if (StringUtils.isNotBlank(child.ownText())) {
+          Set set = new Set();
+          set.name = child.ownText();
+          sets.add(set);
+        }
       }
     }
     else {
-      element = getSingleElement(root, "set");
+      for (Element child : getMultipleElements(root, "set")) {
+        // new kodi style
+        // <set> <name>set name</name><overview>set overview</overview></set>
+        if (!child.children().isEmpty()) {
+          Set tmp = new Set();
 
-      if (element == null) {
-        // okay, there is no single <set> tag; maybe it is a mp NFO format with multiple sets; just pick the first one
-        element = root.select(root.tagName() + " > " + "set").first();
-      }
+          if (StringUtils.isNotBlank(child.attr("tmdbcolid"))) {
+            tmp.tmdbId = MetadataUtil.parseInt(child.attr("tmdbcolid"), 0);
+          }
 
-      // new kodi style
-      // <set> <name>set name</name><overview>set overview</overview></set>
-      if (element != null && !element.children().isEmpty()) {
-        Set tmp = new Set();
-        for (Element child : element.children()) {
-          switch (child.tagName()) {
-            case "name":
-            case "setname":
-              tmp.name = child.ownText();
-              break;
+          for (Element setChild : child.children()) {
+            switch (setChild.tagName()) {
+              case "name":
+              case "setname":
+                tmp.name = setChild.ownText();
+                break;
 
-            case "overview":
-            case "setdescription":
-              tmp.overview = child.ownText();
-              break;
+              case "overview":
+              case "setdescription":
+                tmp.overview = setChild.ownText();
+                break;
 
-            default:
-              break;
+              default:
+                break;
+            }
+          }
+          if (StringUtils.isNotBlank(tmp.name)) {
+            sets.add(tmp);
           }
         }
-        if (StringUtils.isNotBlank(tmp.name)) {
-          set = tmp;
+        // old kodi/xbmc or new mediaportal style or emby style
+        // <set>set name</set>
+        else if (StringUtils.isNotBlank(child.ownText())) {
+          Set set = new Set();
+          set.name = child.ownText();
+          set.overview = "";
+          if (StringUtils.isNotBlank(child.attr("tmdbcolid"))) {
+            set.tmdbId = MetadataUtil.parseInt(child.attr("tmdbcolid"), 0);
+          }
+          sets.add(set);
         }
-      }
-      // old kodi/xbmc or new mediaportal style
-      // <set>set name</set>
-      else if (element != null && StringUtils.isNotBlank(element.ownText())) {
-        set = new Set();
-        set.name = element.ownText();
-        set.overview = "";
       }
     }
 
@@ -760,6 +786,7 @@ public class MovieNfoParser {
   private Void parseIds() {
     supportedElements.add("id");
     supportedElements.add("imdb");
+    supportedElements.add("imdbid");
     supportedElements.add("tmdbid");
     supportedElements.add("ids");
     supportedElements.add("tmdbcollectionid"); // add the lowercase variant to supported elements, since we have an LC contains check
@@ -768,12 +795,16 @@ public class MovieNfoParser {
 
     // id tag & check against imdb pattern (otherwise we cannot say for which provider this id is)
     Element element = getSingleElement(root, "id");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
       ids.put(MediaMetadata.IMDB, element.ownText());
     }
     element = getSingleElement(root, "imdb");
-    if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
-      ids.put(MediaMetadata.IMDB, element.ownText());
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
+      ids.putIfAbsent(MediaMetadata.IMDB, element.ownText());
+    }
+    element = getSingleElement(root, "imdbid");
+    if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
+      ids.putIfAbsent(MediaMetadata.IMDB, element.ownText());
     }
 
     // tmdbId tag
@@ -900,6 +931,7 @@ public class MovieNfoParser {
   private Void parseReleaseDate() {
     supportedElements.add("premiered");
     supportedElements.add("aired");
+    supportedElements.add("releasedate");
 
     Element element = getSingleElement(root, "premiered");
     if (element != null) {
@@ -914,9 +946,27 @@ public class MovieNfoParser {
         // ignored
       }
     }
+
     // also look if there is an aired date
     if (releaseDate == null) {
       element = getSingleElement(root, "aired");
+      if (element != null) {
+        // parse a date object out of the string
+        try {
+          Date date = StrgUtils.parseDate(element.ownText());
+          if (date != null) {
+            releaseDate = date;
+          }
+        }
+        catch (ParseException ignored) {
+          // ignored
+        }
+      }
+    }
+
+    // also look if there is a release date
+    if (releaseDate == null) {
+      element = getSingleElement(root, "releasedate");
       if (element != null) {
         // parse a date object out of the string
         try {
@@ -1043,9 +1093,30 @@ public class MovieNfoParser {
     // if there is exactly one credits tag, split the credits at the comma
     if (elements.size() == 1) {
       try {
-        for (String credit : ParserUtils.split(elements.get(0).ownText())) {
+        Element element = elements.get(0);
+
+        // split on , or / and remove whitespace around
+        List<String> creditsNames = ParserUtils.split(element.ownText());
+
+        for (String credit : creditsNames) {
           Person person = new Person();
           person.name = credit;
+
+          // parse IDs, only if exactly one director is in the tag
+          if (creditsNames.size() == 1) {
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+          }
+
           credits.add(person);
         }
       }
@@ -1058,6 +1129,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           credits.add(person);
         }
       }
@@ -1078,9 +1162,30 @@ public class MovieNfoParser {
     // if there is exactly one director tag, split the directors at the comma
     if (elements.size() == 1) {
       try {
-        for (String director : ParserUtils.split(elements.get(0).ownText())) {
+        Element element = elements.get(0);
+
+        // split on , or / and remove whitespace around
+        List<String> directorNames = ParserUtils.split(element.ownText());
+
+        for (String director : directorNames) {
           Person person = new Person();
           person.name = director;
+
+          // parse IDs, only if exactly one director is in the tag
+          if (directorNames.size() == 1) {
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+          }
+
           directors.add(person);
         }
       }
@@ -1093,6 +1198,19 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(element.ownText())) {
           Person person = new Person();
           person.name = element.ownText();
+
+          if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+            person.tmdbId = element.attr("tmdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+            person.imdbId = element.attr("imdbid");
+          }
+
+          if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+            person.tvdbId = element.attr("tvdbid");
+          }
+
           directors.add(person);
         }
       }
@@ -1149,6 +1267,10 @@ public class MovieNfoParser {
 
           case "tmdbid":
             actor.tmdbId = child.ownText();
+            break;
+
+          case "tvdbid":
+            actor.tvdbId = child.ownText();
             break;
 
           case "imdbid":
@@ -1470,10 +1592,9 @@ public class MovieNfoParser {
   private Void parseTrailer() {
     supportedElements.add("trailer");
 
-    Element element = getSingleElement(root, "trailer");
-    if (element != null) {
+    for (Element element : getMultipleElements(root, "trailer")) {
       // the trailer can come as a plain http link or prepared for kodi
-
+      String trailer = "";
       // try to parse out youtube trailer plugin
       Pattern pattern = Pattern.compile("plugin://plugin.video.youtube/\\?action=play_video&videoid=(.*)$");
       Matcher matcher = pattern.matcher(element.ownText());
@@ -1496,6 +1617,10 @@ public class MovieNfoParser {
       // pure http link
       if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
         trailer = element.ownText();
+      }
+
+      if (StringUtils.isNotBlank(trailer)) {
+        trailers.add(trailer);
       }
     }
 
@@ -1701,14 +1826,23 @@ public class MovieNfoParser {
     movie.setMediaSource(source);
     movie.setEdition(edition);
 
-    // movieset
+    // movieset; since (at least) Emby is able to provide more sets, we need to take sure to use the _best_ possible set
+    // for Emby this is the one with a "tmdbcolid" provided
+    Set set = sets.stream().filter(entry -> entry.tmdbId > 0).findFirst().orElse(null);
+    if (set == null) {
+      // no one with a tmdbcolid? just use the first one
+      set = sets.stream().findFirst().orElse(null);
+    }
     if (set != null && StringUtils.isNotEmpty(set.name)) {
       // search for that movieset
       MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
       // movie set id
       int tmdbSetId = 0;
-      if (ids.get("tmdbSet") != null) {
+      if (set.tmdbId > 0) {
+        tmdbSetId = set.tmdbId;
+      }
+      else if (ids.get("tmdbSet") != null) {
         try {
           tmdbSetId = Integer.parseInt(ids.get("tmdbSet").toString());
         }
@@ -1762,14 +1896,14 @@ public class MovieNfoParser {
 
     movie.addToGenres(genres);
 
-    if (StringUtils.isNotEmpty(trailer)) {
-      if (!trailer.startsWith("file")) {
+    for (String trailerUrl : trailers) {
+      if (!trailerUrl.startsWith("file")) {
         // only add new MT when not a local file
         MediaTrailer trailer = new MediaTrailer();
         trailer.setName("fromNFO");
         trailer.setProvider("from NFO");
         trailer.setQuality("unknown");
-        trailer.setUrl(this.trailer);
+        trailer.setUrl(trailerUrl);
         trailer.setInNfo(true);
         movie.addToTrailer(Collections.singletonList(trailer));
       }
@@ -1801,6 +1935,11 @@ public class MovieNfoParser {
       person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
     }
 
+    int tvdbId = MetadataUtil.parseInt(nfoPerson.tvdbId, 0);
+    if (tvdbId > 0) {
+      person.setId(MediaMetadata.TVDB, tvdbId);
+    }
+
     return person;
   }
 
@@ -1810,6 +1949,7 @@ public class MovieNfoParser {
   static class Set {
     String name     = "";
     String overview = "";
+    int    tmdbId   = 0;
   }
 
   static class Rating {
@@ -1826,6 +1966,7 @@ public class MovieNfoParser {
     String profile = "";
     String tmdbId  = "";
     String imdbId  = "";
+    String tvdbId  = "";
   }
 
   static class Fileinfo {

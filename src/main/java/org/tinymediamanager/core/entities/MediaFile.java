@@ -1641,7 +1641,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   /**
    * <b>PHYSICALLY</b> deletes a MF by moving it to datasource backup folder<br>
-   * DS\.backup\&lt;filename&gt;<br>
+   * DS\.deletedByTMM\&lt;filename&gt;<br>
    * maintaining its orginating directory
    *
    * @param datasource

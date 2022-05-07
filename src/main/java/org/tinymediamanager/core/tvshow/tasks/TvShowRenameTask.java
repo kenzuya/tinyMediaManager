@@ -16,7 +16,7 @@
 package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -36,12 +36,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowRenameTask extends TmmThreadPool {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
+  private static final Logger             LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
 
-
-  private final List<TvShow>          tvShowsToRename  = new ArrayList<>();
-  private final List<TvShowEpisode>   episodesToRename = new ArrayList<>();
-  private boolean                     renameRoot       = true;
+  private final Collection<TvShow>        tvShowsToRename  = new ArrayList<>();
+  private final Collection<TvShowEpisode> episodesToRename = new ArrayList<>();
+  private final boolean                   renameRoot;
 
   /**
    * Instantiates a new tv show rename task.
@@ -49,7 +48,7 @@ public class TvShowRenameTask extends TmmThreadPool {
    * @param tvShowsToRename
    *          the tvshows to rename
    */
-  public TvShowRenameTask(List<TvShow> tvShowsToRename, List<TvShowEpisode> episodesToRename, boolean renameRootFolder) {
+  public TvShowRenameTask(Collection<TvShow> tvShowsToRename, Collection<TvShowEpisode> episodesToRename, boolean renameRootFolder) {
     super(TmmResourceBundle.getString("tvshow.rename"));
     if (tvShowsToRename != null) {
       this.tvShowsToRename.addAll(tvShowsToRename);
@@ -120,8 +119,7 @@ public class TvShowRenameTask extends TmmThreadPool {
    * ThreadpoolWorker to work off ONE episode
    */
   private static class RenameEpisodeTask implements Callable<Object> {
-
-    private TvShowEpisode episode = null;
+    private final TvShowEpisode episode;
 
     public RenameEpisodeTask(TvShowEpisode episode) {
       this.episode = episode;

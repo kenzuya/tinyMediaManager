@@ -124,7 +124,7 @@ public class TvShowExtraImageFetcherTask implements Runnable {
     int i = 1;
     for (String urlAsString : fanartUrls) {
       try {
-        String extension = FilenameUtils.getExtension(urlAsString);
+        String extension = Utils.getArtworkExtensionFromUrl(urlAsString);
         String filename = fileNaming.getFilename("", extension);
 
         // split the filename again and attach the counter

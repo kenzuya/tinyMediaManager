@@ -37,8 +37,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowChooserDialog;
  * @author Manuel Laggner
  */
 public class TvShowSingleScrapeAction extends TmmAction {
-  private static final long           serialVersionUID = 641704453374845709L;
-  
+  private static final long serialVersionUID = 641704453374845709L;
 
   public TvShowSingleScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.selected"));

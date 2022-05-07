@@ -20,27 +20,25 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.dialogs.CleanUpUnwantedFilesDialog;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
+/**
+ * the class {@link TvShowCleanUpFilesAction} is used to trigger a _cleanup_ to remove unwanted files
+ * 
+ * @author Wolfgang Janes
+ */
 public class TvShowCleanUpFilesAction extends TmmAction {
 
-  
-
   public TvShowCleanUpFilesAction() {
-
     putValue(NAME, TmmResourceBundle.getString("cleanupfiles"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cleanupfiles.desc"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
-
   }
 
   @Override
@@ -48,7 +46,6 @@ public class TvShowCleanUpFilesAction extends TmmAction {
     List<MediaEntity> selectedTvShows = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive());
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

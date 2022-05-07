@@ -58,7 +58,9 @@
         <copy file="target/${tmmName}-${tmmVersion}.jar" tofile="${build.dir}/tmm.jar"/>
 
         <copy todir="${build.dir}/native">
-            <fileset dir="native"/>
+            <fileset dir="native">
+                <exclude name="native/addons/**"/>
+            </fileset>
         </copy>
 
         <!-- zip templates -->
@@ -73,6 +75,28 @@
         <!-- JRE -->
         <copy todir="${build.dir}/jre">
             <fileset dir="target/jre"/>
+        </copy>
+
+        <!-- addons -->
+        <copy todir="${build.dir}/native/windows/addons">
+            <fileset dir="target/addons">
+                <include name="*windows_*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/macos/addons">
+            <fileset dir="target/addons">
+                <include name="*macos_*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/linux/addons">
+            <fileset dir="target/addons">
+                <include name="*linux_x64*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/native/arm/addons">
+            <fileset dir="target/addons">
+                <include name="*linux_arm*"/>
+            </fileset>
         </copy>
 
         <!-- ===================================================== -->
@@ -103,7 +127,7 @@
         </taskdef>
 
         <!-- ===================================================== -->
-        <!-- macOS distributable -->
+        <!-- macOS x64 distributable -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
         <echo message="prepare build for MacOS X"/>
@@ -123,20 +147,19 @@
                 <include name="**/*"/>
                 <exclude name="native/windows*/**"/>
                 <exclude name="native/linux*/**"/>
+                <exclude name="native/arm*/**"/>
                 <exclude name="jre/jre-windows*"/>
                 <exclude name="jre/jre-linux*"/>
+                <exclude name="jre/jre-*arm*"/>
             </fileset>
         </copy>
 
         <!-- ===================================================== -->
-        <!-- Windows distributable -->
+        <!-- Windows x64 distributable -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
         <echo message="prepare build for Windows"/>
         <echo message="====================================================="/>
-        <!--        <copy todir="${dist.dir}/win">-->
-        <!--            <fileset dir="AppBundler/dist-windows"/>-->
-        <!--        </copy>-->
         <copy file="target/launcher/windows/tinyMediaManager.exe"
               tofile="${dist.dir}/win/tinyMediaManager.exe"/>
         <copy file="target/launcher/windows/tinyMediaManagerCMD.exe"
@@ -146,20 +169,19 @@
                 <include name="**/*"/>
                 <exclude name="native/mac*/**"/>
                 <exclude name="native/linux*/**"/>
+                <exclude name="native/arm*/**"/>
                 <exclude name="jre/jre-macos*"/>
                 <exclude name="jre/jre-linux*"/>
+                <exclude name="jre/jre-*arm*"/>
             </fileset>
         </copy>
 
         <!-- ===================================================== -->
-        <!-- Linux distributable -->
+        <!-- Linux x64 distributable -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
         <echo message="prepare build for Linux"/>
         <echo message="====================================================="/>
-        <!--        <copy todir="${dist.dir}/linux">-->
-        <!--            <fileset dir="AppBundler/dist-linux"/>-->
-        <!--        </copy>-->
         <copy file="target/launcher/linux/tinyMediaManager"
               tofile="${dist.dir}/linux/tinyMediaManager"/>
         <chmod file="${dist.dir}/linux/tinyMediaManager" perm="ugo+rx"/>
@@ -168,13 +190,15 @@
                 <include name="**/*"/>
                 <exclude name="native/mac*/**"/>
                 <exclude name="native/windows*/**"/>
+                <exclude name="native/arm*/**"/>
                 <exclude name="jre/jre-macos*"/>
                 <exclude name="jre/jre-windows*"/>
+                <exclude name="jre/jre-*arm*"/>
             </fileset>
         </copy>
 
         <!-- ===================================================== -->
-        <!-- ARM (raspberry, ...) distributable -->
+        <!-- Linux arm32 (raspberry, ...) distributable -->
         <!-- ===================================================== -->
         <copy file="target/launcher/arm/tinyMediaManager"
               tofile="${dist.dir}/arm/tinyMediaManager-arm"/>
@@ -182,8 +206,12 @@
         <copy todir="${dist.dir}/arm">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>
-                <exclude name="native/**"/>
-                <exclude name="jre/**"/>
+                <exclude name="native/mac*/**"/>
+                <exclude name="native/windows*/**"/>
+                <exclude name="native/linux*/**"/>
+                <exclude name="jre/jre-macos*"/>
+                <exclude name="jre/jre-windows*"/>
+                <exclude name="jre/jre-linux_x64*"/>
             </fileset>
         </copy>
 
@@ -238,7 +266,7 @@
         </zip>
 
         <!-- ===================================================== -->
-        <!-- package Linux -->
+        <!-- package Linux x64 -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
         <echo message="package for Linux amd64"/>
@@ -251,13 +279,13 @@
         </tar>
 
         <!-- ===================================================== -->
-        <!-- package ARM -->
+        <!-- package ARM 32 -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
-        <echo message="package for ARM"/>
+        <echo message="package for Linux arm32"/>
         <echo message="====================================================="/>
-        <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
-        <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
+        <copy file="${build.dir}/digest.txt" todir="${dist.dir}/arm"/>
+        <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/arm"/>
         <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux-arm.tar.gz">
             <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
             <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/arm"
