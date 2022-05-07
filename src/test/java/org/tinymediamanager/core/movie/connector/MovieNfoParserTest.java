@@ -361,7 +361,7 @@ public class MovieNfoParserTest extends BasicMovieTest {
 
     assertThat(parser.sets).isNotEmpty();
     assertThat(parser.sets.get(0).name).isNotEmpty();
-    assertThat(parser.sets.get(0).overview).isNotEmpty();
+    assertThat(parser.sets.get(0).overview).isEmpty();
     assertThat(parser.year).isEqualTo(2009);
     assertThat(parser.top250).isEqualTo(0);
     assertThat(parser.plot).isNotEmpty();
@@ -426,7 +426,7 @@ public class MovieNfoParserTest extends BasicMovieTest {
 
     assertThat(parser.sets).isNotEmpty();
     assertThat(parser.sets.get(0).name).isNotEmpty();
-    assertThat(parser.sets.get(0).overview).isNotEmpty();
+    assertThat(parser.sets.get(0).overview).isEmpty();
     assertThat(parser.year).isEqualTo(2016);
     assertThat(parser.top250).isEqualTo(0);
     assertThat(parser.plot).isNotEmpty();
@@ -488,7 +488,7 @@ public class MovieNfoParserTest extends BasicMovieTest {
 
     assertThat(parser.sets).isNotEmpty();
     assertThat(parser.sets.get(0).name).isNotEmpty();
-    assertThat(parser.sets.get(0).overview).isNotEmpty();
+    assertThat(parser.sets.get(0).overview).isEmpty();
     assertThat(parser.year).isEqualTo(2000);
     assertThat(parser.top250).isEqualTo(0);
     assertThat(parser.plot).isNotEmpty();
@@ -550,7 +550,7 @@ public class MovieNfoParserTest extends BasicMovieTest {
 
     assertThat(parser.sets).isNotEmpty();
     assertThat(parser.sets.get(0).name).isNotEmpty();
-    assertThat(parser.sets.get(0).overview).isNotEmpty();
+    assertThat(parser.sets.get(0).overview).isEmpty();
     assertThat(parser.year).isEqualTo(2009);
     assertThat(parser.top250).isEqualTo(250);
     assertThat(parser.plot).isNotEmpty();

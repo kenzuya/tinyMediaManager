@@ -474,7 +474,7 @@ public class MovieNfoParser {
       for (Element child : getMultipleElements(element, "set")) {
         if (StringUtils.isNotBlank(child.ownText())) {
           Set set = new Set();
-          set.name = element.ownText();
+          set.name = child.ownText();
           sets.add(set);
         }
       }
