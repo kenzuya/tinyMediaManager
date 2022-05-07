@@ -16,7 +16,9 @@
 package org.tinymediamanager.core.http;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,22 +32,32 @@ import com.sun.net.httpserver.HttpExchange;
 
 public abstract class AbstractCommandHandler implements ITmmCommandHandler {
 
-  private final ObjectReader objectReader;
+  private final ObjectReader commandsObjectReader;
+  private final ObjectReader singleCommandObjectReader;
 
   protected AbstractCommandHandler() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     objectMapper.setTimeZone(TimeZone.getDefault());
-    objectReader = objectMapper.readerFor(new TypeReference<List<Command>>() {
+    commandsObjectReader = objectMapper.readerFor(new TypeReference<List<Command>>() {
     });
+    singleCommandObjectReader = objectMapper.readerFor(Command.class);
   }
 
   @Override
   public TmmCommandResponse post(HttpExchange httpExchange) throws Exception {
     List<Command> commands;
 
+    String postContent = "";
+
     try (InputStream is = httpExchange.getRequestBody()) {
-      commands = new ArrayList<>(objectReader.readValue(is));
+      postContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+      commands = new ArrayList<>(commandsObjectReader.readValue(postContent));
+    }
+    catch (Exception e) {
+      // maybe just one command sent?
+      Command command = singleCommandObjectReader.readValue(postContent);
+      commands = Collections.singletonList(command);
     }
 
     return processCommands(commands);

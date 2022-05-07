@@ -100,7 +100,7 @@ class TvShowCommandTask extends TmmThreadPool {
 
   private void updateDataSources() {
     Set<String> dataSources = new TreeSet<>();
-    List<TvShow> existingTvShows = tvShowList.getTvShows();
+    List<TvShow> existingTvShows = new ArrayList<>(tvShowList.getTvShows());
     List<TvShowEpisode> existingEpisodes = new ArrayList<>();
     for (TvShow tvShow : existingTvShows) {
       existingEpisodes.addAll(tvShow.getEpisodes());
@@ -402,6 +402,7 @@ class TvShowCommandTask extends TmmThreadPool {
 
       case "all":
         tvShowsToProcess.addAll(tvShowList.getTvShows());
+        break;
 
       case "new":
       default:
