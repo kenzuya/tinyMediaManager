@@ -23,3 +23,4 @@ x enabled downloading actor images for multi movie folders
 x loading of "ignore SSL errors" on startup
 x use collection as root node of the collection NFO #1731
 x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
+x (Emby) preserve custom movie sets in NFO #1617
