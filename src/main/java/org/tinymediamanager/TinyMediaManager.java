@@ -238,7 +238,7 @@ public final class TinyMediaManager {
 
           if (g2 != null) {
             updateProgress(g2, "starting tinyMediaManager", 0);
-            splash.update();
+            updateSplash(splash);
           }
           LOGGER.info("starting tinyMediaManager");
 
@@ -248,7 +248,7 @@ public final class TinyMediaManager {
             LOGGER.info("Upgrade from " + UpgradeTasks.getOldVersion() + " to " + ReleaseInfo.getVersion());
             if (g2 != null) {
               updateProgress(g2, "upgrading to new version", 10);
-              splash.update();
+              updateSplash(splash);
             }
             UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
             Settings.getInstance().setCurrentVersion();
@@ -258,7 +258,7 @@ public final class TinyMediaManager {
           // MediaInfo /////////////////////////////////////////////////////
           if (g2 != null) {
             updateProgress(g2, "loading internals", 20);
-            splash.update();
+            updateSplash(splash);
           }
 
           TmmOsUtils.loadNativeLibs();
@@ -280,7 +280,7 @@ public final class TinyMediaManager {
           // load modules //////////////////////////////////////////////////
           if (g2 != null) {
             updateProgress(g2, "loading movie module", 30);
-            splash.update();
+            updateSplash(splash);
           }
           TmmModuleManager.getInstance().startUp();
 
@@ -292,14 +292,14 @@ public final class TinyMediaManager {
 
           if (g2 != null) {
             updateProgress(g2, "loading TV show module", 40);
-            splash.update();
+            updateSplash(splash);
           }
           TmmModuleManager.getInstance().registerModule(TvShowModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(TvShowModuleManager.getInstance());
 
           if (g2 != null) {
             updateProgress(g2, "loading plugins", 50);
-            splash.update();
+            updateSplash(splash);
           }
           // just instantiate static - will block (takes a few secs)
           MediaProviders.loadMediaProviders();
@@ -312,7 +312,7 @@ public final class TinyMediaManager {
 
           if (g2 != null) {
             updateProgress(g2, "starting services", 60);
-            splash.update();
+            updateSplash(splash);
           }
           Upnp u = Upnp.getInstance();
           if (Settings.getInstance().isUpnpShareLibrary()) {
@@ -337,7 +337,7 @@ public final class TinyMediaManager {
           if (newVersion) {
             if (g2 != null) {
               updateProgress(g2, "upgrading database to new version", 70);
-              splash.update();
+              updateSplash(splash);
             }
             UpgradeTasks.performUpgradeTasksAfterDatabaseLoading();
           }
@@ -345,7 +345,7 @@ public final class TinyMediaManager {
           // launch application ////////////////////////////////////////////
           if (g2 != null) {
             updateProgress(g2, "loading ui", 80);
-            splash.update();
+            updateSplash(splash);
           }
           if (!GraphicsEnvironment.isHeadless()) {
             MainWindow window = MainWindow.getInstance();
@@ -353,7 +353,7 @@ public final class TinyMediaManager {
             // finished ////////////////////////////////////////////////////
             if (g2 != null) {
               updateProgress(g2, "finished starting :)", 100);
-              splash.update();
+              updateSplash(splash);
             }
 
             TmmUILayoutStore.getInstance().loadSettings(window);
@@ -484,6 +484,14 @@ public final class TinyMediaManager {
         g2.setColor(new Color(134, 134, 134));
         g2.fillRoundRect(51, 400, 227 * progress / 100, 6, 6, 6);
         LOGGER.debug("Startup (" + progress + "%) " + text);
+      }
+
+      private void updateSplash(SplashScreen splash) {
+        synchronized (SplashScreen.class) {
+          if (splash.isVisible()) {
+            splash.update();
+          }
+        }
       }
 
       /**
