@@ -111,13 +111,9 @@ public class Upnp {
    */
   public void createUpnpService() {
     if (this.upnpService == null) {
+      // FIX for the ugly hack in cling (for Java 17+)
+      System.setProperty("hackStreamHandlerProperty", "notNeeded");
       this.upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(UPNP_PORT), UpnpListener.getListener());
-      try {
-        this.upnpService.getRouter().enable();
-      }
-      catch (RouterException e) {
-        LOGGER.warn("Could not start UPNP router: {}", e);
-      }
     }
   }
 
