@@ -17,15 +17,12 @@ package org.tinymediamanager.core.tvshow.http;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.http.AbstractCommandHandler;
 import org.tinymediamanager.core.http.InvalidCommandException;
 import org.tinymediamanager.core.http.TmmCommandResponse;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 
 public class TvShowCommandHandler extends AbstractCommandHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowCommandHandler.class);
 
   @Override
   protected TmmCommandResponse processCommands(List<Command> commands) throws Exception {
@@ -36,7 +33,6 @@ public class TvShowCommandHandler extends AbstractCommandHandler {
   }
 
   private void checkCommands(List<Command> commands) throws InvalidCommandException {
-    // 1. check update params
-
+    // no used at the moment
   }
 }

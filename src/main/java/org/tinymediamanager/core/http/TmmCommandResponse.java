@@ -22,11 +22,11 @@ package org.tinymediamanager.core.http;
  */
 public class TmmCommandResponse {
   private int    responseCode;
-  private String reponseMessage;
+  private String responseMessage;
 
-  public TmmCommandResponse(int responseCode, String reponseMessage) {
+  public TmmCommandResponse(int responseCode, String responseMessage) {
     this.responseCode = responseCode;
-    this.reponseMessage = reponseMessage;
+    this.responseMessage = responseMessage;
   }
 
   public int getResponseCode() {
@@ -38,12 +38,12 @@ public class TmmCommandResponse {
     return this;
   }
 
-  public String getReponseMessage() {
-    return reponseMessage;
+  public String getResponseMessage() {
+    return responseMessage;
   }
 
-  public TmmCommandResponse setReponseMessage(String reponseMessage) {
-    this.reponseMessage = reponseMessage;
+  public TmmCommandResponse setResponseMessage(String responseMessage) {
+    this.responseMessage = responseMessage;
     return this;
   }
 }

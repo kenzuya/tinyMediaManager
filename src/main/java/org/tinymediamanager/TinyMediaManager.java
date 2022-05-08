@@ -187,6 +187,9 @@ public final class TinyMediaManager {
 
     // start EDT
     EventQueue.invokeLater(new Runnable() {
+      private SplashScreen splash    = null;
+      private Graphics2D   splashG2d = null;
+
       public void run() {
         boolean newVersion = !Settings.getInstance().isCurrentVersion(); // same snapshots/git considered as "new", for upgrades
         try {
@@ -214,52 +217,23 @@ public final class TinyMediaManager {
 
           LOGGER.info("=====================================================");
           // init splash
-          SplashScreen splash = null;
-          if (!GraphicsEnvironment.isHeadless()) {
-            splash = SplashScreen.getSplashScreen();
-          }
-          Graphics2D g2 = null;
-          if (splash != null) {
-            g2 = splash.createGraphics();
-            if (g2 != null) {
-              Font font = new Font("Dialog", Font.PLAIN, 11);
-              g2.setFont(font);
-              g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-              g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-              g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-            }
-            else {
-              LOGGER.debug("got no graphics from splash");
-            }
-          }
-          else {
-            LOGGER.debug("no splash found");
-          }
+          initSplash();
 
-          if (g2 != null) {
-            updateProgress(g2, "starting tinyMediaManager", 0);
-            splash.update();
-          }
+          updateProgress("starting tinyMediaManager", 0);
           LOGGER.info("starting tinyMediaManager");
 
           // upgrade check
           UpgradeTasks.setOldVersion();
           if (newVersion) {
             LOGGER.info("Upgrade from " + UpgradeTasks.getOldVersion() + " to " + ReleaseInfo.getVersion());
-            if (g2 != null) {
-              updateProgress(g2, "upgrading to new version", 10);
-              splash.update();
-            }
+            updateProgress("upgrading to new version", 10);
             UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
             Settings.getInstance().setCurrentVersion();
             Settings.getInstance().saveSettings();
           }
 
           // MediaInfo /////////////////////////////////////////////////////
-          if (g2 != null) {
-            updateProgress(g2, "loading internals", 20);
-            splash.update();
-          }
+          updateProgress("loading internals", 20);
 
           TmmOsUtils.loadNativeLibs();
 
@@ -278,10 +252,7 @@ public final class TinyMediaManager {
           // }
 
           // load modules //////////////////////////////////////////////////
-          if (g2 != null) {
-            updateProgress(g2, "loading movie module", 30);
-            splash.update();
-          }
+          updateProgress("loading movie module", 30);
           TmmModuleManager.getInstance().startUp();
 
           // register the shutdown handler
@@ -290,17 +261,11 @@ public final class TinyMediaManager {
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
 
-          if (g2 != null) {
-            updateProgress(g2, "loading TV show module", 40);
-            splash.update();
-          }
+          updateProgress("loading TV show module", 40);
           TmmModuleManager.getInstance().registerModule(TvShowModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(TvShowModuleManager.getInstance());
 
-          if (g2 != null) {
-            updateProgress(g2, "loading plugins", 50);
-            splash.update();
-          }
+          updateProgress("loading plugins", 50);
           // just instantiate static - will block (takes a few secs)
           MediaProviders.loadMediaProviders();
 
@@ -310,10 +275,7 @@ public final class TinyMediaManager {
             TvShowSettingsDefaults.setDefaultScrapers();
           }
 
-          if (g2 != null) {
-            updateProgress(g2, "starting services", 60);
-            splash.update();
-          }
+          updateProgress("starting services", 60);
           Upnp u = Upnp.getInstance();
           if (Settings.getInstance().isUpnpShareLibrary()) {
             u.startWebServer();
@@ -335,26 +297,17 @@ public final class TinyMediaManager {
 
           // do upgrade tasks after database loading
           if (newVersion) {
-            if (g2 != null) {
-              updateProgress(g2, "upgrading database to new version", 70);
-              splash.update();
-            }
+            updateProgress("upgrading database to new version", 70);
             UpgradeTasks.performUpgradeTasksAfterDatabaseLoading();
           }
 
           // launch application ////////////////////////////////////////////
-          if (g2 != null) {
-            updateProgress(g2, "loading ui", 80);
-            splash.update();
-          }
+          updateProgress("loading ui", 80);
           if (!GraphicsEnvironment.isHeadless()) {
             MainWindow window = MainWindow.getInstance();
 
             // finished ////////////////////////////////////////////////////
-            if (g2 != null) {
-              updateProgress(g2, "finished starting :)", 100);
-              splash.update();
-            }
+            updateProgress("finished starting :)", 100);
 
             TmmUILayoutStore.getInstance().loadSettings(window);
             window.setVisible(true);
@@ -460,30 +413,62 @@ public final class TinyMediaManager {
         }
       }
 
+      private void initSplash() {
+        if (!GraphicsEnvironment.isHeadless()) {
+          splash = SplashScreen.getSplashScreen();
+        }
+        if (splash != null) {
+          splashG2d = splash.createGraphics();
+          if (splashG2d != null) {
+            Font font = new Font("Dialog", Font.PLAIN, 11);
+            splashG2d.setFont(font);
+            splashG2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            splashG2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            splashG2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+          }
+          else {
+            LOGGER.debug("got no graphics from splash");
+          }
+        }
+        else {
+          LOGGER.debug("no splash found");
+        }
+      }
+
       /**
        * Update progress on splash screen.
        * 
        * @param text
        *          the text
        */
-      private void updateProgress(Graphics2D g2, String text, int progress) {
-        g2.setComposite(AlphaComposite.Clear);
-        g2.fillRect(50, 350, 230, 100);
-        g2.setPaintMode();
+      private void updateProgress(String text, int progress) {
+        if (splashG2d == null) {
+          return;
+        }
+
+        splashG2d.setComposite(AlphaComposite.Clear);
+        splashG2d.fillRect(50, 350, 230, 100);
+        splashG2d.setPaintMode();
 
         // paint text
-        g2.setColor(new Color(134, 134, 134));
-        g2.drawString(text + "...", 51, 390);
-        int l = g2.getFontMetrics().stringWidth(ReleaseInfo.getRealVersion()); // bound right
-        g2.drawString(ReleaseInfo.getRealVersion(), 277 - l, 443);
+        splashG2d.setColor(new Color(134, 134, 134));
+        splashG2d.drawString(text + "...", 51, 390);
+        int l = splashG2d.getFontMetrics().stringWidth(ReleaseInfo.getRealVersion()); // bound right
+        splashG2d.drawString(ReleaseInfo.getRealVersion(), 277 - l, 443);
 
         // paint progess bar
-        g2.setColor(new Color(20, 20, 20));
-        g2.fillRoundRect(51, 400, 227, 6, 6, 6);
+        splashG2d.setColor(new Color(20, 20, 20));
+        splashG2d.fillRoundRect(51, 400, 227, 6, 6, 6);
 
-        g2.setColor(new Color(134, 134, 134));
-        g2.fillRoundRect(51, 400, 227 * progress / 100, 6, 6, 6);
-        LOGGER.debug("Startup (" + progress + "%) " + text);
+        splashG2d.setColor(new Color(134, 134, 134));
+        splashG2d.fillRoundRect(51, 400, 227 * progress / 100, 6, 6, 6);
+        LOGGER.debug("Startup ({}%) {}", progress, text);
+
+        synchronized (SplashScreen.class) {
+          if (splash.isVisible()) {
+            splash.update();
+          }
+        }
       }
 
       /**

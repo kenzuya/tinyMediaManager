@@ -111,13 +111,9 @@ public class Upnp {
    */
   public void createUpnpService() {
     if (this.upnpService == null) {
+      // FIX for the ugly hack in cling (for Java 17+)
+      System.setProperty("hackStreamHandlerProperty", "notNeeded");
       this.upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(UPNP_PORT), UpnpListener.getListener());
-      try {
-        this.upnpService.getRouter().enable();
-      }
-      catch (RouterException e) {
-        LOGGER.warn("Could not start UPNP router: {}", e);
-      }
     }
   }
 
@@ -162,12 +158,12 @@ public class Upnp {
 
       // Content Directory Service
       LocalService<ContentDirectoryService> cds = new AnnotationLocalServiceBinder().read(ContentDirectoryService.class);
-      cds.setManager(new DefaultServiceManager<ContentDirectoryService>(cds, ContentDirectoryService.class));
+      cds.setManager(new DefaultServiceManager<>(cds, ContentDirectoryService.class));
 
       // Connection Manager Service
       LocalService<ConnectionManagerService> cms = new AnnotationLocalServiceBinder().read(ConnectionManagerService.class);
       // cms.setManager(new DefaultServiceManager<>(cms, ConnectionManagerService.class));
-      cms.setManager(new DefaultServiceManager<ConnectionManagerService>(cms, ConnectionManagerService.class) {
+      cms.setManager(new DefaultServiceManager<>(cms, ConnectionManagerService.class) {
         @Override
         protected ConnectionManagerService createServiceInstance() throws Exception {
           return new ConnectionManagerService(protocols, null);
@@ -175,7 +171,7 @@ public class Upnp {
       });
 
       LocalService<MSMediaReceiverRegistrarService> mss = new AnnotationLocalServiceBinder().read(MSMediaReceiverRegistrarService.class);
-      mss.setManager(new DefaultServiceManager<MSMediaReceiverRegistrarService>(mss, MSMediaReceiverRegistrarService.class));
+      mss.setManager(new DefaultServiceManager<>(mss, MSMediaReceiverRegistrarService.class));
 
       Icon icon = null;
       try {

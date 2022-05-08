@@ -17,19 +17,15 @@ package org.tinymediamanager.core.http;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * the class {@link CommandHandler} is used to provide the same commands as the command line interface via HTTP
  *
  * @author Manuel Laggner
  */
 public class CommandHandler extends AbstractCommandHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
   @Override
-  protected TmmCommandResponse processCommands(List<Command> commands) throws Exception {
+  protected TmmCommandResponse processCommands(List<Command> commands) {
     return null;
   }
 }
