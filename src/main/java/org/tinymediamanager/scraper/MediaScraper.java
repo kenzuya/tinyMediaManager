@@ -42,12 +42,13 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 public class MediaScraper {
   private final IMediaProvider mediaProvider;
 
+  private final URL            logoUrl;
+
   private String               id;
   private String               version;
   private String               name;
   private String               summary;
   private String               description;
-  private URL                  logoUrl;
   private ScraperType          type;
 
   public MediaScraper(ScraperType type, IMediaProvider mediaProvider) {

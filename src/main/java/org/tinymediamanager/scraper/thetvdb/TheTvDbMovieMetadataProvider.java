@@ -249,8 +249,12 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     MediaMetadata md = new MediaMetadata(getId());
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(getId());
-    if (id == null || id == 0) {
+    int id = options.getIdAsInt(getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(options.getImdbId())) {
+      id = getTvdbIdViaImdbId(options.getImdbId());
+    }
+
+    if (id == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(getId());
     }
@@ -417,7 +421,6 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     for (Person member : parseCastMembers(movie.characters)) {
       md.addCastMember(member);
     }
-
 
     // genres
     for (GenreBaseRecord genreBaseRecord : ListUtils.nullSafe(movie.genres)) {
