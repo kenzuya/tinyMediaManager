@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.thetvdb;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -323,6 +324,9 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     }
 
     md.setOriginalTitle(movie.name);
+    md.setCountries(Collections.singletonList(movie.originalCountry));
+    md.setOriginalLanguage(movie.originalLanguage);
+    md.setSpokenLanguages(movie.audioLanguages);
 
     if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.overview)) {
       md.setPlot(baseTranslation.overview);
