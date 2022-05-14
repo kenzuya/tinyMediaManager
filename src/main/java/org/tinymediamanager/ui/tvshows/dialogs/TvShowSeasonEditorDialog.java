@@ -41,9 +41,12 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -169,13 +172,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         lblPoster.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
-            ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_POSTER,
-                tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblPoster, tfPoster);
+            openImageChooser(lblPoster, tfPoster, SEASON_POSTER);
           }
         });
 
@@ -203,13 +200,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         lblFanart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
-            ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_FANART,
-                tvShowList.getDefaultArtworkScrapers(), lblFanart, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblFanart, tfFanart);
+            openImageChooser(lblFanart, tfFanart, SEASON_FANART);
           }
         });
 
@@ -237,13 +228,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
-            ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_THUMB,
-                tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblThumb, tfThumb);
+            openImageChooser(lblThumb, tfThumb, SEASON_THUMB);
           }
         });
 
@@ -271,13 +256,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         lblBanner.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
-            ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_BANNER,
-                tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblBanner, tfBanner);
+            openImageChooser(lblBanner, tfBanner, SEASON_BANNER);
           }
         });
         artworkPanel.add(lblBanner, "cell 0 5 5 1,grow");
@@ -349,6 +328,23 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     if (StringUtils.isNotBlank(imageLabel.getImageUrl())) {
       textField.setText(imageLabel.getImageUrl());
     }
+  }
+
+  private void openImageChooser(ImageLabel label, JTextField textField, MediaArtwork.MediaArtworkType artworkType) {
+    Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
+    ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
+    ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, artworkType, tvShowList.getDefaultArtworkScrapers(), label,
+        MediaType.TV_SHOW);
+
+    if (Settings.getInstance().isImageChooserUseEntityFolder()) {
+      TvShow tvShow = tvShowSeasonToEdit.getTvShow();
+      dialog.setOpenFolderPath(
+          tvShow.getPathNIO().resolve(TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeasonToEdit.getSeason())).toAbsolutePath().toString());
+    }
+
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
+    dialog.setVisible(true);
+    updateArtworkUrl(label, textField);
   }
 
   private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, MediaArtwork.MediaArtworkType type) {
