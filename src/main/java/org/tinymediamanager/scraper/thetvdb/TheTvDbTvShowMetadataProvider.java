@@ -806,6 +806,9 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     // do we have an id from the options?
     int id = MediaIdUtil.getIdAsInt(ids, getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB))) {
+      id = getTvdbIdViaImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB));
+    }
     if (id == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(getId());

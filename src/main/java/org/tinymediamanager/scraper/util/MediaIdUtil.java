@@ -187,9 +187,8 @@ public class MediaIdUtil {
     }
 
     // we can get the ids from different providers.
-    // probably the best try is to get the imdb id (if missing) to call trakt.tv
-    if (missingIds.contains(MediaMetadata.IMDB) && missingIds.contains(MediaMetadata.TRAKT_TV) && !missingIds.contains(MediaMetadata.TMDB)) {
-      // imdb & trakt missing, but tmdb available -> get the imdb id from tmdb
+    // imdb/tmdb can be fetched (vice versa) via tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TMDB)) {
       callScraper(MediaMetadata.TMDB, MediaType.MOVIE, ids);
 
       // re-evaluate the missing ids
@@ -200,17 +199,17 @@ public class MediaIdUtil {
       }
     }
 
-    // trakt.tv will get the rest
-    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TRAKT_TV)) {
-      callScraper(MediaMetadata.TRAKT_TV, MediaType.MOVIE, ids);
-
-      // re-evaluate the missing ids
-      missingIds = getMissingMovieIds(ids);
-      if (missingIds.isEmpty()) {
-        // all good - we cannot get more (yet)
-        return;
-      }
-    }
+    // // call trakt.tv to get the trakt.tv id
+    // if (!missingIds.contains(MediaMetadata.IMDB) && missingIds.contains(MediaMetadata.TRAKT_TV)) {
+    // callScraper(MediaMetadata.TRAKT_TV, MediaType.MOVIE, ids);
+    //
+    // // re-evaluate the missing ids
+    // missingIds = getMissingMovieIds(ids);
+    // if (missingIds.isEmpty()) {
+    // // all good - we cannot get more (yet)
+    // return;
+    // }
+    // }
   }
 
   private static List<String> getMissingMovieIds(Map<String, Object> ids) {
@@ -223,9 +222,9 @@ public class MediaIdUtil {
     if (getIdAsInt(ids, MediaMetadata.TMDB) <= 0) {
       missingIds.add(MediaMetadata.TMDB);
     }
-    if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
-      missingIds.add(MediaMetadata.TRAKT_TV);
-    }
+    // if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
+    // missingIds.add(MediaMetadata.TRAKT_TV);
+    // }
 
     return missingIds;
   }
@@ -239,20 +238,8 @@ public class MediaIdUtil {
     }
 
     // we can get the ids from different providers.
-    // probably the best try is to get the imdb id (if missing) to call trakt.tv
-    if (missingIds.contains(MediaMetadata.IMDB) && missingIds.contains(MediaMetadata.TRAKT_TV) && !missingIds.contains(MediaMetadata.TMDB)) {
-      // imdb & trakt missing, but tmdb available -> get the imdb id from tmdb
-      callScraper(MediaMetadata.TMDB, MediaType.TV_SHOW, ids);
-
-      // re-evaluate the missing ids
-      missingIds = getMissingTvShowIds(ids);
-      if (missingIds.isEmpty()) {
-        // all good - we cannot get more (yet)
-        return;
-      }
-    }
-    if (missingIds.contains(MediaMetadata.IMDB) && missingIds.contains(MediaMetadata.TRAKT_TV) && !missingIds.contains(MediaMetadata.TVDB)) {
-      // imdb & trakt missing, but tvdb available -> get the imdb id from tvdb
+    // tvdb can get tvdb, imdb and tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TVDB)) {
       callScraper(MediaMetadata.TVDB, MediaType.TV_SHOW, ids);
 
       // re-evaluate the missing ids
@@ -263,9 +250,9 @@ public class MediaIdUtil {
       }
     }
 
-    // trakt.tv will get the rest
-    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TRAKT_TV)) {
-      callScraper(MediaMetadata.TRAKT_TV, MediaType.TV_SHOW, ids);
+    // imdb/tmdb can be fetched (vice versa) via tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TMDB)) {
+      callScraper(MediaMetadata.TMDB, MediaType.TV_SHOW, ids);
 
       // re-evaluate the missing ids
       missingIds = getMissingTvShowIds(ids);
@@ -274,6 +261,18 @@ public class MediaIdUtil {
         return;
       }
     }
+
+    // // trakt.tv will get the rest
+    // if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TRAKT_TV)) {
+    // callScraper(MediaMetadata.TRAKT_TV, MediaType.TV_SHOW, ids);
+    //
+    // // re-evaluate the missing ids
+    // missingIds = getMissingTvShowIds(ids);
+    // if (missingIds.isEmpty()) {
+    // // all good - we cannot get more (yet)
+    // return;
+    // }
+    // }
   }
 
   private static List<String> getMissingTvShowIds(Map<String, Object> ids) {
@@ -286,9 +285,9 @@ public class MediaIdUtil {
     if (getIdAsInt(ids, MediaMetadata.TMDB) <= 0) {
       missingIds.add(MediaMetadata.TMDB);
     }
-    if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
-      missingIds.add(MediaMetadata.TRAKT_TV);
-    }
+    // if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
+    // missingIds.add(MediaMetadata.TRAKT_TV);
+    // }
     if (getIdAsInt(ids, MediaMetadata.TVDB) <= 0) {
       missingIds.add(MediaMetadata.TVDB);
     }
