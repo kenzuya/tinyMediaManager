@@ -50,7 +50,6 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
@@ -225,14 +224,6 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     // genres
     for (String genreAsString : ListUtils.nullSafe(show.genre)) {
       md.addGenre(MediaGenres.getGenre(genreAsString));
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
     }
 
     return md;
@@ -600,14 +591,6 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
           }
         }
         episode.addMediaArt(ma);
-      }
-
-      // also try to get the IMDB rating
-      if (episode.getId(MediaMetadata.IMDB) instanceof String) {
-        MediaRating imdbRating = RatingProvider.getImdbRating((String) episode.getId(MediaMetadata.IMDB));
-        if (imdbRating != null) {
-          episode.addRating(imdbRating);
-        }
       }
 
       episodes.add(episode);

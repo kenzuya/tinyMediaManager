@@ -63,7 +63,6 @@ import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
 import org.tinymediamanager.scraper.tmdb.entities.BaseCompany;
 import org.tinymediamanager.scraper.tmdb.entities.BaseKeyword;
@@ -520,14 +519,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       }
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
-    }
-
     return md;
   }
 
@@ -854,14 +845,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       ma.setOriginalUrl(artworkBaseUrl + "original" + episode.still_path);
       ma.addImageSize(1920, 1080, artworkBaseUrl + "original" + episode.still_path);
       md.addMediaArt(ma);
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
     }
 
     return md;

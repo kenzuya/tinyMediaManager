@@ -34,8 +34,10 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.tvshows.panels.TvShowScraperMetadataPanel;
 
@@ -56,6 +58,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
   private JComboBox<CountryItem>    cbReleaseCountry;
   private JCheckBox                 chckbxCapitalizeWords;
   private JCheckBox                 chckbxDoNotOverwrite;
+  private JHintCheckBox             chckbxFetchAllRatings;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -80,7 +83,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][]")); // 16lp ~ width of the
 
       JLabel lblOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptions, true);
@@ -91,13 +94,13 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0");
+        panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
         JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry")); // $NON-NLS-1$
         panelOptions.add(lblCountry, "cell 1 1 2 1");
 
         cbCertificationCountry = new JComboBox(CountryCode.values());
-        panelOptions.add(cbCertificationCountry, "cell 1 1");
+        panelOptions.add(cbCertificationCountry, "cell 1 1 2 1");
 
         JLabel label = new JLabel(TmmResourceBundle.getString("Settings.releaseDateCountry"));
         panelOptions.add(label, "flowx,cell 1 2 2 1");
@@ -105,8 +108,13 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
         cbReleaseCountry = new JComboBox();
         panelOptions.add(cbReleaseCountry, "cell 1 2 2 1");
 
+        chckbxFetchAllRatings = new JHintCheckBox(TmmResourceBundle.getString("Settings.fetchallratings"));
+        chckbxFetchAllRatings.setToolTipText(TmmResourceBundle.getString("Settings.fetchallratings.desc"));
+        chckbxFetchAllRatings.setHintIcon(IconManager.HINT);
+        panelOptions.add(chckbxFetchAllRatings, "cell 1 3 2 1");
+
         chckbxCapitalizeWords = new JCheckBox(TmmResourceBundle.getString("Settings.scraper.capitalizeWords"));
-        panelOptions.add(chckbxCapitalizeWords, "cell 1 3");
+        panelOptions.add(chckbxCapitalizeWords, "cell 1 4");
       }
     }
     {
@@ -182,5 +190,10 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, chckbxDoNotOverwrite,
         jCheckBoxBeanProperty);
     autoBinding_1.bind();
+    //
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("fetchAllRatings");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, chckbxFetchAllRatings,
+        jCheckBoxBeanProperty);
+    autoBinding_2.bind();
   }
 }
