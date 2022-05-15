@@ -27,6 +27,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -338,8 +340,11 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
 
     if (Settings.getInstance().isImageChooserUseEntityFolder()) {
       TvShow tvShow = tvShowSeasonToEdit.getTvShow();
-      dialog.setOpenFolderPath(
-          tvShow.getPathNIO().resolve(TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeasonToEdit.getSeason())).toAbsolutePath().toString());
+      Path seasonPath = tvShow.getPathNIO().resolve(TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeasonToEdit.getSeason())).toAbsolutePath();
+      if (!Files.exists(seasonPath)) {
+        seasonPath = tvShow.getPathNIO().toAbsolutePath();
+      }
+      dialog.setOpenFolderPath(seasonPath.toString());
     }
 
     dialog.setLocationRelativeTo(MainWindow.getInstance());
