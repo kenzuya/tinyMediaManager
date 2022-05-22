@@ -63,6 +63,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         FFmpegArtworkProvider.class.getResource("/org/tinymediamanager/scraper/ffmpeg.svg"));
   }
 
+  @Override
   public String getId() {
     return providerInfo.getId();
   }
@@ -116,7 +117,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     int start = providerInfo.getConfig().getValueAsInteger("start");
     int end = providerInfo.getConfig().getValueAsInteger("end");
 
-    if (count <= 0 || start <= 0 || end >= 100 || start > end) {
+    if (count <= 0 || start < 0 || end > 100 || start > end) {
       throw new ScrapeException(new IllegalArgumentException());
     }
 
