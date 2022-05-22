@@ -73,7 +73,6 @@ import org.tinymediamanager.thirdparty.NetworkUtil;
 
 public class Upnp {
   private static final Logger LOGGER         = LoggerFactory.getLogger(Upnp.class);
-  public static final String  IP             = NetworkUtil.getMachineIPAddress();
   public static final int     UPNP_PORT      = 8008;
   public static final int     WEBSERVER_PORT = 8009;
 
@@ -83,12 +82,15 @@ public class Upnp {
   public static final String  ID_TVSHOWS     = "2";
 
   private static Upnp         instance;
+
+  private final String        ipAddress;
   private UpnpService         upnpService    = null;
   private WebServer           webServer      = null;
   private Service             playerService  = null;
   private LocalDevice         localDevice    = null;
 
   private Upnp() {
+    ipAddress = NetworkUtil.getMachineIPAddress();
   }
 
   public static synchronized Upnp getInstance() {
@@ -125,7 +127,7 @@ public class Upnp {
       DeviceType type = new UDADeviceType("MediaServer", 1);
       String hostname = NetworkUtil.getMachineHostname();
       if (hostname == null) {
-        hostname = IP;
+        hostname = ipAddress;
       }
 
       // @formatter:off
