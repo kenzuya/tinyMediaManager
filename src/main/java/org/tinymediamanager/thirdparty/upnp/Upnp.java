@@ -108,6 +108,10 @@ public class Upnp {
     return this.localDevice;
   }
 
+  public String getIpAddress() {
+    return ipAddress;
+  }
+
   /**
    * Starts out UPNP Service / Listener
    */
