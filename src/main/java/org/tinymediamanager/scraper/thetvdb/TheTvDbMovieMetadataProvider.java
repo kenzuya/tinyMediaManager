@@ -147,7 +147,9 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
           try {
             MediaMetadata md = getMetadata(options);
             if (md != null) {
-              results.add(morphMediaMetadataToSearchResult(md, MediaType.MOVIE));
+              MediaSearchResult result = morphMediaMetadataToSearchResult(md, MediaType.MOVIE);
+              result.setMetadata(md);
+              results.add(result);
               return results;
             }
           }
@@ -241,6 +243,11 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+    if (options.getMetadata() != null) {
+      // we already have the metadata from before (search with id)
+      return options.getMetadata();
+    }
+
     // lazy initialization of the api
     initAPI();
 
@@ -360,9 +367,13 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     Date localReleaseDate = null;
     Date globalReleaseDate = null;
+    Date firstReleaseDate = null;
     for (Release release : ListUtils.nullSafe(movie.releases)) {
       try {
         Date date = StrgUtils.parseDate(release.date);
+        if (firstReleaseDate == null || firstReleaseDate.after(date)) {
+          firstReleaseDate = date;
+        }
 
         if ("global".equalsIgnoreCase(release.country)) {
           globalReleaseDate = date;
@@ -385,18 +396,26 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       releaseDate = globalReleaseDate;
     }
 
+    if (globalReleaseDate == null) {
+      globalReleaseDate = firstReleaseDate;
+    }
+
+    if (releaseDate == null) {
+      releaseDate = firstReleaseDate;
+    }
+
     if (releaseDate != null) {
       md.setReleaseDate(releaseDate);
     }
 
-    if (globalReleaseDate != null) {
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(globalReleaseDate);
-      int y = calendar.get(Calendar.YEAR);
-      md.setYear(y);
-      if (y != 0 && md.getTitle().contains(String.valueOf(y))) {
-        LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
-        md.setTitle(clearYearFromTitle(md.getTitle(), y));
+    if (firstReleaseDate != null) {
+      int y = getYearFromDate(firstReleaseDate);
+      if (y > 0) {
+        md.setYear(y);
+        if (y != 0 && md.getTitle().contains(String.valueOf(y))) {
+          LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
+          md.setTitle(clearYearFromTitle(md.getTitle(), y));
+        }
       }
     }
 
@@ -445,6 +464,20 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       }
     }
 
+    // artwork
+    if (StringUtils.isNotBlank(movie.image)) {
+      MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+      ma.setOriginalUrl(movie.image);
+      ma.setDefaultUrl(movie.image);
+      md.addMediaArt(ma);
+    }
+
     return md;
+  }
+
+  private int getYearFromDate(Date date) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    return calendar.get(Calendar.YEAR);
   }
 }
