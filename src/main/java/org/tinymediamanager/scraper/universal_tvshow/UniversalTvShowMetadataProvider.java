@@ -70,6 +70,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
   private static final String                               UNDEFINED           = "-";
   private static final String                               SEARCH              = "search";
+  private static final String                               RATINGS             = "ratings";
   private static final String                               FALLBACK_SCRAPERS   = "fallbackScrapers";
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
   private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new LinkedHashMap<>();
@@ -121,6 +122,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
+    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
     config.addSelect("genres", "metatag.genre", compatibleScraperIds, UNDEFINED);
     config.addSelect("certifications", "metatag.certification", compatibleScraperIds, UNDEFINED);
     config.addSelect("productionCompanies", "metatag.studio", compatibleScraperIds, UNDEFINED);

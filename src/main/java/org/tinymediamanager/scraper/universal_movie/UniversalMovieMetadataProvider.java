@@ -67,6 +67,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   private static final String                              UNDEFINED           = "-";
   private static final String                              SEARCH              = "search";
+  private static final String                              RATINGS             = "ratings";
   private static final String                              FALLBACK_SCRAPERS   = "fallbackScrapers";
   private static final Logger                              LOGGER              = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
   private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new LinkedHashMap<>();
@@ -118,6 +119,8 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.addSelect("releaseDate", "metatag.releasedate", compatibleScraperIds, UNDEFINED);
     config.addSelect("plot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("runtime", "metatag.runtime", compatibleScraperIds, UNDEFINED);
+    config.addSelect(RATINGS, "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
+
     config.addSelect("top250", "metatag.top250",
         compatibleScraperIds.contains(MediaMetadata.IMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.IMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
