@@ -314,7 +314,7 @@ public class ImdbMovieParser extends ImdbParser {
         MediaRating rating = new MediaRating("metacritic");
         rating.setRating(value);
         rating.setVotes(count);
-        rating.setMaxValue(10);
+        rating.setMaxValue(100);
         md.addRating(rating);
       }
 
