@@ -243,9 +243,10 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
-    if (options.getMetadata() != null) {
+    if (options.getSearchResult() != null && options.getSearchResult().getMediaMetadata() != null
+        && getId().equals(options.getSearchResult().getMediaMetadata().getProviderId())) {
       // we already have the metadata from before (search with id)
-      return options.getMetadata();
+      return options.getSearchResult().getMediaMetadata();
     }
 
     // lazy initialization of the api
@@ -408,11 +409,11 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       md.setReleaseDate(releaseDate);
     }
 
-    if (firstReleaseDate != null) {
-      int y = getYearFromDate(firstReleaseDate);
+    if (globalReleaseDate != null) {
+      int y = getYearFromDate(globalReleaseDate);
       if (y > 0) {
         md.setYear(y);
-        if (y != 0 && md.getTitle().contains(String.valueOf(y))) {
+        if (md.getTitle().contains(String.valueOf(y))) {
           LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
           md.setTitle(clearYearFromTitle(md.getTitle(), y));
         }
