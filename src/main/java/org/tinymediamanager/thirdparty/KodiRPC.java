@@ -85,8 +85,7 @@ public class KodiRPC {
 
       @Override
       public void notificationReceived(AbstractEvent event) {
-        LOGGER.info("Event received: {}", event);
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.INFO, event, "Event received"));
+        LOGGER.debug("Event received: {}", event);
       }
 
       @Override
