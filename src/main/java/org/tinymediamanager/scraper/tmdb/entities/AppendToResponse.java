@@ -42,6 +42,6 @@ public class AppendToResponse {
       return sb.toString();
     }
 
-    return null;
+    return null; // NOSONAR
   }
 }

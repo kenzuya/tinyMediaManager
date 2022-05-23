@@ -320,9 +320,9 @@ public class ImdbMovieParser extends ImdbParser {
         rating.setVotes(count);
         rating.setMaxValue(100);
         md.addRating(rating);
-      }
 
-      break;
+        break;
+      }
     }
   }
 

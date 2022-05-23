@@ -78,6 +78,6 @@ public class RegexpProcessor implements AnnotationProcessor<String> {
   }
 
   private String prepareArgument(String original) {
-    return original.replaceAll("(^\"|\"$)", "").replace("\\\\", "\\");
+    return original.replaceAll("(^\"|\"$)", "").replace("\\\\", "\\"); // NOSONAR
   }
 }
