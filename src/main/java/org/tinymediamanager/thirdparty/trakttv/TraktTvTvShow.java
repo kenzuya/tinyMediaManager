@@ -49,6 +49,7 @@ import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.BaseEpisode;
 import com.uwetrottmann.trakt5.entities.BaseSeason;
 import com.uwetrottmann.trakt5.entities.BaseShow;
+import com.uwetrottmann.trakt5.entities.EpisodeIds;
 import com.uwetrottmann.trakt5.entities.Metadata;
 import com.uwetrottmann.trakt5.entities.RatedEpisode;
 import com.uwetrottmann.trakt5.entities.RatedShow;
@@ -837,8 +838,36 @@ class TraktTvTvShow {
 
   private SyncEpisode toSyncEpisode(TvShowEpisode episode) {
     SyncEpisode syncEpisode = new SyncEpisode();
-    syncEpisode.number(episode.getEpisode());
-    syncEpisode.season(episode.getSeason());
+    EpisodeIds ids = new EpisodeIds();
+
+    // try to sync by id
+    int tmdbId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TMDB, 0);
+    if (tmdbId > 0) {
+      ids.tmdb = tmdbId;
+    }
+
+    int tvdbId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TVDB, 0);
+    if (tvdbId > 0) {
+      ids.tvdb = tvdbId;
+    }
+
+    int traktId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TRAKT_TV, 0);
+    if (traktId > 0) {
+      ids.trakt = traktId;
+    }
+
+    String imdbId = MediaIdUtil.getIdAsString(episode.getIds(), MediaMetadata.IMDB);
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
+      ids.imdb = imdbId;
+    }
+
+    if (ids.tmdb != null || ids.tvdb != null || ids.trakt != null || ids.imdb != null) {
+      syncEpisode.id(ids);
+    }
+    else {
+      syncEpisode.number(episode.getEpisode());
+      syncEpisode.season(episode.getSeason());
+    }
 
     // also sync mediainfo
     syncEpisode.mediaType(getMediaType(episode.getMediaInfoSource()));
