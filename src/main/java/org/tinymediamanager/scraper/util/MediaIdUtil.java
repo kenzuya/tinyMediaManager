@@ -285,9 +285,9 @@ public class MediaIdUtil {
     if (getIdAsInt(ids, MediaMetadata.TMDB) <= 0) {
       missingIds.add(MediaMetadata.TMDB);
     }
-    // if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
-    // missingIds.add(MediaMetadata.TRAKT_TV);
-    // }
+    if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
+      missingIds.add(MediaMetadata.TRAKT_TV);
+    }
     if (getIdAsInt(ids, MediaMetadata.TVDB) <= 0) {
       missingIds.add(MediaMetadata.TVDB);
     }
