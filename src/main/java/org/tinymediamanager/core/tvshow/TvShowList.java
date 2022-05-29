@@ -57,6 +57,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -831,6 +832,7 @@ public final class TvShowList extends AbstractModelObject {
     tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInTvShows);
       firePropertyChange(TAGS, null, tagsInTvShows);
     }
   }
@@ -853,6 +855,7 @@ public final class TvShowList extends AbstractModelObject {
     episodes.forEach(episode -> tags.addAll(episode.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInEpisodes);
       firePropertyChange(TAGS, null, tagsInEpisodes);
     }
   }

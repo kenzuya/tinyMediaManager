@@ -17,6 +17,7 @@
 package org.tinymediamanager.thirdparty.upnp;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,6 @@ class Metadata {
    * @return
    */
   public static Movie getUpnpMovie(org.tinymediamanager.core.movie.entities.Movie tmmMovie, boolean full) {
-    LOGGER.trace(tmmMovie.getTitle());
     Movie m = new Movie();
     try {
       m.setId(tmmMovie.getDbId().toString());
@@ -64,16 +64,16 @@ class Metadata {
       MediaFile poster = posters.isEmpty() ? null : posters.get(0);
       if (poster != null) {
         String rel = tmmMovie.getPathNIO().relativize(poster.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
-            + URLEncoder.encode(rel, "UTF-8");
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
+            + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(poster.getExtension()), poster.getFilesize(), url);
         m.addResource(r);
       }
 
       for (MediaFile mf : tmmMovie.getMediaFiles(MediaFileType.VIDEO)) {
         String rel = tmmMovie.getPathNIO().relativize(mf.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
-            + URLEncoder.encode(rel, "UTF-8");
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
+            + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(mf.getExtension()), mf.getFilesize(), url);
         m.addResource(r);
       }
@@ -130,7 +130,6 @@ class Metadata {
    */
   public static Movie getUpnpTvShowEpisode(org.tinymediamanager.core.tvshow.entities.TvShow show,
       org.tinymediamanager.core.tvshow.entities.TvShowEpisode ep, boolean full) {
-    LOGGER.trace(ep.getTitle());
     Movie m = new Movie(); // yes, it is a UPNP movie object!
 
     try {
@@ -144,8 +143,8 @@ class Metadata {
 
       for (MediaFile mf : ep.getMediaFiles(MediaFileType.VIDEO)) {
         String rel = show.getPathNIO().relativize(mf.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/tvshows/" + show.getDbId().toString() + "/"
-            + URLEncoder.encode(rel, "UTF-8");
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/tvshows/" + show.getDbId().toString() + "/"
+            + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(mf.getExtension()), mf.getFilesize(), url);
         m.addResource(r);
       }

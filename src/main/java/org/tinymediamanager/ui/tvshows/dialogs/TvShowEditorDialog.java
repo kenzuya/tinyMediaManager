@@ -1382,6 +1382,9 @@ public class TvShowEditorDialog extends TmmDialog {
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+          actor.setRole("");
+        }
         actors.add(0, actor);
       }
     }

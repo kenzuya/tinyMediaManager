@@ -131,6 +131,7 @@ public class RatingProvider {
    */
   public static List<MediaRating> getRatings(Map<String, Object> ids, List<RatingSource> sources, MediaType mediaType) {
     List<MediaRating> ratings = new ArrayList<>();
+    List<RatingSource> missingRatings = new ArrayList<>(sources);
 
     String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
 
@@ -140,39 +141,47 @@ public class RatingProvider {
     }
 
     // IMDB comes directly from the IMDB data dump
-    if (sources.contains(RatingSource.IMDB) && MediaIdUtil.isValidImdbId(imdbId)) {
+    if (missingRatings.contains(RatingSource.IMDB) && MediaIdUtil.isValidImdbId(imdbId)) {
       MediaRating rating = new ImdbRating().getImdbRating(imdbId);
       if (rating != null) {
         ratings.add(rating);
+        missingRatings.remove(RatingSource.IMDB);
       }
     }
 
     // Metacritic can be fetched from the IMDB scraper
-    if (sources.contains(RatingSource.METACRITIC)) {
-      callScraper(MediaMetadata.IMDB, mediaType, sources, ids, ratings);
+    if (missingRatings.contains(RatingSource.METACRITIC)) {
+      callScraper(MediaMetadata.IMDB, mediaType, missingRatings, ids, ratings);
+    }
+
+    // OMDB offers Rotten Tomatoes
+    if (ListUtils.containsAny(missingRatings, RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.ROTTEN_TOMATOES_AVG_RATING)
+        && MediaIdUtil.isValidImdbId(imdbId)) {
+      callScraper("omdbapi", mediaType, missingRatings, ids, ratings);
     }
 
     // Wikidata offers Metacritic, Rotten Tomatoes and IMDB
-    if (ListUtils.containsAny(sources, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.ROTTEN_TOMATOES_AVG_RATING)
-        && MediaIdUtil.isValidImdbId(imdbId)) {
+    if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
+        RatingSource.ROTTEN_TOMATOES_AVG_RATING) && MediaIdUtil.isValidImdbId(imdbId)) {
       List<MediaRating> ratingsFromWikidata = new WikidataRating().getRatings(imdbId);
 
       for (MediaRating rating : ratingsFromWikidata) {
         RatingSource source = parseRatingSource(rating.getId());
-        if (sources.contains(source) && !ratings.contains(rating)) {
+        if (missingRatings.contains(source) && !ratings.contains(rating)) {
           ratings.add(rating);
+          missingRatings.remove(source);
         }
       }
     }
 
     // TMDB rating comes directly from TMDB
-    if (sources.contains(RatingSource.TMDB)) {
-      callScraper(MediaMetadata.TMDB, mediaType, sources, ids, ratings);
+    if (missingRatings.contains(RatingSource.TMDB)) {
+      callScraper(MediaMetadata.TMDB, mediaType, missingRatings, ids, ratings);
     }
 
     // Trakt.tv rating comes directly form Trakt.tv
-    if (sources.contains(RatingSource.TRAKT_TV)) {
-      callScraper(MediaMetadata.TRAKT_TV, mediaType, sources, ids, ratings);
+    if (missingRatings.contains(RatingSource.TRAKT_TV)) {
+      callScraper(MediaMetadata.TRAKT_TV, mediaType, missingRatings, ids, ratings);
     }
 
     return ratings;
@@ -189,6 +198,7 @@ public class RatingProvider {
           RatingSource source = parseRatingSource(rating.getId());
           if (sources.contains(source) && !ratings.contains(rating)) {
             ratings.add(rating);
+            sources.remove(source);
           }
         }
       }

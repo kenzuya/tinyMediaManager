@@ -215,7 +215,7 @@ public final class Settings extends AbstractSettings {
 
     // default custom aspect ratios
     customAspectRatios.clear();
-    customAspectRatios.addAll(AspectRatio.getDefaultValues().keySet().stream().map(ar -> ar.toString()).collect(Collectors.toList()));
+    customAspectRatios.addAll(AspectRatio.getDefaultValues().stream().map(Object::toString).collect(Collectors.toList()));
     Collections.sort(customAspectRatios);
     firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
 

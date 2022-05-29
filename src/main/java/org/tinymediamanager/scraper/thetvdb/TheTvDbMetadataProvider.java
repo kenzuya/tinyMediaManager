@@ -53,8 +53,11 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
+import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.thetvdb.service.Controller;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+
+import retrofit2.Response;
 
 /**
  * The Class TheTvDbMetadataProvider.
@@ -275,12 +278,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         break;
 
       case 2:
-      case 15:
+      case 14:
         ma = new MediaArtwork(getProviderInfo().getId(), POSTER);
         break;
 
       case 3:
-      case 14:
+      case 15:
         ma = new MediaArtwork(getProviderInfo().getId(), BACKGROUND);
         break;
 
@@ -399,5 +402,20 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     searchResult.setScore(1);
 
     return searchResult;
+  }
+
+  protected int getTvdbIdViaImdbId(String imdbId) {
+    // try to get it via service call
+    try {
+      Response<SearchResultResponse> httpResponse = tvdb.getSearchService().getSearch(imdbId, imdbId).execute();
+      if (httpResponse.isSuccessful() && httpResponse.body() != null) {
+        return Integer.parseInt(httpResponse.body().data.get(0).tvdbId);
+      }
+    }
+    catch (Exception e) {
+      getLogger().debug("could not fetch TVDB via IMDB - '{}'", e.getMessage());
+    }
+
+    return 0;
   }
 }

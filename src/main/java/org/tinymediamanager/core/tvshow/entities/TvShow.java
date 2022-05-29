@@ -176,6 +176,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   private final Map<Integer, MediaFile>         seasonThumbs               = new HashMap<>(0);
   private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
   private String                                titleSortable              = "";
+  private String                                otherIds                   = "";
   private Date                                  lastWatched                = null;
 
   private final PropertyChangeListener          propertyChangeListener;
@@ -219,6 +220,44 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  @Override
+  public void setId(String key, Object value) {
+    super.setId(key, value);
+
+    otherIds = "";
+    firePropertyChange("otherIds", null, key + ":" + value);
+  }
+
+  public String getOtherIds() {
+    if (StringUtils.isNotBlank(otherIds)) {
+      return otherIds;
+    }
+
+    for (Map.Entry<String, Object> entry : getIds().entrySet()) {
+      switch (entry.getKey()) {
+        case MediaMetadata.TVDB:
+        case MediaMetadata.IMDB:
+        case MediaMetadata.TMDB:
+          // already in UI - skip
+          continue;
+
+        case "imdbId":
+        case "traktId":
+        case "tvShowSeason":
+          // legacy format
+          continue;
+
+        default:
+          if (StringUtils.isNotBlank(otherIds)) {
+            otherIds += "; ";
+          }
+          otherIds += entry.getKey() + ": " + entry.getValue();
+      }
+    }
+
+    return otherIds;
   }
 
   /**

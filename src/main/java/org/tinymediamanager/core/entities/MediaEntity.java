@@ -219,8 +219,9 @@ public abstract class MediaEntity extends AbstractModelObject {
   public void initializeAfterLoading() {
     sortMediaFiles();
 
-    // remove empty tag and null values
+    // remove empty tag, null values and case insensitive duplicates
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
   }
 
   protected void sortMediaFiles() {
@@ -1312,7 +1313,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
     // do not accept duplicates or empty tags
     for (String tag : ListUtils.nullSafe(newTags)) {
-      if (StringUtils.isBlank(tag) || tags.contains(tag)) {
+      if (StringUtils.isBlank(tag) || tags.stream().anyMatch(tag::equalsIgnoreCase)) {
         continue;
       }
       newItems.add(tag);
@@ -1351,6 +1352,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     // two way sync of tags
     ListUtils.mergeLists(tags, newTags);
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
 
     firePropertyChange(TAGS, null, newTags);
     firePropertyChange(TAGS_AS_STRING, null, newTags);

@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -54,7 +53,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.CompanyBaseRecord;
@@ -130,8 +128,11 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     MediaMetadata md = new MediaMetadata(getId());
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(getId());
-    if (id == null || id == 0) {
+    int id = options.getIdAsInt(getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(options.getImdbId())) {
+      id = getTvdbIdViaImdbId(options.getImdbId());
+    }
+    if (id == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(getId());
     }
@@ -295,14 +296,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       MediaArtwork mediaArtwork = parseArtwork(artworkBaseRecord);
       if (mediaArtwork != null) {
         md.addMediaArt(mediaArtwork);
-      }
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
       }
     }
 
@@ -803,6 +796,9 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     // do we have an id from the options?
     int id = MediaIdUtil.getIdAsInt(ids, getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB))) {
+      id = getTvdbIdViaImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB));
+    }
     if (id == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(getId());

@@ -760,7 +760,7 @@ public class ImdbTvShowParser extends ImdbParser {
         }
 
         Person cm = parseCastMember(row);
-        if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
+        if (cm != null && StringUtils.isNotEmpty(cm.getName())) {
           cm.setType(ACTOR);
           md.addCastMember(cm);
         }

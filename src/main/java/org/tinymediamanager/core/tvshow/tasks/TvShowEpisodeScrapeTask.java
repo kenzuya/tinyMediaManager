@@ -122,7 +122,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
 
         // also fill other ratings if ratings are requested
-        if (config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
+        if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings() && config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
           Map<String, Object> ids = new HashMap<>(metadata.getIds());
           ids.put("tvShowIds", episode.getTvShow().getIds());
 

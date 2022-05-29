@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -59,6 +58,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -556,24 +556,43 @@ public class Utils {
    *          the property to fetch
    * @return the enc prop
    */
-  @SuppressWarnings("deprecation")
   private static String getEncProp(String prop) {
     String property = System.getProperty(prop);
     if (StringUtils.isBlank(property)) {
       return "";
     }
 
-    try {
-      return URLEncoder.encode(property, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e) {
-      return URLEncoder.encode(property);
-    }
+    return URLEncoder.encode(property, StandardCharsets.UTF_8);
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
     List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
     list.removeAll(toFilter);
+  }
+
+  public static void removeDuplicateStringFromCollectionIgnoreCase(Collection<String> original) {
+    // 1. remove duplicates
+    Set<String> items = new HashSet<>(original);
+
+    // 2. remove case insensitive duplicates
+    Set<String> check = new HashSet<>();
+    List<String> toRemove = new ArrayList<>();
+
+    original.forEach(item -> {
+      String upper = item.toUpperCase(Locale.ROOT);
+      if (check.contains(upper)) {
+        toRemove.add(item);
+      }
+      else {
+        check.add(upper);
+      }
+    });
+
+    toRemove.forEach(items::remove);
+
+    // 3. re-add surviving entries
+    original.clear();
+    original.addAll(items);
   }
 
   /**
@@ -1184,9 +1203,6 @@ public class Utils {
           if ("zh_Hant".equalsIgnoreCase(language)) {
             return Locale.TRADITIONAL_CHINESE;
           }
-          else if ("zh_Hans".equalsIgnoreCase(language)) {
-            return Locale.SIMPLIFIED_CHINESE;
-          }
           return LocaleUtils.toLocale(language.substring(0, 5));
         }
       }
@@ -1203,10 +1219,6 @@ public class Utils {
         // map to main countries; de->de_DE (and not de_CH)
         l = locale;
       }
-    }
-    if (l == null && !countries.isEmpty()) {
-      // well, take the first one
-      l = countries.get(0);
     }
 
     if (l == null) {

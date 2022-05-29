@@ -206,6 +206,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
   private String                                originalTitleSortable      = "";
+  private String                                otherIds                   = "";
   private Date                                  lastWatched                = null;
   private String                                localizedSpokenLanguages   = "";
 
@@ -289,6 +290,48 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  @Override
+  public void setId(String key, Object value) {
+    super.setId(key, value);
+
+    otherIds = "";
+    firePropertyChange("otherIds", null, key + ":" + value);
+  }
+
+  public String getOtherIds() {
+    if (StringUtils.isNotBlank(otherIds)) {
+      return otherIds;
+    }
+
+    for (Map.Entry<String, Object> entry : getIds().entrySet()) {
+      switch (entry.getKey()) {
+        case MediaMetadata.IMDB:
+        case MediaMetadata.TMDB:
+        case TRAKT:
+          // already in UI - skip
+          continue;
+
+        case "tmdbId":
+        case "imdbId":
+        case "traktId":
+          // legacy format
+          continue;
+
+        case MediaMetadata.TMDB_SET:
+          // not needed
+          continue;
+
+        default:
+          if (StringUtils.isNotBlank(otherIds)) {
+            otherIds += "; ";
+          }
+          otherIds += entry.getKey() + ": " + entry.getValue();
+      }
+    }
+
+    return otherIds;
   }
 
   @Override
@@ -1150,7 +1193,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * all XBMC supported NFO names. (without path!)
    * 
    * @param nfo
-   *          the nfo filenaming
+   *          the nfo file naming
    * @param newMovieFilename
    *          the new/desired movie filename (stacking marker should already be set correct here!)
    * @return the nfo filename
@@ -1162,7 +1205,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
       case FILENAME_NFO:
         if (isDisc()) {
           // in case of disc, this is the name of the "main" disc identifier file!
-          filename = FilenameUtils.removeExtension(findDiscMainFile());
+          if (MovieModuleManager.getInstance().getSettings().isNfoDiscFolderInside()) {
+            filename = FilenameUtils.removeExtension(findDiscMainFile());
+          }
+          else {
+            filename = "movie.nfo";
+          }
         }
         else {
           filename = FilenameUtils.removeExtension(newMovieFilename);
@@ -1670,6 +1718,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
     String oldValue = this.spokenLanguages;
     this.spokenLanguages = newValue;
     firePropertyChange(SPOKEN_LANGUAGES, oldValue, newValue);
+
+    localizedSpokenLanguages = "";
+    firePropertyChange("localizedSpokenLanguages", oldValue, newValue);
   }
 
   public String getSpokenLanguages() {

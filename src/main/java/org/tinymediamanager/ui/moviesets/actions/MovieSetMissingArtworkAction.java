@@ -19,15 +19,12 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieSetMissingArtworkDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
@@ -37,7 +34,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Wolfgang Janes
  */
 public class MovieSetMissingArtworkAction extends TmmAction {
-
 
   public MovieSetMissingArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("movieset.downloadmissingartwork"));
@@ -50,7 +46,6 @@ public class MovieSetMissingArtworkAction extends TmmAction {
     List<MovieSet> selectedMovieSets = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets());
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

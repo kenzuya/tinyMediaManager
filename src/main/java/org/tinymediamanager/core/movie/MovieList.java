@@ -993,6 +993,7 @@ public final class MovieList extends AbstractModelObject {
     movies.forEach(movie -> tags.addAll(movie.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInMovies, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInMovies);
       firePropertyChange(TAGS, null, tagsInMovies);
     }
   }

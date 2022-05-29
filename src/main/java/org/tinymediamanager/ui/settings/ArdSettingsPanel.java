@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +59,7 @@ public class ArdSettingsPanel extends JPanel {
   private JRadioButton           rdbtnRoundNearest;
   private JRadioButton           rdbtnRoundUpToNext;
   private ButtonGroup            buttonGroupARUseMode = new ButtonGroup();
-  private JRadioButton rdbtnMFMost;
+  private JRadioButton           rdbtnMFMost;
   private JRadioButton           rdbtnMFHigher;
   private JRadioButton           rdbtnMFWider;
 
@@ -178,14 +179,14 @@ public class ArdSettingsPanel extends JPanel {
       gbc.ipadx = 30;
       panelArdSettings.add(panelCustomAspectRatios, "cell 1 " + row + ", span");
 
-      Map<Float, String> customAspectRatios = AspectRatio.getDefaultValues();
+      List<Float> customAspectRatios = AspectRatio.getDefaultValues();
       int yOne = 0;
       int yTwo = 0;
-      for (Map.Entry<Float, String> customAR : customAspectRatios.entrySet()) {
-        JCheckBox checkBox = new JCheckBox(customAR.getValue());
-        customARCheckBoxes.put(customAR.getKey().toString(), checkBox);
+      for (Float customAR : customAspectRatios) {
+        JCheckBox checkBox = new JCheckBox(AspectRatio.getDescription(customAR));
+        customARCheckBoxes.put(customAR.toString(), checkBox);
 
-        if (customAR.getKey() < 1.9f) {
+        if (customAR < 1.9f) {
           gbc.gridx = 0;
           gbc.gridy = yOne++;
         }

@@ -85,6 +85,7 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_TV_SERIES        = "includeTvSeriesResults";
   static final String                 INCLUDE_SHORT            = "includeShortResults";
   static final String                 INCLUDE_VIDEOGAME        = "includeVideogameResults";
+  static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
   static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
   static final String                 USE_TMDB_FOR_TV_SHOWS    = "useTmdbForTvShows";
@@ -708,6 +709,7 @@ public abstract class ImdbParser {
         }
       }
     }
+
     // top250
     Element topRatedElement = doc.getElementsByAttributeValue("href", "/chart/top").first();
     if (topRatedElement != null) {
@@ -925,7 +927,7 @@ public abstract class ImdbParser {
         }
 
         Person cm = parseCastMember(row);
-        if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
+        if (cm != null && StringUtils.isNotEmpty(cm.getName())) {
           cm.setType(ACTOR);
           md.addCastMember(cm);
         }

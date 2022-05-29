@@ -358,6 +358,11 @@ public class Url {
       cleanup();
       LOGGER.error("proxy or host not found/reachable - {}", e.getMessage());
     }
+    catch (HttpException e) {
+      cleanup();
+      LOGGER.trace("HTTP '{}' for '{}'", e.getStatusCode(), logUrl);
+      throw e;
+    }
     catch (Exception e) {
       cleanup();
       // rethrow that to inform the caller that there was an HTTP-Exception

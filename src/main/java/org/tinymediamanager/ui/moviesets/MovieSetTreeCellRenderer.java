@@ -23,7 +23,9 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
 
 /**
@@ -48,6 +50,16 @@ public class MovieSetTreeCellRenderer extends TmmTreeTableCellRenderer {
     if (value instanceof MovieSetTreeDataProvider.MovieTreeNode) {
       if (((MovieSetTreeDataProvider.MovieTreeNode) value).getUserObject() instanceof MovieSet.MovieSetMovie) {
         renderer.setForeground(colorDummy);
+      }
+
+      if (((MovieSetTreeDataProvider.MovieTreeNode) value).getUserObject() instanceof Movie) {
+        Movie movie = (Movie) ((MovieSetTreeDataProvider.MovieTreeNode) value).getUserObject();
+        if (movie.isLocked()) {
+          setIcon(IconManager.LOCK_BLUE);
+        }
+        else {
+          setIcon(null);
+        }
       }
     }
 

@@ -147,6 +147,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   buildImageCacheOnImport                = true;
   MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
   CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
+  boolean                                   nfoDiscFolderInside                    = true;
   boolean                                   writeCleanNfo                          = false;
   DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
   MediaLanguages                            nfoLanguage                            = MediaLanguages.en;
@@ -181,6 +182,7 @@ public final class MovieSettings extends AbstractSettings {
   final List<MovieScraperMetadataConfig>    scraperMetadataConfig                  = new ArrayList<>();
   boolean                                   doNotOverwriteExistingData             = false;
   boolean                                   capitalWordsInTitles                   = false;
+  boolean                                   fetchAllRatings                        = false;
 
   // artwork scraper
   PosterSizes                               imagePosterSize                        = PosterSizes.LARGE;
@@ -1576,6 +1578,16 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("scraperMetadataConfig", null, scraperMetadataConfig);
   }
 
+  public boolean isNfoDiscFolderInside() {
+    return nfoDiscFolderInside;
+  }
+
+  public void setNfoDiscFolderInside(boolean newValue) {
+    boolean oldValue = this.nfoDiscFolderInside;
+    this.nfoDiscFolderInside = newValue;
+    firePropertyChange("nfoDiscFolderInside", oldValue, newValue);
+  }
+
   public boolean isWriteCleanNfo() {
     return writeCleanNfo;
   }
@@ -1646,13 +1658,23 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
+  public boolean isFetchAllRatings() {
+    return fetchAllRatings;
+  }
+
+  public void setFetchAllRatings(boolean newValue) {
+    boolean oldValue = this.fetchAllRatings;
+    this.fetchAllRatings = newValue;
+    firePropertyChange("fetchAllRatings", oldValue, newValue);
+  }
+
   public boolean isDoNotOverwriteExistingData() {
     return doNotOverwriteExistingData;
   }
 
   public void setDoNotOverwriteExistingData(boolean newValue) {
-    boolean oldValue = doNotOverwriteExistingData;
-    doNotOverwriteExistingData = newValue;
+    boolean oldValue = this.doNotOverwriteExistingData;
+    this.doNotOverwriteExistingData = newValue;
     firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
   }
 

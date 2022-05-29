@@ -49,6 +49,7 @@ import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.BaseEpisode;
 import com.uwetrottmann.trakt5.entities.BaseSeason;
 import com.uwetrottmann.trakt5.entities.BaseShow;
+import com.uwetrottmann.trakt5.entities.EpisodeIds;
 import com.uwetrottmann.trakt5.entities.Metadata;
 import com.uwetrottmann.trakt5.entities.RatedEpisode;
 import com.uwetrottmann.trakt5.entities.RatedShow;
@@ -264,21 +265,22 @@ class TraktTvTvShow {
     // *****************************************************************************
     LOGGER.debug("Adding up to {} TV shows as watched on Trakt.tv", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
-    for (TvShow show : tvShows) {
+    for (TvShow tmmShow : tvShows) {
       // get items to sync
-      SyncShow sync = toSyncShow(show, true, traktShows);
-      if (sync == null) {
+      SyncShow syncShow = toSyncShow(tmmShow, true, traktShows);
+      if (syncShow == null) {
         continue;
       }
 
       try {
-        SyncItems items = new SyncItems().shows(sync);
+        SyncItems items = prepareSyncItems(syncShow);
+
         Response<SyncResponse> response = api.sync().addItemsToWatchedHistory(items).execute();
         if (!response.isSuccessful()) {
           LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
-        LOGGER.debug("Trakt add-to-watched status: {}", show.getTitle());
+        LOGGER.debug("Trakt add-to-watched status: {}", tmmShow.getTitle());
         printStatus(response.body());
       }
       catch (Exception e) {
@@ -286,6 +288,44 @@ class TraktTvTvShow {
         return;
       }
     }
+  }
+
+  /**
+   * prepare the {@link SyncItems} object. Trakt.tv behaves differently when sending episodes inside a season vs directly inside the
+   * {@link SyncItems}. If we have IDs for our episodes, we need to put them inside the {@link SyncItems} (otherwise Trakt.tv does not honor the IDs)
+   * 
+   * @param syncShow
+   *          the previously prepared {@link SyncShow}
+   * @return the {@link SyncItems} object
+   */
+  private SyncItems prepareSyncItems(SyncShow syncShow) {
+    SyncItems syncItems = new SyncItems();
+
+    // split fully qualified episodes into their own place
+    List<SyncEpisode> syncEpisodes = new ArrayList<>();
+    for (SyncSeason season : ListUtils.nullSafe(syncShow.seasons)) {
+      for (SyncEpisode episode : ListUtils.nullSafe(season.episodes)) {
+        if (episode.ids != null) {
+          syncEpisodes.add(episode);
+        }
+      }
+      if (season.episodes != null) {
+        season.episodes.removeAll(syncEpisodes);
+      }
+    }
+    if (syncShow.seasons != null) {
+      syncShow.seasons
+          .removeAll(syncShow.seasons.stream().filter(season -> season.episodes == null || season.episodes.isEmpty()).collect(Collectors.toList()));
+    }
+    if (syncShow.seasons != null && !syncShow.seasons.isEmpty()) {
+      syncItems.shows(syncShow);
+    }
+
+    if (!syncEpisodes.isEmpty()) {
+      syncItems.episodes(syncEpisodes);
+    }
+
+    return syncItems;
   }
 
   void syncTraktTvShowRating(List<TvShow> tvShowsInTmm) {
@@ -399,21 +439,21 @@ class TraktTvTvShow {
     // *****************************************************************************
     LOGGER.debug("Adding up to {} TV shows with personal rating on Trakt.tv", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
-    for (TvShow show : tvShows) {
+    for (TvShow tmmShow : tvShows) {
       // get items to sync
-      SyncShow sync = toSyncShow(show, traktShows, traktEpisodes);
-      if (sync == null) {
+      SyncShow syncShow = toSyncShow(tmmShow, traktShows, traktEpisodes);
+      if (syncShow == null) {
         continue;
       }
 
       try {
-        SyncItems items = new SyncItems().shows(sync);
+        SyncItems items = prepareSyncItems(syncShow);
         Response<SyncResponse> response = api.sync().addRatings(items).execute();
         if (!response.isSuccessful()) {
           LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
-        LOGGER.debug("Trakt add-ratings status: {}", show.getTitle());
+        LOGGER.debug("Trakt add-ratings status: {}", tmmShow.getTitle());
         printStatus(response.body());
       }
       catch (Exception e) {
@@ -473,7 +513,7 @@ class TraktTvTvShow {
     // *****************************************************************************
     List<SyncShow> showToRemove = new ArrayList<>();
     for (BaseShow traktShow : traktCollection) {
-      showToRemove.add(toSyncShow(traktShow));
+      showToRemove.add(toSyncItems(traktShow));
     }
     if (!showToRemove.isEmpty()) {
       try {
@@ -496,7 +536,7 @@ class TraktTvTvShow {
     // *****************************************************************************
     showToRemove.clear();
     for (BaseShow traktShow : traktWatched) {
-      showToRemove.add(toSyncShow(traktShow));
+      showToRemove.add(toSyncItems(traktShow));
     }
     if (!showToRemove.isEmpty()) {
       try {
@@ -822,7 +862,7 @@ class TraktTvTvShow {
     return null;
   }
 
-  private SyncShow toSyncShow(BaseShow baseShow) {
+  private SyncShow toSyncItems(BaseShow baseShow) {
     // TODO: used only on clear() - so we don't need the episodes? TBC
     ArrayList<SyncSeason> ss = new ArrayList<>();
     for (BaseSeason baseSeason : baseShow.seasons) {
@@ -837,6 +877,33 @@ class TraktTvTvShow {
 
   private SyncEpisode toSyncEpisode(TvShowEpisode episode) {
     SyncEpisode syncEpisode = new SyncEpisode();
+    EpisodeIds ids = new EpisodeIds();
+
+    // try to sync by id
+    int tmdbId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TMDB, 0);
+    if (tmdbId > 0) {
+      ids.tmdb = tmdbId;
+    }
+
+    int tvdbId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TVDB, 0);
+    if (tvdbId > 0) {
+      ids.tvdb = tvdbId;
+    }
+
+    int traktId = MediaIdUtil.getIdAsIntOrDefault(episode.getIds(), MediaMetadata.TRAKT_TV, 0);
+    if (traktId > 0) {
+      ids.trakt = traktId;
+    }
+
+    String imdbId = MediaIdUtil.getIdAsString(episode.getIds(), MediaMetadata.IMDB);
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
+      ids.imdb = imdbId;
+    }
+
+    if (ids.tmdb != null || ids.tvdb != null || ids.trakt != null || ids.imdb != null) {
+      syncEpisode.id(ids);
+    }
+
     syncEpisode.number(episode.getEpisode());
     syncEpisode.season(episode.getSeason());
 

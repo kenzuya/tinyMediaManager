@@ -53,6 +53,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 public class ContentDirectoryService extends AbstractContentDirectoryService {
 
@@ -74,19 +75,12 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
   public BrowseResult browse(String objectID, BrowseFlag browseFlag, String filter, long firstResult, long maxResults, SortCriterion[] orderby)
       throws ContentDirectoryException {
     try {
-      LOGGER.debug("ObjectId: " + objectID);
-      LOGGER.debug("BrowseFlag: " + browseFlag);
-      LOGGER.debug("Filter: " + filter);
-      LOGGER.debug("FirstResult: " + firstResult);
-      LOGGER.debug("MaxResults: " + maxResults);
-      LOGGER.debug("OrderBy: " + SortCriterion.toString(orderby));
-
-      String orderMovie = "getTitle";
-      String orderShow = "getTitle";
-      // if (SortCriterion.toString(orderby).contains("dc:date")) {
-      // orderMovie = "getReleaseDateFormatted";
-      // orderShow = "getFirstAired";
-      // }
+      LOGGER.debug("ObjectId: {}", objectID);
+      LOGGER.debug("BrowseFlag: {}", browseFlag);
+      LOGGER.debug("Filter: {}", filter);
+      LOGGER.debug("FirstResult: {}", firstResult);
+      LOGGER.debug("MaxResults: {}", maxResults);
+      LOGGER.debug("OrderBy: {}", SortCriterion.toString(orderby));
 
       DIDLContent didl = new DIDLContent();
 
@@ -327,19 +321,12 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
   private BrowseResult returnResult(DIDLContent didl, long total) throws Exception {
     DIDLParser dip = new DIDLParser();
     String ret = dip.generate(didl);
-    LOGGER.debug(prettyFormat(ret, 2));
+    LOGGER.trace(prettyFormat(ret, 2));
     return new BrowseResult(ret, didl.getCount(), total);
   }
 
   private int getInt(String s) {
-    int i = 0;
-    try {
-      i = Integer.valueOf(s);
-    }
-    catch (NumberFormatException nfe) {
-      LOGGER.warn("Cannot parse number from " + s);
-    }
-    return i;
+    return MetadataUtil.parseInt(s, 0);
   }
 
   @Override

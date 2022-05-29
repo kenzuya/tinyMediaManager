@@ -272,7 +272,7 @@ public class MovieSetArtworkHelper {
   }
 
   /**
-   * find the artwork from the artwork folder
+   * find the artwork from the artwork folder or movie folders
    *
    * @param movieSet
    *          the {@link MovieSet} to find the artwork for
@@ -287,33 +287,31 @@ public class MovieSetArtworkHelper {
   private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, MediaFileType type,
       List<IMovieSetFileNaming> fileNamings) {
     Path artworkFolder = getArtworkFolder();
-    if (artworkFolder == null) {
-      return null;
-    }
+    if (artworkFolder != null) {
+      // try to resolve via the filename
+      for (IMovieSetFileNaming fileNaming : fileNamings) {
+        for (MediaFile mediaFile : mediaFiles) {
+          // first try to use our old logic
+          String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
-    // try to resolve via the filename
-    for (IMovieSetFileNaming fileNaming : fileNamings) {
-      for (MediaFile mediaFile : mediaFiles) {
-        // first try to use our old logic
-        String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+          // also remove illegal separators
+          movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
 
-        // also remove illegal separators
-        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+          if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
+            return mediaFile;
+          }
 
-        if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
-          return mediaFile;
-        }
+          // second, try the Kodi style
+          movieSetName = movieSet.getTitleForStorage();
 
-        // second, try the Kodi style
-        movieSetName = movieSet.getTitleForStorage();
-
-        if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
-          return mediaFile;
+          if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
+            return mediaFile;
+          }
         }
       }
     }
 
-    // not found via filename? maybe the name changed -> search for the type
+    // not found via filename? maybe the name changed or only in movie folders -> search for the type
     for (MediaFile mediaFile : mediaFiles) {
       if (mediaFile.getType() == type) {
         return mediaFile;

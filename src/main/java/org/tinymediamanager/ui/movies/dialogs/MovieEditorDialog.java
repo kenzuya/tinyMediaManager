@@ -1635,6 +1635,9 @@ public class MovieEditorDialog extends TmmDialog {
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+          actor.setRole("");
+        }
         cast.add(0, actor);
       }
     }
@@ -1668,8 +1671,7 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"),
-          TmmResourceBundle.getString("producer.role.unknown"));
+      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"), "Producer");
       PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableProducers),
           TmmResourceBundle.getString("cast.producer.add"), producer);
       dialog.setVisible(true);

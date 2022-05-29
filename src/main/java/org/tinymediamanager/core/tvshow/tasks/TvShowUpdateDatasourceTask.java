@@ -741,11 +741,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         else {
-          // normal episode file - get all same named files
+          // normal episode file - get all same named files (in same directory!)
           String basename = Utils.cleanStackingMarkers(FilenameUtils.getBaseName(mf.getFilename()));
+          basename = showDir.relativize(mf.getFileAsPath().getParent()) + "/" + basename;
           LOGGER.trace("UDS: basename - {}", basename);
           for (MediaFile em : mfs) {
             String emBasename = FilenameUtils.getBaseName(em.getFilename());
+            emBasename = showDir.relativize(em.getFileAsPath().getParent()) + "/" + emBasename;
             String epNameRegexp = Pattern.quote(basename) + "[\\s.,_-].*";
             // same named files or thumb files
             if (emBasename.equals(basename) || emBasename.matches(epNameRegexp)) {

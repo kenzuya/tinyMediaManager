@@ -73,7 +73,6 @@ import org.tinymediamanager.thirdparty.NetworkUtil;
 
 public class Upnp {
   private static final Logger LOGGER         = LoggerFactory.getLogger(Upnp.class);
-  public static final String  IP             = NetworkUtil.getMachineIPAddress();
   public static final int     UPNP_PORT      = 8008;
   public static final int     WEBSERVER_PORT = 8009;
 
@@ -83,12 +82,15 @@ public class Upnp {
   public static final String  ID_TVSHOWS     = "2";
 
   private static Upnp         instance;
+
+  private final String        ipAddress;
   private UpnpService         upnpService    = null;
   private WebServer           webServer      = null;
   private Service             playerService  = null;
   private LocalDevice         localDevice    = null;
 
   private Upnp() {
+    ipAddress = NetworkUtil.getMachineIPAddress();
   }
 
   public static synchronized Upnp getInstance() {
@@ -106,18 +108,18 @@ public class Upnp {
     return this.localDevice;
   }
 
+  public String getIpAddress() {
+    return ipAddress;
+  }
+
   /**
    * Starts out UPNP Service / Listener
    */
   public void createUpnpService() {
     if (this.upnpService == null) {
+      // FIX for the ugly hack in cling (for Java 17+)
+      System.setProperty("hackStreamHandlerProperty", "notNeeded");
       this.upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(UPNP_PORT), UpnpListener.getListener());
-      try {
-        this.upnpService.getRouter().enable();
-      }
-      catch (RouterException e) {
-        LOGGER.warn("Could not start UPNP router: {}", e);
-      }
     }
   }
 
@@ -129,7 +131,7 @@ public class Upnp {
       DeviceType type = new UDADeviceType("MediaServer", 1);
       String hostname = NetworkUtil.getMachineHostname();
       if (hostname == null) {
-        hostname = IP;
+        hostname = ipAddress;
       }
 
       // @formatter:off
@@ -162,12 +164,12 @@ public class Upnp {
 
       // Content Directory Service
       LocalService<ContentDirectoryService> cds = new AnnotationLocalServiceBinder().read(ContentDirectoryService.class);
-      cds.setManager(new DefaultServiceManager<ContentDirectoryService>(cds, ContentDirectoryService.class));
+      cds.setManager(new DefaultServiceManager<>(cds, ContentDirectoryService.class));
 
       // Connection Manager Service
       LocalService<ConnectionManagerService> cms = new AnnotationLocalServiceBinder().read(ConnectionManagerService.class);
       // cms.setManager(new DefaultServiceManager<>(cms, ConnectionManagerService.class));
-      cms.setManager(new DefaultServiceManager<ConnectionManagerService>(cms, ConnectionManagerService.class) {
+      cms.setManager(new DefaultServiceManager<>(cms, ConnectionManagerService.class) {
         @Override
         protected ConnectionManagerService createServiceInstance() throws Exception {
           return new ConnectionManagerService(protocols, null);
@@ -175,7 +177,7 @@ public class Upnp {
       });
 
       LocalService<MSMediaReceiverRegistrarService> mss = new AnnotationLocalServiceBinder().read(MSMediaReceiverRegistrarService.class);
-      mss.setManager(new DefaultServiceManager<MSMediaReceiverRegistrarService>(mss, MSMediaReceiverRegistrarService.class));
+      mss.setManager(new DefaultServiceManager<>(mss, MSMediaReceiverRegistrarService.class));
 
       Icon icon = null;
       try {

@@ -63,6 +63,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         FFmpegArtworkProvider.class.getResource("/org/tinymediamanager/scraper/ffmpeg.svg"));
   }
 
+  @Override
   public String getId() {
     return providerInfo.getId();
   }
@@ -78,12 +79,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
     // FFmpeg must be specified in the settings
-    // shipped FFmpeg
-    if (Settings.getInstance().isUseInternalMediaFramework() && !(new FFmpegAddon().isAvailable())) {
-      throw new MissingIdException("FFmpeg");
-    }
-    // Systems FFmpeg
-    else if (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isBlank(Settings.getInstance().getMediaFramework())) {
+    if (!FFmpeg.isAvailable()) {
       throw new MissingIdException("FFmpeg");
     }
 
@@ -116,7 +112,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     int start = providerInfo.getConfig().getValueAsInteger("start");
     int end = providerInfo.getConfig().getValueAsInteger("end");
 
-    if (count <= 0 || start <= 0 || end >= 100 || start > end) {
+    if (count <= 0 || start < 0 || end > 100 || start > end) {
       throw new ScrapeException(new IllegalArgumentException());
     }
 
