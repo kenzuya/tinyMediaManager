@@ -165,20 +165,20 @@ class TraktTvTvShow {
     // *****************************************************************************
     LOGGER.debug("Adding up to {} TV shows to Trakt.tv collection", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
-    for (TvShow tvShow : tvShows) {
-      SyncShow show = toSyncShow(tvShow, false, traktShows);
-      if (show == null) {
+    for (TvShow tmmShow : tvShows) {
+      SyncShow syncShow = toSyncShow(tmmShow, false, traktShows);
+      if (syncShow == null) {
         continue;
       }
 
       try {
-        SyncItems items = new SyncItems().shows(show);
+        SyncItems items = prepareSyncItems(syncShow);
         Response<SyncResponse> response = api.sync().addItemsToCollection(items).execute();
         if (!response.isSuccessful()) {
           LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
-        LOGGER.debug("Trakt add-to-library status: {}", tvShow.getTitle());
+        LOGGER.debug("Trakt add-to-library status: {}", tmmShow.getTitle());
         printStatus(response.body());
       }
       catch (Exception e) {
