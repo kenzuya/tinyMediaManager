@@ -26,18 +26,27 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.Similarity;
 
-//TODO: Consolidate the common code of two Anidb metadata providers
-//TODO: Add more unit tests?
-public class AnidbMovieMetadataProvider extends AniDbMetadataProvider implements IMovieMetadataProvider {
+
+/**
+ * The elements for AniDB's Movie Metadata Provider.
+ * The majority of the work is done in {@link AniDbMetadataParser}
+ *
+ * @see <a href="https://anidb.net/">https://anidb.net/</a>
+ * @see AniDbMetadataParser
+ * @see AniDbMetadataProvider
+ */
+public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements IMovieMetadataProvider {
 
     public static final String ID = "anidb";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnidbMovieMetadataProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AniDbMovieMetadataProvider.class);
     private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
 
     public static void addProvider(IMovieMetadataProvider provider) {
         // called for each plugin implementing that interface
-        if (!provider.getId()
-                     .equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getId()) && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)) {
+        if (!provider.getId().equals(ID)
+                && !COMPATIBLE_SCRAPERS.containsKey(provider.getId())
+                && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)
+        ) {
             COMPATIBLE_SCRAPERS.put(provider.getId(), provider);
         }
     }
@@ -50,7 +59,7 @@ public class AnidbMovieMetadataProvider extends AniDbMetadataProvider implements
                 "aniDB",
                 "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. " + "AniDB is a non-profit anime database" +
                         " that is open " + "freely to the public.</html>",
-                AnidbMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png")
+                AniDbMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png")
         );
 
         // configure/load settings
@@ -80,7 +89,7 @@ public class AnidbMovieMetadataProvider extends AniDbMetadataProvider implements
         //            throw new ScrapeException(new FeatureNotEnabledException(this));
         //        }
 
-        synchronized (AnidbMovieMetadataProvider.class) {
+        synchronized (AniDbMovieMetadataProvider.class) {
             // first run: build up the anime name list
             if (showsForLookup.isEmpty()) {
                 buildTitleHashMap();

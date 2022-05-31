@@ -21,15 +21,29 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider.Episode;
+import org.tinymediamanager.scraper.anidb_movie.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
+/**
+
+ * This class is responsible for parsing the XML response from AniDB into usable metadata.
+ *
+ * @see <a href="https://anidb.net/">https://anidb.net/</a>
+ * @see <a href="https://wiki.anidb.net/API">https://wiki.anidb.net/API</a>
+ * @see <a href="https://wiki.anidb.net/HTTP_API_Definition">https://wiki.anidb.net/HTTP_API_Definition</a>
+ * @see AniDbMetadataProvider
+ * @see AniDbTvShowMetadataProvider
+ * @see AniDbMovieMetadataProvider
+ * @author Manuel Laggner
+ */
 public class AniDbMetadataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AniDbMetadataParser.class);
     private static final String IMAGE_SERVER = "http://img7.anidb.net/pics/anime/";
 
     private AniDbMetadataParser() {
+        // dont allow creation of instances
     }
 
     /**
@@ -215,7 +229,7 @@ public class AniDbMetadataParser {
                     md.addRating(mediaRating);
                     break;
                 } catch (NumberFormatException ex) {
-                    LOGGER.debug("could not rating: {} - {}", rating.text(), rating.attr("count"));
+                    LOGGER.debug("could not parse rating: {} - {}", rating.text(), rating.attr("count"));
                 }
             }
         }
@@ -270,8 +284,8 @@ public class AniDbMetadataParser {
 
     /**
      * Example of XML returned from Animdb call:
-     * <p>
-     * {@code <picture>83834.jpg</picture>}
+     *
+     * <pre>{@code <picture>83834.jpg</picture>}</pre>
      *
      * @param md
      * @param language
@@ -317,8 +331,10 @@ public class AniDbMetadataParser {
      *     </characters>
      *   }</pre>
      * <p>
-     * NOTE: Animdb's name field maps to TMM's role field while Anidb's seiyuu text maps to TMM's name. This is b/c
-     * seiyuu means voice actor in Japanese. NOTE: TMM does not use all of the data provided in these tags
+     * NOTE: Animdb's {@code name} field maps to TMM's {@code role} field, while Anidb's {@code seiyuu} text maps to TMM's {@code name}. This is b/c
+     * seiyuu means voice actor in Japanese.
+     * <p>
+     * NOTE: TMM does not use all of the data provided in these tags
      * </p>
      *
      * @param md
@@ -370,7 +386,7 @@ public class AniDbMetadataParser {
      * }</pre>
      *
      * <p>
-     * NOTE: The episode number's type, {@code <epno type="1"}, uses a 1 for a normal episode and 2 to indicate a
+     * NOTE: The episode number's {@code type}, for example {@code <epno type="1"}, uses a 1 for a normal episode and 2 to indicate a
      * special.
      * </p>
      *
@@ -388,6 +404,7 @@ public class AniDbMetadataParser {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
     private static Episode parseEpisode(Element episodeElement) {
         Episode.Builder builder = new Episode.Builder();
         try {

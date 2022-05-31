@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.anidb_movie.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
@@ -31,6 +32,14 @@ import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.RingBuffer;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
+/**
+ * The common elements for AniDB's Movie and Show Metadata Provider.
+ *
+ * @see <a href="https://anidb.net/">https://anidb.net/</a>
+ * @see <a href="https://wiki.anidb.net/API">https://wiki.anidb.net/API</a>
+ * @see AniDbTvShowMetadataProvider
+ * @see AniDbMovieMetadataProvider
+ */
 public abstract class AniDbMetadataProvider implements TmmFeature {
 
     public static final String ID = "anidb";
@@ -49,7 +58,24 @@ public abstract class AniDbMetadataProvider implements TmmFeature {
     abstract protected MediaProviderInfo createMediaProviderInfo();
 
     /**
-     * build up the hashmap for a fast title search
+     * build up the hashmap for a fast title search First 3 lines are comments
+     *
+     * <pre>{@code
+     *      # created: Tue May  3 03:00:02 2022
+     *      # <aid>|<type>|<language>|<title>
+     *      # type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
+     *      4598|2|x-jat|_summer
+     *      4598|2|ru|_Лето
+     *      10004|2|en|-Dark night at NTR Village-, Kagachi-sama, please honor me with your presence
+     *      7307|2|he|!!קיי-און
+     *      ...
+     * }</pre>
+     * <p>
+     *
+     * @see <a href="https://wiki.anidb.net/w/API#Anime_Titles">wiki.anidb.net/w/API#Anime_Titles</a>
+     *
+     * @throws ScrapeException
+     *         error getting AniDB index
      */
     protected void buildTitleHashMap() throws ScrapeException {
         // <aid>|<type>|<language>|<title>
@@ -74,7 +100,7 @@ public abstract class AniDbMetadataProvider implements TmmFeature {
             return;
         }
 
-        try (InputStream is = animeList.getInputStream(); Scanner scanner = new Scanner(new GZIPInputStream(is),
+        try (Scanner scanner = new Scanner(new GZIPInputStream(animeList.getInputStream()),
                                                                                         StandardCharsets.UTF_8
         )) {
             while (scanner.hasNextLine()) {

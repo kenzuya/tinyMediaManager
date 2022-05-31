@@ -19,10 +19,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -48,10 +47,15 @@ import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.Similarity;
 
+
 /**
- * The class AnimeDBMetadataProvider - a metadata provider for ANIME (AniDB)
- * https://wiki.anidb.net/w/UDP_API_Definition
+ * The elements for AniDB's TV Show Metadata Provider.
+ * The majority of the work is done in {@link AniDbMetadataParser}.
  *
+ * @see <a href="https://anidb.net/">https://anidb.net/</a>
+ * @see <a href="https://wiki.anidb.net/API">https://wiki.anidb.net/API</a>
+ * @see AniDbMetadataParser
+ * @see AniDbMetadataProvider
  * @author Manuel Laggner
  */
 public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
@@ -138,8 +142,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
         if (doc == null || doc.children().isEmpty()) {
             return episodes;
         }
-//        AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first()).stream()
-//                .map(MediaMetadata.b)
+
         // filter out the episode
         for (Episode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
             MediaMetadata md = new MediaMetadata(providerInfo.getId());
@@ -187,8 +190,6 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
             }
         }
 
-        SortedSet<MediaSearchResult> results = new TreeSet<>();
-
         // detect the string to search
         String searchString = "";
         if (StringUtils.isNotEmpty(options.getSearchQuery())) {
@@ -197,31 +198,24 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
 
         // return an empty search result if no query provided
         if (StringUtils.isEmpty(searchString)) {
-            return results;
+            return new TreeSet<>();
         }
 
-        for (Entry<Integer, List<AniDBShow>> entry : showsForLookup.entrySet()) {
-            for (AniDBShow show : entry.getValue()) {
+        String finalSearchString = searchString;
 
-                MediaSearchResult result = new MediaSearchResult(providerInfo.getId(), MediaType.TV_SHOW);
-                result.setId(String.valueOf(show.aniDbId));
-                result.setTitle(show.title);
-                result.setScore(Similarity.compareStrings(show.title, searchString));
-                results.add(result);
-            }
-        }
-
-        // filter out duplicates - just keep the "title" with the highest rating from a show
-        Map<Object, MediaSearchResult> filteredResults = new HashMap<>();
-        for (MediaSearchResult result : results) {
-            if (!filteredResults.containsKey(result.getId())) {
-                filteredResults.put(result.getId(), result);
-            }
-        }
-        results.clear();
-        results.addAll(filteredResults.values());
-
-        return results;
+        return showsForLookup.entrySet()
+                      .stream()
+                      .flatMap(entry -> entry.getValue().stream())
+                      .map(movie -> new MediaSearchResult.Builder(MediaType.MOVIE)
+                              .providerId(providerInfo.getId())
+                              .id(String.valueOf(movie.aniDbId))
+                              .title(movie.title)
+                              .score(Similarity.compareStrings(
+                                      movie.title, finalSearchString
+                              ))
+                              .build()
+                      )
+                      .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
