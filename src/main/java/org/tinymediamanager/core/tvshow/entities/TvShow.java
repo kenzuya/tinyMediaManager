@@ -534,6 +534,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   public void setDummyEpisodes(List<TvShowEpisode> dummyEpisodes) {
+    // remove all previous existing dummy movies from the UI
+    for (TvShowEpisode episode : this.dummyEpisodes) {
+      firePropertyChange(REMOVED_EPISODE, null, episode);
+    }
     this.dummyEpisodes.clear();
     this.dummyEpisodes.addAll(dummyEpisodes);
 
