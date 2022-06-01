@@ -72,22 +72,6 @@ test:jdk17:
   artifacts:
     expire_in: 1 days
 
-# use dependency scanning (only on QA)
-include:
-  template: Dependency-Scanning.gitlab-ci.yml
-
-gemnasium-maven-dependency_scanning:
-  variables:
-    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
-  rules:
-    - if: '$QA_BUILD == "true"'
-  tags:
-    - tmm # force running on own runners
-  artifacts:
-    expire_in: 1 days
-    reports:
-      dependency_scanning: gl-dependency-scanning-report.json
-
 # sonarqube analysis
 sonarqube-qa:
   stage: test
