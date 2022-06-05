@@ -2,6 +2,15 @@ stages:
   - build
   - deploy
 
+variables:
+  MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository/
+
 build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
@@ -30,7 +39,7 @@ build:
     - sh AppBundler/create_dmg.sh
 
     # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_NIGHTLY},${FTP_PASSWORD_NIGHTLY} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist;"
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_NIGHTLY},${FTP_PASSWORD_NIGHTLY} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist; chmod -R g+w ./upload/v4"
 
     # and publish the files on the webserver
     - curl https://nightly.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
