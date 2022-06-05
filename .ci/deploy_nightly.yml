@@ -4,7 +4,7 @@ stages:
 
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging
+  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220504143309
   environment:
     name: nightly
     url: https://nightly.tinymediamanager.org
@@ -29,21 +29,16 @@ build:
     # build macOS dmg file
     - sh AppBundler/create_dmg.sh
 
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v4_job_id.txt
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_NIGHTLY},${FTP_PASSWORD_NIGHTLY} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist;"
+
+    # and publish the files on the webserver
+    - curl https://nightly.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
 
   artifacts:
     expire_in: 2 days
     paths:
-      - build/
-      - dist/
-
-deploy:
-  stage: deploy
-  needs:
-    - build
-  trigger:
-    project: tinyMediaManager/nightly.tinymediamanager.org
+      - dist/tmm*linux-amd64.tar.gz # upload for docker build
 
 deploy-docker:
   stage: deploy
