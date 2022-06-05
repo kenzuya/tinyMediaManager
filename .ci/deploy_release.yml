@@ -4,7 +4,7 @@ stages:
 
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220504143309
+  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
   environment:
     name: release
     url: https://release.tinymediamanager.org
