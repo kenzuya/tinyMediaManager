@@ -258,6 +258,16 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
 
     editPopupMenu.addSeparator();
+    JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
+    downloadMenu.setIcon(IconManager.MENU);
+    downloadMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieDownloadActorImagesAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
+    editPopupMenu.add(downloadMenu);
+
+    editPopupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));

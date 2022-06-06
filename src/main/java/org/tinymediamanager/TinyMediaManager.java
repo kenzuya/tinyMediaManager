@@ -276,17 +276,29 @@ public final class TinyMediaManager {
           }
 
           updateProgress("starting services", 60);
-          Upnp u = Upnp.getInstance();
-          if (Settings.getInstance().isUpnpShareLibrary()) {
-            u.startWebServer();
-            u.createUpnpService();
-            u.startMediaServer();
+          try {
+            if (Settings.getInstance().isUpnpShareLibrary()) {
+              Upnp u = Upnp.getInstance();
+              u.startWebServer();
+              u.createUpnpService();
+              u.startMediaServer();
+            }
           }
-          if (Settings.getInstance().isUpnpRemotePlay()) {
-            u.createUpnpService();
-            u.sendPlayerSearchRequest();
-            u.startWebServer();
+          catch (Exception e) {
+            LOGGER.error("Could not start UPNP - '{}'", e.getMessage());
           }
+          try {
+            if (Settings.getInstance().isUpnpRemotePlay()) {
+              Upnp u = Upnp.getInstance();
+              u.createUpnpService();
+              u.sendPlayerSearchRequest();
+              u.startWebServer();
+            }
+          }
+          catch (Exception e) {
+            LOGGER.error("Could not start UPNP - '{}'", e.getMessage());
+          }
+
           try {
             KodiRPC.getInstance().connect();
           }

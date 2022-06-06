@@ -1,13 +1,13 @@
 Version 4.3
 =======================
-+ added an action to scrape ratings from multiple scrapers #1672
++ added an action to scrape ratings from multiple scrapers #1672 (https://bit.ly/3yDBRY8)
 + fetch all possible IDs & ratings when scraping #1672
 + added a fallback strategy for the universal scraper #1684
 + added an action to lock objects on movie/TV show level
 + updated the bundled Java version to 17.0.2
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
-+ added an HTTP API for remote control of tinyMediaManager
-+ added a regular expression based JMTE annotation #1611
++ added an HTTP API for remote control of tinyMediaManager (https://bit.ly/3lcA6sQ)
++ added a regular expression based JMTE annotation #1611 (https://bit.ly/3wtIZUb)
 + added a renamer token for movie set index respecting missing movies #1702
 + (AniDB) added an option to get the character image instead of the actor image
 + (movies/TV shows) write <tvdbid> tag for actors in the NFO file #1722
@@ -16,6 +16,7 @@ Version 4.3
 + added writing of TMDB/IMDB/TVDB ids for writers and directors in the NFO files #1731
 + added an option to disable the trash bin (.deletedByTMM) #1727
 + added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
+x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
 x changed imdb actor image loading/scaling algorithm
@@ -24,3 +25,4 @@ x loading of "ignore SSL errors" on startup
 x use collection as root node of the collection NFO #1731
 x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
 x (Emby) preserve custom movie sets in NFO #1617
+x sync episodes to Trakt.tv via IDs where possible #1643

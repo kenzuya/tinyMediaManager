@@ -40,7 +40,6 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.entities.MMActor;
 import org.tinymediamanager.scraper.moviemeter.entities.MMDirector;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
@@ -235,14 +234,6 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     for (MMDirector d : fd.directors) {
       Person cm = new Person(Person.Type.DIRECTOR, d.name);
       md.addCastMember(cm);
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
     }
 
     return md;

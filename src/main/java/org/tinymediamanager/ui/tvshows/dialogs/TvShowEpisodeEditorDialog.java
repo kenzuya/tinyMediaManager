@@ -954,9 +954,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
 
         // also fill other ratings if ratings are requested
-        for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
-          if (!metadata.getRatings().contains(rating)) {
-            metadata.addRating(rating);
+        if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
+            if (!metadata.getRatings().contains(rating)) {
+              metadata.addRating(rating);
+            }
           }
         }
       }

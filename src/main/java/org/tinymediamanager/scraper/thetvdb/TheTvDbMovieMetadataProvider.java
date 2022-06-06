@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.thetvdb;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -43,7 +43,6 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.CompanyBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ContentRating;
@@ -148,7 +147,9 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
           try {
             MediaMetadata md = getMetadata(options);
             if (md != null) {
-              results.add(morphMediaMetadataToSearchResult(md, MediaType.MOVIE));
+              MediaSearchResult result = morphMediaMetadataToSearchResult(md, MediaType.MOVIE);
+              result.setMetadata(md);
+              results.add(result);
               return results;
             }
           }
@@ -242,6 +243,12 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+    if (options.getSearchResult() != null && options.getSearchResult().getMediaMetadata() != null
+        && getId().equals(options.getSearchResult().getMediaMetadata().getProviderId())) {
+      // we already have the metadata from before (search with id)
+      return options.getSearchResult().getMediaMetadata();
+    }
+
     // lazy initialization of the api
     initAPI();
 
@@ -323,6 +330,9 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     }
 
     md.setOriginalTitle(movie.name);
+    md.setCountries(Collections.singletonList(movie.originalCountry));
+    md.setOriginalLanguage(movie.originalLanguage);
+    md.setSpokenLanguages(movie.audioLanguages);
 
     if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.overview)) {
       md.setPlot(baseTranslation.overview);
@@ -358,9 +368,13 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     Date localReleaseDate = null;
     Date globalReleaseDate = null;
+    Date firstReleaseDate = null;
     for (Release release : ListUtils.nullSafe(movie.releases)) {
       try {
         Date date = StrgUtils.parseDate(release.date);
+        if (firstReleaseDate == null || firstReleaseDate.after(date)) {
+          firstReleaseDate = date;
+        }
 
         if ("global".equalsIgnoreCase(release.country)) {
           globalReleaseDate = date;
@@ -383,18 +397,26 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       releaseDate = globalReleaseDate;
     }
 
+    if (globalReleaseDate == null) {
+      globalReleaseDate = firstReleaseDate;
+    }
+
+    if (releaseDate == null) {
+      releaseDate = firstReleaseDate;
+    }
+
     if (releaseDate != null) {
       md.setReleaseDate(releaseDate);
     }
 
     if (globalReleaseDate != null) {
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(globalReleaseDate);
-      int y = calendar.get(Calendar.YEAR);
-      md.setYear(y);
-      if (y != 0 && md.getTitle().contains(String.valueOf(y))) {
-        LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
-        md.setTitle(clearYearFromTitle(md.getTitle(), y));
+      int y = getYearFromDate(globalReleaseDate);
+      if (y > 0) {
+        md.setYear(y);
+        if (md.getTitle().contains(String.valueOf(y))) {
+          LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
+          md.setTitle(clearYearFromTitle(md.getTitle(), y));
+        }
       }
     }
 
@@ -443,14 +465,20 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       }
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
+    // artwork
+    if (StringUtils.isNotBlank(movie.image)) {
+      MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+      ma.setOriginalUrl(movie.image);
+      ma.setDefaultUrl(movie.image);
+      md.addMediaArt(ma);
     }
 
     return md;
+  }
+
+  private int getYearFromDate(Date date) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    return calendar.get(Calendar.YEAR);
   }
 }

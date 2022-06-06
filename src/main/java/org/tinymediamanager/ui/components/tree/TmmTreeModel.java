@@ -614,7 +614,6 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     super.removeNodeFromParent(node);
 
     setAdjusting(false);
-    nodeStructureChanged();
   }
 
   /**

@@ -278,12 +278,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         break;
 
       case 2:
-      case 15:
+      case 14:
         ma = new MediaArtwork(getProviderInfo().getId(), POSTER);
         break;
 
       case 3:
-      case 14:
+      case 15:
         ma = new MediaArtwork(getProviderInfo().getId(), BACKGROUND);
         break;
 

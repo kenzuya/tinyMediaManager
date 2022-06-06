@@ -64,7 +64,7 @@ class Metadata {
       MediaFile poster = posters.isEmpty() ? null : posters.get(0);
       if (poster != null) {
         String rel = tmmMovie.getPathNIO().relativize(poster.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
             + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(poster.getExtension()), poster.getFilesize(), url);
         m.addResource(r);
@@ -72,7 +72,7 @@ class Metadata {
 
       for (MediaFile mf : tmmMovie.getMediaFiles(MediaFileType.VIDEO)) {
         String rel = tmmMovie.getPathNIO().relativize(mf.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/movies/" + tmmMovie.getDbId().toString() + "/"
             + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(mf.getExtension()), mf.getFilesize(), url);
         m.addResource(r);
@@ -143,7 +143,7 @@ class Metadata {
 
       for (MediaFile mf : ep.getMediaFiles(MediaFileType.VIDEO)) {
         String rel = show.getPathNIO().relativize(mf.getFileAsPath()).toString().replaceAll("\\\\", "/");
-        String url = "http://" + Upnp.IP + ":" + Upnp.WEBSERVER_PORT + "/upnp/tvshows/" + show.getDbId().toString() + "/"
+        String url = "http://" + Upnp.getInstance().getIpAddress() + ":" + Upnp.WEBSERVER_PORT + "/upnp/tvshows/" + show.getDbId().toString() + "/"
             + URLEncoder.encode(rel, StandardCharsets.UTF_8);
         Res r = new Res(MimeTypes.getMimeType(mf.getExtension()), mf.getFilesize(), url);
         m.addResource(r);

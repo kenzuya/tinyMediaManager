@@ -7,6 +7,7 @@ body, html {
 .app{
     height: 100%;
 }
+
 .header{
     height:40px;
     line-height: 40px;
@@ -63,6 +64,7 @@ body, html {
 }
 
 .header .input-group-prepend{
+    line-height: normal;
     background-color: #222; 
     height: 26px; 
     padding-top: 6px;

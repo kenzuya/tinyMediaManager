@@ -171,6 +171,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   private TvShow                             tvShow                = null;
   private String                             titleSortable         = "";
+  private String                             otherIds              = "";
   private Date                               lastWatched           = null;
   private boolean                            dummy                 = false;
 
@@ -180,6 +181,44 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public TvShowEpisode() {
     // register for dirty flag listener
     super();
+  }
+
+  @Override
+  public void setId(String key, Object value) {
+    super.setId(key, value);
+
+    otherIds = "";
+    firePropertyChange("otherIds", null, key + ":" + value);
+  }
+
+  public String getOtherIds() {
+    if (StringUtils.isNotBlank(otherIds)) {
+      return otherIds;
+    }
+
+    for (Map.Entry<String, Object> entry : getIds().entrySet()) {
+      switch (entry.getKey()) {
+        case MediaMetadata.TVDB:
+        case MediaMetadata.IMDB:
+        case MediaMetadata.TMDB:
+        case MediaMetadata.TRAKT_TV:
+          // already in UI - skip
+          continue;
+
+        case "imdbId":
+        case "tvShowSeason":
+          // legacy format
+          continue;
+
+        default:
+          if (StringUtils.isNotBlank(otherIds)) {
+            otherIds += "; ";
+          }
+          otherIds += entry.getKey() + ": " + entry.getValue();
+      }
+    }
+
+    return otherIds;
   }
 
   /**

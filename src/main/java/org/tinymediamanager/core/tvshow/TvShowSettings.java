@@ -191,6 +191,7 @@ public final class TvShowSettings extends AbstractSettings {
   final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
   final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
   boolean                                        doNotOverwriteExistingData             = false;
+  boolean                                        fetchAllRatings                        = false;
 
   // artwork scraper
   MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
@@ -1795,6 +1796,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = doNotOverwriteExistingData;
     doNotOverwriteExistingData = newValue;
     firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
+  }
+
+  public boolean isFetchAllRatings() {
+    return fetchAllRatings;
+  }
+
+  public void setFetchAllRatings(boolean newValue) {
+    boolean oldValue = this.fetchAllRatings;
+    this.fetchAllRatings = newValue;
+    firePropertyChange("fetchAllRatings", oldValue, newValue);
   }
 
   public void addShowTvShowArtworkTypes(MediaFileType type) {

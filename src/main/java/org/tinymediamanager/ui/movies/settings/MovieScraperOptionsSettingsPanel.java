@@ -39,9 +39,11 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.movies.panels.MovieScraperMetadataPanel;
@@ -66,6 +68,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
   private JCheckBox                 chckbxScraperFallback;
   private JCheckBox                 chckbxCapitalizeWords;
   private JCheckBox                 chckbxDoNotOverwrite;
+  private JHintCheckBox             chckbxFetchAllRatings;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -101,7 +104,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[700lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][]")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][]")); // 16lp ~ width of the
 
       JLabel lblOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptions, true);
@@ -126,11 +129,16 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
         cbReleaseCountry = new JComboBox();
         panelOptions.add(cbReleaseCountry, "cell 1 2 2 1");
 
+        chckbxFetchAllRatings = new JHintCheckBox(TmmResourceBundle.getString("Settings.fetchallratings"));
+        chckbxFetchAllRatings.setToolTipText(TmmResourceBundle.getString("Settings.fetchallratings.desc"));
+        chckbxFetchAllRatings.setHintIcon(IconManager.HINT);
+        panelOptions.add(chckbxFetchAllRatings, "cell 1 4 2 1");
+
         chckbxScraperFallback = new JCheckBox(TmmResourceBundle.getString("Settings.scraperfallback"));
-        panelOptions.add(chckbxScraperFallback, "cell 1 4 2 1");
+        panelOptions.add(chckbxScraperFallback, "cell 1 5 2 1");
 
         chckbxCapitalizeWords = new JCheckBox((TmmResourceBundle.getString("Settings.scraper.capitalizeWords")));
-        panelOptions.add(chckbxCapitalizeWords, "cell 1 5 2 1");
+        panelOptions.add(chckbxCapitalizeWords, "cell 1 6 2 1");
       }
     }
     {
@@ -236,5 +244,10 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxDoNotOverwrite,
         jCheckBoxBeanProperty);
     autoBinding_3.bind();
+    //
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("fetchAllRatings");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, chckbxFetchAllRatings,
+        jCheckBoxBeanProperty);
+    autoBinding_4.bind();
   }
 }

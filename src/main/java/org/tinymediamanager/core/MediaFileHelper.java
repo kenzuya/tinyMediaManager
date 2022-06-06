@@ -2738,9 +2738,24 @@ public class MediaFileHelper {
    */
   public static List<Path> getVideoFiles(MediaFile mediaFile) {
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
+      Path folder = mediaFile.getFileAsPath();
+
+      if (mediaFile.isBlurayFile() && Files.exists(folder.resolve("STREAM"))) {
+        // BluRay && STREAM subfolder
+        folder = folder.resolve("STREAM");
+      }
+      else if (mediaFile.isDVDFile() && Files.exists(folder.resolve("VIDEO_TS"))) {
+        // DVD && VIDEO_TS subfolder
+        folder = folder.resolve("VIDEO_TS");
+      }
+      else if (mediaFile.isHDDVDFile() && Files.exists(folder.resolve("HVDVD_TS"))) {
+        // HD-DVD && HVDVD_TS subfolder
+        folder = folder.resolve("HVDVD_TS");
+      }
+
       // looks like a disc structure
       List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
-      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
+      for (Path path : Utils.listFiles(folder)) {
         try {
           mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
         }
@@ -2789,10 +2804,7 @@ public class MediaFileHelper {
   }
 
   public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
-    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile)
-        .stream()
-        .map(path -> new MediaInfoFile(path))
-        .collect(Collectors.toList());
+    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile).stream().map(path -> new MediaInfoFile(path)).collect(Collectors.toList());
 
     MediaFilePosition result = null;
 
@@ -2809,12 +2821,14 @@ public class MediaFileHelper {
           filePath = Paths.get(file.getPath(), file.getFilename());
           if (!mediaInfo.open(filePath)) {
             LOGGER.error("Mediainfo could not open file: {}", file);
-          } else {
+          }
+          else {
             file.setSnapshot(mediaInfo.snapshot());
           }
 
           duration = file.getDuration();
-          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration, mediaFile.getDuration());
+          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration,
+              mediaFile.getDuration());
           if (pos <= (totalDuration + duration)) {
             result = new MediaFilePosition(filePath, pos - totalDuration);
             break;

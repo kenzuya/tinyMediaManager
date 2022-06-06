@@ -57,12 +57,12 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
 import org.tinymediamanager.scraper.tmdb.entities.BaseCompany;
 import org.tinymediamanager.scraper.tmdb.entities.BaseKeyword;
@@ -90,8 +90,8 @@ import org.tinymediamanager.scraper.util.TvUtils;
 
 import retrofit2.Response;
 
-public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
-    implements ITvShowMetadataProvider, ITvShowTmdbMetadataProvider, ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider, IRatingProvider {
+public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements ITvShowMetadataProvider, ITvShowTmdbMetadataProvider,
+    ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider, IRatingProvider, IMediaIdProvider {
   private static final Logger                                LOGGER                      = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP      = new CacheMap<>(600, 5);
   private static final CacheMap<Integer, String>             ORIGINAL_LANGUAGE_CACHE_MAP = new CacheMap<>(600, 5);
@@ -519,14 +519,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       }
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
-    }
-
     return md;
   }
 
@@ -855,14 +847,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       md.addMediaArt(ma);
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingProvider.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
-    }
-
     return md;
   }
 
@@ -1093,6 +1077,80 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     }
 
     return Collections.emptyList();
+  }
+
+  @Override
+  public Map<String, Object> getMediaIds(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.TV_SHOW) {
+      return Collections.emptyMap();
+    }
+
+    LOGGER.debug("getMediaIds(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    int tmdbId = MediaIdUtil.getIdAsInt(ids, MediaMetadata.TMDB);
+    String imdbId = MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB);
+
+    if (tmdbId == 0 && !MediaIdUtil.isValidImdbId(imdbId)) {
+      LOGGER.debug("not possible to scrape from TMDB - no tmdbId/imdbId found");
+      throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
+    }
+
+    // TMDB only offers the tmdb id and the imdb id
+    Map<String, Object> scrapedIds = new HashMap<>();
+
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(imdbId)) {
+      // we have the imdb id and just need the tmdb id
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, imdbId);
+      }
+      catch (Exception e) {
+        LOGGER.debug("problem getting tmdbId from imdbId: {}", e.getMessage());
+      }
+    }
+
+    if (tmdbId == 0) {
+      LOGGER.debug("not possible to scrape from TMDB - no tmdbId/imdbId found");
+      throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
+    }
+
+    // scrape
+    TvShow tvShow;
+
+    try {
+      Response<TvShow> httpResponse = api.tvService().tv(tmdbId, "en", new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS)).execute();
+      if (!httpResponse.isSuccessful()) {
+        throw new HttpException(httpResponse.code(), httpResponse.message());
+      }
+      tvShow = httpResponse.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("problem getting data from tmdb: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (tvShow == null) {
+      throw new NothingFoundException();
+    }
+
+    scrapedIds.put(TMDB, tvShow.id);
+
+    // external IDs
+    if (tvShow.external_ids != null) {
+      if (tvShow.external_ids.tvdb_id != null && tvShow.external_ids.tvdb_id > 0) {
+        scrapedIds.put(TVDB, tvShow.external_ids.tvdb_id);
+      }
+      if (StringUtils.isNotBlank(tvShow.external_ids.imdb_id)) {
+        scrapedIds.put(IMDB, tvShow.external_ids.imdb_id);
+      }
+      if (tvShow.external_ids.tvrage_id != null && tvShow.external_ids.tvrage_id > 0) {
+        scrapedIds.put("tvrage", tvShow.external_ids.tvrage_id);
+      }
+    }
+
+    return scrapedIds;
   }
 
   private BaseTvEpisode getBaseTvEpisodeByImdbId(String imdbId) throws IOException {

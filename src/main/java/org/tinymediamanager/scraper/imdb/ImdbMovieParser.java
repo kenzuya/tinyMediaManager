@@ -124,10 +124,12 @@ public class ImdbMovieParser extends ImdbParser {
         options.getCertificationCountry().getAlpha2());
     futureReleaseinfo = executor.submit(worker);
 
-    Future<Document> futureCritics;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futureCritics = executor.submit(worker);
+    Future<Document> futureCritics = null;
+    if (Boolean.TRUE.equals(config.getValueAsBool("includeMetacritic"))) {
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
+      futureCritics = executor.submit(worker);
+    }
 
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
@@ -186,9 +188,11 @@ public class ImdbMovieParser extends ImdbParser {
       }
 
       // get critics
-      Document criticsDoc = futureCritics.get();
-      if (criticsDoc != null) {
-        parseCritics(criticsDoc, md);
+      if (futureCritics != null) {
+        Document criticsDoc = futureCritics.get();
+        if (criticsDoc != null) {
+          parseCritics(criticsDoc, md);
+        }
       }
 
       // if everything worked so far, we can set the given id
@@ -314,11 +318,11 @@ public class ImdbMovieParser extends ImdbParser {
         MediaRating rating = new MediaRating("metacritic");
         rating.setRating(value);
         rating.setVotes(count);
-        rating.setMaxValue(10);
+        rating.setMaxValue(100);
         md.addRating(rating);
-      }
 
-      break;
+        break;
+      }
     }
   }
 
