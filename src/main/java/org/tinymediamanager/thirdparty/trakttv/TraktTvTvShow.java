@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -681,14 +681,14 @@ class TraktTvTvShow {
           // sync history
           if (!syncEpisodeMap.containsKey(episodeTag) && tmmEp.isWatched()) {
             // watched in tmm and not in trakt -> sync
-            OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault());
+            OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC);
             syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).watchedAt(watchedAt));
           }
         }
         else {
           // sync collection
           if (!syncEpisodeMap.containsKey(episodeTag)) {
-            OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmEp.getDateAdded()), ZoneId.systemDefault());
+            OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmEp.getDateAdded()), ZoneOffset.UTC);
             syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).collectedAt(collectedAt));
           }
         }
@@ -819,7 +819,7 @@ class TraktTvTvShow {
         if (!syncEpisodeMap.containsKey(episodeTag) && userRating != MediaMetadata.EMPTY_RATING) {
           // rated in tmm
           syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).rating(Rating.fromValue(Math.round(userRating.getRating())))
-              .ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault())));
+              .ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC)));
         }
       }
 
