@@ -49,28 +49,26 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import net.miginfocom.swing.MigLayout;
 
 class FileTypesSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 9136097757447080369L;
+  private static final long serialVersionUID = 9136097757447080369L;
 
-  
+  private Settings          settings         = Settings.getInstance();
+  private JTextField        tfVideoFiletype;
+  private JList<String>     listVideoFiletypes;
+  private JTextField        tfSubtitleFiletype;
+  private JList<String>     listSubtitleFiletypes;
+  private JTextField        tfAudioFiletype;
+  private JList<String>     listAudioFiletypes;
+  private JTextField        tfCleanupFiletype;
+  private JList<String>     listCleanupFiletypes;
 
-  private Settings                    settings         = Settings.getInstance();
-  private JTextField                  tfVideoFiletype;
-  private JList<String>               listVideoFiletypes;
-  private JTextField                  tfSubtitleFiletype;
-  private JList<String>               listSubtitleFiletypes;
-  private JTextField                  tfAudioFiletype;
-  private JList<String>               listAudioFiletypes;
-  private JTextField                  tfCleanupFiletype;
-  private JList<String>               listCleanupFiletypes;
-
-  private JButton                     btnAddAudioFiletype;
-  private JButton                     btnAddSubtitleFiletype;
-  private JButton                     btnAddVideoFiletype;
-  private JButton                     btnAddCleanupFiletype;
-  private JButton                     btnRemoveCleanupFiletype;
-  private JButton                     btnRemoveAudioFiletype;
-  private JButton                     btnRemoveSubtitleFiletype;
-  private JButton                     btnRemoveVideoFiletype;
+  private JButton           btnAddAudioFiletype;
+  private JButton           btnAddSubtitleFiletype;
+  private JButton           btnAddVideoFiletype;
+  private JButton           btnAddCleanupFiletype;
+  private JButton           btnRemoveCleanupFiletype;
+  private JButton           btnRemoveAudioFiletype;
+  private JButton           btnRemoveSubtitleFiletype;
+  private JButton           btnRemoveVideoFiletype;
 
   /**
    * Instantiates a new general settings panel.
@@ -252,7 +250,7 @@ class FileTypesSettingsPanel extends JPanel {
 
         JButton btnHelp = new JButton(TmmResourceBundle.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
-          String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/General-Settings#file-types");
+          String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/docs/settings#file-types");
           try {
             TmmUIHelper.browseUrl(url);
           }
