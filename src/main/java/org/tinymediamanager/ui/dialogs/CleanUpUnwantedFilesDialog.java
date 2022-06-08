@@ -38,6 +38,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -173,6 +174,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
       // Get Cleanup File Types from the settings
       List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
+      LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
 
       selectedEntities.sort(Comparator.comparing(MediaEntity::getTitle));
 
@@ -239,12 +241,17 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
       FileContainer selectedFile = results.get(row);
       try {
         fileList.add(selectedFile);
+        MediaFile mf = new MediaFile(selectedFile.file);
+        if (mf.getType() == MediaFileType.VIDEO) {
+          // prevent users from doing something stupid
+          continue;
+        }
         LOGGER.info("Deleting File - {}", selectedFile.file);
         Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
-        // remove possible MediaFiles too
-        MediaFile mf = new MediaFile(selectedFile.file);
-        selectedFile.entity.removeFromMediaFiles(mf);
-        selectedFile.entity.saveToDb();
+        if (selectedFile.entity.getMediaFiles().contains(mf)) {
+          selectedFile.entity.removeFromMediaFiles(mf);
+          selectedFile.entity.saveToDb();
+        }
       }
       catch (Exception e) {
         LOGGER.error("Could not delete file {} - {}", selectedFile.file, e.getMessage());

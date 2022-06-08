@@ -1961,11 +1961,17 @@ public class Utils {
     }
 
     for (Path file : fileList) {
+      MediaFile mf = new MediaFile(file);
+      if (mf.getType() == MediaFileType.VIDEO) {
+        // prevent users from doing something stupid
+        continue;
+      }
       LOGGER.debug("Deleting File - {}", file);
       Utils.deleteFileWithBackup(file, me.getDataSource());
       // remove possible MediaFiles too
-      MediaFile mf = new MediaFile(file);
-      me.removeFromMediaFiles(mf);
+      if (me.getMediaFiles().contains(mf)) {
+        me.removeFromMediaFiles(mf);
+      }
     }
   }
 
