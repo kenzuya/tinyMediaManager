@@ -905,8 +905,12 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
                   if (language.equals(seriesEpisodesRecord.series.originalLanguage)) {
                     toInject.originalName = translation.name;
                   }
-                  toInject.name = translation.name;
-                  toInject.overview = translation.overview;
+                  if (StringUtils.isNotBlank(translation.name)) {
+                    toInject.name = translation.name;
+                  }
+                  if (StringUtils.isNotBlank(translation.overview)) {
+                    toInject.overview = translation.overview;
+                  }
                 }
               }
             }
@@ -936,10 +940,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
               // find the corresponding episode in the response
               for (EpisodeBaseRecord translation : ListUtils.nullSafe(response.data.episodes)) {
                 if (Objects.equals(toInject.id, translation.id)) {
-                  if (StringUtils.isBlank(toInject.name)) {
+                  if (StringUtils.isBlank(toInject.name) && StringUtils.isNotBlank(translation.name)) {
                     toInject.name = translation.name;
                   }
-                  if (StringUtils.isBlank(toInject.overview)) {
+                  if (StringUtils.isBlank(toInject.overview) && StringUtils.isNotBlank(translation.overview)) {
                     toInject.overview = translation.overview;
                   }
                 }
