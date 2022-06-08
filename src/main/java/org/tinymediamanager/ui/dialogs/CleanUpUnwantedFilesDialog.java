@@ -42,6 +42,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -240,6 +241,9 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
         fileList.add(selectedFile);
         LOGGER.info("Deleting File - {}", selectedFile.file);
         Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
+        // remove possible MediaFiles too
+        MediaFile mf = new MediaFile(selectedFile.file);
+        selectedFile.entity.removeFromMediaFiles(mf);
       }
       catch (Exception e) {
         LOGGER.error("Could not delete file {} - {}", selectedFile.file, e.getMessage());
