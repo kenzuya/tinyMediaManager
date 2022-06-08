@@ -244,6 +244,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
         // remove possible MediaFiles too
         MediaFile mf = new MediaFile(selectedFile.file);
         selectedFile.entity.removeFromMediaFiles(mf);
+        selectedFile.entity.saveToDb();
       }
       catch (Exception e) {
         LOGGER.error("Could not delete file {} - {}", selectedFile.file, e.getMessage());
