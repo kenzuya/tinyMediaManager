@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -171,8 +172,8 @@ class TvShowCommand implements Runnable {
   }
 
   private void scrapeTvShows(List<TvShow> showsToScrape, List<TvShowEpisode> episodesToScrape) {
-    HashSet<TvShow> scrapeShow = new HashSet<>(); // no dupes
-    HashSet<TvShowEpisode> scrapeEpisode = new HashSet<>(); // no dupes
+    Set<TvShow> scrapeShow = new HashSet<>(); // no dupes
+    Set<TvShowEpisode> scrapeEpisode = new HashSet<>(); // no dupes
 
     if (scrape.scrapeAll) {
       LOGGER.info("scraping ALL tv shows/episodes...");
@@ -190,7 +191,7 @@ class TvShowCommand implements Runnable {
     }
 
     // if we scrape already the whole show, no need to scrape dedicated episodes for it
-    HashSet<TvShowEpisode> removedEpisode = new HashSet<>(); // no dupes
+    Set<TvShowEpisode> removedEpisode = new HashSet<>(); // no dupes
     for (TvShowEpisode ep : scrapeEpisode) {
       if (scrapeShow.contains(ep.getTvShow())) {
         removedEpisode.add(ep);

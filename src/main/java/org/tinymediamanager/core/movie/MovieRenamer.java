@@ -327,6 +327,20 @@ public class MovieRenamer {
   }
 
   /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * 
+   * @param me
+   */
+  private static void cleanupUnwantedFiles(Movie movie) {
+    if (movie.isMultiMovieDir()) {
+      return;
+    }
+    if (MovieModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
+      Utils.deleteUnwantedFilesFor(movie);
+    }
+  }
+
+  /**
    * Rename movie inside the actual datasource.
    *
    * @param movie
@@ -649,6 +663,7 @@ public class MovieRenamer {
       }
     }
 
+    cleanupUnwantedFiles(movie);
     removeEmptySubfolders(movie);
     movie.saveToDb();
   }

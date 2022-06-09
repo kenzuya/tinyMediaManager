@@ -124,6 +124,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   private JComboBox                                cbColonReplacement;
   private JTextField                               tfFirstCharacter;
   private JCheckBox                                chckbxAutomaticRename;
+  private JCheckBox                                chckbxCleanupUnwanted;
 
   public TvShowRenamerSettingsPanel() {
 
@@ -418,11 +419,15 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         TmmFontHelper.changeFont(lblAsciiHint, L2);
       }
       {
+        chckbxCleanupUnwanted = new JCheckBox(TmmResourceBundle.getString("Settings.cleanupfiles"));
+        panelAdvancedOptions.add(chckbxCleanupUnwanted, "cell 1 7 2 1");
+      }
+      {
         JLabel lblFirstCharacterT = new JLabel(TmmResourceBundle.getString("Settings.renamer.firstnumbercharacterreplacement"));
-        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 7 2 1");
+        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 8 2 1");
 
         tfFirstCharacter = new JTextField();
-        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 7 2 1");
+        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 9 2 1");
         tfFirstCharacter.setColumns(2);
       }
     }
@@ -738,5 +743,10 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, chckbxAutomaticRename,
         jCheckBoxBeanProperty);
     autoBinding_8.bind();
+    //
+    Property tvShowSettingsBeanProperty_6 = BeanProperty.create("renamerCleanupUnwanted");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6, chckbxCleanupUnwanted,
+        jCheckBoxBeanProperty);
+    autoBinding_9.bind();
   }
 }

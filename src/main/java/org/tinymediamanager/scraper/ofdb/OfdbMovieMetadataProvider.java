@@ -118,6 +118,8 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     }
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
+
     // generic Elements used all over
     Elements el = null;
     String ofdbId = StrgUtils.substr(detailUrl, "film\\/(\\d+),");

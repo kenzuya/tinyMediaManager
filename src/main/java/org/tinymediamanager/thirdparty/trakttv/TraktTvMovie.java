@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -654,14 +654,14 @@ class TraktTvMovie {
     switch (syncType) {
       case COLLECTION:
         // sync collection
-        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneId.systemDefault()));
+        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneOffset.UTC));
         break;
 
       case WATCHED:
         // sync history
         if (tmmMovie.isWatched()) {
           // watched in tmm and not in trakt -> sync
-          movie.watchedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+          movie.watchedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC));
         }
         break;
 
@@ -670,7 +670,7 @@ class TraktTvMovie {
         MediaRating userRating = tmmMovie.getUserRating();
         if (userRating != MediaMetadata.EMPTY_RATING) {
           movie.rating = Rating.fromValue(Math.round(userRating.getRating()));
-          movie.ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+          movie.ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC));
         }
         break;
     }

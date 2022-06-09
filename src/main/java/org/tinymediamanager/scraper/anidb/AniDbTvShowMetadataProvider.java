@@ -146,6 +146,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
         // filter out the episode
         for (Episode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
             MediaMetadata md = new MediaMetadata(providerInfo.getId());
+            md.setScrapeOptions(options);
             md.setTitle(ep.titles.get(language));
             md.setSeasonNumber(ep.season);
             md.setEpisodeNumber(ep.episode);
@@ -279,6 +280,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider
             return null;
 
         MediaMetadata md = new MediaMetadata(providerInfo.getId());
+        md.setScrapeOptions(options);
         String language = options.getLanguage().getLanguage();
         AniDbMetadataParser.fillAnimeMetadata(md, language, doc.child(0), providerInfo);
 

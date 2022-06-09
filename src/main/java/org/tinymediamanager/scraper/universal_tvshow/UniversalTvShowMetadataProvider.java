@@ -401,6 +401,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(false);
@@ -503,6 +504,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(true);

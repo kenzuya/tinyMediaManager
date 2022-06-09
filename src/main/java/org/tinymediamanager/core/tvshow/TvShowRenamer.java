@@ -222,6 +222,9 @@ public class TvShowRenamer {
     // rename the season artwork
     renameSeasonArtwork(tvShow);
 
+    // cleanup
+    cleanupUnwantedFiles(tvShow);
+
     tvShow.saveToDb();
   }
 
@@ -1871,6 +1874,17 @@ public class TvShowRenamer {
       }
     }
     return ext;
+  }
+
+  /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * 
+   * @param me
+   */
+  private static void cleanupUnwantedFiles(TvShow show) {
+    if (TvShowModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
+      Utils.deleteUnwantedFilesFor(show);
+    }
   }
 
   /**

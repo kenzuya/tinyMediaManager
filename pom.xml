@@ -89,8 +89,9 @@
         <release.version>2.5.3</release.version>
         <jre.version>17.0.2</jre.version>
         <ffmpeg.version>5.0</ffmpeg.version>
-        <launcher.version>1.1.9</launcher.version>
+        <launcher.version>1.1.10</launcher.version>
         <jackson.version>2.13.2</jackson.version>
+        <sonar.java.source>11</sonar.java.source>
     </properties>
 
     <dependencies>
@@ -594,10 +595,23 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Sonarqube and dependency scanner -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>7.1.0</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>json</format>
+                    </formats>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.7.0.1746</version>
+                <version>3.9.1.2184</version>
             </plugin>
         </plugins>
         <extensions>

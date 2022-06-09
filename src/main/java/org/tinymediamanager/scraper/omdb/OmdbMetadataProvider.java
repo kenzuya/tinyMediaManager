@@ -145,6 +145,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
     DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
 
     MediaMetadata md = new MediaMetadata(getId());
+
     Element movie = movies.first();
 
     if (MediaIdUtil.isValidImdbId(movie.attr("imdbID"))) {

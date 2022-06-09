@@ -167,6 +167,7 @@ public final class MovieSettings extends AbstractSettings {
   String                                    renamerFilenameSpaceReplacement        = "_";
   String                                    renamerColonReplacement                = "-";
   boolean                                   renamerNfoCleanup                      = false;
+  boolean                                   renamerCleanupUnwanted                 = false;
   boolean                                   renamerCreateMoviesetForSingleMovie    = false;
   String                                    renamerFirstCharacterNumberReplacement = "#";
   boolean                                   asciiReplacement                       = false;
@@ -1222,6 +1223,16 @@ public final class MovieSettings extends AbstractSettings {
     double oldValue = this.scraperThreshold;
     scraperThreshold = newValue;
     firePropertyChange("scraperThreshold", oldValue, newValue);
+  }
+
+  public boolean isRenamerCleanupUnwanted() {
+    return renamerCleanupUnwanted;
+  }
+
+  public void setRenamerCleanupUnwanted(boolean newValue) {
+    boolean oldValue = this.renamerCleanupUnwanted;
+    this.renamerCleanupUnwanted = newValue;
+    firePropertyChange("renamerCleanupUnwanted", oldValue, newValue);
   }
 
   public boolean isRenamerNfoCleanup() {

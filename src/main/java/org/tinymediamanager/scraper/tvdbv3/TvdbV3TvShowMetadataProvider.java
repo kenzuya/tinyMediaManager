@@ -111,6 +111,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
     Integer id = options.getIdAsInteger(MediaMetadata.TVDB);
@@ -500,7 +501,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
 
     for (Episode ep : eps) {
       MediaMetadata episode = new MediaMetadata(MediaMetadata.TVDB);
-
+      episode.setScrapeOptions(options);
       episode.setId(MediaMetadata.TVDB, ep.id);
       if (MediaIdUtil.isValidImdbId(ep.imdbId)) {
         episode.setId(MediaMetadata.IMDB, ep.imdbId);
