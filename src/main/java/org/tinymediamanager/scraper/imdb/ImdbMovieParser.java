@@ -77,6 +77,7 @@ public class ImdbMovieParser extends ImdbParser {
 
   MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+    md.setScrapeOptions(options);
 
     // check if there is a md in the result
     if (options.getMetadata() != null && ImdbMetadataProvider.ID.equals(options.getMetadata().getProviderId())) {

@@ -136,6 +136,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
     // get ids to scrape
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     int mmId = options.getIdAsInt(providerInfo.getId());
 

@@ -144,6 +144,8 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     initAPI();
 
     MediaMetadata metadata = new MediaMetadata(providerInfo.getId());
+    metadata.setScrapeOptions(mediaScrapeOptions);
+
     MovieEntity scrapeResult = null;
 
     if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {

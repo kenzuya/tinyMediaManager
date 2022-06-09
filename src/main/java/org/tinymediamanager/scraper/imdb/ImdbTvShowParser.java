@@ -104,6 +104,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+    md.setScrapeOptions(options);
 
     // API key check
     String apiKey;
@@ -247,6 +248,7 @@ public class ImdbTvShowParser extends ImdbParser {
     LOGGER.debug("getEpisodeMetadata(): {}", options);
 
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+    md.setScrapeOptions(options);
     String showId = "" + options.getTvShowIds().get(MediaMetadata.IMDB);
 
     String episodeId = options.getIdAsString(MediaMetadata.IMDB);

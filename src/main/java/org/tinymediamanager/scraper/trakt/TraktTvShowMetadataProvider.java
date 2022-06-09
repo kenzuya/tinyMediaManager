@@ -170,6 +170,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     for (Season season : ListUtils.nullSafe(seasons)) {
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
         MediaMetadata ep = new MediaMetadata(getId());
+        ep.setScrapeOptions(options);
         ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
         ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
         ep.setTitle(episode.title);
@@ -217,6 +218,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     String id = options.getIdAsString(getId());
 
@@ -337,6 +339,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // ok, we have 2 flavors here:
     // a) we get the season and episode number -> everything is fine

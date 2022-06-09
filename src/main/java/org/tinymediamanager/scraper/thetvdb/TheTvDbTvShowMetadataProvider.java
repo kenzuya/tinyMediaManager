@@ -126,6 +126,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     LOGGER.debug("getMetadata(): {}", options);
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
     int id = options.getIdAsInt(getId());
@@ -417,6 +418,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     // enrich the data
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
     md.setId(getId(), episode.id);
     md.setSeasonNumber(episode.seasonNumber);
     md.setEpisodeNumber(episode.episodeNumber);
@@ -744,7 +746,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
         MediaMetadata fromMap = episodeMap.get(ep.id);
         if (fromMap == null) {
           MediaMetadata episode = new MediaMetadata(getProviderInfo().getId());
-
+          episode.setScrapeOptions(options);
           episode.setId(getProviderInfo().getId(), ep.id);
           setEpisodeNumber(episode, ep, seasonType);
           episode.setTitle(ep.name);
