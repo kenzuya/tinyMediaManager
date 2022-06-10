@@ -1396,7 +1396,8 @@ public class TvShowRenamer {
     }
 
     // season 0 = Specials
-    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()
+        && !StringUtils.isBlank(TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername())) {
       seasonFolderName = "Specials";
     }
     else {
