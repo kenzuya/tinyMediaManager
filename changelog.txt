@@ -27,3 +27,4 @@ x use collection as root node of the collection NFO #1731
 x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
 x (Emby) preserve custom movie sets in NFO #1617
 x sync episodes to Trakt.tv via IDs where possible #1643
+x locked movies should not disappear on update #1784
