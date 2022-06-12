@@ -144,13 +144,13 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
         LOGGER.info("Trying fallback...");
         String fallback = "https://www.tinymediamanager.org";
         if (ReleaseInfo.isPreRelease()) {
-          fallback += "/getdown_prerelease.txt";
+          fallback += "/getdown_prerelease_v3.txt";
         }
         else if (ReleaseInfo.isNightly()) {
-          fallback += "/getdown_nightly.txt";
+          fallback += "/getdown_nightly_v3.txt";
         }
         else {
-          fallback += "/getdown.txt";
+          fallback += "/getdown_v3.txt";
         }
 
         String gd = UrlUtil.getStringFromUrl(fallback);
