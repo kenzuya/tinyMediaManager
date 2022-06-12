@@ -97,6 +97,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.http.Url;
@@ -1937,6 +1939,39 @@ public class Utils {
         return SKIP_SUBTREE;
       }
       return CONTINUE;
+    }
+  }
+
+  /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * 
+   * @param me
+   */
+  public static void deleteUnwantedFilesFor(MediaEntity me) {
+    // Get Cleanup File Types from the settings
+    List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
+    LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
+
+    HashSet<Path> fileList = new HashSet<>();
+    for (Path file : Utils.getUnknownFilesByRegex(me.getPathNIO(), regexPatterns)) {
+      if (fileList.contains(file)) {
+        continue;
+      }
+      fileList.add(file);
+    }
+
+    for (Path file : fileList) {
+      MediaFile mf = new MediaFile(file);
+      if (mf.getType() == MediaFileType.VIDEO) {
+        // prevent users from doing something stupid
+        continue;
+      }
+      LOGGER.debug("Deleting File - {}", file);
+      Utils.deleteFileWithBackup(file, me.getDataSource());
+      // remove possible MediaFiles too
+      if (me.getMediaFiles().contains(mf)) {
+        me.removeFromMediaFiles(mf);
+      }
     }
   }
 

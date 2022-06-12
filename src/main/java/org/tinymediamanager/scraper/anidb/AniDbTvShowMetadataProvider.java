@@ -121,6 +121,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
     String language = options.getLanguage().getLanguage();
 
     // do we have an id from the options?
@@ -561,6 +562,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
     // filter out the episode
     for (Episode ep : parseEpisodes(doc)) {
       MediaMetadata md = new MediaMetadata(getProviderInfo().getId());
+      md.setScrapeOptions(options);
       md.setTitle(ep.titles.get(language));
       md.setSeasonNumber(ep.season);
       md.setEpisodeNumber(ep.episode);

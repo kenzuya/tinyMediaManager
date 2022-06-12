@@ -972,7 +972,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
               // get movieset metadata (async to donot block here)
               MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
               options.setTmdbId(col);
-              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              if (metadata.getScrapeOptions() != null) {
+                options.setLanguage(metadata.getScrapeOptions().getLanguage());
+              }
+              else {
+                options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              }
               options.setMetadataScraper(movieSetMediaScrapers.get(0));
               options.setArtworkScraper(MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers());
               MovieSetScrapeTask task = new MovieSetScrapeTask(Collections.singletonList(movieSet), options,

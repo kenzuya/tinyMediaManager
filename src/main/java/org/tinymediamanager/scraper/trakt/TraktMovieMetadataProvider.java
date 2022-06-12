@@ -153,6 +153,8 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
+
     String id = options.getIdAsString(getId());
 
     // alternatively we can take the imdbid

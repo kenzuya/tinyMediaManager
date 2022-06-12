@@ -222,6 +222,9 @@ public class TvShowRenamer {
     // rename the season artwork
     renameSeasonArtwork(tvShow);
 
+    // cleanup
+    cleanupUnwantedFiles(tvShow);
+
     tvShow.saveToDb();
   }
 
@@ -1393,7 +1396,8 @@ public class TvShowRenamer {
     }
 
     // season 0 = Specials
-    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()
+        && !StringUtils.isBlank(TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername())) {
       seasonFolderName = "Specials";
     }
     else {
@@ -1871,6 +1875,17 @@ public class TvShowRenamer {
       }
     }
     return ext;
+  }
+
+  /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * 
+   * @param me
+   */
+  private static void cleanupUnwantedFiles(TvShow show) {
+    if (TvShowModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
+      Utils.deleteUnwantedFilesFor(show);
+    }
   }
 
   /**

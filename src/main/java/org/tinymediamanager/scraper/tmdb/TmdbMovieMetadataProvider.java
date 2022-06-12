@@ -378,6 +378,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // tmdbId from option
     int tmdbId;
@@ -527,6 +528,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         // fall back to the provided data
 
         MediaMetadata mdSubItem = new MediaMetadata(getId());
+        mdSubItem.setScrapeOptions(options);
         mdSubItem.setId(getId(), part.id);
         mdSubItem.setTitle(part.title);
         mdSubItem.setOriginalTitle(part.original_title);
@@ -775,6 +777,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
 
   private MediaMetadata morphMovieToMediaMetadata(Movie movie, MovieSearchAndScrapeOptions options) {
     MediaMetadata md = new MediaMetadata(getProviderInfo().getId());
+    md.setScrapeOptions(options);
 
     md.setId(getProviderInfo().getId(), movie.id);
     md.setTitle(movie.title);

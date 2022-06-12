@@ -98,6 +98,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       options.setTvShowIds(episode.getTvShow().getIds());
 
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());
+      md.setScrapeOptions(options);
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
       options.setIds(episode.getIds());

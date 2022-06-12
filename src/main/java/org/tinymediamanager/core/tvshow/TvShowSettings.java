@@ -179,6 +179,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        renamerFilenameSpaceSubstitution       = false;
   String                                         renamerFilenameSpaceReplacement        = "_";
   String                                         renamerColonReplacement                = "";
+  boolean                                        renamerCleanupUnwanted                 = false;
   String                                         renamerFirstCharacterNumberReplacement = "#";
   boolean                                        asciiReplacement                       = false;
   boolean                                        specialSeason                          = true;
@@ -731,6 +732,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.asciiReplacement;
     this.asciiReplacement = newValue;
     firePropertyChange("asciiReplacement", oldValue, newValue);
+  }
+
+  public boolean isRenamerCleanupUnwanted() {
+    return renamerCleanupUnwanted;
+  }
+
+  public void setRenamerCleanupUnwanted(boolean newValue) {
+    boolean oldValue = this.renamerCleanupUnwanted;
+    this.renamerCleanupUnwanted = newValue;
+    firePropertyChange("renamerCleanupUnwanted", oldValue, newValue);
   }
 
   public boolean isSpecialSeason() {

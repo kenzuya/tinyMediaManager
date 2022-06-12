@@ -195,6 +195,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     // check which scrapers should be used
     Set<IMovieMetadataProvider> metadataProviders = getRelevantMetadataProviders();

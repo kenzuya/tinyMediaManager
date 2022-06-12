@@ -47,6 +47,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -316,7 +317,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         }
         for (TvEpisode episode : ListUtils.nullSafe(seasonResponse.body().episodes)) {
           // season does not send translations, get em only with full episode scrape
-          seasonEpisodes.add(morphTvEpisodeToMediaMetadata(episode));
+          seasonEpisodes.add(morphTvEpisodeToMediaMetadata(episode, options));
         }
         episodes.addAll(seasonEpisodes);
       }
@@ -342,6 +343,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // tmdbId from option
     int tmdbId = options.getTmdbId();
@@ -530,6 +532,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     int tmdbId = 0;
 
@@ -1311,8 +1314,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         && (potentialEpisodeNumber.equals(episode.episode_number) || potentialEpisodeNumber.equals(episodeNr));
   }
 
-  private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode) {
+  private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode, MediaSearchAndScrapeOptions options) {
     MediaMetadata ep = new MediaMetadata(getId());
+    ep.setScrapeOptions(options);
     ep.setId(getProviderInfo().getId(), episode.id);
     ep.setEpisodeNumber(episode.episode_number);
     ep.setSeasonNumber(episode.season_number);

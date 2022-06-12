@@ -16,6 +16,7 @@ Version 4.3
 + added writing of TMDB/IMDB/TVDB ids for writers and directors in the NFO files #1731
 + added an option to disable the trash bin (.deletedByTMM) #1727
 + added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
++ added an option to automatically "cleanup unwanted files" on rename #1775
 x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
@@ -26,3 +27,8 @@ x use collection as root node of the collection NFO #1731
 x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
 x (Emby) preserve custom movie sets in NFO #1617
 x sync episodes to Trakt.tv via IDs where possible #1643
+x locked movies should not disappear on update #1784
+x adhere empty season folder on renaming 'specials' #1785
+x fixed downloading missing artwork for seasons #1794
+x remove failed tasks from the task list
+

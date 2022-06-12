@@ -254,6 +254,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     LOGGER.debug("getMetadata(): {}", options);
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
     int id = options.getIdAsInt(getId());

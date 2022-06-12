@@ -184,6 +184,7 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
   protected MediaMetadata _getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException {
     try {
       MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
+      md.setScrapeOptions(options);
       MediaSearchResult result = options.getSearchResult();
 
       if (result.getIMDBId() != null && result.getIMDBId().contains("tt")) {

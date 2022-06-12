@@ -101,6 +101,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       throw new NothingFoundException();
     }
 
+    metadata.setScrapeOptions(options);
     return metadata;
   }
 
@@ -165,6 +166,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
         if (doc != null && doc.childrenSize() != 0) {
           MediaMetadata md = parseDetail(doc, "movie");
           if (md != null) {
+            md.setScrapeOptions(query);
             MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.MOVIE);
             searchResult.mergeFrom(md);
             searchResults = Collections.singletonList(searchResult);
