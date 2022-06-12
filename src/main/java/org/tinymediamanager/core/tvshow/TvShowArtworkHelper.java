@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -235,34 +236,38 @@ public class TvShowArtworkHelper {
 
     for (TvShowSeason season : tvShow.getSeasons()) {
       if (StringUtils.isBlank(season.getArtworkFilename(SEASON_POSTER))) {
-        for (MediaArtwork art : artwork) {
+        for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == SEASON_POSTER).collect(Collectors.toList())) {
           if (art.getSeason() == season.getSeason()) {
             tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_POSTER);
             downloadSeasonPoster(tvShow, art.getSeason());
+            break;
           }
         }
       }
       if (StringUtils.isBlank(season.getArtworkFilename(SEASON_FANART))) {
-        for (MediaArtwork art : artwork) {
+        for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == SEASON_FANART).collect(Collectors.toList())) {
           if (art.getSeason() == season.getSeason()) {
             tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_FANART);
             downloadSeasonFanart(tvShow, art.getSeason());
+            break;
           }
         }
       }
       if (StringUtils.isBlank(season.getArtworkFilename(SEASON_BANNER))) {
-        for (MediaArtwork art : artwork) {
+        for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == SEASON_BANNER).collect(Collectors.toList())) {
           if (art.getSeason() == season.getSeason()) {
             tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_BANNER);
             downloadSeasonBanner(tvShow, art.getSeason());
+            break;
           }
         }
       }
       if (StringUtils.isBlank(season.getArtworkFilename(SEASON_THUMB))) {
-        for (MediaArtwork art : artwork) {
+        for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == SEASON_THUMB).collect(Collectors.toList())) {
           if (art.getSeason() == season.getSeason()) {
             tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_THUMB);
             downloadSeasonThumb(tvShow, art.getSeason());
+            break;
           }
         }
       }
