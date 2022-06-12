@@ -30,4 +30,5 @@ x sync episodes to Trakt.tv via IDs where possible #1643
 x locked movies should not disappear on update #1784
 x adhere empty season folder on renaming 'specials' #1785
 x fixed downloading missing artwork for seasons #1794
+x remove failed tasks from the task list
 
