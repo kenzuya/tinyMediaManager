@@ -1,3 +1,8 @@
+Version 3.1.17
+=======================
++ updated libmediainfo to 22.03
+
+
 Version 3.1.16
 =======================
 x fixed loading of the translations for Traditional Chinese (zh_Hant) #1406
