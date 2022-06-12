@@ -28,6 +28,6 @@ x (TV shows/movie sets) do not crash when title and original title column is hid
 x (Emby) preserve custom movie sets in NFO #1617
 x sync episodes to Trakt.tv via IDs where possible #1643
 x locked movies should not disappear on update #1784
-x adhere empty season folder on renaming 'speacials' #1785
+x adhere empty season folder on renaming 'specials' #1785
 x fixed downloading missing artwork for seasons #1794
 
