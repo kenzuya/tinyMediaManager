@@ -131,7 +131,6 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.addSelect("spokenLanguages", "metatag.spokenlanguages", compatibleScraperIds, UNDEFINED);
     config.addSelect("countries", "metatag.country", compatibleScraperIds, UNDEFINED);
     config.addSelect("tags", "metatag.tags", compatibleScraperIds, UNDEFINED);
-    config.addSelect("mediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
     config.addSelect("collectionName", "metatag.movieset",
         compatibleScraperIds.contains(MediaMetadata.TMDB) ? Arrays.asList(UNDEFINED, MediaMetadata.TMDB) : Collections.singletonList(UNDEFINED),
         UNDEFINED);
