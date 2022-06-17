@@ -30,34 +30,35 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.DynaEnum;
 
-import com.alibaba.fastjson.util.ParameterizedTypeImpl;
-
 public class ITJmtePatternTest extends BasicITest {
 
   @Test
   public void getProperties() throws Exception {
-    printBeanInfo(Movie.class);
-    printBeanInfo(MovieSet.class);
-    printBeanInfo(TvShow.class);
-    printBeanInfo(TvShowSeason.class);
-    printBeanInfo(TvShowEpisode.class);
-    printBeanInfo(Person.class);
-    printBeanInfo(MediaRating.class);
-    printBeanInfo(MediaFile.class);
-    printBeanInfo(MediaFileAudioStream.class);
-    printBeanInfo(MediaFileSubtitle.class);
-    printBeanInfo(MediaTrailer.class);
-    printBeanInfo(MediaSource.class);
+    printBeanInfo(Movie.class, "movie.");
+    printBeanInfo(MovieSet.class, "movieSet.");
+    printBeanInfo(TvShow.class, "tvShow.");
+    printBeanInfo(TvShowSeason.class, "season.");
+    printBeanInfo(TvShowEpisode.class, "episode.");
+
+    printBeanInfo(Person.class, ".");
+    printBeanInfo(MediaRating.class, ".");
+    printBeanInfo(MediaFile.class, ".");
+    printBeanInfo(MediaFileAudioStream.class, ".");
+    printBeanInfo(MediaFileSubtitle.class, ".");
+    printBeanInfo(MediaTrailer.class, ".");
+    printBeanInfo(MediaSource.class, ".");
   }
 
-  private void printBeanInfo(Class<?> clazz) throws Exception {
+  private void printBeanInfo(Class<?> clazz, String prefix) throws Exception {
     System.out.println("\n\n" + clazz.getName() + "\n");
 
     // access properties as Map
@@ -74,9 +75,12 @@ public class ITJmtePatternTest extends BasicITest {
       }
 
       if (descriptor.getReadMethod() != null) {
+        String shortToken = getShort(prefix, descriptor.getDisplayName());
+        String fullToken = getFull(prefix, descriptor.getDisplayName());
+
         final Type type = descriptor.getReadMethod().getGenericReturnType();
-        if (type instanceof ParameterizedTypeImpl) {
-          ParameterizedType pt = (ParameterizedTypeImpl) type;
+        if (type instanceof ParameterizedType) {
+          ParameterizedType pt = (ParameterizedType) type;
 
           String typeAsString;
           Class<?> rawTypeClass = (Class<?>) pt.getRawType();
@@ -94,13 +98,35 @@ public class ITJmtePatternTest extends BasicITest {
             }
           }
           typeAsString += "\\>";
-          System.out.println("|" + typeAsString + "|" + descriptor.getDisplayName() + "|");
+          System.out.println("|" + typeAsString + "|" + fullToken + "|" + shortToken);
         }
         else {
-          System.out.println("|" + getTypeName(descriptor.getReadMethod().getReturnType()) + "|" + descriptor.getDisplayName() + "|");
+          System.out.println("|" + getTypeName(descriptor.getReadMethod().getReturnType()) + "|" + fullToken + "|" + shortToken);
         }
       }
     }
+  }
+
+  private String getFull(String prefix, String name) {
+    String fullToken = name;
+    if (prefix.length() > 3) {
+      fullToken = "${" + prefix + fullToken + "}";
+    }
+    return fullToken;
+  }
+
+  private String getShort(String prefix, String name) {
+    String shortToken = MovieRenamer.getTokenMapReversed().get(prefix + name);
+    if (shortToken == null) {
+      shortToken = TvShowRenamer.getTokenMapReversed().get(prefix + name);
+    }
+    if (shortToken != null && prefix.length() > 3) {
+      shortToken = "${" + shortToken + "}|";
+    }
+    else {
+      shortToken = "|";
+    }
+    return shortToken;
   }
 
   private String getTypeName(Class<?> clazz) {
