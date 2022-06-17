@@ -163,10 +163,12 @@ public class FFmpeg {
       }).start();
 
       int processValue = process.waitFor();
+      String response = outputStream.toString(StandardCharsets.UTF_8);
       if (processValue != 0) {
+        LOGGER.warn("error at FFmpeg: '{}'", response);
         throw new IOException("error running FFmpeg - code '" + processValue + "'");
       }
-      return outputStream.toString(StandardCharsets.UTF_8);
+      return response;
     }
     finally {
       if (process != null) {

@@ -2740,6 +2740,8 @@ public class MediaFileHelper {
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
       Path folder = mediaFile.getFileAsPath();
 
+      // FIXME: do not folder check, and check general usage / existing methods/getMain...
+
       if (mediaFile.isBlurayFile() && Files.exists(folder.resolve("STREAM"))) {
         // BluRay && STREAM subfolder
         folder = folder.resolve("STREAM");
@@ -2803,13 +2805,13 @@ public class MediaFileHelper {
     return Collections.singletonList(mediaFile.getFileAsPath());
   }
 
-  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
+  public static int getPositionInMediaFile(MediaFile mediaFile, int pos) {
     List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile).stream().map(path -> new MediaInfoFile(path)).collect(Collectors.toList());
 
-    MediaFilePosition result = null;
+    int result = -1;
 
     if (mediaInfoFiles.size() == 1) {
-      return new MediaFilePosition(mediaFile.getFileAsPath(), pos);
+      return pos;
     }
 
     if (mediaInfoFiles.size() > 1) {
@@ -2830,7 +2832,7 @@ public class MediaFileHelper {
           LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration,
               mediaFile.getDuration());
           if (pos <= (totalDuration + duration)) {
-            result = new MediaFilePosition(filePath, pos - totalDuration);
+            result = pos - totalDuration;
             break;
           }
 
@@ -2842,8 +2844,8 @@ public class MediaFileHelper {
         }
       }
 
-      if (result == null) {
-        result = new MediaFilePosition(filePath, duration);
+      if (result <= 0) {
+        result = duration;
       }
     }
 
