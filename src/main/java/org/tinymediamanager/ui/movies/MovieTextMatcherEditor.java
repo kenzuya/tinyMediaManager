@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.ui.movies;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -113,6 +116,24 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSortTitle()));
         if (matcher.find()) {
           return true;
+        }
+      }
+      // match by field:value (eg search by ids:160, actors:mel gibson))
+      if (normalizedFilterText.matches("\\w+:\\w[\\w\\s]+")) {
+        String[] kv = normalizedFilterText.split(":");
+        try {
+          PropertyDescriptor pd = new PropertyDescriptor(kv[0], Movie.class);
+          Method getter = pd.getReadMethod();
+          Object f = getter.invoke(movie);
+
+          String res = String.valueOf(f).toLowerCase(Locale.ROOT);
+          if (res.contains(kv[1].toLowerCase(Locale.ROOT))) {
+            // System.out.println("Found " + kv[1] + " in " + res);
+            return true;
+          }
+        }
+        catch (Exception e) {
+          // System.err.println(e.getMessage());
         }
       }
 
