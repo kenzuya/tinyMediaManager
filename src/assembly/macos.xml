@@ -10,12 +10,12 @@
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/${project.artifactId}-${project.version}-getdown/macOS</directory>
+            <directory>${project.build.directory}/${project.artifactId}-getdown/macOS</directory>
             <outputDirectory>tinyMediaManager.app/Contents</outputDirectory>
         </fileSet>
         <fileSet>
             <!-- and just windows stuff from GD -->
-            <directory>${project.build.directory}/${project.artifactId}-${project.version}-getdown</directory>
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
             <includes>
                 <include>digest*</include>
