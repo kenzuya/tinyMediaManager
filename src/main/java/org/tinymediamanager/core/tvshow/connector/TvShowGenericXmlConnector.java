@@ -168,6 +168,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addActors();
         addTrailer();
         addDateAdded();
+        addLockdata();
 
         // add connector specific tags
         addOwnTags();
@@ -697,6 +698,19 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     }
 
     root.appendChild(dateadded);
+  }
+
+  /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata() {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
   }
 
   /**
