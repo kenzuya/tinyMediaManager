@@ -1302,8 +1302,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
-        && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
+        && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       if (getEpisode() == -1) {
