@@ -143,7 +143,6 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         addCertification();
         addId();
         addTmdbid();
-        addTmdbCollectionId();
         addIds();
         addCountry();
         addPremiered();
@@ -466,23 +465,6 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       tmdbid.setTextContent(Integer.toString(movie.getTmdbId()));
     }
     root.appendChild(tmdbid);
-  }
-
-  /**
-   * add the tmdb collection (movie set) id in <tmdbCollectionId>xxx</tmdbCollectionId>
-   */
-  protected void addTmdbCollectionId() {
-    Element tmdbCollectionId = document.createElement("tmdbCollectionId");
-    try {
-      int id = movie.getIdAsInt(MediaMetadata.TMDB_SET);
-      if (id > 0) {
-        tmdbCollectionId.setTextContent(Integer.toString(id));
-      }
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not store tmdb collection id: {}", e.getMessage());
-    }
-    root.appendChild(tmdbCollectionId);
   }
 
   /**
