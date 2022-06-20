@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingWorker;
 
@@ -35,6 +36,8 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -44,6 +47,7 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  */
 public class UpdaterTask extends SwingWorker<Boolean, Void> {
   private static final Logger LOGGER      = LoggerFactory.getLogger(UpdaterTask.class);
+  private final boolean       useCache;
   private String              changelog   = "";
   private boolean             forceUpdate = false;
 
@@ -51,6 +55,11 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
    * Instantiates a new updater task.
    */
   public UpdaterTask() {
+    this(false);
+  }
+
+  public UpdaterTask(boolean useCache) {
+    this.useCache = useCache;
   }
 
   @Override
@@ -84,10 +93,17 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
           uu += '/';
         }
 
-        String url = uu + "digest.txt";
+        String urlAsString = uu + "digest.txt";
 
         LOGGER.trace("Checking {}", uu);
         try {
+          Url url;
+          if (useCache) {
+            url = new OnDiskCachedUrl(urlAsString, 12, TimeUnit.HOURS);
+          }
+          else {
+            url = new Url(urlAsString);
+          }
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {
             remoteDigest = remoteDigest.trim();
@@ -100,7 +116,7 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
           Thread.currentThread().interrupt();
         }
         catch (Exception e) {
-          LOGGER.warn("Unable to download from url {} - {}", url, e.getMessage());
+          LOGGER.warn("Unable to download from url {} - {}", urlAsString, e.getMessage());
         }
         if (valid) {
           break; // no exception - step out :)

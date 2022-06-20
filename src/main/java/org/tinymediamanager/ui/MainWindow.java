@@ -106,7 +106,7 @@ public class MainWindow extends JFrame {
     initialize();
 
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
-      checkForUpdate();
+      checkForUpdate(true);
     }
   }
 
@@ -127,9 +127,9 @@ public class MainWindow extends JFrame {
     return logos;
   }
 
-  public void checkForUpdate() {
+  public void checkForUpdate(boolean useCache) {
     try {
-      final UpdaterTask updateWorker = new UpdaterTask();
+      final UpdaterTask updateWorker = new UpdaterTask(useCache);
 
       updateWorker.addPropertyChangeListener(evt -> {
         if ("state".equals(evt.getPropertyName()) && evt.getNewValue() == StateValue.DONE) {

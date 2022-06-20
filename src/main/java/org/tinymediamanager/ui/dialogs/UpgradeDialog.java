@@ -104,7 +104,7 @@ public class UpgradeDialog extends TmmDialog {
           String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
           content = content.replace("tinymediamanager.org/v3/build/", "tinymediamanager.org/v4/build/");
           Files.write(path, content.getBytes(StandardCharsets.UTF_8));
-          MainWindow.getActiveInstance().checkForUpdate();
+          MainWindow.getActiveInstance().checkForUpdate(false);
           setVisible(false);
         }
         catch (Exception ex) {
