@@ -62,7 +62,6 @@ public class MovieSettingsPanel extends JPanel {
   private JButton             btnClearTraktData;
   private JCheckBox           chckbxTraktSync;
   private JCheckBox           chckbxRenameAfterScrape;
-  private JCheckBox           chckbxARDAfterScrape;
   private JCheckBox           chckbxAutoUpdateOnStart;
   private JCheckBox           chckbxBuildImageCache;
   private JCheckBox           chckbxExtractArtworkFromVsmeta;
@@ -109,7 +108,8 @@ public class MovieSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][]"));
     {
       JPanel panelAutomaticTasks = new JPanel();
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][15lp!][]")); // 16lp ~ width of the
+      // 16lp ~ width of the checkbox
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][15lp!][]"));
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -134,14 +134,14 @@ public class MovieSettingsPanel extends JPanel {
           panelPresets.add(btnPresetXbmc, "cell 4 1,growx");
         }
         {
+          btnPresetPlex = new JButton("Plex");
+          panelPresets.add(btnPresetPlex, "cell 2 2,growx");
+
           btnPresetJellyfin = new JButton("Jellyfin");
-          panelPresets.add(btnPresetJellyfin, "cell 2 2,growx");
+          panelPresets.add(btnPresetJellyfin, "cell 4 2,growx");
 
           btnPresetEmby = new JButton("Emby");
-          panelPresets.add(btnPresetEmby, "cell 4 2,growx");
-
-          btnPresetPlex = new JButton("Plex");
-          panelPresets.add(btnPresetPlex, "cell 6 2,growx");
+          panelPresets.add(btnPresetEmby, "cell 6 2,growx");
         }
         {
           btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
@@ -159,13 +159,6 @@ public class MovieSettingsPanel extends JPanel {
         JLabel lblAutomaticRenameHint = new JLabel(IconManager.HINT);
         lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
-
-        chckbxARDAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticard"));
-        panelAutomaticTasks.add(chckbxARDAfterScrape, "cell 1 1 2 1");
-
-        JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
-        lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticard.desc"));
-        panelAutomaticTasks.add(lblAutomaticARDHint, "cell 1 1 2 1");
 
         chckbxTraktSync = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
         panelAutomaticTasks.add(chckbxTraktSync, "cell 1 2 2 1");
@@ -313,10 +306,5 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_18,
         chckbxTraktSyncCollection, jCheckBoxBeanProperty);
     autoBinding_20.bind();
-    //
-    Property movieSettingsBeanProperty_22 = BeanProperty.create("ardAfterScrape");
-    AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_22, chckbxARDAfterScrape,
-        jCheckBoxBeanProperty);
-    autoBinding_22.bind();
   }
 }

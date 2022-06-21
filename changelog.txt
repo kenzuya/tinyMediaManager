@@ -18,6 +18,7 @@ Version 4.3
 + added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
 + added an option to automatically "cleanup unwanted files" on rename #1775
 + added extended syntax to movie search field.
+x rework automatic aspect ratio detection (performance)
 x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers

@@ -124,6 +124,11 @@ public abstract class ARDetectorTask extends TmmTask {
   }
 
   protected void analyze(MediaFile mediaFile, int idx) {
+    if (!FFmpeg.isAvailable()) {
+      LOGGER.warn("Would have executed aspect ration detection - unfortunately, FFMpeg could not be found");
+      return;
+    }
+
     setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
 
     if (mediaFile.isISO()) {

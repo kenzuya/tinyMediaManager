@@ -53,6 +53,8 @@ import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.mediainfo.MediaInfoXMLParser;
 import org.tinymediamanager.core.mediainfo.MediaInfoXmlCreator;
+import org.tinymediamanager.core.tasks.MediaFileARDetectorTask;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -2181,6 +2183,11 @@ public class MediaFileHelper {
     }
 
     mediaFile.setHdrFormat(hdrFormat);
+
+    if (Settings.getInstance().isArdAfterScrape()) {
+      TmmTask task = new MediaFileARDetectorTask(mediaFile);
+      task.run();
+    }
   }
 
   private static String detectHdrFormat(String source) {
