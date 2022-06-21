@@ -2747,8 +2747,6 @@ public class MediaFileHelper {
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
       Path folder = mediaFile.getFileAsPath();
 
-      // FIXME: do not folder check, and check general usage / existing methods/getMain...
-
       if (mediaFile.isBlurayFile() && Files.exists(folder.resolve("STREAM"))) {
         // BluRay && STREAM subfolder
         folder = folder.resolve("STREAM");
@@ -2810,53 +2808,6 @@ public class MediaFileHelper {
     }
 
     return Collections.singletonList(mediaFile.getFileAsPath());
-  }
-
-  public static int getPositionInMediaFile(MediaFile mediaFile, int pos) {
-    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile).stream().map(path -> new MediaInfoFile(path)).collect(Collectors.toList());
-
-    int result = -1;
-
-    if (mediaInfoFiles.size() == 1) {
-      return pos;
-    }
-
-    if (mediaInfoFiles.size() > 1) {
-      int totalDuration = 0;
-      Path filePath = null;
-      int duration = -1;
-      for (MediaInfoFile file : mediaInfoFiles) {
-        try (MediaInfo mediaInfo = new MediaInfo()) {
-          filePath = Paths.get(file.getPath(), file.getFilename());
-          if (!mediaInfo.open(filePath)) {
-            LOGGER.error("Mediainfo could not open file: {}", file);
-          }
-          else {
-            file.setSnapshot(mediaInfo.snapshot());
-          }
-
-          duration = file.getDuration();
-          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration,
-              mediaFile.getDuration());
-          if (pos <= (totalDuration + duration)) {
-            result = pos - totalDuration;
-            break;
-          }
-
-          totalDuration += duration;
-        }
-        // sometimes also an error is thrown
-        catch (Exception | Error e) {
-          LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
-        }
-      }
-
-      if (result <= 0) {
-        result = duration;
-      }
-    }
-
-    return result;
   }
 
   /**

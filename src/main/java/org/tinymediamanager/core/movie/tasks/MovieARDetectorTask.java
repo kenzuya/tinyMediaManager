@@ -42,8 +42,9 @@ public class MovieARDetectorTask extends ARDetectorTask {
 
   @Override
   protected void doInBackground() {
-    if (!canRun())
+    if (!canRun()) {
       return;
+    }
 
     int filesTotal = this.movies.stream().map(movie -> movie.getMediaFiles(MediaFileType.VIDEO).size()).reduce(Integer::sum).orElse(0);
 
