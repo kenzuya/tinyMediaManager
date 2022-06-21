@@ -173,6 +173,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           addActors(episode, parserEpisode);
           addTrailer(episode, parserEpisode);
           addDateAdded(episode, parserEpisode);
+          addLockdata(episode, parserEpisode);
 
           // add connector specific tags
           addOwnTags(episode, parserEpisode);
@@ -498,6 +499,19 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     }
     root.appendChild(dateadded);
+  }
+
+  /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
   }
 
   /**
