@@ -245,9 +245,11 @@ public abstract class ARDetectorTask extends TmmTask {
         .map(path -> new MediaInfoFile(path))
         .collect(Collectors.toList());
     if (mediaInfoFiles.size() == 1) {
-      return new MediaFilePosition(mediaFile.getFileAsPath(), pos);
+      Path mf = Paths.get(mediaInfoFiles.get(0).getPath()).resolve(mediaInfoFiles.get(0).getFilename());
+      return new MediaFilePosition(mf, pos);
     }
 
+    // we have multiple files to spread our analytics over equally
     MediaFilePosition result = null;
     if (mediaInfoFiles.size() > 1) {
       int totalDuration = 0;
