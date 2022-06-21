@@ -355,7 +355,6 @@ public abstract class ARDetectorTask extends TmmTask {
 
   private void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
     if (StringUtils.isNotEmpty(result)) {
-      LOGGER.trace(result);
       Matcher matcher = patternSample.matcher(result);
       if (matcher.find()) {
         // x1:0 x2:718 y1:73 y2:503 w:718 h:430 x:0 y:74 pts:10800 t:0.120000 crop=718:430:0:74
@@ -381,6 +380,10 @@ public abstract class ARDetectorTask extends TmmTask {
         LOGGER.trace(barstxt);
 
         checkPlausibility(width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
+      }
+      else {
+        // got a result - but did not match. lets see...
+        LOGGER.trace(result);
       }
     }
     else {

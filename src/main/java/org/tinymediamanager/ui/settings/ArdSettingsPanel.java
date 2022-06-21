@@ -55,7 +55,7 @@ public class ArdSettingsPanel extends JPanel {
 
   private final Settings         settings             = Settings.getInstance();
 
-  private JCheckBox              chckbxARDAfterScrape;
+  private JCheckBox              chckbxARDEnabled;
   private JSlider                sliderDetectionMode;
   private Map<String, JCheckBox> customARCheckBoxes   = new LinkedHashMap<>();
   private ButtonGroup            buttonGroupRound     = new ButtonGroup();
@@ -168,8 +168,8 @@ public class ArdSettingsPanel extends JPanel {
       row++;
       row++;
 
-      chckbxARDAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.ard.automaticard"));
-      panelArdSettings.add(chckbxARDAfterScrape, "cell 1 " + row + ", span");
+      chckbxARDEnabled = new JCheckBox(TmmResourceBundle.getString("Settings.ard.automaticard"));
+      panelArdSettings.add(chckbxARDEnabled, "cell 1 " + row + ", span");
       JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
       lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.ard.automaticard.desc"));
       panelArdSettings.add(lblAutomaticARDHint, "cell 1 " + row + ", span");
@@ -265,8 +265,8 @@ public class ArdSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_ard_roundUp.bind();
     //
-    Property settingsBeanProperty = BeanProperty.create("ardAfterScrape");
-    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxARDAfterScrape,
+    Property settingsBeanProperty = BeanProperty.create("ardEnabled");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxARDEnabled,
         jCheckBoxBeanProperty);
     autoBinding.bind();
   }

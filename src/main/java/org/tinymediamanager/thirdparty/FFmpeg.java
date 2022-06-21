@@ -124,6 +124,9 @@ public class FFmpeg {
     return executeCommand(createCommandForScanSample(start, duration, darkLevel, videoFile));
   }
 
+  /**
+   * https://www.ffmpeg.org/ffmpeg-filters.html#cropdetect
+   */
   private static List<String> createCommandForScanSample(int start, int duration, int darkLevel, Path videoFile) throws IOException {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());

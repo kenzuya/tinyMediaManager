@@ -2184,7 +2184,7 @@ public class MediaFileHelper {
 
     mediaFile.setHdrFormat(hdrFormat);
 
-    if (Settings.getInstance().isArdAfterScrape()) {
+    if (Settings.getInstance().isArdEnabled()) {
       TmmTask task = new MediaFileARDetectorTask(mediaFile);
       task.run();
     }

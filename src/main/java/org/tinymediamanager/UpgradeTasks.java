@@ -256,7 +256,9 @@ public class UpgradeTasks {
       // we migrated from movie/tvshow settings to a global one
       // Movie/show settings are just kept for migration an can be removed at any time...
       if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape() || TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-        Settings.getInstance().setArdAfterScrape(true);
+        Settings.getInstance().setArdEnabled(true);
+        MovieModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+        TvShowModuleManager.getInstance().getSettings().setArdAfterScrape(false);
       }
 
       // delete all old ffmpeg addons
