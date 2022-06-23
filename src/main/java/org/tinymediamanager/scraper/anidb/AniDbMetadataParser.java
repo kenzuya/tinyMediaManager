@@ -21,7 +21,6 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider.Episode;
-import org.tinymediamanager.scraper.anidb_movie.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -75,7 +74,7 @@ public class AniDbMetadataParser {
      * @param providerInfo
      *         The {@code MediaProviderInfo} that will provide this Metadata to TMM
      */
-    public static void fillAnimeMetadata(
+    static void fillAnimeMetadata(
             MediaMetadata md, String language, Element anime, MediaProviderInfo providerInfo
     ) {
         md.setId(providerInfo.getId(), providerInfo.getId());
@@ -394,7 +393,7 @@ public class AniDbMetadataParser {
      *
      * @return
      */
-    public static List<Episode> parseEpisodes(@Nullable Element episodes) {
+    static List<Episode> parseEpisodes(@Nullable Element episodes) {
         if(episodes == null)
             return new ArrayList<>();
 

@@ -1,4 +1,4 @@
-package org.tinymediamanager.scraper.anidb_movie;
+package org.tinymediamanager.scraper.anidb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.anidb.AniDbMetadataParser;
-import org.tinymediamanager.scraper.anidb.AniDbMetadataProvider;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -84,10 +83,9 @@ public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements
     @Override
     public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
         LOGGER.debug("search(): {}", options);
-        // CURRENT: FIXME:
-        //        if (!isActive()) {
-        //            throw new ScrapeException(new FeatureNotEnabledException(this));
-        //        }
+        if (!isActive()) {
+            throw new ScrapeException(new FeatureNotEnabledException(this));
+        }
 
         synchronized (AniDbMovieMetadataProvider.class) {
             // first run: build up the anime name list
@@ -124,12 +122,6 @@ public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements
                              .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    @Override
-    public String getApiKey() {
-        // CURRENT: FIXME:
-        return "client=tinymediamanager&clientver=2&protover=1&";
-    }
-
     /**
      * Gets the meta data.
      *
@@ -148,10 +140,10 @@ public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements
     @Override
     public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
         LOGGER.debug("getMetadata(): {}", options);
-        // CURRENT: FIXME:
-        //        if (!isActive()) {
-        //            throw new ScrapeException(new FeatureNotEnabledException(this));
-        //        }
+
+        if (!isActive()) {
+            throw new ScrapeException(new FeatureNotEnabledException(this));
+        }
 
         Document doc = requestAnimeDocument(options);
         if (doc == null || doc.children().isEmpty())

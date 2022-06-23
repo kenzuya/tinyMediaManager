@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.anidb_movie.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
