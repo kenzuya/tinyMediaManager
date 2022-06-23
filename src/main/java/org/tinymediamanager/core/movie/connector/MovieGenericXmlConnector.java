@@ -143,7 +143,6 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         addCertification();
         addId();
         addTmdbid();
-        addTmdbCollectionId();
         addIds();
         addCountry();
         addPremiered();
@@ -160,6 +159,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         addLanguages();
         addShowlink();
         addDateAdded();
+        addLockdata();
 
         // add connector specific tags
         addOwnTags();
@@ -468,23 +468,6 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   }
 
   /**
-   * add the tmdb collection (movie set) id in <tmdbCollectionId>xxx</tmdbCollectionId>
-   */
-  protected void addTmdbCollectionId() {
-    Element tmdbCollectionId = document.createElement("tmdbCollectionId");
-    try {
-      int id = movie.getIdAsInt(MediaMetadata.TMDB_SET);
-      if (id > 0) {
-        tmdbCollectionId.setTextContent(Integer.toString(id));
-      }
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not store tmdb collection id: {}", e.getMessage());
-    }
-    root.appendChild(tmdbCollectionId);
-  }
-
-  /**
    * add our own id store in the new kodi form<br />
    * <uniqueid type="{scraper}" default="true/false">{id}</uniqueid>
    *
@@ -568,6 +551,19 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         }
     }
     root.appendChild(dateadded);
+  }
+
+  /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata() {
+    if (MovieModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
   }
 
   /**

@@ -130,7 +130,6 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("spokenLanguages", "metatag.spokenlanguages", compatibleScraperIds, UNDEFINED);
     config.addSelect("countries", "metatag.country", compatibleScraperIds, UNDEFINED);
     config.addSelect("tags", "metatag.tags", compatibleScraperIds, UNDEFINED);
-    config.addSelect("mediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
     config.addSelect("status", "metatag.status", compatibleScraperIds, UNDEFINED);
 
     config.addLabel("episodeLabel", "metatag.episode");
@@ -139,7 +138,6 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeCastMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeRatings", "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
-    config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
 
     config.addLabel("fallbackLabel", "scraper.universal_tvshow.scraperstouse");
     config.addMultiSelect(FALLBACK_SCRAPERS, "scraper.universal_tvshow.scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));

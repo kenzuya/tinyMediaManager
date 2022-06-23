@@ -37,8 +37,7 @@ public class TvShowToEmbyConnector extends TvShowToKodiConnector {
   @Override
   protected void addOwnTags() {
     super.addOwnTags();
-    addEnddate(); // legacy - if removed, we need to add this to the emby connector
-    addLockdata();
+    addEnddate();
   }
 
   /**
@@ -69,16 +68,5 @@ public class TvShowToEmbyConnector extends TvShowToKodiConnector {
       enddate.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(latestAiredDate));
       root.appendChild(enddate);
     }
-  }
-
-  /**
-   * write the <lockdata> tag for Emby<br />
-   * This will be protect the NFO from being modified by emby
-   */
-  protected void addLockdata() {
-    Element lockdata = document.createElement("lockdata");
-    lockdata.setTextContent("true");
-
-    root.appendChild(lockdata);
   }
 }

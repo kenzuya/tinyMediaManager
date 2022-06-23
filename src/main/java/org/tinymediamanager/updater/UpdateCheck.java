@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -45,6 +48,10 @@ public class UpdateCheck {
   private boolean             forceUpdate = false;
 
   public boolean isUpdateAvailable() {
+    return isUpdateAvailable(false);
+  }
+
+  public boolean isUpdateAvailable(boolean useCache) {
     if (ReleaseInfo.isGitBuild()) {
       return false;
     }
@@ -71,10 +78,17 @@ public class UpdateCheck {
           uu += '/';
         }
 
-        String url = uu + "digest.txt";
+        String urlAsString = uu + "digest.txt";
 
         LOGGER.trace("Checking {}", uu);
         try {
+          Url url;
+          if (useCache) {
+            url = new OnDiskCachedUrl(urlAsString, 12, TimeUnit.HOURS);
+          }
+          else {
+            url = new Url(urlAsString);
+          }
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {
             remoteDigest = remoteDigest.trim();
@@ -87,7 +101,7 @@ public class UpdateCheck {
           Thread.currentThread().interrupt();
         }
         catch (Exception e) {
-          LOGGER.warn("Unable to download from url {} - {}", url, e.getMessage());
+          LOGGER.warn("Unable to download from url {} - {}", urlAsString, e.getMessage());
         }
         if (valid) {
           break; // no exception - step out :)
@@ -136,13 +150,13 @@ public class UpdateCheck {
         LOGGER.info("Trying fallback...");
         String fallback = "https://www.tinymediamanager.org";
         if (ReleaseInfo.isPreRelease()) {
-          fallback += "/getdown_prerelease.txt";
+          fallback += "/getdown_prerelease_v4.txt";
         }
         else if (ReleaseInfo.isNightly()) {
-          fallback += "/getdown_nightly.txt";
+          fallback += "/getdown_nightly_v4.txt";
         }
         else {
-          fallback += "/getdown.txt";
+          fallback += "/getdown_v4.txt";
         }
 
         String gd = UrlUtil.getStringFromUrl(fallback);

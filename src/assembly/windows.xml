@@ -1,5 +1,5 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
-    <id>windows</id>
+    <id>windows-amd64</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -11,7 +11,7 @@
         </fileSet>
         <fileSet>
             <!-- and just windows stuff from GD -->
-            <directory>${project.build.directory}/${project.artifactId}-${project.version}-getdown</directory>
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>digest*</include>

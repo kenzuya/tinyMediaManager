@@ -35,8 +35,6 @@ public class TvShowEpisodeToEmbyConnector extends TvShowEpisodeToKodiConnector {
   protected void addOwnTags(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     super.addOwnTags(episode, parser);
 
-    addLockdata(episode, parser);
-
     // write highest episode number to tag, if multi-episode (only allowed on same season)
     // write em for all, since Emby only reads the first entry... and we don't care on reading ;)
     if (episode.isMultiEpisode()) {
@@ -63,16 +61,5 @@ public class TvShowEpisodeToEmbyConnector extends TvShowEpisodeToKodiConnector {
     episodenumberend.setTextContent(String.valueOf(episode.getEpisode()));
 
     root.appendChild(episodenumberend);
-  }
-
-  /**
-   * write the <lockdata> tag for Emby<br />
-   * This will be protect the NFO from being modified by emby
-   */
-  protected void addLockdata(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    Element lockdata = document.createElement("lockdata");
-    lockdata.setTextContent("true");
-
-    root.appendChild(lockdata);
   }
 }

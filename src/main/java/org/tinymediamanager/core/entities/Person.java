@@ -22,9 +22,12 @@ import static org.tinymediamanager.core.Constants.THUMB;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
@@ -331,23 +334,32 @@ public class Person extends AbstractModelObject {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Person)) {
-      return false;
-    }
-
-    Person cast = (Person) obj;
-
-    // checks of equality
-    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role)) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-
-    return false;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Person person = (Person) o;
+    return type == person.type && Objects.equals(name, person.name);
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).build();
+    return Objects.hash(type, name);
+  }
+
+  /**
+   * <p>
+   * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
+   * </p>
+   *
+   * @return the String result
+   * @see ReflectionToStringBuilder#toString(Object)
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE, false, Person.class);
   }
 }

@@ -899,28 +899,44 @@ public class Movie extends MediaEntity implements IMediaInformation {
       setProductionCompany(StringUtils.join(metadata.getProductionCompanies(), ", "));
     }
 
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
     // cast
-    if (config.contains(MovieScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.DIRECTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        directors.clear();
+      }
       setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.WRITERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        writers.clear();
+      }
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
-    if (config.contains(MovieScraperMetadataConfig.PRODUCERS) && (overwriteExistingItems || getProducers().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.PRODUCERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        producers.clear();
+      }
       setProducers(metadata.getCastMembers(Person.Type.PRODUCER));
     }
 
     // genres
-    if (config.contains(MovieScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -2711,8 +2727,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
-        && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
+        && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");

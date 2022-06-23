@@ -650,11 +650,12 @@ public class TmmUIHelper {
     }
   }
 
-  public static void checkForUpdate(int delayInSeconds, boolean showNoUpdateFoundMessage) {
+  public static void checkForUpdate(int delayInSeconds) {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();
-        if (updateCheck.isUpdateAvailable()) {
+        boolean useCache = delayInSeconds > 0; // use the cache on startup check
+        if (updateCheck.isUpdateAvailable(useCache)) {
           LOGGER.info("update available");
 
           // we might need this somewhen...
@@ -687,7 +688,7 @@ public class TmmUIHelper {
         }
         else {
           // no update found
-          if (showNoUpdateFoundMessage) {
+          if (delayInSeconds == 0) { // show no update dialog only when manually triggered
             JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
                 JOptionPane.INFORMATION_MESSAGE);
           }

@@ -15,6 +15,11 @@
  */
 package org.tinymediamanager.ui.movies;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -23,10 +28,14 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
+
+import com.floreysoft.jmte.Engine;
 
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
@@ -39,6 +48,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
   private final MovieSettings  settings = MovieModuleManager.getInstance().getSettings();
   private final JTextComponent textComponent;
+  private static final Engine  ENGINE   = MovieRenamer.createEngine();
 
   private String               normalizedFilterText;
   private Pattern              filterPattern;
@@ -113,6 +123,32 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSortTitle()));
         if (matcher.find()) {
           return true;
+        }
+      }
+      // match by field:value (eg search by ids:160, actors:mel gibson))
+      if (normalizedFilterText.matches("\\w+:\\w[\\w\\s]+")) {
+        String[] kv = normalizedFilterText.split(":");
+        try {
+          PropertyDescriptor pd = new PropertyDescriptor(kv[0], Movie.class);
+          Method getter = pd.getReadMethod();
+          Object f = getter.invoke(movie);
+
+          String res = String.valueOf(f).toLowerCase(Locale.ROOT);
+          if (res.contains(kv[1].toLowerCase(Locale.ROOT))) {
+            // System.out.println("Found " + kv[1] + " in " + res);
+            return true;
+          }
+        }
+        catch (Exception e) {
+          // Fallback: try field via JMTE
+          if (MovieRenamer.getTokenMap().containsKey(kv[0])) {
+            Map<String, Object> root = new HashMap<>();
+            root.put("movie", movie);
+            String val = ENGINE.transform(JmteUtils.morphTemplate("${" + kv[0] + "}", MovieRenamer.getTokenMap()), root);
+            if (StringUtils.containsIgnoreCase(val, kv[1])) {
+              return true;
+            }
+          }
         }
       }
 

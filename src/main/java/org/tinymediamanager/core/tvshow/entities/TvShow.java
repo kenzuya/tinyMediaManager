@@ -1055,16 +1055,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
+    if (config.contains(TvShowScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(TvShowScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }

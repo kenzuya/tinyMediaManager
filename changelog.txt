@@ -17,6 +17,11 @@ Version 4.3
 + added an option to disable the trash bin (.deletedByTMM) #1727
 + added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
 + added an option to automatically "cleanup unwanted files" on rename #1775
++ added extended syntax to movie search field.
++ added a NFO option to control writing of <lockdata>true</lockdata> #1796
+x changed person-merge behavior: #1799
+  - with "Do not overwrite" enabled, new person data will be merged into existing data
+  - with "Do not overwrite" disabled, existing person data will replaced by the newly scraped data
 x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
@@ -27,3 +32,8 @@ x use collection as root node of the collection NFO #1731
 x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
 x (Emby) preserve custom movie sets in NFO #1617
 x sync episodes to Trakt.tv via IDs where possible #1643
+x locked movies should not disappear on update #1784
+x adhere empty season folder on renaming 'specials' #1785
+x fixed downloading missing artwork for seasons #1794
+x remove failed tasks from the task list
+x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793

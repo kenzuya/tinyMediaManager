@@ -35,9 +35,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -193,6 +195,10 @@ public class TvShowRenamer {
    */
   public static Map<String, String> getTokenMap() {
     return Collections.unmodifiableMap(TOKEN_MAP);
+  }
+
+  public static Map<String, String> getTokenMapReversed() {
+    return Collections.unmodifiableMap(TOKEN_MAP.entrySet().stream().collect(Collectors.toMap(Entry::getValue, Entry::getKey)));
   }
 
   /**
@@ -1396,7 +1402,8 @@ public class TvShowRenamer {
     }
 
     // season 0 = Specials
-    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()
+        && !StringUtils.isBlank(TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername())) {
       seasonFolderName = "Specials";
     }
     else {

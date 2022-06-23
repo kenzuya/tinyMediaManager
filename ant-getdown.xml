@@ -1,6 +1,6 @@
 <project name="Tiny Media Manager">
 
-	<property name="build.dir" value="${project.build.directory}/${project.artifactId}-${project.version}-getdown" />
+	<property name="build.dir" value="${project.build.directory}/${project.artifactId}-getdown" />
 	<property name="lib.dir" value="${build.dir}/lib" />
 
 	<!-- set as property to override in jenkins -->
