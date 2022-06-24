@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.scraper.anidb;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +31,10 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ITAniDBMetadataProviderTest extends BasicITest {
 
@@ -101,8 +101,7 @@ public class ITAniDBMetadataProviderTest extends BasicITest {
       assertEquals("Corona", member.getRole());
       assertEquals("Chiba Saeko", member.getName());
       assertEquals("http://img7.anidb.net/pics/anime/44706.jpg", member.getThumbUrl());
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -119,8 +118,7 @@ public class ITAniDBMetadataProviderTest extends BasicITest {
 
     try {
       MediaMetadata md = mp.getMetadata(options);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
