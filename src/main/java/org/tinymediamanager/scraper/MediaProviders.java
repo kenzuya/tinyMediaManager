@@ -90,7 +90,7 @@ public class MediaProviders {
   private static final Map<String, List<IMediaProvider>> MEDIA_PROVIDERS = new LinkedHashMap<>();
 
   private MediaProviders() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -117,13 +117,13 @@ public class MediaProviders {
     /////////////////////////////////////////////
     // MOVIE
     /////////////////////////////////////////////
-    loadProvider(AniDbMovieMetadataProvider.class);
     loadProvider(TmdbMovieMetadataProvider.class);
     loadProvider(ImdbMovieMetadataProvider.class);
     loadProvider(OmdbMovieMetadataProvider.class);
     loadProvider(TraktMovieMetadataProvider.class);
     loadProvider(MovieMeterMovieMetadataProvider.class);
     loadProvider(TheTvDbMovieMetadataProvider.class);
+    loadProvider(AniDbMovieMetadataProvider.class);
     loadProvider(OfdbMovieMetadataProvider.class);
     loadProvider(MpdbMovieMetadataProvider.class);
     loadProvider(KodiMetadataProvider.class);

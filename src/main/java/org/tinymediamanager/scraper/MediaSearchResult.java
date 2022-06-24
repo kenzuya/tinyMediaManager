@@ -572,17 +572,17 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
     private final MediaType type;
 
-    private String id;
-    private String providerId;
-    private String url;
-    private String title;
-    private String overview;
-    private int year;
-    private String originalTitle;
-    private String originalLanguage;
-    private float score;
-    private MediaMetadata metadata;
-    private String posterUrl;
+    private String          id;
+    private String          providerId;
+    private String          url;
+    private String          title;
+    private String          overview;
+    private int             year;
+    private String          originalTitle;
+    private String          originalLanguage;
+    private float           score;
+    private MediaMetadata   metadata;
+    private String          posterUrl;
 
     public Builder(@Nonnull MediaType type) {
       this.type = type;
@@ -592,7 +592,9 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     public Builder providerId(@Nonnull String val) {
       providerId = val;
       return this;
-    }    @Nonnull
+    }
+
+    @Nonnull
     public Builder id(@Nonnull String val) {
       id = val;
       return this;
