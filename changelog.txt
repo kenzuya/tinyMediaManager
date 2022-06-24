@@ -38,3 +38,5 @@ x adhere empty season folder on renaming 'specials' #1785
 x fixed downloading missing artwork for seasons #1794
 x remove failed tasks from the task list
 x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793
+x fixed update datasource with additional files in disc folders / or at root level
+

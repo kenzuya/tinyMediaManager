@@ -215,6 +215,27 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         updateMovies();
       }
 
+      // remove all movies, which are additionally found inside disc folders
+      List<Movie> toDel = new ArrayList<Movie>();
+      for (Movie movie : movieList.getMovies()) {
+        if (movie.isDisc()) {
+          if (movie.getDataSource().equals(movie.getPath())) {
+            // uh-oh some (disc) movie was in root dir - ignore from checking
+            continue;
+          }
+          for (Movie sub : movieList.getMovies()) {
+            if (movie.equals(sub)) {
+              continue; // remove self
+            }
+            if (sub.getPathNIO().startsWith(movie.getPathNIO())) {
+              LOGGER.warn("Movie inside DISC folder - removing {}", sub.getPath());
+              toDel.add(sub);
+            }
+          }
+        }
+      }
+      movieList.removeMovies(toDel);
+
       if (!imageFiles.isEmpty()) {
         ImageCacheTask task = new ImageCacheTask(imageFiles);
         TmmTaskManager.getInstance().addUnnamedTask(task);
@@ -599,9 +620,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     if (isDiscFolder) {
       // if inside own DiscFolder, walk backwards till movieRoot folder
+      // BUT NOT IF DATASOURCE!
       Path relative = dataSource.relativize(movieDir);
       String folder = relative.toString().toUpperCase(Locale.ROOT); // relative
-      while (folder.contains(VIDEO_TS) || folder.contains(BDMV) || folder.contains(HVDVD_TS)) {
+      while (relative.getNameCount() > 1 && (folder.contains(VIDEO_TS) || folder.contains(BDMV) || folder.contains(HVDVD_TS))) {
         movieDir = movieDir.getParent();
         relative = dataSource.relativize(movieDir);
         folder = relative.toString().toUpperCase(Locale.ROOT);
