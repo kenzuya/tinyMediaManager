@@ -305,12 +305,14 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
     /**
      * Gets the artwork.
-     * 
+     *
+     * @param tvShow
+     *          the {@link TvShow} to get the artwork for
      * @param metadata
-     *          the metadata
+     *          already scraped {@link MediaMetadata}
      * @return the artwork
      */
-    public List<MediaArtwork> getArtwork(TvShow tvShow, MediaMetadata metadata) {
+    private List<MediaArtwork> getArtwork(TvShow tvShow, MediaMetadata metadata) {
       List<MediaArtwork> artwork = new ArrayList<>();
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);

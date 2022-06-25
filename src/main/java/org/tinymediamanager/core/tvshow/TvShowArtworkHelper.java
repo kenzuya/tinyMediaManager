@@ -658,12 +658,12 @@ public class TvShowArtworkHelper {
   }
 
   private static class SeasonArtworkImageFetcher implements Runnable {
-    private TvShow           tvShow;
-    private TvShowSeason     tvShowSeason;
-    private MediaArtworkType artworkType;
-    private Path             destinationPath;
-    private String           filename;
-    private String           url;
+    private final TvShow           tvShow;
+    private final TvShowSeason     tvShowSeason;
+    private final MediaArtworkType artworkType;
+    private final Path             destinationPath;
+    private final String           filename;
+    private final String           url;
 
     SeasonArtworkImageFetcher(TvShow show, Path destFile, TvShowSeason tvShowSeason, String url, MediaArtworkType type) {
       this.tvShow = show;
