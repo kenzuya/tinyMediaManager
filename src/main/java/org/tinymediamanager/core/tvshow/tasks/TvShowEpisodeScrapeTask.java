@@ -163,11 +163,6 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
               }
             }
           }
-
-          if (!artworks.isEmpty()) {
-            episode.setArtworkUrl(artworks.get(0).getDefaultUrl(), MediaFileType.THUMB);
-            episode.downloadArtwork(MediaFileType.THUMB);
-          }
         }
       }
       catch (MissingIdException e) {
