@@ -430,25 +430,47 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3") < 0) {
       // replace imdbId with imdb
       for (Movie movie : movieList.getMovies()) {
+        // fix imdb id
         Object value = movie.getId("imdbId");
         if (value != null && movie.getId(MediaMetadata.IMDB) == null) {
           movie.setId(MediaMetadata.IMDB, value);
         }
         movie.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : movie.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        movie.saveToDb();
       }
 
       for (TvShow tvShow : tvShowList.getTvShows()) {
+        // fix imdb id
         Object value = tvShow.getId("imdbId");
         if (value != null && tvShow.getId(MediaMetadata.IMDB) == null) {
           tvShow.setId(MediaMetadata.IMDB, value);
         }
         tvShow.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : tvShow.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        tvShow.saveToDb();
+
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          // fix imdb id
           value = episode.getId("imdbId");
           if (value != null && episode.getId(MediaMetadata.IMDB) == null) {
             episode.setId(MediaMetadata.IMDB, value);
           }
           episode.setId("imdbId", null);
+
+          // round rating
+          for (Map.Entry<String, MediaRating> entry : episode.getRatings().entrySet()) {
+            entry.getValue().setRating(entry.getValue().getRating());
+          }
+          episode.saveToDb();
         }
       }
     }

@@ -40,3 +40,4 @@ x remove failed tasks from the task list
 x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793
 x fixed update datasource with additional files in disc folders / or at root level
 x reloading of user_note from NFO #1808
+x round ratings to only one decimal place #1807
