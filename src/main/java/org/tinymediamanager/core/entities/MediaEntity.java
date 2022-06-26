@@ -211,6 +211,8 @@ public abstract class MediaEntity extends AbstractModelObject {
         artworkUrlMap.put(key, other.getArtworkUrl(key));
       }
     }
+
+    setNote(StringUtils.isBlank(note) || force ? other.note : note);
   }
 
   /**
