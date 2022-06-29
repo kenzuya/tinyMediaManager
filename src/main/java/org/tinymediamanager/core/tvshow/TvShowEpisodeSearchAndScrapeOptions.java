@@ -44,7 +44,7 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    */
   public TvShowEpisodeSearchAndScrapeOptions(final Map<String, Object> tvShowIds) {
     super(MediaType.TV_EPISODE);
-    this.tvShowIds.putAll(tvShowIds);
+    setTvShowIds(tvShowIds);
   }
 
   /**
@@ -56,6 +56,17 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
   public TvShowEpisodeSearchAndScrapeOptions(TvShowEpisodeSearchAndScrapeOptions original) {
     super(original);
     setTvShowIds(original.tvShowIds);
+  }
+
+  @Override
+  public void setDataFromOtherOptions(MediaSearchAndScrapeOptions original) {
+    super.setDataFromOtherOptions(original);
+    if (original instanceof TvShowEpisodeSearchAndScrapeOptions) {
+      setTvShowIds(((TvShowEpisodeSearchAndScrapeOptions) original).tvShowIds);
+    }
+    if (original instanceof TvShowSearchAndScrapeOptions) {
+      setTvShowIds(original.getIds());
+    }
   }
 
   /**
@@ -74,6 +85,10 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    *          a {@link Map} with the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids to set
    */
   public void setTvShowIds(final Map<String, Object> tvShowIds) {
+    if (this.tvShowIds == null) { // can happen in the constructor // NOSONAR
+      return;
+    }
+
     this.tvShowIds.clear();
 
     if (tvShowIds == null) {
@@ -81,6 +96,7 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
     }
 
     this.tvShowIds.putAll(tvShowIds);
+    this.ids.put("tvShowIds", tvShowIds);
   }
 
   /**

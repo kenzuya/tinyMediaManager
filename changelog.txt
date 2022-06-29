@@ -7,6 +7,7 @@ Version 4.3
 + updated the bundled Java version to 17.0.2
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
 + added an HTTP API for remote control of tinyMediaManager (https://bit.ly/3lcA6sQ)
++ added a movie scraper for AniDB #1728 (thx @hudsonrj09)
 + added a regular expression based JMTE annotation #1611 (https://bit.ly/3wtIZUb)
 + added a renamer token for movie set index respecting missing movies #1702
 + (AniDB) added an option to get the character image instead of the actor image
@@ -39,4 +40,5 @@ x fixed downloading missing artwork for seasons #1794
 x remove failed tasks from the task list
 x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793
 x fixed update datasource with additional files in disc folders / or at root level
-
+x reloading of user_note from NFO #1808
+x round ratings to only one decimal place #1807

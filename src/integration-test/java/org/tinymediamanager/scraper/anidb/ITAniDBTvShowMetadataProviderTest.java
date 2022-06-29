@@ -36,7 +36,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITAniDBMetadataProviderTest extends BasicITest {
+public class ITAniDBTvShowMetadataProviderTest extends BasicITest {
 
   @Test
   public void testSearch() {
@@ -101,8 +101,7 @@ public class ITAniDBMetadataProviderTest extends BasicITest {
       assertEquals("Corona", member.getRole());
       assertEquals("Chiba Saeko", member.getName());
       assertEquals("http://img7.anidb.net/pics/anime/44706.jpg", member.getThumbUrl());
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -119,8 +118,7 @@ public class ITAniDBMetadataProviderTest extends BasicITest {
 
     try {
       MediaMetadata md = mp.getMetadata(options);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
