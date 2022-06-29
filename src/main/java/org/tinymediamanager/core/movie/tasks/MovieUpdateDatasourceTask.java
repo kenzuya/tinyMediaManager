@@ -800,6 +800,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         videoName = mf.getBasename();
       }
     }
+    if (isDiscFolder) {
+      videoName = movieDir.getFileName().toString();
+    }
 
     if (movie.getTitle().isEmpty()) {
       // get the "cleaner" name/year combo
@@ -1336,93 +1339,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * cleanup database - remove orphaned movies/files
    */
   private void cleanup(String datasource) {
-    setTaskName(TmmResourceBundle.getString("update.cleanup"));
-    setTaskDescription(null);
-    setProgressDone(0);
-    setWorkUnits(0);
-    publishState();
-
-    LOGGER.info("removing orphaned movies/files...");
-    List<Movie> moviesToRemove = new ArrayList<>();
-    for (int i = movieList.getMovies().size() - 1; i >= 0; i--) {
-      if (cancel) {
-        break;
-      }
-
-      Movie movie = movieList.getMovies().get(i);
-      boolean dirty = false;
-
+    List<Movie> moviesToclean = new ArrayList<>();
+    for (Movie movie : movieList.getMovies()) {
       // check only movies matching datasource
       if (!Paths.get(datasource).equals(Paths.get(movie.getDataSource()))) {
         continue;
       }
-
-      Path movieDir = movie.getPathNIO();
-      fileLock.readLock().lock();
-      boolean dirFound = filesFound.contains(movieDir);
-      fileLock.readLock().unlock();
-
-      if (!dirFound) {
-        // dir is not in hashset - check with exists to be sure it is not here
-        if (!Files.exists(movieDir)) {
-          LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
-          moviesToRemove.add(movie);
-        }
-        else {
-          // can be; MMD and/or dir=DS root
-          LOGGER.debug("dir {} not in hashset, but on hdd!", movieDir);
-        }
-      }
-
-      // have a look if that movie has just been added -> so we don't need any
-      // cleanup
-      if (!movie.isNewlyAdded()) {
-        // check and delete all not found MediaFiles
-        List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
-        for (MediaFile mf : mediaFiles) {
-          fileLock.readLock().lock();
-          boolean fileFound = filesFound.contains(mf.getFileAsPath());
-          fileLock.readLock().unlock();
-
-          if (!fileFound) {
-            LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
-            movie.removeFromMediaFiles(mf);
-            dirty = true;
-          }
-        }
-
-        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          movie.saveToDb();
-        }
-      }
-
-      if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-        LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
-        moviesToRemove.add(movie);
-      }
+      moviesToclean.add(movie);
     }
-    movieList.removeMovies(moviesToRemove);
-
-    // remove all movies, which are additionally found inside disc folders
-    List<Movie> toDel = new ArrayList<Movie>();
-    for (Movie movie : movieList.getMovies()) {
-      if (movie.isDisc()) {
-        if (movie.getDataSource().equals(movie.getPath())) {
-          // uh-oh some (disc) movie was in root dir - ignore from checking
-          continue;
-        }
-        for (Movie sub : movieList.getMovies()) {
-          if (movie.equals(sub)) {
-            continue; // do not remove self
-          }
-          if (sub.getPathNIO().startsWith(movie.getPathNIO())) {
-            LOGGER.warn("Movie {} inside DISC folder of {} - removing", sub.getMainFile().getFileAsPath(), movie.getPath());
-            toDel.add(sub);
-          }
-        }
-      }
-    }
-    movieList.removeMovies(toDel);
+    cleanup(moviesToclean);
   }
 
   private void cleanup(List<Movie> movies) {
@@ -1443,11 +1368,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
+      if (movieDir.getFileName().toString().equals("DVD") || movieDir.getFileName().toString().equals("DVDolder")) {
+        System.out.println("break");
+      }
       fileLock.readLock().lock();
-      boolean fileFound = filesFound.contains(movieDir);
+      boolean dirFound = filesFound.contains(movieDir);
       fileLock.readLock().unlock();
 
-      if (!fileFound) {
+      if (!dirFound) {
         // dir is not in hashset - check with exists to be sure it is not here
         if (!Files.exists(movieDir)) {
           LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
@@ -1466,7 +1394,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
           fileLock.readLock().lock();
-          fileFound = filesFound.contains(mf.getFileAsPath());
+          boolean fileFound = filesFound.contains(mf.getFileAsPath());
           fileLock.readLock().unlock();
 
           if (!fileFound) {
@@ -1490,6 +1418,47 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         moviesToRemove.add(movie);
       }
     }
+    movieList.removeMovies(moviesToRemove);
+    moviesToRemove.clear();
+
+    // cleanup disc folder - there needs to be only ONE video MF to make the struct work...
+    for (Movie movie : movies) {
+      boolean dirty = false;
+      if (movie.isDisc()) {
+        if (movie.getDataSource().equals(movie.getPath())) {
+          // uh-oh some (disc) movie was in root dir - ignore from checking
+          continue;
+        }
+
+        // If we are a disc movie, remove all other video MFs
+        for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
+          if (mf.getFilename().matches(DISC_FOLDER_REGEX) || mf.isDiscFile()) {
+            continue;
+          }
+          else {
+            LOGGER.warn("DISC folder detected - remove VIDEO {}", mf.getFileAsPath());
+            movie.removeFromMediaFiles(mf);
+            dirty = true;
+          }
+        }
+
+        // remove all "movies", which have been additionally found inside disc folders
+        for (Movie sub : movieList.getMovies()) {
+          if (movie.equals(sub)) {
+            continue; // do not remove self
+          }
+          if (sub.getPathNIO().startsWith(movie.getPathNIO())) {
+            LOGGER.warn("Movie {} inside DISC folder of {} - removing", sub.getMainFile().getFileAsPath(), movie.getPath());
+            moviesToRemove.add(sub);
+          }
+        }
+
+        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+          movie.saveToDb();
+        }
+      }
+    }
+
     movieList.removeMovies(moviesToRemove);
   }
 
