@@ -16,7 +16,6 @@
 package org.tinymediamanager.core.tasks;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -43,7 +42,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.thirdparty.FFmpeg;
-import org.tinymediamanager.thirdparty.MediaInfo;
 
 /**
  * Core aspect ratio detector class. Calculates real aspect ratio by scanning video files and detecting contained black bars.
@@ -135,7 +133,26 @@ public abstract class ARDetectorTask extends TmmTask {
     setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
 
     try {
-      MediaFilePosition position = getPositionInMediaFile(mediaFile, 0);
+      List<MediaInfoFile> relevant = MediaFileHelper.detectRelevantFiles(mediaFile);
+      int totalDuration = 0;
+      if (relevant.size() > 1) {
+        // disc files from folder MF - remove all non video files
+        for (int i = relevant.size() - 1; i >= 0; i--) {
+          String ext = relevant.get(i).getFileExtension();
+          // rule out non disc video files
+          if (!ext.equalsIgnoreCase("vob") && !ext.equalsIgnoreCase("m2ts") && !ext.equalsIgnoreCase("evo")) {
+            relevant.remove(i);
+          }
+        }
+
+        // get MediaInfo for disc file - we won't have them anylonger :/
+        for (MediaInfoFile mif : relevant) {
+          mif.gatherMediaInformation();
+          totalDuration += mif.getDuration();
+        }
+      }
+
+      MediaFilePosition position = getPositionInMediaFile(relevant, 0);
       if (position == null) {
         LOGGER.warn("Found no valid position for AR detection for '{}'", mediaFile.getFilename());
         return;
@@ -146,6 +163,10 @@ public abstract class ARDetectorTask extends TmmTask {
       videoInfo.bitDepth = mediaFile.getBitDepth();
       parseVideoMeta(result, videoInfo); // uses MediaInfo from FFMpeg
       parseDarkLevel(result, videoInfo);
+      if (totalDuration > 0) {
+        videoInfo.duration = totalDuration;
+      }
+      System.err.println("Duration: " + totalDuration + "s = " + Math.round(totalDuration / 60) + "m");
 
       int start = (int) (videoInfo.duration * this.ignoreBeginningPct / 100f);
       int end = (int) (videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));
@@ -175,7 +196,7 @@ public abstract class ARDetectorTask extends TmmTask {
           if (iSec >= videoInfo.duration) {
             iSec = videoInfo.duration - this.sampleDuration;
           }
-          position = getPositionInMediaFile(mediaFile, iSec);
+          position = getPositionInMediaFile(relevant, iSec);
 
           LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
           result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
@@ -239,52 +260,34 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  private MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
-    List<MediaInfoFile> mediaInfoFiles = MediaFileHelper.getVideoFiles(mediaFile)
-        .stream()
-        .map(path -> new MediaInfoFile(path))
-        .collect(Collectors.toList());
-    if (mediaInfoFiles.size() == 1) {
-      Path mf = Paths.get(mediaInfoFiles.get(0).getPath()).resolve(mediaInfoFiles.get(0).getFilename());
-      return new MediaFilePosition(mf, pos);
-    }
+  private MediaFilePosition getPositionInMediaFile(List<MediaInfoFile> mediaInfoFiles, int pos) {
+    MediaFilePosition result = null;
 
     // we have multiple files to spread our analytics over equally
-    MediaFilePosition result = null;
     if (mediaInfoFiles.size() > 1) {
       int totalDuration = 0;
-      Path filePath = null;
       int duration = -1;
       for (MediaInfoFile file : mediaInfoFiles) {
-
-        try (MediaInfo mediaInfo = new MediaInfo()) {
-          filePath = Paths.get(file.getPath(), file.getFilename());
-          if (!mediaInfo.open(filePath)) {
-            LOGGER.error("Mediainfo could not open file: {}", file);
-          }
-          else {
-            file.setSnapshot(mediaInfo.snapshot());
-          }
-
-          duration = file.getDuration();
-          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration,
-              mediaFile.getDuration());
-          if (pos <= (totalDuration + duration)) {
-            result = new MediaFilePosition(filePath, pos - totalDuration);
-            break;
-          }
-
-          totalDuration += duration;
+        duration = file.getDuration();
+        LOGGER.info("{}: total duration: {} - file duration: {} - filepos: {}", file.getFilename(), totalDuration, duration, pos - totalDuration);
+        if (pos <= (totalDuration + duration)) {
+          result = new MediaFilePosition(file.getFileAsPath(), pos - totalDuration);
+          break;
         }
-        // sometimes also an error is thrown
-        catch (Exception | Error e) {
-          LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
-        }
+        totalDuration += duration;
       }
 
       if (result == null) {
-        result = new MediaFilePosition(filePath, duration);
+        result = new MediaFilePosition(mediaInfoFiles.get(0).getFileAsPath(), duration);
       }
+    }
+    else {
+      // single file
+      MediaInfoFile mif = mediaInfoFiles.get(0);
+      if (mif.getDuration() == 0) {
+        mif.gatherMediaInformation();
+      }
+      result = new MediaFilePosition(mif.getFileAsPath(), mif.getDuration());
     }
 
     return result;
