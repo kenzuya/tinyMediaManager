@@ -2321,11 +2321,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag
+   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag<br>
+   * Just evaluate VIDEO files - not ALL!!!
    */
   public void reEvaluateDiscfolder() {
     boolean disc = false;
-    for (MediaFile mf : getMediaFiles()) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       if (mf.isDiscFile()) {
         disc = true;
       }
