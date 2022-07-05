@@ -32,7 +32,7 @@ public class MovieVideoExtrasFilter extends AbstractMovieUIFilter {
 
   @Override
   public String getId() {
-    return "movieVideo3D";
+    return "movieVideoExtras";
   }
 
   @Override

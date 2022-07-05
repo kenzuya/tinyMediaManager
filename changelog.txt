@@ -42,3 +42,4 @@ x fixed update datasource with additional files in disc folders / or at root lev
 x reloading of user_note from NFO #1808
 x round ratings to only one decimal place #1807
 x filter for season artwork in the image chooser
+x some issues with filter loading #1811
