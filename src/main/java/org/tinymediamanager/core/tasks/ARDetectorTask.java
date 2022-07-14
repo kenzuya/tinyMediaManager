@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.tasks;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -127,6 +128,10 @@ public abstract class ARDetectorTask extends TmmTask {
 
   protected void analyze(MediaFile mediaFile, int idx) {
     if (!canRun()) {
+      return;
+    }
+    if (mediaFile.getExtension().equalsIgnoreCase("iso")) {
+      LOGGER.warn("Can not execute FFMPEG on ISO files (yet)");
       return;
     }
 
@@ -267,11 +272,15 @@ public abstract class ARDetectorTask extends TmmTask {
     if (mediaInfoFiles.size() > 1) {
       int totalDuration = 0;
       int duration = -1;
-      for (MediaInfoFile file : mediaInfoFiles) {
-        duration = file.getDuration();
-        LOGGER.info("{}: total duration: {} - file duration: {} - filepos: {}", file.getFilename(), totalDuration, duration, pos - totalDuration);
+      for (MediaInfoFile mif : mediaInfoFiles) {
+        // step out for XML based 'virtual' files
+        if (!Files.exists(mif.getFileAsPath())) {
+          return null;
+        }
+        duration = mif.getDuration();
+        LOGGER.info("{}: total duration: {} - file duration: {} - filepos: {}", mif.getFilename(), totalDuration, duration, pos - totalDuration);
         if (pos <= (totalDuration + duration)) {
-          result = new MediaFilePosition(file.getFileAsPath(), pos - totalDuration);
+          result = new MediaFilePosition(mif.getFileAsPath(), pos - totalDuration);
           break;
         }
         totalDuration += duration;
@@ -284,8 +293,9 @@ public abstract class ARDetectorTask extends TmmTask {
     else {
       // single file
       MediaInfoFile mif = mediaInfoFiles.get(0);
-      if (mif.getDuration() == 0) {
-        mif.gatherMediaInformation();
+      // step out for XML based 'virtual' files
+      if (!Files.exists(mif.getFileAsPath())) {
+        return null;
       }
       result = new MediaFilePosition(mif.getFileAsPath(), mif.getDuration());
     }
