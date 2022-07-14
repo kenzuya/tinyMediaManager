@@ -18,7 +18,10 @@ package org.tinymediamanager.core;
 
 import static org.tinymediamanager.scraper.util.LanguageUtils.parseLanguageFromString;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -28,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -54,6 +58,11 @@ import org.tinymediamanager.core.mediainfo.MediaInfoXMLParser;
 import org.tinymediamanager.core.mediainfo.MediaInfoXmlCreator;
 import org.tinymediamanager.core.tasks.MediaFileARDetectorTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.library.bluray.playlist.MPLSObject;
+import org.tinymediamanager.library.bluray.playlist.MPLSReader;
+import org.tinymediamanager.library.bluray.playlist.PlayItem;
+import org.tinymediamanager.library.dvd.DvdTitle;
+import org.tinymediamanager.library.dvd.IfoReader;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -78,6 +87,8 @@ public class MediaFileHelper {
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
       "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
+  // for structure detection
+  public static final List<String> BLURAY_FOLDERS     = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -911,10 +922,10 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isDVDStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
+    for (MediaInfoFile mif : files) {
+      String filename = mif.getFileAsPath().getFileName().toString();
 
-      if (isDVDFile(filename, mediaInfoFile.getPath())) {
+      if (isDVDFile(filename, mif.getPath())) {
         return true;
       }
     }
@@ -1007,10 +1018,11 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isBlurayStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
-
-      if (isBlurayFile(filename, mediaInfoFile.getPath())) {
+    for (MediaInfoFile mif : files) {
+      String filename = mif.getFileAsPath().getFileName().toString();
+      String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
+      // structure MUST be in some folder, not only loose m2ts files...
+      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename, mif.getPath())) {
         return true;
       }
     }
@@ -1291,7 +1303,9 @@ public class MediaFileHelper {
   /**
    * uses a list of all 'relevant' files, and reduces them to only contain the 'needed' ones<br>
    * Like DVD IFO and associated VOBs, Bluray MPLS, CLPINF, SSIF, M2TS and other files.<br>
-   * Everything we want to analyze somewhere should be in here
+   * Everything we want to analyze somewhere should be in here,<br>
+   * <br>
+   * <b>YOU NEED TO FILTER FURTHER, WHAT FILES ARE INTERESTING FOR YOU!!!</b>
    * 
    * @param mediaInfoFiles
    * @return
@@ -1363,54 +1377,32 @@ public class MediaFileHelper {
   private static List<MediaInfoFile> detectRelevantDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
 
-    // find the IFO with longest duration
-    MediaInfoFile ifo = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ifo"))
-        .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9000) // limit duration
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+    MediaInfoFile ifomif = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("video_ts.ifo"))
+        .findAny()
         .orElse(null);
-    if (ifo == null) {
+    if (ifomif == null) {
       LOGGER.debug("Could not find a valid IFO file");
       return relevantFiles;
     }
-    // no mediainfo gathered yet? Do it explicitly here
-    if (ifo.getDuration() == 0 || ifo.getSnapshot() == null) {
+
+    try {
+      IfoReader ifo = new IfoReader(ifomif.getFileAsPath().getParent());
+      DvdTitle main = ifo.getTitles()
+          .stream()
+          .filter(title -> title.getTotalTimeMs() / 1000 < 9000) // limit duration
+          .max(Comparator.comparingLong(title -> title.getTotalTimeMs()))
+          .orElse(null);
+
+      String prefix = "vts_" + String.format("%02d", main.getVtsn());
       for (MediaInfoFile mif : mediaInfoFiles) {
-        if (mif.getFileExtension().equalsIgnoreCase("ifo")) {
-          // TODO: find a way to parse IFO with java
-          mif.gatherMediaInformation();
+        if (mif.getFilename().toLowerCase(Locale.ROOT).startsWith(prefix)) {
+          relevantFiles.add(mif);
         }
       }
-      // get again longest IFO
-      ifo = mediaInfoFiles.stream()
-          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ifo"))
-          .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9000) // limit duration
-          .max(Comparator.comparingInt(MediaInfoFile::getDuration))
-          .orElse(null);
-      if (ifo == null) {
-        LOGGER.debug("Could not find a valid IFO file again");
-        return relevantFiles;
-      }
     }
-    relevantFiles.add(ifo);
-
-    // add now all the VOBs starting with IFO prefix
-    String prefix = StrgUtils.substr(ifo.getFilename(), "(?i)^(VTS_\\d+).*");
-    for (MediaInfoFile vob : mediaInfoFiles) {
-      if (!vob.getFilename().startsWith(prefix)) {
-        continue;
-      }
-
-      // do not use the menu
-      // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
-      // the menu is always in the VTS_nn_0.VOB file
-      if (vob.getFilename().toLowerCase(Locale.ROOT).endsWith("_0.vob")) {
-        continue;
-      }
-
-      if (vob.getFileExtension().equalsIgnoreCase("vob")) {
-        relevantFiles.add(vob);
-      }
+    catch (IOException e) {
+      LOGGER.warn("Error parsing DVD: {}", ifomif.getFileAsPath(), e);
     }
 
     return relevantFiles;
@@ -1426,47 +1418,71 @@ public class MediaFileHelper {
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
 
-    // FIXME: use TMM libBluray to parse playlist first, to get the good M2TS files...
+    // find longest playlist
+    MPLSObject longestPlaylist = new MPLSObject();
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+        continue;
+      }
+      if (mif.getFileExtension().equalsIgnoreCase("mpls")) {
+        try {
+          FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
+          DataInputStream din = new DataInputStream(new BufferedInputStream(fin));
+          MPLSObject mplsFile = new MPLSReader().readBinary(din);
+          if (mplsFile.getDuration() > longestPlaylist.getDuration()) {
+            longestPlaylist = mplsFile;
+            relevantFiles.clear(); // there should only be the last in...
+            relevantFiles.add(mif);
+          }
+          din.close();
+        }
+        catch (IOException e) {
+          LOGGER.warn("Could not parse Bluray playlist file: {}", mif.getFileAsPath(), e);
+        }
+      }
+    }
 
-    // a) find the "main" title (biggest m2ts file)
-    MediaInfoFile mainVideo = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
-        .orElse(null);
-
-    if (mainVideo == null) {
-      // no m2ts? maybe a mpls
-      mainVideo = mediaInfoFiles.stream()
-          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("mpls"))
+    if (longestPlaylist.getDuration() > 0) {
+      // get all the needed clips in correct order
+      List<String> items = new ArrayList<String>();
+      for (PlayItem item : longestPlaylist.getPlayList().getPlayItems()) {
+        items.add(item.getAngles()[0].getClipName());
+      }
+      // loop over items (in correct order), and add all files with matching clip numbers
+      for (String item : items) {
+        for (MediaInfoFile mif : mediaInfoFiles) {
+          // but not from backup dir
+          if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+            continue;
+          }
+          // do not add all matching playlists - we have ours already in
+          if (mif.getFileExtension().equalsIgnoreCase("mpls")) {
+            continue;
+          }
+          if (mif.getFilename().startsWith(item)) {
+            relevantFiles.add(mif);
+          }
+        }
+      }
+      System.out.println(Arrays.toString(items.toArray()));
+    }
+    else {
+      // no? just use our traditional way of finding the "biggest" file...
+      MediaInfoFile mainVideo = mediaInfoFiles.stream()
+          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
           .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
           .orElse(null);
-    }
 
-    if (mainVideo == null) {
-      return Collections.emptyList();
-    }
-    relevantFiles.add(mainVideo);
+      if (mainVideo == null || !mainVideo.getFilename().matches("^\\d{5}.*")) {
+        return Collections.emptyList();
+      }
 
-    String basename = FilenameUtils.getBaseName(mainVideo.getFilename());
-
-    // b) check if there is a SSIF file with the same basename as the m2ts (this may contain the 3D information)
-    MediaInfoFile ssif = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ssif") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst()
-        .orElse(null);
-
-    if (ssif != null) {
-      relevantFiles.add(ssif);
-    }
-
-    // c) check if there is a CLPI (clipinf) file with the same basename as the m2ts (this may contain subtitle infos)
-    MediaInfoFile clpi = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("clpi") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst()
-        .orElse(null);
-
-    if (clpi != null) {
-      relevantFiles.add(clpi);
+      String prefix = mainVideo.getFilename().substring(0, 5);
+      for (MediaInfoFile mif : mediaInfoFiles) {
+        if (mif.getFilename().startsWith(prefix)) {
+          relevantFiles.add(mif);
+        }
+      }
     }
 
     return relevantFiles;
@@ -2583,6 +2599,8 @@ public class MediaFileHelper {
   }
 
   private static void gatherMediaInformationFromBluRayFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
+    // FIXME: since this method is called with getRelevantFiles(), we need to take them all!
+
     // find the M2TS/MPLS with longest duration
     MediaInfoFile m2ts = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension().equals("mpls"))
