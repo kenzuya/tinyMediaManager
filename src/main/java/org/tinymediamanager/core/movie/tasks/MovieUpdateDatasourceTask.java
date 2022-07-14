@@ -1368,9 +1368,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
-      if (movieDir.getFileName().toString().equals("DVD") || movieDir.getFileName().toString().equals("DVDolder")) {
-        System.out.println("break");
-      }
       fileLock.readLock().lock();
       boolean dirFound = filesFound.contains(movieDir);
       fileLock.readLock().unlock();

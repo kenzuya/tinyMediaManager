@@ -61,6 +61,8 @@ import org.tinymediamanager.ui.movies.actions.MovieFetchRatingsAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieLockAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
+import org.tinymediamanager.ui.movies.actions.MovieOpenFolderAction;
+import org.tinymediamanager.ui.movies.actions.MoviePlayAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildMediainfoXmlAction;
@@ -370,7 +372,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
     downloadMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
     popupMenu.add(downloadMenu);
 
-    popupMenu.addSeparator();
     JMenu renameMenu = new JMenu(TmmResourceBundle.getString("Toolbar.rename"));
     renameMenu.setIcon(IconManager.MENU);
     renameMenu.add(createAndRegisterAction(MovieRenameAction.class));
@@ -382,6 +383,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieExportAction.class));
+    popupMenu.add(createAndRegisterAction(MoviePlayAction.class));
+    popupMenu.add(createAndRegisterAction(MovieOpenFolderAction.class));
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");

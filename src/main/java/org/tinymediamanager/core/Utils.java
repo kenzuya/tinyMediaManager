@@ -1897,7 +1897,6 @@ public class Utils {
    * @return a list of files
    */
   public static Set<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
-
     GetUnknownFilesVisitor visitor = new GetUnknownFilesVisitor(regexList);
 
     try {
@@ -1911,9 +1910,8 @@ public class Utils {
   }
 
   private static class GetUnknownFilesVisitor extends AbstractFileVisitor {
-
-    private Set<Path>    fileList = new HashSet<>();
-    private List<String> regexList;
+    private final Set<Path>    fileList = new HashSet<>();
+    private final List<String> regexList;
 
     GetUnknownFilesVisitor(List<String> regexList) {
       this.regexList = regexList;
@@ -1921,7 +1919,6 @@ public class Utils {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-
       for (String regex : regexList) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(file.getFileName().toString());
@@ -1933,11 +1930,20 @@ public class Utils {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) {
       // if we're in a disc folder, don't walk further
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
+
+      for (String regex : regexList) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(dir.getFileName().toString());
+        if (m.find()) {
+          fileList.add(dir);
+        }
+      }
+
       return CONTINUE;
     }
   }

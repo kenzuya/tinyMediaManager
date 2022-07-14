@@ -46,7 +46,7 @@ public class MovieEditionFilter extends AbstractCheckComboBoxMovieUIFilter<Movie
 
   @Override
   public String getId() {
-    return "movieCertification";
+    return "movieEdition";
   }
 
   @Override
