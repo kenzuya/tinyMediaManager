@@ -887,6 +887,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 String mfBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
 
                 if (episodeBasenameWoStackingMarker.equals(mfBasenameWoStackingMarker)) {
+                  if (ep.getMediaSource() == MediaSource.UNKNOWN) {
+                    ep.setMediaSource(MediaSource.parseMediaSource(ep.getMainVideoFile().getFilename()));
+                  }
+
                   ep.setNewlyAdded(true);
 
                   // remember the filename the first time the movie gets added to tmm
