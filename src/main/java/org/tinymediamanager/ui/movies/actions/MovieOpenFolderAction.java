@@ -44,7 +44,7 @@ public class MovieOpenFolderAction extends TmmAction {
 
   public MovieOpenFolderAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.openfolder"));
-    putValue(SMALL_ICON, IconManager.PLAY);
+    putValue(SMALL_ICON, IconManager.FOLDER_OPEN);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.openfolder.desc"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
   }

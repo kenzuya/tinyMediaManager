@@ -44,7 +44,7 @@ public class TvShowOpenFolderAction extends TmmAction {
 
   public TvShowOpenFolderAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.openfolder"));
-    putValue(SMALL_ICON, IconManager.PLAY);
+    putValue(SMALL_ICON, IconManager.FOLDER_OPEN);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.openfolder.desc"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
   }
