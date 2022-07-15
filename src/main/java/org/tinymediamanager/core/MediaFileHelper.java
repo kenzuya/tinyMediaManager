@@ -1378,14 +1378,15 @@ public class MediaFileHelper {
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
 
     MediaInfoFile ifomif = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("video_ts.ifo"))
+        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("VIDEO_TS.IFO"))
         .findAny()
         .orElse(null);
     if (ifomif == null) {
-      LOGGER.debug("Could not find a valid IFO file");
+      LOGGER.debug("Could not find a valid VIDEO_TS.IFO file");
       return relevantFiles;
     }
 
+    String prefix = "XXXXXXXX";
     try {
       if (Files.exists(ifomif.getFileAsPath())) {
         IfoReader ifo = new IfoReader(ifomif.getFileAsPath().getParent());
@@ -1400,46 +1401,40 @@ public class MediaFileHelper {
           // second try, w/o limitation of duration
           main = ifo.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
         }
-
-        String prefix = "vts_" + String.format("%02d", main.getVtsn());
-        for (MediaInfoFile mif : mediaInfoFiles) {
-          if (mif.getFilename().toLowerCase(Locale.ROOT).startsWith(prefix)) {
-            relevantFiles.add(mif);
-          }
-        }
+        prefix = "VTS_" + String.format("%02d", main.getVtsn());
       }
       else {
         // maybe we got the data from XML, so no real files here (but already with MI)
         MediaInfoFile ifo = mediaInfoFiles.stream()
-            .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ifo"))
-            .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9000) // limit duration
+            .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("IFO"))
+            .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
             .max(Comparator.comparingInt(MediaInfoFile::getDuration))
             .orElse(null);
         if (ifo == null) {
           LOGGER.debug("Could not find a valid IFO file");
           return relevantFiles;
         }
-        relevantFiles.add(ifo);
-
-        String prefix = StrgUtils.substr(ifo.getFilename(), "(?i)^(VTS_\\d+).*");
-        for (MediaInfoFile mif : mediaInfoFiles) {
-          if (!mif.getFilename().startsWith(prefix)) {
-            continue;
-          }
-          // do not use the menu
-          // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
-          // the menu is always in the VTS_nn_0.VOB file
-          if (mif.getFilename().toLowerCase(Locale.ROOT).endsWith("_0.vob")) {
-            continue;
-          }
-          if (mif.getFileExtension().equalsIgnoreCase("vob")) {
-            relevantFiles.add(mif);
-          }
-        }
+        prefix = StrgUtils.substr(ifo.getFilename(), "(?i)^(VTS_\\d+).*");
       }
     }
     catch (IOException e) {
       LOGGER.warn("Error parsing DVD: {}", ifomif.getFileAsPath(), e);
+    }
+
+    // now we have the prefix - add them all
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      if (!mif.getFilename().toUpperCase(Locale.ROOT).startsWith(prefix)) {
+        continue;
+      }
+      // do not use the menu
+      // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
+      // the menu is always in the VTS_nn_0.VOB file
+      if (mif.getFilename().toUpperCase(Locale.ROOT).endsWith("_0.VOB")) {
+        continue;
+      }
+      if (mif.getFileExtension().equalsIgnoreCase("VOB") || mif.getFileExtension().equalsIgnoreCase("IFO")) {
+        relevantFiles.add(mif);
+      }
     }
 
     return relevantFiles;
