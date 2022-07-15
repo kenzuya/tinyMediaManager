@@ -1389,11 +1389,17 @@ public class MediaFileHelper {
     try {
       if (Files.exists(ifomif.getFileAsPath())) {
         IfoReader ifo = new IfoReader(ifomif.getFileAsPath().getParent());
+        // first try - limit main videos to be not longer than 2,7 hours
+        // i've seen some garbled IFOs, where the duration was way beyond 6 hours...
         DvdTitle main = ifo.getTitles()
             .stream()
-            .filter(title -> title.getTotalTimeMs() / 1000 < 9000) // limit duration
-            .max(Comparator.comparingLong(title -> title.getTotalTimeMs()))
+            .filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
+            .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs))
             .orElse(null);
+        if (main == null) {
+          // second try, w/o limitation of duration
+          main = ifo.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
+        }
 
         String prefix = "vts_" + String.format("%02d", main.getVtsn());
         for (MediaInfoFile mif : mediaInfoFiles) {
