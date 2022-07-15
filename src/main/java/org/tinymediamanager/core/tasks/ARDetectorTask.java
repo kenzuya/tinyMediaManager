@@ -140,6 +140,7 @@ public abstract class ARDetectorTask extends TmmTask {
     try {
       List<MediaInfoFile> relevant = MediaFileHelper.detectRelevantFiles(mediaFile);
       int totalDuration = 0;
+
       if (relevant.size() > 1) {
         // disc files from folder MF - remove all non video files
         for (int i = relevant.size() - 1; i >= 0; i--) {
@@ -150,9 +151,11 @@ public abstract class ARDetectorTask extends TmmTask {
           }
         }
 
-        // get MediaInfo for disc file - we won't have them anylonger :/
+        // get duration for disc file - we won't have them any longer :/
         for (MediaInfoFile mif : relevant) {
-          mif.gatherMediaInformation();
+          if (mif.getDuration() == 0) {
+            mif.gatherMediaInformation();
+          }
           totalDuration += mif.getDuration();
         }
       }
@@ -171,7 +174,6 @@ public abstract class ARDetectorTask extends TmmTask {
       if (totalDuration > 0) {
         videoInfo.duration = totalDuration;
       }
-      System.err.println("Duration: " + totalDuration + "s = " + Math.round(totalDuration / 60) + "m");
 
       int start = (int) (videoInfo.duration * this.ignoreBeginningPct / 100f);
       int end = (int) (videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));

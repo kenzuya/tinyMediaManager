@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1475,13 +1474,18 @@ public class MediaFileHelper {
     }
 
     if (longestPlaylist.getDuration() > 0) {
-      // get all the needed clips in correct order
       List<String> items = new ArrayList<String>();
+      List<Long> durations = new ArrayList<Long>();
+
+      // get all the needed clips in correct order
       for (PlayItem item : longestPlaylist.getPlayList().getPlayItems()) {
         items.add(item.getAngles()[0].getClipName());
+        durations.add((item.getOutTime() - item.getInTime()) / 45000);
       }
+
       // loop over items (in correct order), and add all files with matching clip numbers
-      for (String item : items) {
+      for (int i = 0; i < items.size(); i++) {
+        String item = items.get(i);
         for (MediaInfoFile mif : mediaInfoFiles) {
           // but not from backup dir
           if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
@@ -1492,11 +1496,11 @@ public class MediaFileHelper {
             continue;
           }
           if (mif.getFilename().startsWith(item)) {
+            mif.setDuration(durations.get(i).intValue());
             relevantFiles.add(mif);
           }
         }
       }
-      System.out.println(Arrays.toString(items.toArray()));
     }
     else {
       // no? just use our traditional way of finding the "biggest" file...
