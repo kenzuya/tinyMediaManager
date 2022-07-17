@@ -1332,7 +1332,7 @@ public class MediaFileHelper {
    * Like DVD IFO and associated VOBs, Bluray MPLS, CLPINF, SSIF, M2TS and other files.<br>
    * Everything we want to analyze somewhere should be in here
    * 
-   * @param mediaInfoFiles
+   * @param mediaFile
    * @return
    */
   public static List<MediaInfoFile> detectRelevantFiles(MediaFile mediaFile) {
@@ -1451,21 +1451,24 @@ public class MediaFileHelper {
 
     // find longest playlist
     MPLSObject longestPlaylist = new MPLSObject();
+    long longestDuration = 0;
     for (MediaInfoFile mif : mediaInfoFiles) {
       if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
       }
-      if (mif.getFileExtension().equalsIgnoreCase("mpls")) {
-        try {
-          FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
-          DataInputStream din = new DataInputStream(new BufferedInputStream(fin));
+      if ("mpls".equalsIgnoreCase(mif.getFileExtension())) {
+        try (FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
+            DataInputStream din = new DataInputStream(new BufferedInputStream(fin))) {
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
-          if (mplsFile.getDuration() > longestPlaylist.getDuration()) {
+
+          long duration = getCleanMplsDuration(mplsFile);
+
+          if (duration > longestDuration) {
             longestPlaylist = mplsFile;
+            longestDuration = duration;
             relevantFiles.clear(); // there should only be the last in...
             relevantFiles.add(mif);
           }
-          din.close();
         }
         catch (IOException e) {
           LOGGER.warn("Could not parse Bluray playlist file: {}", mif.getFileAsPath(), e);
@@ -1473,9 +1476,9 @@ public class MediaFileHelper {
       }
     }
 
-    if (longestPlaylist.getDuration() > 0) {
-      List<String> items = new ArrayList<String>();
-      List<Long> durations = new ArrayList<Long>();
+    if (longestDuration > 0) {
+      List<String> items = new ArrayList<>();
+      List<Long> durations = new ArrayList<>();
 
       // get all the needed clips in correct order
       for (PlayItem item : longestPlaylist.getPlayList().getPlayItems()) {
@@ -1522,6 +1525,35 @@ public class MediaFileHelper {
     }
 
     return relevantFiles;
+  }
+
+  /**
+   * build a distinct over referenced .m2ts files with their inTime/outTime
+   * 
+   * @param mplsObject
+   *          the playlist
+   * @return the cumulated duration
+   */
+  private static long getCleanMplsDuration(MPLSObject mplsObject) {
+    long duration = 0;
+
+    List<String> alreadyAddedItems = new ArrayList<>();
+
+    for (PlayItem item : mplsObject.getPlayList().getPlayItems()) {
+      try {
+        String itemKey = item.getAngles()[0].getClipName() + "-" + item.getInTime() + "-" + item.getOutTime();
+        if (!alreadyAddedItems.contains(itemKey)) {
+          duration += (item.getOutTime() - item.getInTime()) / 45000;
+          alreadyAddedItems.add(itemKey);
+        }
+
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not read MPLS playlist angle - '{}'", e.getMessage());
+      }
+    }
+
+    return duration;
   }
 
   /**
