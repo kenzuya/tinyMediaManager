@@ -1451,7 +1451,6 @@ public class MediaFileHelper {
 
     // find longest playlist
     MPLSObject longestPlaylist = new MPLSObject();
-    long longestDuration = 0;
     for (MediaInfoFile mif : mediaInfoFiles) {
       if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
@@ -1461,13 +1460,13 @@ public class MediaFileHelper {
             DataInputStream din = new DataInputStream(new BufferedInputStream(fin))) {
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
 
-          long duration = getCleanMplsDuration(mplsFile);
-
-          if (duration > longestDuration) {
-            longestPlaylist = mplsFile;
-            longestDuration = duration;
-            relevantFiles.clear(); // there should only be the last in...
-            relevantFiles.add(mif);
+          // we completely ignore playlists with duplicate tracks/streams
+          if (!hasDupeTracks(mplsFile)) {
+            if (mplsFile.getDuration() > longestPlaylist.getDuration()) {
+              longestPlaylist = mplsFile;
+              relevantFiles.clear(); // there should only be the last in...
+              relevantFiles.add(mif);
+            }
           }
         }
         catch (IOException e) {
@@ -1476,11 +1475,11 @@ public class MediaFileHelper {
       }
     }
 
-    if (longestDuration > 0) {
+    if (longestPlaylist.getDuration() > 0) {
       List<String> items = new ArrayList<>();
       List<Long> durations = new ArrayList<>();
 
-      // get all the needed clips in correct order
+      // get all the needed clips/durations in correct order
       for (PlayItem item : longestPlaylist.getPlayList().getPlayItems()) {
         items.add(item.getAngles()[0].getClipName());
         durations.add((item.getOutTime() - item.getInTime()) / 45000);
@@ -1528,32 +1527,24 @@ public class MediaFileHelper {
   }
 
   /**
-   * build a distinct over referenced .m2ts files with their inTime/outTime
+   * Some playlists have set the same streams over and over.<br>
+   * This is probably not a correct one(?) (or how should a HW player play this?!
    * 
    * @param mplsObject
-   *          the playlist
-   * @return the cumulated duration
+   * @return true or false
    */
-  private static long getCleanMplsDuration(MPLSObject mplsObject) {
-    long duration = 0;
-
-    List<String> alreadyAddedItems = new ArrayList<>();
-
+  private static boolean hasDupeTracks(MPLSObject mplsObject) {
+    List<String> streams = new ArrayList<>();
     for (PlayItem item : mplsObject.getPlayList().getPlayItems()) {
-      try {
-        String itemKey = item.getAngles()[0].getClipName() + "-" + item.getInTime() + "-" + item.getOutTime();
-        if (!alreadyAddedItems.contains(itemKey)) {
-          duration += (item.getOutTime() - item.getInTime()) / 45000;
-          alreadyAddedItems.add(itemKey);
-        }
-
+      String itemKey = item.getAngles()[0].getClipName();
+      if (!streams.contains(itemKey)) {
+        streams.add(itemKey);
       }
-      catch (Exception e) {
-        LOGGER.debug("could not read MPLS playlist angle - '{}'", e.getMessage());
+      else {
+        return true;
       }
     }
-
-    return duration;
+    return false;
   }
 
   /**
