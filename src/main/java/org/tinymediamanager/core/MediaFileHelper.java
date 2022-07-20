@@ -1460,13 +1460,21 @@ public class MediaFileHelper {
             DataInputStream din = new DataInputStream(new BufferedInputStream(fin))) {
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
 
+          if (mplsFile.getDuration() < 120) {
+            LOGGER.trace("Playlist {} is too short - ignoring", mif.getFilename());
+            continue;
+          }
           // we completely ignore playlists with duplicate tracks/streams
           if (!hasDupeTracks(mplsFile)) {
             if (mplsFile.getDuration() > longestPlaylist.getDuration()) {
               longestPlaylist = mplsFile;
               relevantFiles.clear(); // there should only be the last in...
               relevantFiles.add(mif);
+              LOGGER.trace("Considering {} as longest playlist (for now)", mif.getFilename());
             }
+          }
+          else {
+            LOGGER.trace("Playlist {} has duplicate streams - ignoring", mif.getFilename());
           }
         }
         catch (IOException e) {
