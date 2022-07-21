@@ -1232,7 +1232,13 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), image.getInputStream(entry), entry.getSize());
+        if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
+            && mif.getFileAsPath().getParent().getParent().getFileName() != null
+            && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          continue;
+        }
+        allFiles.add(mif);
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
@@ -1452,12 +1458,21 @@ public class MediaFileHelper {
     // find longest playlist
     MPLSObject longestPlaylist = new MPLSObject();
     for (MediaInfoFile mif : mediaInfoFiles) {
-      if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+      if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
+          && mif.getFileAsPath().getParent().getParent().getFileName() != null
+          && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
       }
       if ("mpls".equalsIgnoreCase(mif.getFileExtension())) {
-        try (FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
-            DataInputStream din = new DataInputStream(new BufferedInputStream(fin))) {
+        try {
+          DataInputStream din = null;
+          if (mif.getInputStream() == null) {
+            FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
+            din = new DataInputStream(new BufferedInputStream(fin));
+          }
+          else {
+            din = new DataInputStream(new BufferedInputStream(mif.getInputStream()));
+          }
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
 
           if (mplsFile.getDuration() < 120) {
@@ -1498,7 +1513,9 @@ public class MediaFileHelper {
         String item = items.get(i);
         for (MediaInfoFile mif : mediaInfoFiles) {
           // but not from backup dir
-          if (mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
+              && mif.getFileAsPath().getParent().getParent().getFileName() != null
+              && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
           // do not add all matching playlists - we have ours already in
