@@ -134,6 +134,7 @@ public final class Settings extends AbstractSettings {
   private boolean                                          writeMediaInfoXml           = false;
 
   // aspect ratio detector
+  boolean                                                  ardEnabled              = false;
   private ArdSettings.Mode                                 ardMode                     = ArdSettings.Mode.DEFAULT;
   private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings           = ArdSettings.defaultSampleSettings();
   private float                                            ardIgnoreBeginningPct       = 2f;
@@ -1148,6 +1149,16 @@ public final class Settings extends AbstractSettings {
   }
 
   // aspect ratio detector
+  public void setArdEnabled(boolean newValue) {
+    boolean oldValue = this.ardEnabled;
+    this.ardEnabled = newValue;
+    firePropertyChange("ardAfterScrape", oldValue, newValue);
+  }
+
+  public boolean isArdEnabled() {
+    return this.ardEnabled;
+  }
+
   public void setArdMode(ArdSettings.Mode newValue) {
     ArdSettings.Mode oldValue = this.ardMode;
     this.ardMode = newValue;

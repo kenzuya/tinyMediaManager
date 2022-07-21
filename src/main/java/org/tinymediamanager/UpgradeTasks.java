@@ -253,6 +253,14 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.3");
 
+      // we migrated from movie/tvshow settings to a global one
+      // Movie/show settings are just kept for migration an can be removed at any time...
+      if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape() || TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
+        Settings.getInstance().setArdEnabled(true);
+        MovieModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+        TvShowModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+      }
+
       // delete all old ffmpeg addons
       final File[] files = Paths.get("native/addons").toFile().listFiles();
       if (files != null) {
