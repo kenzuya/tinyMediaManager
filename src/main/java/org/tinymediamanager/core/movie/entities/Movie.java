@@ -110,7 +110,6 @@ import org.tinymediamanager.core.movie.connector.MovieToMpMyVideoConnector;
 import org.tinymediamanager.core.movie.connector.MovieToXbmcConnector;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
-import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
@@ -2892,9 +2891,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
-    if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new MovieARDetectorTask(Collections.singletonList(this)));
-    }
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
 

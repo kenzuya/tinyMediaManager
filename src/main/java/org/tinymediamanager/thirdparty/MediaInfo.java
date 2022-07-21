@@ -75,6 +75,7 @@ public class MediaInfo implements Closeable {
     }
 
     if (file != null && isLoaded()) {
+      LOGGER.trace("MediaInfo open file: {}", file.toAbsolutePath().toString());
       return MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.toAbsolutePath().toString())) > 0;
     }
     else {

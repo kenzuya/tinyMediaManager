@@ -99,7 +99,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
-import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -1932,9 +1931,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean writeNewThumb) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
-    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new TvShowARDetectorTask(Collections.singletonList(this)));
-    }
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
     }
