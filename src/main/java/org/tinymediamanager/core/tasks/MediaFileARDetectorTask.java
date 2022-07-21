@@ -33,9 +33,6 @@ public class MediaFileARDetectorTask extends ARDetectorTask {
 
   @Override
   protected void doInBackground() {
-    if (!canRun())
-      return;
-
     analyze(mediaFile);
   }
 }
