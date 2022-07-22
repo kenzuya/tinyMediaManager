@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -1148,7 +1149,16 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
+
+        // read IFO file directly, to use it later in detectRelevantFiles()
+        if (entry.getName().toUpperCase(Locale.ROOT).endsWith(".IFO")) {
+          byte[] contents = new byte[(int) entry.getSize()];
+          image.readBytes(entry, 0L, contents, 0, (int) entry.getSize());
+          mif.setContents(contents);
+        }
+
+        allFiles.add(mif);
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
@@ -1396,6 +1406,7 @@ public class MediaFileHelper {
   private static List<MediaInfoFile> detectRelevantDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
 
+    // find VIDEO_TS.IFO - no not work further if not present
     MediaInfoFile ifomif = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("VIDEO_TS.IFO"))
         .findAny()
@@ -1405,42 +1416,77 @@ public class MediaFileHelper {
       return relevantFiles;
     }
 
-    String prefix = "XXXXXXXX";
+    String prefix = "XXXXXXXX"; // just not to leave empty on errors
     try {
-      // files in ISO won't be 'existent'
-      if (Files.exists(ifomif.getFileAsPath())) {
-        IfoReader ifo = new IfoReader(ifomif.getFileAsPath().getParent());
-        // first try - limit main videos to be not longer than 2,7 hours
-        // i've seen some garbled IFOs, where the duration was way beyond 6 hours...
-        DvdTitle main = ifo.getTitles()
-            .stream()
-            .filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
-            .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs))
-            .orElse(null);
-        if (main == null) {
-          // second try, w/o limitation of duration
-          main = ifo.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
-        }
-        prefix = "VTS_" + String.format("%02d", main.getVtsn());
+      // read VIDEO_TS.IFO
+      DataInputStream din = null;
+      if (ifomif.getContents() == null) {
+        FileInputStream fin = new FileInputStream(ifomif.getFileAsPath().toString());
+        din = new DataInputStream(new BufferedInputStream(fin));
       }
       else {
-        // maybe we got the data from XML, so no real files here (but already with MI)
-        // or we got them from ISO (no MI)
-        // so we have to find the biggest VOB
-        MediaInfoFile vob = mediaInfoFiles.stream()
-            .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("VOB"))
-            .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
-            .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
-            .orElse(null);
-        if (vob == null) {
-          LOGGER.debug("Could not find a valid VOB file");
-          return relevantFiles;
-        }
-        prefix = StrgUtils.substr(vob.getFilename(), "(?i)^(VTS_\\d+).*");
+        din = new DataInputStream(new ByteArrayInputStream(ifomif.getContents()));
       }
+      IfoReader dvd = new IfoReader();
+      // parse
+      dvd.readVideoTsIfo(din);
+      din.close();
+
+      // get now all unique titleSetNumbers
+      List<Integer> sets = dvd.getTitles().stream().map(DvdTitle::getVtsn).distinct().collect(Collectors.toList());
+      for (Integer vtsn : sets) {
+        String file = String.format("VTS_%02d_0.IFO", vtsn);
+        LOGGER.debug("Reading file {}", file);
+
+        // find it
+        MediaInfoFile vts = mediaInfoFiles.stream()
+            .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase(file))
+            .findAny()
+            .orElse(null);
+        if (vts == null) {
+          continue;
+        }
+
+        if (vts.getContents() == null) {
+          FileInputStream fin = new FileInputStream(vts.getFileAsPath().toString());
+          din = new DataInputStream(new BufferedInputStream(fin));
+        }
+        else {
+          din = new DataInputStream(new ByteArrayInputStream(vts.getContents()));
+        }
+        dvd.readVtsIfo(din, vtsn);
+        din.close();
+      }
+      // DVD/IFO files completely read
+
+      // detected "main" movie
+      DvdTitle main = dvd.getTitles()
+          .stream()
+          .filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
+          .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs))
+          .orElse(null);
+      if (main == null) {
+        // second try, w/o limitation of duration
+        main = dvd.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
+      }
+      prefix = "VTS_" + String.format("%02d", main.getVtsn());
+
     }
     catch (IOException e) {
       LOGGER.warn("Error parsing DVD: {}", ifomif.getFileAsPath(), e);
+      // try our proven fallback
+      // maybe we got the data from XML, so no real files here (but already with MI)
+      // so we have to find the biggest VOB
+      MediaInfoFile vob = mediaInfoFiles.stream()
+          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("VOB"))
+          .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+          .orElse(null);
+      if (vob == null) {
+        LOGGER.debug("Could not find a valid VOB file");
+        return relevantFiles;
+      }
+      prefix = StrgUtils.substr(vob.getFilename(), "(?i)^(VTS_\\d+).*");
     }
 
     // now we have the prefix - add them all
@@ -1496,6 +1542,7 @@ public class MediaFileHelper {
             din = new DataInputStream(new ByteArrayInputStream(mif.getContents()));
           }
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
+          din.close();
 
           if (mplsFile.getDuration() < 120) {
             LOGGER.trace("Playlist {} is too short - ignoring", mif.getFilename());
