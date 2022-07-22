@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.util.LanguageUtils.parseLanguageFromS
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -1231,13 +1232,26 @@ public class MediaFileHelper {
         if (entry.isDirectory()) {
           continue;
         }
-        fileEntries.add(entry);
-        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), image.getInputStream(entry), entry.getSize());
-        if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
-            && mif.getFileAsPath().getParent().getParent().getFileName() != null
-            && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+        // ignore BACKUP folders 2 levels deep
+        Path folder = Paths.get(entry.getPath()).getParent();
+        if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
           continue;
         }
+        if (folder.getParent() != null && folder.getParent().getFileName() != null
+            && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          continue;
+        }
+
+        fileEntries.add(entry);
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
+
+        // read playlist file directly, to use it later in detectRelevantFiles()
+        if (entry.getName().toUpperCase(Locale.ROOT).endsWith(".MPLS")) {
+          byte[] contents = new byte[(int) entry.getSize()];
+          image.readFileContent(entry, 0L, contents, 0, (int) entry.getSize());
+          mif.setContents(contents);
+        }
+
         allFiles.add(mif);
       }
 
@@ -1393,6 +1407,7 @@ public class MediaFileHelper {
 
     String prefix = "XXXXXXXX";
     try {
+      // files in ISO won't be 'existent'
       if (Files.exists(ifomif.getFileAsPath())) {
         IfoReader ifo = new IfoReader(ifomif.getFileAsPath().getParent());
         // first try - limit main videos to be not longer than 2,7 hours
@@ -1410,16 +1425,18 @@ public class MediaFileHelper {
       }
       else {
         // maybe we got the data from XML, so no real files here (but already with MI)
-        MediaInfoFile ifo = mediaInfoFiles.stream()
-            .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("IFO"))
+        // or we got them from ISO (no MI)
+        // so we have to find the biggest VOB
+        MediaInfoFile vob = mediaInfoFiles.stream()
+            .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("VOB"))
             .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
-            .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+            .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
             .orElse(null);
-        if (ifo == null) {
-          LOGGER.debug("Could not find a valid IFO file");
+        if (vob == null) {
+          LOGGER.debug("Could not find a valid VOB file");
           return relevantFiles;
         }
-        prefix = StrgUtils.substr(ifo.getFilename(), "(?i)^(VTS_\\d+).*");
+        prefix = StrgUtils.substr(vob.getFilename(), "(?i)^(VTS_\\d+).*");
       }
     }
     catch (IOException e) {
@@ -1458,20 +1475,25 @@ public class MediaFileHelper {
     // find longest playlist
     MPLSObject longestPlaylist = new MPLSObject();
     for (MediaInfoFile mif : mediaInfoFiles) {
-      if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
-          && mif.getFileAsPath().getParent().getParent().getFileName() != null
-          && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+      // ignore BACKUP folders 2 levels deep
+      Path folder = mif.getFileAsPath().getParent();
+      if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
       }
+      if (folder.getParent() != null && folder.getParent().getFileName() != null
+          && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+        continue;
+      }
+
       if ("mpls".equalsIgnoreCase(mif.getFileExtension())) {
         try {
           DataInputStream din = null;
-          if (mif.getInputStream() == null) {
+          if (mif.getContents() == null) {
             FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
             din = new DataInputStream(new BufferedInputStream(fin));
           }
           else {
-            din = new DataInputStream(new BufferedInputStream(mif.getInputStream()));
+            din = new DataInputStream(new ByteArrayInputStream(mif.getContents()));
           }
           MPLSObject mplsFile = new MPLSReader().readBinary(din);
 
@@ -1512,10 +1534,13 @@ public class MediaFileHelper {
       for (int i = 0; i < items.size(); i++) {
         String item = items.get(i);
         for (MediaInfoFile mif : mediaInfoFiles) {
-          // but not from backup dir
-          if (mif.getFileAsPath().getParent() != null && mif.getFileAsPath().getParent().getParent() != null
-              && mif.getFileAsPath().getParent().getParent().getFileName() != null
-              && mif.getFileAsPath().getParent().getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          // ignore BACKUP folders 2 levels deep
+          Path folder = mif.getFileAsPath().getParent();
+          if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
+            continue;
+          }
+          if (folder.getParent() != null && folder.getParent().getFileName() != null
+              && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
           // do not add all matching playlists - we have ours already in

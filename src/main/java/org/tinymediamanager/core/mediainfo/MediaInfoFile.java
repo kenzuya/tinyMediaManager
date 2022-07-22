@@ -16,7 +16,6 @@
 
 package org.tinymediamanager.core.mediainfo;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -45,13 +44,13 @@ import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
  */
 public class MediaInfoFile implements Comparable<MediaInfoFile> {
 
-  private static final Logger                        LOGGER      = LoggerFactory.getLogger(MediaInfoFile.class);
+  private static final Logger                        LOGGER   = LoggerFactory.getLogger(MediaInfoFile.class);
   private Map<StreamKind, List<Map<String, String>>> snapshot;
-  private int                                        duration    = 0;
-  private long                                       filesize    = 0;
-  private String                                     path        = "";
-  private String                                     filename    = "";
-  private InputStream                                inputStream = null;
+  private int                                        duration = 0;
+  private long                                       filesize = 0;
+  private String                                     path     = "";
+  private String                                     filename = "";
+  private byte[]                                     contents = null;
 
   public MediaInfoFile(Path file) {
     this.path = file.toAbsolutePath().getParent().toString();
@@ -68,20 +67,6 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
   public MediaInfoFile(Path file, long filesize) {
     this(file);
     this.filesize = filesize;
-  }
-
-  public MediaInfoFile(Path file, InputStream stream, long filesize) {
-    this(file);
-    this.inputStream = stream;
-    this.filesize = filesize;
-  }
-
-  public InputStream getInputStream() {
-    return inputStream;
-  }
-
-  public void setInputStream(InputStream inputStream) {
-    this.inputStream = inputStream;
   }
 
   public void setFilename(String filename) {
@@ -146,6 +131,19 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
         }
       }
     }
+  }
+
+  /**
+   * get the file contents, if set. Only used in ISO parsing - usually NULL;
+   * 
+   * @return
+   */
+  public byte[] getContents() {
+    return contents;
+  }
+
+  public void setContents(byte[] contents) {
+    this.contents = contents;
   }
 
   public void gatherMediaInformation() {
