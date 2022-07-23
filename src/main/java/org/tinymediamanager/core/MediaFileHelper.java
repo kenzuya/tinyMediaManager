@@ -193,7 +193,7 @@ public class MediaFileHelper {
   }
 
   private MediaFileHelper() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -1233,7 +1233,7 @@ public class MediaFileHelper {
     List<MediaInfoFile> miFiles = new ArrayList<>();
 
     try (UDFFileSystem image = new UDFFileSystem(mediaFile.getFileAsPath().toFile(), true)) {
-      int bufferSize = 256 * 1024;
+      int bufferSize = 64 * 1024;
 
       // find all relevant files to parse at the beginning to avoid unnecessary IO
       List<MediaInfoFile> allFiles = new ArrayList<>();
