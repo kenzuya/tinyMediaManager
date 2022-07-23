@@ -17,6 +17,7 @@
 package org.tinymediamanager.core.mediainfo;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
 
@@ -48,10 +50,18 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
   private long                                       filesize = 0;
   private String                                     path     = "";
   private String                                     filename = "";
+  private byte[]                                     contents = null;
 
   public MediaInfoFile(Path file) {
     this.path = file.toAbsolutePath().getParent().toString();
     this.filename = file.getFileName().toString();
+  }
+
+  public MediaInfoFile(MediaFile mf) {
+    this.path = mf.getFileAsPath().getParent().toString();
+    this.filename = mf.getFileAsPath().getFileName().toString();
+    this.duration = mf.getDuration();
+    this.filesize = mf.getFilesize();
   }
 
   public MediaInfoFile(Path file, long filesize) {
@@ -69,6 +79,10 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
 
   public String getPath() {
     return path;
+  }
+
+  public Path getFileAsPath() {
+    return Paths.get(getPath(), getFilename());
   }
 
   public void setPath(String path) {
@@ -104,15 +118,7 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
 
   public void setSnapshot(Map<StreamKind, List<Map<String, String>>> snapshot) {
     this.snapshot = snapshot;
-    String dur = MediaFileHelper.getMediaInfo(snapshot, MediaInfo.StreamKind.General, 0, "Duration");
-    if (!dur.isEmpty()) {
-      try {
-        this.duration = ((int) (Double.parseDouble(dur) / 1000));
-      }
-      catch (NumberFormatException e) {
-        LOGGER.debug("Could not parse duration: {}", dur);
-      }
-    }
+    setDuration(MediaFileHelper.parseDuration(snapshot));
 
     if (this.filesize == 0) {
       String siz = MediaFileHelper.getMediaInfo(snapshot, MediaInfo.StreamKind.General, 0, "FileSize");
@@ -124,6 +130,38 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
           LOGGER.debug("Could not parse filezize: {}", siz);
         }
       }
+    }
+  }
+
+  /**
+   * get the file contents, if set. Only used in ISO parsing - usually NULL;
+   * 
+   * @return
+   */
+  public byte[] getContents() {
+    return contents;
+  }
+
+  public void setContents(byte[] contents) {
+    this.contents = contents;
+  }
+
+  public void gatherMediaInformation() {
+    if (snapshot != null) {
+      return; // already gathered
+    }
+    Path file = Paths.get(path, filename);
+    try (MediaInfo mediaInfo = new MediaInfo()) {
+      if (!mediaInfo.open(file)) {
+        LOGGER.error("Mediainfo could not open file: {}", file);
+      }
+      else {
+        setSnapshot(mediaInfo.snapshot());
+      }
+    }
+    // sometimes also an error is thrown
+    catch (Exception | Error e) {
+      LOGGER.error("Mediainfo could not open file: {} - {}", file, e.getMessage());
     }
   }
 

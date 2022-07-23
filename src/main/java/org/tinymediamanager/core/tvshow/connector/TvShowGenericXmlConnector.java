@@ -168,6 +168,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addActors();
         addTrailer();
         addDateAdded();
+        addLockdata();
 
         // add connector specific tags
         addOwnTags();
@@ -544,25 +545,20 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     // <url post="yes"
     // cache="auth.json">https://api.thetvdb.com/login?{&quot;apikey&quot;:&quot;439DFEBA9D3059C6&quot;,&quot;id&quot;:289574}|Content-Type=application/json</url>
     // </episodeguide>
-    if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
-      Element episodeguide = document.createElement("episodeguide");
-      Element url = document.createElement("url");
-      url.setAttribute("post", "yes");
-      url.setAttribute("cache", "auth.json");
-      url.setTextContent(
-          "https://api.thetvdb.com/login?{\"apikey\":\"439DFEBA9D3059C6\",\"id\":" + tvShow.getTvdbId() + "}|Content-Type=application/json");
-      episodeguide.appendChild(url);
-      root.appendChild(episodeguide);
+
+    // prefer last scraper id
+    if (MediaMetadata.TVDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getTvdbId())) {
+      root.appendChild(createTvdbEpisodeGuide());
+    }
+    else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+      root.appendChild(createTmdbEpisodeGuide());
+    }
+    // or existing IDs
+    else if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
+      root.appendChild(createTvdbEpisodeGuide());
     }
     else if (StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
-      // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
-      Element episodeguide = document.createElement("episodeguide");
-      Element url = document.createElement("url");
-      url.setTextContent(
-          "http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB) + "?api_key=6a5be4999abf74eba1f9a8311294c267&language="
-              + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
-      episodeguide.appendChild(url);
-      root.appendChild(episodeguide);
+      root.appendChild(createTmdbEpisodeGuide());
     }
     // or even import it from the parser
     else if (parser != null && StringUtils.isNotBlank(parser.episodeguide)) {
@@ -581,6 +577,29 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         LOGGER.warn("could not set episodeguide");
       }
     }
+  }
+
+  private Element createTvdbEpisodeGuide() {
+    Element episodeguide = document.createElement("episodeguide");
+    Element url = document.createElement("url");
+    url.setAttribute("post", "yes");
+    url.setAttribute("cache", "auth.json");
+    url.setTextContent(
+        "https://api.thetvdb.com/login?{\"apikey\":\"439DFEBA9D3059C6\",\"id\":" + tvShow.getTvdbId() + "}|Content-Type=application/json");
+    episodeguide.appendChild(url);
+
+    return episodeguide;
+  }
+
+  private Element createTmdbEpisodeGuide() {
+    // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
+    Element episodeguide = document.createElement("episodeguide");
+    Element url = document.createElement("url");
+    url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB)
+        + "?api_key=6a5be4999abf74eba1f9a8311294c267&language=" + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
+    episodeguide.appendChild(url);
+
+    return episodeguide;
   }
 
   /**
@@ -697,6 +716,19 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     }
 
     root.appendChild(dateadded);
+  }
+
+  /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata() {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
   }
 
   /**

@@ -110,7 +110,6 @@ import org.tinymediamanager.core.movie.connector.MovieToMpMyVideoConnector;
 import org.tinymediamanager.core.movie.connector.MovieToXbmcConnector;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
-import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
@@ -899,28 +898,44 @@ public class Movie extends MediaEntity implements IMediaInformation {
       setProductionCompany(StringUtils.join(metadata.getProductionCompanies(), ", "));
     }
 
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
     // cast
-    if (config.contains(MovieScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.DIRECTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        directors.clear();
+      }
       setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.WRITERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        writers.clear();
+      }
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
-    if (config.contains(MovieScraperMetadataConfig.PRODUCERS) && (overwriteExistingItems || getProducers().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.PRODUCERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        producers.clear();
+      }
       setProducers(metadata.getCastMembers(Person.Type.PRODUCER));
     }
 
     // genres
-    if (config.contains(MovieScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -2305,11 +2320,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag
+   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag<br>
+   * Just evaluate VIDEO files - not ALL!!!
    */
   public void reEvaluateDiscfolder() {
     boolean disc = false;
-    for (MediaFile mf : getMediaFiles()) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       if (mf.isDiscFile()) {
         disc = true;
       }
@@ -2711,8 +2727,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
-        && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
+        && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");
@@ -2875,9 +2891,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
-    if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new MovieARDetectorTask(Collections.singletonList(this)));
-    }
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
 

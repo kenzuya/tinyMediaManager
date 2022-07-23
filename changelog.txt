@@ -7,6 +7,7 @@ Version 4.3
 + updated the bundled Java version to 17.0.2
 + bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
 + added an HTTP API for remote control of tinyMediaManager (https://bit.ly/3lcA6sQ)
++ added a movie scraper for AniDB #1728 (thx @hudsonrj09)
 + added a regular expression based JMTE annotation #1611 (https://bit.ly/3wtIZUb)
 + added a renamer token for movie set index respecting missing movies #1702
 + (AniDB) added an option to get the character image instead of the actor image
@@ -17,6 +18,13 @@ Version 4.3
 + added an option to disable the trash bin (.deletedByTMM) #1727
 + added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
 + added an option to automatically "cleanup unwanted files" on rename #1775
++ added extended syntax to movie search field.
++ added a NFO option to control writing of <lockdata>true</lockdata> #1796
++ enhanced delete unwanted files action to find unwanted folders too #1692
+x changed person-merge behavior: #1799
+  - with "Do not overwrite" enabled, new person data will be merged into existing data
+  - with "Do not overwrite" disabled, existing person data will replaced by the newly scraped data
+x rework automatic aspect ratio detection (performance)
 x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
 x improved download speed of trailers
@@ -31,4 +39,9 @@ x locked movies should not disappear on update #1784
 x adhere empty season folder on renaming 'specials' #1785
 x fixed downloading missing artwork for seasons #1794
 x remove failed tasks from the task list
-
+x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793
+x fixed update datasource with additional files in disc folders / or at root level
+x reloading of user_note from NFO #1808
+x round ratings to only one decimal place #1807
+x filter for season artwork in the image chooser
+x some issues with filter loading #1811

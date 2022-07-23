@@ -106,7 +106,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
-import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -1055,16 +1054,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
+    if (config.contains(TvShowScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(TvShowScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -1169,11 +1175,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   private void postProcess(List<TvShowScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
-
-    // detect AR of the TV show if that has been chosen in the settings
-    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new TvShowARDetectorTask(this.episodes));
-    }
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {

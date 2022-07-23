@@ -146,8 +146,11 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
     long        filesize;
 
     String getFilesizeInKilobytes() {
-      DecimalFormat df = new DecimalFormat("#0.00");
-      return df.format(filesize / (1000.0)) + " kB";
+      if (filesize > 0) {
+        DecimalFormat df = new DecimalFormat("#0.00");
+        return df.format(filesize / (1000.0)) + " kB";
+      }
+      return "";
     }
 
     String getExtension() {
@@ -174,7 +177,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
       // Get Cleanup File Types from the settings
       List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
-      LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
+      LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns);
 
       selectedEntities.sort(Comparator.comparing(MediaEntity::getTitle));
 
@@ -189,11 +192,15 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
           FileContainer fileContainer = new FileContainer();
           fileContainer.entity = entity;
           fileContainer.file = file;
-          try {
-            BasicFileAttributes attrs = Files.readAttributes(fileContainer.file, BasicFileAttributes.class);
-            fileContainer.filesize = attrs.size();
-          }
-          catch (Exception ignored) {
+
+          if (!Files.isDirectory(file)) {
+            try {
+              BasicFileAttributes attrs = Files.readAttributes(fileContainer.file, BasicFileAttributes.class);
+              fileContainer.filesize = attrs.size();
+            }
+            catch (Exception ignored) {
+              // ignored
+            }
           }
 
           results.add(fileContainer);
@@ -241,20 +248,26 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
       FileContainer selectedFile = results.get(row);
       try {
         fileList.add(selectedFile);
-        MediaFile mf = new MediaFile(selectedFile.file);
-        if (mf.getType() == MediaFileType.VIDEO) {
-          // prevent users from doing something stupid
-          continue;
+        if (Files.isDirectory(selectedFile.file)) {
+          LOGGER.debug("Deleting folder - {}", selectedFile.file);
+          Utils.deleteDirectoryRecursive(selectedFile.file);
         }
-        LOGGER.info("Deleting File - {}", selectedFile.file);
-        Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
-        if (selectedFile.entity.getMediaFiles().contains(mf)) {
-          selectedFile.entity.removeFromMediaFiles(mf);
-          selectedFile.entity.saveToDb();
+        else {
+          MediaFile mf = new MediaFile(selectedFile.file);
+          if (mf.getType() == MediaFileType.VIDEO) {
+            // prevent users from doing something stupid
+            continue;
+          }
+          LOGGER.debug("Deleting folder - {}", selectedFile.file);
+          Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
+          if (selectedFile.entity.getMediaFiles().contains(mf)) {
+            selectedFile.entity.removeFromMediaFiles(mf);
+            selectedFile.entity.saveToDb();
+          }
         }
       }
       catch (Exception e) {
-        LOGGER.error("Could not delete file {} - {}", selectedFile.file, e.getMessage());
+        LOGGER.error("Could not delete {} - {}", selectedFile.file, e.getMessage());
       }
     }
 

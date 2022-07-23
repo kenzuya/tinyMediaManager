@@ -99,7 +99,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
-import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -816,8 +815,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       setRatings(newRatings);
     }
 
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -825,18 +825,25 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       addToTags(metadata.getTags());
     }
 
-    if (ScraperMetadataConfig.containsAnyCast(config)) {
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
-        setActors(metadata.getCastMembers(Person.Type.ACTOR));
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
       }
+      setActors(metadata.getCastMembers(Person.Type.ACTOR));
+    }
 
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
-        setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        directors.clear();
       }
+      setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
+    }
 
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
-        setWriters(metadata.getCastMembers(Person.Type.WRITER));
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.WRITERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        writers.clear();
       }
+      setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
@@ -1302,8 +1309,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
-        && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
+        && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       if (getEpisode() == -1) {
@@ -1924,9 +1931,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean writeNewThumb) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
-    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new TvShowARDetectorTask(Collections.singletonList(this)));
-    }
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
     }

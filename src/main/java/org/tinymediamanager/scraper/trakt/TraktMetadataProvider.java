@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -95,7 +96,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
 
           @Override
           protected synchronized OkHttpClient okHttpClient() {
-            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            OkHttpClient.Builder builder = TmmHttpClient.newBuilderWithForcedCache(15, TimeUnit.MINUTES);
             builder.addInterceptor(new TraktV2Interceptor(this));
             return builder.build();
           }

@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.anidb.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.davestrailer.DavesTrailerPageProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
@@ -81,7 +82,7 @@ import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
- * 
+ *
  * @author Manuel Laggner
  */
 public class MediaProviders {
@@ -89,7 +90,7 @@ public class MediaProviders {
   private static final Map<String, List<IMediaProvider>> MEDIA_PROVIDERS = new LinkedHashMap<>();
 
   private MediaProviders() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -122,6 +123,7 @@ public class MediaProviders {
     loadProvider(TraktMovieMetadataProvider.class);
     loadProvider(MovieMeterMovieMetadataProvider.class);
     loadProvider(TheTvDbMovieMetadataProvider.class);
+    loadProvider(AniDbMovieMetadataProvider.class);
     loadProvider(OfdbMovieMetadataProvider.class);
     loadProvider(MpdbMovieMetadataProvider.class);
     loadProvider(KodiMetadataProvider.class);
@@ -266,7 +268,7 @@ public class MediaProviders {
 
   /**
    * get a list of all available media providers for the given interface
-   * 
+   *
    * @param clazz
    *          the interface which needs to be implemented
    * @param <T>
@@ -289,7 +291,7 @@ public class MediaProviders {
 
   /**
    * get the media provider by the given id
-   * 
+   *
    * @param id
    *          the id of the media provider
    * @return the {@link IMediaProvider} or null

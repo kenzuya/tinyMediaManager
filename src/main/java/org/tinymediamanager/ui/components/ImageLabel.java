@@ -514,6 +514,16 @@ public class ImageLabel extends JComponent {
         }
       }
     }
+    catch (Exception e) {
+      // just catch to do not crash here
+      Rectangle rectangle = new Rectangle();
+      rectangle.width = this.getMaxWidth();
+      rectangle.height = this.getMaxHeight();
+
+      Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
+      g2d.setColor(EMPTY_BACKGROUND_COLOR);
+      g2d.fillRect(0, 0, hiDpi.width, hiDpi.height);
+    }
     finally {
       g2d.dispose();
     }

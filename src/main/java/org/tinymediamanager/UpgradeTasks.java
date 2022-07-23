@@ -253,6 +253,14 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.3");
 
+      // we migrated from movie/tvshow settings to a global one
+      // Movie/show settings are just kept for migration an can be removed at any time...
+      if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape() || TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
+        Settings.getInstance().setArdEnabled(true);
+        MovieModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+        TvShowModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+      }
+
       // delete all old ffmpeg addons
       final File[] files = Paths.get("native/addons").toFile().listFiles();
       if (files != null) {
@@ -430,25 +438,47 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3") < 0) {
       // replace imdbId with imdb
       for (Movie movie : movieList.getMovies()) {
+        // fix imdb id
         Object value = movie.getId("imdbId");
         if (value != null && movie.getId(MediaMetadata.IMDB) == null) {
           movie.setId(MediaMetadata.IMDB, value);
         }
         movie.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : movie.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        movie.saveToDb();
       }
 
       for (TvShow tvShow : tvShowList.getTvShows()) {
+        // fix imdb id
         Object value = tvShow.getId("imdbId");
         if (value != null && tvShow.getId(MediaMetadata.IMDB) == null) {
           tvShow.setId(MediaMetadata.IMDB, value);
         }
         tvShow.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : tvShow.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        tvShow.saveToDb();
+
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          // fix imdb id
           value = episode.getId("imdbId");
           if (value != null && episode.getId(MediaMetadata.IMDB) == null) {
             episode.setId(MediaMetadata.IMDB, value);
           }
           episode.setId("imdbId", null);
+
+          // round rating
+          for (Map.Entry<String, MediaRating> entry : episode.getRatings().entrySet()) {
+            entry.getValue().setRating(entry.getValue().getRating());
+          }
+          episode.saveToDb();
         }
       }
     }
