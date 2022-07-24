@@ -204,11 +204,12 @@ deploy:RELEASE:
     ##
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown.txt -Dthread_pool_size=1 release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -Dmaven.test.skip=true -DskipITs -DscmCommentPrefix="[ci skip]"
 
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v3 build\"}" https://gitlab.com/api/v4/projects/10869704/repository/files/v3_job_id.txt
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_RELEASE},${FTP_PASSWORD_RELEASE} ${FTP_HOST}; mirror -Rev build/ ./upload/v3/build; mirror -Rev dist/ ./upload/v3/dist; chmod -R g+w ./upload/v3"
 
-    # trigger the deployment on release.tinymediamanager.org (new HP)
-    - curl -X POST -F "token=${RELEASE_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869704/trigger/pipeline
+    # and publish the files on the webserver
+    - curl https://release.tinymediamanager.org/${PUBLISH_ENDPOINT_V3}
+    - curl https://release.tinymediamanager.org/${CREATE_INDEX_V3}
 
   artifacts:
     paths:
