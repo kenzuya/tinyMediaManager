@@ -2,6 +2,11 @@ stages:
   - build
   - deploy
 
+variables:
+  MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer ${CF_BEARER}" --data "{\"purge_everything\":true}"'
+
 build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
@@ -29,6 +34,9 @@ build:
     - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
     - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX}
     - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX_V4}
+
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
     expire_in: 2 days
