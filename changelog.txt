@@ -1,6 +1,6 @@
 Version 3.1.17
 =======================
-+ updated libmediainfo to 22.03
++ updated libmediainfo to 22.06
 x (TV shows) detect 4 digit episode numbers
 x (TV shows) allow episode numbers up to 6 digits long
 
