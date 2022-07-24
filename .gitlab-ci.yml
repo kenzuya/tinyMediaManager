@@ -4,6 +4,7 @@ variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   DS_DEFAULT_ANALYZERS: "gemnasium-maven"
+  PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer ${CF_BEARER}" --data "{\"purge_everything\":true}"'
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -106,6 +107,9 @@ deploy:nightly:
     - curl https://nightly.tinymediamanager.org/${PUBLISH_ENDPOINT_V3}
     - curl https://nightly.tinymediamanager.org/${CREATE_INDEX_V3}
 
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'
+
   artifacts:
     paths:
       - build/
@@ -136,6 +140,9 @@ deploy:PRE-RELEASE:
     # and publish the files on the webserver
     - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V3}
     - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX_V3}
+
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
     paths:
@@ -210,6 +217,9 @@ deploy:RELEASE:
     # and publish the files on the webserver
     - curl https://release.tinymediamanager.org/${PUBLISH_ENDPOINT_V3}
     - curl https://release.tinymediamanager.org/${CREATE_INDEX_V3}
+
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
     paths:
