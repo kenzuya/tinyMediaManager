@@ -1822,6 +1822,41 @@ public class Utils {
   }
 
   /**
+   * Returns the size of that disc folder<br>
+   * Counts only files which are "discFiles()", so a generated NFO would not interfere.
+   * 
+   * @param path
+   * @return
+   */
+  public static long getDirectorySizeOfDiscFiles(Path path) {
+    long size = 0;
+
+    // need close Files.walk
+    try (Stream<Path> walk = Files.walk(path)) {
+
+      size = walk
+          // .peek(System.out::println) // debug
+          .filter(Utils::isRegularFile)
+          .filter(f -> new MediaFile(f).isDiscFile())
+          .mapToLong(p -> {
+            // ugly, can pretty it with an extract method
+            try {
+              return Files.size(p);
+            }
+            catch (IOException e) {
+              return 0L;
+            }
+          })
+          .sum();
+
+    }
+    catch (IOException e) {
+      LOGGER.warn("Coule not get folder size: ", e);
+    }
+    return size;
+  }
+
+  /**
    * flush the {@link FileOutputStream} to the disk
    */
   public static void flushFileOutputStreamToDisk(FileOutputStream fileOutputStream) {

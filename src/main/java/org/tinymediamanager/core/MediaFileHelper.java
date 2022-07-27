@@ -44,7 +44,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -718,6 +717,9 @@ public class MediaFileHelper {
       }
 
       long size = view.size();
+      if (mediaFile.getFile().toFile().isDirectory()) {
+        size = Utils.getDirectorySizeOfDiscFiles(mediaFile.getFile());
+      }
       if (size > 0 && mediaFile.getFilesize() > 0 && size != mediaFile.getFilesize()) {
         dirty = true;
       }
@@ -725,15 +727,6 @@ public class MediaFileHelper {
     }
     catch (Exception e) {
       LOGGER.debug("could not get file information (size/date): {}", e.getMessage());
-    }
-
-    // calculate the filesize for our virtual disc files
-    if (mediaFile.getFile().toFile().isDirectory()) {
-      long size = FileUtils.sizeOfDirectory(mediaFile.getFile().toFile());
-      if (size > 0 && mediaFile.getFilesize() > 0 && size != mediaFile.getFilesize()) {
-        dirty = true;
-      }
-      mediaFile.setFilesize(size);
     }
 
     return dirty;
@@ -898,20 +891,13 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("video_ts".equalsIgnoreCase(filename) || pathname.endsWith("video_ts")) {
-      return true;
-    }
-
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if ("video_ts".equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)");
@@ -980,20 +966,13 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isBlurayFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
-      return true;
-    }
-
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if ("bdmv".equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");

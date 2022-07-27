@@ -590,6 +590,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       }
+      else {
+        String name = path.getFileName().toString();
+        // disc folders?
+        if (name.equalsIgnoreCase(MediaFileHelper.BDMV) || name.equalsIgnoreCase(MediaFileHelper.VIDEO_TS)
+            || name.equalsIgnoreCase(MediaFileHelper.HVDVD_TS)) {
+          videoFileFound = true;
+          isDiscFolder = true;
+        }
+      }
     }
 
     if (!videoFileFound) {

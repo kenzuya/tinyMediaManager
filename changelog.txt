@@ -24,6 +24,7 @@ Version 4.3
 x changed person-merge behavior: #1799
   - with "Do not overwrite" enabled, new person data will be merged into existing data
   - with "Do not overwrite" disabled, existing person data will replaced by the newly scraped data
+x Improved handling of Bluray/DVD disc folder structures (also within ISOs)
 x rework automatic aspect ratio detection (performance)
 x updated Movie Picker template (thx @bastienpruvost)
 x copy file-date attributes on Windows #1674
