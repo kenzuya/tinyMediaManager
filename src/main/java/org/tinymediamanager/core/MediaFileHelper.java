@@ -980,20 +980,13 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isBlurayFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
-      return true;
-    }
-
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if ("bdmv".equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
