@@ -891,20 +891,13 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("video_ts".equalsIgnoreCase(filename) || pathname.endsWith("video_ts")) {
-      return true;
-    }
-
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if ("video_ts".equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)");
