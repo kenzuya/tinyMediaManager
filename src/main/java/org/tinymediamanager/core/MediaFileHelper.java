@@ -849,14 +849,14 @@ public class MediaFileHelper {
 
     // special handling for "disc" files
     if (mediaFile.isISO() || mediaFile.isDiscFile()) {
-      if (isDVDStructure(mediaInfoFiles)) {
+      if (isHDDVDStructure(mediaInfoFiles)) {
+        gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
+      }
+      else if (isDVDStructure(mediaInfoFiles)) {
         gatherMediaInformationFromDvdFile(mediaFile, mediaInfoFiles);
       }
       else if (isBlurayStructure(mediaInfoFiles)) {
         gatherMediaInformationFromBluRayFile(mediaFile, mediaInfoFiles);
-      }
-      else if (isHDDVDStructure(mediaInfoFiles)) {
-        gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
       }
       else {
         // no file informations - just handle it as a normal file
@@ -929,15 +929,16 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isHDDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
+    if (StringUtils.isBlank(filename)) {
+      return false;
     }
 
-    pathname = pathname.toLowerCase(Locale.ROOT);
+    // Folder MF only!
+    if ("hvdvd_ts".equalsIgnoreCase(filename)) {
+      return true;
+    }
 
-    return "hvdvd_ts".equalsIgnoreCase(filename) || pathname.endsWith("hvdvd_ts");
+    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}I\\d{2}\\.(vob|bup|ifo))");
   }
 
   /**
@@ -1129,7 +1130,6 @@ public class MediaFileHelper {
         }
         fileEntries.add(entry);
         MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
-
         // read IFO file directly, to use it later in detectRelevantFiles()
         if (entry.getName().toUpperCase(Locale.ROOT).endsWith(".IFO")) {
           byte[] contents = new byte[(int) entry.getSize()];
@@ -1323,14 +1323,14 @@ public class MediaFileHelper {
       return Collections.emptyList();
     }
 
-    if (isDVDStructure(mediaInfoFiles)) {
+    if (isHDDVDStructure(mediaInfoFiles)) {
+      return detectRelevantHdDvdFiles(mediaInfoFiles);
+    }
+    else if (isDVDStructure(mediaInfoFiles)) {
       return detectRelevantDvdFiles(mediaInfoFiles);
     }
     else if (isBlurayStructure(mediaInfoFiles)) {
       return detectRelevantBlurayFiles(mediaInfoFiles);
-    }
-    else if (isHDDVDStructure(mediaInfoFiles)) {
-      return detectRelevantHdDvdFiles(mediaInfoFiles);
     }
 
     return mediaInfoFiles;
