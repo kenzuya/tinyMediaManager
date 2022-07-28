@@ -896,7 +896,7 @@ public class MediaFileHelper {
     }
 
     // Folder MF only!
-    if ("video_ts".equalsIgnoreCase(filename)) {
+    if (VIDEO_TS.equalsIgnoreCase(filename)) {
       return true;
     }
 
@@ -934,11 +934,11 @@ public class MediaFileHelper {
     }
 
     // Folder MF only!
-    if ("hvdvd_ts".equalsIgnoreCase(filename)) {
+    if (HVDVD_TS.equalsIgnoreCase(filename)) {
       return true;
     }
 
-    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}I\\d{2}\\.(vob|bup|ifo))");
+    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}i\\d{2}\\.(vob|bup|ifo))");
   }
 
   /**
@@ -972,7 +972,7 @@ public class MediaFileHelper {
     }
 
     // Folder MF only!
-    if ("bdmv".equalsIgnoreCase(filename)) {
+    if (BDMV.equalsIgnoreCase(filename)) {
       return true;
     }
 
