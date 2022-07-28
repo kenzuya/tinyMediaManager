@@ -938,7 +938,8 @@ public class MediaFileHelper {
       return true;
     }
 
-    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}i\\d{2}\\.(vob|bup|ifo))");
+    // https://pt.slideshare.net/mvasu22/introduction-tohd-dvdsystemmodel?next_slideshow=true
+    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}[imt]\\d{2}|hv[as]\\d{5}|title\\d{3})\\.(evo|bup|ifo|vti|map))");
   }
 
   /**
