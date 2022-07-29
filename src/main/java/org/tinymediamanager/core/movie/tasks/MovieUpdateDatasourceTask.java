@@ -363,7 +363,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     LOGGER.info("Start UDS for movie sets");
 
-    Set<Path> movieSetFiles = getAllFilesRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
+    Set<Path> movieSetFiles = getAllFilesRecursiveButNoDiscFiles(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
 
     for (Path path : movieSetFiles) {
       if (FilenameUtils.isExtension(path.getFileName().toString(), "nfo")) {
@@ -748,7 +748,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movieDir = movieDir.getParent();
     }
 
-    Set<Path> allFiles = getAllFilesRecursive(movieDir);
+    Set<Path> allFiles = getAllFilesRecursiveButNoDiscFiles(movieDir);
     fileLock.writeLock().lock();
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
@@ -1662,10 +1662,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     return fileNames;
   }
 
-  // **************************************
-  // gets all files recursive,
-  // **************************************
-  private Set<Path> getAllFilesRecursive(Path folder) {
+  /**
+   * gets all files recursive, but doesn't list files inside a disc folder structure
+   * 
+   * @param folder
+   * @return
+   */
+  private Set<Path> getAllFilesRecursiveButNoDiscFiles(Path folder) {
     folder = folder.toAbsolutePath();
     AllFilesRecursive visitor = new AllFilesRecursive();
     try {
