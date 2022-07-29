@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -224,9 +225,21 @@ public class KodiRPC {
     for (Movie movie : movies) {
       MediaFile main = movie.getMainVideoFile();
       if (movie.isDisc()) {
-        // Kodi RPC sends only those disc files
+        // Kodi RPC sends what we call the main disc identifier
         for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-          if (mf.getFilename().equalsIgnoreCase("VIDEO_TS.IFO") || mf.getFilename().equalsIgnoreCase("INDEX.BDMV")) {
+
+          // append MainDiscIdentifier to our folder MF
+          if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.VIDEO_TS)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("VIDEO_TS.IFO").toString()), movie);
+          }
+          else if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.HVDVD_TS)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("HV000I01.IFO").toString()), movie);
+          }
+          else if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.BDMV)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("index.bdmv").toString()), movie);
+          }
+          else if (mf.isMainDiscIdentifierFile()) {
+            // just add MainDiscIdentifier
             fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().toString()), movie);
           }
         }
