@@ -910,9 +910,9 @@ public class MediaFileHelper {
    */
   private static boolean isDVDStructure(List<MediaInfoFile> files) {
     for (MediaInfoFile mif : files) {
-      String filename = mif.getFileAsPath().getFileName().toString();
 
-      if (isDVDFile(filename, mif.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(VIDEO_TS)) {
         return true;
       }
     }
@@ -948,10 +948,10 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isHDDVDStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
+    for (MediaInfoFile mif : files) {
 
-      if (isHDDVDFile(filename, mediaInfoFile.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(HVDVD_TS)) {
         return true;
       }
     }
