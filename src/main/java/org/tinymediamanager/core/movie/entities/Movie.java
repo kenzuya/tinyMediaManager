@@ -1917,7 +1917,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // FIXME: does not work with our fake folder MF anylonger
       // and no, we should not parse IFOs/MPLS files here (IO)
       // runtime = getRuntimeFromDvdFiles();
-      runtime = getRuntime();
+      runtime = this.runtime;
     }
 
     // accumulate old version
