@@ -266,6 +266,25 @@ public class MediaInfoXMLParser {
 
       // we rely on some infos in the general stream info; add that if it was not available in the XML
       if (generalStreamInfo != null) {
+        // fix the correct filename and path
+        String folder = generalStreamInfo.get("Folder_name");
+        String fn = generalStreamInfo.get("File_name");
+        String ext = generalStreamInfo.get("File_extension");
+        if (folder != null) {
+          miFile.setPath(folder);
+        }
+        if (fn != null && ext != null) {
+          miFile.setFilename(fn + "." + ext);
+        }
+        String complete = generalStreamInfo.get("Complete_name");
+        if (complete != null) {
+          Path p = Paths.get(complete);
+          miFile.setFilename(p.getFileName().toString());
+          if (p.getParent() != null) {
+            miFile.setPath(p.getParent().toString());
+          }
+        }
+
         if (generalStreamInfo.get("VideoCount") == null && miFile.getSnapshot().get(StreamKind.Video) != null) {
           generalStreamInfo.put("VideoCount", String.valueOf(miFile.getSnapshot().get(StreamKind.Video).size()));
         }

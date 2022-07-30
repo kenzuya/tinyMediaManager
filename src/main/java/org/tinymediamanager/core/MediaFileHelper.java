@@ -814,7 +814,7 @@ public class MediaFileHelper {
       catch (Exception e) {
         mediaInfoFiles.clear();
         // reading mediainfo failed; re-read without XML
-        LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+        LOGGER.debug("could not read -mediainfo.xml data - maybe a broken XML? {}", e.getMessage());
       }
     }
 
@@ -1453,7 +1453,7 @@ public class MediaFileHelper {
 
     }
     catch (IOException e) {
-      LOGGER.warn("Error parsing DVD: {}", ifomif.getFileAsPath(), e);
+      LOGGER.warn("Error parsing DVD: {} - Maybe just a MediaIfno XML?", ifomif.getFileAsPath(), e.getMessage());
       // try our proven fallback
       // maybe we got the data from XML, so no real files here (but already with MI)
       // so we have to find the biggest VOB
