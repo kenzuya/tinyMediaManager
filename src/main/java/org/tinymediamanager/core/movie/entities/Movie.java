@@ -1864,6 +1864,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return mediaFilesWithSubtitles;
   }
 
+  @Deprecated
   private int getRuntimeFromDvdFiles() {
     int rtifo = 0;
     MediaFile ifo = null;
@@ -1913,7 +1914,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public int getRuntimeFromMediaFiles() {
     int runtime = 0;
     if (isDisc) {
-      runtime = getRuntimeFromDvdFiles();
+      // FIXME: does not work with our fake folder MF anylonger
+      // and no, we should not parse IFOs/MPLS files here (IO)
+      // runtime = getRuntimeFromDvdFiles();
+      runtime = this.runtime;
     }
 
     // accumulate old version

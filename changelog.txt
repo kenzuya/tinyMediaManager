@@ -1,3 +1,13 @@
+Version 4.3.1
+=======================
+x removed copying of file attributes which resulted in inaccessible artwork #1835
+x fix for handling disc files not in their expected folder
+x parse correct filename out of the mediainfo.xml (which is now mandatory for better detection)
+x fix AspectRatioDetection on some files
+x improved overall performance when dealing with disc folder structures (runtime calculation)
+x fix for detection of the FFmpeg executable
+
+
 Version 4.3
 =======================
 + added an action to scrape ratings from multiple scrapers #1672 (https://bit.ly/3yDBRY8)

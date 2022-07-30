@@ -29,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -80,9 +79,6 @@ public class MediaInfoXMLParser {
     for (Element fileInXML : fileElements) {
       MediaInfoFile miFile = new MediaInfoFile(Paths.get(DUMMY_FILENAME));
       miFile.setSnapshot(new EnumMap<>(StreamKind.class));
-      if (StringUtils.isNotBlank(fileInXML.attr("ref")) && fileInXML.attr("ref").length() > 5) {
-        miFile.setFilename(fileInXML.attr("ref"));
-      }
 
       List<MiTrack> tracks = new ArrayList<>();
       // and add all tracks
@@ -198,9 +194,6 @@ public class MediaInfoXMLParser {
               LOGGER.trace("could not parse streamsize - {}", e.getMessage());
             }
           }
-          if (key.equals("Complete_name") && StreamKind.General == currentKind && value.length() > 5) {
-            miFile.setFilename(value);
-          }
           if (key.equals("Duration") && StreamKind.General == currentKind) {
             try {
               // parse the duration value as a number
@@ -246,7 +239,7 @@ public class MediaInfoXMLParser {
             }
           }
 
-          if ("Source".equals(key) && "dummy.bdmv".equals(miFile.getFilename())) {
+          if ("Source".equals(key)) {
             miFile.setFilename(value);
           }
 
@@ -266,6 +259,39 @@ public class MediaInfoXMLParser {
 
       // we rely on some infos in the general stream info; add that if it was not available in the XML
       if (generalStreamInfo != null) {
+        // fix the correct filename and path
+
+        String folder = generalStreamInfo.get("Folder_name");
+        String fn = generalStreamInfo.get("File_name");
+        String ext = generalStreamInfo.get("File_extension");
+        if (folder != null) {
+          folder = folder.replace("\\", "/"); // Linux fix
+          miFile.setPath(folder);
+        }
+        if (fn != null && ext != null && fn.length() > 3) {
+          miFile.setFilename(fn + "." + ext);
+        }
+
+        String pathToEval = "";
+        String ref = fileInXML.attr("ref");
+        if (ref != null && ref.length() > 5) {
+          pathToEval = ref;
+        }
+        String complete = generalStreamInfo.get("Complete_name");
+        if (complete != null && complete.length() > 5) {
+          pathToEval = complete;
+        }
+        if (pathToEval != null && !pathToEval.isEmpty()) {
+          pathToEval = pathToEval.replace("\\", "/"); // Linux fix
+          Path p = Paths.get(pathToEval);
+          if (p.getFileName() != null && p.getFileName().toString().length() > 3) {
+            miFile.setFilename(p.getFileName().toString());
+          }
+          if (p.getParent() != null) {
+            miFile.setPath(p.getParent().toString());
+          }
+        }
+
         if (generalStreamInfo.get("VideoCount") == null && miFile.getSnapshot().get(StreamKind.Video) != null) {
           generalStreamInfo.put("VideoCount", String.valueOf(miFile.getSnapshot().get(StreamKind.Video).size()));
         }
@@ -277,18 +303,8 @@ public class MediaInfoXMLParser {
         }
       }
 
-      if (!miFile.getFilename().isEmpty()) {
-        // we have a filename (DVD structure or plain file)
-        Path p = Paths.get(miFile.getFilename());
-        if (p.getNameCount() == 0) {
-          // we just have a root directory like v: - create fake video name...
-          p = p.resolve("/iso/dummy.vob");
-        }
-      }
-
       String ext = FilenameUtils.getExtension(miFile.getFilename()).toLowerCase(Locale.ROOT);
       if (Settings.getInstance().getAllSupportedFileTypes().contains("." + ext) || "mpls".equalsIgnoreCase(ext)) {
-        miFile.setFilename(Paths.get(miFile.getFilename()).getFileName().toString()); // so we have it w/o path
         files.add(miFile);
       }
     } // for every MI file entry

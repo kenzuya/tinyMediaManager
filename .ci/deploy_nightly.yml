@@ -5,7 +5,6 @@ stages:
 variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer ${CF_BEARER}" --data "{\"purge_everything\":true}"'
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -21,6 +20,8 @@ build:
   allow_failure: false
   tags:
     - tmm # force running on own runners
+  variables:
+    PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     # just run on changes from the last 24 hrs
     # does not work at the moment since we cannot abort subsequent jobs

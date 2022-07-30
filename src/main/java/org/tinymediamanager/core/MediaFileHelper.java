@@ -334,7 +334,7 @@ public class MediaFileHelper {
     }
 
     // is it is a DISC-like structure, handle it as a video file
-    if (isDiscFile(filename, foldername)) {
+    if (isDiscFolder(filename)) {
       return MediaFileType.VIDEO;
     }
 
@@ -814,7 +814,7 @@ public class MediaFileHelper {
       catch (Exception e) {
         mediaInfoFiles.clear();
         // reading mediainfo failed; re-read without XML
-        LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+        LOGGER.debug("could not read -mediainfo.xml data - maybe a broken XML? {}", e.getMessage());
       }
     }
 
@@ -882,6 +882,16 @@ public class MediaFileHelper {
   }
 
   /**
+   * does this path end with a disc folder; so the file is within?
+   * 
+   * @param folder
+   * @return
+   */
+  public static boolean isDiscFolder(String folder) {
+    return folder.endsWith(BDMV) || folder.endsWith(VIDEO_TS) || folder.endsWith(HVDVD_TS);
+  }
+
+  /**
    * is the given filename/foldername from a DVD "disc file/folder"? (video_ts, vts...)
    *
    * @param filename
@@ -910,9 +920,9 @@ public class MediaFileHelper {
    */
   private static boolean isDVDStructure(List<MediaInfoFile> files) {
     for (MediaInfoFile mif : files) {
-      String filename = mif.getFileAsPath().getFileName().toString();
 
-      if (isDVDFile(filename, mif.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(VIDEO_TS)) {
         return true;
       }
     }
@@ -948,10 +958,10 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isHDDVDStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
+    for (MediaInfoFile mif : files) {
 
-      if (isHDDVDFile(filename, mediaInfoFile.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(HVDVD_TS)) {
         return true;
       }
     }
@@ -1001,6 +1011,11 @@ public class MediaFileHelper {
    */
   private static boolean isBlurayStructure(List<MediaInfoFile> files) {
     for (MediaInfoFile mif : files) {
+      Path p = mif.getFileAsPath();
+      // MI xml for Blurays might not always have a correct filename set
+      if (p.getParent() == null || p.getParent().equals(p.getRoot())) {
+        continue;
+      }
       String filename = mif.getFileAsPath().getFileName().toString();
       String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
       // structure MUST be in some folder, not only loose m2ts files...
@@ -1453,7 +1468,7 @@ public class MediaFileHelper {
 
     }
     catch (IOException e) {
-      LOGGER.warn("Error parsing DVD: {}", ifomif.getFileAsPath(), e);
+      LOGGER.warn("Error parsing DVD: {} - Maybe just a MediaIfno XML?", ifomif.getFileAsPath(), e.getMessage());
       // try our proven fallback
       // maybe we got the data from XML, so no real files here (but already with MI)
       // so we have to find the biggest VOB
@@ -1542,7 +1557,7 @@ public class MediaFileHelper {
           }
         }
         catch (IOException e) {
-          LOGGER.warn("Could not parse Bluray playlist file: {}", mif.getFileAsPath(), e);
+          LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
         }
       }
     }
@@ -1582,6 +1597,13 @@ public class MediaFileHelper {
       }
     }
     else {
+      // MediaInfo XML of a Bluray (or a Bluray file) has only one MIF
+      if (mediaInfoFiles.size() == 1 && mediaInfoFiles.get(0).getSnapshot() != null) {
+        // xml was parsed - return as relevant
+        relevantFiles.add(mediaInfoFiles.get(0));
+        return relevantFiles;
+      }
+
       // no? just use our traditional way of finding the "biggest" file...
       MediaInfoFile mainVideo = mediaInfoFiles.stream()
           .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))

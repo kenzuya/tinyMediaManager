@@ -58,7 +58,7 @@ public abstract class ARDetectorTask extends TmmTask {
       .compile("x1:([0-9]*)\\sx2:([0-9]*)\\sy1:([0-9]*)\\sy2:([0-9]*)\\sw:([0-9]*)\\sh:([0-9]*)\\sx:");
   private final Pattern       patternDuration         = Pattern.compile("Duration:\\s(\\d\\d:\\d\\d:\\d\\d\\.\\d\\d),");
   private final Pattern       patternSAR              = Pattern.compile("SAR\\s(\\d+):(\\d+)\\s");
-  private final Pattern       patternWH               = Pattern.compile(",\\s(\\d+)x(\\d+)\\s\\[SAR");
+  private final Pattern       patternWH               = Pattern.compile(",\\s(\\d+)x(\\d+)\\s");
 
   private final Settings      settings                = Settings.getInstance();
 
@@ -169,7 +169,8 @@ public abstract class ARDetectorTask extends TmmTask {
 
       VideoInfo videoInfo = new VideoInfo();
       videoInfo.bitDepth = mediaFile.getBitDepth();
-      parseVideoMeta(result, videoInfo); // uses MediaInfo from FFMpeg
+      parseVideoMeta(result, mediaFile, videoInfo); // parse from FFMpeg result
+
       parseDarkLevel(result, videoInfo);
       if (totalDuration > 0) {
         videoInfo.duration = totalDuration;
@@ -322,7 +323,7 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  private void parseVideoMeta(String result, VideoInfo videoInfo) {
+  private void parseVideoMeta(String result, MediaFile mf, VideoInfo videoInfo) {
     if (StringUtils.isNotEmpty(result)) {
 
       // duration
@@ -338,6 +339,9 @@ public abstract class ARDetectorTask extends TmmTask {
           LOGGER.warn("Could not parse dateformat '{}'", m.group(1));
         }
       }
+      else {
+        videoInfo.duration = mf.getDuration();
+      }
 
       // width/heigth
       m = patternWH.matcher(result);
@@ -349,6 +353,10 @@ public abstract class ARDetectorTask extends TmmTask {
         catch (Exception e) {
           LOGGER.warn("Could not parse resolution '{}x{}'", m.group(1), m.group(2));
         }
+      }
+      else {
+        videoInfo.width = mf.getVideoWidth();
+        videoInfo.height = mf.getVideoHeight();
       }
 
       // SAR
@@ -365,6 +373,9 @@ public abstract class ARDetectorTask extends TmmTask {
           LOGGER.warn("Could not parse SAR '{}:{}'", m.group(1), m.group(2));
         }
       }
+      else {
+        videoInfo.arSample = 1f; // cant take TMM one - changes always
+      }
     }
   }
 
@@ -372,6 +383,7 @@ public abstract class ARDetectorTask extends TmmTask {
     if (StringUtils.isNotEmpty(result)) {
       Matcher matcher = patternSample.matcher(result);
       if (matcher.find()) {
+        LOGGER.trace("Found pattern: {}", matcher.group());
         // x1:0 x2:718 y1:73 y2:503 w:718 h:430 x:0 y:74 pts:10800 t:0.120000 crop=718:430:0:74
         // raw values without any adjustments. Those are the x1, y1 and x2, y2 co-ordinates.
         // These are the top-left and bottom-right corners of the detected crop rectangle
@@ -381,6 +393,21 @@ public abstract class ARDetectorTask extends TmmTask {
         int blackRight = Math.abs(width - Integer.parseInt(matcher.group(2)) - 1);
         int blackTop = Integer.parseInt(matcher.group(3));
         int blackBottom = Math.abs(height - Integer.parseInt(matcher.group(4)) - 1);
+
+        // orig style (left fir debugging)
+        // String sample = matcher.results()
+        // .map(match -> match.group(5) + " " + match.group(6) + " " + match.group(1) + " " + match.group(2) + " " + match.group(3) + " "
+        // + match.group(4))
+        // .sorted(Comparator.reverseOrder())
+        // .findFirst()
+        // .orElse("");
+        // String[] sampleData = sample.split(" ");
+        // int width = Integer.parseInt(sampleData[0]);
+        // int height = Integer.parseInt(sampleData[1]);
+        // int blackLeft = Integer.parseInt(sampleData[2]);
+        // int blackRight = videoInfo.width - Integer.parseInt(sampleData[3]) - 1;
+        // int blackTop = Integer.parseInt(sampleData[4]);
+        // int blackBottom = videoInfo.height - Integer.parseInt(sampleData[5]) - 1;
 
         if (height > 0) {
           videoInfo.arMeasured = (float) width / (float) height;
@@ -398,7 +425,8 @@ public abstract class ARDetectorTask extends TmmTask {
       }
       else {
         // got a result - but did not match. lets see...
-        LOGGER.trace(result);
+        LOGGER.warn("Got a result - but it did no match!");
+        LOGGER.trace("TRACE: \\n{}", result);
       }
     }
     else {

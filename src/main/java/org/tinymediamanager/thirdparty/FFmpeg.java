@@ -185,8 +185,8 @@ public class FFmpeg {
 
   public static boolean isAvailable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
-    return ((Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable())
-        || StringUtils.isNotEmpty(Settings.getInstance().getMediaFramework()));
+    return (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isNotBlank(Settings.getInstance().getMediaFramework())
+        || fFmpegAddon.isAvailable());
   }
 
   private static String getFfmpegExecutable() throws IOException {
