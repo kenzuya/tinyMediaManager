@@ -301,7 +301,6 @@ public class MediaInfoXMLParser {
           generalStreamInfo.put("TextCount", String.valueOf(miFile.getSnapshot().get(StreamKind.Text).size()));
         }
       }
-      System.out.println(miFile.getPath() + "/" + miFile.getFilename() + " - " + duration);
 
       String ext = FilenameUtils.getExtension(miFile.getFilename()).toLowerCase(Locale.ROOT);
       if (Settings.getInstance().getAllSupportedFileTypes().contains("." + ext) || "mpls".equalsIgnoreCase(ext)) {
