@@ -5,7 +5,6 @@ stages:
 variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer ${CF_BEARER}" --data "{\"purge_everything\":true}"'
 
 build:
   stage: build
@@ -15,7 +14,9 @@ build:
     url: https://release.tinymediamanager.org
   allow_failure: false
   tags:
-    - docker # force running on gitlab  
+    - docker # force running on gitlab
+  variables:
+    PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     ##
     ## Install ssh-agent if not already installed, it is required by Docker.
