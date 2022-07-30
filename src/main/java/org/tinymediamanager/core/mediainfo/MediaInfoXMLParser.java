@@ -281,6 +281,7 @@ public class MediaInfoXMLParser {
           pathToEval = complete;
         }
         if (pathToEval != null && !pathToEval.isEmpty()) {
+          pathToEval = pathToEval.replace("\\", "/"); // Linux fix
           Path p = Paths.get(pathToEval);
           if (p.getFileName() != null && p.getFileName().toString().length() > 3) {
             miFile.setFilename(p.getFileName().toString());
@@ -300,6 +301,7 @@ public class MediaInfoXMLParser {
           generalStreamInfo.put("TextCount", String.valueOf(miFile.getSnapshot().get(StreamKind.Text).size()));
         }
       }
+      System.out.println(miFile.getPath() + "/" + miFile.getFilename() + " - " + duration);
 
       String ext = FilenameUtils.getExtension(miFile.getFilename()).toLowerCase(Locale.ROOT);
       if (Settings.getInstance().getAllSupportedFileTypes().contains("." + ext) || "mpls".equalsIgnoreCase(ext)) {
