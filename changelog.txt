@@ -1,5 +1,12 @@
 Version 4.3
 =======================
+x fix for handling disc files not in their expected folder
+x parse correct filename out of the mediainfo.xml (which is now mandatory for better detection)
+
+
+
+Version 4.3
+=======================
 + added an action to scrape ratings from multiple scrapers #1672 (https://bit.ly/3yDBRY8)
 + fetch all possible IDs & ratings when scraping #1672
 + added a fallback strategy for the universal scraper #1684
