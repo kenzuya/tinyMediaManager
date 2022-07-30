@@ -334,7 +334,7 @@ public class MediaFileHelper {
     }
 
     // is it is a DISC-like structure, handle it as a video file
-    if (isDiscFile(filename, foldername)) {
+    if (isDiscFolder(filename)) {
       return MediaFileType.VIDEO;
     }
 
@@ -879,6 +879,16 @@ public class MediaFileHelper {
    */
   public static boolean isDiscFile(String filename, String path) {
     return isDVDFile(filename, path) || isBlurayFile(filename, path) || isHDDVDFile(filename, path);
+  }
+
+  /**
+   * does this path end with a disc folder; so the file is within?
+   * 
+   * @param folder
+   * @return
+   */
+  public static boolean isDiscFolder(String folder) {
+    return folder.endsWith(BDMV) || folder.endsWith(VIDEO_TS) || folder.endsWith(HVDVD_TS);
   }
 
   /**
