@@ -4,6 +4,7 @@ x removed copying of file attributes which resulted in inaccessible artwork #183
 x fix for handling disc files not in their expected folder
 x parse correct filename out of the mediainfo.xml (which is now mandatory for better detection)
 x fix AspectRatioDetection on some files
+x Improve overall performance when dealing with disc folder structures (runtime calculation) 
 
 
 Version 4.3
