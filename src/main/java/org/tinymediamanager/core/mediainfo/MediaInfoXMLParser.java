@@ -265,6 +265,7 @@ public class MediaInfoXMLParser {
         String fn = generalStreamInfo.get("File_name");
         String ext = generalStreamInfo.get("File_extension");
         if (folder != null) {
+          folder = folder.replace("\\", "/"); // Linux fix
           miFile.setPath(folder);
         }
         if (fn != null && ext != null && fn.length() > 3) {
