@@ -1,3 +1,8 @@
+Version 4.3.1
+=======================
+x removed copying of file attributes which resulted in inaccessible artwork #1835
+
+
 Version 4.3
 =======================
 x fix for handling disc files not in their expected folder

@@ -712,7 +712,7 @@ public class Utils {
                 }
                 continue;
               }
-              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
               fixDateAttributes(source, destination);
             }
 
@@ -833,7 +833,7 @@ public class Utils {
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that
           try {
-            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(srcFile, destFile);
             Files.delete(srcFile);
             rename = true; // no exception
@@ -943,7 +943,7 @@ public class Utils {
       for (int i = 0; i < 5; i++) {
         try {
           // replace existing for changing cASE
-          Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+          Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
           fixDateAttributes(srcFile, destFile);
           rename = true;// no exception
         }
@@ -1531,7 +1531,7 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             final Path destFile = Paths.get(destDir.toString(), file.toString());
             LOGGER.debug("Extracting file {} to {}", file, destFile);
-            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(file, destFile);
             return FileVisitResult.CONTINUE;
           }
@@ -1592,7 +1592,7 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toString().equals(fileToExtract.toString())) {
               LOGGER.debug("Extracting file {} to {}", file, destFile);
-              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
               fixDateAttributes(file, destFile);
             }
             return FileVisitResult.CONTINUE;
@@ -1909,7 +1909,7 @@ public class Utils {
 
     @Override
     public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
       fixDateAttributes(file, targetPath);
       return FileVisitResult.CONTINUE;
     }
