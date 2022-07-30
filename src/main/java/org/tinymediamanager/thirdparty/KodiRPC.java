@@ -200,7 +200,7 @@ public class KodiRPC {
       Map<String, Movie> imdbIds = prepareMovieImdbIdMap(MovieModuleManager.getInstance().getMovieList().getMovies());
       Map<String, List<Movie>> titles = prepareMovieTitleMap(MovieModuleManager.getInstance().getMovieList().getMovies());
 
-      LOGGER.debug("TMM {} items", tmmFiles.size());
+      LOGGER.debug("TMM {} movies", tmmFiles.size());
 
       // iterate over all Kodi resources
       try {
@@ -215,7 +215,7 @@ public class KodiRPC {
         LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
-      LOGGER.debug("mapped {} items", moviemappings.size());
+      LOGGER.debug("mapped {} movies", moviemappings.size());
     }
   }
 
@@ -348,7 +348,7 @@ public class KodiRPC {
       Map<SplitUri, TvShow> tmmFiles = prepareTvShowFileMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
       Map<String, TvShow> idMap = prepareTvShowIdMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
 
-      LOGGER.debug("TMM {} items", tmmFiles.size());
+      LOGGER.debug("TMM {} shows", tmmFiles.size());
 
       // iterate over all Kodi shows
       try {
@@ -363,7 +363,7 @@ public class KodiRPC {
         LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
-      LOGGER.debug("mapped {} items", tvshowmappings.size());
+      LOGGER.debug("mapped {} shows", tvshowmappings.size());
     }
   }
 

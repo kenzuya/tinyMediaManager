@@ -1001,6 +1001,11 @@ public class MediaFileHelper {
    */
   private static boolean isBlurayStructure(List<MediaInfoFile> files) {
     for (MediaInfoFile mif : files) {
+      Path p = mif.getFileAsPath();
+      // MI xml for Blurays might not always have a correct filename set
+      if (p.getParent() == null || p.getParent().equals(p.getRoot())) {
+        continue;
+      }
       String filename = mif.getFileAsPath().getFileName().toString();
       String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
       // structure MUST be in some folder, not only loose m2ts files...
@@ -1542,7 +1547,7 @@ public class MediaFileHelper {
           }
         }
         catch (IOException e) {
-          LOGGER.warn("Could not parse Bluray playlist file: {}", mif.getFileAsPath(), e);
+          LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
         }
       }
     }
@@ -1582,6 +1587,13 @@ public class MediaFileHelper {
       }
     }
     else {
+      // MediaInfo XML of a Bluray (or a Bluray file) has only one MIF
+      if (mediaInfoFiles.size() == 1 && mediaInfoFiles.get(0).getSnapshot() != null) {
+        // xml was parsed - return as relevant
+        relevantFiles.add(mediaInfoFiles.get(0));
+        return relevantFiles;
+      }
+
       // no? just use our traditional way of finding the "biggest" file...
       MediaInfoFile mainVideo = mediaInfoFiles.stream()
           .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
