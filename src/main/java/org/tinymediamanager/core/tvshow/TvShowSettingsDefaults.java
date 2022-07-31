@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.core.tvshow;
 
-import static org.tinymediamanager.core.tvshow.TvShowSettings.DEFAULT_RENAMER_FILE_PATTERN;
-import static org.tinymediamanager.core.tvshow.TvShowSettings.DEFAULT_RENAMER_FOLDER_PATTERN;
-import static org.tinymediamanager.core.tvshow.TvShowSettings.DEFAULT_RENAMER_SEASON_PATTERN;
-
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowBannerNaming;
@@ -115,9 +111,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.XBMC);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.LARGE);
 
     tvShowSettings.firePropertyChange("preset", false, true);
@@ -185,9 +178,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.KODI);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.LARGE);
     tvShowSettings.setNfoWriteEpisodeguide(false);
 
@@ -256,9 +246,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.XBMC);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
 
     tvShowSettings.firePropertyChange("preset", false, true);
@@ -326,9 +313,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.XBMC);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.SHORT);
 
     tvShowSettings.firePropertyChange("preset", false, true);
@@ -396,9 +380,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.KODI);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.SHORT);
 
     tvShowSettings.firePropertyChange("preset", false, true);
@@ -466,9 +447,6 @@ public class TvShowSettingsDefaults {
 
     // other settings
     tvShowSettings.setTvShowConnector(TvShowConnectors.EMBY);
-    tvShowSettings.setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    tvShowSettings.setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    tvShowSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     tvShowSettings.setCertificationStyle(CertificationStyle.SHORT);
 
     tvShowSettings.firePropertyChange("preset", false, true);

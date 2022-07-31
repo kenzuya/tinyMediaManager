@@ -15,9 +15,6 @@
  */
 package org.tinymediamanager.core.movie;
 
-import static org.tinymediamanager.core.movie.MovieSettings.DEFAULT_RENAMER_FILE_PATTERN;
-import static org.tinymediamanager.core.movie.MovieSettings.DEFAULT_RENAMER_FOLDER_PATTERN;
-
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
@@ -166,8 +163,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.XBMC);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -246,8 +241,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.KODI);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -326,8 +319,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.MP);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -406,8 +397,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.KODI);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -485,8 +474,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.KODI);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -564,8 +551,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.EMBY);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
 
@@ -643,8 +628,6 @@ public class MovieSettingsDefaults {
 
     // other settings
     movieSettings.setMovieConnector(MovieConnectors.KODI);
-    movieSettings.setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
-    movieSettings.setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
 
