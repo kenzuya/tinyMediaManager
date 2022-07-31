@@ -66,12 +66,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
 
     MovieEntity scrapeResult = null;
     List<MediaArtwork> ma = new ArrayList<>();
-    String id;
 
     // search with mpdbtv id
-    id = options.getIdAsString(providerInfo.getId());
+    int id = options.getIdAsIntOrDefault(providerInfo.getId(), 0);
 
-    if ("0".equals(id)) {
+    if (id == 0) {
       LOGGER.debug("Cannot get artwork - no mpdb id set");
       throw new MissingIdException(getId());
     }

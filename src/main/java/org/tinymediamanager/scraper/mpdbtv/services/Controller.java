@@ -94,7 +94,7 @@ public class Controller {
     return getService().movieSearch(apiKey, username, subscriptionkey, searchstring, language, saga, format).execute();
   }
 
-  public retrofit2.Response<MovieEntity> getScrapeInformation(String username, String subscriptionkey, String id, Locale language, String typeId,
+  public retrofit2.Response<MovieEntity> getScrapeInformation(String username, String subscriptionkey, int id, Locale language, String typeId,
       String format) throws IOException {
 
     return getService().movieScrapebyID(apiKey, username, subscriptionkey, id, language, typeId, format).execute();
