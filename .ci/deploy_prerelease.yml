@@ -13,8 +13,6 @@ build:
     name: prerelease
     url: https://prerelease.tinymediamanager.org
   allow_failure: false
-  tags:
-    - docker # force running on gitlab
   variables:
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
