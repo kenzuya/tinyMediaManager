@@ -74,6 +74,7 @@ build:
 
     # and publish the files on the webserver
     - curl https://release.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
+    - curl https://release.tinymediamanager.org/${CREATE_INDEX}
     - curl https://release.tinymediamanager.org/${CREATE_INDEX_V4}
 
     # purge CF cache
