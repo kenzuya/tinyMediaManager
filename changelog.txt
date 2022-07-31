@@ -6,6 +6,7 @@ x parse correct filename out of the mediainfo.xml (which is now mandatory for be
 x fix AspectRatioDetection on some files
 x improved overall performance when dealing with disc folder structures (runtime calculation)
 x fix for detection of the FFmpeg executable
+x removed overwriting of the renamer pattern when using a media center preset #1837
 
 
 Version 4.3
