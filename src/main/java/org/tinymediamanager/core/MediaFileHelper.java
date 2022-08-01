@@ -848,7 +848,8 @@ public class MediaFileHelper {
     }
 
     // special handling for "disc" files
-    if (mediaFile.isISO() || mediaFile.isDiscFile()) {
+    // but only if we have more that one MIF detected...
+    if (mediaInfoFiles.size() > 1 && (mediaFile.isISO() || mediaFile.isDiscFile())) {
       if (isHDDVDStructure(mediaInfoFiles)) {
         gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
       }
