@@ -1,6 +1,7 @@
 Version 4.3.2
 =======================
 x check for existing ID when using MPDb.TV scraper (metadata & artwork)
+x fix AspectRatioDetection
 
 
 Version 4.3.1

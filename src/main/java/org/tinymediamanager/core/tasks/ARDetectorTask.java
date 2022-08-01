@@ -401,9 +401,9 @@ public abstract class ARDetectorTask extends TmmTask {
         int width = Integer.parseInt(matcher.group(5));
         int height = Integer.parseInt(matcher.group(6));
         int blackLeft = Integer.parseInt(matcher.group(1));
-        int blackRight = Math.abs(width - Integer.parseInt(matcher.group(2)) - 1);
+        int blackRight = Math.abs(videoInfo.width - Integer.parseInt(matcher.group(2)) - 1);
         int blackTop = Integer.parseInt(matcher.group(3));
-        int blackBottom = Math.abs(height - Integer.parseInt(matcher.group(4)) - 1);
+        int blackBottom = Math.abs(videoInfo.height - Integer.parseInt(matcher.group(4)) - 1);
 
         // orig style (left fir debugging)
         // String sample = matcher.results()
