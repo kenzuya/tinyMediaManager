@@ -196,7 +196,6 @@ public abstract class ARDetectorTask extends TmmTask {
         seconds = start;
       }
 
-      boolean logFirstSample = true;
       while (seconds < (end - 2)) {
         try {
           int iSec = Math.round(seconds);
@@ -209,10 +208,6 @@ public abstract class ARDetectorTask extends TmmTask {
 
           LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
           result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
-          if (logFirstSample) {
-            logFirstSample = false;
-            LOGGER.trace("Log complete first sample: {}", result);
-          }
           parseSample(result, iSec, iInc, videoInfo);
         }
         catch (Exception ex) {
@@ -437,7 +432,7 @@ public abstract class ARDetectorTask extends TmmTask {
         String barstxt = String.format("{%4d|%4d} {%3d|%3d}", blackLeft, blackRight, blackTop, blackBottom);
         LOGGER.trace(barstxt);
 
-        checkPlausibility(width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
+        checkPlausibility(result, width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
       }
       else {
         // got a result - but did not match. lets see...
@@ -450,11 +445,12 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  private void checkPlausibility(int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt, int seconds,
-      int increment, VideoInfo videoInfo) {
+  private void checkPlausibility(String result, int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt,
+      int seconds, int increment, VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiWidthDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -465,6 +461,7 @@ public abstract class ARDetectorTask extends TmmTask {
     else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiHeightDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -476,6 +473,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, width, this.plausiWidthPct,
           videoInfo.width);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
@@ -487,6 +485,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, height, this.plausiHeightPct,
           videoInfo.height);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
