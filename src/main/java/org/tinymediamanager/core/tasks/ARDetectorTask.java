@@ -196,6 +196,7 @@ public abstract class ARDetectorTask extends TmmTask {
         seconds = start;
       }
 
+      boolean logFirstSample = true;
       while (seconds < (end - 2)) {
         try {
           int iSec = Math.round(seconds);
@@ -208,6 +209,10 @@ public abstract class ARDetectorTask extends TmmTask {
 
           LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
           result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
+          if (logFirstSample) {
+            logFirstSample = false;
+            LOGGER.trace("Log complete first sample: {}", result);
+          }
           parseSample(result, iSec, iInc, videoInfo);
         }
         catch (Exception ex) {
