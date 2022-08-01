@@ -48,6 +48,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.thirdparty.yt.YTDownloader;
 
 import com.github.kiulian.downloader.downloader.request.RequestVideoInfo;
@@ -478,17 +479,25 @@ public abstract class YTDownloadTask extends TmmTask {
       fileName = video.details().title() + "(A)." + format.extension().value();
     }
     Path outputFile = tempDir.resolve(cleanFilename(fileName));
-    addContentLength(format.contentLength());
 
+    Long contentLength = format.contentLength();
+    if (format.contentLength() == null) {
+      // no content length - try to get it via head request
+      Url head = new Url(format.url());
+      head.getInputStream(true);
+      contentLength = head.getContentLength();
+    }
+
+    addContentLength(contentLength);
     int rangeStart = 0;
 
     try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile.toFile())) {
-      while (rangeStart < format.contentLength() - 1) {
+      while (rangeStart < contentLength - 1) {
         StreamingUrl url = new StreamingUrl(format.url());
 
         // chunks > 10M will be throttled by yt - cap then to a random chunk between 95% - 99% of 10M
         int chunkSize;
-        int remaining = (int) (format.contentLength() - rangeStart - 1);
+        int remaining = (int) (contentLength - rangeStart - 1);
 
         if (remaining > MAX_CHUNK_SIZE) {
           chunkSize = ThreadLocalRandom.current().nextInt((int) (MAX_CHUNK_SIZE * 0.95), (int) (MAX_CHUNK_SIZE * 0.99));
@@ -520,6 +529,7 @@ public abstract class YTDownloadTask extends TmmTask {
       }
       Utils.flushFileOutputStreamToDisk(fileOutputStream);
     }
+
     return outputFile;
   }
 
