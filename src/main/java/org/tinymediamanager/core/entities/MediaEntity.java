@@ -1410,15 +1410,7 @@ public abstract class MediaEntity extends AbstractModelObject {
       return;
     }
 
-    // first remove old ones
-    for (int i = baseList.size() - 1; i >= 0; i--) {
-      Person entry = baseList.get(i);
-      if (!newItems.contains(entry)) {
-        baseList.remove(entry);
-      }
-    }
-
-    // second, add new ones in the right order
+    // add new ones in the right order
     for (int i = 0; i < newItems.size(); i++) {
       Person entry = newItems.get(i);
       if (!baseList.contains(entry)) {
@@ -1430,6 +1422,7 @@ public abstract class MediaEntity extends AbstractModelObject {
         }
       }
       else {
+        // or update existing ones
         int indexOldList = baseList.indexOf(entry);
 
         // merge the entries (e.g. use thumb url/profile/ids from both)

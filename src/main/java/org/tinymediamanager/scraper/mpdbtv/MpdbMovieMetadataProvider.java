@@ -40,6 +40,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
+import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.mpdbtv.entities.Actor;
@@ -153,10 +154,18 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
+    // search with mpdbtv id
+    int id = mediaScrapeOptions.getIdAsIntOrDefault(providerInfo.getId(), 0);
+
+    if (id == 0) {
+      LOGGER.debug("Cannot get artwork - no mpdb id set");
+      throw new MissingIdException(getId());
+    }
+
     LOGGER.info("========= BEGIN MPDB.tv scraping");
     try {
-      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(),
-          mediaScrapeOptions.getIdAsString(providerInfo.getId()), mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
+      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
+          mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
       if (response.isSuccessful()) {
         scrapeResult = response.body();
       }

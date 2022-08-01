@@ -339,6 +339,12 @@ public class Url {
 
       if (headRequest) {
         response.close();
+        try {
+          responseContentLength = Long.parseLong(headersResponse.get("Content-Length"));
+        }
+        catch (Exception e) {
+          // ignored
+        }
         return new NullInputStream(0);
       }
 

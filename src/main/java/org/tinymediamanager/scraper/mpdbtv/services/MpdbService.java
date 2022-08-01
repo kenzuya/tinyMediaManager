@@ -35,6 +35,6 @@ public interface MpdbService {
 
   @GET("movies/{apikey}/{username}/{subscriptionkey}/{id}")
   Call<MovieEntity> movieScrapebyID(@Path("apikey") String apikey, @Path("username") String username, @Path("subscriptionkey") String subscriptionkey,
-      @Path("id") String mpdb_id, @Query("language") Locale lang, @Query("typeId") String id, @Query("_format") String format);
+      @Path("id") int mpdb_id, @Query("language") Locale lang, @Query("typeId") String id, @Query("_format") String format);
 
 }

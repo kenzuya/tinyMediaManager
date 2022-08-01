@@ -13,8 +13,6 @@ build:
     name: release
     url: https://release.tinymediamanager.org
   allow_failure: false
-  tags:
-    - docker # force running on gitlab
   variables:
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
@@ -76,6 +74,7 @@ build:
 
     # and publish the files on the webserver
     - curl https://release.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
+    - curl https://release.tinymediamanager.org/${CREATE_INDEX}
     - curl https://release.tinymediamanager.org/${CREATE_INDEX_V4}
 
     # purge CF cache

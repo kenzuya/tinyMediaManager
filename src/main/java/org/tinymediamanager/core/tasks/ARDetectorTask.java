@@ -334,6 +334,7 @@ public abstract class ARDetectorTask extends TmmTask {
           Date reference = dateFormat.parse("00:00:00.00");
           Date date = dateFormat.parse(m.group(1));
           videoInfo.duration = (int) ((date.getTime() - reference.getTime()) / 1000);
+          LOGGER.trace("parsed duration: {}", videoInfo.duration);
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse dateformat '{}'", m.group(1));
@@ -341,6 +342,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
       else {
         videoInfo.duration = mf.getDuration();
+        LOGGER.trace("MF duration: {}", videoInfo.duration);
       }
 
       // width/heigth
@@ -349,6 +351,8 @@ public abstract class ARDetectorTask extends TmmTask {
         try {
           videoInfo.width = Integer.parseInt(m.group(1));
           videoInfo.height = Integer.parseInt(m.group(2));
+          LOGGER.trace("parsed resolution: {}x{}", videoInfo.width, videoInfo.height);
+
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse resolution '{}x{}'", m.group(1), m.group(2));
@@ -357,6 +361,7 @@ public abstract class ARDetectorTask extends TmmTask {
       else {
         videoInfo.width = mf.getVideoWidth();
         videoInfo.height = mf.getVideoHeight();
+        LOGGER.trace("MF resolution: {}x{}", videoInfo.width, videoInfo.height);
       }
 
       // SAR
@@ -368,13 +373,19 @@ public abstract class ARDetectorTask extends TmmTask {
             sar = 1f;
           }
           videoInfo.arSample = sar;
+          LOGGER.trace("parsed SAR: {}", videoInfo.arSample);
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse SAR '{}:{}'", m.group(1), m.group(2));
         }
       }
       else {
-        videoInfo.arSample = 1f; // cant take TMM one - changes always
+        float sar = mf.getPixelAspectRatio();
+        if (sar <= 0.5f) {
+          sar = 1f;
+        }
+        videoInfo.arSample = sar;
+        LOGGER.trace("MF SAR: {}", videoInfo.arSample);
       }
     }
   }
@@ -390,9 +401,9 @@ public abstract class ARDetectorTask extends TmmTask {
         int width = Integer.parseInt(matcher.group(5));
         int height = Integer.parseInt(matcher.group(6));
         int blackLeft = Integer.parseInt(matcher.group(1));
-        int blackRight = Math.abs(width - Integer.parseInt(matcher.group(2)) - 1);
+        int blackRight = Math.abs(videoInfo.width - Integer.parseInt(matcher.group(2)) - 1);
         int blackTop = Integer.parseInt(matcher.group(3));
-        int blackBottom = Math.abs(height - Integer.parseInt(matcher.group(4)) - 1);
+        int blackBottom = Math.abs(videoInfo.height - Integer.parseInt(matcher.group(4)) - 1);
 
         // orig style (left fir debugging)
         // String sample = matcher.results()
@@ -421,7 +432,7 @@ public abstract class ARDetectorTask extends TmmTask {
         String barstxt = String.format("{%4d|%4d} {%3d|%3d}", blackLeft, blackRight, blackTop, blackBottom);
         LOGGER.trace(barstxt);
 
-        checkPlausibility(width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
+        checkPlausibility(result, width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
       }
       else {
         // got a result - but did not match. lets see...
@@ -434,11 +445,12 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  private void checkPlausibility(int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt, int seconds,
-      int increment, VideoInfo videoInfo) {
+  private void checkPlausibility(String result, int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt,
+      int seconds, int increment, VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiWidthDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -449,6 +461,7 @@ public abstract class ARDetectorTask extends TmmTask {
     else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiHeightDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -460,6 +473,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, width, this.plausiWidthPct,
           videoInfo.width);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
@@ -471,6 +485,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, height, this.plausiHeightPct,
           videoInfo.height);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
