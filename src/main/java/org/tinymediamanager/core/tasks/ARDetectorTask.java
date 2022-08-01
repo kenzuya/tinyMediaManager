@@ -334,6 +334,7 @@ public abstract class ARDetectorTask extends TmmTask {
           Date reference = dateFormat.parse("00:00:00.00");
           Date date = dateFormat.parse(m.group(1));
           videoInfo.duration = (int) ((date.getTime() - reference.getTime()) / 1000);
+          LOGGER.trace("parsed duration: {}", videoInfo.duration);
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse dateformat '{}'", m.group(1));
@@ -341,6 +342,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
       else {
         videoInfo.duration = mf.getDuration();
+        LOGGER.trace("MF duration: {}", videoInfo.duration);
       }
 
       // width/heigth
@@ -349,6 +351,8 @@ public abstract class ARDetectorTask extends TmmTask {
         try {
           videoInfo.width = Integer.parseInt(m.group(1));
           videoInfo.height = Integer.parseInt(m.group(2));
+          LOGGER.trace("parsed resolution: {}x{}", videoInfo.width, videoInfo.height);
+
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse resolution '{}x{}'", m.group(1), m.group(2));
@@ -357,6 +361,7 @@ public abstract class ARDetectorTask extends TmmTask {
       else {
         videoInfo.width = mf.getVideoWidth();
         videoInfo.height = mf.getVideoHeight();
+        LOGGER.trace("MF resolution: {}x{}", videoInfo.width, videoInfo.height);
       }
 
       // SAR
@@ -368,13 +373,19 @@ public abstract class ARDetectorTask extends TmmTask {
             sar = 1f;
           }
           videoInfo.arSample = sar;
+          LOGGER.trace("parsed SAR: {}", videoInfo.arSample);
         }
         catch (Exception e) {
           LOGGER.warn("Could not parse SAR '{}:{}'", m.group(1), m.group(2));
         }
       }
       else {
-        videoInfo.arSample = 1f; // cant take TMM one - changes always
+        float sar = mf.getPixelAspectRatio();
+        if (sar <= 0.5f) {
+          sar = 1f;
+        }
+        videoInfo.arSample = sar;
+        LOGGER.trace("MF SAR: {}", videoInfo.arSample);
       }
     }
   }

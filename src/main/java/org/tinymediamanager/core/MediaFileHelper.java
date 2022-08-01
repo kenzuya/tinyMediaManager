@@ -2381,6 +2381,7 @@ public class MediaFileHelper {
     }
     try {
       float par = Float.parseFloat(parString);
+      mediaFile.setPixelAspectRatio(par);
       mediaFile.setAspectRatio((float) mediaFile.getVideoWidth() * par / mediaFile.getVideoHeight());
     }
     catch (Exception e) {

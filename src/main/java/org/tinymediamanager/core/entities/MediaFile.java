@@ -85,6 +85,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private Float                      aspectRatio2      = null;
   @JsonProperty
+  private Float                      pixelAspectRatio  = 0f;
+  @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
   private int                        overallBitRate    = 0;
@@ -137,6 +139,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
     this.aspectRatio2 = clone.aspectRatio2;
+    this.pixelAspectRatio = clone.pixelAspectRatio;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
     this.frameRate = clone.frameRate;
@@ -400,6 +403,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setContainerFormat("");
     setAspectRatio(0f);
     setAspectRatio2(null);
+    setPixelAspectRatio(0f);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -1096,6 +1100,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public Float getAspectRatio2() {
     return this.aspectRatio2;
+  }
+
+  public Float getPixelAspectRatio() {
+    return pixelAspectRatio;
+  }
+
+  public void setPixelAspectRatio(Float pixelAspectRatio) {
+    this.pixelAspectRatio = pixelAspectRatio;
   }
 
   /**
