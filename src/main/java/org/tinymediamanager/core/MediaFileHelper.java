@@ -884,7 +884,7 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDiscFile(String filename, String path) {
-    return isDVDFile(filename, path) || isBlurayFile(filename, path) || isHDDVDFile(filename, path);
+    return isDVDFile(filename) || isBlurayFile(filename) || isHDDVDFile(filename);
   }
 
   /**
@@ -906,7 +906,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isDVDFile(String filename, String path) {
+  public static boolean isDVDFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -944,7 +944,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isHDDVDFile(String filename, String path) {
+  public static boolean isHDDVDFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -983,7 +983,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isBlurayFile(String filename, String path) {
+  public static boolean isBlurayFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -1025,7 +1025,7 @@ public class MediaFileHelper {
       String filename = mif.getFileAsPath().getFileName().toString();
       String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
       // structure MUST be in some folder, not only loose m2ts files...
-      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename, mif.getPath())) {
+      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename)) {
         return true;
       }
     }
