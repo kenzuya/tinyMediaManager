@@ -251,7 +251,7 @@
 		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-swing</artifactId>
-			<version>11.0</version>
+			<version>5.2</version><!-- 5.3 and 11 have scaling issues when using a bigger font-->
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
