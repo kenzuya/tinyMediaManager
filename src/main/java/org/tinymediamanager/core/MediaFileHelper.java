@@ -804,7 +804,7 @@ public class MediaFileHelper {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
-        mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
+        // mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
 
         if (!mediaInfoFiles.isEmpty()) {
           LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
