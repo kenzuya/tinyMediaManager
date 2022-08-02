@@ -169,7 +169,6 @@ class MovieCommandTask extends TmmThreadPool {
 
           MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
           List<MovieScraperMetadataConfig> config = movieSettings.getScraperMetadataConfig();
-          options.loadDefaults();
 
           // override default scraper?
           if (StringUtils.isNotBlank(command.args.get("scraper"))) {

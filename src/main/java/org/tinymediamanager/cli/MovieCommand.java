@@ -182,7 +182,6 @@ class MovieCommand implements Runnable {
 
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       List<MovieScraperMetadataConfig> config = MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig();
-      options.loadDefaults();
 
       MovieScrapeTask.MovieScrapeParams movieScrapeParams = new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config);
       movieScrapeParams.setOverwriteExistingItems(!MovieModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
