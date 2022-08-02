@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -371,17 +370,9 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
     ma.setLanguage(ma.getLanguage());
 
-    // parse the season number
-    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) {
-      Matcher matcher = artworkSeasonNumberPattern.matcher(ma.getDefaultUrl());
-      if (matcher.matches() && matcher.groupCount() > 0) {
-        try {
-          ma.setSeason(Integer.parseInt(matcher.group(1)));
-        }
-        catch (Exception e) {
-          getLogger().trace("Could not parse season from '{}' - '{}'", ma.getDefaultUrl(), e.getMessage());
-        }
-      }
+    // get the season number
+    if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.season != null) {
+      ma.setSeason(image.season);
     }
 
     return ma;

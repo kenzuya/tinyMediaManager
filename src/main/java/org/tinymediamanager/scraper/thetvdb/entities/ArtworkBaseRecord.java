@@ -22,6 +22,9 @@ public class ArtworkBaseRecord {
   @SerializedName("id")
   public Integer id        = null;
 
+  @SerializedName("seasonId")
+  public Integer season    = null;
+
   @SerializedName("image")
   public String  image     = null;
 
