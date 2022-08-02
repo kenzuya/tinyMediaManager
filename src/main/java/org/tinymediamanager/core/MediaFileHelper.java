@@ -1562,7 +1562,7 @@ public class MediaFileHelper {
             LOGGER.trace("Playlist {} has duplicate streams - ignoring", mif.getFilename());
           }
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
         }
       }
