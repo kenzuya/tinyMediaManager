@@ -804,11 +804,16 @@ public class MediaFileHelper {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
-        // mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
+        mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
 
         if (!mediaInfoFiles.isEmpty()) {
           LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
-          parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
+          parseMediainfoSnapshot(mediaFile, mediaInfoFiles); // FIXME: only the first!
+          // sanity check of invalid XMLs
+          if (mediaInfoFiles.get(0).getSnapshot() == null || mediaInfoFiles.get(0).getSnapshot().isEmpty()) {
+            LOGGER.warn("Reading MediaInfoXML did not return something useful...");
+            mediaInfoFiles.clear();
+          }
         }
       }
       catch (Exception e) {
