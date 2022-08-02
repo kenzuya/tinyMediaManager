@@ -753,14 +753,12 @@ public class KodiRPC {
       return;
     }
 
-    new Thread(() -> {
-      try {
-        JsonApiRequest.execute(connectionManager.getHostConfig(), call.getRequest());
-      }
-      catch (ApiException e) {
-        LOGGER.error("Error calling Kodi: {}", e.getMessage());
-      }
-    }).start();
+    try {
+      JsonApiRequest.execute(connectionManager.getHostConfig(), call.getRequest());
+    }
+    catch (ApiException e) {
+      LOGGER.error("Error calling Kodi: {}", e.getMessage());
+    }
   }
 
   /**
