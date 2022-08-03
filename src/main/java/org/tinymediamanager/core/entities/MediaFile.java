@@ -356,7 +356,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isDVDFile() {
-    return MediaFileHelper.isDVDFile(filename, path);
+    return MediaFileHelper.isDVDFile(filename);
   }
 
   /**
@@ -365,7 +365,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isHDDVDFile() {
-    return MediaFileHelper.isHDDVDFile(filename, path);
+    return MediaFileHelper.isHDDVDFile(filename);
   }
 
   /**
@@ -374,7 +374,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isBlurayFile() {
-    return MediaFileHelper.isBlurayFile(filename, path);
+    return MediaFileHelper.isBlurayFile(filename);
   }
 
   /**

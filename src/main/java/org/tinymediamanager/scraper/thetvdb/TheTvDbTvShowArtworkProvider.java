@@ -32,7 +32,9 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.SeasonBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.SeriesExtendedResponse;
+import org.tinymediamanager.scraper.util.ListUtils;
 
 import retrofit2.Response;
 
@@ -64,8 +66,30 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbArtworkProvider impleme
         throw new HttpException(response.code(), response.message());
       }
 
-      if (response.body() != null && response.body().data != null && response.body().data.artworks != null) {
-        images.addAll(response.body().data.artworks);
+      if (response.body() != null && response.body().data != null) {
+        for (ArtworkBaseRecord image : ListUtils.nullSafe(response.body().data.artworks)) {
+          // mix in the season number for season artwork
+          if (image.season != null) {
+            try {
+              SeasonBaseRecord season = response.body().data.seasons.stream()
+                  .filter(seasonBaseRecord -> seasonBaseRecord.id.equals(image.season))
+                  .findFirst()
+                  .orElse(null);
+              if (season != null) {
+                image.season = season.number;
+              }
+              else {
+                image.season = null;
+              }
+            }
+            catch (Exception e) {
+              // just do not crash
+              image.season = null;
+            }
+          }
+
+          images.add(image);
+        }
       }
     }
     catch (Exception e) {

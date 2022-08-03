@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.mpdbtv.entities.MovieEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
@@ -60,9 +59,6 @@ public class Controller {
     builder.addInterceptor(chain -> {
       Request request = chain.request();
       Response response = chain.proceed(request);
-      if (response.code() != 200) {
-        throw new HttpException(response.code(), response.message());
-      }
       return response;
     });
     retrofit = buildRetrofitInstance(builder.build());
@@ -105,7 +101,9 @@ public class Controller {
   }
 
   private Retrofit buildRetrofitInstance(OkHttpClient client) {
-    return new Retrofit.Builder().client(client).baseUrl("http://mpdb.tv/api/v1/")
-        .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create())).build();
+    return new Retrofit.Builder().client(client)
+        .baseUrl("http://mpdb.tv/api/v1/")
+        .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create()))
+        .build();
   }
 }

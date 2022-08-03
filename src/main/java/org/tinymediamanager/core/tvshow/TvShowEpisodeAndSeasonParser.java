@@ -32,6 +32,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
@@ -315,7 +316,7 @@ public class TvShowEpisodeAndSeasonParser {
     }
 
     // ======================================================================
-    // After here are some generic detections
+    // After here are some weird detections
     // run them only, when we have NO result!!!
     // so we step out here...
     // ======================================================================
@@ -371,6 +372,22 @@ public class TvShowEpisodeAndSeasonParser {
         LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
         return postClean(result); // since we have a matching year, we wont find episodes solely by number
       }
+    }
+
+    // ======================================================================
+    // After here are some really, REALLY generic detections.
+    // Just take 3, 2 or 1 single number for episode
+    // strip as many as we know... it's the last change to do some detection!
+    // ======================================================================
+
+    // strip all [optionals]!
+    basename = basename.replaceAll("\\[(.*?)\\]", "");
+
+    // ignore disc files!
+    MediaFile mf = new MediaFile();
+    mf.setFilename(filename);
+    if (mf.isDiscFile()) {
+      return postClean(result);
     }
 
     // multiple numbers: get consecutive ones

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -31,6 +30,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -79,12 +79,14 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
     List<MediaTrailer> trailers = new ArrayList<>();
     MediaMetadata md = options.getMetadata();
 
-    if (md == null || StringUtils.isEmpty(md.getOriginalTitle())) {
+    String ot = md.getOriginalTitle();
+    if (ot.isEmpty() && options.getLanguage() == MediaLanguages.en) {
+      ot = md.getTitle();
+    }
+    if (ot.isEmpty()) {
       LOGGER.warn("no originalTitle served");
       throw new MissingIdException("originalTitle");
     }
-
-    String ot = md.getOriginalTitle();
 
     try {
       // best guess

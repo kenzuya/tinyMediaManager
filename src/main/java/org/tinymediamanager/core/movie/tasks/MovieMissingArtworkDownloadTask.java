@@ -25,7 +25,6 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -99,7 +98,6 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
       // a) is there missing artwork according to the config? (to download them)
       if (MovieArtworkHelper.hasMissingArtwork(movie, metadataConfig)) {
         try {
-          MovieList movieList = MovieModuleManager.getInstance().getMovieList();
           // set up scrapers
           List<MediaArtwork> artwork = new ArrayList<>();
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
@@ -111,8 +109,8 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
           options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
           options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
-          // scrape providers till one artwork has been found
-          for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {
+          // scrape selected providers till one artwork has been found
+          for (MediaScraper scraper : options.getArtworkScrapers()) {
             IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) scraper.getMediaProvider();
             try {
               artwork.addAll(artworkProvider.getArtwork(options));

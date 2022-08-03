@@ -27,6 +27,7 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
 
   public MovieSearchAndScrapeOptions() {
     super(MediaType.MOVIE);
+    loadDefaults();
   }
 
   /**
@@ -42,7 +43,7 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   /**
    * Load default Settings.
    */
-  public void loadDefaults() {
+  private void loadDefaults() {
     language = MovieModuleManager.getInstance().getSettings().getScraperLanguage();
     certificationCountry = MovieModuleManager.getInstance().getSettings().getCertificationCountry();
     releaseDateCountry = MovieModuleManager.getInstance().getSettings().getReleaseDateCountry();

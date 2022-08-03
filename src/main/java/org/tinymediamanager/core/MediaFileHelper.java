@@ -808,7 +808,12 @@ public class MediaFileHelper {
 
         if (!mediaInfoFiles.isEmpty()) {
           LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
-          parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
+          parseMediainfoSnapshot(mediaFile, mediaInfoFiles); // FIXME: only the first!
+          // sanity check of invalid XMLs
+          if (mediaInfoFiles.get(0).getSnapshot() == null || mediaInfoFiles.get(0).getSnapshot().isEmpty()) {
+            LOGGER.warn("Reading MediaInfoXML did not return something useful...");
+            mediaInfoFiles.clear();
+          }
         }
       }
       catch (Exception e) {
@@ -879,7 +884,7 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDiscFile(String filename, String path) {
-    return isDVDFile(filename, path) || isBlurayFile(filename, path) || isHDDVDFile(filename, path);
+    return isDVDFile(filename) || isBlurayFile(filename) || isHDDVDFile(filename);
   }
 
   /**
@@ -901,7 +906,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isDVDFile(String filename, String path) {
+  public static boolean isDVDFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -939,7 +944,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isHDDVDFile(String filename, String path) {
+  public static boolean isHDDVDFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -978,7 +983,7 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isBlurayFile(String filename, String path) {
+  public static boolean isBlurayFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
     }
@@ -1020,7 +1025,7 @@ public class MediaFileHelper {
       String filename = mif.getFileAsPath().getFileName().toString();
       String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
       // structure MUST be in some folder, not only loose m2ts files...
-      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename, mif.getPath())) {
+      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename)) {
         return true;
       }
     }
@@ -1557,7 +1562,7 @@ public class MediaFileHelper {
             LOGGER.trace("Playlist {} has duplicate streams - ignoring", mif.getFilename());
           }
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
         }
       }

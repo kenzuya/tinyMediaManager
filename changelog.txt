@@ -1,9 +1,12 @@
 Version 4.3.2
 =======================
 x check for existing ID when using MPDb.TV scraper (metadata & artwork)
-x fix AspectRatioDetection
+x fix AspectRatioDetection on some files
 x fixed occasional removing of cast when re-scrape #1840
 x fixed downloading of some YT trailers
+x fixed fetching of season artwork from TVDB #1841
+x fixed KodiRPC calls #1831
+x DownloadMissingArtwork did not respect the chosen scrapers
 
 
 Version 4.3.1

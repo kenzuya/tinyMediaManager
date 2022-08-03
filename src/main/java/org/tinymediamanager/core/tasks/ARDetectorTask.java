@@ -300,7 +300,7 @@ public abstract class ARDetectorTask extends TmmTask {
       if (!Files.exists(mif.getFileAsPath())) {
         return null;
       }
-      result = new MediaFilePosition(mif.getFileAsPath(), mif.getDuration());
+      result = new MediaFilePosition(mif.getFileAsPath(), pos);
     }
 
     return result;

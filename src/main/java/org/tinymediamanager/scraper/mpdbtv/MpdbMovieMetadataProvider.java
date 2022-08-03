@@ -19,6 +19,7 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,6 +98,18 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     try {
       Response<List<SearchEntity>> response = controller.getSearchInformation(getEncodedUserName(), getSubscriptionKey(), options.getSearchQuery(),
           options.getLanguage().toLocale(), true, FORMAT);
+      if (!response.isSuccessful()) {
+        String message = "";
+        try {
+          message = response.errorBody().string();
+        }
+        catch (IOException e) {
+          // ignore
+        }
+        LOGGER.warn("request was not successful: HTTP/{} - {}", response.code(), message);
+        throw new HttpException(response.code(), response.message());
+      }
+
       if (response.isSuccessful()) {
         searchResult.addAll(response.body());
       }
@@ -154,6 +167,9 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
+    // we need to force FR as language (no other language available here)
+    mediaScrapeOptions.setLanguage(MediaLanguages.fr);
+
     // search with mpdbtv id
     int id = mediaScrapeOptions.getIdAsIntOrDefault(providerInfo.getId(), 0);
 
@@ -166,6 +182,17 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     try {
       Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
           mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
+      if (!response.isSuccessful()) {
+        String message = "";
+        try {
+          message = response.errorBody().string();
+        }
+        catch (IOException e) {
+          // ignore
+        }
+        LOGGER.warn("request was not successful: HTTP/{} - {}", response.code(), message);
+        throw new HttpException(response.code(), response.message());
+      }
       if (response.isSuccessful()) {
         scrapeResult = response.body();
       }
