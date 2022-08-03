@@ -12,6 +12,7 @@ x improved fallback episode detection for files with just numbers
 x improved error handling on reading MediaInfo XMLs
 x revert UI lib to fix scaling issues with bigger fonts
 x hd-trailers.net better error handling
+x fix FFMpeg artwork scraper for tv episodes #1842
 
 
 Version 4.3.1

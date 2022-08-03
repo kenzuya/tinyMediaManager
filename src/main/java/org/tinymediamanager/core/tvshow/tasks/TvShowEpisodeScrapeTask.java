@@ -215,6 +215,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
     for (Map.Entry<String, Object> entry : episode.getIds().entrySet()) {
       options.setId(entry.getKey(), entry.getValue().toString());
     }
+    options.setId("mediaFile", episode.getMainFile());
 
     // scrape providers till one artwork has been found
     for (MediaScraper artworkScraper : scrapeOptions.getArtworkScrapers()) {
