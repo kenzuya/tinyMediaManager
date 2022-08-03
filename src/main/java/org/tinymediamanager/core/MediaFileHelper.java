@@ -1470,8 +1470,10 @@ public class MediaFileHelper {
         // second try, w/o limitation of duration
         main = dvd.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
       }
+      if (main == null) {
+        throw new IOException("Could not identify main DVD files - using fallback.");
+      }
       prefix = "VTS_" + String.format("%02d", main.getVtsn());
-
     }
     catch (IOException e) {
       LOGGER.warn("Error parsing DVD: {} - Maybe just a MediaIfno XML?", ifomif.getFileAsPath(), e.getMessage());
@@ -1587,7 +1589,7 @@ public class MediaFileHelper {
           if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
-          if (folder.getParent() != null && folder.getParent().getFileName() != null
+          if (folder != null && folder.getParent() != null && folder.getParent().getFileName() != null
               && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
@@ -2704,6 +2706,7 @@ public class MediaFileHelper {
     MediaInfoFile ifo = null;
     // FIXME: since we now have multiple files, each will overwrite the former :/
     // parse VOBs first
+    int videoDur = 0;
     for (MediaInfoFile mif : mediaInfoFiles) {
       mif.gatherMediaInformation();
       if (mif.getFileExtension().equalsIgnoreCase("vob")) {
@@ -2720,10 +2723,16 @@ public class MediaFileHelper {
             mediaFile.setOverallBitRate(0);
           }
         }
+        videoDur += mif.getDuration();
       }
       else if (mif.getFileExtension().equalsIgnoreCase("ifo")) {
         ifo = mif;
       }
+    }
+    mediaFile.setDuration(videoDur); // accumulated, maybe its right
+
+    if (ifo == null) {
+      return; // ;(
     }
 
     // do IFO last

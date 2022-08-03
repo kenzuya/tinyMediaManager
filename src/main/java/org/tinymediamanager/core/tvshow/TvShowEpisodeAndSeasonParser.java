@@ -237,9 +237,9 @@ public class TvShowEpisodeAndSeasonParser {
     // strip all [optionals]!
     basename = basename.replaceAll("\\[(.*?)\\]", "");
 
-    // ignore disc files!
+    // ignore disc files
     MediaFile mf = new MediaFile();
-    mf.setFilename(filename);
+    mf.setFilename(filename); // cant use Paths.get()
     if (mf.isDiscFile()) {
       return postClean(result);
     }
