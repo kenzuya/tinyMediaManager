@@ -1237,7 +1237,7 @@ public class TvShowRenamer {
             }
           }
           catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
           }
           lang = LanguageStyle.getLanguageCodeForStyle(originalLang, TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
           if (StringUtils.isBlank(lang)) {
