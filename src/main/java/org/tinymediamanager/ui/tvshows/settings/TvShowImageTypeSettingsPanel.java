@@ -113,8 +113,8 @@ class TvShowImageTypeSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
-      JPanel panelFileNaming = new JPanel(new MigLayout("insets 0", "[20lp!][right][][20lp!][right][grow]",
-          "[][][][10lp][][10lp][][10lp][][10lp][][][][10lp][][][][][][][][10lp][][10lp][20lp!][20lp]"));
+      JPanel panelFileNaming = new JPanel(new MigLayout("insets 0", "[20lp!][right][][50lp!][right][grow]",
+          "[][][25lp][10lp][25lp][10lp][25lp][10lp][25lp][10lp][][25lp][][10lp][][25lp][][][][][25lp][10lp][][10lp][25lp!][20lp]"));
 
       JLabel lblFiletypes = new TmmLabel(TmmResourceBundle.getString("Settings.artwork.naming"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFileNaming, lblFiletypes, true);

@@ -1976,6 +1976,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       setReleaseDate(StrgUtils.parseDate(dateAsString));
     }
     catch (ParseException ignored) {
+      // ignored
     }
   }
 
@@ -2773,6 +2774,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
           genres.add(MediaGenres.getGenre(part));
         }
         addToGenres(genres);
+      }
+
+      String date = mediaFile.getExtraData().get("releaseDate");
+      if (StringUtils.isNotBlank(date)) {
+        setReleaseDate(date);
       }
 
       if (dirty) {

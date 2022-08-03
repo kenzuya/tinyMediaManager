@@ -338,7 +338,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
         }
       }
       catch (Exception ignored) {
-        ignored.printStackTrace();
+        // ignored.printStackTrace();
       }
       finally {
         oldMediaFileEventList.getReadWriteLock().writeLock().unlock();

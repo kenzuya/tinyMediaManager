@@ -205,10 +205,14 @@ public abstract class ARDetectorTask extends TmmTask {
             iSec = videoInfo.duration - this.sampleDuration;
           }
           position = getPositionInMediaFile(relevant, iSec);
-
-          LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
-          result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
-          parseSample(result, iSec, iInc, videoInfo);
+          if (position != null) {
+            LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
+            result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
+            parseSample(result, iSec, iInc, videoInfo);
+          }
+          else {
+            LOGGER.trace("Could not get postition {} in relevant file - maybe XML only?", iSec);
+          }
         }
         catch (Exception ex) {
           LOGGER.trace("Error scanning sample - '{}'", ex.getMessage());

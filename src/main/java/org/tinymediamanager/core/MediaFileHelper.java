@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1470,8 +1471,10 @@ public class MediaFileHelper {
         // second try, w/o limitation of duration
         main = dvd.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
       }
+      if (main == null) {
+        throw new IOException("Could not identify main DVD files - using fallback.");
+      }
       prefix = "VTS_" + String.format("%02d", main.getVtsn());
-
     }
     catch (IOException e) {
       LOGGER.warn("Error parsing DVD: {} - Maybe just a MediaIfno XML?", ifomif.getFileAsPath(), e.getMessage());
@@ -1587,7 +1590,7 @@ public class MediaFileHelper {
           if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
-          if (folder.getParent() != null && folder.getParent().getFileName() != null
+          if (folder != null && folder.getParent() != null && folder.getParent().getFileName() != null
               && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
@@ -2234,7 +2237,7 @@ public class MediaFileHelper {
       mediaFile.addExtraData("originalTitle", originalTitle);
     }
 
-    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description");
+    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
     if (StringUtils.isNotBlank(plot)) {
       mediaFile.addExtraData("plot", plot);
     }
@@ -2244,10 +2247,22 @@ public class MediaFileHelper {
       mediaFile.addExtraData("genre", genre);
     }
 
-    String date = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Recorded_Date", "Date");
-    if (StringUtils.isNotBlank(date) && date.matches("^\\d{4}.*")) {
-      // try to parse out the year
-      mediaFile.addExtraData("year", date.substring(0, 4));
+    String dateAsString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
+    if (StringUtils.isNotBlank(dateAsString)) {
+      try {
+        Date date = StrgUtils.parseDate(dateAsString);
+        if (date != null) {
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date);
+          mediaFile.addExtraData("year", String.valueOf(calendar.get(Calendar.YEAR)));
+
+          // is parsable - just readd as string (will be used later)
+          mediaFile.addExtraData("releaseDate", dateAsString);
+        }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
     }
 
     String season = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Season");
@@ -2704,6 +2719,7 @@ public class MediaFileHelper {
     MediaInfoFile ifo = null;
     // FIXME: since we now have multiple files, each will overwrite the former :/
     // parse VOBs first
+    int videoDur = 0;
     for (MediaInfoFile mif : mediaInfoFiles) {
       mif.gatherMediaInformation();
       if (mif.getFileExtension().equalsIgnoreCase("vob")) {
@@ -2720,10 +2736,16 @@ public class MediaFileHelper {
             mediaFile.setOverallBitRate(0);
           }
         }
+        videoDur += mif.getDuration();
       }
       else if (mif.getFileExtension().equalsIgnoreCase("ifo")) {
         ifo = mif;
       }
+    }
+    mediaFile.setDuration(videoDur); // accumulated, maybe its right
+
+    if (ifo == null) {
+      return; // ;(
     }
 
     // do IFO last
