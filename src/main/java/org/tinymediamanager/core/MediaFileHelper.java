@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -2236,7 +2237,7 @@ public class MediaFileHelper {
       mediaFile.addExtraData("originalTitle", originalTitle);
     }
 
-    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description");
+    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
     if (StringUtils.isNotBlank(plot)) {
       mediaFile.addExtraData("plot", plot);
     }
@@ -2246,10 +2247,22 @@ public class MediaFileHelper {
       mediaFile.addExtraData("genre", genre);
     }
 
-    String date = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Recorded_Date", "Date");
-    if (StringUtils.isNotBlank(date) && date.matches("^\\d{4}.*")) {
-      // try to parse out the year
-      mediaFile.addExtraData("year", date.substring(0, 4));
+    String dateAsString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
+    if (StringUtils.isNotBlank(dateAsString)) {
+      try {
+        Date date = StrgUtils.parseDate(dateAsString);
+        if (date != null) {
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date);
+          mediaFile.addExtraData("year", String.valueOf(calendar.get(Calendar.YEAR)));
+
+          // is parsable - just readd as string (will be used later)
+          mediaFile.addExtraData("releaseDate", dateAsString);
+        }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
     }
 
     String season = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Season");
