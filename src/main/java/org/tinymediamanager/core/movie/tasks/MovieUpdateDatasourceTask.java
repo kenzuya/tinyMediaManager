@@ -783,6 +783,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // second round - try to parse additional files
     // ***************************************************************
     String bdinfoTitle = ""; // title parsed out of BDInfo
+    String bdmtTitle = ""; // title parsed out of BDMV/META/DL/*.xml
     String videoName = ""; // title from file
     for (MediaFile mf : mfs) {
       if (mf.getType().equals(MediaFileType.TEXT)) {
@@ -810,11 +811,28 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
     }
     if (isDiscFolder) {
+      // check for Bluray title info on disc
+      // have to do this direct, since we no longer get all disc MFs...
+      Path bdmt = movieDir.resolve("BDMV/META/DL/bdmt_eng.xml");
+      if (Files.exists(bdmt)) {
+        try {
+          // cannot parse XML with such weird namespaces - use the "simple" method
+          String xml = Utils.readFileToString(bdmt);
+          String name = StrgUtils.substr(xml, "di:name\\>(.*?)\\<");
+          if (!name.isEmpty()) {
+            LOGGER.debug("| Found Disc Title in Bluray META folder: {}", name);
+            bdmtTitle = name;
+          }
+        }
+        catch (IOException e) {
+          // ignore
+        }
+      }
       videoName = movieDir.getFileName().toString();
     }
 
     if (movie.getTitle().isEmpty()) {
-      // get the "cleaner" name/year combo
+      // get the "cleaner" name/year combo from
       String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(),
           MovieModuleManager.getInstance().getSettings().getBadWord());
       movie.setTitle(video[0]);
@@ -826,7 +844,24 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           // nothing to be done here
         }
       }
+
+      // overwrite title from within Bluray (trust the authoring more than the folder)
+      if (StringUtils.isNotBlank(bdmtTitle)) {
+        video = ParserUtils.detectCleanTitleAndYear(bdmtTitle, MovieModuleManager.getInstance().getSettings().getBadWord());
+        if (!video[0].isEmpty()) {
+          movie.setTitle(video[0]);
+        }
+        if (!video[1].isEmpty()) {
+          try {
+            movie.setYear(Integer.parseInt(video[1]));
+          }
+          catch (Exception ignored) {
+            // nothing to be done here
+          }
+        }
+      }
     }
+
     if (StringUtils.isBlank(movie.getTitle()) && StringUtils.isNotBlank(bdinfoTitle)) {
       movie.setTitle(bdinfoTitle);
     }
@@ -961,6 +996,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
         LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
+      }
+
+      // Check if Bluray, and if it has some inlined posters
+      if (movie.getMediaFiles(POSTER).isEmpty()) {
+        MovieArtworkHelper.extractBlurayPosters(movie);
       }
     }
 
