@@ -31,6 +31,8 @@ import org.tinymediamanager.scraper.tmdb.entities.Genre;
 import org.tinymediamanager.scraper.tmdb.entities.Translations;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
+import retrofit2.Response;
+
 /**
  * The Class TmdbMetadataProvider. A meta data, artwork and trailer provider for the site themoviedb.org
  *
@@ -77,6 +79,19 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
 
+    // check if the API should change from current key to another
+    if (api != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      if (StringUtils.isNotBlank(userApiKey) && !userApiKey.equals(api.apiKey())) {
+        // force re-initialization with new key
+        api = null;
+      }
+      else if (StringUtils.isBlank(userApiKey) && !getApiKey().equals(api.apiKey())) {
+        // force re-initialization with new key
+        api = null;
+      }
+    }
+
     // create a new instance of the tmdb api
     if (api == null) {
       if (!isActive()) {
@@ -86,11 +101,21 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
       try {
         String userApiKey = providerInfo.getConfig().getValue("apiKey");
         api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey());
-        configuration = api.configurationService().configuration().execute().body();
-        if (configuration == null) {
-          throw new ScrapeException(new Exception("Invalid TMDB API key"));
+        Response<Configuration> response = api.configurationService().configuration().execute();
+        if (response.code() == 401) {
+          throw new ScrapeException("Invalid TMDB API key");
         }
+        else if (response.body() == null) {
+          throw new ScrapeException("Could not contact TMDB API - " + response.message());
+        }
+        configuration = response.body();
         artworkBaseUrl = configuration.images.secure_base_url;
+      }
+      catch (ScrapeException e) {
+        getLogger().error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        api = null;
+        throw e;
       }
       catch (Exception e) {
         getLogger().error("could not initialize the API: {}", e.getMessage());
@@ -98,18 +123,6 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
         api = null;
         throw new ScrapeException(e);
       }
-    }
-
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey)) {
-      api.apiKey(userApiKey);
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey)) {
-      api.apiKey(getApiKey());
     }
   }
 
