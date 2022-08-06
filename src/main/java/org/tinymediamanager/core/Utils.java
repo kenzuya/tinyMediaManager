@@ -66,6 +66,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -574,7 +575,7 @@ public class Utils {
 
   public static void removeDuplicateStringFromCollectionIgnoreCase(Collection<String> original) {
     // 1. remove duplicates
-    Set<String> items = new HashSet<>(original);
+    Set<String> items = new LinkedHashSet<>(original);
 
     // 2. remove case insensitive duplicates
     Set<String> check = new HashSet<>();
