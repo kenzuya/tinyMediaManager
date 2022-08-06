@@ -767,7 +767,7 @@ public class MediaFileHelper {
 
     // gather subtitle infos independent of MI
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-      gatherSubtitleInformation(mediaFile);
+      gatherSubtitleInformationFromFilename(mediaFile);
     }
 
     // do not work further on 0 byte files
@@ -801,7 +801,8 @@ public class MediaFileHelper {
     List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
 
     // read mediainfo.xml only if the file size has not been changed
-    if (!fileSizeChanged) {
+    // and do not read when forced, else we always would use that"
+    if (!fileSizeChanged && !force) {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
@@ -1843,7 +1844,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static void gatherSubtitleInformation(MediaFile mediaFile) {
+  private static void gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
 
