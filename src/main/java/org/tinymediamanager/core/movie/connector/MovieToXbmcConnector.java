@@ -189,7 +189,7 @@ public class MovieToXbmcConnector extends MovieGenericXmlConnector {
         // does not work reliable for disc style movies, MediaInfo and even Kodi write weird values in there
         if (!movie.isDisc() && !movie.getMainVideoFile().getExtension().equalsIgnoreCase("iso")) {
           Element durationinseconds = document.createElement("durationinseconds");
-          durationinseconds.setTextContent(Integer.toString(movie.getRuntimeFromMediaFiles()));
+          durationinseconds.setTextContent(Integer.toString(movie.getRuntimeFromMediaFilesInSeconds()));
           video.appendChild(durationinseconds);
         }
 

@@ -1911,13 +1911,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   }
 
-  public int getRuntimeFromMediaFiles() {
+  public int getRuntimeFromMediaFilesInSeconds() {
     int runtime = 0;
     if (isDisc) {
       // FIXME: does not work with our fake folder MF anylonger
       // and no, we should not parse IFOs/MPLS files here (IO)
       // runtime = getRuntimeFromDvdFiles();
-      runtime = this.runtime;
+      runtime = this.runtime * 60;
     }
 
     // accumulate old version
@@ -1932,7 +1932,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public int getRuntimeFromMediaFilesInMinutes() {
-    return getRuntimeFromMediaFiles() / 60;
+    return getRuntimeFromMediaFilesInSeconds() / 60;
   }
 
   public Date getReleaseDate() {

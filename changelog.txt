@@ -1,5 +1,6 @@
 Version 4.3.3
 =======================
+x fix displaying correct runtime for disc folders
 
 
 Version 4.3.2
