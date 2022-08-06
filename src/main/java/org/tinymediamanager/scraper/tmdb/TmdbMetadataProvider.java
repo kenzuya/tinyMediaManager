@@ -69,7 +69,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, getSubId(), "themoviedb.org",
         "<html><h3>The Movie Database (TMDb)</h3><br />The largest free movie database maintained by the community. It provides metadata and artwork<br />in many different languages. Thus it is the first choice for non english users<br /><br />Available languages: multiple</html>",
-        TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.svg"));
+        TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.svg"), 50);
   }
 
   public boolean isActive() {

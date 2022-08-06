@@ -65,7 +65,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = new MediaProviderInfo(ID, "tvshow", "aniDB", "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. "
         + "AniDB is a non-profit anime database that is open " + "freely to the public.</html>",
-        AniDbTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"));
+        AniDbTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"), -10);
 
     // configure/load settings
     info.getConfig().addInteger("numberOfTags", 10);

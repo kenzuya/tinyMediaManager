@@ -93,7 +93,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, getSubId(), "thetvdb.com",
         "<html><h3>The TVDB</h3><br />An open database for television fans. This scraper is able to scrape TV series metadata and artwork</html>",
-        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.svg"));
+        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.svg"), 30);
   }
 
   public MediaProviderInfo getProviderInfo() {

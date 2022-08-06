@@ -1571,7 +1571,12 @@ public final class MovieList extends AbstractModelObject {
   private static class MovieMediaScraperComparator implements Comparator<MediaScraper> {
     @Override
     public int compare(MediaScraper o1, MediaScraper o2) {
-      return o1.getId().compareTo(o2.getId());
+      if (o1.getPriority() == o2.getPriority()) {
+        return o1.getId().compareTo(o2.getId()); // samne prio? alphabetical
+      }
+      else {
+        return Integer.compare(o2.getPriority(), o1.getPriority()); // highest first
+      }
     }
   }
 }

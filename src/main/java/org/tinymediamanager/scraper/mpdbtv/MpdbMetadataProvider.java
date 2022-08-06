@@ -43,7 +43,7 @@ abstract class MpdbMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "mpdb.tv",
         "<html><h3>MPDb.TV</h3><br />MPDb.TV is a private meta data provider for French speaking users - you may need to become a member there to use this service (more infos at http://www.mpdb.tv/)<br /><br />Available languages: FR</html>",
-        MpdbMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/mpdbtv.png"));
+        MpdbMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/mpdbtv.png"), -10);
 
     info.getConfig().addText("aboKey", "", false);
     info.getConfig().addText("username", "", false);

@@ -2,6 +2,7 @@ Version 4.3.3
 =======================
 x fix displaying correct runtime for disc folders
 x preserve tags order #1848
+x better fallback scraper selection
 
 
 Version 4.3.2

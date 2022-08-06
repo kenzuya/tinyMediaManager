@@ -64,7 +64,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "Trakt.tv",
         "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
-        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"));
+        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"), 10);
 
     info.getConfig().addText("clientId", "", true);
     info.getConfig().load();
