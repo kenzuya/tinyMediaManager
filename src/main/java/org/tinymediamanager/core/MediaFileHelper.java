@@ -801,8 +801,7 @@ public class MediaFileHelper {
     List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
 
     // read mediainfo.xml only if the file size has not been changed
-    // and do not read when forced, else we always would use that"
-    if (!fileSizeChanged && !force) {
+    if (!fileSizeChanged) {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
