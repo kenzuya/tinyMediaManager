@@ -1,9 +1,10 @@
 Version 4.3.3
 =======================
-+ redesign FileextensionTypes panel
++ redesign fo the file type panel
 x fix displaying correct runtime for disc folders
 x preserve tags order #1848
 x better fallback scraper selection
+x merging multiple items should not remove anything #1840
 
 
 Version 4.3.2
