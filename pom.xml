@@ -686,17 +686,31 @@
 											<version>${jre.version}</version>
 											<type>tar.br</type>
 										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-macos_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
 									</artifactItems>
 									<outputDirectory>${project.build.directory}/jre</outputDirectory>
 									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack-JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos_x64</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre/macos</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
 							</execution>
 							<execution>
