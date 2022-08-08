@@ -47,7 +47,7 @@ public class MovieSetDatasourceFilter extends AbstractCheckComboBoxMovieSetUIFil
 
   @Override
   public String getId() {
-    return "movieDatasource";
+    return "movieSetDatasource";
   }
 
   @Override

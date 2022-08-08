@@ -55,6 +55,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -90,6 +91,9 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
@@ -177,7 +181,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private TmmTable                                 tableWriters;
   private JTextField                               tfOriginalTitle;
   private JTextField                               tfThumb;
-  private JTextField                               tfNote;
+  private JTextArea                                taNote;
 
   /**
    * Instantiates a new TV show episode scrape dialog.
@@ -216,12 +220,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       tfTitle.setText(episodeToEdit.getTitle());
       tfOriginalTitle.setText(episodeToEdit.getOriginalTitle());
       cbDvdOrder.setSelected(episodeToEdit.isDvdOrder());
-      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, 9999, 1));
-      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, 9999, 1));
-      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, 9999, 1));
-      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, 9999, 1));
-      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, 9999, 1));
-      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, 9999, 1));
+      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, 999999, 1));
+      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, 999999, 1));
+      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, 999999, 1));
+      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, 999999, 1));
+      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, 999999, 1));
+      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, 999999, 1));
       spDateAdded.setValue(episodeToEdit.getDateAdded());
       spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 0.1));
 
@@ -231,7 +235,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       taPlot.setText(episodeToEdit.getPlot());
       taPlot.setCaretPosition(0);
       cbMediaSource.setSelectedItem(episodeToEdit.getMediaSource());
-      tfNote.setText(episodeToEdit.getNote());
+      taNote.setText(episodeToEdit.getNote());
 
       for (Person origCast : episodeToEdit.getActors()) {
         guests.add(new Person(origCast));
@@ -261,7 +265,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       JPanel detailsPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), detailsPanel);
       detailsPanel.setLayout(new MigLayout("", "[][20lp:75lp,grow][50lp:75lp][][60lp:75lp][50lp:75lp][20lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][pref:pref:pref][]"));
+          "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][50lp:50lp:100lp,grow 50][]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
@@ -423,10 +427,16 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
       {
         JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-        detailsPanel.add(lblNoteT, "cell 0 12,alignx trailing");
+        detailsPanel.add(lblNoteT, "cell 0 12,alignx right,aligny top");
 
-        tfNote = new JTextField();
-        detailsPanel.add(tfNote, "cell 1 12 7 1,growx");
+        JScrollPane scrollPane = new JScrollPane();
+        detailsPanel.add(scrollPane, "cell 1 12 7 1,grow,wmin 0");
+
+        taNote = new JTextArea();
+        taNote.setLineWrap(true);
+        taNote.setWrapStyleWord(true);
+        taNote.setForeground(UIManager.getColor("TextField.foreground"));
+        scrollPane.setViewportView(taNote);
       }
     }
 
@@ -527,7 +537,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblGuests = new TmmLabel(TmmResourceBundle.getString("metatag.guests"));
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
-        tableGuests = new PersonTable(guests, true);
+        tableGuests = new PersonTable(guests);
 
         JScrollPane scrollPane = new JScrollPane();
         tableGuests.configureScrollPane(scrollPane);
@@ -537,7 +547,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        tableDirectors = new PersonTable(directors, true);
+        tableDirectors = new PersonTable(directors);
 
         JScrollPane scrollPane = new JScrollPane();
         tableDirectors.configureScrollPane(scrollPane);
@@ -547,7 +557,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        tableWriters = new PersonTable(writers, true);
+        tableWriters = new PersonTable(writers);
 
         JScrollPane scrollPane = new JScrollPane();
         tableWriters.configureScrollPane(scrollPane);
@@ -767,7 +777,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setDisplaySeason((Integer) spDisplaySeason.getValue());
       episodeToEdit.setDisplayEpisode((Integer) spDisplayEpisode.getValue());
       episodeToEdit.setPlot(taPlot.getText());
-      episodeToEdit.setNote(tfNote.getText());
+      episodeToEdit.setNote(taNote.getText());
 
       Object mediaSource = cbMediaSource.getSelectedItem();
       if (mediaSource instanceof MediaSource) {
@@ -939,6 +949,18 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LOGGER.info(options.toString());
         LOGGER.info("=====================================================");
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
+
+        // also fill other ratings if ratings are requested
+        if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
+            if (!metadata.getRatings().contains(rating)) {
+              metadata.addRating(rating);
+            }
+          }
+        }
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");

@@ -85,6 +85,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private Float                      aspectRatio2      = null;
   @JsonProperty
+  private Float                      pixelAspectRatio  = 0f;
+  @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
   private int                        overallBitRate    = 0;
@@ -137,6 +139,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
     this.aspectRatio2 = clone.aspectRatio2;
+    this.pixelAspectRatio = clone.pixelAspectRatio;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
     this.frameRate = clone.frameRate;
@@ -353,7 +356,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isDVDFile() {
-    return MediaFileHelper.isDVDFile(filename, path);
+    return MediaFileHelper.isDVDFile(filename);
   }
 
   /**
@@ -362,7 +365,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isHDDVDFile() {
-    return MediaFileHelper.isHDDVDFile(filename, path);
+    return MediaFileHelper.isHDDVDFile(filename);
   }
 
   /**
@@ -371,7 +374,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isBlurayFile() {
-    return MediaFileHelper.isBlurayFile(filename, path);
+    return MediaFileHelper.isBlurayFile(filename);
   }
 
   /**
@@ -400,6 +403,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setContainerFormat("");
     setAspectRatio(0f);
     setAspectRatio2(null);
+    setPixelAspectRatio(0f);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -1098,6 +1102,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return this.aspectRatio2;
   }
 
+  public Float getPixelAspectRatio() {
+    return pixelAspectRatio;
+  }
+
+  public void setPixelAspectRatio(Float pixelAspectRatio) {
+    this.pixelAspectRatio = pixelAspectRatio;
+  }
+
   /**
    * get the "common" (nearest) aspect ratio
    *
@@ -1641,7 +1653,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   /**
    * <b>PHYSICALLY</b> deletes a MF by moving it to datasource backup folder<br>
-   * DS\.backup\&lt;filename&gt;<br>
+   * DS\.deletedByTMM\&lt;filename&gt;<br>
    * maintaining its orginating directory
    *
    * @param datasource

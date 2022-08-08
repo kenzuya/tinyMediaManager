@@ -32,11 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -156,7 +157,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.COLLECTION));
       }
       else {
@@ -281,7 +282,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmWatchedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.WATCHED));
       }
       else {
@@ -416,7 +417,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmRatedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.RATING));
       }
       else {
@@ -629,7 +630,7 @@ class TraktTvMovie {
     SyncMovie movie = null;
 
     MovieIds ids = new MovieIds();
-    if (MetadataUtil.isValidImdbId(tmmMovie.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(tmmMovie.getImdbId())) {
       ids.imdb = tmmMovie.getImdbId();
       hasId = true;
     }
@@ -653,14 +654,14 @@ class TraktTvMovie {
     switch (syncType) {
       case COLLECTION:
         // sync collection
-        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneId.systemDefault()));
+        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneOffset.UTC));
         break;
 
       case WATCHED:
         // sync history
         if (tmmMovie.isWatched()) {
           // watched in tmm and not in trakt -> sync
-          movie.watchedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+          movie.watchedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC));
         }
         break;
 
@@ -669,7 +670,7 @@ class TraktTvMovie {
         MediaRating userRating = tmmMovie.getUserRating();
         if (userRating != MediaMetadata.EMPTY_RATING) {
           movie.rating = Rating.fromValue(Math.round(userRating.getRating()));
-          movie.ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+          movie.ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneOffset.UTC));
         }
         break;
     }

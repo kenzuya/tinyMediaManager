@@ -44,6 +44,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.tree.AbstractLayoutCache;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
@@ -183,6 +184,7 @@ public class TmmTreeTable extends TmmTable {
     }
   }
 
+  @Override
   public void setDefaultHiddenColumns() {
     if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTreeTableModel) {
       TmmTreeTableModel tableModel = (TmmTreeTableModel) getModel();
@@ -203,6 +205,14 @@ public class TmmTreeTable extends TmmTable {
   @Override
   protected boolean useColumnConfigurator() {
     return getModel() instanceof TmmTreeTableModel;
+  }
+
+  public DefaultMutableTreeNode getTreeNode(int row) {
+    Object obj = getTreeTableModel().getValueAt(row, 0);
+    if (obj instanceof DefaultMutableTreeNode) {
+      return (DefaultMutableTreeNode) obj;
+    }
+    return null;
   }
 
   public void expandRow(int row) {

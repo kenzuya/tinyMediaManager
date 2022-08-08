@@ -32,6 +32,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
@@ -203,26 +204,245 @@ public class TvShowEpisodeAndSeasonParser {
     result.stackingMarkerFound = !Utils.getStackingMarker(filename).isEmpty();
     result.name = basename.trim();
 
-    // season detection
+    result = parseSeason(result, basename + foldername);
+    result = parseSeasonMultiEP(result, basename + foldername);
+    result = parseSeasonMultiEP2(result, basename + foldername);
+    result = parseEpisodePattern(result, basename);
+
+    // ======================================================================
+    // After here are some weird detections
+    // run them only, when we have NO result!!!
+    // so we step out here...
+    // ======================================================================
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+
+    result = parseRoman(result, basename);
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+    result = parseDatePattern(result, basename);
+    if (result.date != null) {
+      // since we have a matching date, we wont find episodes solely by number
+      return postClean(result);
+    }
+
+    // ======================================================================
+    // After here are some really, REALLY generic detections.
+    // Just take 3, 2 or 1 single number for episode
+    // strip as many as we know... it's the last change to do some detection!
+    // ======================================================================
+
+    // strip all [optionals]!
+    basename = basename.replaceAll("\\[(.*?)\\]", "");
+
+    // ignore disc files
+    MediaFile mf = new MediaFile();
+    mf.setFilename(filename); // cant use Paths.get()
+    if (mf.isDiscFile()) {
+      return postClean(result);
+    }
+
+    // multiple numbers: get consecutive ones
+    String delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
+    delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
+    delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
+    String[] numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
+    // now we have something like "8|804|2020"
+
+    result = parseNumbers3(result, numbersOnly);
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+    result = parseNumbers2(result, numbersOnly);
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+    result = parseNumbers1(result, numbersOnly);
+    return postClean(result);
+  }
+
+  private static EpisodeMatchingResult parseNumbers1(EpisodeMatchingResult result, String[] numbersOnly) {
+    for (String num : numbersOnly) {
+      if (num.length() == 1) {
+        int ep = Integer.parseInt(num); // just one :P
+        if (ep > 0 && !result.episodes.contains(ep)) {
+          result.episodes.add(ep);
+          LOGGER.trace("add found EP '{}'", ep);
+        }
+        return result;
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseNumbers2(EpisodeMatchingResult result, String[] numbersOnly) {
+    for (String num : numbersOnly) {
+      if (num.length() == 2) {
+        // Filename contains only 2 subsequent numbers; parse this as EE
+        int ep = Integer.parseInt(num);
+        if (ep > 0 && !result.episodes.contains(ep)) {
+          result.episodes.add(ep);
+          LOGGER.trace("add found EP '{}'", ep);
+        }
+        return result;
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseNumbers3(EpisodeMatchingResult result, String[] numbersOnly) {
+    for (String num : numbersOnly) {
+      if (num.length() == 3) {
+        // Filename contains only 3 subsequent numbers; parse this as SEE
+        int s = Integer.parseInt(num.substring(0, 1));
+        int ep = Integer.parseInt(num.substring(1));
+        if (ep > 0 && !result.episodes.contains(ep)) {
+          result.episodes.add(ep);
+          LOGGER.trace("add found EP '{}'", ep);
+        }
+        LOGGER.trace("add found season '{}'", s);
+        result.season = s;
+        // for 3 character numbers, we iterate multiple times!
+        // do not stop on first one"
+        // return result;
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseDatePattern(EpisodeMatchingResult result, String name) {
+    Matcher m;
     if (result.season == -1) {
-      regex = SEASON_PATTERN;
-      m = regex.matcher(foldername + basename);
+      // Date1 pattern yyyy-mm-dd
+      m = date1.matcher(name);
       if (m.find()) {
         int s = result.season;
         try {
-          s = Integer.parseInt(m.group(2));
+          s = Integer.parseInt(m.group(1));
+          result.date = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
+        }
+        catch (NumberFormatException | ParseException nfe) {
+          // can not happen from regex since we only come here with max 2 numeric chars
+        }
+        result.season = s;
+        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
+        return result; // since we have a matching year, we wont find episodes solely by number
+      }
+    }
+    if (result.season == -1) {
+      // Date2 pattern dd-mm-yyyy
+      m = date2.matcher(name);
+      if (m.find()) {
+        int s = result.season;
+        try {
+          s = Integer.parseInt(m.group(3));
+          result.date = new SimpleDateFormat("dd-MM-yyyy").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
+        }
+        catch (NumberFormatException | ParseException nfe) {
+          // can not happen from regex since we only come here with max 2 numeric chars
+        }
+        result.season = s;
+        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
+        return result; // since we have a matching year, we wont find episodes solely by number
+      }
+    }
+
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseRoman(EpisodeMatchingResult result, String name) {
+    Pattern regex;
+    Matcher m;
+    // parse Roman only when not found anything else!!
+    if (result.episodes.isEmpty()) {
+      regex = romanPattern;
+      m = regex.matcher(name);
+      while (m.find()) {
+        int ep = 0;
+        ep = decodeRoman(m.group(2));
+        if (ep > 0 && !result.episodes.contains(ep)) {
+          result.episodes.add(ep);
+          LOGGER.trace("add found EP '{}'", ep);
+        }
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseEpisodePattern(EpisodeMatchingResult result, String name) {
+    Pattern regex;
+    Matcher m;
+    // Episode-only parsing, when previous styles didn't find anything!
+    if (result.episodes.isEmpty()) {
+      regex = episodePattern2;
+      m = regex.matcher(name);
+      while (m.find()) {
+        int ep = 0;
+        try {
+          ep = Integer.parseInt(m.group(1));
         }
         catch (NumberFormatException nfe) {
           // can not happen from regex since we only come here with max 2 numeric chars
         }
+        if (ep > 0 && !result.episodes.contains(ep)) {
+          result.episodes.add(ep);
+          LOGGER.trace("add found EP '{}'", ep);
+        }
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseSeasonMultiEP2(EpisodeMatchingResult result, String name) {
+    Pattern regex;
+    Matcher m;
+    // parse XYY or XX_YY 1-N
+    regex = seasonMultiEP2;
+    m = regex.matcher(name);
+    while (m.find()) {
+      int s = -1;
+      try {
+        // for the case of name.1x02x03.ext
+        if (m.group(2) != null && result.season == -1) {
+          s = Integer.parseInt(m.group(1));
+        }
+        String eps = m.group(2); // name.s01"ep02-02-04".ext
+        // now we have a string of 1-N episodes - parse them
+        Pattern regex2 = episodePattern; // episode fixed to 1-2 chars
+        Matcher m2 = regex2.matcher(eps);
+        while (m2.find()) {
+          int ep = 0;
+          try {
+            ep = Integer.parseInt(m2.group(1));
+          }
+          catch (NumberFormatException nfe) {
+            // can not happen from regex since we only come here with max 2 numeric chars
+          }
+          if (ep > 0 && !result.episodes.contains(ep)) {
+            result.episodes.add(ep);
+            LOGGER.trace("add found EP '{}'", ep);
+          }
+        }
+      }
+      catch (NumberFormatException nfe) {
+        // can not happen from regex since we only come here with max 2 numeric chars
+      }
+      if (s >= 0) {
         result.season = s;
         LOGGER.trace("add found season '{}'", s);
       }
     }
+    return result;
+  }
 
+  private static EpisodeMatchingResult parseSeasonMultiEP(EpisodeMatchingResult result, String name) {
+    Pattern regex;
+    Matcher m;
     // parse SxxEPyy 1-N
     regex = seasonMultiEP;
-    m = regex.matcher(foldername + basename);
+    m = regex.matcher(name);
     int lastFoundEpisode = 0;
     while (m.find()) {
       int s = -1;
@@ -257,174 +477,29 @@ public class TvShowEpisodeAndSeasonParser {
         LOGGER.trace("add found season '{}", s);
       }
     }
+    return result;
+  }
 
-    // parse XYY or XX_YY 1-N
-    regex = seasonMultiEP2;
-    m = regex.matcher(foldername + basename);
-    while (m.find()) {
-      int s = -1;
-      try {
-        // for the case of name.1x02x03.ext
-        if (m.group(2) != null && result.season == -1) {
-          s = Integer.parseInt(m.group(1));
-        }
-        String eps = m.group(2); // name.s01"ep02-02-04".ext
-        // now we have a string of 1-N episodes - parse them
-        Pattern regex2 = episodePattern; // episode fixed to 1-2 chars
-        Matcher m2 = regex2.matcher(eps);
-        while (m2.find()) {
-          int ep = 0;
-          try {
-            ep = Integer.parseInt(m2.group(1));
-          }
-          catch (NumberFormatException nfe) {
-            // can not happen from regex since we only come here with max 2 numeric chars
-          }
-          if (ep > 0 && !result.episodes.contains(ep)) {
-            result.episodes.add(ep);
-            LOGGER.trace("add found EP '{}'", ep);
-          }
-        }
-      }
-      catch (NumberFormatException nfe) {
-        // can not happen from regex since we only come here with max 2 numeric chars
-      }
-      if (s >= 0) {
-        result.season = s;
-        LOGGER.trace("add found season '{}'", s);
-      }
-    }
-
-    // Episode-only parsing, when previous styles didn't find anything!
-    if (result.episodes.isEmpty()) {
-      regex = episodePattern2;
-      m = regex.matcher(basename);
-      while (m.find()) {
-        int ep = 0;
+  private static EpisodeMatchingResult parseSeason(EpisodeMatchingResult result, String name) {
+    Pattern regex;
+    Matcher m;
+    // season detection
+    if (result.season == -1) {
+      regex = SEASON_PATTERN;
+      m = regex.matcher(name);
+      if (m.find()) {
+        int s = result.season;
         try {
-          ep = Integer.parseInt(m.group(1));
+          s = Integer.parseInt(m.group(2));
         }
         catch (NumberFormatException nfe) {
           // can not happen from regex since we only come here with max 2 numeric chars
         }
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
-        }
-      }
-    }
-
-    // ======================================================================
-    // After here are some generic detections
-    // run them only, when we have NO result!!!
-    // so we step out here...
-    // ======================================================================
-    if (!result.episodes.isEmpty()) {
-      return postClean(result);
-    }
-
-    // parse Roman only when not found anything else!!
-    if (result.episodes.isEmpty()) {
-      regex = romanPattern;
-      m = regex.matcher(basename);
-      while (m.find()) {
-        int ep = 0;
-        ep = decodeRoman(m.group(2));
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
-        }
-      }
-    }
-
-    if (result.season == -1) {
-      // Date1 pattern yyyy-mm-dd
-      m = date1.matcher(basename);
-      if (m.find()) {
-        int s = result.season;
-        try {
-          s = Integer.parseInt(m.group(1));
-          result.date = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
-        }
-        catch (NumberFormatException | ParseException nfe) {
-          // can not happen from regex since we only come here with max 2 numeric chars
-        }
         result.season = s;
-        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
-        return postClean(result); // since we have a matching year, we wont find episodes solely by number
-      }
-    }
-
-    if (result.season == -1) {
-      // Date2 pattern dd-mm-yyyy
-      m = date2.matcher(basename);
-      if (m.find()) {
-        int s = result.season;
-        try {
-          s = Integer.parseInt(m.group(3));
-          result.date = new SimpleDateFormat("dd-MM-yyyy").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
-        }
-        catch (NumberFormatException | ParseException nfe) {
-          // can not happen from regex since we only come here with max 2 numeric chars
-        }
-        result.season = s;
-        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
-        return postClean(result); // since we have a matching year, we wont find episodes solely by number
-      }
-    }
-
-    // multiple numbers: get consecutive ones
-    String delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
-    delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
-    delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
-    String[] numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
-    // now we have something like "8|804|2020"
-
-    for (String num : numbersOnly) {
-      if (num.length() == 3) {
-        // Filename contains only 3 subsequent numbers; parse this as SEE
-        int s = Integer.parseInt(num.substring(0, 1));
-        int ep = Integer.parseInt(num.substring(1));
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
-        }
         LOGGER.trace("add found season '{}'", s);
-        result.season = s;
-        // for 3 character numbers, we iterate multiple times!
-        // do not stop on first one"
-        // return result;
       }
     }
-    // did we find 3 consecutive numbers? step out...
-    if (!result.episodes.isEmpty()) {
-      return postClean(result);
-    }
-
-    for (String num : numbersOnly) {
-      if (num.length() == 2) {
-        // Filename contains only 2 subsequent numbers; parse this as EE
-        int ep = Integer.parseInt(num);
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
-        }
-        return postClean(result);
-      }
-    }
-
-    for (String num : numbersOnly) {
-      if (num.length() == 1) {
-        int ep = Integer.parseInt(num); // just one :P
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
-        }
-        return postClean(result);
-      }
-    }
-
-    return postClean(result);
+    return result;
   }
 
   private static EpisodeMatchingResult postClean(EpisodeMatchingResult emr) {

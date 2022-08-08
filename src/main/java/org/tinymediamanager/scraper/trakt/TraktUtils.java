@@ -39,6 +39,10 @@ import com.uwetrottmann.trakt5.entities.SearchResult;
 
 public class TraktUtils {
 
+  private TraktUtils() {
+    throw new IllegalAccessError();
+  }
+
   /**
    * converts a LocalDate to Date
    *
@@ -50,12 +54,11 @@ public class TraktUtils {
       // we need to add time and zone to be able to convert :|
       LocalTime time = LocalTime.of(0, 0);
       Instant instant = date.atTime(time).atZone(ZoneId.systemDefault()).toInstant();
-      Date d = DateTimeUtils.toDate(instant);
-      return d;
+      return DateTimeUtils.toDate(instant);
     }
-    catch (Exception e) {
+    catch (Exception ignored) {
+      return null;
     }
-    return null;
   }
 
   /**
@@ -66,12 +69,11 @@ public class TraktUtils {
    */
   public static Date toDate(OffsetDateTime date) {
     try {
-      Date d = DateTimeUtils.toDate(date.toInstant());
-      return d;
+      return DateTimeUtils.toDate(date.toInstant());
     }
-    catch (Exception e) {
+    catch (Exception ignored) {
+      return null;
     }
-    return null;
   }
 
   /**
@@ -91,12 +93,14 @@ public class TraktUtils {
       msr.setOverview(traktResult.movie.overview);
       msr.setYear(traktResult.movie.year);
 
-      msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.movie.ids.trakt));
-      if (traktResult.movie.ids.tmdb != null && traktResult.movie.ids.tmdb > 0) {
-        msr.setId(TMDB, String.valueOf(traktResult.movie.ids.tmdb));
-      }
-      if (StringUtils.isNotBlank(traktResult.movie.ids.imdb)) {
-        msr.setId(IMDB, traktResult.movie.ids.imdb);
+      if (traktResult.movie.ids != null) {
+        msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.movie.ids.trakt));
+        if (traktResult.movie.ids.tmdb != null && traktResult.movie.ids.tmdb > 0) {
+          msr.setId(TMDB, String.valueOf(traktResult.movie.ids.tmdb));
+        }
+        if (StringUtils.isNotBlank(traktResult.movie.ids.imdb)) {
+          msr.setId(IMDB, traktResult.movie.ids.imdb);
+        }
       }
     }
 
@@ -105,26 +109,33 @@ public class TraktUtils {
       msr.setOverview(traktResult.show.overview);
       msr.setYear(traktResult.show.year);
 
-      msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.show.ids.trakt));
-      if (traktResult.show.ids.tmdb != null && traktResult.show.ids.tmdb > 0) {
-        msr.setId(TMDB, String.valueOf(traktResult.show.ids.tmdb));
-      }
-      if (StringUtils.isNotBlank(traktResult.show.ids.imdb)) {
-        msr.setId(IMDB, traktResult.show.ids.imdb);
+      if (traktResult.show.ids != null) {
+        msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.show.ids.trakt));
+        if (traktResult.show.ids.tmdb != null && traktResult.show.ids.tmdb > 0) {
+          msr.setId(TMDB, String.valueOf(traktResult.show.ids.tmdb));
+        }
+        if (StringUtils.isNotBlank(traktResult.show.ids.imdb)) {
+          msr.setId(IMDB, traktResult.show.ids.imdb);
+        }
       }
     }
 
     if (traktResult.episode != null) {
       msr.setTitle(traktResult.episode.title);
       msr.setOverview(traktResult.episode.overview);
-      msr.setYear(traktResult.episode.first_aired.getYear());
 
-      msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.episode.ids.trakt));
-      if (traktResult.episode.ids.tmdb != null && traktResult.episode.ids.tmdb > 0) {
-        msr.setId(TMDB, String.valueOf(traktResult.episode.ids.tmdb));
+      if (traktResult.episode.first_aired != null) {
+        msr.setYear(traktResult.episode.first_aired.getYear());
       }
-      if (StringUtils.isNotBlank(traktResult.episode.ids.imdb)) {
-        msr.setId(IMDB, traktResult.episode.ids.imdb);
+
+      if (traktResult.episode.ids != null) {
+        msr.setId(TraktMetadataProvider.ID, String.valueOf(traktResult.episode.ids.trakt));
+        if (traktResult.episode.ids.tmdb != null && traktResult.episode.ids.tmdb > 0) {
+          msr.setId(TMDB, String.valueOf(traktResult.episode.ids.tmdb));
+        }
+        if (StringUtils.isNotBlank(traktResult.episode.ids.imdb)) {
+          msr.setId(IMDB, traktResult.episode.ids.imdb);
+        }
       }
     }
 

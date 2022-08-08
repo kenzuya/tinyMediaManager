@@ -66,7 +66,6 @@ public class MovieDownloadMissingArtworkAction extends TmmAction {
 
     // get options from dialog
     MovieSearchAndScrapeOptions options = dialog.getMovieSearchAndScrapeOptions();
-    options.loadDefaults();
 
     List<MovieScraperMetadataConfig> config = dialog.getMovieScraperMetadataConfig();
 

@@ -28,6 +28,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -54,6 +55,9 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -217,6 +221,17 @@ public class TvShowChooserModel extends AbstractModelObject {
       LOGGER.info("{}", options);
       LOGGER.info("=====================================================");
       metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+      // also inject other ids
+      MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_SHOW);
+
+      if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+        for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_SHOW))) {
+          if (!metadata.getRatings().contains(rating)) {
+            metadata.addRating(rating);
+          }
+        }
+      }
+
       setOverview(metadata.getPlot());
 
       if (StringUtils.isBlank(posterUrl) && !metadata.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {

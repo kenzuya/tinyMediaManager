@@ -118,7 +118,7 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
 
     MediaFile mediaFile = movie.getMainVideoFile();
 
-    int runtime = movie.getRuntimeFromMediaFiles();
+    int runtime = movie.getRuntimeFromMediaFilesInSeconds();
 
     if (runtime == 0) {
       lblRuntime.setText("");

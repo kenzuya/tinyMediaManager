@@ -109,19 +109,32 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   @Override
   public void processTaskEvent(final TmmTaskHandle task) {
     SwingUtilities.invokeLater(() -> {
-      if (task.getState() == TmmTaskHandle.TaskState.CREATED || task.getState() == TmmTaskHandle.TaskState.QUEUED) {
-        addListItem(task);
+      TmmTaskHandle.TaskState state = task.getState();
+      if (state == null) {
+        return;
       }
-      else if (task.getState() == TmmTaskHandle.TaskState.STARTED) {
-        TaskListComponent comp = taskMap.get(task);
-        if (comp == null) {
+
+      switch (state) {
+        case CREATED:
+        case QUEUED:
           addListItem(task);
-          comp = taskMap.get(task);
-        }
-        comp.updateTaskInformation();
-      }
-      else if (task.getState() == TmmTaskHandle.TaskState.CANCELLED || task.getState() == TmmTaskHandle.TaskState.FINISHED) {
-        removeListItem(task);
+          break;
+
+        case STARTED:
+          TaskListComponent comp = taskMap.get(task);
+          if (comp == null) {
+            addListItem(task);
+            comp = taskMap.get(task);
+          }
+          comp.updateTaskInformation();
+          break;
+
+        case FINISHED:
+        case CANCELLED:
+        case FAILED:
+        default:
+          removeListItem(task);
+          break;
       }
     });
   }

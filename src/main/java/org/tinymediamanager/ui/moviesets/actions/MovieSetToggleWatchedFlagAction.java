@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -39,8 +38,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetToggleWatchedFlagAction extends TmmAction {
-  private static final long           serialVersionUID = 2866581962767395824L;
-
+  private static final long serialVersionUID = 2866581962767395824L;
 
   public MovieSetToggleWatchedFlagAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.togglewatchedflag"));
@@ -55,7 +53,6 @@ public class MovieSetToggleWatchedFlagAction extends TmmAction {
     selectedMovies = selectedMovies.stream().filter(movie -> !(movie instanceof MovieSet.MovieSetMovie)).collect(Collectors.toList());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

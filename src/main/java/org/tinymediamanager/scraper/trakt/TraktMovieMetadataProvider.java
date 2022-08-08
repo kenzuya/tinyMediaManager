@@ -22,7 +22,10 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -42,12 +45,13 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.uwetrottmann.trakt5.entities.CastMember;
 import com.uwetrottmann.trakt5.entities.Credits;
@@ -63,7 +67,8 @@ import retrofit2.Response;
  * The class TraktMovieMetadataProvider is used to provide metadata for movies from trakt.tv
  */
 
-public class TraktMovieMetadataProvider extends TraktMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
+public class TraktMovieMetadataProvider extends TraktMetadataProvider
+    implements IMovieMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider, IMediaIdProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktMovieMetadataProvider.class);
 
   @Override
@@ -118,7 +123,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
 
       // also try to get the poster url from tmdb
-      if (tmdb.isActive() && MetadataUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
+      if (tmdb.isActive() && MediaIdUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
         try {
           ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
           tmdbOptions.setIds(m.getIds());
@@ -148,6 +153,8 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
+
     String id = options.getIdAsString(getId());
 
     // alternatively we can take the imdbid
@@ -156,7 +163,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
     }
 
     if (StringUtils.isBlank(id)) {
-      LOGGER.warn("no id available");
+      LOGGER.debug("no id available");
       throw new MissingIdException(MediaMetadata.IMDB, getId());
     }
 
@@ -209,15 +216,17 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
     md.addCertification(MediaCertification.findCertification(movie.certification));
     md.setReleaseDate(TraktUtils.toDate(movie.released));
 
-    try {
-      MediaRating rating = new MediaRating("trakt");
-      rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
-      rating.setVotes(movie.votes);
-      rating.setMaxValue(10);
-      md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    if (movie.rating != null && movie.votes != null) {
+      try {
+        MediaRating rating = new MediaRating("trakt");
+        rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
+        rating.setVotes(movie.votes);
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
     }
 
     // ids
@@ -226,7 +235,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
       if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
         md.setId(TMDB, movie.ids.tmdb);
       }
-      if (MetadataUtil.isValidImdbId(movie.ids.imdb)) {
+      if (MediaIdUtil.isValidImdbId(movie.ids.imdb)) {
         md.setId(IMDB, movie.ids.imdb);
       }
     }
@@ -253,14 +262,125 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
       }
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
+    return md;
+  }
+
+  @Override
+  public List<MediaRating> getRatings(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyList();
+    }
+
+    LOGGER.debug("getRatings(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    String id = MediaIdUtil.getIdAsString(ids, getId());
+
+    // alternatively we can take the imdbid
+    if (StringUtils.isBlank(id)) {
+      id = MediaIdUtil.getIdAsString(ids, IMDB);
+    }
+
+    if (StringUtils.isBlank(id)) {
+      LOGGER.debug("no id available");
+      throw new MissingIdException(MediaMetadata.IMDB, getId());
+    }
+
+    // scrape
+    LOGGER.debug("Trakt.tv: getMetadata: id = {}", id);
+
+    Movie movie;
+    try {
+      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      movie = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (movie == null) {
+      LOGGER.debug("nothing found");
+      throw new NothingFoundException();
+    }
+
+    if (movie.rating != null && movie.votes != null) {
+      try {
+        MediaRating rating = new MediaRating("trakt");
+        rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
+        rating.setVotes(movie.votes);
+        rating.setMaxValue(10);
+        return Collections.singletonList(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
       }
     }
 
-    return md;
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Map<String, Object> getMediaIds(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyMap();
+    }
+
+    LOGGER.debug("getMediaIds: {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    // we can get other ids via IMDB or Trakt.tv ID
+    String id = MediaIdUtil.getIdAsString(ids, getId());
+
+    // alternatively we can take the imdbid
+    if (StringUtils.isBlank(id)) {
+      id = MediaIdUtil.getIdAsString(ids, IMDB);
+    }
+
+    if (StringUtils.isBlank(id)) {
+      LOGGER.debug("neither trakt.tv nor imdb available");
+      throw new MissingIdException(MediaMetadata.IMDB, getId());
+    }
+
+    Movie movie = null;
+    try {
+      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      movie = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (movie == null) {
+      LOGGER.warn("nothing found");
+      throw new NothingFoundException();
+    }
+
+    // ids
+    Map<String, Object> scrapedIds = new HashMap<>();
+
+    if (movie.ids != null) {
+      scrapedIds.put(getId(), movie.ids.trakt);
+      if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
+        scrapedIds.put(TMDB, movie.ids.tmdb);
+      }
+      if (MediaIdUtil.isValidImdbId(movie.ids.imdb)) {
+        scrapedIds.put(IMDB, movie.ids.imdb);
+      }
+    }
+    return scrapedIds;
   }
 }

@@ -73,7 +73,6 @@ import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
-import org.tinymediamanager.ui.tvshows.TvShowOtherIdsConverter;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
@@ -508,10 +507,9 @@ public class TvShowInformationPanel extends InformationPanel {
         tvShowSelectionModelBeanProperty_10, lblRuntime, jLabelBeanProperty);
     autoBinding_10.bind();
     //
-    BeanProperty<TvShowSelectionModel, Map<String, Object>> tvShowSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShow.ids");
+    BeanProperty<TvShowSelectionModel, Map<String, Object>> tvShowSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShow.otherIds");
     AutoBinding<TvShowSelectionModel, Map<String, Object>, JTextPane, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowSelectionModel, tvShowSelectionModelBeanProperty_11, taOtherIds, jTextPaneBeanProperty);
-    autoBinding_11.setConverter(new TvShowOtherIdsConverter());
     autoBinding_11.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShow.status.localizedName");

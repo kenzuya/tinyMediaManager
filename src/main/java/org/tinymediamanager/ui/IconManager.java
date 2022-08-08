@@ -78,19 +78,20 @@ public class IconManager {
   public static final ImageIcon              RATING_USER                  = createSVGIcon("rating-user.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_IMDB                  = createSVGIcon("rating-imdb.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_TMDB                  = createSVGIcon("rating-tmdb.svg", new Dimension(36, 36), true);
-  public static final ImageIcon              RATING_ROTTEN_TOMATOES       = createSVGIcon("rating-rottentomatoes.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_TOMATOMETER           = createSVGIcon("rating-tomatometer.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(53, 36), true);
   public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(36, 36), true);
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
-  public static final ImageIcon              APPLY                        = createMenuIcon("check-circle.svg");
+  public static final ImageIcon              APPLY                        = createMenuIcon("circle-check.svg");
   public static final ImageIcon              ASPECT_RATIO_BLUE            = createMenuIcon("ruler-combined-solid.svg");
+  public static final ImageIcon              BARCODE                      = createMenuIcon("barcode.svg");
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
   public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");
   public static final ImageIcon              CONNECT                      = createMenuIcon("link.svg");
-  public static final ImageIcon              DELETE                       = createMenuIcon("times.svg");
+  public static final ImageIcon              DELETE                       = createMenuIcon("xmark.svg");
   public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
   public static final ImageIcon              DISCONNECT                   = createMenuIcon("unlink.svg");
   public static final ImageIcon              DOWNLOAD                     = createMenuIcon("download.svg");
@@ -98,8 +99,9 @@ public class IconManager {
   public static final ImageIcon              EDIT                         = createMenuIcon("edit.svg");
   public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
   public static final ImageIcon              FILTER                       = createMenuIcon("filter.svg");
-  public static final ImageIcon              HELP                         = createMenuIcon("question-circle.svg");
-  public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
+  public static final ImageIcon              FOLDER_OPEN                  = createMenuIcon("folder-open.svg");
+  public static final ImageIcon              HELP                         = createMenuIcon("circle-question.svg");
+  public static final ImageIcon              HINT                         = createMenuIcon("circle-info.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              KODI                         = createMenuIcon("kodi.svg");
   public static final ImageIcon              LIST                         = createMenuIcon("list.svg");
@@ -108,7 +110,7 @@ public class IconManager {
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");
   public static final ImageIcon              MUSIC                        = createMenuIcon("music.svg");
-  public static final ImageIcon              NFO_BLUE                     = createMenuIcon("file-alt.svg");
+  public static final ImageIcon              NFO_BLUE                     = createMenuIcon("file-lines.svg");
   public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
   public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
@@ -116,46 +118,46 @@ public class IconManager {
   public static final ImageIcon              RATING_BLUE                  = createMenuIcon("star.svg");
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
-  public static final ImageIcon              THUMB                        = createMenuIcon("photo-video.svg");
+  public static final ImageIcon              THUMB                        = createMenuIcon("photo-film.svg");
   public static final ImageIcon              UNLOCK_BLUE                  = createMenuIcon("lock-open-alt.svg");
   public static final ImageIcon              VOLUME                       = createMenuIcon("volume.svg");
   public static final ImageIcon              WATCHED_MENU                 = createMenuIcon("play.svg");
 
   // font awesome icons for the table/tree
   public static final ImageIcon              TABLE_OK                     = createSVGIcon("check.svg", new Color(31, 187, 0));
-  public static final ImageIcon              TABLE_PROBLEM                = createSVGIcon("exclamation-triangle.svg", new Color(204, 120, 50));
-  public static final ImageIcon              TABLE_NOT_OK                 = createSVGIcon("times.svg", new Color(204, 2, 2));
+  public static final ImageIcon              TABLE_PROBLEM                = createSVGIcon("triangle-exclamation.svg", new Color(204, 120, 50));
+  public static final ImageIcon              TABLE_NOT_OK                 = createSVGIcon("xmark.svg", new Color(204, 2, 2));
 
   // font awesome icons normal
-  public static final ImageIcon              CANCEL                       = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              CANCEL                       = createSVGIcon("circle-xmark.svg");
   public static final ImageIcon              CARET_UP                     = createSVGIcon("chevron-up.svg");
   public static final ImageIcon              CARET_DOWN                   = createSVGIcon("chevron-down.svg");
-  public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("times-circle.svg");
-  public static final ImageIcon              COLLAPSED                    = createSVGIcon("chevron-square-down.svg");
+  public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("circle-xmark.svg");
+  public static final ImageIcon              COLLAPSED                    = createSVGIcon("square-chevron-down.svg");
   public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
-  public static final ImageIcon              DATE_PICKER                  = createSVGIcon("calendar-alt.svg");
+  public static final ImageIcon              DATE_PICKER                  = createSVGIcon("calendar-lines.svg");
   public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
-  public static final ImageIcon              ERROR                        = createSVGIcon("times-circle.svg");
-  public static final ImageIcon              EXPANDED                     = createSVGIcon("chevron-square-right.svg");
-  public static final ImageIcon              WARN                         = createSVGIcon("exclamation-triangle.svg");
-  public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("exclamation-triangle.svg", Color.RED);
-  public static final ImageIcon              INFO                         = createSVGIcon("info-circle.svg");
+  public static final ImageIcon              ERROR                        = createSVGIcon("circle-xmark.svg");
+  public static final ImageIcon              EXPANDED                     = createSVGIcon("square-chevron-right.svg");
+  public static final ImageIcon              WARN                         = createSVGIcon("triangle-exclamation.svg");
+  public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("triangle-exclamation.svg", Color.RED);
+  public static final ImageIcon              INFO                         = createSVGIcon("circle-info.svg");
   public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
-  public static final ImageIcon              NEW_GREEN                    = createSVGIcon("plus-circle.svg", new Color(31, 187, 0));
+  public static final ImageIcon              NEW_GREEN                    = createSVGIcon("circle-plus.svg", new Color(31, 187, 0));
   public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
   public static final ImageIcon              SAVE                         = createSVGIcon("save.svg");
   public static final ImageIcon              SEARCH_GREY                  = createSVGIcon("search.svg");
-  public static final ImageIcon              STOP                         = createSVGIcon("stop-circle.svg");
+  public static final ImageIcon              STOP                         = createSVGIcon("circle-stop.svg");
   public static final ImageIcon              UNDO_GREY                    = createSVGIcon("undo.svg");
 
   // font awesome icons light (button usage)
   public static final ImageIcon              ADD_INV                      = createButtonIcon("plus.svg");
   public static final ImageIcon              ARROW_UP_INV                 = createButtonIcon("chevron-up.svg");
   public static final ImageIcon              ARROW_DOWN_INV               = createButtonIcon("chevron-down.svg");
-  public static final ImageIcon              APPLY_INV                    = createButtonIcon("check-circle.svg");
-  public static final ImageIcon              BACK_INV                     = createButtonIcon("chevron-circle-left.svg");
-  public static final ImageIcon              CANCEL_INV                   = createButtonIcon("times-circle.svg");
-  public static final ImageIcon              CHECK_ALL                    = createButtonIcon("check-square.svg");
+  public static final ImageIcon              APPLY_INV                    = createButtonIcon("circle-check.svg");
+  public static final ImageIcon              BACK_INV                     = createButtonIcon("circle-chevron-left.svg");
+  public static final ImageIcon              CANCEL_INV                   = createButtonIcon("circle-xmark.svg");
+  public static final ImageIcon              CHECK_ALL                    = createButtonIcon("square-check.svg");
   public static final ImageIcon              CLEAR_ALL                    = createButtonIcon("square.svg");
   public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
   public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
@@ -166,7 +168,7 @@ public class IconManager {
   public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");
   public static final ImageIcon              REMOVE_INV                   = createButtonIcon("minus.svg");
   public static final ImageIcon              SEARCH_INV                   = createButtonIcon("search.svg");
-  public static final ImageIcon              STOP_INV                     = createButtonIcon("stop-circle.svg");
+  public static final ImageIcon              STOP_INV                     = createButtonIcon("circle-stop.svg");
 
   // font awesome icons - column headers
   public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume.svg");
@@ -175,7 +177,7 @@ public class IconManager {
   public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
   public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
   public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");
-  public static final ImageIcon              DATE_AIRED                   = createTableHeaderIcon("calendar-alt.svg");
+  public static final ImageIcon              DATE_AIRED                   = createTableHeaderIcon("calendar-lines.svg");
   public static final ImageIcon              DATE_CREATED                 = createTableHeaderIcon("calendar-star.svg");
   public static final ImageIcon              EDITION                      = createTableHeaderIcon("compact-disc.svg");
   public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
@@ -188,8 +190,8 @@ public class IconManager {
   public static final ImageIcon              LOCK                         = createTableHeaderIcon("lock-alt.svg");
   public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
   public static final ImageIcon              MUSIC_HEADER                 = createTableHeaderIcon("music.svg");
-  public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");
-  public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
+  public static final ImageIcon              NEW                          = createTableHeaderIcon("circle-plus.svg");
+  public static final ImageIcon              NFO                          = createTableHeaderIcon("file-lines.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
   public static final ImageIcon              RUNTIME                      = createTableHeaderIcon("clock.svg");
   public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
@@ -202,15 +204,19 @@ public class IconManager {
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
   public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
   public static final ImageIcon              VIDEO_BITRATE                = createTableHeaderIcon("tachometer-fast.svg");
-  public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
+  public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video.svg");
   public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
   public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
 
   // sort icons for glazedlists
   public static final ImageIcon              SORT_UP_PRIMARY              = createSVGIcon("chevron-up.svg", 0.833);
-  public static final ImageIcon              SORT_UP_SECONDARY            = createSVGIcon("chevron-double-up.svg", 0.833);
+  public static final ImageIcon              SORT_UP_SECONDARY            = createSVGIcon("chevrons-up.svg", 0.833);
   public static final ImageIcon              SORT_DOWN_PRIMARY            = createSVGIcon("chevron-down.svg", 0.833);
-  public static final ImageIcon              SORT_DOWN_SECONDARY          = createSVGIcon("chevron-double-down.svg", 0.833);
+  public static final ImageIcon              SORT_DOWN_SECONDARY          = createSVGIcon("chevrons-down.svg", 0.833);
+
+  private IconManager() {
+    throw new IllegalAccessError();
+  }
 
   private static ImageIcon loadImage(String name) {
     URL file = IconManager.class.getResource("images/interface/" + name);

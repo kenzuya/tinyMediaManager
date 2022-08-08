@@ -61,7 +61,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -307,7 +307,7 @@ public class MovieSet extends MediaEntity {
       if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
         found = true;
       }
-      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
         found = true;
       }
 
@@ -357,7 +357,7 @@ public class MovieSet extends MediaEntity {
       if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
         found = true;
       }
-      if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
         found = true;
       }
 
@@ -392,7 +392,7 @@ public class MovieSet extends MediaEntity {
             found = true;
             break;
           }
-          if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+          if (MediaIdUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
             found = true;
             break;
           }
@@ -477,33 +477,6 @@ public class MovieSet extends MediaEntity {
     for (MediaFileType type : types) {
       MovieSetArtworkHelper.downloadArtwork(this, type);
     }
-  }
-
-  /**
-   * do we have basic images? Poster is checked.<br>
-   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
-   *
-   * @return the checks for images
-   */
-  @Deprecated
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER)) {
-      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * do we have basic metadata filled?<br>
-   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
-   *
-   * @return true/false
-   */
-  @Deprecated
-  public Boolean getHasMetadata() {
-    return StringUtils.isNoneBlank(title, plot);
   }
 
   public Boolean isWatched() {

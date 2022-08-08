@@ -93,6 +93,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.interfaces.IMediaArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -843,6 +844,10 @@ public class ImageChooserDialog extends TmmDialog {
             art = new MediaArtwork("", MediaArtworkType.SEASON_POSTER);
             break;
 
+          case SEASON_FANART:
+            art = new MediaArtwork("", MediaArtworkType.SEASON_FANART);
+            break;
+
           case SEASON_BANNER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_BANNER);
             break;
@@ -1152,6 +1157,7 @@ public class ImageChooserDialog extends TmmDialog {
           else {
             continue;
           }
+
           switch (type) {
             case POSTER:
               options.setArtworkType(MediaArtworkType.POSTER);
@@ -1167,6 +1173,10 @@ public class ImageChooserDialog extends TmmDialog {
 
             case SEASON_POSTER:
               options.setArtworkType(MediaArtworkType.SEASON_POSTER);
+              break;
+
+            case SEASON_FANART:
+              options.setArtworkType(MediaArtworkType.SEASON_FANART);
               break;
 
             case SEASON_BANNER:
@@ -1215,12 +1225,19 @@ public class ImageChooserDialog extends TmmDialog {
             continue;
           }
 
+          int season = MediaIdUtil.getIdAsIntOrDefault(ids, "tvShowSeason", -1);
+
           // display all images
           for (MediaArtwork art : artwork) {
             if (isCancelled()) {
               return null;
             }
             if (art.getPreviewUrl().isEmpty()) {
+              continue;
+            }
+
+            // for seasons, just use the season related artwork
+            if (season > -1 && season != art.getSeason()) {
               continue;
             }
 

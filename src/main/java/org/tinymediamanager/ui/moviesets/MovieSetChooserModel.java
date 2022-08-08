@@ -52,7 +52,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * The Class MovieSetChooserModel.
@@ -162,15 +162,15 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
       // try to match via imdbid if nothing has been found
       if (mis.getMovie() == null) {
-        if (!MetadataUtil.isValidImdbId(mis.imdbId) && mis.tmdbId > 0) {
+        if (!MediaIdUtil.isValidImdbId(mis.imdbId) && mis.tmdbId > 0) {
           // get imdbid for this tmdbid
           String imdbId = getMovieImdbIdViaTmdbId(mis.tmdbId);
-          if (MetadataUtil.isValidImdbId(imdbId)) {
+          if (MediaIdUtil.isValidImdbId(imdbId)) {
             mis.imdbId = imdbId;
           }
         }
 
-        if (MetadataUtil.isValidImdbId(mis.imdbId)) {
+        if (MediaIdUtil.isValidImdbId(mis.imdbId)) {
           for (Movie movie : moviesFromMovieList) {
             if (mis.imdbId.equals(movie.getImdbId())) {
               mis.setMovie(movie);

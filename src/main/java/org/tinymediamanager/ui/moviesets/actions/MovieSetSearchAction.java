@@ -18,12 +18,9 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetChooserDialog;
@@ -33,8 +30,7 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetChooserDialog;
  * 
  */
 public class MovieSetSearchAction extends TmmAction {
-  private static final long           serialVersionUID = -2260581786599155278L;
-
+  private static final long serialVersionUID = -2260581786599155278L;
 
   /**
    * Instantiates a new search movie set action.
@@ -51,7 +47,6 @@ public class MovieSetSearchAction extends TmmAction {
     List<MovieSet> selectedMovieSets = MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets();
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

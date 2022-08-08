@@ -299,6 +299,9 @@ public class ImageCache {
 
       scaledImage.flush();
 
+      // give it a few milliseconds for being written to the filesystem
+      Thread.sleep(150);
+
       if (!Files.exists(cachedFile)) {
         throw new IOException("unable to cache file: " + originalFile);
       }
@@ -508,8 +511,7 @@ public class ImageCache {
     }
 
     try {
-      Path p = cacheImage(mediaFile);
-      return p;
+      return cacheImage(mediaFile);
     }
     catch (EmptyFileException e) {
       LOGGER.debug("failed to cache file (file is empty): {}", path);

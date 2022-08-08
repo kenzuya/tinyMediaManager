@@ -100,6 +100,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           break;
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }
@@ -172,6 +173,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           addActors(episode, parserEpisode);
           addTrailer(episode, parserEpisode);
           addDateAdded(episode, parserEpisode);
+          addLockdata(episode, parserEpisode);
 
           // add connector specific tags
           addOwnTags(episode, parserEpisode);
@@ -500,6 +502,19 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
   }
 
   /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
+  }
+
+  /**
    * add the aired date in <aired>xxx</aired>
    */
   protected void addAired(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
@@ -583,6 +598,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     for (Person writer : episode.getWriters()) {
       Element element = document.createElement("credits");
       element.setTextContent(writer.getName());
+
+      addPersonIdsAsAttributes(element, writer);
+
       root.appendChild(element);
     }
   }
@@ -594,6 +612,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     for (Person director : episode.getDirectors()) {
       Element element = document.createElement("director");
       element.setTextContent(director.getName());
+
+      addPersonIdsAsAttributes(element, director);
+
       root.appendChild(element);
     }
   }
@@ -609,37 +630,25 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       name.setTextContent(tvShowActor.getName());
       actor.appendChild(name);
 
-      Element role = document.createElement("role");
-      role.setTextContent(tvShowActor.getRole());
-      actor.appendChild(role);
-
-      Element thumb = document.createElement("thumb");
-      thumb.setTextContent(tvShowActor.getThumbUrl());
-      actor.appendChild(thumb);
-
-      Element profile = document.createElement("profile");
-      profile.setTextContent(tvShowActor.getProfileUrl());
-      actor.appendChild(profile);
-
-      // Element type = document.createElement("type");
-      // type.setTextContent("GuestStar");
-      // actor.appendChild(type);
-
-      // TMDB id
-      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
-        Element id = document.createElement("tmdbid");
-        id.setTextContent(String.valueOf(tmdbid));
-        actor.appendChild(id);
+      if (StringUtils.isNotBlank(tvShowActor.getRole())) {
+        Element role = document.createElement("role");
+        role.setTextContent(tvShowActor.getRole());
+        actor.appendChild(role);
       }
 
-      // IMDB id
-      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbid)) {
-        Element id = document.createElement("imdbid");
-        id.setTextContent(imdbid);
-        actor.appendChild(id);
+      if (StringUtils.isNotBlank(tvShowActor.getThumbUrl())) {
+        Element thumb = document.createElement("thumb");
+        thumb.setTextContent(tvShowActor.getThumbUrl());
+        actor.appendChild(thumb);
       }
+
+      if (StringUtils.isNotBlank(tvShowActor.getProfileUrl())) {
+        Element profile = document.createElement("profile");
+        profile.setTextContent(tvShowActor.getProfileUrl());
+        actor.appendChild(profile);
+      }
+
+      addPersonIdsAsChildren(actor, tvShowActor);
 
       root.appendChild(actor);
     }
@@ -688,9 +697,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    * add the user note in <user_note>xxx</user_note>
    */
   protected void addUserNote(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    Element user_note = document.createElement("user_note");
-    user_note.setTextContent(episode.getNote());
-    root.appendChild(user_note);
+    Element userNote = document.createElement("user_note");
+    userNote.setTextContent(episode.getNote());
+    root.appendChild(userNote);
   }
 
   /**
@@ -780,5 +789,67 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     // the first found as fallback
     return episode.getIds().keySet().stream().findFirst().orElse("");
+  }
+
+  /**
+   * add all well known ids for the given {@link Person} as XML attributes
+   *
+   * @param element
+   *          the NFO {@link Element} to add the ids to
+   * @param person
+   *          the {@link Person} to get the ids from
+   */
+  private void addPersonIdsAsAttributes(Element element, Person person) {
+    // TMDB id
+    int tmdbId = person.getIdAsInt(MediaMetadata.TMDB);
+    if (tmdbId > 0) {
+      element.setAttribute("tmdbid", String.valueOf(tmdbId));
+    }
+
+    // IMDB id
+    String imdbId = person.getIdAsString(MediaMetadata.IMDB);
+    if (StringUtils.isNotBlank(imdbId)) {
+      element.setAttribute("imdbid", imdbId);
+    }
+
+    // TVDB id
+    int tvdbId = person.getIdAsInt(MediaMetadata.TVDB);
+    if (tvdbId > 0) {
+      element.setAttribute("tvdbid", String.valueOf(tvdbId));
+    }
+  }
+
+  /**
+   * add all well known ids for the given {@link Person} as XML children
+   *
+   * @param element
+   *          the NFO {@link Element} to add the ids to
+   * @param person
+   *          the {@link Person} to get the ids from
+   */
+  private void addPersonIdsAsChildren(Element element, Person person) {
+    // TMDB id
+    int tmdbId = person.getIdAsInt(MediaMetadata.TMDB);
+    if (tmdbId > 0) {
+      Element id = document.createElement("tmdbid");
+      id.setTextContent(String.valueOf(tmdbId));
+      element.appendChild(id);
+    }
+
+    // IMDB id
+    String imdbId = person.getIdAsString(MediaMetadata.IMDB);
+    if (StringUtils.isNotBlank(imdbId)) {
+      Element id = document.createElement("imdbid");
+      id.setTextContent(imdbId);
+      element.appendChild(id);
+    }
+
+    // TVDB id
+    int tvdbId = person.getIdAsInt(MediaMetadata.TVDB);
+    if (tvdbId > 0) {
+      Element id = document.createElement("tvdbid");
+      id.setTextContent(String.valueOf(tvdbId));
+      element.appendChild(id);
+    }
   }
 }

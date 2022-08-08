@@ -2,15 +2,21 @@ stages:
   - build
   - deploy
 
+variables:
+  MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging
+  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
   environment:
     name: test
     url: https://test.tinymediamanager.org
   allow_failure: false
   tags:
-    - docker # force running on gitlab  
+    - tmm # force running on own runners
+  variables:
+    PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     # generate changelog.txt for nightly builds
     - sh generate_changelog.sh
@@ -25,38 +31,11 @@ build:
     # build macOS dmg file
     - sh AppBundler/create_dmg.sh
 
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - build/
-      - dist/
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist; chmod -R g+w ./upload/v4"
 
-deploy:
-  stage: deploy
-  needs:
-    - build
-  trigger:
-    project: tinyMediaManager/test.tinymediamanager.org
+    # and publish the files on the webserver
+    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
 
-deploy-docker:
-  stage: deploy
-  image: docker:latest
-  services:
-    - name: docker:dind
-  needs:
-    - build
-  variables:
-    IMAGE_NAME: tinymediamanager/tinymediamanager:4-nightly
-  script:
-    # login
-    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-
-    # build
-    - tar xzf dist/tmm*linux-amd64.tar.gz -C docker/
-    - cd docker
-    - docker build -f Dockerfile.test -t $IMAGE_NAME .
-
-    # push to the registry
-    - docker push $IMAGE_NAME
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'

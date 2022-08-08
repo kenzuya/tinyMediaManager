@@ -116,6 +116,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private JComboBox                            cbFilenameSpaceReplacement;
   private JComboBox                            cbMovieForPreview;
   private JCheckBox                            chckbxRemoveOtherNfos;
+  private JCheckBox                            chckbxCleanupUnwanted;
   private JCheckBox                            chckbxMoviesetSingleMovie;
 
   private TmmTable                             tableExamples;
@@ -401,8 +402,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 8 2 1");
       }
       {
+        chckbxCleanupUnwanted = new JCheckBox(TmmResourceBundle.getString("Settings.cleanupfiles"));
+        panelAdvancedOptions.add(chckbxCleanupUnwanted, "cell 1 9 2 1");
+      }
+      {
         chckbxAllowMerge = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.movie.allowmerge"));
-        panelAdvancedOptions.add(chckbxAllowMerge, "cell 1 9 2 1");
+        panelAdvancedOptions.add(chckbxAllowMerge, "cell 1 10 2 1");
       }
     }
     {
@@ -709,5 +714,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxAutomaticRename,
         jCheckBoxBeanProperty);
     autoBinding_7.bind();
+    //
+    Property movieSettingsBeanProperty_3 = BeanProperty.create("renamerCleanupUnwanted");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_3, chckbxCleanupUnwanted,
+        jCheckBoxBeanProperty);
+    autoBinding_8.bind();
   }
 }

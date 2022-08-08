@@ -81,7 +81,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -211,6 +211,8 @@ public abstract class MediaEntity extends AbstractModelObject {
         artworkUrlMap.put(key, other.getArtworkUrl(key));
       }
     }
+
+    setNote(StringUtils.isBlank(note) || force ? other.note : note);
   }
 
   /**
@@ -219,8 +221,9 @@ public abstract class MediaEntity extends AbstractModelObject {
   public void initializeAfterLoading() {
     sortMediaFiles();
 
-    // remove empty tag and null values
+    // remove empty tag, null values and case insensitive duplicates
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
   }
 
   protected void sortMediaFiles() {
@@ -770,7 +773,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     }
     else {
       // if the given ID is an imdb id but is not valid, then do not add
-      if (Constants.IMDB.equals(key) && !MetadataUtil.isValidImdbId(v)) {
+      if (Constants.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
         return;
       }
 
@@ -814,7 +817,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    return MetadataUtil.getIdAsString(ids, key);
+    return MediaIdUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -823,7 +826,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    return MetadataUtil.getIdAsInt(ids, key);
+    return MediaIdUtil.getIdAsInt(ids, key);
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {
@@ -1312,7 +1315,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
     // do not accept duplicates or empty tags
     for (String tag : ListUtils.nullSafe(newTags)) {
-      if (StringUtils.isBlank(tag) || tags.contains(tag)) {
+      if (StringUtils.isBlank(tag) || tags.stream().anyMatch(tag::equalsIgnoreCase)) {
         continue;
       }
       newItems.add(tag);
@@ -1351,6 +1354,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     // two way sync of tags
     ListUtils.mergeLists(tags, newTags);
     Utils.removeEmptyStringsFromList(tags);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(tags);
 
     firePropertyChange(TAGS, null, newTags);
     firePropertyChange(TAGS_AS_STRING, null, newTags);
@@ -1406,15 +1410,7 @@ public abstract class MediaEntity extends AbstractModelObject {
       return;
     }
 
-    // first remove old ones
-    for (int i = baseList.size() - 1; i >= 0; i--) {
-      Person entry = baseList.get(i);
-      if (!newItems.contains(entry)) {
-        baseList.remove(entry);
-      }
-    }
-
-    // second, add new ones in the right order
+    // add new ones in the right order
     for (int i = 0; i < newItems.size(); i++) {
       Person entry = newItems.get(i);
       if (!baseList.contains(entry)) {
@@ -1426,11 +1422,12 @@ public abstract class MediaEntity extends AbstractModelObject {
         }
       }
       else {
+        // or update existing ones
         int indexOldList = baseList.indexOf(entry);
 
         // merge the entries (e.g. use thumb url/profile/ids from both)
         Person oldPerson = baseList.get(indexOldList);
-        oldPerson.merge(entry, true);
+        oldPerson.merge(entry);
 
         if (i != indexOldList) {
           Person oldEntry = baseList.remove(indexOldList); // NOSONAR

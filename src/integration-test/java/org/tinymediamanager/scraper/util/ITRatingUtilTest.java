@@ -19,12 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 
 public class ITRatingUtilTest extends BasicITest {
 
   @Test
   public void testRatings() throws Exception {
-    assertThat(RatingUtil.getImdbRating("tt5719388").getRating()).isPositive();
-    assertThat(RatingUtil.getImdbRating("tt57193881111")).isNull();
+    assertThat(RatingProvider.getImdbRating("tt5719388").getRating()).isPositive();
+    assertThat(RatingProvider.getImdbRating("tt57193881111")).isNull();
   }
 }

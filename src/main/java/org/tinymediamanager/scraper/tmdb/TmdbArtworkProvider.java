@@ -177,6 +177,12 @@ class TmdbArtworkProvider {
     if (tmdbArtwork.backdrops != null) {
       tmdbArtwork.backdrops.sort(new ImageComparator(options.getLanguage().toLocale()));
     }
+    if (tmdbArtwork.stills != null) {
+      tmdbArtwork.stills.sort(new ImageComparator(options.getLanguage().toLocale()));
+    }
+    if (tmdbArtwork.logos != null) {
+      tmdbArtwork.logos.sort(new ImageComparator(options.getLanguage().toLocale()));
+    }
 
     // prepare posters
     if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtworkType.SEASON_POSTER
@@ -204,15 +210,15 @@ class TmdbArtworkProvider {
         ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
         // w500
         if (500 < image.width) {
-          ma.addImageSize(500, image.height * 500 / image.width, baseUrl + "w500" + image.file_path);
+          ma.addImageSize(500, Math.round(image.height * 500f / image.width), baseUrl + "w500" + image.file_path);
         }
         // w342
         if (342 < image.width) {
-          ma.addImageSize(342, image.height * 342 / image.width, baseUrl + "w342" + image.file_path);
+          ma.addImageSize(342, Math.round(image.height * 342f / image.width), baseUrl + "w342" + image.file_path);
         }
         // w185
         if (185 < image.width) {
-          ma.addImageSize(185, image.height * 185 / image.width, baseUrl + "w185" + image.file_path);
+          ma.addImageSize(185, Math.round(image.height * 185f / image.width), baseUrl + "w185" + image.file_path);
         }
 
         // categorize image size and write default url
@@ -239,15 +245,64 @@ class TmdbArtworkProvider {
         ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
         // 1280x720
         if (1280 < image.width) {
-          ma.addImageSize(1280, image.height * 1280 / image.width, baseUrl + "w1280" + image.file_path);
+          ma.addImageSize(1280, Math.round(image.height * 1280f / image.width), baseUrl + "w1280" + image.file_path);
         }
         // w300
         if (300 < image.width) {
-          ma.addImageSize(300, image.height * 300 / image.width, baseUrl + "w300" + image.file_path);
+          ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path);
         }
 
         // categorize image size and write default url
         prepareDefaultFanart(ma, options);
+
+        artwork.add(ma);
+      }
+    }
+
+    // stills
+    if (artworkType == MediaArtworkType.THUMB || artworkType == MediaArtwork.MediaArtworkType.ALL) {
+      for (Image image : ListUtils.nullSafe(tmdbArtwork.stills)) {
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
+        ma.setOriginalUrl(baseUrl + "original" + image.file_path);
+        ma.setLanguage(image.iso_639_1);
+        ma.setTmdbId(tmdbId);
+
+        // add different sizes
+        // original
+        ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
+
+        // w300
+        if (300 < image.width) {
+          ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path);
+        }
+
+        artwork.add(ma);
+      }
+    }
+
+    // logos
+    if (artworkType == MediaArtworkType.LOGO || artworkType == MediaArtwork.MediaArtworkType.ALL) {
+      for (Image image : ListUtils.nullSafe(tmdbArtwork.logos)) {
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
+        ma.setOriginalUrl(baseUrl + "original" + image.file_path);
+        ma.setLanguage(image.iso_639_1);
+        ma.setTmdbId(tmdbId);
+
+        // add different sizes
+        // original
+        ma.addImageSize(image.width, image.height, baseUrl + "original" + image.file_path);
+
+        // w500
+        if (500 < image.width) {
+          ma.addImageSize(500, Math.round(image.height * 500f / image.width), baseUrl + "w500" + image.file_path);
+        }
+
+        // w300
+        if (300 < image.width) {
+          ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path);
+        }
 
         artwork.add(ma);
       }
@@ -351,7 +406,7 @@ class TmdbArtworkProvider {
    * local helper classes
    *****************************************************************************************/
   private static class ImageComparator implements Comparator<Image> {
-    private String preferredLangu;
+    private final String preferredLangu;
 
     private ImageComparator(Locale locale) {
       if (locale == null) {

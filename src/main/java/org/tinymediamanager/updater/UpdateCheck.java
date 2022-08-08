@@ -18,10 +18,12 @@ package org.tinymediamanager.updater;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +32,8 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -44,12 +48,16 @@ public class UpdateCheck {
   private boolean             forceUpdate = false;
 
   public boolean isUpdateAvailable() {
+    return isUpdateAvailable(false);
+  }
+
+  public boolean isUpdateAvailable(boolean useCache) {
     if (ReleaseInfo.isGitBuild()) {
       return false;
     }
 
-    Path getdownFile = Paths.get("getdown.txt");
-    Path digestFile = Paths.get("digest.txt");
+    Path getdownFile = getFile("getdown.txt");
+    Path digestFile = getFile("digest.txt");
     LOGGER.info("Checking for updates...");
 
     ArrayList<String> updateUrls = new ArrayList<>();
@@ -70,10 +78,17 @@ public class UpdateCheck {
           uu += '/';
         }
 
-        String url = uu + "digest.txt";
+        String urlAsString = uu + "digest.txt";
 
         LOGGER.trace("Checking {}", uu);
         try {
+          Url url;
+          if (useCache) {
+            url = new OnDiskCachedUrl(urlAsString, 12, TimeUnit.HOURS);
+          }
+          else {
+            url = new Url(urlAsString);
+          }
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {
             remoteDigest = remoteDigest.trim();
@@ -86,7 +101,7 @@ public class UpdateCheck {
           Thread.currentThread().interrupt();
         }
         catch (Exception e) {
-          LOGGER.warn("Unable to download from url {} - {}", url, e.getMessage());
+          LOGGER.warn("Unable to download from url {} - {}", urlAsString, e.getMessage());
         }
         if (valid) {
           break; // no exception - step out :)
@@ -135,13 +150,13 @@ public class UpdateCheck {
         LOGGER.info("Trying fallback...");
         String fallback = "https://www.tinymediamanager.org";
         if (ReleaseInfo.isPreRelease()) {
-          fallback += "/getdown_prerelease.txt";
+          fallback += "/getdown_prerelease_v4.txt";
         }
         else if (ReleaseInfo.isNightly()) {
-          fallback += "/getdown_nightly.txt";
+          fallback += "/getdown_nightly_v4.txt";
         }
         else {
-          fallback += "/getdown.txt";
+          fallback += "/getdown_v4.txt";
         }
 
         String gd = UrlUtil.getStringFromUrl(fallback);
@@ -179,5 +194,17 @@ public class UpdateCheck {
    */
   public boolean isForcedUpdate() {
     return forceUpdate;
+  }
+
+  // FROM GETDOWN:
+  // try reading data from our backup config file; thanks to funny windows
+  // bullshit, we have to do this backup file fiddling in case we got screwed while
+  // updating getdown.txt during normal operation
+  private Path getFile(String file) {
+    Path ret = Paths.get(file);
+    if (!Files.exists(ret)) {
+      ret = Paths.get(file + "_old");
+    }
+    return ret;
   }
 }

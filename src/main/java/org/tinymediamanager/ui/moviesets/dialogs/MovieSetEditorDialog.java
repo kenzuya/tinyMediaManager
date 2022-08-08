@@ -74,7 +74,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -94,45 +94,46 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetEditorDialog extends TmmDialog {
-  private static final long   serialVersionUID    = -4446433759280691976L;
-  private static final Logger LOGGER              = LoggerFactory.getLogger(MovieSetEditorDialog.class);
-  private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String SPACER              = "        ";
+  private static final long        serialVersionUID    = -4446433759280691976L;
+  private static final Logger      LOGGER              = LoggerFactory.getLogger(MovieSetEditorDialog.class);
+  private static final String      ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final String      SPACER              = "        ";
 
-  private MovieList           movieList           = MovieModuleManager.getInstance().getMovieList();
-  private MovieSet            movieSetToEdit;
-  private List<Movie>         moviesInSet         = ObservableCollections.observableList(new ArrayList<>());
-  private List<Movie>         removedMovies       = new ArrayList<>();
-  private List<MediaScraper>  artworkScrapers     = new ArrayList<>();
-  private boolean             continueQueue       = true;
-  private boolean             navigateBack        = false;
-  private int                 queueIndex;
-  private int                 queueSize;
+  private final MovieList          movieList           = MovieModuleManager.getInstance().getMovieList();
+  private final MovieSet           movieSetToEdit;
+  private final List<Movie>        moviesInSet         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<Movie>        removedMovies       = new ArrayList<>();
+  private final List<MediaScraper> artworkScrapers     = new ArrayList<>();
+  private final int                queueIndex;
+  private final int                queueSize;
+
+  private boolean                  continueQueue       = true;
+  private boolean                  navigateBack        = false;
 
   /** UI components */
-  private JTextField          tfName;
-  private TmmTable            tableMovies;
-  private ImageLabel          lblPoster;
-  private ImageLabel          lblFanart;
-  private JTextArea           taPlot;
-  private JTextField          tfTmdbId;
+  private JTextField               tfName;
+  private TmmTable                 tableMovies;
+  private ImageLabel               lblPoster;
+  private ImageLabel               lblFanart;
+  private JTextArea                taPlot;
+  private JTextField               tfTmdbId;
 
-  private ImageLabel          lblLogo;
-  private ImageLabel          lblClearlogo;
-  private ImageLabel          lblBanner;
-  private ImageLabel          lblClearart;
-  private ImageLabel          lblDisc;
-  private ImageLabel          lblThumb;
+  private ImageLabel               lblLogo;
+  private ImageLabel               lblClearlogo;
+  private ImageLabel               lblBanner;
+  private ImageLabel               lblClearart;
+  private ImageLabel               lblDisc;
+  private ImageLabel               lblThumb;
 
-  private JTextField          tfPoster;
-  private JTextField          tfFanart;
-  private JTextField          tfLogo;
-  private JTextField          tfClearLogo;
-  private JTextField          tfBanner;
-  private JTextField          tfClearArt;
-  private JTextField          tfThumb;
-  private JTextField          tfDisc;
-  private JTextField          tfNote;
+  private JTextField               tfPoster;
+  private JTextField               tfFanart;
+  private JTextField               tfLogo;
+  private JTextField               tfClearLogo;
+  private JTextField               tfBanner;
+  private JTextField               tfClearArt;
+  private JTextField               tfThumb;
+  private JTextField               tfDisc;
+  private JTextArea                taNote;
 
   /**
    * Instantiates a new movie set editor.
@@ -159,7 +160,8 @@ public class MovieSetEditorDialog extends TmmDialog {
       JPanel panelContent = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelContent);
       panelContent
-          .setLayout(new MigLayout("", "[][400lp,grow][150lp:200lp,grow 50]", "[][][100lp:25%:25%,grow][][20lp:n][pref!][][50lp:20%:30%,grow]"));
+          .setLayout(new MigLayout("", "[][400lp,grow][150lp:200lp,grow 50]",
+              "[][][100lp:25%:25%,grow][50lp:50lp:100lp,grow 50][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
       JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
@@ -216,11 +218,16 @@ public class MovieSetEditorDialog extends TmmDialog {
       scrollPaneOverview.setViewportView(taPlot);
 
       JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-      panelContent.add(lblNoteT, "cell 0 3,alignx trailing");
+      panelContent.add(lblNoteT, "cell 0 3,alignx right,aligny top");
 
-      tfNote = new JTextField();
-      panelContent.add(tfNote, "cell 1 3,growx");
-      tfNote.setColumns(10);
+      JScrollPane scrollPane = new JScrollPane();
+      panelContent.add(scrollPane, "cell 1 3,grow,wmin 0");
+
+      taNote = new JTextArea();
+      taNote.setLineWrap(true);
+      taNote.setWrapStyleWord(true);
+      taNote.setForeground(UIManager.getColor("TextField.foreground"));
+      scrollPane.setViewportView(taNote);
 
       JLabel lblMovies = new TmmLabel(TmmResourceBundle.getString("tmm.movies"));
       panelContent.add(lblMovies, "flowy,cell 0 5,alignx right,aligny top");
@@ -548,7 +555,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       tfName.setText(movieSetToEdit.getTitle());
       tfTmdbId.setText(String.valueOf(movieSetToEdit.getTmdbId()));
       taPlot.setText(movieSetToEdit.getPlot());
-      tfNote.setText(movieSetToEdit.getNote());
+      taNote.setText(movieSetToEdit.getNote());
       moviesInSet.addAll(movieSetToEdit.getMovies());
 
       setArtworkPath(MediaFileType.POSTER, lblPoster);
@@ -662,7 +669,7 @@ public class MovieSetEditorDialog extends TmmDialog {
     public void actionPerformed(ActionEvent e) {
       movieSetToEdit.setTitle(tfName.getText());
       movieSetToEdit.setPlot(taPlot.getText());
-      movieSetToEdit.setNote(tfNote.getText());
+      movieSetToEdit.setNote(taNote.getText());
 
       // process artwork
       processArtwork(MediaFileType.POSTER, lblPoster, tfPoster);
@@ -802,7 +809,7 @@ public class MovieSetEditorDialog extends TmmDialog {
         IMovieMetadataProvider mp = (IMovieMetadataProvider) scraper.getMediaProvider();
 
         for (Movie movie : moviesInSet) {
-          if (MetadataUtil.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
+          if (MediaIdUtil.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());

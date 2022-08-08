@@ -17,6 +17,7 @@ package org.tinymediamanager.core.movie;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -146,15 +147,18 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   buildImageCacheOnImport                = true;
   MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
   CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
+  boolean                                   nfoDiscFolderInside                    = true;
   boolean                                   writeCleanNfo                          = false;
   DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
   MediaLanguages                            nfoLanguage                            = MediaLanguages.en;
   boolean                                   createOutline                          = true;
   boolean                                   outlineFirstSentence                   = false;
   boolean                                   nfoWriteSingleStudio                   = false;
+  boolean                                   nfoWriteLockdata                       = false;
 
   // renamer
   boolean                                   renameAfterScrape                      = false;
+  @Deprecated
   boolean                                   ardAfterScrape                         = false;
   boolean                                   updateOnStart                          = false;
   String                                    renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
@@ -165,6 +169,7 @@ public final class MovieSettings extends AbstractSettings {
   String                                    renamerFilenameSpaceReplacement        = "_";
   String                                    renamerColonReplacement                = "-";
   boolean                                   renamerNfoCleanup                      = false;
+  boolean                                   renamerCleanupUnwanted                 = false;
   boolean                                   renamerCreateMoviesetForSingleMovie    = false;
   String                                    renamerFirstCharacterNumberReplacement = "#";
   boolean                                   asciiReplacement                       = false;
@@ -180,6 +185,7 @@ public final class MovieSettings extends AbstractSettings {
   final List<MovieScraperMetadataConfig>    scraperMetadataConfig                  = new ArrayList<>();
   boolean                                   doNotOverwriteExistingData             = false;
   boolean                                   capitalWordsInTitles                   = false;
+  boolean                                   fetchAllRatings                        = false;
 
   // artwork scraper
   PosterSizes                               imagePosterSize                        = PosterSizes.LARGE;
@@ -429,6 +435,11 @@ public final class MovieSettings extends AbstractSettings {
     return LOGGER;
   }
 
+  @Override
+  protected void afterLoading() {
+    // nothing to do here
+  }
+
   /**
    * the tmm defaults
    */
@@ -451,6 +462,13 @@ public final class MovieSettings extends AbstractSettings {
     saveSettings();
   }
 
+  public void setMovieDataSources(Collection<String> dataSources) {
+    movieDataSources.clear();
+    movieDataSources.addAll(dataSources);
+    firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
+  }
+
   public void addMovieDataSources(String path) {
     if (!movieDataSources.contains(path)) {
       movieDataSources.add(path);
@@ -471,7 +489,10 @@ public final class MovieSettings extends AbstractSettings {
     int index = movieDataSources.indexOf(oldDatasource);
     if (index > -1) {
       movieDataSources.remove(oldDatasource);
-      movieDataSources.add(index, newDatasource);
+      if (!movieDataSources.contains(newDatasource)) {
+        // just to prevent adding duplicates
+        movieDataSources.add(index, newDatasource);
+      }
       MovieModuleManager.getInstance().getMovieList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
@@ -954,12 +975,14 @@ public final class MovieSettings extends AbstractSettings {
     return this.renameAfterScrape;
   }
 
+  @Deprecated
   public void setArdAfterScrape(boolean newValue) {
     boolean oldValue = this.ardAfterScrape;
     this.ardAfterScrape = newValue;
     firePropertyChange("ardAfterScrape", oldValue, newValue);
   }
 
+  @Deprecated
   public boolean isArdAfterScrape() {
     return this.ardAfterScrape;
   }
@@ -1204,6 +1227,16 @@ public final class MovieSettings extends AbstractSettings {
     double oldValue = this.scraperThreshold;
     scraperThreshold = newValue;
     firePropertyChange("scraperThreshold", oldValue, newValue);
+  }
+
+  public boolean isRenamerCleanupUnwanted() {
+    return renamerCleanupUnwanted;
+  }
+
+  public void setRenamerCleanupUnwanted(boolean newValue) {
+    boolean oldValue = this.renamerCleanupUnwanted;
+    this.renamerCleanupUnwanted = newValue;
+    firePropertyChange("renamerCleanupUnwanted", oldValue, newValue);
   }
 
   public boolean isRenamerNfoCleanup() {
@@ -1560,6 +1593,16 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("scraperMetadataConfig", null, scraperMetadataConfig);
   }
 
+  public boolean isNfoDiscFolderInside() {
+    return nfoDiscFolderInside;
+  }
+
+  public void setNfoDiscFolderInside(boolean newValue) {
+    boolean oldValue = this.nfoDiscFolderInside;
+    this.nfoDiscFolderInside = newValue;
+    firePropertyChange("nfoDiscFolderInside", oldValue, newValue);
+  }
+
   public boolean isWriteCleanNfo() {
     return writeCleanNfo;
   }
@@ -1588,6 +1631,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = nfoWriteSingleStudio;
     nfoWriteSingleStudio = newValue;
     firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteLockdata() {
+    return nfoWriteLockdata;
+  }
+
+  public void setNfoWriteLockdata(boolean newValue) {
+    boolean oldValue = this.nfoWriteLockdata;
+    this.nfoWriteLockdata = newValue;
+    firePropertyChange("nfoWriteLockdata", oldValue, newValue);
   }
 
   public MediaLanguages getNfoLanguage() {
@@ -1630,13 +1683,23 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
+  public boolean isFetchAllRatings() {
+    return fetchAllRatings;
+  }
+
+  public void setFetchAllRatings(boolean newValue) {
+    boolean oldValue = this.fetchAllRatings;
+    this.fetchAllRatings = newValue;
+    firePropertyChange("fetchAllRatings", oldValue, newValue);
+  }
+
   public boolean isDoNotOverwriteExistingData() {
     return doNotOverwriteExistingData;
   }
 
   public void setDoNotOverwriteExistingData(boolean newValue) {
-    boolean oldValue = doNotOverwriteExistingData;
-    doNotOverwriteExistingData = newValue;
+    boolean oldValue = this.doNotOverwriteExistingData;
+    this.doNotOverwriteExistingData = newValue;
     firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
   }
 

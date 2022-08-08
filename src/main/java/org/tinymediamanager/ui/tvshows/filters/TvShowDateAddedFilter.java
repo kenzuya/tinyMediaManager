@@ -15,8 +15,10 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,7 +37,14 @@ import org.tinymediamanager.ui.components.datepicker.DatePicker;
  * @author Manuel Laggner
  */
 public class TvShowDateAddedFilter extends AbstractTvShowUIFilter {
-  private DatePicker datePicker;
+  private final Calendar calendar;
+  private DatePicker     datePicker;
+
+  public TvShowDateAddedFilter() {
+    super();
+    calendar = Calendar.getInstance();
+    calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
 
   @Override
   protected JLabel createLabel() {
@@ -88,7 +97,7 @@ public class TvShowDateAddedFilter extends AbstractTvShowUIFilter {
       return true;
     }
 
-    Date date = datePicker.getDate();
+    Calendar datePickerCalendar = datePicker.getCalendar(); // in localtime
 
     try {
       for (TvShowEpisode episode : episodes) {
@@ -96,10 +105,8 @@ public class TvShowDateAddedFilter extends AbstractTvShowUIFilter {
           continue;
         }
 
-        boolean foundEpisode = false;
-        if (DateUtils.isSameDay(date, episode.getDateAddedForUi())) {
-          foundEpisode = true;
-        }
+        calendar.setTime(episode.getDateAddedForUi()); // movie date in UTC
+        boolean foundEpisode = DateUtils.isSameDay(datePickerCalendar, calendar);
 
         if (invert && !foundEpisode) {
           return true;

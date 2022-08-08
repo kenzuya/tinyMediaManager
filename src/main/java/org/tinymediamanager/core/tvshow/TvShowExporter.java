@@ -207,7 +207,8 @@ public class TvShowExporter extends MediaEntityExporter {
       TvShowEpisode episode = (TvShowEpisode) entity;
       MediaFile mainVideoFile = episode.getMainVideoFile();
       return FilenameUtils
-          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile).get(0)
+          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile)
+              .get(0)
               .getFilename());
     }
     return "";
@@ -273,6 +274,7 @@ public class TvShowExporter extends MediaEntityExporter {
           value = d[1].trim();
         }
         catch (Exception ignored) {
+          // ignored
         }
 
         if (StringUtils.isAnyBlank(key, value)) {

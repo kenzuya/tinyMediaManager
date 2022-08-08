@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,7 +82,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
       rating.setAttribute("default", r == mainMediaRating ? "true" : "false");
 
       Element value = document.createElement("value");
-      value.setTextContent(Float.toString(r.getRating()));
+      value.setTextContent(String.format(Locale.US, "%.1f", r.getRating()));
       rating.appendChild(value);
 
       Element votes = document.createElement("votes");

@@ -32,6 +32,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -42,6 +43,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -69,7 +71,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     String imdbId = getImdbId(options);
 
     // imdbid check
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("no imdb id found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -99,6 +101,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       throw new NothingFoundException();
     }
 
+    metadata.setScrapeOptions(options);
     return metadata;
   }
 
@@ -126,7 +129,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       }
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.debug("no imdb id found for season '{}' episode '{}'", seasonNr, episodeNr);
       throw new MissingIdException();
     }
@@ -156,6 +159,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       throw new NothingFoundException();
     }
 
+    metadata.setScrapeOptions(options);
     return metadata;
   }
 
@@ -166,7 +170,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
     // if the imdb id is given, directly fetch the result
-    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         MediaMetadata md = getMetadata(options);
 
@@ -220,6 +224,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
         if (doc != null && doc.childrenSize() != 0) {
           MediaMetadata md = parseDetail(doc, "movie");
           if (md != null) {
+            md.setScrapeOptions(options);
             MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.TV_SHOW);
             searchResult.mergeFrom(md);
             searchResults = Collections.singletonList(searchResult);
@@ -301,13 +306,13 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     }
 
     // we already have season #1
-    episodeList.addAll(parseEpisodes(doc));
+    episodeList.addAll(parseEpisodes(doc, options));
 
     int i = 2;
     while (i <= seasons) {
       try {
         doc = UrlUtil.parseDocumentFromUrl("https://www.omdbapi.com/?apikey=" + getApiKey() + "&i=" + imdbId + "&type=series&r=xml&Season=" + i);
-        episodeList.addAll(parseEpisodes(doc));
+        episodeList.addAll(parseEpisodes(doc, options));
       }
       catch (InterruptedException | InterruptedIOException e) {
         // do not swallow these Exceptions
@@ -327,7 +332,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     return episodeList;
   }
 
-  private List<MediaMetadata> parseEpisodes(Document document) {
+  private List<MediaMetadata> parseEpisodes(Document document, MediaSearchAndScrapeOptions options) {
     Element root = document.getElementsByTag("root").first();
     if (root == null) {
       return Collections.emptyList();
@@ -348,8 +353,9 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
     for (Element result : results) {
       MediaMetadata md = new MediaMetadata(getId());
+      md.setScrapeOptions(options);
 
-      if (MetadataUtil.isValidImdbId(result.attr("imdbID"))) {
+      if (MediaIdUtil.isValidImdbId(result.attr("imdbID"))) {
         md.setId(MediaMetadata.IMDB, result.attr("imdbID"));
       }
 

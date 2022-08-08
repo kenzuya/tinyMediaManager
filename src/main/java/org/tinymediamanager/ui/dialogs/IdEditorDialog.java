@@ -56,6 +56,10 @@ public class IdEditorDialog extends TmmDialog {
 
     providerIds = new HashSet<>();
     for (MediaScraper scraper : MediaScraper.getMediaScrapers(type)) {
+      // all but Kodi, universal and TVDB legacy
+      if (scraper.getId().startsWith("metadata") || "tvdbv3".equals(scraper.getId()) || scraper.getId().startsWith("universal_")) {
+        continue;
+      }
       providerIds.add(scraper.getId());
     }
 

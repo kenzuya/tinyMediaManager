@@ -96,6 +96,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
     }
 
     MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
+    md.setScrapeOptions(options);
 
     // get episode number and season number
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
@@ -270,6 +271,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
         }
 
         MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
+        md.setScrapeOptions(options);
         md.setEpisodeNumber(ep);
         md.setSeasonNumber(season);
         md.setTitle(DOMUtils.getElementValue(el, "title"));
@@ -279,6 +281,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
           md.setReleaseDate(StrgUtils.parseDate(DOMUtils.getElementValue(el, "aired")));
         }
         catch (Exception ignored) {
+          // ignored
         }
 
         episodeList.add(md);

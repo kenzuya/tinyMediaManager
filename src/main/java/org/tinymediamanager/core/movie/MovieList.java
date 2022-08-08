@@ -79,7 +79,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
@@ -666,18 +666,18 @@ public final class MovieList extends AbstractModelObject {
 
     if (!searchTerm.isEmpty()) {
       String query = searchTerm.toLowerCase(Locale.ROOT);
-      if (MetadataUtil.isValidImdbId(query)) {
+      if (MediaIdUtil.isValidImdbId(query)) {
         options.setImdbId(query);
       }
       else if (query.startsWith("imdb:")) {
         String imdbId = query.replace("imdb:", "");
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
       else if (query.startsWith("https://www.imdb.com/title/")) {
         String imdbId = query.split("/")[4];
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
@@ -732,7 +732,7 @@ public final class MovieList extends AbstractModelObject {
           sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
         }
         catch (ScrapeException e) {
-          LOGGER.error("searchMovieFallback", e);
+          LOGGER.error("searchMovieFallback - '{}'", e.getMessage());
           // just swallow those errors here
         }
 
@@ -993,6 +993,7 @@ public final class MovieList extends AbstractModelObject {
     movies.forEach(movie -> tags.addAll(movie.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInMovies, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInMovies);
       firePropertyChange(TAGS, null, tagsInMovies);
     }
   }
@@ -1393,6 +1394,7 @@ public final class MovieList extends AbstractModelObject {
           Thread.sleep(15000);
         }
         catch (Exception ignored) {
+          // ignored
         }
         Message message = new Message(MessageLevel.SEVERE, "tmm.movies", "message.database.corrupteddata");
         MessageManager.instance.pushMessage(message);
@@ -1569,7 +1571,12 @@ public final class MovieList extends AbstractModelObject {
   private static class MovieMediaScraperComparator implements Comparator<MediaScraper> {
     @Override
     public int compare(MediaScraper o1, MediaScraper o2) {
-      return o1.getId().compareTo(o2.getId());
+      if (o1.getPriority() == o2.getPriority()) {
+        return o1.getId().compareTo(o2.getId()); // samne prio? alphabetical
+      }
+      else {
+        return Integer.compare(o2.getPriority(), o1.getPriority()); // highest first
+      }
     }
   }
 }

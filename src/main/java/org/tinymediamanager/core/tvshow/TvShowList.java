@@ -57,6 +57,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -74,7 +75,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
@@ -762,18 +763,18 @@ public final class TvShowList extends AbstractModelObject {
     if (!searchTerm.isEmpty()) {
       String query = searchTerm.toLowerCase(Locale.ROOT);
 
-      if (MetadataUtil.isValidImdbId(query)) {
+      if (MediaIdUtil.isValidImdbId(query)) {
         options.setImdbId(query);
       }
       else if (query.startsWith("imdb:")) {
         String imdbId = query.replace("imdb:", "");
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
       else if (query.startsWith("https://www.imdb.com/title/")) {
         String imdbId = query.split("/")[4];
-        if (MetadataUtil.isValidImdbId(imdbId)) {
+        if (MediaIdUtil.isValidImdbId(imdbId)) {
           options.setImdbId(imdbId);
         }
       }
@@ -831,6 +832,7 @@ public final class TvShowList extends AbstractModelObject {
     tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInTvShows);
       firePropertyChange(TAGS, null, tagsInTvShows);
     }
   }
@@ -853,6 +855,7 @@ public final class TvShowList extends AbstractModelObject {
     episodes.forEach(episode -> tags.addAll(episode.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
+      Utils.removeDuplicateStringFromCollectionIgnoreCase(tagsInEpisodes);
       firePropertyChange(TAGS, null, tagsInEpisodes);
     }
   }
@@ -1168,6 +1171,7 @@ public final class TvShowList extends AbstractModelObject {
           Thread.sleep(15000);
         }
         catch (Exception ignored) {
+          // ignored
         }
         Message message = new Message(MessageLevel.SEVERE, "tmm.tvshows", "message.database.corrupteddata");
         MessageManager.instance.pushMessage(message);
@@ -1389,7 +1393,12 @@ public final class TvShowList extends AbstractModelObject {
   private static class TvShowMediaScraperComparator implements Comparator<MediaScraper> {
     @Override
     public int compare(MediaScraper o1, MediaScraper o2) {
-      return o1.getId().compareTo(o2.getId());
+      if (o1.getPriority() == o2.getPriority()) {
+        return o1.getId().compareTo(o2.getId()); // samne prio? alphabetical
+      }
+      else {
+        return Integer.compare(o2.getPriority(), o1.getPriority()); // highest first
+      }
     }
   }
 }

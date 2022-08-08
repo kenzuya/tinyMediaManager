@@ -61,25 +61,25 @@ public class MediaRating {
 
   public MediaRating(String id, float rating) {
     this(id);
-    this.rating = rating;
+    setRating(rating);
   }
 
   public MediaRating(String id, float rating, int votes) {
     this(id, rating);
-    this.votes = votes;
+    setVotes(votes);
   }
 
   public MediaRating(String id, float rating, int votes, int maxValue) {
     this(id, rating, votes);
     if (maxValue > 0) {
-      this.maxValue = maxValue;
+      setMaxValue(maxValue);
     }
   }
 
   public MediaRating(String id, double rating, int votes, int maxValue) {
     this(id, (float) rating, votes);
     if (maxValue > 0) {
-      this.maxValue = maxValue;
+      setMaxValue(maxValue);
     }
   }
 
@@ -92,11 +92,11 @@ public class MediaRating {
   }
 
   public void setRating(float rating) {
-    this.rating = rating;
+    this.rating = Math.round(rating * 10) / 10f; // round to the first decimal place
   }
 
   public void setRating(double rating) {
-    this.rating = (float) rating;
+    setRating((float) rating);
   }
 
   public int getVotes() {
@@ -139,6 +139,11 @@ public class MediaRating {
     }
     this.rating = rating;
     this.maxValue = 10;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s - %.2f/%d", id, rating, maxValue);
   }
 
   @Override

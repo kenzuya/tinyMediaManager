@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.thetvdb.service;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class Controller {
 
   private Retrofit getRestAdapter() {
     if (restAdapter == null) {
-      OkHttpClient.Builder builder = TmmHttpClient.newBuilder();
+      OkHttpClient.Builder builder = TmmHttpClient.newBuilderWithForcedCache(15, TimeUnit.MINUTES);
       if (debug) {
         builder.addInterceptor(new HttpLoggingInterceptor(LOGGER::debug).setLevel(HttpLoggingInterceptor.Level.BODY));
       }

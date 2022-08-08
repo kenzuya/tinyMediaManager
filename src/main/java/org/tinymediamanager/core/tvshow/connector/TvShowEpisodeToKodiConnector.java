@@ -17,6 +17,7 @@
 package org.tinymediamanager.core.tvshow.connector;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -68,7 +69,7 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
       rating.setAttribute("default", r == mainMediaRating ? "true" : "false");
 
       Element value = document.createElement("value");
-      value.setTextContent(Float.toString(r.getRating()));
+      value.setTextContent(String.format(Locale.US, "%.1f", r.getRating()));
       rating.appendChild(value);
 
       Element votes = document.createElement("votes");

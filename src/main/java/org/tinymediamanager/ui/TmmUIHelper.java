@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -303,6 +304,10 @@ public class TmmUIHelper {
     String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
     String abs = file.toAbsolutePath().toString();
 
+    if (StringUtils.isBlank(abs)) {
+      return;
+    }
+
     if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
         exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
@@ -376,6 +381,10 @@ public class TmmUIHelper {
    *           any exception occurred
    */
   public static void browseUrl(String url) throws Exception {
+    if (StringUtils.isBlank(url)) {
+      return;
+    }
+
     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
       Desktop.getDesktop().browse(new URI(url));
     }
@@ -448,7 +457,7 @@ public class TmmUIHelper {
    * @param cmdline
    *          the command including all parameters
    * @throws IOException
-   * @see {@link Runtime#exec(String[])}
+   *           any {@link IOException} thrown while processing
    */
   private static void exec(String[] cmdline) throws IOException {
     Process p = Runtime.getRuntime().exec(cmdline);
@@ -468,6 +477,17 @@ public class TmmUIHelper {
   private static class NirvanaOutputStream extends OutputStream {
     @Override
     public void write(int b) throws IOException {
+      // nothing to write
+    }
+
+    @Override
+    public void write(@NotNull byte[] b) throws IOException {
+      // nothing to write
+    }
+
+    @Override
+    public void write(@NotNull byte[] b, int off, int len) throws IOException {
+      // nothing to write
     }
   }
 
@@ -631,11 +651,12 @@ public class TmmUIHelper {
     }
   }
 
-  public static void checkForUpdate(int delayInSeconds, boolean showNoUpdateFoundMessage) {
+  public static void checkForUpdate(int delayInSeconds) {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();
-        if (updateCheck.isUpdateAvailable()) {
+        boolean useCache = delayInSeconds > 0; // use the cache on startup check
+        if (updateCheck.isUpdateAvailable(useCache)) {
           LOGGER.info("update available");
 
           // we might need this somewhen...
@@ -678,7 +699,7 @@ public class TmmUIHelper {
         }
         else {
           // no update found
-          if (showNoUpdateFoundMessage) {
+          if (delayInSeconds == 0) { // show no update dialog only when manually triggered
             JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
                 JOptionPane.INFORMATION_MESSAGE);
           }

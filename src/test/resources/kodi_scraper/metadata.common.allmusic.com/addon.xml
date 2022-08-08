@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="metadata.common.allmusic.com"
        name="AllMusic Scraper Library"
        version="3.1.1"
@@ -23,7 +23,9 @@
         <summary lang="ro">Bibliotecă catalog de muzică AllMusic</summary>
         <summary lang="ru">Музыкальная Информация AllMusic</summary>
         <summary lang="se">Skrapa för AllMusic.com</summary>
-        <summary lang="zh">AllMusic音乐刮削器代码库</summary>
+        <summary lang="zh">AllMusic.com 音樂擷取器資料庫</summary>
+        <summary lang="zh_CN">AllMusic音乐刮削器代码库</summary>
+        <summary lang="zh_TW">AllMusic.com 音樂擷取器資料庫</summary>
         <description lang="bg">Извлича инф. за музикални файлове от www.allmusic.com</description>
         <description lang="en">Download Music information from www.allmusic.com</description>
         <description lang="de">Downloade Musik Informationen von www.allmusic.com</description>
@@ -37,6 +39,8 @@
         <description lang="ro">Descărcați informații muzică de pe www.allmusic.com</description>
         <description lang="ru">Загружать информацию о Музыке с www.allmusic.com</description>
         <description lang="se">Ladda ner musikinformation från www.allmusic.com</description>
-        <description lang="zh">从www.allmusic.com下载音乐信息</description>
+        <description lang="zh">從www.allmusic.com下載音樂資訊</description>
+        <description lang="zh_CN">从www.allmusic.com下载音乐信息</description>
+        <description lang="zh_TW">從www.allmusic.com下載音樂資訊</description>
     </extension>
 </addon>

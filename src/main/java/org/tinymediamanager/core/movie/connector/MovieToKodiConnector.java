@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -219,7 +220,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
       rating.setAttribute("default", r == mainMediaRating ? "true" : "false");
 
       Element value = document.createElement("value");
-      value.setTextContent(Float.toString(r.getRating()));
+      value.setTextContent(String.format(Locale.US, "%.1f", r.getRating()));
       rating.appendChild(value);
 
       Element votes = document.createElement("votes");
@@ -329,7 +330,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
         // does not work reliable for disc style movies, MediaInfo and even Kodi write weird values in there
         if (!movie.isDisc() && !movie.getMainVideoFile().getExtension().equalsIgnoreCase("iso")) {
           Element durationinseconds = document.createElement("durationinseconds");
-          durationinseconds.setTextContent(Integer.toString(movie.getRuntimeFromMediaFiles()));
+          durationinseconds.setTextContent(Integer.toString(movie.getRuntimeFromMediaFilesInSeconds()));
           video.appendChild(durationinseconds);
         }
 

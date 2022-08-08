@@ -19,13 +19,10 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.JOptionPane;
-
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
@@ -36,8 +33,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetEditMovieAction extends TmmAction {
-  private static final long           serialVersionUID = 1848573591741154631L;
-
+  private static final long serialVersionUID = 1848573591741154631L;
 
   public MovieSetEditMovieAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.edit"));
@@ -57,7 +53,6 @@ public class MovieSetEditMovieAction extends TmmAction {
     int index = 0;
 
     if (selectedCount == 0) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

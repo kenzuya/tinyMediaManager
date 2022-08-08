@@ -53,7 +53,7 @@ abstract class ImdbMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, getSubId(), "IMDb.com",
         "<html><h3>Internet Movie Database (IMDb)</h3><br />The most used database for movies all over the world.<br />Does not contain plot/title/tagline in every language. You may choose to download these texts from TMDb<br /><br />Available languages: multiple</html>",
-        ImdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/imdb_com.svg"));
+        ImdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/imdb_com.svg"), 10);
   }
 
   public MediaProviderInfo getProviderInfo() {

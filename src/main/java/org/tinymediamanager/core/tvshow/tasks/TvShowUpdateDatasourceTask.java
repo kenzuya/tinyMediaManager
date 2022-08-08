@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,26 +87,28 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  */
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger       LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
+  private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String> SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
-      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
+  private static final List<String>    SKIP_FOLDERS         = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
-  private static final String       SKIP_REGEX    = "^[.][\\w@]+.*";
+  private static final String          SKIP_REGEX           = "^[.][\\w@]+.*";
 
-  private static final Pattern      seasonNumber  = Pattern.compile("(?i)season([0-9]{1,4}).*");
+  private static final Pattern         SEASON_NUMBER        = Pattern.compile("(?i)season([0-9]{1,4}).*");
+  private static final Pattern         SEASON_FOLDER_NUMBER = Pattern.compile("(?i).*([0-9]{1,4}).*");
 
-  private static long               preDir        = 0;
-  private static long               postDir       = 0;
-  private static long               visFile       = 0;
+  private static long                  preDir               = 0;
+  private static long                  postDir              = 0;
+  private static long                  visFile              = 0;
 
-  private final List<String>        dataSources;
-  private final List<String>        skipFolders;
-  private final List<Path>          tvShowFolders = new ArrayList<>();
-  private final TvShowList          tvShowList;
-  private final Set<Path>           filesFound    = ConcurrentHashMap.newKeySet();
+  private final List<String>           dataSources;
+  private final List<String>           skipFolders;
+  private final List<Path>             tvShowFolders        = new ArrayList<>();
+  private final TvShowList             tvShowList;
+  private final Set<Path>              filesFound           = new HashSet<>();
+  private final ReentrantReadWriteLock fileLock             = new ReentrantReadWriteLock();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -458,7 +460,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // check and delete all not found MediaFiles
       List<MediaFile> mediaFiles = new ArrayList<>(tvShow.getMediaFiles());
       for (MediaFile mf : mediaFiles) {
-        if (!filesFound.contains(mf.getFileAsPath())) {
+        fileLock.readLock().lock();
+        boolean fileFound = filesFound.contains(mf.getFileAsPath());
+        fileLock.readLock().unlock();
+
+        if (!fileFound) {
           LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
           tvShow.removeFromMediaFiles(mf);
           // and remove the image cache
@@ -476,7 +482,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       for (TvShowEpisode episode : episodes) {
         mediaFiles = new ArrayList<>(episode.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
-          if (!filesFound.contains(mf.getFileAsPath())) {
+          fileLock.readLock().lock();
+          boolean fileFound = filesFound.contains(mf.getFileAsPath());
+          fileLock.readLock().unlock();
+
+          if (!fileFound) {
             LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
             episode.removeFromMediaFiles(mf);
             // and remove the image cache
@@ -595,8 +605,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       LOGGER.info("start parsing {}", showDir);
 
+      fileLock.writeLock().lock();
       filesFound.add(showDir.toAbsolutePath()); // our global cache
       filesFound.addAll(allFiles); // our global cache
+      fileLock.writeLock().unlock();
 
       // convert to MFs (we need it anyways at the end)
       List<MediaFile> mfs = new ArrayList<>();
@@ -730,11 +742,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         else {
-          // normal episode file - get all same named files
+          // normal episode file - get all same named files (in same directory!)
           String basename = Utils.cleanStackingMarkers(FilenameUtils.getBaseName(mf.getFilename()));
+          basename = showDir.relativize(mf.getFileAsPath().getParent()) + "/" + basename;
           LOGGER.trace("UDS: basename - {}", basename);
           for (MediaFile em : mfs) {
             String emBasename = FilenameUtils.getBaseName(em.getFilename());
+            emBasename = showDir.relativize(em.getFileAsPath().getParent()) + "/" + emBasename;
             String epNameRegexp = Pattern.quote(basename) + "[\\s.,_-].*";
             // same named files or thumb files
             if (emBasename.equals(basename) || emBasename.matches(epNameRegexp)) {
@@ -874,6 +888,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 String mfBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
 
                 if (episodeBasenameWoStackingMarker.equals(mfBasenameWoStackingMarker)) {
+                  if (ep.getMediaSource() == MediaSource.UNKNOWN) {
+                    ep.setMediaSource(MediaSource.parseMediaSource(ep.getMainVideoFile().getFilename()));
+                  }
+
                   ep.setNewlyAdded(true);
 
                   // remember the filename the first time the movie gets added to tmm
@@ -1064,7 +1082,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // fill season artwork map
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
           MediaFileType.SEASON_THUMB)) {
-        int season;
+        int season = Integer.MAX_VALUE;
         try {
           if (mf.getFilename().startsWith("season-specials")) {
             season = 0;
@@ -1073,16 +1091,33 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             season = -1;
           }
           else {
-            Matcher matcher = seasonNumber.matcher(mf.getFilename());
+            // parse out the season from the name
+            Matcher matcher = SEASON_NUMBER.matcher(mf.getFilename());
             if (matcher.matches()) {
               season = Integer.parseInt(matcher.group(1));
             }
-            else {
-              throw new IllegalStateException("did not find a season number");
+
+            // try to parse out the season from the parent
+            if (season == Integer.MIN_VALUE) {
+              matcher = SEASON_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
+              if (matcher.matches()) {
+                season = Integer.parseInt(matcher.group(1));
+              }
+            }
+            if (season == Integer.MIN_VALUE) {
+              matcher = SEASON_FOLDER_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
+              if (matcher.matches()) {
+                season = Integer.parseInt(matcher.group(1));
+              }
             }
           }
-          LOGGER.debug("found {} - {}", mf.getType(), mf.getFileAsPath());
-          tvShow.setSeasonArtwork(season, mf);
+          if (season == Integer.MIN_VALUE) {
+            throw new IllegalStateException("did not find a season number");
+          }
+          else {
+            LOGGER.debug("found {} - {}", mf.getType(), mf.getFileAsPath());
+            tvShow.setSeasonArtwork(season, mf);
+          }
         }
         catch (Exception e) {
           LOGGER.warn("could not parse season number: {} MF: {}", e.getMessage(), mf.getFileAsPath().toAbsolutePath());

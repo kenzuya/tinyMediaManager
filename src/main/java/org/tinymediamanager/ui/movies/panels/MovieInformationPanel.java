@@ -74,7 +74,6 @@ import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.LockedConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
-import org.tinymediamanager.ui.movies.MovieOtherIdsConverter;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
@@ -589,10 +588,9 @@ public class MovieInformationPanel extends InformationPanel {
         lblOriginalTitle, jLabelBeanProperty);
     autoBinding_8.bind();
     //
-    Property movieSelectionModelBeanProperty_5 = BeanProperty.create("selectedMovie.ids");
+    Property movieSelectionModelBeanProperty_5 = BeanProperty.create("selectedMovie.otherIds");
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_5, taOtherIds,
         JTextPaneBeanProperty);
-    autoBinding_6.setConverter(new MovieOtherIdsConverter());
     autoBinding_6.bind();
     //
     Property movieSelectionModelBeanProperty_1 = BeanProperty.create("selectedMovie.releaseDateAsString");

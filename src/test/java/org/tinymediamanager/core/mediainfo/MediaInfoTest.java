@@ -567,42 +567,30 @@ public class MediaInfoTest extends BasicTest {
 
     // Dolby Vision
     MediaFile mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
 
     mf = new MediaFile(mediainfoFolder.resolve("dolby_vision2.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
 
     // HDR10
     mf = new MediaFile(mediainfoFolder.resolve("hdr10.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
 
     mf = new MediaFile(mediainfoFolder.resolve("hdr10-2.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
 
     // HDR10+
     mf = new MediaFile(mediainfoFolder.resolve("hdr10plus.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
 
     // HLG
     mf = new MediaFile(mediainfoFolder.resolve("hlg.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getHdrFormat()).isEqualTo("HLG");
   }
 
@@ -613,8 +601,7 @@ public class MediaInfoTest extends BasicTest {
 
     // Dolby Vision
     MediaFile mf = new MediaFile(mediainfoFolder.resolve("3d_sbs.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
+    MediaFileHelper.gatherMediaInformation(mf, false);
 
     assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_HSBS);
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -628,9 +615,7 @@ public class MediaInfoTest extends BasicTest {
 
     // Dolby Vision
     MediaFile mf = new MediaFile(mediainfoFolder.resolve("subtitle-title.avi"));
-    mf.setContainerFormat("avi");
-    MediaFileHelper.gatherMediaInformation(mf, true);
-
+    MediaFileHelper.gatherMediaInformation(mf, false);
     assertThat(mf.getSubtitles().size()).isEqualTo(2);
 
     MediaFileSubtitle sub1 = mf.getSubtitles().get(0);

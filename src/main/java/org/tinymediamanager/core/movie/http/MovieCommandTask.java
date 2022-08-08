@@ -51,6 +51,8 @@ import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.util.ListUtils;
 
@@ -97,7 +99,7 @@ class MovieCommandTask extends TmmThreadPool {
 
   private void updateDataSources() {
     Set<String> dataSources = new TreeSet<>();
-    List<Movie> existingMovies = movieList.getMovies();
+    List<Movie> existingMovies = new ArrayList<>(movieList.getMovies());
 
     for (AbstractCommandHandler.Command command : commands) {
       if ("update".equals(command.action)) {
@@ -157,31 +159,39 @@ class MovieCommandTask extends TmmThreadPool {
   }
 
   private void scrape() {
-    Set<Movie> moviesToScrape = new LinkedHashSet<>();
     for (AbstractCommandHandler.Command command : commands) {
       if ("scrape".equals(command.action)) {
-        moviesToScrape.addAll(getMoviesForScope(command.scope));
+        List<Movie> moviesToScrape = getMoviesForScope(command.scope);
+
+        if (!moviesToScrape.isEmpty()) {
+          setTaskName(TmmResourceBundle.getString("movie.scraping"));
+          publishState(TmmResourceBundle.getString("movie.scraping"), getProgressDone());
+
+          MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
+          List<MovieScraperMetadataConfig> config = movieSettings.getScraperMetadataConfig();
+
+          // override default scraper?
+          if (StringUtils.isNotBlank(command.args.get("scraper"))) {
+            String scraperId = command.args.get("scraper");
+            MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.MOVIE);
+            if (scraper != null) {
+              options.setMetadataScraper(scraper);
+            }
+          }
+
+          MovieScrapeTask.MovieScrapeParams movieScrapeParams = new MovieScrapeTask.MovieScrapeParams(new ArrayList<>(moviesToScrape), options,
+              config);
+          movieScrapeParams.setOverwriteExistingItems(!movieSettings.isDoNotOverwriteExistingData());
+          MovieScrapeTask task = new MovieScrapeTask(movieScrapeParams);
+          task.setRunInBackground(true); // to avoid smart scrape dialog
+
+          activeTask = task;
+          activeTask.run(); // blocking
+
+          // done
+          activeTask = null;
+        }
       }
-    }
-
-    if (!moviesToScrape.isEmpty()) {
-      setTaskName(TmmResourceBundle.getString("movie.scraping"));
-      publishState(TmmResourceBundle.getString("movie.scraping"), getProgressDone());
-
-      MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-      List<MovieScraperMetadataConfig> config = movieSettings.getScraperMetadataConfig();
-      options.loadDefaults();
-
-      MovieScrapeTask.MovieScrapeParams movieScrapeParams = new MovieScrapeTask.MovieScrapeParams(new ArrayList<>(moviesToScrape), options, config);
-      movieScrapeParams.setOverwriteExistingItems(!movieSettings.isDoNotOverwriteExistingData());
-      MovieScrapeTask task = new MovieScrapeTask(movieScrapeParams);
-      task.setRunInBackground(true); // to avoid smart scrape dialog
-
-      activeTask = task;
-      activeTask.run(); // blocking
-
-      // done
-      activeTask = null;
     }
   }
 
@@ -365,10 +375,6 @@ class MovieCommandTask extends TmmThreadPool {
     }
 
     switch (scope.name) {
-      case "new":
-        moviesToProcess.addAll(newMovies);
-        break;
-
       case "path":
         if (scope.args != null && scope.args.length > 0) {
           List<Path> paths = new ArrayList<>();
@@ -383,15 +389,31 @@ class MovieCommandTask extends TmmThreadPool {
 
       case "dataSource":
         if (scope.args != null && scope.args.length > 0) {
-          List<String> dataSources = Arrays.asList(scope.args);
+          List<String> dataSources = new ArrayList<>();
+          for (String arg : scope.args) {
+            // check if this could be an index
+            try {
+              dataSources.add(movieSettings.getMovieDataSource().get(Integer.parseInt(arg)));
+            }
+            catch (Exception e) {
+              // just add it as a path
+              dataSources.add(arg);
+            }
+          }
+
           moviesToProcess
               .addAll(movieList.getMovies().stream().filter(movie -> dataSources.contains(movie.getDataSource())).collect(Collectors.toList()));
         }
         break;
 
+      case "new":
+        moviesToProcess.addAll(newMovies);
+        break;
+
       case "all":
       default:
         moviesToProcess.addAll(movieList.getMovies());
+        break;
     }
 
     return moviesToProcess;

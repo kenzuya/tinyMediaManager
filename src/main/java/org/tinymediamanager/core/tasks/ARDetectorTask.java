@@ -15,8 +15,12 @@
  */
 package org.tinymediamanager.core.tasks;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,15 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ArdSettings;
 import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFilePosition;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.thirdparty.FFmpeg;
-import org.tinymediamanager.thirdparty.MediaInfo;
 
 /**
  * Core aspect ratio detector class. Calculates real aspect ratio by scanning video files and detecting contained black bars.
@@ -53,6 +56,9 @@ public abstract class ARDetectorTask extends TmmTask {
   private final Pattern       patternSampleDarkLevel  = Pattern.compile("lavfi.signalstats.YLOW=([0-9]*)");
   private final Pattern       patternSample           = Pattern
       .compile("x1:([0-9]*)\\sx2:([0-9]*)\\sy1:([0-9]*)\\sy2:([0-9]*)\\sw:([0-9]*)\\sh:([0-9]*)\\sx:");
+  private final Pattern       patternDuration         = Pattern.compile("Duration:\\s(\\d\\d:\\d\\d:\\d\\d\\.\\d\\d),");
+  private final Pattern       patternSAR              = Pattern.compile("SAR\\s(\\d+):(\\d+)\\s");
+  private final Pattern       patternWH               = Pattern.compile(",\\s(\\d+)x(\\d+)\\s");
 
   private final Settings      settings                = Settings.getInstance();
 
@@ -121,14 +127,54 @@ public abstract class ARDetectorTask extends TmmTask {
   }
 
   protected void analyze(MediaFile mediaFile, int idx) {
-    setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
-
-    if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
-      LOGGER.info("Mediafile can not be analyzed.");
+    if (!canRun()) {
+      return;
+    }
+    if (mediaFile.getExtension().equalsIgnoreCase("iso")) {
+      LOGGER.warn("Can not execute FFMPEG on ISO files (yet)");
+      return;
     }
 
+    setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
+
     try {
-      VideoInfo videoInfo = getPrefilledVideoInfo(mediaFile);
+      List<MediaInfoFile> relevant = MediaFileHelper.detectRelevantFiles(mediaFile);
+      int totalDuration = 0;
+
+      if (relevant.size() > 1) {
+        // disc files from folder MF - remove all non video files
+        for (int i = relevant.size() - 1; i >= 0; i--) {
+          String ext = relevant.get(i).getFileExtension();
+          // rule out non disc video files
+          if (!ext.equalsIgnoreCase("vob") && !ext.equalsIgnoreCase("m2ts") && !ext.equalsIgnoreCase("evo")) {
+            relevant.remove(i);
+          }
+        }
+
+        // get duration for disc file - we won't have them any longer :/
+        for (MediaInfoFile mif : relevant) {
+          if (mif.getDuration() == 0) {
+            mif.gatherMediaInformation();
+          }
+          totalDuration += mif.getDuration();
+        }
+      }
+
+      MediaFilePosition position = getPositionInMediaFile(relevant, 0);
+      if (position == null) {
+        LOGGER.warn("Found no valid position for AR detection for '{}'", mediaFile.getFilename());
+        return;
+      }
+      String result = FFmpeg.scanDarkLevel(0, position.getPath()); // first video frame (which is often black)
+
+      VideoInfo videoInfo = new VideoInfo();
+      videoInfo.bitDepth = mediaFile.getBitDepth();
+      parseVideoMeta(result, mediaFile, videoInfo); // parse from FFMpeg result
+
+      parseDarkLevel(result, videoInfo);
+      if (totalDuration > 0) {
+        videoInfo.duration = totalDuration;
+      }
 
       int start = (int) (videoInfo.duration * this.ignoreBeginningPct / 100f);
       int end = (int) (videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));
@@ -136,19 +182,13 @@ public abstract class ARDetectorTask extends TmmTask {
       float increment = (end - start) / (this.sampleMinNumber + 1f);
       float seconds = start + increment;
 
-      MediaFilePosition position = MediaFileHelper.getPositionInMediaFile(mediaFile, 0);
-      if (position == null) {
-        LOGGER.error("Found no valid position for detection");
-        return;
+      if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct) {
+        videoInfo.darkLevel = getDarkLevel(videoInfo);
       }
 
-      String result = FFmpeg.scanDarkLevel(0, position.getPath()); // first video frame (which is often black)
-      parseDarkLevel(result, videoInfo);
-      if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct)
-        videoInfo.darkLevel = getDarkLevel(videoInfo);
-
-      LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
-      LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}", videoInfo.width,
+      LOGGER.debug("Filename: {}", mediaFile.getFileAsPath());
+      // MF.setDuration()?
+      LOGGER.trace("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}", videoInfo.width,
           videoInfo.height, mediaFile.getAspectRatio(), videoInfo.arSample, videoInfo.bitDepth, videoInfo.darkLevel, mediaFile.getDurationHHMMSS());
 
       if (increment > this.sampleMaxGap) {
@@ -164,14 +204,18 @@ public abstract class ARDetectorTask extends TmmTask {
           if (iSec >= videoInfo.duration) {
             iSec = videoInfo.duration - this.sampleDuration;
           }
-          position = MediaFileHelper.getPositionInMediaFile(mediaFile, iSec);
-
-          LOGGER.info("Scanning {} at {}s", position.getPath().toString(), position.getPosition());
-          result = FFmpeg.scanSample((int) position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
-          parseSample(result, iSec, iInc, videoInfo);
+          position = getPositionInMediaFile(relevant, iSec);
+          if (position != null) {
+            LOGGER.trace("Scanning {} at {}s", position.getPath(), position.getPosition());
+            result = FFmpeg.scanSample(position.getPosition(), sampleDuration, videoInfo.darkLevel, position.getPath());
+            parseSample(result, iSec, iInc, videoInfo);
+          }
+          else {
+            LOGGER.trace("Could not get postition {} in relevant file - maybe XML only?", iSec);
+          }
         }
         catch (Exception ex) {
-          LOGGER.warn("Error scanning sample", ex);
+          LOGGER.trace("Error scanning sample - '{}'", ex.getMessage());
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
@@ -187,7 +231,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
 
       if (videoInfo.sampleCount == 0) {
-        LOGGER.warn("No results from scanning");
+        LOGGER.debug("No results from scanning");
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed", new String[] { ":", mediaFile.getFilename() }));
         return;
@@ -203,23 +247,22 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.height = videoInfo.heightPrimary;
         videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
-        LOGGER.debug("Multi format:      disabled");
+        LOGGER.trace("Multi format:      disabled");
       }
       videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
       mediaFile.setAspectRatio(videoInfo.arPrimary);
-      LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
+      LOGGER.trace("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
       if (videoInfo.arSecondary > 0f && ArdSettings.Mode.ACCURATE.equals(this.mode)) {
         videoInfo.arSecondary = roundAR(videoInfo.arSecondary);
         mediaFile.setAspectRatio2(videoInfo.arSecondary);
-        LOGGER.debug("AR_Secondary:      {}", String.format("%.2f", videoInfo.arSecondary));
+        LOGGER.trace("AR_Secondary:      {}", String.format("%.2f", videoInfo.arSecondary));
       }
 
       mediaFile.setVideoHeight(videoInfo.height);
       mediaFile.setVideoWidth(videoInfo.width);
 
-      LOGGER.info("Detected: {}x{} AR: {}{}", videoInfo.width, videoInfo.height,
-          String.format("%.2f", videoInfo.arPrimary),
+      LOGGER.info("Detected: {}x{} AR: {}{}", videoInfo.width, videoInfo.height, String.format("%.2f", videoInfo.arPrimary),
           videoInfo.arSecondary > 0f ? (" (AR2: " + String.format("%.2f", videoInfo.arSecondary)) + ")" : "");
     }
     catch (Exception ex) {
@@ -229,57 +272,49 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected VideoInfo getPrefilledVideoInfo(MediaFile mediaFile) {
-    VideoInfo videoInfo = new VideoInfo();
+  private MediaFilePosition getPositionInMediaFile(List<MediaInfoFile> mediaInfoFiles, int pos) {
+    MediaFilePosition result = null;
 
-    videoInfo.width = mediaFile.getVideoWidth();
-    String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
-    if (NumberUtils.isParsable(width)) {
-      videoInfo.width = Integer.parseInt(width);
-    }
-    else {
-      width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
-      if (NumberUtils.isParsable(width)) {
-        videoInfo.width = Integer.parseInt(width);
+    // we have multiple files to spread our analytics over equally
+    if (mediaInfoFiles.size() > 1) {
+      int totalDuration = 0;
+      int duration = -1;
+      for (MediaInfoFile mif : mediaInfoFiles) {
+        // step out for XML based 'virtual' files
+        if (!Files.exists(mif.getFileAsPath())) {
+          return null;
+        }
+        duration = mif.getDuration();
+        LOGGER.info("{}: total duration: {} - file duration: {} - filepos: {}", mif.getFilename(), totalDuration, duration, pos - totalDuration);
+        if (pos <= (totalDuration + duration)) {
+          result = new MediaFilePosition(mif.getFileAsPath(), pos - totalDuration);
+          break;
+        }
+        totalDuration += duration;
+      }
+
+      if (result == null) {
+        result = new MediaFilePosition(mediaInfoFiles.get(0).getFileAsPath(), duration);
       }
     }
-
-    videoInfo.height = mediaFile.getVideoHeight();
-    String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
-    if (NumberUtils.isParsable(height)) {
-      videoInfo.height = Integer.parseInt(height);
-    }
     else {
-      height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
-      if (NumberUtils.isParsable(height)) {
-        videoInfo.height = Integer.parseInt(height);
+      // single file
+      MediaInfoFile mif = mediaInfoFiles.get(0);
+      // step out for XML based 'virtual' files
+      if (!Files.exists(mif.getFileAsPath())) {
+        return null;
       }
+      result = new MediaFilePosition(mif.getFileAsPath(), pos);
     }
 
-    videoInfo.bitDepth = mediaFile.getBitDepth();
-    String bitDepth = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "BitDepth");
-    if (NumberUtils.isParsable(bitDepth)) {
-      videoInfo.bitDepth = Integer.parseInt(bitDepth);
-    }
-
-    videoInfo.duration = mediaFile.getDuration();
-    String duration = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Duration");
-    if (NumberUtils.isParsable(duration)) {
-      videoInfo.duration = Math.round(Float.parseFloat(duration) / 1000f);
-    }
-
-    videoInfo.arSample = getSampleAR(mediaFile);
-    if (videoInfo.arSample <= 0.5f)
-      videoInfo.arSample = 1f;
-
-    return videoInfo;
+    return result;
   }
 
-  protected int getDarkLevel(VideoInfo videoInfo) {
+  private int getDarkLevel(VideoInfo videoInfo) {
     return (int) (Math.round(Math.pow(2, videoInfo.bitDepth) * (darkLevelPct / 100)));
   }
 
-  protected void parseDarkLevel(String result, VideoInfo videoInfo) {
+  private void parseDarkLevel(String result, VideoInfo videoInfo) {
     videoInfo.darkLevel = 9999;
     if (StringUtils.isNotEmpty(result)) {
       Matcher matcher = patternSampleDarkLevel.matcher(result);
@@ -292,38 +327,121 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
+  private void parseVideoMeta(String result, MediaFile mf, VideoInfo videoInfo) {
+    if (StringUtils.isNotEmpty(result)) {
+
+      // duration
+      Matcher m = patternDuration.matcher(result);
+      if (m.find()) {
+        try {
+          DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SS");
+          Date reference = dateFormat.parse("00:00:00.00");
+          Date date = dateFormat.parse(m.group(1));
+          videoInfo.duration = (int) ((date.getTime() - reference.getTime()) / 1000);
+          LOGGER.trace("parsed duration: {}", videoInfo.duration);
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse dateformat '{}'", m.group(1));
+        }
+      }
+      else {
+        videoInfo.duration = mf.getDuration();
+        LOGGER.trace("MF duration: {}", videoInfo.duration);
+      }
+
+      // width/heigth
+      m = patternWH.matcher(result);
+      if (m.find()) {
+        try {
+          videoInfo.width = Integer.parseInt(m.group(1));
+          videoInfo.height = Integer.parseInt(m.group(2));
+          LOGGER.trace("parsed resolution: {}x{}", videoInfo.width, videoInfo.height);
+
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse resolution '{}x{}'", m.group(1), m.group(2));
+        }
+      }
+      else {
+        videoInfo.width = mf.getVideoWidth();
+        videoInfo.height = mf.getVideoHeight();
+        LOGGER.trace("MF resolution: {}x{}", videoInfo.width, videoInfo.height);
+      }
+
+      // SAR
+      m = patternSAR.matcher(result);
+      if (m.find()) {
+        try {
+          float sar = Float.parseFloat(m.group(1)) / Float.parseFloat(m.group(2));
+          if (sar <= 0.5f) {
+            sar = 1f;
+          }
+          videoInfo.arSample = sar;
+          LOGGER.trace("parsed SAR: {}", videoInfo.arSample);
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse SAR '{}:{}'", m.group(1), m.group(2));
+        }
+      }
+      else {
+        float sar = mf.getPixelAspectRatio();
+        if (sar <= 0.5f) {
+          sar = 1f;
+        }
+        videoInfo.arSample = sar;
+        LOGGER.trace("MF SAR: {}", videoInfo.arSample);
+      }
+    }
+  }
+
+  private void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
     if (StringUtils.isNotEmpty(result)) {
       Matcher matcher = patternSample.matcher(result);
       if (matcher.find()) {
-        String sample = matcher.results()
-            .map(match -> match.group(5) + " " + match.group(6) + " " + match.group(1) + " " + match.group(2) + " " + match.group(3) + " "
-                + match.group(4))
-            .sorted(Comparator.reverseOrder())
-            .findFirst()
-            .orElse("");
-        String[] sampleData = sample.split(" ");
-        if (sampleData.length == 6) {
-          int width = Integer.parseInt(sampleData[0]);
-          int height = Integer.parseInt(sampleData[1]);
-          int blackLeft = Integer.parseInt(sampleData[2]);
-          int blackRight = videoInfo.width - Integer.parseInt(sampleData[3]) - 1;
-          int blackTop = Integer.parseInt(sampleData[4]);
-          int blackBottom = videoInfo.height - Integer.parseInt(sampleData[5]) - 1;
+        LOGGER.trace("Found pattern: {}", matcher.group());
+        // x1:0 x2:718 y1:73 y2:503 w:718 h:430 x:0 y:74 pts:10800 t:0.120000 crop=718:430:0:74
+        // raw values without any adjustments. Those are the x1, y1 and x2, y2 co-ordinates.
+        // These are the top-left and bottom-right corners of the detected crop rectangle
+        int width = Integer.parseInt(matcher.group(5));
+        int height = Integer.parseInt(matcher.group(6));
+        int blackLeft = Integer.parseInt(matcher.group(1));
+        int blackRight = Math.abs(videoInfo.width - Integer.parseInt(matcher.group(2)) - 1);
+        int blackTop = Integer.parseInt(matcher.group(3));
+        int blackBottom = Math.abs(videoInfo.height - Integer.parseInt(matcher.group(4)) - 1);
 
-          if (height > 0) {
-            videoInfo.arMeasured = (float) width / (float) height;
-          }
-          else {
-            videoInfo.arMeasured = 9.99f;
-          }
+        // orig style (left fir debugging)
+        // String sample = matcher.results()
+        // .map(match -> match.group(5) + " " + match.group(6) + " " + match.group(1) + " " + match.group(2) + " " + match.group(3) + " "
+        // + match.group(4))
+        // .sorted(Comparator.reverseOrder())
+        // .findFirst()
+        // .orElse("");
+        // String[] sampleData = sample.split(" ");
+        // int width = Integer.parseInt(sampleData[0]);
+        // int height = Integer.parseInt(sampleData[1]);
+        // int blackLeft = Integer.parseInt(sampleData[2]);
+        // int blackRight = videoInfo.width - Integer.parseInt(sampleData[3]) - 1;
+        // int blackTop = Integer.parseInt(sampleData[4]);
+        // int blackBottom = videoInfo.height - Integer.parseInt(sampleData[5]) - 1;
 
-          videoInfo.arCalculated = (float) (Math.round(videoInfo.arMeasured * videoInfo.arSample * 10E5) / 10E5);
-
-          String barstxt = String.format("{%4d|%4d} {%3d|%3d}", blackLeft, blackRight, blackTop, blackBottom);
-
-          checkPlausibility(width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
+        if (height > 0) {
+          videoInfo.arMeasured = (float) width / (float) height;
         }
+        else {
+          videoInfo.arMeasured = 9.99f;
+        }
+
+        videoInfo.arCalculated = (float) (Math.round(videoInfo.arMeasured * videoInfo.arSample * 10E5) / 10E5);
+
+        String barstxt = String.format("{%4d|%4d} {%3d|%3d}", blackLeft, blackRight, blackTop, blackBottom);
+        LOGGER.trace(barstxt);
+
+        checkPlausibility(result, width, height, blackLeft, blackRight, blackTop, blackBottom, barstxt, seconds, increment, videoInfo);
+      }
+      else {
+        // got a result - but did not match. lets see...
+        LOGGER.warn("Got a result - but it did no match!");
+        LOGGER.trace("TRACE: \\n{}", result);
       }
     }
     else {
@@ -331,11 +449,12 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected void checkPlausibility(int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt, int seconds,
-      int increment, VideoInfo videoInfo) {
+  private void checkPlausibility(String result, int width, int height, int blackLeft, int blackRight, int blackTop, int blackBottom, String barstxt,
+      int seconds, int increment, VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiWidthDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -346,6 +465,7 @@ public abstract class ARDetectorTask extends TmmTask {
     else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, this.plausiHeightDeltaPct);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       }
@@ -357,6 +477,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, width, this.plausiWidthPct,
           videoInfo.width);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
@@ -368,6 +489,7 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
           this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()), barstxt, height, this.plausiHeightPct,
           videoInfo.height);
+      LOGGER.trace("Plausibility error: {}", result);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       }
@@ -402,7 +524,7 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected void calculateARPrimaryAndSecondaryRaw(VideoInfo videoInfo) {
+  void calculateARPrimaryAndSecondaryRaw(VideoInfo videoInfo) {
     videoInfo.arPrimaryRaw = videoInfo.arMap.entrySet()
         .stream()
         .sorted(Map.Entry.<Float, Integer> comparingByValue().reversed())
@@ -454,7 +576,7 @@ public abstract class ARDetectorTask extends TmmTask {
         String.format("%6.2f", arOtherPct));
   }
 
-  protected void detectMultiFormat(VideoInfo videoInfo) {
+  private void detectMultiFormat(VideoInfo videoInfo) {
     if (videoInfo.arSecondaryPct >= this.multiFormatThresholdPct) {
       LOGGER.debug(
           "Multi format:      yes                                             AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
@@ -495,7 +617,7 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected float roundAR(float ar) {
+  float roundAR(float ar) {
     float rounded = 999f;
     boolean roundNearest = false;
 
@@ -532,7 +654,7 @@ public abstract class ARDetectorTask extends TmmTask {
     return rounded;
   }
 
-  protected float roundAR_nearest(float ar) {
+  private float roundAR_nearest(float ar) {
     float rounded = 999f;
 
     // Round to nearest Aspect Ratio from list
@@ -556,7 +678,7 @@ public abstract class ARDetectorTask extends TmmTask {
     return rounded;
   }
 
-  protected void getNewHeight(VideoInfo videoInfo) {
+  private void getNewHeight(VideoInfo videoInfo) {
     int widthPrimary = videoInfo.widthMap.entrySet()
         .stream()
         .sorted(Map.Entry.<Integer, Integer> comparingByValue().reversed())
@@ -580,25 +702,16 @@ public abstract class ARDetectorTask extends TmmTask {
         .orElse(videoInfo.heightPrimary);
   }
 
-  protected float getSampleAR(MediaFile mediaFile) {
-    String pixelAspectRatio = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio");
-    if (StringUtils.isNotEmpty(pixelAspectRatio)) {
-      return Float.parseFloat(pixelAspectRatio);
-    }
-    return 0f;
-  }
-
   protected boolean canRun() {
     if (!FFmpeg.isAvailable()) {
-      LOGGER.warn("ffmpeg is not available");
+      LOGGER.warn("Would have executed aspect ration detection - unfortunately, FFMpeg could not be found.");
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.ffmpegmissing"));
-
       return false;
     }
     return true;
   }
 
-  protected static class VideoInfo {
+  static class VideoInfo {
     int                   width;
     int                   height;
     int                   duration;
@@ -623,5 +736,24 @@ public abstract class ARDetectorTask extends TmmTask {
     Map<Float, Integer>   arMap                 = new HashMap<>();
     Map<Integer, Integer> widthMap              = new HashMap<>();
     Map<Integer, Integer> heightMap             = new HashMap<>();
+  }
+
+  static class MediaFilePosition {
+
+    private final Path path;
+    private final int  position;
+
+    public MediaFilePosition(Path path, int position) {
+      this.path = path;
+      this.position = position;
+    }
+
+    public Path getPath() {
+      return path;
+    }
+
+    public int getPosition() {
+      return position;
+    }
   }
 }

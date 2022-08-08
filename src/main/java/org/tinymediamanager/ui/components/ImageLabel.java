@@ -102,8 +102,7 @@ public class ImageLabel extends JComponent {
 
     try {
       // create the icon
-      URI uri = IconManager.class.getResource("images/svg/image.svg")
-          .toURI();
+      URI uri = IconManager.class.getResource("images/svg/image.svg").toURI();
       return new TmmSvgIcon(uri);
     }
     catch (Exception e) {
@@ -154,7 +153,6 @@ public class ImageLabel extends JComponent {
       animatedGif = new ImageIcon(originalImageBytes);
       originalImageSize = new Dimension(decoder.getFrameSize().width, decoder.getFrameSize().height);
       scaledImage = animatedGif.getImage();
-      // setIcon(animatedGif);
     }
     else {
       // this is just a normal pic
@@ -248,7 +246,7 @@ public class ImageLabel extends JComponent {
     }
 
     // fetch image in separate worker -> performance
-    worker = new ImageFetcher(this.getSize());
+    worker = new ImageFetcher(imageUrl, this.getSize());
     worker.execute();
     this.repaint();
   }
@@ -295,8 +293,7 @@ public class ImageLabel extends JComponent {
       if (scaleUpIfTooSmall || parentWidth < originalImageSize.width || parentHeight < originalImageSize.height) {
         // we maximize the image regardless of its size or if it is bigger than the parent
         return new Dimension(getParent().getWidth(),
-            (int) ((getParent().getWidth() - getShadowSize()) / (float) originalImageSize.width * (float) originalImageSize.height)
-                + getShadowSize());
+            (int) ((getParent().getWidth() - getShadowSize()) / (float) originalImageSize.width * originalImageSize.height) + getShadowSize());
       }
       else {
         // we wont scale up
@@ -391,7 +388,6 @@ public class ImageLabel extends JComponent {
           drawRectangle.y += 4;
 
           drawImageAtScale1x(scaledImage, g2d, scaleHiDpi(g2d.getTransform(), drawRectangle));
-          // g.drawImage(scaledImage, offsetX + 4, offsetY + 4, newWidth, newHeight, this);
         }
         else if (drawShadow && !drawFullWidth) {
           Point size = ImageUtils.calculateSize(this.getMaxWidth() - SHADOW_SIZE, this.getMaxHeight() - SHADOW_SIZE, originalImageSize.width,
@@ -423,7 +419,7 @@ public class ImageLabel extends JComponent {
           drawImageAtScale1x(scaledImage, g2d, hiDpi);
         }
         else {
-          Point size = null;
+          Point size;
 
           if (drawFullWidth) {
             size = new Point(this.getMaxWidth(), this.getMaxWidth() * originalImageSize.height / originalImageSize.width);
@@ -479,11 +475,11 @@ public class ImageLabel extends JComponent {
 
         // draw the _no image found_ icon
         if (NO_IMAGE != null) {
-          BufferedImage tmp = new BufferedImage(hiDpi.width, hiDpi.height, BufferedImage.TYPE_INT_ARGB);
-          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment()
-              .createGraphics(tmp);
-
+          Graphics2D g2 = null;
           try {
+            BufferedImage tmp = new BufferedImage(hiDpi.width, hiDpi.height, BufferedImage.TYPE_INT_ARGB);
+            g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
+
             FlatUIUtils.setRenderingHints(g2);
 
             g2.setColor(EMPTY_BACKGROUND_COLOR);
@@ -505,16 +501,28 @@ public class ImageLabel extends JComponent {
             }
 
             g2.drawImage(NO_IMAGE.getImage(), (hiDpi.width - NO_IMAGE.getIconWidth()) / 2, (hiDpi.height - NO_IMAGE.getIconHeight()) / 2, null);
+
+            // draw image
+            drawImageAtScale1x(tmp, g2d, hiDpi);
+            tmp.flush();
           }
           finally {
-            g2.dispose();
+            if (g2 != null) {
+              g2.dispose();
+            }
           }
-
-          // draw image
-          drawImageAtScale1x(tmp, g2d, hiDpi);
-          tmp.flush();
         }
       }
+    }
+    catch (Exception e) {
+      // just catch to do not crash here
+      Rectangle rectangle = new Rectangle();
+      rectangle.width = this.getMaxWidth();
+      rectangle.height = this.getMaxHeight();
+
+      Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
+      g2d.setColor(EMPTY_BACKGROUND_COLOR);
+      g2d.fillRect(0, 0, hiDpi.width, hiDpi.height);
     }
     finally {
       g2d.dispose();
@@ -568,7 +576,6 @@ public class ImageLabel extends JComponent {
     AffineTransform transform = g2D.getTransform();
 
     try {
-
       // unscale to factor 1.0 and move origin (to whole numbers)
       if (transform.getScaleX() != 1 || transform.getScaleY() != 1) {
         g2D.setTransform(new AffineTransform(1, 0, 0, 1, 0, 0));
@@ -652,17 +659,17 @@ public class ImageLabel extends JComponent {
    * inner class for downloading online images
    */
   protected class ImageFetcher extends SwingWorker<Void, Void> {
+    private final String    imageUrl;
     private final Dimension newSize;
 
-    public ImageFetcher(Dimension newSize) {
+    public ImageFetcher(String imageUrl, Dimension newSize) {
+      this.imageUrl = imageUrl;
       this.newSize = newSize;
     }
 
     @Override
     protected Void doInBackground() {
-
       try {
-
         // if we want to use the cache, fetch this url via the image cache
         if (preferCache) {
           Path cachedFile = ImageCache.getCachedFile(imageUrl);
@@ -699,7 +706,7 @@ public class ImageLabel extends JComponent {
         recreateScaledImageIfNeeded(0, 0, newSize.width, newSize.height);
       }
       catch (Exception e) {
-        imageUrl = "";
+        ImageLabel.this.imageUrl = "";
         clearImageData();
       }
 
@@ -708,7 +715,6 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected void done() {
-
       if (isCancelled() || !ImageLabel.this.imageUrl.equals(imageUrl)) {
         ImageLabel.this.imageUrl = "";
         clearImageData();
@@ -752,7 +758,7 @@ public class ImageLabel extends JComponent {
 
       // not available in the path and not preferred from the cache..
       // well just try to read it from the cache
-      if ((file == null || !Files.exists(file)) && !preferCache) {
+      if ((!Files.exists(file)) && !preferCache) {
         file = ImageCache.getCachedFile(Paths.get(imagePath));
       }
 
@@ -800,8 +806,7 @@ public class ImageLabel extends JComponent {
     public void mouseClicked(MouseEvent arg0) {
 
       if (arg0.getClickCount() == 1 && scaledImage != null) {
-        MainWindow.getInstance()
-            .createLightbox(getImagePath(), getImageUrl());
+        MainWindow.getInstance().createLightbox(getImagePath(), getImageUrl());
       }
     }
   }

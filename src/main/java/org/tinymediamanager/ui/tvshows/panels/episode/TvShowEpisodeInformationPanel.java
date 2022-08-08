@@ -78,7 +78,6 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
-import org.tinymediamanager.ui.tvshows.TvShowEpisodeOtherIdsConverter;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
@@ -112,7 +111,7 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
   private JLabel                            lblAired;
   private JTextPane                         taTags;
   private LinkTextArea                      lblPath;
-  private JTextPane                          taNote;
+  private JTextPane                         taNote;
   private LinkLabel                         lblTraktTvId;
   private LinkLabel                         lblTvdbId;
   private LinkLabel                         lblImdbId;
@@ -606,10 +605,9 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     autoBinding_18.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, Map<String, Object>> tvShowEpisodeSelectionModelBeanProperty_17 = BeanProperty
-        .create("selectedTvShowEpisode.ids");
+        .create("selectedTvShowEpisode.otherIds");
     AutoBinding<TvShowEpisodeSelectionModel, Map<String, Object>, JTextPane, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_17, taOtherIds, JTextPaneBeanProperty);
-    autoBinding_19.setConverter(new TvShowEpisodeOtherIdsConverter());
     autoBinding_19.bind();
   }
 }

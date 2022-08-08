@@ -53,7 +53,9 @@ import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -370,6 +372,7 @@ public class TvShowEpisodeNfoParser {
           season = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -388,6 +391,7 @@ public class TvShowEpisodeNfoParser {
           episode = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -406,6 +410,7 @@ public class TvShowEpisodeNfoParser {
           displayseason = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -424,6 +429,7 @@ public class TvShowEpisodeNfoParser {
           displayepisode = Integer.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -452,6 +458,7 @@ public class TvShowEpisodeNfoParser {
           r.rating = Float.parseFloat(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
         element = getSingleElement(root, "votes");
         if (element != null) {
@@ -479,6 +486,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -555,6 +563,7 @@ public class TvShowEpisodeNfoParser {
           year = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -573,6 +582,7 @@ public class TvShowEpisodeNfoParser {
           top250 = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -647,6 +657,7 @@ public class TvShowEpisodeNfoParser {
           runtime = MetadataUtil.parseInt(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -723,6 +734,7 @@ public class TvShowEpisodeNfoParser {
           ids.put(MediaMetadata.TVDB, MetadataUtil.parseInt(element.ownText()));
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -733,6 +745,7 @@ public class TvShowEpisodeNfoParser {
           ids.put(MediaMetadata.TVDB, MetadataUtil.parseInt(element.ownText()));
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -766,12 +779,13 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
       // imdb id and pattern check
       element = getSingleElement(root, "imdb");
-      if (element != null && MetadataUtil.isValidImdbId(element.ownText())) {
+      if (element != null && MediaIdUtil.isValidImdbId(element.ownText())) {
         ids.put(MediaMetadata.IMDB, element.ownText());
       }
 
@@ -903,6 +917,7 @@ public class TvShowEpisodeNfoParser {
           watched = Boolean.parseBoolean(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -916,6 +931,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -972,6 +988,7 @@ public class TvShowEpisodeNfoParser {
           studios.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -997,15 +1014,35 @@ public class TvShowEpisodeNfoParser {
       // if there is exactly one credits tag, split the credits at the comma
       if (elements.size() == 1) {
         try {
-          // split on , or / and remove whitespace around)
-          String[] creditsNames = elements.get(0).ownText().split("\\s*[,\\/]\\s*");
+          Element element = elements.get(0);
+
+          // split on , or / and remove whitespace around
+          List<String> creditsNames = ParserUtils.split(element.ownText());
+
           for (String credit : creditsNames) {
             Person person = new Person();
             person.name = credit;
+
+            // parse IDs, only if exactly one director is in the tag
+            if (creditsNames.size() == 1) {
+              if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+                person.tmdbId = element.attr("tmdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+                person.imdbId = element.attr("imdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+                person.tvdbId = element.attr("tvdbid");
+              }
+            }
+
             credits.add(person);
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -1013,6 +1050,19 @@ public class TvShowEpisodeNfoParser {
           if (StringUtils.isNotBlank(element.ownText())) {
             Person person = new Person();
             person.name = element.ownText();
+
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+
             credits.add(person);
           }
         }
@@ -1033,15 +1083,35 @@ public class TvShowEpisodeNfoParser {
       // if there is exactly one director tag, split the directors at the comma
       if (elements.size() == 1) {
         try {
-          // split on , or / and remove whitespace around)
-          String[] directorNames = elements.get(0).ownText().split("\\s*[,\\/]\\s*");
+          Element element = elements.get(0);
+
+          // split on , or / and remove whitespace around
+          List<String> directorNames = ParserUtils.split(element.ownText());
+
           for (String director : directorNames) {
             Person person = new Person();
             person.name = director;
+
+            // parse IDs, only if exactly one director is in the tag
+            if (directorNames.size() == 1) {
+              if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+                person.tmdbId = element.attr("tmdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+                person.imdbId = element.attr("imdbid");
+              }
+
+              if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+                person.tvdbId = element.attr("tvdbid");
+              }
+            }
+
             directors.add(person);
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       else {
@@ -1049,6 +1119,19 @@ public class TvShowEpisodeNfoParser {
           if (StringUtils.isNotBlank(element.ownText())) {
             Person person = new Person();
             person.name = element.ownText();
+
+            if (StringUtils.isNotBlank(element.attr("tmdbid"))) {
+              person.tmdbId = element.attr("tmdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("imdbid"))) {
+              person.imdbId = element.attr("imdbid");
+            }
+
+            if (StringUtils.isNotBlank(element.attr("tvdbid"))) {
+              person.tvdbId = element.attr("tvdbid");
+            }
+
             directors.add(person);
           }
         }
@@ -1105,6 +1188,10 @@ public class TvShowEpisodeNfoParser {
 
             case "tmdbid":
               actor.tmdbId = child.ownText();
+              break;
+
+            case "tvdbid":
+              actor.tvdbId = child.ownText();
               break;
 
             case "imdbid":
@@ -1278,6 +1365,7 @@ public class TvShowEpisodeNfoParser {
           source = MediaSource.getMediaSource(element.ownText());
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -1544,6 +1632,12 @@ public class TvShowEpisodeNfoParser {
       if (StringUtils.isNotBlank(nfoPerson.imdbId)) {
         person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
       }
+
+      int tvdbId = MetadataUtil.parseInt(nfoPerson.tvdbId, 0);
+      if (tvdbId > 0) {
+        person.setId(MediaMetadata.TVDB, tvdbId);
+      }
+
       return person;
     }
   }
@@ -1568,6 +1662,7 @@ public class TvShowEpisodeNfoParser {
     public String profile = "";
     public String tmdbId  = "";
     public String imdbId  = "";
+    public String tvdbId  = "";
   }
 
   public static class Fileinfo {

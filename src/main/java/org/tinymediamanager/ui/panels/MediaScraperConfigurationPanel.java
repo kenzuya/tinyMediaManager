@@ -45,6 +45,9 @@ import org.tinymediamanager.scraper.config.MediaProviderConfigObject;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
+
+import com.google.gson.Gson;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -101,7 +104,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
   }
 
   private JPanel createConfigPanel() {
-    JPanel panel = new JPanel(new MigLayout("gapy 2lp", "[][20lp!][100lp,grow]", ""));
+    JPanel panel = new JPanel(new MigLayout("gapy 2lp", "[][20lp!][200lp,grow]", ""));
 
     int row = 0;
 
@@ -160,6 +163,18 @@ public class MediaScraperConfigurationPanel extends JPanel {
           combobox.setSelectedItem(entry.getValue().getValueAsString());
           combobox.addActionListener(e -> dirty = true);
           comp = combobox;
+          break;
+
+        case MULTI_SELECT:
+          // display as check-combobox
+          TmmCheckComboBox<String> checkComboBox = new TmmCheckComboBox<>(entry.getValue().getPossibleValues().toArray(new String[0]));
+          String valuesAsString = entry.getValue().getValueAsString();
+          if (StringUtils.isNotBlank(valuesAsString)) {
+            String[] values = new Gson().fromJson(valuesAsString, String[].class);
+            checkComboBox.setSelectedItems(values);
+          }
+          checkComboBox.addActionListener(e -> dirty = true);
+          comp = checkComboBox;
           break;
 
         default:
@@ -252,6 +267,9 @@ public class MediaScraperConfigurationPanel extends JPanel {
           if (comp instanceof JCheckBox) {
             mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), ((JCheckBox) comp).isSelected());
           }
+          else if (comp instanceof TmmCheckComboBox) {
+            mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), ((TmmCheckComboBox) comp).getSelectedItems().toString());
+          }
           else if (comp instanceof JComboBox) {
             mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), ((JComboBox) comp).getSelectedItem().toString());
           }
@@ -263,6 +281,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }

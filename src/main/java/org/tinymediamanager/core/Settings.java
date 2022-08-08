@@ -118,6 +118,7 @@ public final class Settings extends AbstractSettings {
   private boolean                                          storeWindowPreferences      = true;
   private DateField                                        dateField                   = DateField.DATE_ADDED;
 
+  private boolean                                          enableTrash                 = true;
   private boolean                                          deleteTrashOnExit           = false;
   private boolean                                          showMemory                  = true;
 
@@ -133,6 +134,7 @@ public final class Settings extends AbstractSettings {
   private boolean                                          writeMediaInfoXml           = false;
 
   // aspect ratio detector
+  boolean                                                  ardEnabled              = false;
   private ArdSettings.Mode                                 ardMode                     = ArdSettings.Mode.DEFAULT;
   private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings           = ArdSettings.defaultSampleSettings();
   private float                                            ardIgnoreBeginningPct       = 2f;
@@ -182,6 +184,15 @@ public final class Settings extends AbstractSettings {
   }
 
   @Override
+  protected void afterLoading() {
+    // create a new HTTP client to force setting the right proxy/SSL params
+    setProxy();
+    System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
+
+    TmmHttpClient.recreateHttpClient();
+  }
+
+  @Override
   protected void writeDefaultSettings() {
     version = ReleaseInfo.getVersion();
 
@@ -205,7 +216,7 @@ public final class Settings extends AbstractSettings {
 
     // default custom aspect ratios
     customAspectRatios.clear();
-    customAspectRatios.addAll(AspectRatio.getDefaultValues().keySet().stream().map(ar -> ar.toString()).collect(Collectors.toList()));
+    customAspectRatios.addAll(AspectRatio.getDefaultValues().stream().map(Object::toString).collect(Collectors.toList()));
     Collections.sort(customAspectRatios);
     firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
 
@@ -667,7 +678,7 @@ public final class Settings extends AbstractSettings {
   /**
    * Sets the TMM proxy.
    */
-  public void setProxy() {
+  private void setProxy() {
     if (useProxy()) {
       System.setProperty("proxyHost", getProxyHost());
 
@@ -683,14 +694,13 @@ public final class Settings extends AbstractSettings {
         System.setProperty("http.proxyPassword", getProxyPassword());
         System.setProperty("https.proxyPassword", getProxyPassword());
       }
-      // System.setProperty("java.net.useSystemProxies", "true");
     }
     try {
       ProxySettings.setProxySettings(getProxyHost(), getProxyPort() == null ? 0 : Integer.parseInt(getProxyPort().trim()), getProxyUsername(),
           getProxyPassword());
     }
     catch (NumberFormatException e) {
-      LOGGER.error("could not parse proxy port: " + e.getMessage());
+      LOGGER.error("could not parse proxy port: {}", e.getMessage());
     }
   }
 
@@ -1009,6 +1019,16 @@ public final class Settings extends AbstractSettings {
     return this.fontFamily;
   }
 
+  public void setEnableTrash(boolean newValue) {
+    boolean oldValue = enableTrash;
+    enableTrash = newValue;
+    firePropertyChange("enableTrash", oldValue, newValue);
+  }
+
+  public boolean isEnableTrash() {
+    return enableTrash;
+  }
+
   public void setDeleteTrashOnExit(boolean newValue) {
     boolean oldValue = deleteTrashOnExit;
     deleteTrashOnExit = newValue;
@@ -1129,6 +1149,16 @@ public final class Settings extends AbstractSettings {
   }
 
   // aspect ratio detector
+  public void setArdEnabled(boolean newValue) {
+    boolean oldValue = this.ardEnabled;
+    this.ardEnabled = newValue;
+    firePropertyChange("ardAfterScrape", oldValue, newValue);
+  }
+
+  public boolean isArdEnabled() {
+    return this.ardEnabled;
+  }
+
   public void setArdMode(ArdSettings.Mode newValue) {
     ArdSettings.Mode oldValue = this.ardMode;
     this.ardMode = newValue;

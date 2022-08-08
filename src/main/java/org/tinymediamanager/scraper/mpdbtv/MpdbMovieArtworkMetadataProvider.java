@@ -15,15 +15,18 @@
  */
 package org.tinymediamanager.scraper.mpdbtv;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -66,19 +69,38 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
 
     MovieEntity scrapeResult = null;
     List<MediaArtwork> ma = new ArrayList<>();
-    String id;
+
+    if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {
+      LOGGER.warn("no username/ABO Key found");
+      throw new ScrapeException(new HttpException(401, "Unauthorized"));
+    }
+
+    // we need to force FR as language (no other language available here)
+    options.setLanguage(MediaLanguages.fr);
 
     // search with mpdbtv id
-    id = options.getIdAsString(providerInfo.getId());
+    int id = options.getIdAsIntOrDefault(providerInfo.getId(), 0);
 
-    if ("0".equals(id)) {
+    if (id == 0) {
       LOGGER.debug("Cannot get artwork - no mpdb id set");
       throw new MissingIdException(getId());
     }
 
     LOGGER.info("========= BEGIN MPDB.tv artwork scraping");
     try {
-      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id, null, null, FORMAT);
+      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
+          options.getLanguage().toLocale(), null, FORMAT);
+      if (!response.isSuccessful()) {
+        String message = "";
+        try {
+          message = response.errorBody().string();
+        }
+        catch (IOException e) {
+          // ignore
+        }
+        LOGGER.warn("request was not successful: HTTP/{} - {}", response.code(), message);
+        throw new HttpException(response.code(), response.message());
+      }
       if (response.isSuccessful()) {
         scrapeResult = response.body();
       }

@@ -56,10 +56,13 @@ import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
-import org.tinymediamanager.ui.movies.actions.MovieFetchImdbRatingAction;
+import org.tinymediamanager.ui.movies.actions.MovieFetchIdsAction;
+import org.tinymediamanager.ui.movies.actions.MovieFetchRatingsAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieLockAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
+import org.tinymediamanager.ui.movies.actions.MovieOpenFolderAction;
+import org.tinymediamanager.ui.movies.actions.MoviePlayAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildMediainfoXmlAction;
@@ -240,7 +243,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieLockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieFetchIdsAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -254,6 +258,16 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
+
+    editPopupMenu.addSeparator();
+    JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
+    downloadMenu.setIcon(IconManager.MENU);
+    downloadMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieDownloadActorImagesAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
+    downloadMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
+    editPopupMenu.add(downloadMenu);
 
     editPopupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
@@ -335,7 +349,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieLockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchIdsAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -357,7 +372,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
     downloadMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
     popupMenu.add(downloadMenu);
 
-    popupMenu.addSeparator();
     JMenu renameMenu = new JMenu(TmmResourceBundle.getString("Toolbar.rename"));
     renameMenu.setIcon(IconManager.MENU);
     renameMenu.add(createAndRegisterAction(MovieRenameAction.class));
@@ -369,6 +383,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieExportAction.class));
+    popupMenu.add(createAndRegisterAction(MoviePlayAction.class));
+    popupMenu.add(createAndRegisterAction(MovieOpenFolderAction.class));
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");

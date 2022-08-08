@@ -15,28 +15,47 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class AspectRatio {
 
-  public static Map<Float, String> getDefaultValues() {
-    LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
-    predefinedValues.put(1.33f, "4:3 (1.33:1)");
-    predefinedValues.put(1.37f, "11:8 (1.37:1)");
-    predefinedValues.put(1.43f, "IMAX (1.43:1)");
-    predefinedValues.put(1.56f, "14:9 (1.56:1)");
-    predefinedValues.put(1.66f, "5:3 (1.66:1)");
-    predefinedValues.put(1.78f, "16:9 (1.78:1)");
-    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
-    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
-    predefinedValues.put(2.00f, "18:9 (2.00:1)");
-    predefinedValues.put(2.20f, "70mm (2.20:1)");
-    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
-    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
-    predefinedValues.put(2.55f, "CinemaScope 55 (2.55:1)");
-    predefinedValues.put(2.76f, "Ultra Panavision 70 (2.76:1)");
+  private static List<Float> predefinedValues = null;
+
+  private AspectRatio() {
+    throw new IllegalAccessError();
+  }
+
+  public static List<Float> getDefaultValues() {
+    // lazy init
+    if (predefinedValues == null) {
+      predefinedValues = new ArrayList<>();
+      predefinedValues.add(1.33f);
+      predefinedValues.add(1.37f);
+      predefinedValues.add(1.43f);
+      predefinedValues.add(1.56f);
+      predefinedValues.add(1.66f);
+      predefinedValues.add(1.78f);
+      predefinedValues.add(1.85f);
+      predefinedValues.add(1.90f);
+      predefinedValues.add(2.00f);
+      predefinedValues.add(2.20f);
+      predefinedValues.add(2.35f);
+      predefinedValues.add(2.40f);
+      predefinedValues.add(2.55f);
+      predefinedValues.add(2.76f);
+    }
+
     return predefinedValues;
   }
 
+  public static String getDescription(Float aspectRatio) {
+    String description = TmmResourceBundle.getString("aspectratio." + String.format(Locale.ENGLISH, "%.2f", aspectRatio));
+    if ("???".equals(description)) {
+      return String.format("%.2f", aspectRatio);
+    }
+
+    return description;
+  }
 }

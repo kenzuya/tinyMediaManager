@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -50,6 +50,7 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
@@ -74,8 +75,8 @@ import org.tinymediamanager.scraper.thetvdb.entities.TranslationResponse;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import retrofit2.Response;
@@ -85,7 +86,8 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShowTvdbMetadataProvider {
+public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
+    implements ITvShowMetadataProvider, ITvShowTvdbMetadataProvider, IMediaIdProvider {
   private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TheTvDbTvShowMetadataProvider.class);
 
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
@@ -124,10 +126,14 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     LOGGER.debug("getMetadata(): {}", options);
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(getId());
-    if (id == null || id == 0) {
+    int id = options.getIdAsInt(getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(options.getImdbId())) {
+      id = getTvdbIdViaImdbId(options.getImdbId());
+    }
+    if (id == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(getId());
     }
@@ -211,7 +217,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       switch (remoteID.sourceName) {
         case "IMDB":
-          if (MetadataUtil.isValidImdbId(remoteID.id)) {
+          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
             md.setId(MediaMetadata.IMDB, remoteID.id);
           }
           break;
@@ -291,14 +297,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       MediaArtwork mediaArtwork = parseArtwork(artworkBaseRecord);
       if (mediaArtwork != null) {
         md.addMediaArt(mediaArtwork);
-      }
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
       }
     }
 
@@ -420,6 +418,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     // enrich the data
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
     md.setId(getId(), episode.id);
     md.setSeasonNumber(episode.seasonNumber);
     md.setEpisodeNumber(episode.episodeNumber);
@@ -453,7 +452,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       switch (remoteID.sourceName) {
         case "IMDB":
-          if (MetadataUtil.isValidImdbId(remoteID.id)) {
+          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
             md.setId(MediaMetadata.IMDB, remoteID.id);
           }
           break;
@@ -747,7 +746,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         MediaMetadata fromMap = episodeMap.get(ep.id);
         if (fromMap == null) {
           MediaMetadata episode = new MediaMetadata(getProviderInfo().getId());
-
+          episode.setScrapeOptions(options);
           episode.setId(getProviderInfo().getId(), ep.id);
           setEpisodeNumber(episode, ep, seasonType);
           episode.setTitle(ep.name);
@@ -783,6 +782,78 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     }
 
     return episodes;
+  }
+
+  @Override
+  public Map<String, Object> getMediaIds(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    // tvdb only makes sense with TV show ids
+    if (mediaType != MediaType.TV_SHOW) {
+      return Collections.emptyMap();
+    }
+
+    // lazy initialization of the api
+    initAPI();
+
+    LOGGER.debug("getMediaIds(): {}", ids);
+
+    // do we have an id from the options?
+    int id = MediaIdUtil.getIdAsInt(ids, getId());
+    if (id == 0 && MediaIdUtil.isValidImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB))) {
+      id = getTvdbIdViaImdbId(MediaIdUtil.getIdAsString(ids, MediaMetadata.IMDB));
+    }
+    if (id == 0) {
+      LOGGER.warn("no id available");
+      throw new MissingIdException(getId());
+    }
+
+    SeriesExtendedRecord show;
+
+    try {
+      Response<SeriesExtendedResponse> httpResponse = tvdb.getSeriesService().getSeriesExtended(id).execute();
+      if (!httpResponse.isSuccessful()) {
+        throw new HttpException(httpResponse.code(), httpResponse.message());
+      }
+      show = httpResponse.body().data;
+    }
+    catch (Exception e) {
+      LOGGER.error("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (show == null) {
+      throw new NothingFoundException();
+    }
+
+    // populate metadata
+    Map<String, Object> showIds = new HashMap<>();
+    showIds.put(getId(), show.id);
+
+    for (RemoteID remoteID : ListUtils.nullSafe(show.remoteIds)) {
+      if (StringUtils.isAnyBlank(remoteID.sourceName, remoteID.id)) {
+        continue;
+      }
+
+      switch (remoteID.sourceName) {
+        case "IMDB":
+          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
+            showIds.put(MediaMetadata.IMDB, remoteID.id);
+          }
+          break;
+
+        case "Zap2It":
+          showIds.put("zap2it", remoteID.id);
+          break;
+
+        case "TheMovieDB.com":
+          showIds.put(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    return showIds;
   }
 
   private SeriesEpisodesRecord getSeriesEpisodesRecord(int showId, SeasonType seasonType, int counter) {
@@ -836,8 +907,12 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
                   if (language.equals(seriesEpisodesRecord.series.originalLanguage)) {
                     toInject.originalName = translation.name;
                   }
-                  toInject.name = translation.name;
-                  toInject.overview = translation.overview;
+                  if (StringUtils.isNotBlank(translation.name)) {
+                    toInject.name = translation.name;
+                  }
+                  if (StringUtils.isNotBlank(translation.overview)) {
+                    toInject.overview = translation.overview;
+                  }
                 }
               }
             }
@@ -867,10 +942,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
               // find the corresponding episode in the response
               for (EpisodeBaseRecord translation : ListUtils.nullSafe(response.data.episodes)) {
                 if (Objects.equals(toInject.id, translation.id)) {
-                  if (StringUtils.isBlank(toInject.name)) {
+                  if (StringUtils.isBlank(toInject.name) && StringUtils.isNotBlank(translation.name)) {
                     toInject.name = translation.name;
                   }
-                  if (StringUtils.isBlank(toInject.overview)) {
+                  if (StringUtils.isBlank(toInject.overview) && StringUtils.isNotBlank(translation.overview)) {
                     toInject.overview = translation.overview;
                   }
                 }

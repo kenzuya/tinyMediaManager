@@ -50,8 +50,6 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeCastPanel extends JPanel {
   private static final long                 serialVersionUID = 4712144916016763491L;
 
-
-
   private final TvShowEpisodeSelectionModel selectionModel;
   private EventList<Person>                 actorEventList   = null;
 
@@ -135,7 +133,14 @@ public class TvShowEpisodeCastPanel extends JPanel {
       JLabel lblActorsT = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
       add(lblActorsT, "cell 0 2,aligny top");
 
-      tableActors = new PersonTable(actorEventList);
+      tableActors = new PersonTable(actorEventList) {
+        @Override
+        public void onPersonChanged(Person person) {
+          super.onPersonChanged(person);
+          TvShowEpisodeCastPanel.this.selectionModel.getSelectedTvShowEpisode().saveToDb();
+          TvShowEpisodeCastPanel.this.selectionModel.getSelectedTvShowEpisode().writeNFO();
+        }
+      };
       tableActors.setName("tvshows.episode.actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
 

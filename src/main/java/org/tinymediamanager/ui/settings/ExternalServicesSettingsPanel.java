@@ -101,6 +101,7 @@ class ExternalServicesSettingsPanel extends JPanel {
       refreshToken = tokens.get("refreshToken") == null ? "" : tokens.get("refreshToken");
     }
     catch (Exception ignored) {
+      // ignored
     }
 
     Settings.getInstance().setTraktAccessToken(accessToken);

@@ -58,6 +58,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
     Integer tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
@@ -174,6 +175,8 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     }
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
+
     // found the correct episode
     md.setId("tvmaze", episode.id);
     md.setTitle(episode.name);
@@ -320,6 +323,8 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     // get the correct information
     for (Episode episode : episodeList) {
       MediaMetadata md = new MediaMetadata(getId());
+      md.setScrapeOptions(options);
+
       // found the correct episode
       md.setTitle(episode.name);
       md.setPlot(Jsoup.parse(episode.summary).text());

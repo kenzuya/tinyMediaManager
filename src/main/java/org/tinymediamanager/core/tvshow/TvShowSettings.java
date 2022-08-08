@@ -17,6 +17,7 @@ package org.tinymediamanager.core.tvshow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -163,9 +164,11 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        nfoWriteDateEnded                      = false;
   boolean                                        nfoWriteAllActors                      = false;
   boolean                                        nfoWriteSingleStudio                   = false;
+  boolean                                        nfoWriteLockdata                       = false;
 
   // renamer
   boolean                                        renameAfterScrape                      = false;
+  @Deprecated
   boolean                                        ardAfterScrape                         = false;
   boolean                                        updateOnStart                          = false;
   String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
@@ -178,6 +181,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        renamerFilenameSpaceSubstitution       = false;
   String                                         renamerFilenameSpaceReplacement        = "_";
   String                                         renamerColonReplacement                = "";
+  boolean                                        renamerCleanupUnwanted                 = false;
   String                                         renamerFirstCharacterNumberReplacement = "#";
   boolean                                        asciiReplacement                       = false;
   boolean                                        specialSeason                          = true;
@@ -190,6 +194,7 @@ public final class TvShowSettings extends AbstractSettings {
   final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
   final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
   boolean                                        doNotOverwriteExistingData             = false;
+  boolean                                        fetchAllRatings                        = false;
 
   // artwork scraper
   MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
@@ -414,6 +419,11 @@ public final class TvShowSettings extends AbstractSettings {
     return LOGGER;
   }
 
+  @Override
+  protected void afterLoading() {
+    // nothing to do here
+  }
+
   /**
    * the tmm defaults
    */
@@ -444,6 +454,13 @@ public final class TvShowSettings extends AbstractSettings {
     saveSettings();
   }
 
+  public void setTvShowDataSources(Collection<String> dataSources) {
+    tvShowDataSources.clear();
+    tvShowDataSources.addAll(dataSources);
+    firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
+  }
+
   public void addTvShowDataSources(String path) {
     if (!tvShowDataSources.contains(path)) {
       tvShowDataSources.add(path);
@@ -464,7 +481,10 @@ public final class TvShowSettings extends AbstractSettings {
     int index = tvShowDataSources.indexOf(oldDatasource);
     if (index > -1) {
       tvShowDataSources.remove(oldDatasource);
-      tvShowDataSources.add(index, newDatasource);
+      if (!tvShowDataSources.contains(newDatasource)) {
+        // just to prevent duplicates
+        tvShowDataSources.add(index, newDatasource);
+      }
       TvShowModuleManager.getInstance().getTvShowList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
@@ -479,7 +499,6 @@ public final class TvShowSettings extends AbstractSettings {
     String tmp = tvShowDataSources.get(pos1);
     tvShowDataSources.set(pos1, tvShowDataSources.get(pos2));
     tvShowDataSources.set(pos2, tmp);
-
   }
 
   public String getScraper() {
@@ -715,6 +734,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.asciiReplacement;
     this.asciiReplacement = newValue;
     firePropertyChange("asciiReplacement", oldValue, newValue);
+  }
+
+  public boolean isRenamerCleanupUnwanted() {
+    return renamerCleanupUnwanted;
+  }
+
+  public void setRenamerCleanupUnwanted(boolean newValue) {
+    boolean oldValue = this.renamerCleanupUnwanted;
+    this.renamerCleanupUnwanted = newValue;
+    firePropertyChange("renamerCleanupUnwanted", oldValue, newValue);
   }
 
   public boolean isSpecialSeason() {
@@ -1609,6 +1638,16 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
   }
 
+  public boolean isNfoWriteLockdata() {
+    return nfoWriteLockdata;
+  }
+
+  public void setNfoWriteLockdata(boolean newValue) {
+    boolean oldValue = this.nfoWriteLockdata;
+    this.nfoWriteLockdata = newValue;
+    firePropertyChange("nfoWriteLockdata", oldValue, newValue);
+  }
+
   public String getPreferredRating() {
     return preferredRating;
   }
@@ -1639,12 +1678,14 @@ public final class TvShowSettings extends AbstractSettings {
     return this.renameAfterScrape;
   }
 
+  @Deprecated
   public void setArdAfterScrape(boolean newValue) {
     boolean oldValue = this.ardAfterScrape;
     this.ardAfterScrape = newValue;
     firePropertyChange("ardAfterScrape", oldValue, newValue);
   }
 
+  @Deprecated
   public boolean isArdAfterScrape() {
     return this.ardAfterScrape;
   }
@@ -1780,6 +1821,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = doNotOverwriteExistingData;
     doNotOverwriteExistingData = newValue;
     firePropertyChange("doNotOverwriteExistingData", oldValue, newValue);
+  }
+
+  public boolean isFetchAllRatings() {
+    return fetchAllRatings;
+  }
+
+  public void setFetchAllRatings(boolean newValue) {
+    boolean oldValue = this.fetchAllRatings;
+    this.fetchAllRatings = newValue;
+    firePropertyChange("fetchAllRatings", oldValue, newValue);
   }
 
   public void addShowTvShowArtworkTypes(MediaFileType type) {

@@ -104,6 +104,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           break;
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
     }
@@ -167,6 +168,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addActors();
         addTrailer();
         addDateAdded();
+        addLockdata();
 
         // add connector specific tags
         addOwnTags();
@@ -543,25 +545,20 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     // <url post="yes"
     // cache="auth.json">https://api.thetvdb.com/login?{&quot;apikey&quot;:&quot;439DFEBA9D3059C6&quot;,&quot;id&quot;:289574}|Content-Type=application/json</url>
     // </episodeguide>
-    if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
-      Element episodeguide = document.createElement("episodeguide");
-      Element url = document.createElement("url");
-      url.setAttribute("post", "yes");
-      url.setAttribute("cache", "auth.json");
-      url.setTextContent(
-          "https://api.thetvdb.com/login?{\"apikey\":\"439DFEBA9D3059C6\",\"id\":" + tvShow.getTvdbId() + "}|Content-Type=application/json");
-      episodeguide.appendChild(url);
-      root.appendChild(episodeguide);
+
+    // prefer last scraper id
+    if (MediaMetadata.TVDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getTvdbId())) {
+      root.appendChild(createTvdbEpisodeGuide());
+    }
+    else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+      root.appendChild(createTmdbEpisodeGuide());
+    }
+    // or existing IDs
+    else if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
+      root.appendChild(createTvdbEpisodeGuide());
     }
     else if (StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
-      // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
-      Element episodeguide = document.createElement("episodeguide");
-      Element url = document.createElement("url");
-      url.setTextContent(
-          "http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB) + "?api_key=6a5be4999abf74eba1f9a8311294c267&language="
-              + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
-      episodeguide.appendChild(url);
-      root.appendChild(episodeguide);
+      root.appendChild(createTmdbEpisodeGuide());
     }
     // or even import it from the parser
     else if (parser != null && StringUtils.isNotBlank(parser.episodeguide)) {
@@ -570,7 +567,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         Element episodeguide = document.createElement("episodeguide");
 
         // parse content of episodeguide into own elements
-        Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes("UTF-8")));
+        Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes(StandardCharsets.UTF_8)));
         episodeguide.appendChild(document.importNode(unsupported.getFirstChild(), true));
 
         // and append it
@@ -580,6 +577,29 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         LOGGER.warn("could not set episodeguide");
       }
     }
+  }
+
+  private Element createTvdbEpisodeGuide() {
+    Element episodeguide = document.createElement("episodeguide");
+    Element url = document.createElement("url");
+    url.setAttribute("post", "yes");
+    url.setAttribute("cache", "auth.json");
+    url.setTextContent(
+        "https://api.thetvdb.com/login?{\"apikey\":\"439DFEBA9D3059C6\",\"id\":" + tvShow.getTvdbId() + "}|Content-Type=application/json");
+    episodeguide.appendChild(url);
+
+    return episodeguide;
+  }
+
+  private Element createTmdbEpisodeGuide() {
+    // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
+    Element episodeguide = document.createElement("episodeguide");
+    Element url = document.createElement("url");
+    url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB)
+        + "?api_key=6a5be4999abf74eba1f9a8311294c267&language=" + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
+    episodeguide.appendChild(url);
+
+    return episodeguide;
   }
 
   /**
@@ -699,6 +719,19 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   }
 
   /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata() {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
+  }
+
+  /**
    * add the status in <status>xxx</status>
    */
   protected void addStatus() {
@@ -803,37 +836,25 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     name.setTextContent(tvShowActor.getName());
     actor.appendChild(name);
 
-    Element role = document.createElement("role");
-    role.setTextContent(tvShowActor.getRole());
-    actor.appendChild(role);
-
-    Element thumb = document.createElement("thumb");
-    thumb.setTextContent(tvShowActor.getThumbUrl());
-    actor.appendChild(thumb);
-
-    Element profile = document.createElement("profile");
-    profile.setTextContent(tvShowActor.getProfileUrl());
-    actor.appendChild(profile);
-
-    // Element type = document.createElement("type");
-    // type.setTextContent("Actor");
-    // actor.appendChild(type);
-
-    // TMDB id
-    int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
-    if (tmdbid > 0) {
-      Element id = document.createElement("tmdbid");
-      id.setTextContent(String.valueOf(tmdbid));
-      actor.appendChild(id);
+    if (StringUtils.isNotBlank(tvShowActor.getRole())) {
+      Element role = document.createElement("role");
+      role.setTextContent(tvShowActor.getRole());
+      actor.appendChild(role);
     }
 
-    // IMDB id
-    String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
-    if (StringUtils.isNotBlank(imdbid)) {
-      Element id = document.createElement("imdbid");
-      id.setTextContent(imdbid);
-      actor.appendChild(id);
+    if (StringUtils.isNotBlank(tvShowActor.getThumbUrl())) {
+      Element thumb = document.createElement("thumb");
+      thumb.setTextContent(tvShowActor.getThumbUrl());
+      actor.appendChild(thumb);
     }
+
+    if (StringUtils.isNotBlank(tvShowActor.getProfileUrl())) {
+      Element profile = document.createElement("profile");
+      profile.setTextContent(tvShowActor.getProfileUrl());
+      actor.appendChild(profile);
+    }
+
+    addPersonIdsAsChildren(actor, tvShowActor);
 
     root.appendChild(actor);
   }
@@ -883,9 +904,9 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the user note in <user_note>xxx</user_note>
    */
   protected void addUserNote() {
-    Element user_note = document.createElement("user_note");
-    user_note.setTextContent(tvShow.getNote());
-    root.appendChild(user_note);
+    Element userNote = document.createElement("user_note");
+    userNote.setTextContent(tvShow.getNote());
+    root.appendChild(userNote);
   }
 
   /**
@@ -956,5 +977,39 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
 
     // the first found as fallback
     return tvShow.getIds().keySet().stream().findFirst().orElse("");
+  }
+
+  /**
+   * add all well known ids for the given {@link Person} as XML children
+   *
+   * @param element
+   *          the NFO {@link Element} to add the ids to
+   * @param person
+   *          the {@link Person} to get the ids from
+   */
+  private void addPersonIdsAsChildren(Element element, Person person) {
+    // TMDB id
+    int tmdbId = person.getIdAsInt(MediaMetadata.TMDB);
+    if (tmdbId > 0) {
+      Element id = document.createElement("tmdbid");
+      id.setTextContent(String.valueOf(tmdbId));
+      element.appendChild(id);
+    }
+
+    // IMDB id
+    String imdbId = person.getIdAsString(MediaMetadata.IMDB);
+    if (StringUtils.isNotBlank(imdbId)) {
+      Element id = document.createElement("imdbid");
+      id.setTextContent(imdbId);
+      element.appendChild(id);
+    }
+
+    // TVDB id
+    int tvdbId = person.getIdAsInt(MediaMetadata.TVDB);
+    if (tvdbId > 0) {
+      Element id = document.createElement("tvdbid");
+      id.setTextContent(String.valueOf(tvdbId));
+      element.appendChild(id);
+    }
   }
 }

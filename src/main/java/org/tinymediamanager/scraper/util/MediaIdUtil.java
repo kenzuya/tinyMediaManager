@@ -15,6 +15,11 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +29,9 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
@@ -36,7 +44,7 @@ public class MediaIdUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(MediaIdUtil.class);
 
   private MediaIdUtil() {
-    // empty constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -132,5 +140,297 @@ public class MediaIdUtil {
     }
 
     return "";
+  }
+
+  /**
+   * inject missing ids into the given {@link Map} of ids for the given {@link MediaType}
+   * 
+   * @param ids
+   *          the {@link Map} to fill
+   * @param mediaType
+   *          the {@link MediaType}
+   */
+  public static void injectMissingIds(Map<String, Object> ids, MediaType mediaType) {
+    if (mediaType == null) {
+      return;
+    }
+    switch (mediaType) {
+      case MOVIE:
+        injectMovieIds(ids);
+        break;
+
+      case TV_SHOW:
+        injectTvShowIds(ids);
+        break;
+
+      case TV_EPISODE:
+        injectEpisodeIds(ids);
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /**
+   * inject movie ids
+   * 
+   * @param ids
+   *          the {@link Map} to fill
+   */
+  private static void injectMovieIds(Map<String, Object> ids) {
+    List<String> missingIds = getMissingMovieIds(ids);
+
+    if (missingIds.isEmpty()) {
+      // all good - we cannot get more (yet)
+      return;
+    }
+
+    // we can get the ids from different providers.
+    // imdb/tmdb can be fetched (vice versa) via tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TMDB)) {
+      callScraper(MediaMetadata.TMDB, MediaType.MOVIE, ids);
+
+      // re-evaluate the missing ids
+      missingIds = getMissingMovieIds(ids);
+      if (missingIds.isEmpty()) {
+        // all good - we cannot get more (yet)
+        return;
+      }
+    }
+
+    // // call trakt.tv to get the trakt.tv id
+    // if (!missingIds.contains(MediaMetadata.IMDB) && missingIds.contains(MediaMetadata.TRAKT_TV)) {
+    // callScraper(MediaMetadata.TRAKT_TV, MediaType.MOVIE, ids);
+    //
+    // // re-evaluate the missing ids
+    // missingIds = getMissingMovieIds(ids);
+    // if (missingIds.isEmpty()) {
+    // // all good - we cannot get more (yet)
+    // return;
+    // }
+    // }
+  }
+
+  private static List<String> getMissingMovieIds(Map<String, Object> ids) {
+    // get a list of missing, well known ids
+    List<String> missingIds = new ArrayList<>();
+
+    if (!isValidImdbId(getIdAsString(ids, MediaMetadata.IMDB))) {
+      missingIds.add(MediaMetadata.IMDB);
+    }
+    if (getIdAsInt(ids, MediaMetadata.TMDB) <= 0) {
+      missingIds.add(MediaMetadata.TMDB);
+    }
+    // if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
+    // missingIds.add(MediaMetadata.TRAKT_TV);
+    // }
+
+    return missingIds;
+  }
+
+  private static void injectTvShowIds(Map<String, Object> ids) {
+    List<String> missingIds = getMissingTvShowIds(ids);
+
+    if (missingIds.isEmpty()) {
+      // all good - we cannot get more (yet)
+      return;
+    }
+
+    // we can get the ids from different providers.
+    // tvdb can get tvdb, imdb and tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TVDB)) {
+      callScraper(MediaMetadata.TVDB, MediaType.TV_SHOW, ids);
+
+      // re-evaluate the missing ids
+      missingIds = getMissingTvShowIds(ids);
+      if (missingIds.isEmpty()) {
+        // all good - we cannot get more (yet)
+        return;
+      }
+    }
+
+    // imdb/tmdb can be fetched (vice versa) via tmdb
+    if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TMDB)) {
+      callScraper(MediaMetadata.TMDB, MediaType.TV_SHOW, ids);
+
+      // re-evaluate the missing ids
+      missingIds = getMissingTvShowIds(ids);
+      if (missingIds.isEmpty()) {
+        // all good - we cannot get more (yet)
+        return;
+      }
+    }
+
+    // // trakt.tv will get the rest
+    // if (!missingIds.contains(MediaMetadata.IMDB) || !missingIds.contains(MediaMetadata.TRAKT_TV)) {
+    // callScraper(MediaMetadata.TRAKT_TV, MediaType.TV_SHOW, ids);
+    //
+    // // re-evaluate the missing ids
+    // missingIds = getMissingTvShowIds(ids);
+    // if (missingIds.isEmpty()) {
+    // // all good - we cannot get more (yet)
+    // return;
+    // }
+    // }
+  }
+
+  private static List<String> getMissingTvShowIds(Map<String, Object> ids) {
+    // get a list of missing, well known ids
+    List<String> missingIds = new ArrayList<>();
+
+    if (!isValidImdbId(getIdAsString(ids, MediaMetadata.IMDB))) {
+      missingIds.add(MediaMetadata.IMDB);
+    }
+    if (getIdAsInt(ids, MediaMetadata.TMDB) <= 0) {
+      missingIds.add(MediaMetadata.TMDB);
+    }
+    if (getIdAsInt(ids, MediaMetadata.TRAKT_TV) <= 0) {
+      missingIds.add(MediaMetadata.TRAKT_TV);
+    }
+    if (getIdAsInt(ids, MediaMetadata.TVDB) <= 0) {
+      missingIds.add(MediaMetadata.TVDB);
+    }
+
+    return missingIds;
+  }
+
+  private static void injectEpisodeIds(Map<String, Object> ids) {
+    Map<String, Object> showIds = new HashMap<>();
+    try {
+      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
+    }
+    catch (Exception e) {
+      // ignored
+    }
+
+    if (showIds.isEmpty()) {
+      // without show ids we cannot do more here
+      return;
+    }
+
+    List<String> missingTvShowIds = getMissingTvShowIds(showIds);
+    // we need at least the imdb id from the show
+    if (missingTvShowIds.contains(MediaMetadata.IMDB)) {
+      return;
+    }
+
+    List<String> missingEpisodeIds = getMissingTvShowIds(ids);
+
+    if (missingEpisodeIds.isEmpty()) {
+      // all good - we cannot get more (yet)
+      return;
+    }
+
+    // trakt.tv will get all needed ids
+    if (!missingTvShowIds.contains(MediaMetadata.IMDB) || !missingTvShowIds.contains(MediaMetadata.TRAKT_TV)) {
+      callScraper(MediaMetadata.TRAKT_TV, MediaType.TV_EPISODE, ids);
+
+      // re-evaluate the missing ids
+      missingEpisodeIds = getMissingTvShowIds(ids);
+      if (missingEpisodeIds.isEmpty()) {
+        // all good - we cannot get more (yet)
+        return;
+      }
+    }
+  }
+
+  private static void callScraper(String scraperId, MediaType mediaType, Map<String, Object> ids) {
+    MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, MediaType.getScraperTypeForMediaType(mediaType));
+    if (scraper != null && scraper.isEnabled() && scraper.getMediaProvider() instanceof IMediaIdProvider) {
+      try {
+        Map<String, Object> idsFromScraper = ((IMediaIdProvider) scraper.getMediaProvider()).getMediaIds(ids, mediaType);
+        idsFromScraper.forEach(ids::putIfAbsent);
+      }
+      catch (ScrapeException ignored) {
+        // we already logged that in the scraper
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get {} ratings - '{}'", scraperId, e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Checks if is valid imdb id.
+   * 
+   * @param imdbId
+   *          the imdb id
+   * @return true, if is valid imdb id
+   */
+  public static boolean isValidImdbId(String imdbId) {
+    if (StringUtils.isBlank(imdbId)) {
+      return false;
+    }
+
+    return imdbId.matches("tt\\d{6,}");
+  }
+
+  /**
+   * any ID as String or empty
+   *
+   * @return the ID-value as String or an empty string
+   */
+  public static String getIdAsString(Map<String, Object> ids, String key) {
+    if (ids == null) {
+      return "";
+    }
+
+    Object obj = ids.get(key);
+    if (obj == null) {
+      return "";
+    }
+    return String.valueOf(obj);
+  }
+
+  /**
+   * any ID as int or 0
+   * 
+   * @param ids
+   *          a {@link Map} of all available IDs
+   * @param key
+   *          the provider ID
+   * 
+   * @return the ID-value as int or 0
+   */
+  public static int getIdAsInt(Map<String, Object> ids, String key) {
+    return getIdAsIntOrDefault(ids, key, 0);
+  }
+
+  /**
+   * any ID as int or the default value
+   * 
+   * @param ids
+   *          a {@link Map} of all available IDs
+   * @param key
+   *          the provider ID
+   * @param defaultValue
+   *          the default value to return
+   *
+   * @return the ID-value as int or the default value
+   */
+  public static int getIdAsIntOrDefault(Map<String, Object> ids, String key, int defaultValue) {
+    if (ids == null) {
+      return defaultValue;
+    }
+
+    Object obj = ids.get(key);
+    if (obj == null) {
+      return defaultValue;
+    }
+    if (obj instanceof Integer) {
+      return (Integer) obj;
+    }
+
+    if (obj instanceof String) {
+      try {
+        return Integer.parseInt((String) obj);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse int: {}", e.getMessage());
+      }
+    }
+
+    return defaultValue;
   }
 }

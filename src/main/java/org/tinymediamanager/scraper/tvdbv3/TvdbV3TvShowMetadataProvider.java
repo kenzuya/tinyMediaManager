@@ -52,8 +52,8 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.TvUtils;
 
@@ -111,6 +111,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // do we have an id from the options?
     Integer id = options.getIdAsInteger(MediaMetadata.TVDB);
@@ -143,7 +144,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     // populate metadata
     md.setId(TVDB, show.id);
     md.setTitle(show.seriesName);
-    if (MetadataUtil.isValidImdbId(show.imdbId)) {
+    if (MediaIdUtil.isValidImdbId(show.imdbId)) {
       md.setId(MediaMetadata.IMDB, show.imdbId);
     }
     if (StringUtils.isNotBlank(show.zap2itId)) {
@@ -224,14 +225,6 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     // genres
     for (String genreAsString : ListUtils.nullSafe(show.genre)) {
       md.addGenre(MediaGenres.getGenre(genreAsString));
-    }
-
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
     }
 
     return md;
@@ -330,11 +323,11 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     }
 
     String imdbId = options.getImdbId().isEmpty() ? null : options.getImdbId(); // do not submit empty string!
-    if (MetadataUtil.isValidImdbId(searchString)) {
+    if (MediaIdUtil.isValidImdbId(searchString)) {
       imdbId = searchString; // search via IMDBid only
       searchString = null; // by setting empty searchterm
     }
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       searchString = null; // null-out search string, when searching with IMDB, else 405
     }
 
@@ -508,9 +501,9 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
 
     for (Episode ep : eps) {
       MediaMetadata episode = new MediaMetadata(MediaMetadata.TVDB);
-
+      episode.setScrapeOptions(options);
       episode.setId(MediaMetadata.TVDB, ep.id);
-      if (MetadataUtil.isValidImdbId(ep.imdbId)) {
+      if (MediaIdUtil.isValidImdbId(ep.imdbId)) {
         episode.setId(MediaMetadata.IMDB, ep.imdbId);
       }
       episode.setSeasonNumber(TvUtils.getSeasonNumber(ep.airedSeason));
@@ -599,14 +592,6 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
           }
         }
         episode.addMediaArt(ma);
-      }
-
-      // also try to get the IMDB rating
-      if (episode.getId(MediaMetadata.IMDB) instanceof String) {
-        MediaRating imdbRating = RatingUtil.getImdbRating((String) episode.getId(MediaMetadata.IMDB));
-        if (imdbRating != null) {
-          episode.addRating(imdbRating);
-        }
       }
 
       episodes.add(episode);

@@ -327,7 +327,6 @@ public class ImageUtils {
 
       if (!rescale || newWidth == 0) {
         try (InputStream is = url.getInputStreamWithRetry(5); FileOutputStream outputStream = new FileOutputStream(tempFile.toFile())) {
-
           IOUtils.copy(is, outputStream);
           Utils.flushFileOutputStreamToDisk(outputStream);
         }
@@ -356,6 +355,9 @@ public class ImageUtils {
       if (!Utils.moveFileSafe(tempFile, destFile)) {
         throw new IOException("renaming temp file failed: " + filename);
       }
+
+      // give it a few milliseconds to finish writing on the file system
+      Thread.sleep(150);
     }
     finally {
       // remove temp file

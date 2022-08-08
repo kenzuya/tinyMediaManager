@@ -29,9 +29,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -175,6 +177,10 @@ public class MovieRenamer {
 
   public static Map<String, String> getTokenMap() {
     return Collections.unmodifiableMap(TOKEN_MAP);
+  }
+
+  public static Map<String, String> getTokenMapReversed() {
+    return Collections.unmodifiableMap(TOKEN_MAP.entrySet().stream().collect(Collectors.toMap(Entry::getValue, Entry::getKey)));
   }
 
   private static void renameSubtitles(Movie m) {
@@ -323,6 +329,20 @@ public class MovieRenamer {
     }
     catch (IOException e) {
       LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
+    }
+  }
+
+  /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * 
+   * @param me
+   */
+  private static void cleanupUnwantedFiles(Movie movie) {
+    if (movie.isMultiMovieDir()) {
+      return;
+    }
+    if (MovieModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
+      Utils.deleteUnwantedFilesFor(movie);
     }
   }
 
@@ -649,6 +669,7 @@ public class MovieRenamer {
       }
     }
 
+    cleanupUnwantedFiles(movie);
     removeEmptySubfolders(movie);
     movie.saveToDb();
   }
@@ -968,7 +989,6 @@ public class MovieRenamer {
           }
           else if (movie.isDisc()) {
             nfonames.add(MovieNfoNaming.FILENAME_NFO);
-            nfonames.add(MovieNfoNaming.MOVIE_NFO); // unneeded, but "TMM style"
           }
           else {
             nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();

@@ -18,7 +18,11 @@ package org.tinymediamanager.core;
 
 import static org.tinymediamanager.scraper.util.LanguageUtils.parseLanguageFromString;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -28,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,7 +45,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,7 +57,15 @@ import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.mediainfo.MediaInfoXMLParser;
 import org.tinymediamanager.core.mediainfo.MediaInfoXmlCreator;
+import org.tinymediamanager.core.tasks.MediaFileARDetectorTask;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.library.bluray.playlist.MPLSObject;
+import org.tinymediamanager.library.bluray.playlist.MPLSReader;
+import org.tinymediamanager.library.bluray.playlist.PlayItem;
+import org.tinymediamanager.library.dvd.DvdTitle;
+import org.tinymediamanager.library.dvd.IfoReader;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -76,6 +88,8 @@ public class MediaFileHelper {
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
       "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
+  // for structure detection
+  public static final List<String> BLURAY_FOLDERS     = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -179,7 +193,7 @@ public class MediaFileHelper {
   }
 
   private MediaFileHelper() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -291,7 +305,7 @@ public class MediaFileHelper {
       return parseImageType(pathToFile);
     }
 
-    if (basename.matches("(?i).*[_.-]+theme\\d*$") || basename.matches("(?i)theme\\d*")) {
+    if (basename.matches("(?i).*[_.-]+(theme|soundtrack)\\d*$") || basename.matches("(?i)(theme|soundtrack)\\d*")) {
       return MediaFileType.THEME;
     }
 
@@ -321,7 +335,7 @@ public class MediaFileHelper {
     }
 
     // is it is a DISC-like structure, handle it as a video file
-    if (isDiscFile(filename, foldername)) {
+    if (isDiscFolder(filename)) {
       return MediaFileType.VIDEO;
     }
 
@@ -704,6 +718,9 @@ public class MediaFileHelper {
       }
 
       long size = view.size();
+      if (mediaFile.getFile().toFile().isDirectory()) {
+        size = Utils.getDirectorySizeOfDiscFiles(mediaFile.getFile());
+      }
       if (size > 0 && mediaFile.getFilesize() > 0 && size != mediaFile.getFilesize()) {
         dirty = true;
       }
@@ -711,15 +728,6 @@ public class MediaFileHelper {
     }
     catch (Exception e) {
       LOGGER.debug("could not get file information (size/date): {}", e.getMessage());
-    }
-
-    // calculate the filesize for our virtual disc files
-    if (mediaFile.getFile().toFile().isDirectory()) {
-      long size = FileUtils.sizeOfDirectory(mediaFile.getFile().toFile());
-      if (size > 0 && mediaFile.getFilesize() > 0 && size != mediaFile.getFilesize()) {
-        dirty = true;
-      }
-      mediaFile.setFilesize(size);
     }
 
     return dirty;
@@ -759,7 +767,7 @@ public class MediaFileHelper {
 
     // gather subtitle infos independent of MI
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-      gatherSubtitleInformation(mediaFile);
+      gatherSubtitleInformationFromFilename(mediaFile);
     }
 
     // do not work further on 0 byte files
@@ -801,13 +809,18 @@ public class MediaFileHelper {
 
         if (!mediaInfoFiles.isEmpty()) {
           LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
-          parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
+          parseMediainfoSnapshot(mediaFile, mediaInfoFiles); // FIXME: only the first!
+          // sanity check of invalid XMLs
+          if (mediaInfoFiles.get(0).getSnapshot() == null || mediaInfoFiles.get(0).getSnapshot().isEmpty()) {
+            LOGGER.warn("Reading MediaInfoXML did not return something useful...");
+            mediaInfoFiles.clear();
+          }
         }
       }
       catch (Exception e) {
         mediaInfoFiles.clear();
         // reading mediainfo failed; re-read without XML
-        LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+        LOGGER.debug("could not read -mediainfo.xml data - maybe a broken XML? {}", e.getMessage());
       }
     }
 
@@ -841,15 +854,16 @@ public class MediaFileHelper {
     }
 
     // special handling for "disc" files
-    if (mediaFile.isISO() || mediaFile.isDiscFile()) {
-      if (isDVDStructure(mediaInfoFiles)) {
+    // but only if we have more that one MIF detected...
+    if (mediaInfoFiles.size() > 1 && (mediaFile.isISO() || mediaFile.isDiscFile())) {
+      if (isHDDVDStructure(mediaInfoFiles)) {
+        gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
+      }
+      else if (isDVDStructure(mediaInfoFiles)) {
         gatherMediaInformationFromDvdFile(mediaFile, mediaInfoFiles);
       }
       else if (isBlurayStructure(mediaInfoFiles)) {
         gatherMediaInformationFromBluRayFile(mediaFile, mediaInfoFiles);
-      }
-      else if (isHDDVDStructure(mediaInfoFiles)) {
-        gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
       }
       else {
         // no file informations - just handle it as a normal file
@@ -871,7 +885,17 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDiscFile(String filename, String path) {
-    return isDVDFile(filename, path) || isBlurayFile(filename, path) || isHDDVDFile(filename, path);
+    return isDVDFile(filename) || isBlurayFile(filename) || isHDDVDFile(filename);
+  }
+
+  /**
+   * does this path end with a disc folder; so the file is within?
+   * 
+   * @param folder
+   * @return
+   */
+  public static boolean isDiscFolder(String folder) {
+    return folder.endsWith(BDMV) || folder.endsWith(VIDEO_TS) || folder.endsWith(HVDVD_TS);
   }
 
   /**
@@ -883,21 +907,14 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("video_ts".equalsIgnoreCase(filename) || pathname.endsWith("video_ts")) {
-      return true;
-    }
-
+  public static boolean isDVDFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if (VIDEO_TS.equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)");
@@ -909,10 +926,10 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isDVDStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
+    for (MediaInfoFile mif : files) {
 
-      if (isDVDFile(filename, mediaInfoFile.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(VIDEO_TS)) {
         return true;
       }
     }
@@ -928,16 +945,18 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isHDDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
+  public static boolean isHDDVDFile(String filename) {
+    if (StringUtils.isBlank(filename)) {
+      return false;
     }
 
-    pathname = pathname.toLowerCase(Locale.ROOT);
+    // Folder MF only!
+    if (HVDVD_TS.equalsIgnoreCase(filename)) {
+      return true;
+    }
 
-    return "hvdvd_ts".equalsIgnoreCase(filename) || pathname.endsWith("hvdvd_ts");
+    // https://pt.slideshare.net/mvasu22/introduction-tohd-dvdsystemmodel?next_slideshow=true
+    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}[imt]\\d{2}|hv[as]\\d{5}|title\\d{3})\\.(evo|bup|ifo|vti|map)");
   }
 
   /**
@@ -946,10 +965,10 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isHDDVDStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
+    for (MediaInfoFile mif : files) {
 
-      if (isHDDVDFile(filename, mediaInfoFile.getPath())) {
+      // structure MUST be in some folder, not only loose DVD files...
+      if (mif.getPath().endsWith(HVDVD_TS)) {
         return true;
       }
     }
@@ -965,21 +984,14 @@ public class MediaFileHelper {
    *          the path to check
    * @return true/false
    */
-  public static boolean isBlurayFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
-
-    if (pathname == null) {
-      pathname = "";
-    }
-
-    pathname = pathname.toLowerCase(Locale.ROOT);
-
-    if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
-      return true;
-    }
-
+  public static boolean isBlurayFile(String filename) {
     if (StringUtils.isBlank(filename)) {
       return false;
+    }
+
+    // Folder MF only!
+    if (BDMV.equalsIgnoreCase(filename)) {
+      return true;
     }
 
     return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
@@ -1005,10 +1017,16 @@ public class MediaFileHelper {
    * @return true/false
    */
   private static boolean isBlurayStructure(List<MediaInfoFile> files) {
-    for (MediaInfoFile mediaInfoFile : files) {
-      String filename = FilenameUtils.getName(mediaInfoFile.getFilename());
-
-      if (isBlurayFile(filename, mediaInfoFile.getPath())) {
+    for (MediaInfoFile mif : files) {
+      Path p = mif.getFileAsPath();
+      // MI xml for Blurays might not always have a correct filename set
+      if (p.getParent() == null || p.getParent().equals(p.getRoot())) {
+        continue;
+      }
+      String filename = mif.getFileAsPath().getFileName().toString();
+      String foldername = mif.getFileAsPath().getParent().getFileName().toString().toUpperCase(Locale.ROOT);
+      // structure MUST be in some folder, not only loose m2ts files...
+      if (BLURAY_FOLDERS.contains(foldername) && isBlurayFile(filename)) {
         return true;
       }
     }
@@ -1045,19 +1063,8 @@ public class MediaFileHelper {
       mediaInfoFiles.add(new MediaInfoFile(mediaFile.getFile()));
     }
 
-    for (MediaInfoFile file : mediaInfoFiles) {
-      try (MediaInfo mediaInfo = new MediaInfo()) {
-        if (!mediaInfo.open(Paths.get(file.getPath(), file.getFilename()))) {
-          LOGGER.error("Mediainfo could not open file: {}", file);
-        }
-        else {
-          file.setSnapshot(mediaInfo.snapshot());
-        }
-      }
-      // sometimes also an error is thrown
-      catch (Exception | Error e) {
-        LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
-      }
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      mif.gatherMediaInformation();
     }
 
     // at this point there is no valid XML file - write a new one if configured
@@ -1145,7 +1152,15 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
+        // read IFO file directly, to use it later in detectRelevantFiles()
+        if (entry.getName().toUpperCase(Locale.ROOT).endsWith(".IFO")) {
+          byte[] contents = new byte[(int) entry.getSize()];
+          image.readBytes(entry, 0L, contents, 0, (int) entry.getSize());
+          mif.setContents(contents);
+        }
+
+        allFiles.add(mif);
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
@@ -1220,7 +1235,7 @@ public class MediaFileHelper {
     List<MediaInfoFile> miFiles = new ArrayList<>();
 
     try (UDFFileSystem image = new UDFFileSystem(mediaFile.getFileAsPath().toFile(), true)) {
-      int bufferSize = 256 * 1024;
+      int bufferSize = 64 * 1024;
 
       // find all relevant files to parse at the beginning to avoid unnecessary IO
       List<MediaInfoFile> allFiles = new ArrayList<>();
@@ -1229,8 +1244,27 @@ public class MediaFileHelper {
         if (entry.isDirectory()) {
           continue;
         }
+        // ignore BACKUP folders 2 levels deep
+        Path folder = Paths.get(entry.getPath()).getParent();
+        if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          continue;
+        }
+        if (folder.getParent() != null && folder.getParent().getFileName() != null
+            && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+          continue;
+        }
+
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
+
+        // read playlist file directly, to use it later in detectRelevantFiles()
+        if (entry.getName().toUpperCase(Locale.ROOT).endsWith(".MPLS")) {
+          byte[] contents = new byte[(int) entry.getSize()];
+          image.readFileContent(entry, 0L, contents, 0, (int) entry.getSize());
+          mif.setContents(contents);
+        }
+
+        allFiles.add(mif);
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
@@ -1297,19 +1331,68 @@ public class MediaFileHelper {
     return miFiles;
   }
 
+  /**
+   * uses a list of all 'relevant' files, and reduces them to only contain the 'needed' ones<br>
+   * Like DVD IFO and associated VOBs, Bluray MPLS, CLPINF, SSIF, M2TS and other files.<br>
+   * Everything we want to analyze somewhere should be in here,<br>
+   * <br>
+   * <b>YOU NEED TO FILTER FURTHER, WHAT FILES ARE INTERESTING FOR YOU!!!</b>
+   * 
+   * @param mediaInfoFiles
+   * @return
+   */
   static List<MediaInfoFile> detectRelevantFiles(List<MediaInfoFile> mediaInfoFiles) {
     if (mediaInfoFiles.isEmpty()) {
       return Collections.emptyList();
     }
 
-    if (isDVDStructure(mediaInfoFiles)) {
+    if (isHDDVDStructure(mediaInfoFiles)) {
+      return detectRelevantHdDvdFiles(mediaInfoFiles);
+    }
+    else if (isDVDStructure(mediaInfoFiles)) {
       return detectRelevantDvdFiles(mediaInfoFiles);
     }
     else if (isBlurayStructure(mediaInfoFiles)) {
       return detectRelevantBlurayFiles(mediaInfoFiles);
     }
-    else if (isHDDVDStructure(mediaInfoFiles)) {
-      return detectRelevantHdDvdFiles(mediaInfoFiles);
+
+    return mediaInfoFiles;
+  }
+
+  /**
+   * Returns the mediafile, or, in case of a disc structure, a list of all 'relevant' files, and reduces them to only contain the 'needed' ones<br>
+   * Like DVD IFO and associated VOBs, Bluray MPLS, CLPINF, SSIF, M2TS and other files.<br>
+   * Everything we want to analyze somewhere should be in here
+   * 
+   * @param mediaFile
+   * @return
+   */
+  public static List<MediaInfoFile> detectRelevantFiles(MediaFile mediaFile) {
+    List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
+
+    if (Files.isDirectory(mediaFile.getFileAsPath())) {
+      Path folder = mediaFile.getFileAsPath();
+      // looks like a disc structure
+      for (Path path : Utils.listFilesRecursive(folder)) {
+        try {
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
+        }
+      }
+      mediaInfoFiles = detectRelevantFiles(mediaInfoFiles);
+    }
+    else {
+      if (mediaFile.getFilesize() == 0) {
+        try {
+          mediaFile.setFilesize(Files.size(mediaFile.getFileAsPath()));
+        }
+        catch (IOException e) {
+          // ignore - at least, we tried ;)
+        }
+      }
+      mediaInfoFiles.add(new MediaInfoFile(mediaFile));
     }
 
     return mediaInfoFiles;
@@ -1323,51 +1406,110 @@ public class MediaFileHelper {
    * @return a {@link List} of all relevant DVD files
    */
   private static List<MediaInfoFile> detectRelevantDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
-    String prefix = detectRelevantDvdPrefix(mediaInfoFiles);
-
-    // find all relevant files
-
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
-    // a) the biggest VOB
-    // b) the IFO
-    MediaInfoFile ifo = null;
-    MediaInfoFile vob = null;
-    for (MediaInfoFile file : mediaInfoFiles) {
-      if (!file.getFilename().startsWith(prefix)) {
+
+    // find VIDEO_TS.IFO - no not work further if not present
+    MediaInfoFile ifomif = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("VIDEO_TS.IFO"))
+        .findAny()
+        .orElse(null);
+    if (ifomif == null) {
+      LOGGER.debug("Could not find a valid VIDEO_TS.IFO file");
+      return relevantFiles;
+    }
+
+    String prefix = "XXXXXXXX"; // just not to leave empty on errors
+    try {
+      // read VIDEO_TS.IFO
+      DataInputStream din = null;
+      if (ifomif.getContents() == null) {
+        FileInputStream fin = new FileInputStream(ifomif.getFileAsPath().toString());
+        din = new DataInputStream(new BufferedInputStream(fin));
+      }
+      else {
+        din = new DataInputStream(new ByteArrayInputStream(ifomif.getContents()));
+      }
+      IfoReader dvd = new IfoReader();
+      // parse
+      dvd.readVideoTsIfo(din);
+      din.close();
+
+      // get now all unique titleSetNumbers
+      List<Integer> sets = dvd.getTitles().stream().map(DvdTitle::getVtsn).distinct().collect(Collectors.toList());
+      for (Integer vtsn : sets) {
+        String file = String.format("VTS_%02d_0.IFO", vtsn);
+        LOGGER.debug("Reading file {}", file);
+
+        // find it
+        MediaInfoFile vts = mediaInfoFiles.stream()
+            .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase(file))
+            .findAny()
+            .orElse(null);
+        if (vts == null) {
+          continue;
+        }
+
+        if (vts.getContents() == null) {
+          FileInputStream fin = new FileInputStream(vts.getFileAsPath().toString());
+          din = new DataInputStream(new BufferedInputStream(fin));
+        }
+        else {
+          din = new DataInputStream(new ByteArrayInputStream(vts.getContents()));
+        }
+        dvd.readVtsIfo(din, vtsn);
+        din.close();
+      }
+      // DVD/IFO files completely read
+
+      // detected "main" movie
+      DvdTitle main = dvd.getTitles()
+          .stream()
+          .filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
+          .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs))
+          .orElse(null);
+      if (main == null) {
+        // second try, w/o limitation of duration
+        main = dvd.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
+      }
+      if (main == null) {
+        throw new IOException("Could not identify main DVD files - using fallback.");
+      }
+      prefix = "VTS_" + String.format("%02d", main.getVtsn());
+    }
+    catch (IOException e) {
+      LOGGER.warn("Error parsing DVD: {} - Maybe just a MediaIfno XML?", ifomif.getFileAsPath(), e.getMessage());
+      // try our proven fallback
+      // maybe we got the data from XML, so no real files here (but already with MI)
+      // so we have to find the biggest VOB
+      MediaInfoFile vob = mediaInfoFiles.stream()
+          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("VOB"))
+          .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+          .orElse(null);
+      if (vob == null) {
+        LOGGER.debug("Could not find a valid VOB file");
+        return relevantFiles;
+      }
+      prefix = StrgUtils.substr(vob.getFilename(), "(?i)^(VTS_\\d+).*");
+    }
+
+    // now we have the prefix - add them all
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      if (!mif.getFilename().toUpperCase(Locale.ROOT).startsWith(prefix)) {
         continue;
       }
-
-      if (file.getFileExtension().equalsIgnoreCase("ifo")) {
-        ifo = file;
+      // do not use the menu
+      // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
+      // the menu is always in the VTS_nn_0.VOB file
+      if (mif.getFilename().toUpperCase(Locale.ROOT).endsWith("_0.VOB")) {
+        continue;
       }
-      else if (file.getFileExtension().equalsIgnoreCase("vob")) {
-        if (vob == null || vob.getFilesize() < file.getFilesize()) {
-          vob = file;
-        }
+      if (mif.getFileExtension().equalsIgnoreCase("VOB") || mif.getFileExtension().equalsIgnoreCase("IFO")) {
+        relevantFiles.add(mif);
       }
-    }
-
-    if (ifo != null) {
-      relevantFiles.add(ifo);
-    }
-    if (vob != null) {
-      relevantFiles.add(vob);
     }
 
     return relevantFiles;
-  }
-
-  private static String detectRelevantDvdPrefix(List<MediaInfoFile> mediaInfoFiles) {
-    Map<String, Long> fileSizes = new HashMap<>();
-
-    // a) find the "main" title (biggest coherent VOB files)
-    mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("vob")).forEach(mediaInfoFile -> {
-      String prefix = mediaInfoFile.getFilename().replaceAll("(?i)_\\d?\\.vob", "");
-      Long size = fileSizes.getOrDefault(prefix, 0L) + mediaInfoFile.getFilesize();
-      fileSizes.put(prefix, size);
-    });
-
-    return fileSizes.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey(); // NOSONAR
   }
 
   /**
@@ -1378,50 +1520,139 @@ public class MediaFileHelper {
    * @return a {@link List} of all relevant Bluray files
    */
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
-    // a) find the "main" title (biggest m2ts file)
-    MediaInfoFile mainVideo = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
-        .orElse(null);
+    List<MediaInfoFile> relevantFiles = new ArrayList<>();
 
-    if (mainVideo == null) {
-      // no m2ts? maybe a mpls
-      mainVideo = mediaInfoFiles.stream()
-          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("mpls"))
+    // find longest playlist
+    MPLSObject longestPlaylist = new MPLSObject();
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      // ignore BACKUP folders 2 levels deep
+      Path folder = mif.getFileAsPath().getParent();
+      if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
+        continue;
+      }
+      if (folder.getParent() != null && folder.getParent().getFileName() != null
+          && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+        continue;
+      }
+
+      if ("mpls".equalsIgnoreCase(mif.getFileExtension())) {
+        try {
+          DataInputStream din = null;
+          if (mif.getContents() == null) {
+            FileInputStream fin = new FileInputStream(mif.getFileAsPath().toString());
+            din = new DataInputStream(new BufferedInputStream(fin));
+          }
+          else {
+            din = new DataInputStream(new ByteArrayInputStream(mif.getContents()));
+          }
+          MPLSObject mplsFile = new MPLSReader().readBinary(din);
+          din.close();
+
+          if (mplsFile.getDuration() < 120) {
+            LOGGER.trace("Playlist {} is too short - ignoring", mif.getFilename());
+            continue;
+          }
+          // we completely ignore playlists with duplicate tracks/streams
+          if (!hasDupeTracks(mplsFile)) {
+            if (mplsFile.getDuration() > longestPlaylist.getDuration()) {
+              longestPlaylist = mplsFile;
+              relevantFiles.clear(); // there should only be the last in...
+              relevantFiles.add(mif);
+              LOGGER.trace("Considering {} as longest playlist (for now)", mif.getFilename());
+            }
+          }
+          else {
+            LOGGER.trace("Playlist {} has duplicate streams - ignoring", mif.getFilename());
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
+        }
+      }
+    }
+
+    if (longestPlaylist.getDuration() > 0) {
+      List<String> items = new ArrayList<>();
+      List<Long> durations = new ArrayList<>();
+
+      // get all the needed clips/durations in correct order
+      for (PlayItem item : longestPlaylist.getPlayList().getPlayItems()) {
+        items.add(item.getAngles()[0].getClipName());
+        durations.add((item.getOutTime() - item.getInTime()) / 45000);
+      }
+
+      // loop over items (in correct order), and add all files with matching clip numbers
+      for (int i = 0; i < items.size(); i++) {
+        String item = items.get(i);
+        for (MediaInfoFile mif : mediaInfoFiles) {
+          // ignore BACKUP folders 2 levels deep
+          Path folder = mif.getFileAsPath().getParent();
+          if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
+            continue;
+          }
+          if (folder != null && folder.getParent() != null && folder.getParent().getFileName() != null
+              && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
+            continue;
+          }
+          // do not add all matching playlists - we have ours already in
+          if (mif.getFileExtension().equalsIgnoreCase("mpls")) {
+            continue;
+          }
+          if (mif.getFilename().startsWith(item)) {
+            mif.setDuration(durations.get(i).intValue());
+            relevantFiles.add(mif);
+          }
+        }
+      }
+    }
+    else {
+      // MediaInfo XML of a Bluray (or a Bluray file) has only one MIF
+      if (mediaInfoFiles.size() == 1 && mediaInfoFiles.get(0).getSnapshot() != null) {
+        // xml was parsed - return as relevant
+        relevantFiles.add(mediaInfoFiles.get(0));
+        return relevantFiles;
+      }
+
+      // no? just use our traditional way of finding the "biggest" file...
+      MediaInfoFile mainVideo = mediaInfoFiles.stream()
+          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
           .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
           .orElse(null);
-    }
 
-    if (mainVideo == null) {
-      return Collections.emptyList();
-    }
+      if (mainVideo == null || !mainVideo.getFilename().matches("^\\d{5}.*")) {
+        return Collections.emptyList();
+      }
 
-    List<MediaInfoFile> relevantFiles = new ArrayList<>();
-    relevantFiles.add(mainVideo);
-
-    String basename = FilenameUtils.getBaseName(mainVideo.getFilename());
-
-    // b) check if there is a SSIF file with the same basename as the m2ts (this may contain the 3D information)
-    MediaInfoFile ssif = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ssif") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst()
-        .orElse(null);
-
-    if (ssif != null) {
-      relevantFiles.add(ssif);
-    }
-
-    // c) check if there is a CLPI (clipinf) file with the same basename as the m2ts (this may contain subtitle infos)
-    MediaInfoFile clpi = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("clpi") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst()
-        .orElse(null);
-
-    if (clpi != null) {
-      relevantFiles.add(clpi);
+      String prefix = mainVideo.getFilename().substring(0, 5);
+      for (MediaInfoFile mif : mediaInfoFiles) {
+        if (mif.getFilename().startsWith(prefix)) {
+          relevantFiles.add(mif);
+        }
+      }
     }
 
     return relevantFiles;
+  }
+
+  /**
+   * Some playlists have set the same streams over and over.<br>
+   * This is probably not a correct one(?) (or how should a HW player play this?!
+   * 
+   * @param mplsObject
+   * @return true or false
+   */
+  private static boolean hasDupeTracks(MPLSObject mplsObject) {
+    List<String> streams = new ArrayList<>();
+    for (PlayItem item : mplsObject.getPlayList().getPlayItems()) {
+      String itemKey = item.getAngles()[0].getClipName();
+      if (!streams.contains(itemKey)) {
+        streams.add(itemKey);
+      }
+      else {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -1612,7 +1843,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static void gatherSubtitleInformation(MediaFile mediaFile) {
+  private static void gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
 
@@ -1992,7 +2223,7 @@ public class MediaFileHelper {
 
   private static void gatherExtraData(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     String imdbId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "id");
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       mediaFile.addExtraData("imdbId", imdbId);
     }
 
@@ -2006,7 +2237,7 @@ public class MediaFileHelper {
       mediaFile.addExtraData("originalTitle", originalTitle);
     }
 
-    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description");
+    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
     if (StringUtils.isNotBlank(plot)) {
       mediaFile.addExtraData("plot", plot);
     }
@@ -2016,10 +2247,22 @@ public class MediaFileHelper {
       mediaFile.addExtraData("genre", genre);
     }
 
-    String date = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Recorded_Date", "Date");
-    if (StringUtils.isNotBlank(date) && date.matches("^\\d{4}.*")) {
-      // try to parse out the year
-      mediaFile.addExtraData("year", date.substring(0, 4));
+    String dateAsString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
+    if (StringUtils.isNotBlank(dateAsString)) {
+      try {
+        Date date = StrgUtils.parseDate(dateAsString);
+        if (date != null) {
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date);
+          mediaFile.addExtraData("year", String.valueOf(calendar.get(Calendar.YEAR)));
+
+          // is parsable - just readd as string (will be used later)
+          mediaFile.addExtraData("releaseDate", dateAsString);
+        }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
     }
 
     String season = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Season");
@@ -2158,6 +2401,7 @@ public class MediaFileHelper {
     }
     try {
       float par = Float.parseFloat(parString);
+      mediaFile.setPixelAspectRatio(par);
       mediaFile.setAspectRatio((float) mediaFile.getVideoWidth() * par / mediaFile.getVideoHeight());
     }
     catch (Exception e) {
@@ -2180,6 +2424,11 @@ public class MediaFileHelper {
     }
 
     mediaFile.setHdrFormat(hdrFormat);
+
+    if (Settings.getInstance().isArdEnabled()) {
+      TmmTask task = new MediaFileARDetectorTask(mediaFile);
+      task.run();
+    }
   }
 
   private static String detectHdrFormat(String source) {
@@ -2407,7 +2656,7 @@ public class MediaFileHelper {
     }
   }
 
-  private static int parseDuration(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  public static int parseDuration(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     String dur = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
     if (StringUtils.isNoneBlank(dur)) {
       try {
@@ -2466,46 +2715,41 @@ public class MediaFileHelper {
   }
 
   private static void gatherMediaInformationFromDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
-    // find the IFO with longest duration
-    MediaInfoFile ifo = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ifo"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
-        .orElse(null);
+
+    MediaInfoFile ifo = null;
+    // FIXME: since we now have multiple files, each will overwrite the former :/
+    // parse VOBs first
+    int videoDur = 0;
+    for (MediaInfoFile mif : mediaInfoFiles) {
+      mif.gatherMediaInformation();
+      if (mif.getFileExtension().equalsIgnoreCase("vob")) {
+        gatherVideoInformation(mediaFile, mif.getSnapshot());
+        gatherAudioInformation(mediaFile, mif.getSnapshot());
+
+        // there is no exact overall bitrate for the whole DVD, so we just take the one from the biggest VOB
+        String br = getMediaInfo(mif.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");
+        if (!br.isEmpty()) {
+          try {
+            mediaFile.setOverallBitRate(Integer.parseInt(br) / 1000); // in kbps
+          }
+          catch (NumberFormatException e) {
+            mediaFile.setOverallBitRate(0);
+          }
+        }
+        videoDur += mif.getDuration();
+      }
+      else if (mif.getFileExtension().equalsIgnoreCase("ifo")) {
+        ifo = mif;
+      }
+    }
+    mediaFile.setDuration(videoDur); // accumulated, maybe its right
 
     if (ifo == null) {
-      LOGGER.debug("Could not find a valid IFO file");
-      return;
+      return; // ;(
     }
 
-    LOGGER.trace("Considering IFO file: {}", ifo.getFilename());
-    // now find the associated VOB with same VTS prefix.
-    // VTS_01_0.IFO <-- meta, subtitles, audio
-    // VTS_01_0.VOB <-- menu
-    // VTS_01_1.VOB <-- video, audio
-
-    // check DVD VOBs
-    String prefix = StrgUtils.substr(ifo.getFilename(), "(?i)^(VTS_\\d+).*");
-
-    // get the biggest VOB
-    MediaInfoFile vob = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFilename().startsWith(prefix) && mediaInfoFile.getFileExtension().equals("vob"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
-        .orElse(null);
-
-    if (vob == null) {
-      LOGGER.debug("Could not find a valid VOB file");
-      return;
-    }
-
-    LOGGER.trace("Considering VOB file: {}", vob.getFilename());
-
-    // now we have the 2 files to consider...
-    gatherVideoInformation(mediaFile, vob.getSnapshot());
+    // do IFO last
     gatherSubtitleInformation(mediaFile, ifo.getSnapshot());
-
-    // audio is tricky: half of the information is in the IFO file (language, ...), half in the VOB (bitrate, ...)
-    gatherAudioInformation(mediaFile, vob.getSnapshot());
-
     // mix in language information
     for (int i = 0; i < getAudioStreamCount(ifo.getSnapshot()); i++) {
       String id = getMediaInfo(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "StreamKindPos");
@@ -2539,20 +2783,11 @@ public class MediaFileHelper {
 
     // vob resets wrong duration - take from ifo
     mediaFile.setDuration(ifo.getDuration());
-
-    // there is no exact overall bitrate for the whole DVD, so we just take the one from the biggest VOB
-    String br = getMediaInfo(vob.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");
-    if (!br.isEmpty()) {
-      try {
-        mediaFile.setOverallBitRate(Integer.parseInt(br) / 1000); // in kbps
-      }
-      catch (NumberFormatException e) {
-        mediaFile.setOverallBitRate(0);
-      }
-    }
   }
 
   private static void gatherMediaInformationFromBluRayFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
+    // FIXME: since this method is called with getRelevantFiles(), we need to take them all!
+
     // find the M2TS/MPLS with longest duration
     MediaInfoFile m2ts = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension().equals("mpls"))
@@ -2681,10 +2916,11 @@ public class MediaFileHelper {
    * @return the {@link Path} to the main video file
    */
   public static Path getMainVideoFile(MediaFile mediaFile) {
+    // extracted DISC folder - no MFs inside TMM
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
       // looks like a disc structure
       List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
-      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
+      for (Path path : Utils.listFilesRecursive(mediaFile.getFileAsPath())) {
         try {
           mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
         }
@@ -2692,25 +2928,7 @@ public class MediaFileHelper {
           LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
         }
       }
-
-      if (mediaFile.isDVDFile()) {
-        String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
-        mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
-          if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
-            return false;
-          }
-          if (file.getFilename().startsWith(relevantPrefix)) {
-            return true;
-          }
-          return false;
-        }).sorted().collect(Collectors.toList());
-      }
-      else if (mediaFile.isBlurayFile()) {
-        mediaInfoFiles = detectRelevantBlurayFiles(mediaInfoFiles);
-      }
-      else if (mediaFile.isHDDVDFile()) {
-        mediaInfoFiles = detectRelevantHdDvdFiles(mediaInfoFiles);
-      }
+      mediaInfoFiles = detectRelevantFiles(mediaInfoFiles);
 
       if (!mediaInfoFiles.isEmpty()) {
         // take the first which is > 200 mb
@@ -2726,113 +2944,6 @@ public class MediaFileHelper {
     }
 
     return mediaFile.getFileAsPath();
-  }
-
-  /**
-   * get all relevant video files. This comes in handy for disc structures
-   * 
-   * @param mediaFile
-   *          the {@link MediaFile} to get all relevant video files
-   * @return a {@link List} of all video files (as {@link Path})
-   */
-  public static List<Path> getVideoFiles(MediaFile mediaFile) {
-    if (Files.isDirectory(mediaFile.getFileAsPath())) {
-      // looks like a disc structure
-      List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
-      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
-        try {
-          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
-        }
-        catch (Exception e) {
-          LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
-        }
-      }
-
-      if (mediaFile.isDVDFile()) {
-        String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
-        mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
-          // we only want .vob files
-          if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
-            return false;
-          }
-
-          // do not use the menu
-          // according to https://en.wikibooks.org/wiki/Inside_DVD-Video/Directory_Structure
-          // the menu is always in the VTS_nn_0.VOB file
-          if (file.getFilename().toLowerCase(Locale.ROOT).endsWith("_0.vob")) {
-            return false;
-          }
-
-          // only use the right prefix
-          if (file.getFilename().startsWith(relevantPrefix)) {
-            return true;
-          }
-
-          return false;
-        }).sorted().collect(Collectors.toList());
-      }
-      else if (mediaFile.isBlurayFile()) {
-        mediaInfoFiles = detectRelevantBlurayFiles(mediaInfoFiles);
-      }
-      else if (mediaFile.isHDDVDFile()) {
-        mediaInfoFiles = detectRelevantHdDvdFiles(mediaInfoFiles);
-      }
-
-      List<Path> files = new ArrayList<>();
-      mediaInfoFiles.forEach(mediaInfoFile -> files.add(Paths.get(mediaInfoFile.getPath(), mediaInfoFile.getFilename())));
-
-      return files;
-    }
-
-    return Collections.singletonList(mediaFile.getFileAsPath());
-  }
-
-  public static MediaFilePosition getPositionInMediaFile(MediaFile mediaFile, int pos) {
-    List<MediaInfoFile> mediaInfoFiles = getVideoFiles(mediaFile)
-        .stream()
-        .map(path -> new MediaInfoFile(path))
-        .collect(Collectors.toList());
-
-    MediaFilePosition result = null;
-
-    if (mediaInfoFiles.size() == 1) {
-      return new MediaFilePosition(mediaFile.getFileAsPath(), pos);
-    }
-
-    if (mediaInfoFiles.size() > 1) {
-      int totalDuration = 0;
-      Path filePath = null;
-      int duration = -1;
-      for (MediaInfoFile file : mediaInfoFiles) {
-        try (MediaInfo mediaInfo = new MediaInfo()) {
-          filePath = Paths.get(file.getPath(), file.getFilename());
-          if (!mediaInfo.open(filePath)) {
-            LOGGER.error("Mediainfo could not open file: {}", file);
-          } else {
-            file.setSnapshot(mediaInfo.snapshot());
-          }
-
-          duration = file.getDuration();
-          LOGGER.info("{}: total duration: {} - file duration: {} - video duration: {}", file.getFilename(), totalDuration, duration, mediaFile.getDuration());
-          if (pos <= (totalDuration + duration)) {
-            result = new MediaFilePosition(filePath, pos - totalDuration);
-            break;
-          }
-
-          totalDuration += duration;
-        }
-        // sometimes also an error is thrown
-        catch (Exception | Error e) {
-          LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
-        }
-      }
-
-      if (result == null) {
-        result = new MediaFilePosition(filePath, duration);
-      }
-    }
-
-    return result;
   }
 
   /**

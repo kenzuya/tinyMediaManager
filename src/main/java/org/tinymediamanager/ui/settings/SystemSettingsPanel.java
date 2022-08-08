@@ -293,6 +293,7 @@ class SystemSettingsPanel extends JPanel {
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.api"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#http-api"));
 
       chkbxEnableHttpServer = new JCheckBox(TmmResourceBundle.getString("Settings.api.enable"));
       panelMisc.add(chkbxEnableHttpServer, "cell 1 0 2 1");

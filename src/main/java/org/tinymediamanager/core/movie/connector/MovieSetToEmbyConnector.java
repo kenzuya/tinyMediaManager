@@ -31,7 +31,7 @@ public class MovieSetToEmbyConnector extends MovieSetGenericXmlConnector {
 
   @Override
   protected void addOwnTags() {
-    // no own tags here
+    // nothing to add yet
   }
 
   @Override

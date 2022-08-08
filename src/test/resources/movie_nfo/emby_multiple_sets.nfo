@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<movie>
+    <plot>
+        <![CDATA[Twenty-eight days after a killer virus was accidentally unleashed from a British research facility, a small group of London survivors are caught in a desperate struggle to protect themselves from the infected. Carried by animals and humans, the virus turns those it infects into homicidal maniacs -- and it's absolutely impossible to contain.]]></plot>
+    <outline><![CDATA[His fear began when he woke up alone. His terror began when he realised he wasn't.]]></outline>
+    <lockdata>false</lockdata>
+    <dateadded>2022-01-25 16:49:39</dateadded>
+    <title>28 Days Later</title>
+    <originaltitle>28 Days Later</originaltitle>
+    <actor>
+        <name>Cillian Murphy</name>
+        <role>Jim</role>
+        <type>Actor</type>
+        <tmdbid>2037</tmdbid>
+    </actor>
+    <actor>
+        <name>Naomie Harris</name>
+        <role>Selena</role>
+        <type>Actor</type>
+        <tmdbid>2038</tmdbid>
+    </actor>
+    <actor>
+        <name>Brendan Gleeson</name>
+        <role>Frank</role>
+        <type>Actor</type>
+        <tmdbid>2039</tmdbid>
+    </actor>
+    <actor>
+        <name>Megan Burns</name>
+        <role>Hannah</role>
+        <type>Actor</type>
+        <tmdbid>2058</tmdbid>
+    </actor>
+    <actor>
+        <name>Christopher Eccleston</name>
+        <role>Major Henry West</role>
+        <type>Actor</type>
+        <tmdbid>2040</tmdbid>
+    </actor>
+    <actor>
+        <name>Noah Huntley</name>
+        <role>Mark</role>
+        <type>Actor</type>
+        <tmdbid>2050</tmdbid>
+    </actor>
+    <actor>
+        <name>Christopher Dunne</name>
+        <role>Jim's father</role>
+        <type>Actor</type>
+        <tmdbid>2052</tmdbid>
+    </actor>
+    <actor>
+        <name>Emma Hitching</name>
+        <role>Jim's mother</role>
+        <type>Actor</type>
+        <tmdbid>2054</tmdbid>
+    </actor>
+    <actor>
+        <name>Luke Mably</name>
+        <role>Private Clifton</role>
+        <type>Actor</type>
+        <tmdbid>68307</tmdbid>
+    </actor>
+    <actor>
+        <name>Stuart McQuarrie</name>
+        <role>Seargent Farrell</role>
+        <type>Actor</type>
+        <tmdbid>2258</tmdbid>
+    </actor>
+    <actor>
+        <name>Ricci Harnett</name>
+        <role>Corporal Mitchell</role>
+        <type>Actor</type>
+        <tmdbid>63003</tmdbid>
+    </actor>
+    <actor>
+        <name>Leo Bill</name>
+        <role>Private Jones</role>
+        <type>Actor</type>
+        <tmdbid>29237</tmdbid>
+    </actor>
+    <actor>
+        <name>Junior Laniyan</name>
+        <role>Private Bell</role>
+        <type>Actor</type>
+        <tmdbid>195446</tmdbid>
+    </actor>
+    <actor>
+        <name>Ray Panthaki</name>
+        <role>Private Bedford</role>
+        <type>Actor</type>
+        <tmdbid>82107</tmdbid>
+    </actor>
+    <actor>
+        <name>Alex Palmer</name>
+        <role>Activist</role>
+        <type>Actor</type>
+        <tmdbid>2060</tmdbid>
+    </actor>
+    <actor>
+        <name>Bindu De Stoppani</name>
+        <role>Activist</role>
+        <type>Actor</type>
+        <tmdbid>2061</tmdbid>
+    </actor>
+    <actor>
+        <name>Jukka Hiltunen</name>
+        <role>Activist</role>
+        <type>Actor</type>
+        <tmdbid>2063</tmdbid>
+    </actor>
+    <actor>
+        <name>David Schneider</name>
+        <role>Scientist</role>
+        <type>Actor</type>
+        <tmdbid>2065</tmdbid>
+    </actor>
+    <actor>
+        <name>Toby Sedgwick</name>
+        <role>Infected Priest</role>
+        <type>Actor</type>
+        <tmdbid>2066</tmdbid>
+    </actor>
+    <actor>
+        <name>Tristan Matthiae</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>1599262</tmdbid>
+    </actor>
+    <actor>
+        <name>Al Stokes</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>2244158</tmdbid>
+    </actor>
+    <actor>
+        <name>Steen Young</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>1713819</tmdbid>
+    </actor>
+    <actor>
+        <name>Sebastian Knapp</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>115176</tmdbid>
+    </actor>
+    <actor>
+        <name>Paul Kasey</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>100085</tmdbid>
+    </actor>
+    <actor>
+        <name>Richard Dwyer</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>2244162</tmdbid>
+    </actor>
+    <actor>
+        <name>Adrian Christopher</name>
+        <role>Featured Infected</role>
+        <type>Actor</type>
+        <tmdbid>2244163</tmdbid>
+    </actor>
+    <director tmdbid="2034">Danny Boyle</director>
+    <trailer>plugin://plugin.video.youtube/?action=play_video&amp;videoid=7suz9ndPBHg</trailer>
+    <trailer>plugin://plugin.video.youtube/?action=play_video&amp;videoid=FcDhdb6J3rM</trailer>
+    <rating>7.6</rating>
+    <year>2002</year>
+    <sorttitle>28 Days Later</sorttitle>
+    <mpaa>R</mpaa>
+    <imdbid>tt0289043</imdbid>
+    <tmdbid>170</tmdbid>
+    <premiered>2002-10-31</premiered>
+    <releasedate>2002-10-31</releasedate>
+    <criticrating>87</criticrating>
+    <tagline>His fear began when he woke up alone. His terror began when he realised he wasn't.</tagline>
+    <country>United Kingdom</country>
+    <genre>Horror</genre>
+    <genre>Thriller</genre>
+    <genre>Science Fiction</genre>
+    <studio>DNA Films</studio>
+    <set tmdbcolid="1565">
+        <name>28 Days/Weeks Later Collection</name>
+    </set>
+    <set>
+        <name>Test TMM 1</name>
+    </set>
+    <set>
+        <name>Test TMM 2</name>
+    </set>
+    <set>
+        <name>Test TMM 3</name>
+    </set>
+    <uniqueid type="Tmdb">170</uniqueid>
+    <uniqueid type="Imdb">tt0289043</uniqueid>
+    <id>tt0289043</id>
+    <fileinfo>
+        <streamdetails/>
+    </fileinfo>
+</movie>

@@ -24,9 +24,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -250,6 +253,14 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.3");
 
+      // we migrated from movie/tvshow settings to a global one
+      // Movie/show settings are just kept for migration an can be removed at any time...
+      if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape() || TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
+        Settings.getInstance().setArdEnabled(true);
+        MovieModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+        TvShowModuleManager.getInstance().getSettings().setArdAfterScrape(false);
+      }
+
       // delete all old ffmpeg addons
       final File[] files = Paths.get("native/addons").toFile().listFiles();
       if (files != null) {
@@ -405,6 +416,69 @@ public class UpgradeTasks {
         if (!TvShowModuleManager.getInstance().getSettings().getSkipFolder().contains("MAKEMKV")) {
           TvShowModuleManager.getInstance().getSettings().addSkipFolder("MAKEMKV");
           TvShowModuleManager.getInstance().getSettings().saveSettings();
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.2.8") < 0) {
+      // remove duplicate data sources
+      Set<String> movieDataSources = new LinkedHashSet<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
+      if (movieDataSources.size() != MovieModuleManager.getInstance().getSettings().getMovieDataSource().size()) {
+        MovieModuleManager.getInstance().getSettings().setMovieDataSources(movieDataSources);
+        MovieModuleManager.getInstance().getSettings().saveSettings();
+      }
+
+      Set<String> tvShowDataSources = new LinkedHashSet<>(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
+      if (tvShowDataSources.size() != TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().size()) {
+        TvShowModuleManager.getInstance().getSettings().setTvShowDataSources(tvShowDataSources);
+        TvShowModuleManager.getInstance().getSettings().saveSettings();
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.3") < 0) {
+      // replace imdbId with imdb
+      for (Movie movie : movieList.getMovies()) {
+        // fix imdb id
+        Object value = movie.getId("imdbId");
+        if (value != null && movie.getId(MediaMetadata.IMDB) == null) {
+          movie.setId(MediaMetadata.IMDB, value);
+        }
+        movie.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : movie.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        movie.saveToDb();
+      }
+
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        // fix imdb id
+        Object value = tvShow.getId("imdbId");
+        if (value != null && tvShow.getId(MediaMetadata.IMDB) == null) {
+          tvShow.setId(MediaMetadata.IMDB, value);
+        }
+        tvShow.setId("imdbId", null);
+
+        // round rating
+        for (Map.Entry<String, MediaRating> entry : tvShow.getRatings().entrySet()) {
+          entry.getValue().setRating(entry.getValue().getRating());
+        }
+        tvShow.saveToDb();
+
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          // fix imdb id
+          value = episode.getId("imdbId");
+          if (value != null && episode.getId(MediaMetadata.IMDB) == null) {
+            episode.setId(MediaMetadata.IMDB, value);
+          }
+          episode.setId("imdbId", null);
+
+          // round rating
+          for (Map.Entry<String, MediaRating> entry : episode.getRatings().entrySet()) {
+            entry.getValue().setRating(entry.getValue().getRating());
+          }
+          episode.saveToDb();
         }
       }
     }

@@ -28,6 +28,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
@@ -50,7 +51,9 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 
@@ -200,6 +203,19 @@ public class MovieScrapeTask extends TmmThreadPool {
             LOGGER.info("=====================================================");
             try {
               md = ((IMovieMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
+
+              // also inject other ids
+              MediaIdUtil.injectMissingIds(md.getIds(), MediaType.MOVIE);
+
+              // also fill other ratings if ratings are requested
+              if (MovieModuleManager.getInstance().getSettings().isFetchAllRatings()
+                  && movieScrapeParams.scraperMetadataConfig.contains(MovieScraperMetadataConfig.RATING)) {
+                for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(md.getIds(), MediaType.MOVIE))) {
+                  if (!md.getRatings().contains(rating)) {
+                    md.addRating(rating);
+                  }
+                }
+              }
             }
             catch (MissingIdException e) {
               LOGGER.warn("missing id for scrape");

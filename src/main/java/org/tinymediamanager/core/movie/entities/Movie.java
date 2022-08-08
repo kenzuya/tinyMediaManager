@@ -110,7 +110,6 @@ import org.tinymediamanager.core.movie.connector.MovieToMpMyVideoConnector;
 import org.tinymediamanager.core.movie.connector.MovieToXbmcConnector;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
-import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
@@ -206,6 +205,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
   private String                                originalTitleSortable      = "";
+  private String                                otherIds                   = "";
   private Date                                  lastWatched                = null;
   private String                                localizedSpokenLanguages   = "";
 
@@ -289,6 +289,48 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  @Override
+  public void setId(String key, Object value) {
+    super.setId(key, value);
+
+    otherIds = "";
+    firePropertyChange("otherIds", null, key + ":" + value);
+  }
+
+  public String getOtherIds() {
+    if (StringUtils.isNotBlank(otherIds)) {
+      return otherIds;
+    }
+
+    for (Map.Entry<String, Object> entry : getIds().entrySet()) {
+      switch (entry.getKey()) {
+        case MediaMetadata.IMDB:
+        case MediaMetadata.TMDB:
+        case TRAKT:
+          // already in UI - skip
+          continue;
+
+        case "tmdbId":
+        case "imdbId":
+        case "traktId":
+          // legacy format
+          continue;
+
+        case MediaMetadata.TMDB_SET:
+          // not needed
+          continue;
+
+        default:
+          if (StringUtils.isNotBlank(otherIds)) {
+            otherIds += "; ";
+          }
+          otherIds += entry.getKey() + ": " + entry.getValue();
+      }
+    }
+
+    return otherIds;
   }
 
   @Override
@@ -769,7 +811,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // set chosen metadata
-    if (config.contains(MovieScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
+    if (config.contains(MovieScraperMetadataConfig.TITLE) && StringUtils.isNotBlank(metadata.getTitle())
+        && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of title if setting is set!
       if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -855,28 +898,44 @@ public class Movie extends MediaEntity implements IMediaInformation {
       setProductionCompany(StringUtils.join(metadata.getProductionCompanies(), ", "));
     }
 
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
     // cast
-    if (config.contains(MovieScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.DIRECTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        directors.clear();
+      }
       setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.WRITERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        writers.clear();
+      }
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
-    if (config.contains(MovieScraperMetadataConfig.PRODUCERS) && (overwriteExistingItems || getProducers().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.PRODUCERS)) {
+      if (!matchFound || overwriteExistingItems) {
+        producers.clear();
+      }
       setProducers(metadata.getCastMembers(Person.Type.PRODUCER));
     }
 
     // genres
-    if (config.contains(MovieScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(MovieScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -928,7 +987,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
               // get movieset metadata (async to donot block here)
               MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
               options.setTmdbId(col);
-              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              if (metadata.getScrapeOptions() != null) {
+                options.setLanguage(metadata.getScrapeOptions().getLanguage());
+              }
+              else {
+                options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              }
               options.setMetadataScraper(movieSetMediaScrapers.get(0));
               options.setArtworkScraper(MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers());
               MovieSetScrapeTask task = new MovieSetScrapeTask(Collections.singletonList(movieSet), options,
@@ -1149,7 +1213,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * all XBMC supported NFO names. (without path!)
    * 
    * @param nfo
-   *          the nfo filenaming
+   *          the nfo file naming
    * @param newMovieFilename
    *          the new/desired movie filename (stacking marker should already be set correct here!)
    * @return the nfo filename
@@ -1161,7 +1225,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
       case FILENAME_NFO:
         if (isDisc()) {
           // in case of disc, this is the name of the "main" disc identifier file!
-          filename = FilenameUtils.removeExtension(findDiscMainFile());
+          if (MovieModuleManager.getInstance().getSettings().isNfoDiscFolderInside()) {
+            filename = FilenameUtils.removeExtension(findDiscMainFile());
+          }
+          else {
+            filename = "movie.nfo";
+          }
         }
         else {
           filename = FilenameUtils.removeExtension(newMovieFilename);
@@ -1247,11 +1316,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!MovieModuleManager.getInstance().getSettings().isWriteActorImages() || isMultiMovieDir()) {
-      return;
-    }
-
     MovieActorImageFetcherTask task = new MovieActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
@@ -1674,6 +1738,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
     String oldValue = this.spokenLanguages;
     this.spokenLanguages = newValue;
     firePropertyChange(SPOKEN_LANGUAGES, oldValue, newValue);
+
+    localizedSpokenLanguages = "";
+    firePropertyChange("localizedSpokenLanguages", oldValue, newValue);
   }
 
   public String getSpokenLanguages() {
@@ -1797,6 +1864,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return mediaFilesWithSubtitles;
   }
 
+  @Deprecated
   private int getRuntimeFromDvdFiles() {
     int rtifo = 0;
     MediaFile ifo = null;
@@ -1843,10 +1911,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   }
 
-  public int getRuntimeFromMediaFiles() {
+  public int getRuntimeFromMediaFilesInSeconds() {
     int runtime = 0;
     if (isDisc) {
-      runtime = getRuntimeFromDvdFiles();
+      // FIXME: does not work with our fake folder MF anylonger
+      // and no, we should not parse IFOs/MPLS files here (IO)
+      // runtime = getRuntimeFromDvdFiles();
+      runtime = this.runtime * 60;
     }
 
     // accumulate old version
@@ -1861,7 +1932,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public int getRuntimeFromMediaFilesInMinutes() {
-    return getRuntimeFromMediaFiles() / 60;
+    return getRuntimeFromMediaFilesInSeconds() / 60;
   }
 
   public Date getReleaseDate() {
@@ -1905,6 +1976,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       setReleaseDate(StrgUtils.parseDate(dateAsString));
     }
     catch (ParseException ignored) {
+      // ignored
     }
   }
 
@@ -2253,11 +2325,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag
+   * when exchanging the video from a disc folder to a file, we have to re-evaluate our "disc" folder flag<br>
+   * Just evaluate VIDEO files - not ALL!!!
    */
   public void reEvaluateDiscfolder() {
     boolean disc = false;
-    for (MediaFile mf : getMediaFiles()) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       if (mf.isDiscFile()) {
         disc = true;
       }
@@ -2659,8 +2732,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
-        && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
+        && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");
@@ -2684,6 +2757,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
           }
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
 
@@ -2700,6 +2774,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
           genres.add(MediaGenres.getGenre(part));
         }
         addToGenres(genres);
+      }
+
+      String date = mediaFile.getExtraData().get("releaseDate");
+      if (StringUtils.isNotBlank(date)) {
+        setReleaseDate(date);
       }
 
       if (dirty) {
@@ -2822,9 +2901,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
-    if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new MovieARDetectorTask(Collections.singletonList(this)));
-    }
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
 
@@ -2835,7 +2911,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // write actor images after possible rename (to have a good folder structure)
-    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages() && !isMultiMovieDir()) {
+    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.getInstance().getSettings().isWriteActorImages()) {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {

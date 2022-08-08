@@ -28,8 +28,8 @@ SetupIconFile=tmm.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-WizardImageFile=compiler:WizModernImage-IS.bmp
-WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
+WizardImageFile=compiler:WizClassicImage-IS.bmp
+WizardSmallImageFile=compiler:WizClassicSmallImage-IS.bmp
 ShowLanguageDialog=auto
 
 [Languages]

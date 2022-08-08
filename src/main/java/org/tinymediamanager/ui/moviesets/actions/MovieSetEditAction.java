@@ -36,8 +36,7 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetEditorDialog;
  * @author Manuel Laggner
  */
 public class MovieSetEditAction extends TmmAction {
-  private static final long           serialVersionUID = 1848573591741154631L;
-
+  private static final long serialVersionUID = 1848573591741154631L;
 
   public MovieSetEditAction() {
     putValue(NAME, TmmResourceBundle.getString("movieset.edit"));

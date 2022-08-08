@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -59,6 +58,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -66,6 +66,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -97,6 +98,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.http.Url;
@@ -556,24 +559,43 @@ public class Utils {
    *          the property to fetch
    * @return the enc prop
    */
-  @SuppressWarnings("deprecation")
   private static String getEncProp(String prop) {
     String property = System.getProperty(prop);
     if (StringUtils.isBlank(property)) {
       return "";
     }
 
-    try {
-      return URLEncoder.encode(property, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e) {
-      return URLEncoder.encode(property);
-    }
+    return URLEncoder.encode(property, StandardCharsets.UTF_8);
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
     List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
     list.removeAll(toFilter);
+  }
+
+  public static void removeDuplicateStringFromCollectionIgnoreCase(Collection<String> original) {
+    // 1. remove duplicates
+    Set<String> items = new LinkedHashSet<>(original);
+
+    // 2. remove case insensitive duplicates
+    Set<String> check = new HashSet<>();
+    List<String> toRemove = new ArrayList<>();
+
+    original.forEach(item -> {
+      String upper = item.toUpperCase(Locale.ROOT);
+      if (check.contains(upper)) {
+        toRemove.add(item);
+      }
+      else {
+        check.add(upper);
+      }
+    });
+
+    toRemove.forEach(items::remove);
+
+    // 3. re-add surviving entries
+    original.clear();
+    original.addAll(items);
   }
 
   /**
@@ -691,7 +713,7 @@ public class Utils {
                 }
                 continue;
               }
-              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
               fixDateAttributes(source, destination);
             }
 
@@ -812,7 +834,7 @@ public class Utils {
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that
           try {
-            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(srcFile, destFile);
             Files.delete(srcFile);
             rename = true; // no exception
@@ -922,7 +944,7 @@ public class Utils {
       for (int i = 0; i < 5; i++) {
         try {
           // replace existing for changing cASE
-          Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+          Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
           fixDateAttributes(srcFile, destFile);
           rename = true;// no exception
         }
@@ -981,37 +1003,46 @@ public class Utils {
    * @return true/false if successful
    */
   public static boolean deleteFileWithBackup(Path file, String datasource) {
-    Path ds = Paths.get(datasource);
-
-    if (!file.startsWith(ds)) { // safety
-      LOGGER.warn("could not delete file '{}': datasource '{}' does not match", file, datasource);
-      return false;
+    // check if the backup is activated
+    if (!Settings.getInstance().isEnableTrash()) {
+      // backup disabled
+      return deleteFileSafely(file);
     }
-    if (Files.isDirectory(file)) {
-      LOGGER.warn("could not delete file '{}': file is a directory!", file);
-      return false;
-    }
+    else {
+      // backup enabled
+      Path ds = Paths.get(datasource);
 
-    // check if the file exists; if it does not exist any more we won't need to delete it ;)
-    if (!Files.exists(file)) {
-      // this file is no more here - just return "true"
-      return true;
-    }
-
-    // backup
-    try {
-      // create path
-      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.BACKUP_FOLDER, ds.relativize(file).toString());
-      if (!Files.exists(backup.getParent())) {
-        Files.createDirectories(backup.getParent());
+      if (!file.startsWith(ds)) { // safety
+        LOGGER.warn("could not delete file '{}': datasource '{}' does not match", file, datasource);
+        return false;
       }
-      // overwrite backup file by deletion prior
-      Files.deleteIfExists(backup);
-      return moveFileSafe(file, backup);
-    }
-    catch (IOException e) {
-      LOGGER.warn("Could not delete file: {}", e.getMessage());
-      return false;
+
+      if (Files.isDirectory(file)) {
+        LOGGER.warn("could not delete file '{}': file is a directory!", file);
+        return false;
+      }
+
+      // check if the file exists; if it does not exist any more we won't need to delete it ;)
+      if (!Files.exists(file)) {
+        // this file is no more here - just return "true"
+        return true;
+      }
+
+      // backup
+      try {
+        // create path
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.BACKUP_FOLDER, ds.relativize(file).toString());
+        if (!Files.exists(backup.getParent())) {
+          Files.createDirectories(backup.getParent());
+        }
+        // overwrite backup file by deletion prior
+        Files.deleteIfExists(backup);
+        return moveFileSafe(file, backup);
+      }
+      catch (IOException e) {
+        LOGGER.warn("Could not delete file: {}", e.getMessage());
+        return false;
+      }
     }
   }
 
@@ -1138,9 +1169,9 @@ public class Utils {
       String language = matcher.group(1);
       String country = matcher.group(2);
 
-      if (country != null) {
+      if (StringUtils.isNotBlank(country)) {
         // found language & country
-        myloc = new Locale(language, country);
+        myloc = getLocaleFromLanguage(language + "_" + country);
       }
       else {
         // found only language
@@ -1172,8 +1203,8 @@ public class Utils {
         // Whoopsie. try to fix string....
         if (language.matches("^\\w\\w_\\w\\w.*")) {
           // okay, maybe some special locale - try to detect all exceptions
-          if ("zh_HANT".equals(language)) {
-            return new Locale("zh", "HANT");
+          if ("zh_Hant".equalsIgnoreCase(language)) {
+            return Locale.TRADITIONAL_CHINESE;
           }
           return LocaleUtils.toLocale(language.substring(0, 5));
         }
@@ -1191,10 +1222,6 @@ public class Utils {
         // map to main countries; de->de_DE (and not de_CH)
         l = locale;
       }
-    }
-    if (l == null && !countries.isEmpty()) {
-      // well, take the first one
-      l = countries.get(0);
     }
 
     if (l == null) {
@@ -1372,7 +1399,7 @@ public class Utils {
       return;
     }
 
-    LOGGER.info("Deleting complete directory: {}", dir);
+    LOGGER.info("Deleting empty directories in: {}", dir);
     Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
@@ -1505,7 +1532,7 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             final Path destFile = Paths.get(destDir.toString(), file.toString());
             LOGGER.debug("Extracting file {} to {}", file, destFile);
-            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(file, destFile);
             return FileVisitResult.CONTINUE;
           }
@@ -1566,7 +1593,7 @@ public class Utils {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toString().equals(fileToExtract.toString())) {
               LOGGER.debug("Extracting file {} to {}", file, destFile);
-              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
               fixDateAttributes(file, destFile);
             }
             return FileVisitResult.CONTINUE;
@@ -1796,6 +1823,41 @@ public class Utils {
   }
 
   /**
+   * Returns the size of that disc folder<br>
+   * Counts only files which are "discFiles()", so a generated NFO would not interfere.
+   *
+   * @param path
+   * @return
+   */
+  public static long getDirectorySizeOfDiscFiles(Path path) {
+    long size = 0;
+
+    // need close Files.walk
+    try (Stream<Path> walk = Files.walk(path)) {
+
+      size = walk
+          // .peek(System.out::println) // debug
+          .filter(Utils::isRegularFile)
+          .filter(f -> new MediaFile(f).isDiscFile())
+          .mapToLong(p -> {
+            // ugly, can pretty it with an extract method
+            try {
+              return Files.size(p);
+            }
+            catch (IOException e) {
+              return 0L;
+            }
+          })
+          .sum();
+
+    }
+    catch (IOException e) {
+      LOGGER.warn("Coule not get folder size: ", e);
+    }
+    return size;
+  }
+
+  /**
    * flush the {@link FileOutputStream} to the disk
    */
   public static void flushFileOutputStreamToDisk(FileOutputStream fileOutputStream) {
@@ -1848,7 +1910,7 @@ public class Utils {
 
     @Override
     public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+      Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
       fixDateAttributes(file, targetPath);
       return FileVisitResult.CONTINUE;
     }
@@ -1871,7 +1933,6 @@ public class Utils {
    * @return a list of files
    */
   public static Set<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
-
     GetUnknownFilesVisitor visitor = new GetUnknownFilesVisitor(regexList);
 
     try {
@@ -1885,9 +1946,8 @@ public class Utils {
   }
 
   private static class GetUnknownFilesVisitor extends AbstractFileVisitor {
-
-    private Set<Path>    fileList = new HashSet<>();
-    private List<String> regexList;
+    private final Set<Path>    fileList = new HashSet<>();
+    private final List<String> regexList;
 
     GetUnknownFilesVisitor(List<String> regexList) {
       this.regexList = regexList;
@@ -1895,7 +1955,6 @@ public class Utils {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-
       for (String regex : regexList) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(file.getFileName().toString());
@@ -1907,12 +1966,54 @@ public class Utils {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) {
       // if we're in a disc folder, don't walk further
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
+
+      for (String regex : regexList) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(dir.getFileName().toString());
+        if (m.find()) {
+          fileList.add(dir);
+        }
+      }
+
       return CONTINUE;
+    }
+  }
+
+  /**
+   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   *
+   * @param me
+   */
+  public static void deleteUnwantedFilesFor(MediaEntity me) {
+    // Get Cleanup File Types from the settings
+    List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
+    LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
+
+    HashSet<Path> fileList = new HashSet<>();
+    for (Path file : Utils.getUnknownFilesByRegex(me.getPathNIO(), regexPatterns)) {
+      if (fileList.contains(file)) {
+        continue;
+      }
+      fileList.add(file);
+    }
+
+    for (Path file : fileList) {
+      MediaFile mf = new MediaFile(file);
+      if (mf.getType() == MediaFileType.VIDEO) {
+        // prevent users from doing something stupid
+        continue;
+      }
+      LOGGER.debug("Deleting File - {}", file);
+      Utils.deleteFileWithBackup(file, me.getDataSource());
+      // remove possible MediaFiles too
+      if (me.getMediaFiles().contains(mf)) {
+        me.removeFromMediaFiles(mf);
+      }
     }
   }
 
@@ -1956,8 +2057,8 @@ public class Utils {
               TarArchiveEntry tae = (TarArchiveEntry) entry;
               Files.createSymbolicLink(f.toPath(), Paths.get(tae.getLinkName()));
             }
-            catch (Exception ignored) {
-              // may fail on filesystems w/o posix support
+            catch (Exception e) {
+              LOGGER.debug("could not create symbolic link - '{}'", e.getMessage());
             }
           }
           else {

@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -61,6 +62,7 @@ import org.tinymediamanager.jsonrpc.io.JavaConnectionManager;
 import org.tinymediamanager.jsonrpc.io.JsonApiRequest;
 import org.tinymediamanager.jsonrpc.notification.AbstractEvent;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 public class KodiRPC {
@@ -84,8 +86,7 @@ public class KodiRPC {
 
       @Override
       public void notificationReceived(AbstractEvent event) {
-        LOGGER.info("Event received: {}", event);
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.INFO, event, "Event received"));
+        LOGGER.debug("Event received: {}", event);
       }
 
       @Override
@@ -199,7 +200,7 @@ public class KodiRPC {
       Map<String, Movie> imdbIds = prepareMovieImdbIdMap(MovieModuleManager.getInstance().getMovieList().getMovies());
       Map<String, List<Movie>> titles = prepareMovieTitleMap(MovieModuleManager.getInstance().getMovieList().getMovies());
 
-      LOGGER.debug("TMM {} items", tmmFiles.size());
+      LOGGER.debug("TMM {} movies", tmmFiles.size());
 
       // iterate over all Kodi resources
       try {
@@ -214,7 +215,7 @@ public class KodiRPC {
         LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
-      LOGGER.debug("mapped {} items", moviemappings.size());
+      LOGGER.debug("mapped {} movies", moviemappings.size());
     }
   }
 
@@ -224,9 +225,21 @@ public class KodiRPC {
     for (Movie movie : movies) {
       MediaFile main = movie.getMainVideoFile();
       if (movie.isDisc()) {
-        // Kodi RPC sends only those disc files
+        // Kodi RPC sends what we call the main disc identifier
         for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-          if (mf.getFilename().equalsIgnoreCase("VIDEO_TS.IFO") || mf.getFilename().equalsIgnoreCase("INDEX.BDMV")) {
+
+          // append MainDiscIdentifier to our folder MF
+          if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.VIDEO_TS)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("VIDEO_TS.IFO").toString()), movie);
+          }
+          else if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.HVDVD_TS)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("HV000I01.IFO").toString()), movie);
+          }
+          else if (mf.getFilename().equalsIgnoreCase(MediaFileHelper.BDMV)) {
+            fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().resolve("index.bdmv").toString()), movie);
+          }
+          else if (mf.isMainDiscIdentifierFile()) {
+            // just add MainDiscIdentifier
             fileMap.put(new SplitUri(movie.getDataSource(), mf.getFileAsPath().toString()), movie);
           }
         }
@@ -243,7 +256,7 @@ public class KodiRPC {
     Map<String, Movie> imdbIdMap = new HashMap<>();
 
     for (Movie movie : movies) {
-      if (MetadataUtil.isValidImdbId(movie.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId())) {
         imdbIdMap.put(movie.getImdbId(), movie);
       }
     }
@@ -295,7 +308,7 @@ public class KodiRPC {
     }
 
     // try to match by imdb id
-    if (MetadataUtil.isValidImdbId(movieDetail.imdbnumber)) {
+    if (MediaIdUtil.isValidImdbId(movieDetail.imdbnumber)) {
       Movie foundMovie = imdbIdMap.get(movieDetail.imdbnumber);
       if (foundMovie != null) {
         return foundMovie;
@@ -335,7 +348,7 @@ public class KodiRPC {
       Map<SplitUri, TvShow> tmmFiles = prepareTvShowFileMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
       Map<String, TvShow> idMap = prepareTvShowIdMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
 
-      LOGGER.debug("TMM {} items", tmmFiles.size());
+      LOGGER.debug("TMM {} shows", tmmFiles.size());
 
       // iterate over all Kodi shows
       try {
@@ -350,7 +363,7 @@ public class KodiRPC {
         LOGGER.debug("could not process Kodi RPC response - '{}'", e.getMessage());
       }
 
-      LOGGER.debug("mapped {} items", tvshowmappings.size());
+      LOGGER.debug("mapped {} shows", tvshowmappings.size());
     }
   }
 
@@ -368,7 +381,7 @@ public class KodiRPC {
     Map<String, TvShow> idMap = new HashMap<>();
 
     for (TvShow tvShow : tvShows) {
-      if (MetadataUtil.isValidImdbId(tvShow.getImdbId())) {
+      if (MediaIdUtil.isValidImdbId(tvShow.getImdbId())) {
         idMap.put(tvShow.getImdbId(), tvShow);
       }
       if (MetadataUtil.parseInt(tvShow.getTvdbId(), 0) > 0) {
@@ -410,7 +423,7 @@ public class KodiRPC {
     }
 
     // try to match by imdb id
-    if (MetadataUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
+    if (MediaIdUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
       TvShow tvShow = idMap.get(tvShowDetail.imdbnumber);
       if (tvShow != null) {
         return tvShow;
@@ -740,14 +753,12 @@ public class KodiRPC {
       return;
     }
 
-    new Thread(() -> {
-      try {
-        JsonApiRequest.execute(connectionManager.getHostConfig(), call.getRequest());
-      }
-      catch (ApiException e) {
-        LOGGER.error("Error calling Kodi: {}", e.getMessage());
-      }
-    }).start();
+    try {
+      JsonApiRequest.execute(connectionManager.getHostConfig(), call.getRequest());
+    }
+    catch (ApiException e) {
+      LOGGER.error("Error calling Kodi: {}", e.getMessage());
+    }
   }
 
   /**

@@ -112,10 +112,10 @@ public enum MediaLanguages {
   vi("Tiếng Việt"),
   wo("Wolof"),
   yo("Èdè Yorùbá"),
-  zh("华语"),
+  zh("中文"),
   zh_CN("大陆简体"),
   zh_HK("香港繁體"),
-  zh_TW("臺灣華語"),
+  zh_TW("臺灣繁體"),
   zu("isiZulu"),
   none("-");
   //@formatter:on

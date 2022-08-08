@@ -32,6 +32,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -57,6 +58,9 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
@@ -186,11 +190,22 @@ public class TvShowScrapeTask extends TmmThreadPool {
               LOGGER.info("=====================================================");
               md = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
 
-              if (md != null) {
-                tvShow.setMetadata(md, tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
-                tvShow.setLastScraperId(tvShowScrapeParams.scrapeOptions.getMetadataScraper().getId());
-                tvShow.setLastScrapeLanguage(tvShowScrapeParams.scrapeOptions.getLanguage().name());
+              // also inject other ids
+              MediaIdUtil.injectMissingIds(md.getIds(), MediaType.TV_SHOW);
+
+              // also fill other ratings if ratings are requested
+              if (MovieModuleManager.getInstance().getSettings().isFetchAllRatings()
+                  && tvShowScrapeParams.tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.RATING)) {
+                for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(md.getIds(), MediaType.TV_SHOW))) {
+                  if (!md.getRatings().contains(rating)) {
+                    md.addRating(rating);
+                  }
+                }
               }
+
+              tvShow.setMetadata(md, tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
+              tvShow.setLastScraperId(tvShowScrapeParams.scrapeOptions.getMetadataScraper().getId());
+              tvShow.setLastScrapeLanguage(tvShowScrapeParams.scrapeOptions.getLanguage().name());
             }
 
             // always add all episode data (for missing episodes and episode list)
@@ -290,12 +305,14 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
     /**
      * Gets the artwork.
-     * 
+     *
+     * @param tvShow
+     *          the {@link TvShow} to get the artwork for
      * @param metadata
-     *          the metadata
+     *          already scraped {@link MediaMetadata}
      * @return the artwork
      */
-    public List<MediaArtwork> getArtwork(TvShow tvShow, MediaMetadata metadata) {
+    private List<MediaArtwork> getArtwork(TvShow tvShow, MediaMetadata metadata) {
       List<MediaArtwork> artwork = new ArrayList<>();
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);

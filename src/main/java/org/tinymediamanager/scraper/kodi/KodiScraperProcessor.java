@@ -22,6 +22,7 @@ import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 
 /**
  * This class emulates the Kodi addon processing
@@ -346,6 +347,10 @@ class KodiScraperProcessor {
         text = proc.executeFunction(url.getFunctionName(), new String[] { "", url.getTextContent() });
         // append = true; // always append sub functions! // NOO, not needed!
       }
+      catch (HttpException e) {
+        LOGGER.error("Failed to process function: '{}' - HTTP: '{}'", text, e.getStatusCode());
+        text = "";
+      }
       catch (Exception e) {
         LOGGER.error("Failed to process function: " + text, e);
         text = "";
@@ -394,7 +399,7 @@ class KodiScraperProcessor {
   public void logCurrentBuffers() {
     LOGGER.trace("============================================================");
     for (int i = 0; i < buffers.length; i++) {
-      LOGGER.trace("===  " + i + ":  " + buffers[i]);
+      LOGGER.trace("===  " + i + ":  " + logBuffer(buffers[i]));
     }
     LOGGER.trace("============================================================");
   }

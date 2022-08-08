@@ -36,6 +36,6 @@ public class CheckForUpdateAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    checkForUpdate(0, true);
+    checkForUpdate(0);
   }
 }

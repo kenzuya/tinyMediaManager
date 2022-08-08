@@ -43,16 +43,20 @@ public class ParserUtils {
   private static final Logger     LOGGER          = LoggerFactory.getLogger(ParserUtils.class);
   private static final String     DELIMITER       = "[\\[\\](){} _,.-]";
 
-  protected static final String[] STOPWORDS       = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "360p",
+  // hard stopwords are words which will always be cleaned
+  protected static final String[] HARD_STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "360p",
       "360i", "720", "720i", "720p", "ac3", "ac3ld", "ac3d", "ac3md", "aoe", "atmos", "avc", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip",
-      "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5",
-      "disc6", "disc7", "disc8", "disc9", "divx", "divx5", "dl", "docu", "doku", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1",
-      "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended",
-      "fragment", "fs", "fps", "german", "h264", "hd", "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld",
-      "limited", "local", "ma", "md", "microhd", "multi", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper",
-      "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd", "screener", "sd", "se", "subbed", "subs", "svcd",
-      "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint",
-      "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
+      "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8",
+      "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7",
+      "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264", "h265", "hd", "hddvd", "hdrip",
+      "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ld", "md", "microhd", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm",
+      "pal", "pdtv", "pso", "r3", "r5", "repack", "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd", "swedish",
+      "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264",
+      "x265", "xf", "xvid", "xvidvd", "8bit", "10bit", "12bit" };
+
+  // soft stopwords are well known words which _may_ occur before the year token and will be cleaned conditionally
+  protected static final String[] SOFT_STOPWORDS  = { "complete", "custom", "dc", "docu", "doku", "extended", "fragment", "internal", "limited",
+      "local", "ma", "multi", "pal", "proper", "read", "retail", "se", "www", "xxx" };
 
   // clean before splitting (needs delimiter in front!)
   protected static final String[] CLEANWORDS      = { "24\\.000", "23\\.976", "23\\.98", "24\\.00", "web\\-dl", "web\\-rip", "blue\\-ray",
@@ -130,7 +134,7 @@ public class ParserUtils {
     // iterate over all splitted items
     for (int i = 0; i < s.length; i++) {
       // search for stopword position
-      for (String stop : STOPWORDS) {
+      for (String stop : HARD_STOPWORDS) {
         if (s[i].equalsIgnoreCase(stop)) {
           s[i] = ""; // delete stopword
           // remember lowest position, but not lower than 2!!!
@@ -139,12 +143,13 @@ public class ParserUtils {
           }
         }
       }
-      if (MetadataUtil.isValidImdbId(s[i])) {
+      if (MediaIdUtil.isValidImdbId(s[i])) {
         s[i] = ""; // delete imdbId from name
       }
     }
 
     // scan backwards - if we have at least 1 token, and the last one is a 4 digit, assume year and remove
+    int yearPosition = -1;
     int currentYear = Calendar.getInstance().get(Calendar.YEAR);
     String year = "";
     for (int i = s.length - 1; i > 0; i--) {
@@ -155,6 +160,8 @@ public class ParserUtils {
           LOGGER.trace("removed token '{}'- seems to be year", s[i]);
           year = s[i];
           s[i] = "";
+          // remember the year position
+          yearPosition = i;
           break;
         }
       }
@@ -172,9 +179,32 @@ public class ParserUtils {
       }
     }
 
+    // iterate over all splitted items (if we found a year, start from that position)
+    int start = yearPosition > 0 ? yearPosition : 0;
+    for (int i = start; i < s.length; i++) {
+      // search for stopword position
+      for (String stop : SOFT_STOPWORDS) {
+        if (s[i].equalsIgnoreCase(stop)) {
+          s[i] = ""; // delete stopword
+          // remember lowest position, but not lower than 2!!!
+          if (i < firstFoundStopwordPosition && i >= 2) {
+            firstFoundStopwordPosition = i;
+          }
+        }
+      }
+      if (MediaIdUtil.isValidImdbId(s[i])) {
+        s[i] = ""; // delete imdbId from name
+      }
+    }
+
     // rebuild string, respecting bad words
     StringBuilder name = new StringBuilder();
-    for (int i = 0; i < firstFoundStopwordPosition; i++) {
+    // if the stopword position is lower than the year position, build the title up to the year position
+    int end = firstFoundStopwordPosition;
+    if (yearPosition > 0 && firstFoundStopwordPosition < yearPosition) {
+      end = yearPosition;
+    }
+    for (int i = 0; i < end; i++) {
       boolean badwordFound = false;
       if (!s[i].isEmpty()) {
         // check for bad words
@@ -284,7 +314,7 @@ public class ParserUtils {
     // replaces any resolution 1234x1234 (must start with a non-word (else too global)
     basename = basename.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
 
-    for (String s : STOPWORDS) {
+    for (String s : HARD_STOPWORDS) {
       basename = basename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " "); // TV stop words must start AND END with a non-word (else
                                                                                              // too global) or line
       // end

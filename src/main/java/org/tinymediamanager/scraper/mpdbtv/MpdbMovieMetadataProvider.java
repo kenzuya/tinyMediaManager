@@ -19,6 +19,7 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
+import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.mpdbtv.entities.Actor;
@@ -51,7 +53,7 @@ import org.tinymediamanager.scraper.mpdbtv.entities.Release;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import retrofit2.Response;
 
@@ -96,6 +98,18 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     try {
       Response<List<SearchEntity>> response = controller.getSearchInformation(getEncodedUserName(), getSubscriptionKey(), options.getSearchQuery(),
           options.getLanguage().toLocale(), true, FORMAT);
+      if (!response.isSuccessful()) {
+        String message = "";
+        try {
+          message = response.errorBody().string();
+        }
+        catch (IOException e) {
+          // ignore
+        }
+        LOGGER.warn("request was not successful: HTTP/{} - {}", response.code(), message);
+        throw new HttpException(response.code(), response.message());
+      }
+
       if (response.isSuccessful()) {
         searchResult.addAll(response.body());
       }
@@ -122,7 +136,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
         result.setTitle(StringEscapeUtils.unescapeHtml4(entity.title));
       }
       result.setYear(entity.year);
-      if (MetadataUtil.isValidImdbId(entity.id_imdb)) {
+      if (MediaIdUtil.isValidImdbId(entity.id_imdb)) {
         result.setId("imdb_id", entity.id_imdb);
       }
       result.setId("allocine_id", entity.id_allocine);
@@ -144,6 +158,8 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     initAPI();
 
     MediaMetadata metadata = new MediaMetadata(providerInfo.getId());
+    metadata.setScrapeOptions(mediaScrapeOptions);
+
     MovieEntity scrapeResult = null;
 
     if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {
@@ -151,10 +167,32 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
+    // we need to force FR as language (no other language available here)
+    mediaScrapeOptions.setLanguage(MediaLanguages.fr);
+
+    // search with mpdbtv id
+    int id = mediaScrapeOptions.getIdAsIntOrDefault(providerInfo.getId(), 0);
+
+    if (id == 0) {
+      LOGGER.debug("Cannot get artwork - no mpdb id set");
+      throw new MissingIdException(getId());
+    }
+
     LOGGER.info("========= BEGIN MPDB.tv scraping");
     try {
-      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(),
-          mediaScrapeOptions.getIdAsString(providerInfo.getId()), mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
+      Response<MovieEntity> response = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
+          mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
+      if (!response.isSuccessful()) {
+        String message = "";
+        try {
+          message = response.errorBody().string();
+        }
+        catch (IOException e) {
+          // ignore
+        }
+        LOGGER.warn("request was not successful: HTTP/{} - {}", response.code(), message);
+        throw new HttpException(response.code(), response.message());
+      }
       if (response.isSuccessful()) {
         scrapeResult = response.body();
       }
@@ -252,7 +290,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
 
     metadata.setId(getId(), scrapeResult.id);
     metadata.setId("allocine", scrapeResult.idAllocine);
-    if (MetadataUtil.isValidImdbId(scrapeResult.idImdb)) {
+    if (MediaIdUtil.isValidImdbId(scrapeResult.idImdb)) {
       metadata.setId("imdb", scrapeResult.idImdb);
     }
     metadata.setId("tmdb", scrapeResult.idTmdb);

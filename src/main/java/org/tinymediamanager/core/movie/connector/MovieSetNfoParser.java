@@ -354,6 +354,9 @@ public class MovieSetNfoParser {
    * find and store all unsupported tags
    */
   private Void findUnsupportedElements() {
+    // lockdata should not be re-written
+    supportedElements.add("lockdata");
+
     // get all children of the root
     for (Element element : root.children()) {
       if (!supportedElements.contains(element.tagName().toLowerCase(Locale.ROOT))) {

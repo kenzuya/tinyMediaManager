@@ -19,8 +19,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -40,6 +43,7 @@ import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -48,11 +52,14 @@ import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.util.ListUtils;
 
@@ -100,7 +107,7 @@ class TvShowCommandTask extends TmmThreadPool {
 
   private void updateDataSources() {
     Set<String> dataSources = new TreeSet<>();
-    List<TvShow> existingTvShows = tvShowList.getTvShows();
+    List<TvShow> existingTvShows = new ArrayList<>(tvShowList.getTvShows());
     List<TvShowEpisode> existingEpisodes = new ArrayList<>();
     for (TvShow tvShow : existingTvShows) {
       existingEpisodes.addAll(tvShow.getEpisodes());
@@ -171,11 +178,22 @@ class TvShowCommandTask extends TmmThreadPool {
 
   private void scrape() {
     Set<TvShow> tvShowsToScrape = new LinkedHashSet<>();
+    Set<TvShowEpisode> episodesToScrape = new LinkedHashSet<>();
     for (AbstractCommandHandler.Command command : commands) {
       if ("scrape".equals(command.action)) {
         tvShowsToScrape.addAll(getTvShowsForScope(command.scope));
+        episodesToScrape.addAll(getEpisodesForScope(command.scope));
       }
     }
+
+    // if we scrape already the whole show, no need to scrape dedicated episodes for it
+    Set<TvShowEpisode> removedEpisode = new HashSet<>(); // no dupes
+    for (TvShowEpisode ep : episodesToScrape) {
+      if (tvShowsToScrape.contains(ep.getTvShow())) {
+        removedEpisode.add(ep);
+      }
+    }
+    episodesToScrape.removeAll(removedEpisode);
 
     if (!tvShowsToScrape.isEmpty()) {
       setTaskName(TmmResourceBundle.getString("tvshow.scraping"));
@@ -195,6 +213,43 @@ class TvShowCommandTask extends TmmThreadPool {
 
       // done
       activeTask = null;
+    }
+
+    if (!episodesToScrape.isEmpty()) {
+      setTaskName(TmmResourceBundle.getString("tvshow.scraping"));
+      publishState(TmmResourceBundle.getString("tvshow.scraping"), getProgressDone());
+
+      // re-group the episodes. If there is a "last used" scraper set for the show also take this into account for the episode
+      Map<TvShow, List<TvShowEpisode>> groupedEpisodes = new HashMap<>();
+      for (TvShowEpisode episode : episodesToScrape) {
+        List<TvShowEpisode> episodes = groupedEpisodes.computeIfAbsent(episode.getTvShow(), k -> new ArrayList<>());
+        episodes.add(episode);
+      }
+
+      // scrape new episodes
+      for (Map.Entry<TvShow, List<TvShowEpisode>> entry : groupedEpisodes.entrySet()) {
+        TvShow tvShow = entry.getKey();
+
+        TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+        options.loadDefaults();
+
+        // so for the known ones, we can directly start scraping
+        if (StringUtils.isNoneBlank(tvShow.getLastScraperId(), tvShow.getLastScrapeLanguage())) {
+          options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
+          options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
+        }
+
+        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.getInstance()
+            .getSettings()
+            .getEpisodeScraperMetadataConfig();
+
+        activeTask = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig,
+            !TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
+        activeTask.run(); // blocking
+
+        // done
+        activeTask = null;
+      }
     }
   }
 
@@ -402,6 +457,7 @@ class TvShowCommandTask extends TmmThreadPool {
 
       case "all":
         tvShowsToProcess.addAll(tvShowList.getTvShows());
+        break;
 
       case "new":
       default:

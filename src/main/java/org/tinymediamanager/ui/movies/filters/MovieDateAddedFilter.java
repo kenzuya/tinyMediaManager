@@ -15,7 +15,9 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -33,7 +35,14 @@ import org.tinymediamanager.ui.components.datepicker.DatePicker;
  * @author Manuel Laggner
  */
 public class MovieDateAddedFilter extends AbstractMovieUIFilter {
-  private DatePicker datePicker;
+  private final Calendar calendar;
+  private DatePicker     datePicker;
+
+  public MovieDateAddedFilter() {
+    super();
+    calendar = Calendar.getInstance();
+    calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
 
   @Override
   protected JComponent createFilterComponent() {
@@ -81,9 +90,10 @@ public class MovieDateAddedFilter extends AbstractMovieUIFilter {
       return true;
     }
 
-    Date date = datePicker.getDate();
+    Calendar datePickerCalendar = datePicker.getCalendar(); // in localtime
+    calendar.setTime(movie.getDateAddedForUi()); // movie date in UTC
 
-    return DateUtils.isSameDay(date, movie.getDateAddedForUi());
+    return DateUtils.isSameDay(datePickerCalendar, calendar);
   }
 
   @Override

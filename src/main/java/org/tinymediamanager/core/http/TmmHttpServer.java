@@ -113,7 +113,7 @@ public class TmmHttpServer {
       try {
         TmmCommandResponse commandResponse = commandHandler.post(httpExchange);
         responseCode = commandResponse.getResponseCode();
-        responseMessage = commandResponse.getReponseMessage();
+        responseMessage = commandResponse.getResponseMessage();
       }
       catch (Exception e) {
         LOGGER.error("could not process command '{}' - '{}'", commandHandler.getClass().getName(), e.getMessage());

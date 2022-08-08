@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +36,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 
 import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
@@ -42,6 +44,7 @@ import org.tinymediamanager.core.ArdSettings;
 import org.tinymediamanager.core.AspectRatio;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -52,13 +55,14 @@ public class ArdSettingsPanel extends JPanel {
 
   private final Settings         settings             = Settings.getInstance();
 
+  private JCheckBox              chckbxARDEnabled;
   private JSlider                sliderDetectionMode;
   private Map<String, JCheckBox> customARCheckBoxes   = new LinkedHashMap<>();
   private ButtonGroup            buttonGroupRound     = new ButtonGroup();
   private JRadioButton           rdbtnRoundNearest;
   private JRadioButton           rdbtnRoundUpToNext;
   private ButtonGroup            buttonGroupARUseMode = new ButtonGroup();
-  private JRadioButton rdbtnMFMost;
+  private JRadioButton           rdbtnMFMost;
   private JRadioButton           rdbtnMFHigher;
   private JRadioButton           rdbtnMFWider;
 
@@ -161,6 +165,14 @@ public class ArdSettingsPanel extends JPanel {
       sliderDetectionMode.setPaintTicks(true);
       lblDetectionMode.setLabelFor(sliderDetectionMode);
       panelArdSettings.add(sliderDetectionMode, "cell 1 " + row + ", span");
+      row++;
+      row++;
+
+      chckbxARDEnabled = new JCheckBox(TmmResourceBundle.getString("Settings.ard.automaticard"));
+      panelArdSettings.add(chckbxARDEnabled, "cell 1 " + row + ", span");
+      JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
+      lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.ard.automaticard.desc"));
+      panelArdSettings.add(lblAutomaticARDHint, "cell 1 " + row + ", span");
 
       // custom aspect ratios
       row++;
@@ -178,14 +190,14 @@ public class ArdSettingsPanel extends JPanel {
       gbc.ipadx = 30;
       panelArdSettings.add(panelCustomAspectRatios, "cell 1 " + row + ", span");
 
-      Map<Float, String> customAspectRatios = AspectRatio.getDefaultValues();
+      List<Float> customAspectRatios = AspectRatio.getDefaultValues();
       int yOne = 0;
       int yTwo = 0;
-      for (Map.Entry<Float, String> customAR : customAspectRatios.entrySet()) {
-        JCheckBox checkBox = new JCheckBox(customAR.getValue());
-        customARCheckBoxes.put(customAR.getKey().toString(), checkBox);
+      for (Float customAR : customAspectRatios) {
+        JCheckBox checkBox = new JCheckBox(AspectRatio.getDescription(customAR));
+        customARCheckBoxes.put(customAR.toString(), checkBox);
 
-        if (customAR.getKey() < 1.9f) {
+        if (customAR < 1.9f) {
           gbc.gridx = 0;
           gbc.gridy = yOne++;
         }
@@ -234,16 +246,6 @@ public class ArdSettingsPanel extends JPanel {
     }
   }
 
-  private void initDataBindings() {
-    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
-
-    // round up
-    Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
-    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, ardRoundUpBeanProperty,
-        rdbtnRoundUpToNext, jCheckBoxBeanProperty);
-    autoBinding_ard_roundUp.bind();
-  }
-
   private void checkCustomARChanges() {
     Set<String> customARs = new LinkedHashSet<>();
 
@@ -254,5 +256,18 @@ public class ArdSettingsPanel extends JPanel {
     }
 
     settings.setCustomAspectRatios(new ArrayList<>(customARs));
+  }
+
+  protected void initDataBindings() {
+    Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, ardRoundUpBeanProperty, rdbtnRoundUpToNext,
+        jCheckBoxBeanProperty);
+    autoBinding_ard_roundUp.bind();
+    //
+    Property settingsBeanProperty = BeanProperty.create("ardEnabled");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxARDEnabled,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }

@@ -106,7 +106,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
-import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -176,6 +175,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   private final Map<Integer, MediaFile>         seasonThumbs               = new HashMap<>(0);
   private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
   private String                                titleSortable              = "";
+  private String                                otherIds                   = "";
   private Date                                  lastWatched                = null;
 
   private final PropertyChangeListener          propertyChangeListener;
@@ -219,6 +219,44 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @Override
   protected Comparator<MediaFile> getMediaFileComparator() {
     return MEDIA_FILE_COMPARATOR;
+  }
+
+  @Override
+  public void setId(String key, Object value) {
+    super.setId(key, value);
+
+    otherIds = "";
+    firePropertyChange("otherIds", null, key + ":" + value);
+  }
+
+  public String getOtherIds() {
+    if (StringUtils.isNotBlank(otherIds)) {
+      return otherIds;
+    }
+
+    for (Map.Entry<String, Object> entry : getIds().entrySet()) {
+      switch (entry.getKey()) {
+        case MediaMetadata.TVDB:
+        case MediaMetadata.IMDB:
+        case MediaMetadata.TMDB:
+          // already in UI - skip
+          continue;
+
+        case "imdbId":
+        case "traktId":
+        case "tvShowSeason":
+          // legacy format
+          continue;
+
+        default:
+          if (StringUtils.isNotBlank(otherIds)) {
+            otherIds += "; ";
+          }
+          otherIds += entry.getKey() + ": " + entry.getValue();
+      }
+    }
+
+    return otherIds;
   }
 
   /**
@@ -495,6 +533,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   public void setDummyEpisodes(List<TvShowEpisode> dummyEpisodes) {
+    // remove all previous existing dummy movies from the UI
+    for (TvShowEpisode episode : this.dummyEpisodes) {
+      firePropertyChange(REMOVED_EPISODE, null, episode);
+    }
     this.dummyEpisodes.clear();
     this.dummyEpisodes.addAll(dummyEpisodes);
 
@@ -516,7 +558,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         boolean found = false;
         for (TvShowEpisode e : season.getEpisodesForDisplay()) {
           if ((e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode())
-              || (e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
+              || (e.getDvdSeason() > 0 && e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
             found = true;
             break;
           }
@@ -935,7 +977,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
+    if (config.contains(TvShowScraperMetadataConfig.TITLE) && StringUtils.isNotBlank(metadata.getTitle())
+        && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -1011,17 +1054,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
+    // 1:n relations are either merged (no overwrite) or completely set with the new data
+
+    if (config.contains(TvShowScraperMetadataConfig.ACTORS)) {
+      if (!matchFound || overwriteExistingItems) {
+        actors.clear();
+      }
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
-      writeActorImages();
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
+    if (config.contains(TvShowScraperMetadataConfig.GENRES)) {
+      if (!matchFound || overwriteExistingItems) {
+        genres.clear();
+      }
       setGenres(metadata.getGenres());
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
-      // only clear the old tags if either no match found OR the user wishes to overwrite the tags
       if (!matchFound || overwriteExistingItems) {
         removeAllTags();
       }
@@ -1126,11 +1175,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   private void postProcess(List<TvShowScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
-
-    // detect AR of the TV show if that has been chosen in the settings
-    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
-      taskChain.add(new TvShowARDetectorTask(this.episodes));
-    }
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
@@ -2193,11 +2237,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * Write actor images.
    */
   public void writeActorImages() {
-    // check if actor images shall be written
-    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
-      return;
-    }
-
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }

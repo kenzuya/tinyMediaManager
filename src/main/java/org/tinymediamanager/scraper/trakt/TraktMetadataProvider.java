@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
@@ -63,7 +64,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "Trakt.tv",
         "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
-        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"));
+        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"), 10);
 
     info.getConfig().addText("clientId", "", true);
     info.getConfig().load();
@@ -95,7 +96,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
 
           @Override
           protected synchronized OkHttpClient okHttpClient() {
-            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            OkHttpClient.Builder builder = TmmHttpClient.newBuilderWithForcedCache(15, TimeUnit.MINUTES);
             builder.addInterceptor(new TraktV2Interceptor(this));
             return builder.build();
           }
@@ -134,7 +135,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
 
     // get known IDs
     String imdbId = options.getImdbId().isEmpty() ? null : options.getImdbId();
-    if (MetadataUtil.isValidImdbId(options.getSearchQuery())) {
+    if (MediaIdUtil.isValidImdbId(options.getSearchQuery())) {
       imdbId = options.getSearchQuery();
     }
     String traktId = options.getIdAsString(providerInfo.getId());

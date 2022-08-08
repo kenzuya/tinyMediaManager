@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -92,6 +92,7 @@ import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -105,31 +106,32 @@ import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
  * @author Myron Boyle
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger       LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
+  private static final Logger          LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
 
-  private static long               preDir           = 0;
-  private static long               postDir          = 0;
-  private static long               visFile          = 0;
-  private static long               preDirAll        = 0;
-  private static long               postDirAll       = 0;
-  private static long               visFileAll       = 0;
+  private static long                  preDir           = 0;
+  private static long                  postDir          = 0;
+  private static long                  visFile          = 0;
+  private static long                  preDirAll        = 0;
+  private static long                  postDirAll       = 0;
+  private static long                  visFileAll       = 0;
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String> SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+  private static final List<String>    SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
       "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
-  private static final String       SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
-  private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
+  private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
+  private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
-  private final List<String>        dataSources;
-  private final List<Pattern>       skipFolders      = new ArrayList<>();
-  private final List<Movie>         moviesToUpdate   = new ArrayList<>();
-  private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
-  private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
-  private final List<Runnable>      miTasks          = Collections.synchronizedList(new ArrayList<>());
-  private final List<Path>          existingMovies   = new ArrayList<>();
-  private final List<MediaFile>     imageFiles       = new ArrayList<>();
+  private final List<String>           dataSources;
+  private final List<Pattern>          skipFolders      = new ArrayList<>();
+  private final List<Movie>            moviesToUpdate   = new ArrayList<>();
+  private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
+  private final Set<Path>              filesFound       = new HashSet<>();
+  private final ReentrantReadWriteLock fileLock         = new ReentrantReadWriteLock();
+  private final List<Runnable>         miTasks          = Collections.synchronizedList(new ArrayList<>());
+  private final List<Path>             existingMovies   = new ArrayList<>();
+  private final List<MediaFile>        imageFiles       = new ArrayList<>();
 
   public MovieUpdateDatasourceTask() {
     this(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
@@ -361,7 +363,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     LOGGER.info("Start UDS for movie sets");
 
-    Set<Path> movieSetFiles = getAllFilesRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
+    Set<Path> movieSetFiles = getAllFilesRecursiveButNoDiscFiles(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
 
     for (Path path : movieSetFiles) {
       if (FilenameUtils.isExtension(path.getFileName().toString(), "nfo")) {
@@ -588,6 +590,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       }
+      else {
+        String name = path.getFileName().toString();
+        // disc folders?
+        if (name.equalsIgnoreCase(MediaFileHelper.BDMV) || name.equalsIgnoreCase(MediaFileHelper.VIDEO_TS)
+            || name.equalsIgnoreCase(MediaFileHelper.HVDVD_TS)) {
+          videoFileFound = true;
+          isDiscFolder = true;
+        }
+      }
     }
 
     if (!videoFileFound) {
@@ -597,9 +608,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     if (isDiscFolder) {
       // if inside own DiscFolder, walk backwards till movieRoot folder
+      // BUT NOT IF DATASOURCE!
       Path relative = dataSource.relativize(movieDir);
       String folder = relative.toString().toUpperCase(Locale.ROOT); // relative
-      while (folder.contains(VIDEO_TS) || folder.contains(BDMV) || folder.contains(HVDVD_TS)) {
+      while (relative.getNameCount() > 1 && (folder.contains(VIDEO_TS) || folder.contains(BDMV) || folder.contains(HVDVD_TS))) {
         movieDir = movieDir.getParent();
         relative = dataSource.relativize(movieDir);
         folder = relative.toString().toUpperCase(Locale.ROOT);
@@ -736,15 +748,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movieDir = movieDir.getParent();
     }
 
+    Set<Path> allFiles = getAllFilesRecursiveButNoDiscFiles(movieDir);
+    fileLock.writeLock().lock();
+    filesFound.add(movieDir.toAbsolutePath()); // our global cache
+    filesFound.addAll(allFiles); // our global cache
+    fileLock.writeLock().unlock();
+
     Movie movie = movieList.getMovieByPath(movieDir);
     if (movie != null && movie.isLocked()) {
       LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
       return;
     }
-
-    Set<Path> allFiles = getAllFilesRecursive(movieDir);
-    filesFound.add(movieDir.toAbsolutePath()); // our global cache
-    filesFound.addAll(allFiles); // our global cache
 
     // convert to MFs (we need it anyways at the end)
     List<MediaFile> mfs = new ArrayList<>();
@@ -769,6 +783,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // second round - try to parse additional files
     // ***************************************************************
     String bdinfoTitle = ""; // title parsed out of BDInfo
+    String bdmtTitle = ""; // title parsed out of BDMV/META/DL/*.xml
     String videoName = ""; // title from file
     for (MediaFile mf : mfs) {
       if (mf.getType().equals(MediaFileType.TEXT)) {
@@ -795,9 +810,29 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         videoName = mf.getBasename();
       }
     }
+    if (isDiscFolder) {
+      // check for Bluray title info on disc
+      // have to do this direct, since we no longer get all disc MFs...
+      Path bdmt = movieDir.resolve("BDMV/META/DL/bdmt_eng.xml");
+      if (Files.exists(bdmt)) {
+        try {
+          // cannot parse XML with such weird namespaces - use the "simple" method
+          String xml = Utils.readFileToString(bdmt);
+          String name = StrgUtils.substr(xml, "di:name\\>(.*?)\\<");
+          if (!name.isEmpty()) {
+            LOGGER.debug("| Found Disc Title in Bluray META folder: {}", name);
+            bdmtTitle = name;
+          }
+        }
+        catch (IOException e) {
+          // ignore
+        }
+      }
+      videoName = movieDir.getFileName().toString();
+    }
 
     if (movie.getTitle().isEmpty()) {
-      // get the "cleaner" name/year combo
+      // get the "cleaner" name/year combo from
       String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(),
           MovieModuleManager.getInstance().getSettings().getBadWord());
       movie.setTitle(video[0]);
@@ -809,7 +844,24 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           // nothing to be done here
         }
       }
+
+      // overwrite title from within Bluray (trust the authoring more than the folder)
+      if (StringUtils.isNotBlank(bdmtTitle)) {
+        video = ParserUtils.detectCleanTitleAndYear(bdmtTitle, MovieModuleManager.getInstance().getSettings().getBadWord());
+        if (!video[0].isEmpty()) {
+          movie.setTitle(video[0]);
+        }
+        if (!video[1].isEmpty()) {
+          try {
+            movie.setYear(Integer.parseInt(video[1]));
+          }
+          catch (Exception ignored) {
+            // nothing to be done here
+          }
+        }
+      }
     }
+
     if (StringUtils.isBlank(movie.getTitle()) && StringUtils.isNotBlank(bdinfoTitle)) {
       movie.setTitle(bdinfoTitle);
     }
@@ -945,6 +997,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
       }
+
+      // Check if Bluray, and if it has some inlined posters
+      if (movie.getMediaFiles(POSTER).isEmpty()) {
+        MovieArtworkHelper.extractBlurayPosters(movie);
+      }
     }
 
     // last but not least attach it to the movie set (this is the last step - otherwise the movie set gets too much events)
@@ -970,8 +1027,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 
+    fileLock.writeLock().lock();
     filesFound.add(movieDir); // our global cache
     filesFound.addAll(allFiles); // our global cache
+    fileLock.writeLock().unlock();
 
     // convert to MFs
     ArrayList<MediaFile> mfs = new ArrayList<>();
@@ -1070,7 +1129,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // try to parse the imdb id from the filename
-      if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+      if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
         movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
       }
       // try to parse the Tmdb id from the filename
@@ -1170,7 +1229,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         // try to parse the imdb id from the filename
-        if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
+        if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
           movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
         }
         // try to parse the tmdb id from the filename
@@ -1329,64 +1388,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * cleanup database - remove orphaned movies/files
    */
   private void cleanup(String datasource) {
-    setTaskName(TmmResourceBundle.getString("update.cleanup"));
-    setTaskDescription(null);
-    setProgressDone(0);
-    setWorkUnits(0);
-    publishState();
-
-    LOGGER.info("removing orphaned movies/files...");
-    List<Movie> moviesToRemove = new ArrayList<>();
-    for (int i = movieList.getMovies().size() - 1; i >= 0; i--) {
-      if (cancel) {
-        break;
-      }
-
-      Movie movie = movieList.getMovies().get(i);
-      boolean dirty = false;
-
+    List<Movie> moviesToclean = new ArrayList<>();
+    for (Movie movie : movieList.getMovies()) {
       // check only movies matching datasource
       if (!Paths.get(datasource).equals(Paths.get(movie.getDataSource()))) {
         continue;
       }
-
-      Path movieDir = movie.getPathNIO();
-      if (!filesFound.contains(movieDir)) {
-        // dir is not in hashset - check with exists to be sure it is not here
-        if (!Files.exists(movieDir)) {
-          LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
-          moviesToRemove.add(movie);
-        }
-        else {
-          // can be; MMD and/or dir=DS root
-          LOGGER.warn("dir {} not in hashset, but on hdd!", movieDir);
-        }
-      }
-
-      // have a look if that movie has just been added -> so we don't need any
-      // cleanup
-      if (!movie.isNewlyAdded()) {
-        // check and delete all not found MediaFiles
-        List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
-        for (MediaFile mf : mediaFiles) {
-          if (!filesFound.contains(mf.getFileAsPath())) {
-            LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
-            movie.removeFromMediaFiles(mf);
-            dirty = true;
-          }
-        }
-
-        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          movie.saveToDb();
-        }
-      }
-
-      if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-        LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
-        moviesToRemove.add(movie);
-      }
+      moviesToclean.add(movie);
     }
-    movieList.removeMovies(moviesToRemove);
+    cleanup(moviesToclean);
   }
 
   private void cleanup(List<Movie> movies) {
@@ -1407,7 +1417,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
-      if (!filesFound.contains(movieDir)) {
+      fileLock.readLock().lock();
+      boolean dirFound = filesFound.contains(movieDir);
+      fileLock.readLock().unlock();
+
+      if (!dirFound) {
         // dir is not in hashset - check with exists to be sure it is not here
         if (!Files.exists(movieDir)) {
           LOGGER.debug("movie directory '{}' not found, removing from DB...", movieDir);
@@ -1425,7 +1439,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // check and delete all not found MediaFiles
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
-          if (!filesFound.contains(mf.getFileAsPath())) {
+          fileLock.readLock().lock();
+          boolean fileFound = filesFound.contains(mf.getFileAsPath());
+          fileLock.readLock().unlock();
+
+          if (!fileFound) {
             LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
             movie.removeFromMediaFiles(mf);
             // invalidate the image cache
@@ -1446,6 +1464,47 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         moviesToRemove.add(movie);
       }
     }
+    movieList.removeMovies(moviesToRemove);
+    moviesToRemove.clear();
+
+    // cleanup disc folder - there needs to be only ONE video MF to make the struct work...
+    for (Movie movie : movies) {
+      boolean dirty = false;
+      if (movie.isDisc()) {
+        if (movie.getDataSource().equals(movie.getPath())) {
+          // uh-oh some (disc) movie was in root dir - ignore from checking
+          continue;
+        }
+
+        // If we are a disc movie, remove all other video MFs
+        for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
+          if (mf.getFilename().matches(DISC_FOLDER_REGEX) || mf.isDiscFile()) {
+            continue;
+          }
+          else {
+            LOGGER.warn("DISC folder detected - remove VIDEO {}", mf.getFileAsPath());
+            movie.removeFromMediaFiles(mf);
+            dirty = true;
+          }
+        }
+
+        // remove all "movies", which have been additionally found inside disc folders
+        for (Movie sub : movieList.getMovies()) {
+          if (movie.equals(sub)) {
+            continue; // do not remove self
+          }
+          if (sub.getPathNIO().startsWith(movie.getPathNIO())) {
+            LOGGER.warn("Movie {} inside DISC folder of {} - removing", sub.getMainFile().getFileAsPath(), movie.getPath());
+            moviesToRemove.add(sub);
+          }
+        }
+
+        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+          movie.saveToDb();
+        }
+      }
+    }
+
     movieList.removeMovies(moviesToRemove);
   }
 
@@ -1643,10 +1702,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     return fileNames;
   }
 
-  // **************************************
-  // gets all files recursive,
-  // **************************************
-  private Set<Path> getAllFilesRecursive(Path folder) {
+  /**
+   * gets all files recursive, but doesn't list files inside a disc folder structure
+   * 
+   * @param folder
+   * @return
+   */
+  private Set<Path> getAllFilesRecursiveButNoDiscFiles(Path folder) {
     folder = folder.toAbsolutePath();
     AllFilesRecursive visitor = new AllFilesRecursive();
     try {

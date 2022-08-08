@@ -33,6 +33,8 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 
+import net.miginfocom.swing.MigLayout;
+
 /**
  * the class {@link RatingPanel} is used to display well known ratings
  * 
@@ -136,67 +138,77 @@ public class RatingPanel extends JPanel {
   private class RatingContainer extends JPanel {
     public RatingContainer(MediaRating rating) {
       setOpaque(false);
+      setLayout(new MigLayout("", "[]10lp[center]", "[]"));
 
       JLabel logo = null;
-      JLabel text = null;
+      JLabel value = null;
+      JLabel votes = null;
 
       switch (rating.getId()) {
         case MediaRating.USER:
           logo = new JLabel(IconManager.RATING_USER);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
         case MediaMetadata.IMDB:
           logo = new JLabel(IconManager.RATING_IMDB);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
         case MediaMetadata.TMDB:
           logo = new JLabel(IconManager.RATING_TMDB);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
         case "tomatometerallcritics":
-          logo = new JLabel(IconManager.RATING_ROTTEN_TOMATOES);
-          text = new JLabel(String.format("%.0f%%", rating.getRating()));
+          logo = new JLabel(IconManager.RATING_TOMATOMETER);
+          value = new JLabel(String.format("%.0f%%", rating.getRating()));
           break;
 
         case "metacritic":
           logo = new JLabel(IconManager.RATING_METACRITIC);
-          text = new JLabel(String.format("%.0f", rating.getRating()));
+          value = new JLabel(String.format("%.0f", rating.getRating()));
           break;
 
         case MediaMetadata.TVDB:
           logo = new JLabel(IconManager.RATING_THETVDB);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
         case MediaMetadata.TRAKT_TV:
           logo = new JLabel(IconManager.RATING_TRAKTTV);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
         case "": // empty rating
           logo = new JLabel(IconManager.RATING_EMTPY);
-          text = new JLabel("?");
+          value = new JLabel("?");
           break;
 
         case MediaRating.DEFAULT:
         case MediaRating.NFO:
         default:
           logo = new JLabel(IconManager.RATING_NEUTRAL);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
+          value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
-
       }
 
-      if (logo != null && text != null) {
+      if (rating.getVotes() > 1) {
+        votes = new JLabel(String.format(defaultLocale, "%,d", rating.getVotes()));
+      }
+
+      if (logo != null && value != null) {
         String tooltipText = createTooltipText(rating);
         logo.setToolTipText(tooltipText);
-        add(logo);
-        TmmFontHelper.changeFont(text, TmmFontHelper.H2, Font.BOLD);
-        text.setToolTipText(tooltipText);
-        add(text);
+        add(logo, "cell 0 0");
+        TmmFontHelper.changeFont(value, TmmFontHelper.H2, Font.BOLD);
+        value.setToolTipText(tooltipText);
+        add(value, "flowy, cell 1 0, ");
+
+        if (votes != null) {
+          TmmFontHelper.changeFont(votes, TmmFontHelper.L2);
+          add(votes, "cell 1 0, gapy 0");
+        }
       }
     }
 

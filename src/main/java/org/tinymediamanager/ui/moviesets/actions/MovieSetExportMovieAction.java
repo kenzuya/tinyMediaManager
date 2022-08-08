@@ -49,7 +49,7 @@ public class MovieSetExportMovieAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> movies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> movies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies(true));
 
     if (movies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

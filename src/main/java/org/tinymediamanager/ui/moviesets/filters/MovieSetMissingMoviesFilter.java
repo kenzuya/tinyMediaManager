@@ -34,7 +34,7 @@ public class MovieSetMissingMoviesFilter extends AbstractMovieSetUIFilter {
 
   @Override
   public String getId() {
-    return "tvShowMissingEpisodes";
+    return "movieSetMissingMovies";
   }
 
   @Override

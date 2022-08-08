@@ -49,4 +49,14 @@ public interface SearchService {
    */
   @GET("search")
   Call<SearchResultResponse> getSearch(@Query("query") String query, @Query("type") SearchType searchType);
+
+  /**
+   * Search for a remote id (IMDB)
+   * 
+   * @param remoteId
+   *          the remote id (IMDB)
+   * @return Call&lt;SearchResultResponse&gt;
+   */
+  @GET("search")
+  Call<SearchResultResponse> getSearch(@Query("query") String query, @Query("remote_id") String remoteId);
 }

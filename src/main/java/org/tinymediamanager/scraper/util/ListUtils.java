@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ListUtils {
 
   private ListUtils() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -56,7 +56,7 @@ public class ListUtils {
    * @param baseList
    *          the base list which will be altered
    * @param newItems
-   *          the new entries which should be merged into the the existing list
+   *          the new entries which should be merged into the existing list
    */
   public static <T> void mergeLists(List<T> baseList, List<T> newItems) {
     // if any of these lists is null, we cannot do anything here
@@ -64,15 +64,7 @@ public class ListUtils {
       return;
     }
 
-    // first remove old ones
-    for (int i = baseList.size() - 1; i >= 0; i--) {
-      T entry = baseList.get(i);
-      if (!newItems.contains(entry)) {
-        baseList.remove(entry);
-      }
-    }
-
-    // second, add new ones in the right order
+    // add new ones in the right order
     for (int i = 0; i < newItems.size(); i++) {
       T entry = newItems.get(i);
       if (!baseList.contains(entry)) {
@@ -170,5 +162,26 @@ public class ListUtils {
     else {
       return list.addAllAbsent(values) > 0;
     }
+  }
+
+  /**
+   * checks if the given {@link List} at least contains one of the given arguments
+   * 
+   * @param list
+   *          the {@link List} to check
+   * @param values
+   *          value values to compare
+   * @param <E>
+   *          the type of the value
+   * @return true if at least one value is found inside the list - false otherwise
+   */
+  public static <E> boolean containsAny(List<E> list, E... values) {
+    for (E value : values) {
+      if (list.contains(value)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -27,12 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
  * The Class MediaSearchResult.
- * 
+ *
  * @author Manuel Laggner
  * @since 1.0
  */
@@ -73,10 +76,25 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     this.score = score;
   }
 
+  private MediaSearchResult(Builder builder) {
+    type = builder.type;
+    setProviderId(builder.providerId);
+    setId(builder.id);
+    setUrl(builder.url);
+    setTitle(builder.title);
+    setOverview(builder.overview);
+    setYear(builder.year);
+    setOriginalTitle(builder.originalTitle);
+    setOriginalLanguage(builder.originalLanguage);
+    setScore(builder.score);
+    setMetadata(builder.metadata);
+    setPosterUrl(builder.posterUrl);
+  }
+
   /**
    * merges all entries from other MSR into ours, IF VALUES ARE EMPTY<br>
    * <b>needs testing!</b>
-   * 
+   *
    * @param msr
    *          other MediaSerachResult
    */
@@ -127,7 +145,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the original title of this search result
-   * 
+   *
    * @return the original title
    */
   public String getOriginalTitle() {
@@ -136,7 +154,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the original title for this search result
-   * 
+   *
    * @param originalTitle
    *          the original title
    */
@@ -165,7 +183,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the provider id
-   * 
+   *
    * @return the provider id
    */
   public String getProviderId() {
@@ -174,7 +192,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the provider id
-   * 
+   *
    * @param providerId
    *          the provider id
    */
@@ -184,7 +202,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the title of this search result
-   * 
+   *
    * @return the title
    */
   public String getTitle() {
@@ -193,7 +211,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the title of this search result
-   * 
+   *
    * @param title
    *          the title
    */
@@ -211,7 +229,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the year of this search result
-   * 
+   *
    * @return the year
    */
   public int getYear() {
@@ -220,7 +238,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the year of this search result
-   * 
+   *
    * @param year
    *          the year
    */
@@ -242,7 +260,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the score of this search result. 1.0 is perfect match
-   * 
+   *
    * @return the score
    */
   public float getScore() {
@@ -251,7 +269,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the score of this result
-   * 
+   *
    * @param score
    *          the result
    */
@@ -273,7 +291,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the url to this search result
-   * 
+   *
    * @return the url
    */
   public String getUrl() {
@@ -282,7 +300,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the url to this search result
-   * 
+   *
    * @param url
    *          the url
    */
@@ -292,7 +310,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the media type this search result is for
-   * 
+   *
    * @return the media type
    */
   public MediaType getMediaType() {
@@ -301,7 +319,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the id of this search result
-   * 
+   *
    * @return the id
    */
   public Object getId() {
@@ -310,7 +328,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the id of this search result
-   * 
+   *
    * @param id
    *          the search result id
    */
@@ -320,7 +338,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set an media id for a provider id
-   * 
+   *
    * @param providerId
    *          the provider id
    * @param id
@@ -332,7 +350,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * set all given ids
-   * 
+   *
    * @param ids
    *          the ids to set
    */
@@ -352,7 +370,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the IMDB id
-   * 
+   *
    * @return the IMDB id
    */
   public String getIMDBId() {
@@ -365,7 +383,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     }
 
     // legacy ID
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       obj = ids.get("imdbId");
       if (obj != null) {
         imdbId = obj.toString();
@@ -411,7 +429,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * get all given ids
-   * 
+   *
    * @return a map full of ids
    */
   public Map<String, Object> getIds() {
@@ -420,19 +438,19 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the IMDB id
-   * 
+   *
    * @param imdbid
    *          the IMDB id
    */
   public void setIMDBId(String imdbid) {
-    if (MetadataUtil.isValidImdbId(imdbid)) {
+    if (MediaIdUtil.isValidImdbId(imdbid)) {
       ids.put(MediaMetadata.IMDB, imdbid);
     }
   }
 
   /**
    * Get the MediaMetadata
-   * 
+   *
    * @return the MediaMetadata
    */
   public MediaMetadata getMediaMetadata() {
@@ -441,7 +459,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the MediaMetadata if you already got the whole meta data while searching (for buffering)
-   * 
+   *
    * @param md
    *          the MediaMetadata
    */
@@ -451,7 +469,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Get the poster url
-   * 
+   *
    * @return the poster url
    */
   public String getPosterUrl() {
@@ -460,7 +478,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * calculate the search score by comparing the available result with the search options
-   * 
+   *
    * @param options
    *          the search options which have been used for searching
    */
@@ -488,7 +506,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
   /**
    * Set the poster url
-   * 
+   *
    * @param posterUrl
    *          the poster url
    */
@@ -536,7 +554,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
    * <p>
    * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
    * </p>
-   * 
+   *
    * @return the String result
    * @see ReflectionToStringBuilder#toString(Object)
    */
@@ -548,5 +566,97 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
         return super.accept(f) && !f.getName().equals("metadata");
       }
     }).toString();
+  }
+
+  public static final class Builder {
+
+    private final MediaType type;
+
+    private String          id;
+    private String          providerId;
+    private String          url;
+    private String          title;
+    private String          overview;
+    private int             year;
+    private String          originalTitle;
+    private String          originalLanguage;
+    private float           score;
+    private MediaMetadata   metadata;
+    private String          posterUrl;
+
+    public Builder(@Nonnull MediaType type) {
+      this.type = type;
+    }
+
+    @Nonnull
+    public Builder providerId(@Nonnull String val) {
+      providerId = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder id(@Nonnull String val) {
+      id = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder url(@Nonnull String val) {
+      url = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder title(@Nonnull String val) {
+      title = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder overview(@Nonnull String val) {
+      overview = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder year(int val) {
+      year = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder originalTitle(@Nonnull String val) {
+      originalTitle = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder originalLanguage(@Nonnull String val) {
+      originalLanguage = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder score(float val) {
+      score = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder metadata(@Nonnull MediaMetadata val) {
+      metadata = val;
+      return this;
+    }
+
+    @Nonnull
+    public Builder posterUrl(@Nonnull String val) {
+      posterUrl = val;
+      return this;
+    }
+
+    @Nonnull
+    public MediaSearchResult build() {
+      return new MediaSearchResult(this);
+    }
   }
 }

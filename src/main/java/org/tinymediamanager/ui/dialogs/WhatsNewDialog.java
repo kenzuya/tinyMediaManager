@@ -94,6 +94,7 @@ public class WhatsNewDialog extends TmmDialog {
           TmmUIHelper.browseUrl("https://www.tinymediamanager.org/changelog/");
         }
         catch (Exception ignored) {
+          // ignored
         }
       });
       panelContent.add(lblLink, "cell 0 1, growx");

@@ -137,94 +137,93 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieEditorDialog extends TmmDialog {
-  private static final long                  serialVersionUID    = -286251957529920347L;
-  private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
-  private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final long                        serialVersionUID    = -286251957529920347L;
+  private static final Logger                      LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
+  private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
-  private Movie                              movieToEdit;
-  private MovieList                          movieList           = MovieModuleManager.getInstance().getMovieList();
+  private final Movie                              movieToEdit;
+  private final MovieList                          movieList           = MovieModuleManager.getInstance().getMovieList();
 
-  private List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
-  private List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
-  private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
-  private List<String>                       showlinks           = ObservableCollections.observableList(new ArrayList<>());
-  private EventList<MediaId>                 ids;
-  private EventList<MediaRatingTable.Rating> ratings;
-  private List<MediaFile>                    mediaFiles          = new ArrayList<>();
-  private List<String>                       extrathumbs         = null;
-  private List<String>                       extrafanarts        = null;
-  private MediaRating                        userMediaRating;
-  private boolean                            continueQueue       = true;
-  private boolean                            navigateBack        = false;
-  private int                                queueIndex;
-  private int                                queueSize;
+  private final List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
+  private final List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                       showlinks           = ObservableCollections.observableList(new ArrayList<>());
+  private final EventList<MediaId>                 ids;
+  private final EventList<MediaRatingTable.Rating> ratings;
+  private final List<MediaFile>                    mediaFiles          = new ArrayList<>();
+  private final int                                queueIndex;
+  private final int                                queueSize;
+  private final EventList<Person>                  cast;
+  private final EventList<Person>                  producers;
+  private final EventList<Person>                  directors;
+  private final EventList<Person>                  writers;
 
-  private EventList<Person>                  cast;
-  private EventList<Person>                  producers;
-  private EventList<Person>                  directors;
-  private EventList<Person>                  writers;
+  private List<String>                             extrathumbs         = null;
+  private List<String>                             extrafanarts        = null;
+  private boolean                                  continueQueue       = true;
+  private boolean                                  navigateBack        = false;
 
-  private JTextField                         tfTitle;
-  private JTextField                         tfOriginalTitle;
-  private YearSpinner                        spYear;
-  private JTextArea                          taPlot;
+  private JTextField                               tfTitle;
+  private JTextField                               tfOriginalTitle;
+  private YearSpinner                              spYear;
+  private JTextArea                                taPlot;
 
-  private ImageLabel                         lblPoster;
-  private ImageLabel                         lblFanart;
-  private JSpinner                           spRuntime;
-  private JTextField                         tfProductionCompanies;
-  private JList<MediaGenres>                 listGenres;
-  private AutocompleteComboBox               cbGenres;
-  private AutoCompleteSupport                cbGenresAutoCompleteSupport;
-  private JSpinner                           spRating;
-  private JComboBox<MediaCertification>      cbCertification;
-  private JCheckBox                          cbWatched;
-  private JTextField                         tfTagline;
-  private JTextField                         tfNote;
+  private ImageLabel                               lblPoster;
+  private ImageLabel                               lblFanart;
+  private JSpinner                                 spRuntime;
+  private JTextField                               tfProductionCompanies;
+  private JList<MediaGenres>                       listGenres;
+  private AutocompleteComboBox                     cbGenres;
+  private AutoCompleteSupport                      cbGenresAutoCompleteSupport;
+  private JSpinner                                 spRating;
+  private JComboBox<MediaCertification>            cbCertification;
+  private JCheckBox                                cbWatched;
+  private JTextField                               tfTagline;
+  private JTextArea                                taNote;
 
-  private JCheckBox                          chckbxVideo3D;
+  private JCheckBox                                chckbxVideo3D;
 
-  private AutocompleteComboBox               cbTags;
-  private AutoCompleteSupport<String>        cbTagsAutoCompleteSupport;
-  private JList<String>                      listTags;
-  private JList<String>                      listShowlink;
-  private JSpinner                           spDateAdded;
-  private JComboBox                          cbMovieSet;
-  private JTextField                         tfSorttitle;
-  private JTextField                         tfSpokenLanguages;
-  private JTextField                         tfCountry;
-  private DatePicker                         dpReleaseDate;
-  private JSpinner                           spTop250;
-  private AutocompleteComboBox               cbSource;
-  private MediaFileEditorPanel               mediaFilesPanel;
-  private AutocompleteComboBox               cbEdition;
-  private JComboBox                          cbShowlink;
+  private AutocompleteComboBox                     cbTags;
+  private AutoCompleteSupport<String>              cbTagsAutoCompleteSupport;
+  private JList<String>                            listTags;
+  private JList<String>                            listShowlink;
+  private JSpinner                                 spDateAdded;
+  private JComboBox                                cbMovieSet;
+  private JTextField                               tfSorttitle;
+  private JTextField                               tfSpokenLanguages;
+  private JTextField                               tfCountry;
+  private DatePicker                               dpReleaseDate;
+  private JSpinner                                 spTop250;
+  private AutocompleteComboBox                     cbSource;
+  private MediaFileEditorPanel                     mediaFilesPanel;
+  private AutocompleteComboBox                     cbEdition;
+  private JComboBox                                cbShowlink;
 
-  private JTextField                         tfPoster;
-  private JTextField                         tfFanart;
-  private JTextField                         tfLogo;
-  private JTextField                         tfClearLogo;
-  private JTextField                         tfBanner;
-  private JTextField                         tfClearArt;
-  private JTextField                         tfThumb;
-  private JTextField                         tfDisc;
-  private JTextField                         tfKeyart;
+  private JTextField                               tfPoster;
+  private JTextField                               tfFanart;
+  private JTextField                               tfLogo;
+  private JTextField                               tfClearLogo;
+  private JTextField                               tfBanner;
+  private JTextField                               tfClearArt;
+  private JTextField                               tfThumb;
+  private JTextField                               tfDisc;
+  private JTextField                               tfKeyart;
 
-  private ImageLabel                         lblLogo;
-  private ImageLabel                         lblClearlogo;
-  private ImageLabel                         lblBanner;
-  private ImageLabel                         lblClearart;
-  private ImageLabel                         lblThumb;
-  private ImageLabel                         lblDisc;
-  private ImageLabel                         lblKeyart;
+  private ImageLabel                               lblLogo;
+  private ImageLabel                               lblClearlogo;
+  private ImageLabel                               lblBanner;
+  private ImageLabel                               lblClearart;
+  private ImageLabel                               lblThumb;
+  private ImageLabel                               lblDisc;
+  private ImageLabel                               lblKeyart;
 
-  private TmmTable                           tableIds;
-  private TmmTable                           tableRatings;
-  private TmmTable                           tableTrailer;
-  private TmmTable                           tableActors;
-  private TmmTable                           tableProducers;
-  private TmmTable                           tableDirectors;
-  private TmmTable                           tableWriters;
+  private TmmTable                                 tableIds;
+  private TmmTable                                 tableRatings;
+  private TmmTable                                 tableTrailer;
+  private TmmTable                                 tableActors;
+  private TmmTable                                 tableProducers;
+  private TmmTable                                 tableDirectors;
+  private TmmTable                                 tableWriters;
 
   /**
    * Create the dialog.
@@ -251,7 +250,7 @@ public class MovieEditorDialog extends TmmDialog {
     this.queueSize = queueSize;
     this.ids = MediaIdTable.convertIdMapToEventList(movieToEdit.getIds());
     this.ratings = MediaRatingTable.convertRatingMapToEventList(movieToEdit.getRatings(), false);
-    this.userMediaRating = movieToEdit.getRating(MediaRating.USER);
+    MediaRating userMediaRating = movieToEdit.getRating(MediaRating.USER);
 
     for (MediaFile mf : movie.getMediaFiles()) {
       mediaFiles.add(new MediaFile(mf));
@@ -309,7 +308,7 @@ public class MovieEditorDialog extends TmmDialog {
       tfSpokenLanguages.setText(movieToEdit.getSpokenLanguages());
       tfCountry.setText(movieToEdit.getCountry());
       spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 1));
-      tfNote.setText(movieToEdit.getNote());
+      taNote.setText(movieToEdit.getNote());
 
       for (Person origCast : movieToEdit.getActors()) {
         cast.add(new Person(origCast));
@@ -399,7 +398,7 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][75lp:n][50lp:75lp][][60lp:75lp][100lp:n][50lp:75lp,grow][25lp:n][200lp:250lp,grow]",
-          "[][][][][75lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][pref!]"));
+          "[][][][][75lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][50lp:50lp:100lp,grow 50]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
@@ -608,10 +607,16 @@ public class MovieEditorDialog extends TmmDialog {
       }
       {
         JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-        details1Panel.add(lblNoteT, "cell 0 12,alignx trailing");
+        details1Panel.add(lblNoteT, "cell 0 12,alignx right,aligny top");
 
-        tfNote = new JTextField();
-        details1Panel.add(tfNote, "cell 1 12 6 1,growx");
+        JScrollPane scrollPane = new JScrollPane();
+        details1Panel.add(scrollPane, "cell 1 12 6 1,grow,wmin 0");
+
+        taNote = new JTextArea();
+        taNote.setLineWrap(true);
+        taNote.setWrapStyleWord(true);
+        taNote.setForeground(UIManager.getColor("TextField.foreground"));
+        scrollPane.setViewportView(taNote);
       }
     }
 
@@ -797,7 +802,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         crewPanel.add(lblActors, "flowy,cell 0 0,alignx right,aligny top");
 
-        tableActors = new PersonTable(cast, true);
+        tableActors = new PersonTable(cast);
 
         JScrollPane scrollPane = new JScrollPane();
         tableActors.configureScrollPane(scrollPane);
@@ -807,7 +812,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblProducers = new TmmLabel(TmmResourceBundle.getString("metatag.producers"));
         crewPanel.add(lblProducers, "flowy,cell 3 0,alignx right,aligny top");
 
-        tableProducers = new PersonTable(producers, true);
+        tableProducers = new PersonTable(producers);
 
         JScrollPane scrollPane = new JScrollPane();
         tableProducers.configureScrollPane(scrollPane);
@@ -817,7 +822,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        tableDirectors = new PersonTable(directors, true);
+        tableDirectors = new PersonTable(directors);
 
         JScrollPane scrollPane = new JScrollPane(tableDirectors);
         tableDirectors.configureScrollPane(scrollPane);
@@ -827,7 +832,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        tableWriters = new PersonTable(writers, true);
+        tableWriters = new PersonTable(writers);
 
         JScrollPane scrollPane = new JScrollPane(tableWriters);
         tableWriters.configureScrollPane(scrollPane);
@@ -1334,7 +1339,7 @@ public class MovieEditorDialog extends TmmDialog {
       movieToEdit.setSpokenLanguages(tfSpokenLanguages.getText());
       movieToEdit.setCountry(tfCountry.getText());
       movieToEdit.setVideoIn3D(chckbxVideo3D.isSelected());
-      movieToEdit.setNote(tfNote.getText());
+      movieToEdit.setNote(taNote.getText());
 
       Object movieEdition = cbEdition.getSelectedItem();
       if (movieEdition instanceof MovieEdition) {
@@ -1630,6 +1635,9 @@ public class MovieEditorDialog extends TmmDialog {
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+          actor.setRole("");
+        }
         cast.add(0, actor);
       }
     }
@@ -1663,8 +1671,7 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"),
-          TmmResourceBundle.getString("producer.role.unknown"));
+      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"), "Producer");
       PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableProducers),
           TmmResourceBundle.getString("cast.producer.add"), producer);
       dialog.setVisible(true);

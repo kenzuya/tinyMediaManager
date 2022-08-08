@@ -19,9 +19,13 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,10 +39,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.FeatureNotEnabledException;
-import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -51,7 +56,9 @@ import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
+
+import com.google.gson.Gson;
 
 /**
  * This is a metadata provider which is highly configurable and combines the results of various other providers
@@ -64,8 +71,9 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static final String                               UNDEFINED           = "-";
   private static final String                               SEARCH              = "search";
   private static final String                               RATINGS             = "ratings";
+  private static final String                               FALLBACK_SCRAPERS   = "fallbackScrapers";
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
-  private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
+  private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new LinkedHashMap<>();
   private static final ExecutorService                      EXECUTOR            = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS,
       new LinkedBlockingQueue<>());
 
@@ -122,7 +130,6 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("spokenLanguages", "metatag.spokenlanguages", compatibleScraperIds, UNDEFINED);
     config.addSelect("countries", "metatag.country", compatibleScraperIds, UNDEFINED);
     config.addSelect("tags", "metatag.tags", compatibleScraperIds, UNDEFINED);
-    config.addSelect("mediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
     config.addSelect("status", "metatag.status", compatibleScraperIds, UNDEFINED);
 
     config.addLabel("episodeLabel", "metatag.episode");
@@ -131,7 +138,9 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeCastMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeRatings", "metatag.rating", scrapersWithout(compatibleScraperIds, MediaMetadata.TVDB), UNDEFINED); // all but tvdb
-    config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
+
+    config.addLabel("fallbackLabel", "scraper.universal_tvshow.scraperstouse");
+    config.addMultiSelect(FALLBACK_SCRAPERS, "scraper.universal_tvshow.scrapers", scrapersWithout(compatibleScraperIds, UNDEFINED));
 
     config.load();
   }
@@ -183,11 +192,24 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private Set<ITvShowMetadataProvider> getRelevantMetadataProviders(boolean episode) {
     Set<ITvShowMetadataProvider> metadataProviders = new HashSet<>();
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
-      if ((episode && entry.getKey().startsWith("episode"))
-          || (!episode && !entry.getKey().startsWith("episode")) && !UNDEFINED.equals(entry.getValue())) {
-        ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
-        if (mp != null && mp.isActive()) {
-          metadataProviders.add(mp);
+      List<String> values;
+
+      if (FALLBACK_SCRAPERS.equals(entry.getKey())) {
+        // values are in a list
+        values = Arrays.asList(new Gson().fromJson(entry.getValue(), String[].class));
+
+      }
+      else {
+        // plain value
+        values = Collections.singletonList(entry.getValue());
+      }
+
+      for (String value : values) {
+        if (((episode && entry.getKey().startsWith("episode")) || (!episode && !entry.getKey().startsWith("episode"))) && !UNDEFINED.equals(value)) {
+          ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(value);
+          if (mp != null && mp.isActive()) {
+            metadataProviders.add(mp);
+          }
         }
       }
     }
@@ -275,7 +297,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = new HashMap<>();
 
     for (ITvShowMetadataProvider mp : metadataProviders) {
-      if (mp instanceof ITvShowImdbMetadataProvider && MetadataUtil.isValidImdbId(imdbId)) {
+      if (mp instanceof ITvShowImdbMetadataProvider && MediaIdUtil.isValidImdbId(imdbId)) {
         // everything is good ;)
         continue;
       }
@@ -290,7 +312,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
       // we've come here, so we have not the needed ID
       // TMDB offers scraping by all of them and returns them all too (if available)
-      if (tmdbId > 0 || MetadataUtil.isValidImdbId(imdbId) || tvdbId > 0) {
+      if (tmdbId > 0 || MediaIdUtil.isValidImdbId(imdbId) || tvdbId > 0) {
         // try to get the meta data via TMDB
         // anything cached?
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
@@ -329,7 +351,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
               }
             }
           }
-          if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
+          if (!MediaIdUtil.isValidImdbId(imdbId) && MediaIdUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
             imdbId = (String) md.getId(MediaMetadata.IMDB);
           }
           if (tvdbId == 0) {
@@ -355,7 +377,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // inject the found TVDB id, TMDB id and IMDB id into the search options
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       options.setImdbId(imdbId);
     }
     if (tmdbId > 0) {
@@ -377,6 +399,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(false);
@@ -406,38 +429,68 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // assign the requested metadata
+    List<String> fallbackScrapers = Arrays.asList(new Gson().fromJson(providerInfo.getConfig().getValue(FALLBACK_SCRAPERS), String[].class));
+
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
-      if (!entry.getKey().startsWith("episode") && !SEARCH.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
-        // all specified fields should be filled from the desired scraper
-        MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
-        if (mediaMetadata != null) {
-          try {
-            Method getter = new PropertyDescriptor(entry.getKey(), MediaMetadata.class).getReadMethod();
-            Method setter = new PropertyDescriptor(entry.getKey(), MediaMetadata.class).getWriteMethod();
+      if (!entry.getKey().startsWith("episode") && !SEARCH.equals(entry.getKey()) && !FALLBACK_SCRAPERS.equals(entry.getKey())
+          && !UNDEFINED.equals(entry.getValue())) {
+        List<String> scrapers = new ArrayList<>(fallbackScrapers);
+        scrapers.remove(entry.getValue());
+        scrapers.add(0, entry.getValue());
+        assignValue(scrapers, md, metadataMap, entry.getKey());
+      }
+    }
+  }
 
-            setter.invoke(md, getter.invoke(mediaMetadata));
+  private void assignValue(List<String> scrapers, MediaMetadata md, Map<String, MediaMetadata> metadataMap, String field) {
+    // all specified fields should be filled from the desired scraper
+    for (String scraper : scrapers) {
+      MediaMetadata mediaMetadata = metadataMap.get(scraper);
+      if (mediaMetadata != null) {
+        try {
+          Method getter = new PropertyDescriptor(field, MediaMetadata.class).getReadMethod();
+          Method setter = new PropertyDescriptor(field, MediaMetadata.class).getWriteMethod();
+
+          Object value = getter.invoke(mediaMetadata);
+
+          if (isValueFilled(value)) {
+            setter.invoke(md, value);
+            return;
           }
-          catch (Exception e) {
-            LOGGER.warn("Problem assigning {} - {}", entry.getKey(), e.getMessage());
-          }
+
         }
-
-        // last but not least we take all ratings we got ;) the more the better
-        if (RATINGS.equals(entry.getKey())) {
-          for (Map.Entry<String, MediaMetadata> mediaMetadataEntry : metadataMap.entrySet()) {
-            // do not process the desired scraper again
-            if (mediaMetadataEntry.getKey().equals(entry.getValue())) {
-              continue;
-            }
-            for (MediaRating rating : mediaMetadataEntry.getValue().getRatings()) {
-              if (!md.getRatings().contains(rating)) {
-                md.addRating(rating);
-              }
-            }
-          }
+        catch (Exception e) {
+          LOGGER.warn("Problem assigning {} - {}", scraper, e.getMessage());
         }
       }
     }
+  }
+
+  private boolean isValueFilled(Object value) {
+    if (value == null) {
+      return false;
+    }
+
+    if (value instanceof String) {
+      return StringUtils.isNotBlank((String) value);
+    }
+    else if (value instanceof Integer) {
+      return (Integer) value != 0;
+    }
+    else if (value instanceof Float) {
+      return (Float) value != 0;
+    }
+    else if (value instanceof Collection) {
+      return !((Collection<?>) value).isEmpty();
+    }
+    else if (value instanceof Date) {
+      return true; // already checked with != null
+    }
+    else if (value instanceof MediaAiredStatus) {
+      return value != MediaAiredStatus.UNKNOWN;
+    }
+
+    return false;
   }
 
   @Override
@@ -449,6 +502,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    md.setScrapeOptions(options);
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(true);
@@ -473,7 +527,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
       }
     }
 
-    // assign the requested metadata
+    // assign the requested metadata (no fallback here since S/E assignments could differ)
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (entry.getKey().startsWith("episode") && !UNDEFINED.equals(entry.getValue())) {
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
@@ -504,21 +558,6 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
           }
           catch (Exception e) {
             LOGGER.warn("Problem assigning {} - {}", episodeField, e.getMessage());
-          }
-
-          // last but not least we take all ratings we got ;) the more the better
-          if (RATINGS.equals(episodeField)) {
-            for (Map.Entry<String, MediaMetadata> mediaMetadataEntry : metadataMap.entrySet()) {
-              // do not process the desired scraper again
-              if (mediaMetadataEntry.getKey().equals(entry.getValue())) {
-                continue;
-              }
-              for (MediaRating rating : mediaMetadataEntry.getValue().getRatings()) {
-                if (!md.getRatings().contains(rating)) {
-                  md.addRating(rating);
-                }
-              }
-            }
           }
         }
       }
@@ -565,7 +604,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = new HashMap<>();
 
     for (ITvShowMetadataProvider mp : metadataProviders) {
-      if (mp instanceof ITvShowImdbMetadataProvider && MetadataUtil.isValidImdbId(imdbId)) {
+      if (mp instanceof ITvShowImdbMetadataProvider && MediaIdUtil.isValidImdbId(imdbId)) {
         // everything is good ;)
         continue;
       }
@@ -580,7 +619,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
       // we've come here, so we have not the needed ID
       // TMDB offers scraping by all of them and returns them all too (if available)
-      if (tmdbId > 0 || MetadataUtil.isValidImdbId(imdbId) || tvdbId > 0) {
+      if (tmdbId > 0 || MediaIdUtil.isValidImdbId(imdbId) || tvdbId > 0) {
         // try to get the meta data via TMDB
         // anything cached?
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
@@ -619,7 +658,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
               }
             }
           }
-          if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
+          if (!MediaIdUtil.isValidImdbId(imdbId) && MediaIdUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
             imdbId = (String) md.getId(MediaMetadata.IMDB);
           }
           if (tvdbId == 0) {
@@ -645,7 +684,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // inject the found TVDB id, TMDB id and IMDB id into the search options
-    if (MetadataUtil.isValidImdbId(imdbId)) {
+    if (MediaIdUtil.isValidImdbId(imdbId)) {
       options.setImdbId(imdbId);
     }
     if (tmdbId > 0) {

@@ -146,7 +146,14 @@ public class MovieCastPanel extends JPanel {
       JLabel lblProducersT = new TmmLabel(TmmResourceBundle.getString("metatag.producers"));
       add(lblProducersT, "cell 0 2,aligny top");
 
-      tableProducer = new PersonTable(producerEventList);
+      tableProducer = new PersonTable(producerEventList) {
+        @Override
+        public void onPersonChanged(Person person) {
+          super.onPersonChanged(person);
+          MovieCastPanel.this.selectionModel.getSelectedMovie().saveToDb();
+          MovieCastPanel.this.selectionModel.getSelectedMovie().writeNFO();
+        }
+      };
       tableProducer.setName(getName() + ".producerTable");
       TmmUILayoutStore.getInstance().install(tableProducer);
       JScrollPane scrollPanePerson = new JScrollPane();
@@ -157,7 +164,14 @@ public class MovieCastPanel extends JPanel {
       JLabel lblActorsT = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
       add(lblActorsT, "cell 0 3,aligny top");
 
-      tableActors = new PersonTable(actorEventList);
+      tableActors = new PersonTable(actorEventList) {
+        @Override
+        public void onPersonChanged(Person person) {
+          super.onPersonChanged(person);
+          MovieCastPanel.this.selectionModel.getSelectedMovie().saveToDb();
+          MovieCastPanel.this.selectionModel.getSelectedMovie().writeNFO();
+        }
+      };
       tableActors.setName(getName() + ".actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
       JScrollPane scrollPanePersons = new JScrollPane();

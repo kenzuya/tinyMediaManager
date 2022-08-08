@@ -126,26 +126,29 @@ class MovieScraperSettingsPanel extends JPanel {
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            MovieScraper changedScraper = scrapers.get(row);
-            // if flag default scraper was changed, change all other flags
-            if (changedScraper.getDefaultScraper()) {
-              settings.setMovieScraper(changedScraper.getScraperId());
-              for (MovieScraper scraper : scrapers) {
-                if (scraper != changedScraper) {
-                  scraper.setDefaultScraper(Boolean.FALSE);
-                }
-              }
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        MovieScraper changedScraper = scrapers.get(row);
+        // if flag default scraper was changed, change all other flags
+        if (changedScraper.getDefaultScraper()) {
+          settings.setMovieScraper(changedScraper.getScraperId());
+          for (MovieScraper scraper : scrapers) {
+            if (scraper != changedScraper) {
+              scraper.setDefaultScraper(Boolean.FALSE);
             }
           }
-        });
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
+      if (e.getValueIsAdjusting()) {
+        return;
+      }
+
       int index = tableScraper.convertRowIndexToModel(tableScraper.getSelectedRow());
       if (index > -1) {
         panelScraperOptions.removeAll();

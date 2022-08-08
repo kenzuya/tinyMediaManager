@@ -71,7 +71,6 @@ class TvShowSettingsPanel extends JPanel {
   private JButton              btnPresetJellyfin;
   private JButton              btnPresetEmby;
   private JCheckBox            chckbxRenameAfterScrape;
-  private JCheckBox            chckbxARDAfterScrape;
   private JCheckBox            chckbxAutoUpdateOnStart;
 
   private JCheckBox            chckbxMetadataFromMediainfo;
@@ -100,11 +99,11 @@ class TvShowSettingsPanel extends JPanel {
 
     btnPresetXbmc.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForXbmc());
     btnPresetKodi.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForKodi());
+    btnPresetJellyfin.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForJellyfin());
+    btnPresetEmby.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForEmby());
+    btnPresetPlex.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForPlex());
     btnPresetMediaPortal1.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
     btnPresetMediaPortal2.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
-    btnPresetPlex.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForPlex());
-    btnPresetEmby.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForEmby());
-    btnPresetJellyfin.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForJellyfin());
   }
 
   private void initComponents() {
@@ -112,7 +111,7 @@ class TvShowSettingsPanel extends JPanel {
     {
       JPanel panelAutomaticTasks = new JPanel();
       // 16lp ~ width of the checkbox
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][10lp!][]"));
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][15lp!][]"));
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -164,13 +163,6 @@ class TvShowSettingsPanel extends JPanel {
         lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
 
-        chckbxARDAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.automaticard"));
-        panelAutomaticTasks.add(chckbxARDAfterScrape, "cell 1 1 2 1");
-
-        JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
-        lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticard.desc"));
-        panelAutomaticTasks.add(lblAutomaticARDHint, "cell 1 1 2 1");
-
         chckbxTraktTv = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
         panelAutomaticTasks.add(chckbxTraktTv, "cell 1 2 2 1");
 
@@ -178,7 +170,7 @@ class TvShowSettingsPanel extends JPanel {
         panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 2 2 1");
 
         chckbxTraktCollection = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.collection"));
-        panelAutomaticTasks.add(chckbxTraktCollection, "cell 2 4");
+        panelAutomaticTasks.add(chckbxTraktCollection, "cell 2 3");
 
         chckbxTraktWatched = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.watched"));
         panelAutomaticTasks.add(chckbxTraktWatched, "cell 2 4");
@@ -303,10 +295,5 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_13, chckbxTraktRating,
         jCheckBoxBeanProperty);
     autoBinding_18.bind();
-    //
-    Property tvShowSettingsBeanProperty_20 = BeanProperty.create("ardAfterScrape");
-    AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_20, chckbxARDAfterScrape,
-        jCheckBoxBeanProperty);
-    autoBinding_20.bind();
   }
 }

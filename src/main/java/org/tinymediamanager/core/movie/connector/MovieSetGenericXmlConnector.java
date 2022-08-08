@@ -129,7 +129,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
         String dat = formatter.format(new Date());
         document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
-        root = document.createElement("movie");
+        root = document.createElement("collection");
         document.appendChild(root);
 
         // add well known tags
@@ -146,6 +146,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
         addStudios();
         addTags();
         addDateAdded();
+        addLockdata();
 
         // add connector specific tags
         addOwnTags();
@@ -406,6 +407,19 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
 
     }
     root.appendChild(dateadded);
+  }
+
+  /**
+   * write the <lockdata> tag (mainly for Emby)<br />
+   * This will protect the NFO from being modified by Emby
+   */
+  protected void addLockdata() {
+    if (MovieModuleManager.getInstance().getSettings().isNfoWriteLockdata()) {
+      Element lockdata = document.createElement("lockdata");
+      lockdata.setTextContent("true");
+
+      root.appendChild(lockdata);
+    }
   }
 
   /**

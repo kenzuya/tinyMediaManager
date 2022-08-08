@@ -63,7 +63,7 @@ public class MediaMetadata {
   private final String                   providerId;
 
   // this map contains all set ids
-  private final HashMap<String, Object>  ids                  = new HashMap<>();
+  private final Map<String, Object>      ids                  = new HashMap<>();
 
   // multi value
   private final List<MediaRating>        ratings              = new ArrayList<>();
@@ -105,6 +105,7 @@ public class MediaMetadata {
 
   // extra data
   private final Map<String, Object>      extraData            = new HashMap<>();
+  private MediaSearchAndScrapeOptions    scrapeOptions        = null;
 
   /**
    * Instantiates a new media metadata for the given provider.
@@ -189,6 +190,7 @@ public class MediaMetadata {
     delta = md.getExtraData();
     delta.keySet().removeAll(extraData.keySet());
     extraData.putAll(delta);
+    scrapeOptions = merge(scrapeOptions, md.scrapeOptions);
   }
 
   private String merge(String val1, String val2) {
@@ -205,6 +207,10 @@ public class MediaMetadata {
 
   private float merge(float val1, float val2) {
     return val1 <= 0 ? val2 : val1;
+  }
+
+  private MediaSearchAndScrapeOptions merge(MediaSearchAndScrapeOptions val1, MediaSearchAndScrapeOptions val2) {
+    return val1 == null ? val2 : val1;
   }
 
   private MediaAiredStatus merge(MediaAiredStatus val1, MediaAiredStatus val2) {
@@ -1329,6 +1335,25 @@ public class MediaMetadata {
    */
   public Map<Integer, String> getSeasonNames() {
     return seasonNames;
+  }
+
+  /**
+   * get the {@link MediaSearchAndScrapeOptions} used when creating this {@link MediaMetadata}
+   * 
+   * @return the set {@link MediaSearchAndScrapeOptions} or null if unset
+   */
+  public MediaSearchAndScrapeOptions getScrapeOptions() {
+    return scrapeOptions;
+  }
+
+  /**
+   * set the {@link MediaSearchAndScrapeOptions}
+   * 
+   * @param scrapeOptions
+   *          the {@link MediaSearchAndScrapeOptions}
+   */
+  public void setScrapeOptions(MediaSearchAndScrapeOptions scrapeOptions) {
+    this.scrapeOptions = scrapeOptions;
   }
 
   /**

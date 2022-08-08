@@ -46,18 +46,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowCastPanel extends JPanel {
-  private static final long           serialVersionUID = 2374973082749248956L;
+  private static final long          serialVersionUID = 2374973082749248956L;
 
-
-
-  private final TvShowSelectionModel  selectionModel;
-  private EventList<Person>           actorEventList   = null;
+  private final TvShowSelectionModel selectionModel;
+  private EventList<Person>          actorEventList   = null;
 
   /**
    * UI elements
    */
-  private TmmTable                    tableActors;
-  private ActorImageLabel             lblActorImage;
+  private TmmTable                   tableActors;
+  private ActorImageLabel            lblActorImage;
 
   /**
    * Instantiates a new tv show cast panel.
@@ -119,7 +117,14 @@ public class TvShowCastPanel extends JPanel {
       lblActorImage = new ActorImageLabel();
       add(lblActorImage, "cell 2 0,grow");
 
-      tableActors = new PersonTable(actorEventList);
+      tableActors = new PersonTable(actorEventList) {
+        @Override
+        public void onPersonChanged(Person person) {
+          super.onPersonChanged(person);
+          TvShowCastPanel.this.selectionModel.getSelectedTvShow().saveToDb();
+          TvShowCastPanel.this.selectionModel.getSelectedTvShow().writeNFO();
+        }
+      };
       tableActors.setName("tvshows.tvshow.actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
 

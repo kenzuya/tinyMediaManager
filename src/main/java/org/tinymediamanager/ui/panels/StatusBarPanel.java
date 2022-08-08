@@ -216,7 +216,7 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
 
       // search for a new activetask to be displayed in the statusbar
       if (activeTask == null || activeTask.getState() == TmmTaskHandle.TaskState.FINISHED
-          || activeTask.getState() == TmmTaskHandle.TaskState.CANCELLED) {
+          || activeTask.getState() == TmmTaskHandle.TaskState.CANCELLED || activeTask.getState() == TmmTaskHandle.TaskState.FAILED) {
         activeTask = null;
         for (TmmTaskHandle handle : taskSet) {
           if (handle.getType() == TmmTaskHandle.TaskType.MAIN_TASK && handle.getState() == TmmTaskHandle.TaskState.STARTED) {

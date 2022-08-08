@@ -115,7 +115,7 @@ public class MediaInfoXmlCreator {
       track.appendChild(item);
     }
     catch (Exception e) {
-      LOGGER.trace("Could not write tag {} - {}", tag, e.getMessage());
+      LOGGER.trace("Could not write tag {}={} - {}", tag, textContent, e.getMessage());
     }
   }
 
@@ -128,6 +128,7 @@ public class MediaInfoXmlCreator {
     normalizedTag = normalizedTag.replace('*', '_'); // faster than replaceAll
     normalizedTag = normalizedTag.replace(':', '_'); // faster than replaceAll
     normalizedTag = normalizedTag.replace('.', '_'); // faster than replaceAll
+    normalizedTag = normalizedTag.replace(' ', '_'); // no spaces allowed
 
     // first character must not be a digit
     if (FIRST_CHARACTER_DIGIT_PATTERN.matcher(normalizedTag).find()) {

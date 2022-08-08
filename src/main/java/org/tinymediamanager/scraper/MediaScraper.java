@@ -42,12 +42,14 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 public class MediaScraper {
   private final IMediaProvider mediaProvider;
 
+  private final URL            logoUrl;
+
   private String               id;
   private String               version;
   private String               name;
   private String               summary;
   private String               description;
-  private URL                  logoUrl;
+  private int                  priority = 0;
   private ScraperType          type;
 
   public MediaScraper(ScraperType type, IMediaProvider mediaProvider) {
@@ -60,6 +62,7 @@ public class MediaScraper {
     this.description = mpi.getDescription();
     this.summary = mpi.getDescription();
     this.logoUrl = mpi.getProviderLogo();
+    this.priority = mpi.getPriority();
   }
 
   @Override
@@ -105,6 +108,14 @@ public class MediaScraper {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public int getPriority() {
+    return priority;
+  }
+
+  public void setPriority(int priority) {
+    this.priority = priority;
   }
 
   public ScraperType getType() {

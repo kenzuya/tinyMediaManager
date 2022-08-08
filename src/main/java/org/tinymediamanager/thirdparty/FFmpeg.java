@@ -59,7 +59,7 @@ public class FFmpeg {
     executeCommand(createCommandforStill(videoFile, stillFile, second));
   }
 
-  private static List<String> createCommandforStill(Path videoFile, Path stillFile, int second) {
+  private static List<String> createCommandforStill(Path videoFile, Path stillFile, int second) throws IOException {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -80,7 +80,7 @@ public class FFmpeg {
     executeCommand(createCommandforMux(videoFile, audioFile, muxedFile));
   }
 
-  private static List<String> createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
+  private static List<String> createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) throws IOException {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -99,7 +99,7 @@ public class FFmpeg {
     return executeCommand(createCommandForScanDarkLevel(position, videoFile));
   }
 
-  private static List<String> createCommandForScanDarkLevel(float position, Path videoFile) {
+  private static List<String> createCommandForScanDarkLevel(float position, Path videoFile) throws IOException {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-hide_banner");
@@ -124,7 +124,10 @@ public class FFmpeg {
     return executeCommand(createCommandForScanSample(start, duration, darkLevel, videoFile));
   }
 
-  private static List<String> createCommandForScanSample(int start, int duration, int darkLevel, Path videoFile) {
+  /**
+   * https://www.ffmpeg.org/ffmpeg-filters.html#cropdetect
+   */
+  private static List<String> createCommandForScanSample(int start, int duration, int darkLevel, Path videoFile) throws IOException {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-hide_banner");
@@ -163,11 +166,12 @@ public class FFmpeg {
       }).start();
 
       int processValue = process.waitFor();
+      String response = outputStream.toString(StandardCharsets.UTF_8);
       if (processValue != 0) {
-        LOGGER.debug("error at FFmpeg: '{}'", outputStream.toString(StandardCharsets.UTF_8));
+        LOGGER.warn("error at FFmpeg: '{}'", response);
         throw new IOException("error running FFmpeg - code '" + processValue + "'");
       }
-      return outputStream.toString(StandardCharsets.UTF_8);
+      return response;
     }
     finally {
       if (process != null) {
@@ -181,18 +185,23 @@ public class FFmpeg {
 
   public static boolean isAvailable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
-    return ((Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable())
-        || StringUtils.isNotEmpty(Settings.getInstance().getMediaFramework()));
+    return (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isNotBlank(Settings.getInstance().getMediaFramework())
+        || fFmpegAddon.isAvailable());
   }
 
-  private static String getFfmpegExecutable() {
+  private static String getFfmpegExecutable() throws IOException {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 
-    if (Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {
+    if (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isNotBlank(Settings.getInstance().getMediaFramework())) {
+      // external FFmpeg chosen and filled
+      return Settings.getInstance().getMediaFramework();
+    }
+    else if (fFmpegAddon.isAvailable()) {
+      // either internal chosen or fallback from empty external
       return fFmpegAddon.getExecutablePath();
     }
     else {
-      return Settings.getInstance().getMediaFramework();
+      throw new IOException("FFmpeg is not available");
     }
   }
 }

@@ -125,6 +125,9 @@ public class MediaEntityImageFetcherTask implements Runnable {
       // last but not least - set all media files
       boolean first = true;
       for (MediaFile artwork : newMediaFiles) {
+        // build up image cache before calling the events
+        ImageCache.cacheImageSilently(artwork.getFile());
+
         if (first) {
           // the first one needs to be processed differently (mainly for UI eventing)
           entity.setArtwork(artwork.getFile(), MediaFileType.getMediaFileType(type));
@@ -136,9 +139,6 @@ public class MediaEntityImageFetcherTask implements Runnable {
           artwork.gatherMediaInformation();
           entity.addToMediaFiles(artwork);
         }
-
-        // build up image cache
-        ImageCache.cacheImageSilently(artwork.getFile());
       }
     }
     catch (InterruptedException | InterruptedIOException e) {

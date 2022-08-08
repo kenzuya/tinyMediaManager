@@ -30,6 +30,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -53,6 +54,9 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -216,12 +220,23 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
-      LOGGER.info("Scraper metadata with scraper: " + metadataProvider.getMediaProvider().getProviderInfo().getId() + ", "
-          + metadataProvider.getMediaProvider().getProviderInfo().getVersion());
+      LOGGER.info("Scraper metadata with scraper: '{}' - '{}'", metadataProvider.getMediaProvider().getProviderInfo().getId(),
+          metadataProvider.getMediaProvider().getProviderInfo().getVersion());
       LOGGER.info("{}", options);
       LOGGER.info("=====================================================");
       try {
         metadata = ((IMovieMetadataProvider) metadataProvider.getMediaProvider()).getMetadata(options);
+
+        // also inject other ids
+        MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.MOVIE);
+
+        if (MovieModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.MOVIE))) {
+            if (!metadata.getRatings().contains(rating)) {
+              metadata.addRating(rating);
+            }
+          }
+        }
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
@@ -235,12 +250,16 @@ public class MovieChooserModel extends AbstractModelObject {
         return;
       }
 
+      if (StringUtils.isNotBlank(metadata.getTitle())) {
+        // re-set this because the scrape could get a better title than the search
+        setTitle(metadata.getTitle());
+      }
       setOriginalTitle(metadata.getOriginalTitle());
 
-      List<Person> castMembers = new ArrayList<>();
+      List<Person> cast = new ArrayList<>();
       int i = 0;
       for (Person castMember : metadata.getCastMembers(DIRECTOR)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
 
         // display at max 2 directors
         if (++i >= 2) {
@@ -250,7 +269,7 @@ public class MovieChooserModel extends AbstractModelObject {
 
       i = 0;
       for (Person castMember : metadata.getCastMembers(PRODUCER)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
 
         // display at max 2 producers
         if (++i >= 2) {
@@ -259,9 +278,9 @@ public class MovieChooserModel extends AbstractModelObject {
       }
 
       for (Person castMember : metadata.getCastMembers(ACTOR)) {
-        castMembers.add(new Person(castMember));
+        cast.add(new Person(castMember));
       }
-      setCastMembers(castMembers);
+      setCastMembers(cast);
       setOverview(metadata.getPlot());
       setTagline(metadata.getTagline());
 

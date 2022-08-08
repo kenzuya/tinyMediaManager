@@ -28,11 +28,12 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,9 +52,11 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
+import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.thetvdb.service.Controller;
 import org.tinymediamanager.scraper.util.LanguageUtils;
-import org.tinymediamanager.scraper.util.ListUtils;
+
+import retrofit2.Response;
 
 /**
  * The Class TheTvDbMetadataProvider.
@@ -90,7 +93,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   protected MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, getSubId(), "thetvdb.com",
         "<html><h3>The TVDB</h3><br />An open database for television fans. This scraper is able to scrape TV series metadata and artwork</html>",
-        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.svg"));
+        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.svg"), 30);
   }
 
   public MediaProviderInfo getProviderInfo() {
@@ -200,9 +203,16 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   }
 
   protected List<Person> parseCastMembers(List<Character> characters) {
+    if (characters == null) {
+      return Collections.emptyList();
+    }
+
+    // sort by the field sort
+    characters.sort(Comparator.comparingInt(o -> o.sort));
+
     List<Person> members = new ArrayList<>();
 
-    for (Character character : ListUtils.nullSafe(characters)) {
+    for (Character character : characters) {
       Person member;
 
       switch (character.type) {
@@ -218,6 +228,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         case 3:
         case 4:
           member = new Person(ACTOR);
+          member.setRole(character.name);
           break;
 
         case 7:
@@ -228,11 +239,14 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           continue;
       }
 
-      member.setId(getId(), character.id);
+      member.setId(getId(), character.peopleId);
       member.setName(character.personName);
-      member.setRole(character.name);
+
       if (StringUtils.isNotBlank(character.image)) {
         member.setThumbUrl(character.image);
+      }
+      if (StringUtils.isNotBlank(character.url)) {
+        member.setProfileUrl(character.url);
       }
 
       members.add(member);
@@ -263,12 +277,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         break;
 
       case 2:
-      case 15:
+      case 14:
         ma = new MediaArtwork(getProviderInfo().getId(), POSTER);
         break;
 
       case 3:
-      case 14:
+      case 15:
         ma = new MediaArtwork(getProviderInfo().getId(), BACKGROUND);
         break;
 
@@ -356,17 +370,9 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
     ma.setLanguage(ma.getLanguage());
 
-    // parse the season number
-    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) {
-      Matcher matcher = artworkSeasonNumberPattern.matcher(ma.getDefaultUrl());
-      if (matcher.matches() && matcher.groupCount() > 0) {
-        try {
-          ma.setSeason(Integer.parseInt(matcher.group(1)));
-        }
-        catch (Exception e) {
-          getLogger().trace("Could not parse season from '{}' - '{}'", ma.getDefaultUrl(), e.getMessage());
-        }
-      }
+    // get the season number
+    if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.season != null) {
+      ma.setSeason(image.season);
     }
 
     return ma;
@@ -387,5 +393,20 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     searchResult.setScore(1);
 
     return searchResult;
+  }
+
+  protected int getTvdbIdViaImdbId(String imdbId) {
+    // try to get it via service call
+    try {
+      Response<SearchResultResponse> httpResponse = tvdb.getSearchService().getSearch(imdbId, imdbId).execute();
+      if (httpResponse.isSuccessful() && httpResponse.body() != null) {
+        return Integer.parseInt(httpResponse.body().data.get(0).tvdbId);
+      }
+    }
+    catch (Exception e) {
+      getLogger().debug("could not fetch TVDB via IMDB - '{}'", e.getMessage());
+    }
+
+    return 0;
   }
 }

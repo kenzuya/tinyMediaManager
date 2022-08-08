@@ -28,6 +28,7 @@ import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -63,6 +64,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         FFmpegArtworkProvider.class.getResource("/org/tinymediamanager/scraper/ffmpeg.svg"));
   }
 
+  @Override
   public String getId() {
     return providerInfo.getId();
   }
@@ -78,12 +80,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
     // FFmpeg must be specified in the settings
-    // shipped FFmpeg
-    if (Settings.getInstance().isUseInternalMediaFramework() && !(new FFmpegAddon().isAvailable())) {
-      throw new MissingIdException("FFmpeg");
-    }
-    // Systems FFmpeg
-    else if (!Settings.getInstance().isUseInternalMediaFramework() && StringUtils.isBlank(Settings.getInstance().getMediaFramework())) {
+    if (!FFmpeg.isAvailable()) {
       throw new MissingIdException("FFmpeg");
     }
 
@@ -116,7 +113,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     int start = providerInfo.getConfig().getValueAsInteger("start");
     int end = providerInfo.getConfig().getValueAsInteger("end");
 
-    if (count <= 0 || start <= 0 || end >= 100 || start > end) {
+    if (count <= 0 || start < 0 || end > 100 || start > end) {
       throw new ScrapeException(new IllegalArgumentException());
     }
 
@@ -162,19 +159,26 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
     float increment = (end - start) / (100f * count);
 
-    List<MediaArtwork> artworks = new ArrayList<>();
-
     // get the amount of disc files and split the amount of stills over every disc file
-    List<Path> files = MediaFileHelper.getVideoFiles(mediaFile);
+    List<MediaInfoFile> files = MediaFileHelper.detectRelevantFiles(mediaFile);
+    for (int i = files.size() - 1; i >= 0; i--) {
+      String ext = files.get(i).getFileExtension();
+      // rule out non disc video files
+      if (!ext.equalsIgnoreCase("vob") && !ext.equalsIgnoreCase("m2ts") && !ext.equalsIgnoreCase("evo")) {
+        files.remove(i);
+      }
+    }
+
     if (files.isEmpty()) {
       return Collections.emptyList();
     }
 
     int countPerFile = (int) Math.ceil(count / (double) files.size());
     int fileDuration = duration / files.size();
+    List<MediaArtwork> artworks = new ArrayList<>();
 
     for (int fileIndex = 0; fileIndex < files.size(); fileIndex++) {
-      Path path = files.get(fileIndex);
+      Path path = Paths.get(files.get(fileIndex).getPath(), files.get(fileIndex).getFilename());
 
       for (int i = 0; i < countPerFile; i++) {
         // the second needs to be split across _all_ files

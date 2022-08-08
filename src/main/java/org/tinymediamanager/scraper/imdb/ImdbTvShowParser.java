@@ -104,6 +104,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+    md.setScrapeOptions(options);
 
     // API key check
     String apiKey;
@@ -123,11 +124,11 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // imdbid from scraper option
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       imdbId = options.getImdbId();
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -142,26 +143,27 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // get reference data (/reference)
-    String url = apiKey + "title/" + imdbId + "/reference";
-    Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = executor.submit(worker);
 
     // worker for imdb request (/plotsummary)
     Future<Document> futurePlotsummary;
-    url = apiKey + "title/" + imdbId + "/plotsummary";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futurePlotsummary = executor.submit(worker);
 
     // worker for imdb request (/releaseinfo)
-    // Future<Document> futureReleaseinfo;
-    // url = apiKey + "title/" + imdbId + "/releaseinfo";
-    // worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Future<Document> futureReleaseinfo;
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
+    futureReleaseinfo = executor.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = apiKey + "title/" + imdbId + "/keywords";
-      worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
       futureKeywords = executor.submit(worker);
     }
 
@@ -177,14 +179,11 @@ public class ImdbTvShowParser extends ImdbParser {
         parsePlotsummaryPage(doc, options, md);
       }
 
-      // did we get a release date?
-      if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
+      // get the release info page
+      Document releaseinfoDoc = futureReleaseinfo.get();
+      if (releaseinfoDoc != null) {
         // get the date from the releaseinfo page
-        Document releaseinfoDoc = executor.submit(worker).get();
-        // parse original title here!!
-        if (releaseinfoDoc != null) {
-          parseReleaseinfoPage(releaseinfoDoc, options, md);
-        }
+        parseReleaseinfoPage(releaseinfoDoc, options, md);
       }
 
       if (futureKeywords != null) {
@@ -249,10 +248,11 @@ public class ImdbTvShowParser extends ImdbParser {
     LOGGER.debug("getEpisodeMetadata(): {}", options);
 
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+    md.setScrapeOptions(options);
     String showId = "" + options.getTvShowIds().get(MediaMetadata.IMDB);
 
     String episodeId = options.getIdAsString(MediaMetadata.IMDB);
-    if (!MetadataUtil.isValidImdbId(episodeId)) {
+    if (!MediaIdUtil.isValidImdbId(episodeId)) {
       episodeId = "";
     }
 
@@ -268,7 +268,7 @@ public class ImdbTvShowParser extends ImdbParser {
     // only if we get a S/E number
     MediaMetadata wantedEpisode = null;
     if (seasonNr >= 0 && episodeNr > 0) {
-      if (!MetadataUtil.isValidImdbId(showId)) {
+      if (!MediaIdUtil.isValidImdbId(showId)) {
         LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
         throw new MissingIdException(MediaMetadata.IMDB);
       }
@@ -324,10 +324,10 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // and finally the cast which needed to be fetched from the reference page
-    if (MetadataUtil.isValidImdbId(episodeId)) {
+    if (MediaIdUtil.isValidImdbId(episodeId)) {
       md.setId(ImdbMetadataProvider.ID, episodeId);
 
-      if (MetadataUtil.isValidImdbId(episodeId)) {
+      if (MediaIdUtil.isValidImdbId(episodeId)) {
         ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
         Callable<Document> worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
@@ -762,7 +762,7 @@ public class ImdbTvShowParser extends ImdbParser {
         }
 
         Person cm = parseCastMember(row);
-        if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
+        if (cm != null && StringUtils.isNotEmpty(cm.getName())) {
           cm.setType(ACTOR);
           md.addCastMember(cm);
         }
@@ -805,16 +805,16 @@ public class ImdbTvShowParser extends ImdbParser {
     String imdbId = "";
 
     // imdbid from scraper option
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       imdbId = options.getImdbId();
     }
 
     // imdbid via tmdbid
-    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+    if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
       imdbId = MediaIdUtil.getTvShowImdbIdViaTmdbId(options.getTmdbId());
     }
 
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("not possible to scrape from IMDB - imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }

@@ -185,7 +185,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private DatePicker                               dpPremiered;
   private TmmTable                                 tableEpisodes;
   private JTextField                               tfSorttitle;
-  private JTextField                               tfNote;
+  private JTextArea                                taNote;
 
   private JTextField                               tfPoster;
   private JTextField                               tfFanart;
@@ -266,7 +266,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
       tfStudio.setText(tvShow.getProductionCompany());
       tfCountry.setText(tvShow.getCountry());
-      tfNote.setText(tvShow.getNote());
+      taNote.setText(tvShow.getNote());
       cbStatus.setSelectedItem(tvShow.getStatus());
       spRuntime.setValue(tvShow.getRuntime());
       int year = tvShow.getYear();
@@ -365,7 +365,7 @@ public class TvShowEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][75lp:25%:25%,grow][][][pref!][][][][75lp:20%:20%,grow][pref!]"));
+          "[][][][75lp:25%:25%,grow][][][pref!][][][][75lp:20%:20%,grow][50lp:50lp:100lp,grow 50]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
@@ -550,10 +550,16 @@ public class TvShowEditorDialog extends TmmDialog {
 
       {
         JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-        details1Panel.add(lblNoteT, "cell 0 11,alignx trailing");
+        details1Panel.add(lblNoteT, "cell 0 11,alignx right,aligny top");
 
-        tfNote = new JTextField();
-        details1Panel.add(tfNote, "cell 1 11 6 1,growx");
+        JScrollPane scrollPane = new JScrollPane();
+        details1Panel.add(scrollPane, "cell 1 11 6 1,grow,wmin 0");
+
+        taNote = new JTextArea();
+        taNote.setLineWrap(true);
+        taNote.setWrapStyleWord(true);
+        taNote.setForeground(UIManager.getColor("TextField.foreground"));
+        scrollPane.setViewportView(taNote);
       }
     }
 
@@ -570,7 +576,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
 
-        tableActors = new PersonTable(actors, true);
+        tableActors = new PersonTable(actors);
 
         JScrollPane scrollPaneActors = new JScrollPane();
         tableActors.configureScrollPane(scrollPaneActors);
@@ -1164,7 +1170,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
       tvShowToEdit.setProductionCompany(tfStudio.getText());
       tvShowToEdit.setCountry(tfCountry.getText());
-      tvShowToEdit.setNote(tfNote.getText());
+      tvShowToEdit.setNote(taNote.getText());
       tvShowToEdit.setGenres(genres);
 
       // remove cast to avoid merging
@@ -1376,6 +1382,9 @@ public class TvShowEditorDialog extends TmmDialog {
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+          actor.setRole("");
+        }
         actors.add(0, actor);
       }
     }

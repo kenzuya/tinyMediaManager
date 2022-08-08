@@ -42,8 +42,10 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -71,6 +73,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private JCheckBox                            chckbxWriteDateEnded;
   private JCheckBox                            chckbxEmbedAllActors;
   private JCheckBox                            chckbxFirstStudio;
+  private JHintCheckBox                        chckbxLockdata;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -102,7 +105,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     {
       JPanel panelNfo = new JPanel();
       // 16lp ~ width of the checkbox
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][][10lp!][]"));
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][][10lp!][][]"));
       JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#nfo-settings"));
@@ -174,6 +177,11 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         chckbxWriteCleanNfo = new JCheckBox(TmmResourceBundle.getString("Settings.writecleannfo"));
         panelNfo.add(chckbxWriteCleanNfo, "cell 1 14 2 1");
       }
+
+      chckbxLockdata = new JHintCheckBox(TmmResourceBundle.getString("Settings.lockdata"));
+      chckbxLockdata.setToolTipText(TmmResourceBundle.getString("Settings.lockdata.hint"));
+      chckbxLockdata.setHintIcon(IconManager.HINT);
+      panelNfo.add(chckbxLockdata, "cell 1 15 2 1");
     }
   }
 
@@ -296,5 +304,10 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxFirstStudio,
         jCheckBoxBeanProperty);
     autoBinding_7.bind();
+    //
+    Property tvShowSettingsBeanProperty_8 = BeanProperty.create("nfoWriteLockdata");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8, chckbxLockdata,
+        jCheckBoxBeanProperty);
+    autoBinding_8.bind();
   }
 }

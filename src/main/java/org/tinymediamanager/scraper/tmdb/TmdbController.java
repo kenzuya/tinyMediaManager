@@ -91,7 +91,7 @@ class TmdbController {
 
   protected synchronized OkHttpClient okHttpClient() {
     // use the tmm internal okhttp client
-    OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+    OkHttpClient.Builder builder = TmmHttpClient.newBuilderWithForcedCache(15, TimeUnit.MINUTES);
     builder.connectTimeout(30, TimeUnit.SECONDS);
     builder.writeTimeout(30, TimeUnit.SECONDS);
     builder.readTimeout(30, TimeUnit.SECONDS);

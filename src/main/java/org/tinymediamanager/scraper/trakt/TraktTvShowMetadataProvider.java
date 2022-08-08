@@ -26,7 +26,10 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -40,15 +43,18 @@ import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
+import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -67,7 +73,8 @@ import retrofit2.Response;
  * The class TraktTvShowMetadataProvider is used to provide metadata for movies from trakt.tv
  */
 
-public class TraktTvShowMetadataProvider extends TraktMetadataProvider implements ITvShowMetadataProvider, ITvShowImdbMetadataProvider {
+public class TraktTvShowMetadataProvider extends TraktMetadataProvider
+    implements ITvShowMetadataProvider, ITvShowImdbMetadataProvider, IRatingProvider, IMediaIdProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktTvShowMetadataProvider.class);
 
   @Override
@@ -146,40 +153,34 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     // the API does not provide a complete access to all episodes, so we have to
     // fetch the show summary first and every season afterwards..
-    List<Season> seasons = null;
-    synchronized (api) {
-      try {
-        Response<List<Season>> response = api.seasons().summary(id, Extended.FULLEPISODES).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-          throw new HttpException(response.code(), response.message());
-        }
-        seasons = response.body();
+    List<Season> seasons;
+    try {
+      Response<List<Season>> response = api.seasons().summary(id, Extended.FULLEPISODES).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to get episode list: {}", e.getMessage());
-        throw new ScrapeException(e);
-      }
+      seasons = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get episode list: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     for (Season season : ListUtils.nullSafe(seasons)) {
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
         MediaMetadata ep = new MediaMetadata(getId());
+        ep.setScrapeOptions(options);
         ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
         ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
         ep.setTitle(episode.title);
 
-        if (episode.rating != null) {
-          try {
-            MediaRating rating = new MediaRating(getId());
-            rating.setRating(Math.round(episode.rating * 10.0) / 10.0); // hack to round to 1 decimal
-            rating.setVotes(episode.votes);
-            rating.setMaxValue(10);
-            ep.addRating(rating);
-          }
-          catch (Exception e) {
-            LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-          }
+        if (episode.rating != null && episode.votes != null) {
+          MediaRating rating = new MediaRating(getId());
+          rating.setRating(Math.round(episode.rating * 10.0) / 10.0); // hack to round to 1 decimal
+          rating.setVotes(episode.votes);
+          rating.setMaxValue(10);
+          ep.addRating(rating);
         }
 
         if (episode.first_aired != null) {
@@ -217,6 +218,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     String id = options.getIdAsString(getId());
 
@@ -232,26 +234,24 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     String lang = options.getLanguage().getLanguage();
     List<Translation> translations = null;
-    Show show = null;
-    Credits credits = null;
-    synchronized (api) {
-      try {
-        Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-          throw new HttpException(response.code(), response.message());
-        }
-        show = response.body();
-        if (!"en".equals(lang)) {
-          // only call translation when we're not already EN ;)
-          translations = api.shows().translation(id, lang).execute().body();
-        }
-        credits = api.shows().people(id).execute().body();
+    Show show;
+    Credits credits;
+    try {
+      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to get meta data: {}", e.getMessage());
-        throw new ScrapeException(e);
+      show = response.body();
+      if (!"en".equals(lang)) {
+        // only call translation when we're not already EN ;)
+        translations = api.shows().translation(id, lang).execute().body();
       }
+      credits = api.shows().people(id).execute().body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (show == null) {
@@ -271,7 +271,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
       if (show.ids.tvrage != null && show.ids.tvrage > 0) {
         md.setId("tvrage", show.ids.tvrage);
       }
-      if (StringUtils.isNotBlank(show.ids.imdb)) {
+      if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
         md.setId(IMDB, show.ids.imdb);
       }
     }
@@ -289,15 +289,12 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     md.setYear(show.year);
 
-    try {
+    if (show.rating != null && show.votes != null) {
       MediaRating rating = new MediaRating("trakt");
       rating.setRating(show.rating);
       rating.setVotes(show.votes);
       rating.setMaxValue(10);
       md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
 
     md.addCertification(MediaCertification.findCertification(show.certification));
@@ -331,14 +328,6 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
       }
     }
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
-      }
-    }
-
     return md;
   }
 
@@ -350,6 +339,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
     initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
+    md.setScrapeOptions(options);
 
     // ok, we have 2 flavors here:
     // a) we get the season and episode number -> everything is fine
@@ -369,7 +359,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
     }
 
     String episodeImdbId = options.getIdAsString(IMDB);
-    if (!MetadataUtil.isValidImdbId(episodeImdbId)) {
+    if (!MediaIdUtil.isValidImdbId(episodeImdbId)) {
       episodeImdbId = "";
     }
     int episodeTmdbId = options.getIdAsIntOrDefault(TMDB, 0);
@@ -393,20 +383,18 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
 
     // fetch all episode data - this results in less connections, but the initial connection is _bigger_
     Episode episode = null;
-    List<Season> seasons = null;
-    synchronized (api) {
-      try {
-        Response<List<Season>> response = api.seasons().summary(showId, Extended.FULLEPISODES).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-          throw new HttpException(response.code(), response.message());
-        }
-        seasons = response.body();
+    List<Season> seasons;
+    try {
+      Response<List<Season>> response = api.seasons().summary(showId, Extended.FULLEPISODES).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to get meta data: {}", e.getMessage());
-        throw new ScrapeException(e);
-      }
+      seasons = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     for (Season season : ListUtils.nullSafe(seasons)) {
@@ -471,7 +459,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
       if (episode.ids.tmdb != null && episode.ids.tmdb > 0) {
         md.setId(TMDB, episode.ids.tmdb);
       }
-      if (MetadataUtil.isValidImdbId(episode.ids.imdb)) {
+      if (MediaIdUtil.isValidImdbId(episode.ids.imdb)) {
         md.setId(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
@@ -482,27 +470,291 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
     md.setTitle(episode.title);
     md.setPlot(episode.overview);
 
-    try {
+    if (episode.rating != null && episode.votes != null) {
       MediaRating rating = new MediaRating("trakt");
-      rating.setRating(MetadataUtil.unboxDouble(episode.rating));
-      rating.setVotes(MetadataUtil.unboxInteger(episode.votes));
+      rating.setRating(episode.rating);
+      rating.setVotes(episode.votes);
       rating.setMaxValue(10);
       md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
 
     md.setReleaseDate(TraktUtils.toDate(episode.first_aired));
 
-    // also try to get the IMDB rating
-    if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-      if (imdbRating != null) {
-        md.addRating(imdbRating);
+    return md;
+  }
+
+  private Episode findEpisodeById(Map<String, Object> ids) throws ScrapeException {
+    // ok, we have 2 flavors here:
+    // a) we get the season and episode number -> everything is fine
+    // b) we get the episode id (tmdb, imdb or tvdb) -> we need to do the lookup to get the season/episode number
+
+    Map<String, Object> showIds = new HashMap<>();
+    String showId = "";
+
+    try {
+      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
+
+      showId = MediaIdUtil.getIdAsString(showIds, getId());
+      if (StringUtils.isBlank(showId)) {
+        // alternatively we can take the imdbid
+        showId = MediaIdUtil.getIdAsString(showIds, IMDB);
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("could not get TV show ids - '{}'", e.getMessage());
+    }
+
+    if (StringUtils.isBlank(showId)) {
+      LOGGER.debug("no show id available");
+      throw new MissingIdException(IMDB, getId());
+    }
+
+    String episodeImdbId = MediaIdUtil.getIdAsString(ids, IMDB);
+    if (!MediaIdUtil.isValidImdbId(episodeImdbId)) {
+      episodeImdbId = "";
+    }
+    int episodeTmdbId = MediaIdUtil.getIdAsInt(ids, TMDB);
+    int episodeTvdbId = MediaIdUtil.getIdAsInt(ids, TVDB);
+    int episodeTraktId = MediaIdUtil.getIdAsInt(ids, getId());
+
+    // get episode number and season number
+    int seasonNr = MediaIdUtil.getIdAsIntOrDefault(ids, MediaMetadata.SEASON_NR, -1);
+    int episodeNr = MediaIdUtil.getIdAsIntOrDefault(ids, MediaMetadata.EPISODE_NR, -1);
+
+    // fetch all episode data - this results in less connections, but the initial connection is _bigger_
+    Episode episode = null;
+    List<Season> seasons;
+    try {
+      Response<List<Season>> response = api.seasons().summary(showId, Extended.FULLEPISODES).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      seasons = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    for (Season season : ListUtils.nullSafe(seasons)) {
+      for (Episode ep : ListUtils.nullSafe(season.episodes)) {
+        if (ep.ids != null) {
+          // possible match by external id
+          if (StringUtils.isNotBlank(episodeImdbId) && episodeImdbId.equals(ep.ids.imdb)) {
+            episode = ep;
+            break;
+          }
+          else if (episodeTraktId != 0 && episodeTraktId == MetadataUtil.unboxInteger(ep.ids.trakt)) {
+            episode = ep;
+            break;
+          }
+          else if (episodeTmdbId != 0 && episodeTmdbId == MetadataUtil.unboxInteger(ep.ids.tmdb)) {
+            episode = ep;
+            break;
+          }
+          else if (episodeTvdbId != 0 && episodeTvdbId == MetadataUtil.unboxInteger(ep.ids.tvdb)) {
+            episode = ep;
+            break;
+          }
+        }
+
+        if (MetadataUtil.unboxInteger(ep.season, -1) == seasonNr && MetadataUtil.unboxInteger(ep.number, -1) == episodeNr) {
+          episode = ep;
+          break;
+        }
       }
     }
 
-    return md;
+    return episode;
+  }
+
+  @Override
+  public List<MediaRating> getRatings(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType == MediaType.TV_SHOW) {
+      return getTvShowRatings(ids);
+    }
+    else if (mediaType == MediaType.TV_EPISODE) {
+      return getEpisodeRatings(ids);
+    }
+    else {
+      return Collections.emptyList();
+    }
+  }
+
+  private List<MediaRating> getTvShowRatings(Map<String, Object> ids) throws ScrapeException {
+    LOGGER.debug("getRatings(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    String id = MediaIdUtil.getIdAsString(ids, getId());
+
+    // alternatively we can take the imdbid
+    if (StringUtils.isBlank(id)) {
+      id = MediaIdUtil.getIdAsString(ids, IMDB);
+    }
+
+    if (StringUtils.isBlank(id)) {
+      LOGGER.debug("no id available");
+      throw new MissingIdException(IMDB, getId());
+    }
+
+    Show show;
+    try {
+      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      show = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (show == null) {
+      LOGGER.debug("nothing found");
+      throw new NothingFoundException();
+    }
+
+    if (show.rating != null && show.votes != null) {
+      MediaRating rating = new MediaRating(getId());
+      rating.setRating(show.rating);
+      rating.setVotes(show.votes);
+      rating.setMaxValue(10);
+      return Collections.singletonList(rating);
+    }
+
+    return Collections.emptyList();
+  }
+
+  private List<MediaRating> getEpisodeRatings(Map<String, Object> ids) throws ScrapeException {
+    LOGGER.debug("getRatings(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    Episode episode = findEpisodeById(ids);
+
+    if (episode == null) {
+      LOGGER.warn("nothing found");
+      throw new NothingFoundException();
+    }
+
+    if (episode.rating != null && episode.votes != null) {
+      MediaRating rating = new MediaRating(getId());
+      rating.setRating(episode.rating);
+      rating.setVotes(episode.votes);
+      rating.setMaxValue(10);
+      return Collections.singletonList(rating);
+    }
+
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Map<String, Object> getMediaIds(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType == MediaType.TV_SHOW) {
+      return getTvShowIds(ids);
+    }
+    else if (mediaType == MediaType.TV_EPISODE) {
+      return getEpisodeIds(ids);
+    }
+    else {
+      return Collections.emptyMap();
+    }
+  }
+
+  private Map<String, Object> getTvShowIds(Map<String, Object> ids) throws ScrapeException {
+    LOGGER.debug("getTvShowIds(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    String id = MediaIdUtil.getIdAsString(ids, getId());
+
+    // alternatively we can take the imdbid
+    if (StringUtils.isBlank(id)) {
+      id = MediaIdUtil.getIdAsString(ids, IMDB);
+    }
+
+    if (StringUtils.isBlank(id)) {
+      LOGGER.debug("no id available");
+      throw new MissingIdException(IMDB, getId());
+    }
+
+    Show show;
+    try {
+      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
+      }
+      show = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
+    }
+
+    if (show == null) {
+      LOGGER.debug("nothing found");
+      throw new NothingFoundException();
+    }
+
+    Map<String, Object> scrapedIds = new HashMap<>();
+    if (show.ids != null) {
+      scrapedIds.put(getId(), show.ids.trakt);
+      if (show.ids.tvdb != null && show.ids.tvdb > 0) {
+        scrapedIds.put(TVDB, show.ids.tvdb);
+      }
+      if (show.ids.tmdb != null && show.ids.tmdb > 0) {
+        scrapedIds.put(TMDB, show.ids.tmdb);
+      }
+      if (show.ids.tvrage != null && show.ids.tvrage > 0) {
+        scrapedIds.put("tvrage", show.ids.tvrage);
+      }
+      if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
+        scrapedIds.put(IMDB, show.ids.imdb);
+      }
+    }
+
+    return scrapedIds;
+  }
+
+  private Map<String, Object> getEpisodeIds(Map<String, Object> ids) throws ScrapeException {
+    LOGGER.debug("getRatings(): {}", ids);
+
+    // lazy initialization of the api
+    initAPI();
+
+    Episode episode = findEpisodeById(ids);
+
+    if (episode == null) {
+      LOGGER.warn("nothing found");
+      throw new NothingFoundException();
+    }
+
+    Map<String, Object> scrapedIds = new HashMap<>();
+
+    if (episode.ids != null) {
+      scrapedIds.put(getId(), episode.ids.trakt);
+      if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
+        scrapedIds.put(TVDB, episode.ids.tvdb);
+      }
+      if (episode.ids.tmdb != null && episode.ids.tmdb > 0) {
+        scrapedIds.put(TMDB, episode.ids.tmdb);
+      }
+      if (MediaIdUtil.isValidImdbId(episode.ids.imdb)) {
+        scrapedIds.put(IMDB, episode.ids.imdb);
+      }
+      if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
+        scrapedIds.put("tvrage", episode.ids.tvrage);
+      }
+    }
+
+    return scrapedIds;
   }
 }

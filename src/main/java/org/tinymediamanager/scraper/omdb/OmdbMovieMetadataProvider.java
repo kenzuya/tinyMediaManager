@@ -18,12 +18,14 @@ package org.tinymediamanager.scraper.omdb;
 import java.io.InterruptedIOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -34,7 +36,8 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.interfaces.IRatingProvider;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -42,7 +45,7 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  *
  * @author Manuel Laggner
  */
-public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
+public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider, IRatingProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(OmdbMovieMetadataProvider.class);
 
   @Override
@@ -68,7 +71,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     String imdbId = getImdbId(options);
 
     // imdbid check
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
       LOGGER.warn("no imdb id found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
@@ -98,6 +101,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       throw new NothingFoundException();
     }
 
+    metadata.setScrapeOptions(options);
     return metadata;
   }
 
@@ -108,7 +112,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
     // if the imdb id is given, directly fetch the result
-    if (MetadataUtil.isValidImdbId(query.getImdbId())) {
+    if (MediaIdUtil.isValidImdbId(query.getImdbId())) {
       try {
         MediaMetadata md = getMetadata(query);
 
@@ -135,9 +139,8 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     Document doc = null;
     try {
-      doc = UrlUtil
-          .parseDocumentFromUrl(
-              "https://www.omdbapi.com/?apikey=" + getApiKey() + "&s=" + UrlUtil.encode(query.getSearchQuery()) + "&type=movie&page=1&r=xml");
+      doc = UrlUtil.parseDocumentFromUrl(
+          "https://www.omdbapi.com/?apikey=" + getApiKey() + "&s=" + UrlUtil.encode(query.getSearchQuery()) + "&type=movie&page=1&r=xml");
     }
     catch (InterruptedException | InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -163,6 +166,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
         if (doc != null && doc.childrenSize() != 0) {
           MediaMetadata md = parseDetail(doc, "movie");
           if (md != null) {
+            md.setScrapeOptions(query);
             MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.MOVIE);
             searchResult.mergeFrom(md);
             searchResults = Collections.singletonList(searchResult);
@@ -186,5 +190,22 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     }
 
     return mediaResult;
+  }
+
+  @Override
+  public List<MediaRating> getRatings(Map<String, Object> ids, MediaType mediaType) throws ScrapeException {
+    if (mediaType != MediaType.MOVIE) {
+      return Collections.emptyList();
+    }
+
+    MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
+    options.setIds(ids);
+
+    try {
+      return getMetadata(options).getRatings();
+    }
+    catch (Exception e) {
+      return Collections.emptyList();
+    }
   }
 }

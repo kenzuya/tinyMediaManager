@@ -17,16 +17,18 @@ package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.anidb.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.davestrailer.DavesTrailerPageProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
@@ -59,6 +61,7 @@ import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.spi.IAddonProvider;
+import org.tinymediamanager.scraper.thetvdb.TheTvDbMovieArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowMetadataProvider;
@@ -79,15 +82,15 @@ import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
- * 
+ *
  * @author Manuel Laggner
  */
 public class MediaProviders {
-  private static final Logger                                LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
-  private static final HashMap<String, List<IMediaProvider>> MEDIA_PROVIDERS = new HashMap<>();
+  private static final Logger                            LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
+  private static final Map<String, List<IMediaProvider>> MEDIA_PROVIDERS = new LinkedHashMap<>();
 
   private MediaProviders() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -115,14 +118,15 @@ public class MediaProviders {
     // MOVIE
     /////////////////////////////////////////////
     loadProvider(TmdbMovieMetadataProvider.class);
-    loadProvider(OmdbMovieMetadataProvider.class);
-    loadProvider(TheTvDbMovieMetadataProvider.class);
     loadProvider(ImdbMovieMetadataProvider.class);
-    loadProvider(KodiMetadataProvider.class);
-    loadProvider(MovieMeterMovieMetadataProvider.class);
-    loadProvider(OfdbMovieMetadataProvider.class);
+    loadProvider(OmdbMovieMetadataProvider.class);
     loadProvider(TraktMovieMetadataProvider.class);
+    loadProvider(MovieMeterMovieMetadataProvider.class);
+    loadProvider(TheTvDbMovieMetadataProvider.class);
+    loadProvider(AniDbMovieMetadataProvider.class);
+    loadProvider(OfdbMovieMetadataProvider.class);
     loadProvider(MpdbMovieMetadataProvider.class);
+    loadProvider(KodiMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieMetadataProvider.class);
@@ -147,6 +151,7 @@ public class MediaProviders {
     loadProvider(ImdbMovieArtworkProvider.class);
     loadProvider(MpdbMovieArtworkMetadataProvider.class);
     loadProvider(FFmpegMovieArtworkProvider.class);
+    loadProvider(TheTvDbMovieArtworkProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieArtworkProvider.class);
@@ -186,6 +191,14 @@ public class MediaProviders {
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
 
     // register all compatible scrapers in the universal scraper
+    // FIX: to put tvdb in the front
+    List<IMediaProvider> tvdb = MEDIA_PROVIDERS.get(MediaMetadata.TVDB);
+    for (IMediaProvider mediaProvider : ListUtils.nullSafe(tvdb)) {
+      if (mediaProvider instanceof ITvShowMetadataProvider) {
+        UniversalTvShowMetadataProvider.addProvider((ITvShowMetadataProvider) mediaProvider);
+      }
+    }
+
     MEDIA_PROVIDERS.forEach((key, value) -> {
       for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
         if (mediaProvider instanceof ITvShowMetadataProvider) {
@@ -255,7 +268,7 @@ public class MediaProviders {
 
   /**
    * get a list of all available media providers for the given interface
-   * 
+   *
    * @param clazz
    *          the interface which needs to be implemented
    * @param <T>
@@ -278,7 +291,7 @@ public class MediaProviders {
 
   /**
    * get the media provider by the given id
-   * 
+   *
    * @param id
    *          the id of the media provider
    * @return the {@link IMediaProvider} or null

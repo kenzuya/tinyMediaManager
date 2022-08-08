@@ -33,7 +33,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import retrofit2.Response;
 
@@ -88,7 +88,7 @@ public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider imple
       tmdbId = options.getIdAsInt(MediaMetadata.TMDB_SET);
     }
 
-    if (tmdbId == 0 && !MetadataUtil.isValidImdbId(imdbId)) {
+    if (tmdbId == 0 && !MediaIdUtil.isValidImdbId(imdbId)) {
       throw new MissingIdException(MediaMetadata.IMDB, MediaMetadata.TMDB);
     }
 

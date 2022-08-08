@@ -64,7 +64,7 @@ public class AesUtil {
 
   private byte[] doFinal(int encryptMode, SecretKey key, String iv, byte[] bytes) {
     try {
-      cipher.init(encryptMode, key, new IvParameterSpec(hex(iv)));
+      cipher.init(encryptMode, key, new IvParameterSpec(hex(iv))); // NOSONAR
       return cipher.doFinal(bytes);
     }
     catch (Exception e) {

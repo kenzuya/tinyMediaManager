@@ -339,6 +339,12 @@ public class Url {
 
       if (headRequest) {
         response.close();
+        try {
+          responseContentLength = Long.parseLong(headersResponse.get("Content-Length"));
+        }
+        catch (Exception e) {
+          // ignored
+        }
         return new NullInputStream(0);
       }
 
@@ -357,6 +363,11 @@ public class Url {
     catch (UnknownHostException e) {
       cleanup();
       LOGGER.error("proxy or host not found/reachable - {}", e.getMessage());
+    }
+    catch (HttpException e) {
+      cleanup();
+      LOGGER.trace("HTTP '{}' for '{}'", e.getStatusCode(), logUrl);
+      throw e;
     }
     catch (Exception e) {
       cleanup();

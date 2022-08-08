@@ -36,7 +36,7 @@ public class MediaProviderInfo {
   private final String              description;
   private final URL                 providerLogo;
   private final MediaProviderConfig config;
-
+  private int                       priority   = 0;
   private String                    version    = "";
 
   /**
@@ -70,11 +70,32 @@ public class MediaProviderInfo {
    *          the URL to the (embedded) provider logo
    */
   public MediaProviderInfo(String id, String subId, String name, String description, URL providerLogo) {
+    this(id, subId, name, description, providerLogo, 0);
+  }
+
+  /**
+   * Instantiates a new provider info.
+   *
+   * @param id
+   *          the id of the provider
+   * @param subId
+   *          the subId of the provider (in most cases a dedicated part of the scraper)
+   * @param name
+   *          the name of the provider
+   * @param description
+   *          a description of the provider
+   * @param providerLogo
+   *          the URL to the (embedded) provider logo
+   * @param priority
+   *          usually 0, but the higher value, the more important it is (for fallback scraper sorting)
+   */
+  public MediaProviderInfo(String id, String subId, String name, String description, URL providerLogo, int priority) {
     this.id = id;
     this.subId = subId;
     this.name = name;
     this.description = description;
     this.providerLogo = providerLogo;
+    this.priority = priority;
     this.config = new MediaProviderConfig(this);
   }
 
@@ -114,6 +135,19 @@ public class MediaProviderInfo {
 
   public String getVersion() {
     return version;
+  }
+
+  /**
+   * usually 0, but the higher value, the more important it is (for fallback scraper sorting)
+   * 
+   * @return
+   */
+  public int getPriority() {
+    return priority;
+  }
+
+  public void setPriority(int priority) {
+    this.priority = priority;
   }
 
   /**
