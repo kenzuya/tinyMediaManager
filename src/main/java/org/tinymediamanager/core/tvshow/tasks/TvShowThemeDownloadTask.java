@@ -129,12 +129,14 @@ public class TvShowThemeDownloadTask extends TmmThreadPool {
               url = new Url(urlAsString);
             }
             catch (Exception e) {
-              LOGGER.error("downloading {} - {}", urlAsString, e.getMessage());
+              LOGGER.error("url is invalid {} - {}", urlAsString, e.getMessage());
               throw e;
             }
 
             try (InputStream is = url.getInputStreamWithRetry(5); FileOutputStream outputStream = new FileOutputStream(tempFile.toFile())) {
-
+              if (is == null) {
+                return; // 403/404 return code
+              }
               IOUtils.copy(is, outputStream);
               Utils.flushFileOutputStreamToDisk(outputStream);
             }
