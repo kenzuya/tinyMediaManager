@@ -298,7 +298,7 @@ public class MediaIdUtil {
   private static void injectEpisodeIds(Map<String, Object> ids) {
     Map<String, Object> showIds = new HashMap<>();
     try {
-      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
+      showIds.putAll((Map<? extends String, ?>) ids.get(MediaMetadata.TVSHOW_IDS));
     }
     catch (Exception e) {
       // ignored

@@ -61,6 +61,7 @@ class ImdbRating {
       // still null? we obviously have a problem opening the cache - so just ignore that
       return null;
     }
+    LOGGER.debug("getRatings(): {}", imdbId);
 
     try {
       String line = ratingMap.get(imdbId);

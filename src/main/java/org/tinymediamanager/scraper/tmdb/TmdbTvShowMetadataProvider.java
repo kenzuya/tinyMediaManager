@@ -941,7 +941,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     int showTmdbId = 0;
 
     try {
-      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
+      showIds.putAll((Map<? extends String, ?>) ids.get(MediaMetadata.TVSHOW_IDS));
     }
     catch (Exception e) {
       LOGGER.debug("could not get TV show ids - '{}'", e.getMessage());
@@ -986,7 +986,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     // get the tv show ids
-    if (showTmdbId == 0 && ids.get("tvShowIds") instanceof Map) {
+    if (showTmdbId == 0 && ids.get(MediaMetadata.TVSHOW_IDS) instanceof Map) {
       showTmdbId = MediaIdUtil.getIdAsInt(showIds, TMDB);
 
       // try to get via imdb id

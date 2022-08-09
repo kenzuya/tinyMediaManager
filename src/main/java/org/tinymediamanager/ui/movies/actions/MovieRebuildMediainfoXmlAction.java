@@ -54,8 +54,8 @@ public class MovieRebuildMediainfoXmlAction extends TmmAction {
   public MovieRebuildMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));
-    putValue(SMALL_ICON, IconManager.REFRESH);
-    putValue(LARGE_ICON_KEY, IconManager.REFRESH);
+    putValue(SMALL_ICON, IconManager.MEDIAINFO);
+    putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 

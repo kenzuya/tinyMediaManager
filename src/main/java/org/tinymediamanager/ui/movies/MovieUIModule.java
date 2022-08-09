@@ -51,7 +51,6 @@ import org.tinymediamanager.ui.movies.actions.MovieCleanUpFilesAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieCreateOfflineAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteAction;
-import org.tinymediamanager.ui.movies.actions.MovieDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
@@ -252,7 +251,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+    // editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
 
@@ -357,7 +356,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+    // enhancedEditMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));

@@ -33,6 +33,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.ui.IconManager;
@@ -84,7 +85,9 @@ public class TvShowFetchRatingsAction extends TmmAction {
 
               // TV shows
               for (TvShow tvShow : tvShows) {
-                List<MediaRating> ratings = RatingProvider.getRatings(tvShow.getIds(), sources, MediaType.TV_SHOW);
+                Map<String, Object> ids = new HashMap<>(tvShow.getIds());
+                ids.put(MediaMetadata.TVSHOW_IDS, tvShow.getIds());
+                List<MediaRating> ratings = RatingProvider.getRatings(ids, sources, MediaType.TV_SHOW);
                 ratings.forEach(tvShow::setRating);
                 if (!ratings.isEmpty()) {
                   tvShow.saveToDb();
@@ -100,7 +103,9 @@ public class TvShowFetchRatingsAction extends TmmAction {
               // episodes
               for (TvShowEpisode episode : episodes) {
                 Map<String, Object> ids = new HashMap<>(episode.getIds());
-                ids.put("tvShowIds", episode.getTvShow().getIds());
+                ids.put(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
+                ids.put(MediaMetadata.SEASON_NR, episode.getSeason());
+                ids.put(MediaMetadata.EPISODE_NR, episode.getEpisode());
                 List<MediaRating> ratings = RatingProvider.getRatings(ids, sources, MediaType.TV_EPISODE);
                 ratings.forEach(episode::setRating);
                 if (!ratings.isEmpty()) {

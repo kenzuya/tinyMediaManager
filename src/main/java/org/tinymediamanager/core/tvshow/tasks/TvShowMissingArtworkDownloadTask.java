@@ -188,7 +188,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
         options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
-        options.setId("tvShowIds", episode.getTvShow().getIds());
+        options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
         options.setId("mediaFile", episode.getMainFile());
 
         if (episode.isDvdOrder()) {

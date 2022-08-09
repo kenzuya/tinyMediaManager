@@ -43,7 +43,7 @@ class WikidataRating {
   private static final Logger LOGGER = LoggerFactory.getLogger(WikidataRating.class);
 
   List<MediaRating> getRatings(String imdbId) {
-    LOGGER.debug("get Wikidata ratings for '{}'", imdbId);
+    LOGGER.debug("getRatings(): {}", imdbId);
 
     StringBuilder sb = new StringBuilder();
     sb.append("SELECT ?item ?IMDb_ID ?_review_score ?_review_count ?_score_byLabel ?_score_methodLabel WHERE {");
