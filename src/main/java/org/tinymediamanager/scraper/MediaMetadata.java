@@ -52,6 +52,7 @@ public class MediaMetadata {
   public static final String             TRAKT_TV             = "trakt";
 
   // some meta ids for TV show scraping
+  public static final String             TVSHOW_IDS           = "tvShowIds";
   public static final String             EPISODE_NR           = "episodeNr";
   public static final String             SEASON_NR            = "seasonNr";
   public static final String             EPISODE_NR_DVD       = "dvdEpisodeNr";

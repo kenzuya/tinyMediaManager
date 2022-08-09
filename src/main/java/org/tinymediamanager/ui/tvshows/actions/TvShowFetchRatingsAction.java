@@ -86,7 +86,7 @@ public class TvShowFetchRatingsAction extends TmmAction {
               // TV shows
               for (TvShow tvShow : tvShows) {
                 Map<String, Object> ids = new HashMap<>(tvShow.getIds());
-                ids.put("tvShowIds", tvShow.getIds());
+                ids.put(MediaMetadata.TVSHOW_IDS, tvShow.getIds());
                 List<MediaRating> ratings = RatingProvider.getRatings(ids, sources, MediaType.TV_SHOW);
                 ratings.forEach(tvShow::setRating);
                 if (!ratings.isEmpty()) {
@@ -103,7 +103,7 @@ public class TvShowFetchRatingsAction extends TmmAction {
               // episodes
               for (TvShowEpisode episode : episodes) {
                 Map<String, Object> ids = new HashMap<>(episode.getIds());
-                ids.put("tvShowIds", episode.getTvShow().getIds());
+                ids.put(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
                 ids.put(MediaMetadata.SEASON_NR, episode.getSeason());
                 ids.put(MediaMetadata.EPISODE_NR, episode.getEpisode());
                 List<MediaRating> ratings = RatingProvider.getRatings(ids, sources, MediaType.TV_EPISODE);

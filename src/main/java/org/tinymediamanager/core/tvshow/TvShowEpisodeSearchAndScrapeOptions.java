@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaType;
 
@@ -96,7 +97,7 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
     }
 
     this.tvShowIds.putAll(tvShowIds);
-    this.ids.put("tvShowIds", tvShowIds);
+    this.ids.put(MediaMetadata.TVSHOW_IDS, tvShowIds);
   }
 
   /**

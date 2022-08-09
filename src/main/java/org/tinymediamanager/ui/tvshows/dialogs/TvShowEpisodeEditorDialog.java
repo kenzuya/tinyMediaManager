@@ -380,10 +380,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             Map<String, Object> newIds = new HashMap<>(episodeToEdit.getIds());
-            newIds.put("seasonNr", spSeason.getValue());
-            newIds.put("episodeNr", spEpisode.getValue());
+            newIds.put(MediaMetadata.SEASON_NR, spSeason.getValue());
+            newIds.put(MediaMetadata.EPISODE_NR, spEpisode.getValue());
             newIds.put("mediaFile", episodeToEdit.getMainFile());
-            newIds.put("tvShowIds", episodeToEdit.getTvShow().getIds());
+            newIds.put(MediaMetadata.TVSHOW_IDS, episodeToEdit.getTvShow().getIds());
 
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
                 lblThumb, MediaType.TV_EPISODE);
