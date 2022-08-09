@@ -544,8 +544,7 @@ public class UpgradeTasks {
    */
   public static void renameDownloadedFiles() {
     // OSX launcher
-    if (SystemUtils.IS_OS_MAC && !Globals.isReadonly()) {
-      // legacy install
+    if (SystemUtils.IS_OS_MAC) {
       File file = new File("macOS/MacOS/tinyMediaManager");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../../MacOS/tinyMediaManager");

@@ -62,7 +62,7 @@ public class ReleaseInfo {
   }
 
   private ReleaseInfo() {
-    throw new IllegalAccessError();
+    // hide contructor for utility classes
   }
 
   /**

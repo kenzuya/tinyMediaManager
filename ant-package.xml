@@ -4,7 +4,6 @@
     <property name="build.dir" value="target/ant"/>
     <property name="lib.dir" value="${build.dir}/lib"/>
     <property name="dist.dir" value="target/dist"/>
-    <property name="temp.dir" value="target/tmp"/>
 
     <!-- set as property to override in jenkins -->
     <property name="getdown" value="getdown.txt"/>
@@ -149,23 +148,11 @@
                 <exclude name="native/windows*/**"/>
                 <exclude name="native/linux*/**"/>
                 <exclude name="native/arm*/**"/>
-                <exclude name="jre/*"/>
+                <exclude name="jre/jre-windows*"/>
+                <exclude name="jre/jre-linux*"/>
+                <exclude name="jre/jre-*arm*"/>
             </fileset>
         </copy>
-
-        <taskdef name="unbrotli" classname="org.apache.ant.compress.taskdefs.UnBrotli">
-            <classpath>
-                <pathelement location="AppBundler/libs/ant-compress-1.5.jar"/>
-                <pathelement location="AppBundler/libs/commons-compress-1.21.jar"/>
-                <pathelement location="AppBundler/libs/dec-0.1.2.jar"/>
-            </classpath>
-        </taskdef>
-        <mkdir dir="${temp.dir}/mac/jre/"/>
-        <unbrotli src="${build.dir}/jre/jre-macos_x64.tar.br/" dest="${temp.dir}/mac/jre/"/>
-        <untar src="${temp.dir}/mac/jre/jre-macos_x64.tar"
-               dest="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/jre"/>
-        <symlink link="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/jre/bin/tinyMediaManager"
-                 resource="./java"/>
 
         <!-- ===================================================== -->
         <!-- Windows x64 distributable -->

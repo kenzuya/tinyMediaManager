@@ -30,8 +30,10 @@ import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,6 +129,24 @@ public final class TinyMediaManager {
       setConsoleLogLevel();
     }
 
+    // check if we have write permissions to this folder
+    try {
+      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
+      f.close();
+      Files.deleteIfExists(Paths.get("access.test"));
+    }
+    catch (Exception e2) {
+      String msg = "Cannot write to TMM directory, have no rights - exiting.";
+      if (!GraphicsEnvironment.isHeadless()) {
+        JOptionPane.showMessageDialog(null, msg);
+      }
+      else {
+        System.out.println(msg); // NOSONAR
+      }
+      shutdownLogger();
+      System.exit(1);
+    }
+
     // read the license code
     Path license = Paths.get(Globals.DATA_FOLDER, "tmm.lic");
     if (Files.exists(license)) {
@@ -147,6 +167,13 @@ public final class TinyMediaManager {
     LOGGER.info("os.arch          : {}", System.getProperty("os.arch"));
     LOGGER.info("java.version     : {}", System.getProperty("java.version"));
     LOGGER.info("java.maxMem      : {} MiB", Runtime.getRuntime().maxMemory() / 1024 / 1024);
+
+    if (Globals.isRunningJavaWebStart()) {
+      LOGGER.info("java.webstart    : true");
+    }
+    if (Globals.isRunningWebSwing()) {
+      LOGGER.info("java.webswing    : true");
+    }
 
     // START character encoding debug
     debugCharacterEncoding("current encoding : ");
@@ -478,6 +505,9 @@ public final class TinyMediaManager {
                 .toAbsolutePath();
             if (Files.isWritable(desktopFile.getParent())) {
               TmmOsUtils.createDesktopFileForLinux(desktopFile.toFile());
+            }
+            else {
+              TmmOsUtils.createDesktopFileForLinux(new File(TmmOsUtils.DESKTOP_FILE));
             }
           }
         }

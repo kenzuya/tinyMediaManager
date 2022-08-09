@@ -32,7 +32,6 @@ import javax.swing.event.HyperlinkEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -98,18 +97,7 @@ public class UpdateDialog extends TmmDialog {
         setVisible(false);
         LOGGER.info("Updating...");
 
-        if (Globals.isReadonly()) {
-          // redirect to the download page
-          try {
-            TmmUIHelper.browseUrl("https://www.tinymediamanager.org/download/");
-          }
-          catch (Exception e) {
-            LOGGER.error("error browsing to \"{}\" : {}", "https://www.tinymediamanager.org/download/", e.getMessage());
-          }
-        }
-        else {
-          TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
-        }
+        TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
       });
       addButton(btnUpdate);
     }

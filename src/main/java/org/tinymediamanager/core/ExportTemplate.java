@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.Objects;
-
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 
 /**
@@ -90,22 +88,5 @@ public class ExportTemplate extends AbstractModelObject {
     String oldValue = this.url;
     this.url = newValue;
     firePropertyChange("url", oldValue, newValue);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ExportTemplate that = (ExportTemplate) o;
-    return name.equals(that.name) && type == that.type;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, type);
   }
 }

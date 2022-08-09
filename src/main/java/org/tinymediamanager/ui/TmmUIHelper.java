@@ -43,7 +43,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
@@ -660,7 +659,7 @@ public class TmmUIHelper {
           LOGGER.info("update available");
 
           // we might need this somewhen...
-          if (updateCheck.isForcedUpdate() && !Globals.isReadonly()) {
+          if (updateCheck.isForcedUpdate()) {
             LOGGER.info("Updating (forced)...");
             // start the updater task
             TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
@@ -679,20 +678,10 @@ public class TmmUIHelper {
               int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
                   TmmResourceBundle.getString("tmm.update.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
-                if (Globals.isReadonly()) {
-                  // redirect to the download page
-                  try {
-                    TmmUIHelper.browseUrl("https://www.tinymediamanager.org/download/");
-                  }
-                  catch (Exception e) {
-                    LOGGER.error("error browsing to \"{}\" : {}", "https://www.tinymediamanager.org/download/", e.getMessage());
-                  }
-                }
-                else {
-                  // start the updater task
-                  LOGGER.info("Updating...");
-                  TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
-                }
+                LOGGER.info("Updating...");
+
+                // start the updater task
+                TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
               }
             }
           });

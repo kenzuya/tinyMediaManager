@@ -1825,7 +1825,7 @@ public class Utils {
   /**
    * Returns the size of that disc folder<br>
    * Counts only files which are "discFiles()", so a generated NFO would not interfere.
-   *
+   * 
    * @param path
    * @return
    */
@@ -1986,7 +1986,7 @@ public class Utils {
 
   /**
    * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
-   *
+   * 
    * @param me
    */
   public static void deleteUnwantedFilesFor(MediaEntity me) {

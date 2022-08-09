@@ -18,7 +18,6 @@ package org.tinymediamanager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -47,7 +46,7 @@ public class TmmOsUtils {
   public static final String  DESKTOP_FILE = "tinyMediaManager.desktop";
 
   private TmmOsUtils() {
-    throw new IllegalAccessError();
+    // hide public constructor for utility classes
   }
 
   /**
@@ -203,38 +202,5 @@ public class TmmOsUtils {
     }
 
     return nativepath;
-  }
-
-  /**
-   * checks if that instance is readonly
-   * 
-   * @return true/false
-   */
-  static boolean checkReadonlyInstance() {
-    if (ReleaseInfo.isGitBuild()) {
-      return false;
-    }
-
-    // in macOS we need to check if we are in a legacy install which is portable
-    if (SystemUtils.IS_OS_MAC) {
-      // just check if there is already a /data folder
-      if (Files.exists(Paths.get("data"))) {
-        return false;
-      }
-
-      // no data folder? we assume this is a new macOS install where we are not portable any more
-      return true;
-    }
-
-    // check if we have write-permissions to this folder
-    try {
-      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
-      f.close();
-      Files.deleteIfExists(Paths.get("access.test"));
-      return true;
-    }
-    catch (Exception e) {
-      return false;
-    }
   }
 }

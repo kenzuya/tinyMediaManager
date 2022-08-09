@@ -15,22 +15,11 @@
  */
 package org.tinymediamanager.updater;
 
-import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
-
-import java.awt.GraphicsEnvironment;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
+import com.threerings.getdown.data.Application;
+import com.threerings.getdown.data.EnvConfig;
+import com.threerings.getdown.data.Resource;
+import com.threerings.getdown.net.Downloader;
+import com.threerings.getdown.util.ProgressObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -42,11 +31,20 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
 import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
 
-import com.threerings.getdown.data.Application;
-import com.threerings.getdown.data.EnvConfig;
-import com.threerings.getdown.data.Resource;
-import com.threerings.getdown.net.Downloader;
-import com.threerings.getdown.util.ProgressObserver;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
 
 /**
  * UpdaterTasks checks if there's a new update for TMM
@@ -54,9 +52,10 @@ import com.threerings.getdown.util.ProgressObserver;
  * @author Myron Boyle
  */
 public class UpdaterTask extends TmmTask {
-  private static final Logger LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
+  private static final Logger         LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
+  
 
-  boolean                     downloadSucessful;
+  boolean                             downloadSucessful;
 
   public UpdaterTask() {
     super(TmmResourceBundle.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
