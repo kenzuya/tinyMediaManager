@@ -85,7 +85,9 @@ public class TvShowFetchRatingsAction extends TmmAction {
 
               // TV shows
               for (TvShow tvShow : tvShows) {
-                List<MediaRating> ratings = RatingProvider.getRatings(tvShow.getIds(), sources, MediaType.TV_SHOW);
+                Map<String, Object> ids = new HashMap<>(tvShow.getIds());
+                ids.put("tvShowIds", tvShow.getIds());
+                List<MediaRating> ratings = RatingProvider.getRatings(ids, sources, MediaType.TV_SHOW);
                 ratings.forEach(tvShow::setRating);
                 if (!ratings.isEmpty()) {
                   tvShow.saveToDb();
