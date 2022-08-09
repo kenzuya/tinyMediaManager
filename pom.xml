@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.tinymediamanager</groupId>
@@ -250,7 +249,7 @@
 		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-swing</artifactId>
-			<version>5.2</version><!-- 5.3 and 11 have scaling issues when using a bigger font-->
+			<version>5.2</version> <!-- 5.3 and 11 have scaling issues when using a bigger font-->
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -637,177 +636,6 @@
 
 	<profiles>
 		<profile>
-			<id>dist</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<!-- copies our dependencies WITHOUT version number for packaging -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.2</version>
-						<executions>
-							<execution>
-								<id>copy-tmm-dependencies</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy-dependencies</goal>
-								</goals>
-								<configuration>
-									<includeScope>runtime</includeScope>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-JRE</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-windows_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-linux_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-linux_arm32</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/jre</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>unpack-JRE</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-macos_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.bz2</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/jre/macos</outputDirectory>
-									<overWriteReleases>true</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-addons</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<!-- FFmpeg -->
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-windows_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-linux_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-linux_arm32</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-macos_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/addons</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-launcher</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>launcher</artifactId>
-											<version>${launcher.version}</version>
-											<type>tar.gz</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/launcher</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<!-- call our ant file, since it's too complicated to do our packaging
-							solely in maven -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>3.0.0</version>
-						<executions>
-							<execution>
-								<id>dist</id>
-								<phase>package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<exportAntProperties>true</exportAntProperties>
-							<target>
-                                <property name="tmmName" value="${project.artifactId}"/>
-                                <property name="tmmVersion" value="${project.version}"/>
-                                <property name="tmmRevision" value="${buildNumber}"/>
-                                <property name="tmmTimestamp" value="${timestamp}"/>
-
-								<ant antfile="${project.basedir}/ant-package.xml">
-                                    <target name="package-app"/>
-								</ant>
-							</target>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>gitlab-ci</id>
 			<build>
 				<plugins>
@@ -844,22 +672,22 @@
 								<configuration>
 									<artifacts>
 										<artifact>
-											<file>dist/tmm_${project.version}_windows-amd64.zip</file>
+											<file>target/tinyMediaManager-${project.version}-windows-amd64.zip</file>
 											<type>zip</type>
 											<classifier>win</classifier>
 										</artifact>
 										<artifact>
-											<file>dist/tmm_${project.version}_macos-x86_64.zip</file>
+											<file>target/tinyMediaManager-${project.version}-macos-x86_64.zip</file>
 											<type>zip</type>
 											<classifier>mac</classifier>
 										</artifact>
 										<artifact>
-											<file>dist/tmm_${project.version}_linux-amd64.tar.gz</file>
+											<file>target/tinyMediaManager-${project.version}-linux-amd64.tar.gz</file>
 											<type>tar.gz</type>
 											<classifier>linux</classifier>
 										</artifact>
 										<artifact>
-											<file>dist/tmm_${project.version}_linux-arm.tar.gz</file>
+											<file>target/tinyMediaManager-${project.version}-linux-arm.tar.gz</file>
 											<type>tar.gz</type>
 											<classifier>arm</classifier>
 										</artifact>
@@ -952,7 +780,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>test</id>
+			<id>dist</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -1014,17 +842,31 @@
 											<version>${jre.version}</version>
 											<type>tar.br</type>
 										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-macos_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
 									</artifactItems>
 									<outputDirectory>${project.build.directory}/jre</outputDirectory>
 									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack-JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos_x64</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre/macos</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
 							</execution>
 							<execution>
