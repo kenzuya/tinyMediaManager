@@ -198,7 +198,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * user rating
+     * user rating (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", movie -> getRating(movie.getUserRating()), Float.class);
     col.setColumnComparator(floatComparator);
@@ -210,7 +210,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * imdb rating
+     * imdb rating (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - IMDb", "imdb", movie -> getRating(movie.getRating(MediaMetadata.IMDB)),
         Float.class);
@@ -223,7 +223,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * rotten tomatoes rating
+     * rotten tomatoes rating (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Rotten Tomatoes", "rottenTomatoes",
         movie -> getRatingInteger(movie.getRating("tomatometerallcritics")), Integer.class);
@@ -236,7 +236,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * metascore rating
+     * metascore rating (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metacritic",
         movie -> getRatingInteger(movie.getRating("metacritic")), Integer.class);
@@ -249,7 +249,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * tmdb rating
+     * tmdb rating (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - TMDB", "tmdb", movie -> getRating(movie.getRating(MediaMetadata.TMDB)),
         Float.class);
@@ -258,6 +258,23 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * top 250 (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.top250"), "top250", movie -> {
+      if (movie.getTop250() == 0) {
+        return null;
+      }
+      return movie.getTop250();
+    }, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.TOP250);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("250") * 1.2f + 5));
     col.setDefaultHidden(true);
     addColumn(col);
 

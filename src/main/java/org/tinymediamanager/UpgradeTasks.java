@@ -52,6 +52,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 
 /**
  * The class UpdateTasks. To perform needed update tasks
@@ -480,6 +481,13 @@ public class UpgradeTasks {
           }
           episode.saveToDb();
         }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.3.3") < 0) {
+      // hide top250 column
+      if (!ReleaseInfo.isGitBuild()) {
+        TmmUILayoutStore.getInstance().hideNewColumn("movies.movieTable", "top250");
       }
     }
   }

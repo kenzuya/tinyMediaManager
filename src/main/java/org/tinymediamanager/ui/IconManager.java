@@ -198,6 +198,7 @@ public class IconManager {
   public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
   public static final ImageIcon              TMDB                         = createTextIcon("TMDB", 0.9);
+  public static final ImageIcon              TOP250                       = createTextIcon("Top", 0.9);
   public static final ImageIcon              ROTTEN_TOMATOES              = createTextIcon("RT", 0.9);
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              USER_RATING                  = createTableHeaderIcon("star-solid.svg");
