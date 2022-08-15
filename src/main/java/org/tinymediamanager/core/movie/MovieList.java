@@ -1224,11 +1224,16 @@ public final class MovieList extends AbstractModelObject {
 
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
-        // ignore collection "IDs"
-        if (entry.getKey().equals(Constants.TMDB_SET)) {
+        // ignore collection "IDs" (tmdbcol is from Ember)
+        if (Constants.TMDB_SET.equals(entry.getKey()) || "tmdbcol".equals(entry.getKey())) {
           continue;
         }
-        String id = entry.getKey() + String.valueOf(entry.getValue());
+
+        if (entry.getValue() == null) {
+          continue;
+        }
+
+        String id = entry.getKey() + entry.getValue();
         if (duplicates.containsKey(id)) {
           // yes - set duplicate flag on both movies
           movie.setDuplicate();
