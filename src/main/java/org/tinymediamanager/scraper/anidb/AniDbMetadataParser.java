@@ -75,8 +75,6 @@ class AniDbMetadataParser {
    *          The {@code MediaProviderInfo} that will provide this Metadata to TMM
    */
   static void fillAnimeMetadata(MediaMetadata md, String language, Element anime, MediaProviderInfo providerInfo) {
-    md.setId(providerInfo.getId(), providerInfo.getId());
-
     for (Element e : anime.children()) {
       switch (e.tagName()) {
         case "startdate":

@@ -199,10 +199,10 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     return showsForLookup.entrySet()
         .stream()
         .flatMap(entry -> entry.getValue().stream())
-        .map(movie -> new MediaSearchResult.Builder(MediaType.MOVIE).providerId(providerInfo.getId())
-            .id(String.valueOf(movie.aniDbId))
-            .title(movie.title)
-            .score(Similarity.compareStrings(movie.title, finalSearchString))
+        .map(show -> new MediaSearchResult.Builder(MediaType.TV_SHOW).providerId(providerInfo.getId())
+            .id(String.valueOf(show.aniDbId))
+            .title(show.title)
+            .score(Similarity.compareStrings(show.title, finalSearchString))
             .build())
         .collect(Collectors.toCollection(TreeSet::new));
   }
@@ -265,12 +265,16 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     }
 
     Document doc = requestAnimeDocument(options);
-    if (doc == null || doc.children().isEmpty())
+    if (doc == null || doc.children().isEmpty()) {
       return null;
+    }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
     md.setScrapeOptions(options);
     String language = options.getLanguage().getLanguage();
+    String id = options.getIdAsString(providerInfo.getId());
+    md.setId(providerInfo.getId(), id);
+
     AniDbMetadataParser.fillAnimeMetadata(md, language, doc.child(0), providerInfo);
 
     return md;

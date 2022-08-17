@@ -9,6 +9,7 @@ x merging multiple items should not remove anything #1840
 x (TMDB) fixed rating download for TV shows
 x do not try to get episode thumbs from fanart.tv #1855
 x ignore tmdbcol (from Ember) in the duplicate filter
+x (AniDB) fixed scraping of episodes
 
 
 Version 4.3.2
