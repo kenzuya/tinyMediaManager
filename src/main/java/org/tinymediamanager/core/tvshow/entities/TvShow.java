@@ -1107,7 +1107,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         if (!season.isDummy()) {
           String seasonTitle = seasonTitleMap.get(season.getSeason());
           if (StringUtils.isNotBlank(seasonTitle)) {
-            season.setTitle(seasonTitle);
+            if (StringUtils.isBlank(season.getTitle()) || overwriteExistingItems) {
+              season.setTitle(seasonTitle);
+            }
           }
         }
       }
