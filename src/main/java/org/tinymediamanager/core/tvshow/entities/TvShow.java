@@ -903,6 +903,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * Remove all genres from list
+   */
+  public void removeAllGenres() {
+    genres.clear();
+    firePropertyChange(GENRE, null, genres);
+    firePropertyChange(GENRES_AS_STRING, null, genres);
+  }
+
+  /**
    * Gets the genres as string.
    *
    * @return the genres as string

@@ -10,6 +10,7 @@ x (TMDB) fixed rating download for TV shows
 x do not try to get episode thumbs from fanart.tv #1855
 x ignore tmdbcol (from Ember) in the duplicate filter
 x (AniDB) fixed scraping of episodes
+x saving of changes genres/tags in the movie/TV show editor #1858
 
 
 Version 4.3.2
