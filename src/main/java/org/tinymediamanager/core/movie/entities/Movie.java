@@ -1908,7 +1908,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     return rtifo;
+  }
 
+  // do not break existing templates et all
+  @Deprecated
+  public int getRuntimeFromMediaFiles() {
+    return getRuntimeFromMediaFilesInSeconds();
   }
 
   public int getRuntimeFromMediaFilesInSeconds() {
