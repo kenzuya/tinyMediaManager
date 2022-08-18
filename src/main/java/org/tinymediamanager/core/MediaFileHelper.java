@@ -2423,6 +2423,14 @@ public class MediaFileHelper {
       hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
 
+    if (StringUtils.isBlank(hdrFormat)) {
+      // no HDR format found? just set to "HDR"
+      hdrFormat = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility", "HDR_Format", "transfer_characteristics");
+      if (StringUtils.isNotBlank(hdrFormat)) {
+        hdrFormat = "HDR";
+      }
+    }
+
     mediaFile.setHdrFormat(hdrFormat);
 
     if (Settings.getInstance().isArdEnabled()) {
@@ -2431,6 +2439,7 @@ public class MediaFileHelper {
     }
   }
 
+  // MediaInfo values: https://sourceforge.net/p/mediainfo/discussion/297610/thread/0b6d2fd38f/
   private static String detectHdrFormat(String source) {
     source = source.toLowerCase(Locale.ROOT);
 
