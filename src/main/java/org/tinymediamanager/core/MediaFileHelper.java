@@ -2412,25 +2412,29 @@ public class MediaFileHelper {
 
     // prefer official HDR namings (see https://de.wikipedia.org/wiki/High_Dynamic_Range_Video) over technical
     String hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
-
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
       hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
     }
-
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
       hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
 
     if (StringUtils.isBlank(hdrFormat)) {
-      // no HDR format found? just set to "HDR"
-      hdrFormat = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility", "HDR_Format", "transfer_characteristics");
-      if (StringUtils.isNotBlank(hdrFormat)) {
+      // STILL no HDR format found? check color space
+      String col = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
+      if (col.contains("2020")) {
         hdrFormat = "HDR";
       }
     }
-
+    if (StringUtils.isBlank(hdrFormat)) {
+      // STILL no HDR format found? check known HDR transfer protocols
+      String trans = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics");
+      if (trans.contains("2020") || trans.equals("PQ") || trans.equals("HLG")) {
+        hdrFormat = "HDR";
+      }
+    }
     mediaFile.setHdrFormat(hdrFormat);
 
     if (Settings.getInstance().isArdEnabled()) {
