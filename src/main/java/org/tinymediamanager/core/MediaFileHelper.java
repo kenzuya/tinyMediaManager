@@ -2424,14 +2424,14 @@ public class MediaFileHelper {
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check color space
       String col = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
-      if (col.contains("2020")) {
+      if (col.contains("2020") || col.contains("2100")) {
         hdrFormat = "HDR";
       }
     }
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check known HDR transfer protocols
       String trans = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics");
-      if (trans.contains("2020") || trans.equals("PQ") || trans.equals("HLG")) {
+      if (trans.contains("2020") || trans.contains("2100") || trans.equals("PQ") || trans.equals("HLG")) {
         hdrFormat = "HDR";
       }
     }
@@ -2443,7 +2443,7 @@ public class MediaFileHelper {
     }
   }
 
-  // MediaInfo values: https://sourceforge.net/p/mediainfo/discussion/297610/thread/0b6d2fd38f/
+  // MediaInfo values: https://github.com/MediaArea/MediaInfoLib/blob/master/Source/MediaInfo/Video/File_Mpegv.cpp#L34
   private static String detectHdrFormat(String source) {
     source = source.toLowerCase(Locale.ROOT);
 
