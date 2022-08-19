@@ -767,7 +767,7 @@ public class MediaFileHelper {
 
     // gather subtitle infos independent of MI
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-      gatherSubtitleInformation(mediaFile);
+      gatherSubtitleInformationFromFilename(mediaFile);
     }
 
     // do not work further on 0 byte files
@@ -1843,7 +1843,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static void gatherSubtitleInformation(MediaFile mediaFile) {
+  private static void gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
 
@@ -2412,17 +2412,29 @@ public class MediaFileHelper {
 
     // prefer official HDR namings (see https://de.wikipedia.org/wiki/High_Dynamic_Range_Video) over technical
     String hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
-
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
       hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
     }
-
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
       hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
 
+    if (StringUtils.isBlank(hdrFormat)) {
+      // STILL no HDR format found? check color space
+      String col = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
+      if (col.contains("2020") || col.contains("2100")) {
+        hdrFormat = "HDR";
+      }
+    }
+    if (StringUtils.isBlank(hdrFormat)) {
+      // STILL no HDR format found? check known HDR transfer protocols
+      String trans = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics");
+      if (trans.contains("2020") || trans.contains("2100") || trans.equals("PQ") || trans.equals("HLG")) {
+        hdrFormat = "HDR";
+      }
+    }
     mediaFile.setHdrFormat(hdrFormat);
 
     if (Settings.getInstance().isArdEnabled()) {
@@ -2431,6 +2443,7 @@ public class MediaFileHelper {
     }
   }
 
+  // MediaInfo values: https://github.com/MediaArea/MediaInfoLib/blob/master/Source/MediaInfo/Video/File_Mpegv.cpp#L34
   private static String detectHdrFormat(String source) {
     source = source.toLowerCase(Locale.ROOT);
 

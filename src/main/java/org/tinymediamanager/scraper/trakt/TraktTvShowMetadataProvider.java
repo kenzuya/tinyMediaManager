@@ -492,7 +492,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     String showId = "";
 
     try {
-      showIds.putAll((Map<? extends String, ?>) ids.get("tvShowIds"));
+      showIds.putAll((Map<? extends String, ?>) ids.get(MediaMetadata.TVSHOW_IDS));
 
       showId = MediaIdUtil.getIdAsString(showIds, getId());
       if (StringUtils.isBlank(showId)) {

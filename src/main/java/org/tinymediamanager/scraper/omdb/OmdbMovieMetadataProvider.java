@@ -197,6 +197,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     if (mediaType != MediaType.MOVIE) {
       return Collections.emptyList();
     }
+    LOGGER.debug("getRatings(): {}", ids);
 
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setIds(ids);

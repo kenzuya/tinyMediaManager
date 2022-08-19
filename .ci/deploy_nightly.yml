@@ -49,7 +49,7 @@ build:
     - curl https://nightly.tinymediamanager.org/${CREATE_INDEX_V4}
 
     # purge CF cache
-    - 'eval "$PURGE_CF_CACHE"'
+    # - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
     expire_in: 2 days

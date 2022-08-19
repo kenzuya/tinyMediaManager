@@ -104,13 +104,18 @@ public abstract class AniDbMetadataProvider implements TmmFeature {
         Matcher matcher = pattern.matcher(scanner.nextLine());
 
         if (matcher.matches()) {
-          AniDBShow show = new AniDBShow();
-          show.aniDbId = Integer.parseInt(matcher.group(1));
-          show.language = matcher.group(3);
-          show.title = matcher.group(4);
+          try {
+            AniDBShow show = new AniDBShow();
+            show.aniDbId = Integer.parseInt(matcher.group(1));
+            show.language = matcher.group(3);
+            show.title = matcher.group(4);
 
-          List<AniDBShow> shows = showsForLookup.computeIfAbsent(show.aniDbId, k -> new ArrayList<>());
-          shows.add(show);
+            List<AniDBShow> shows = showsForLookup.computeIfAbsent(show.aniDbId, k -> new ArrayList<>());
+            shows.add(show);
+          }
+          catch (NumberFormatException e) {
+            LOGGER.debug("could not parse anidb id - '{}'", e.getMessage());
+          }
         }
       }
     }

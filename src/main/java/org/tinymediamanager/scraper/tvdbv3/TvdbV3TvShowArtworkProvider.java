@@ -94,8 +94,8 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
         // episode artwork has to be scraped via the meta data scraper
         TvShowEpisodeSearchAndScrapeOptions episodeSearchAndScrapeOptions = new TvShowEpisodeSearchAndScrapeOptions();
         episodeSearchAndScrapeOptions.setDataFromOtherOptions(options);
-        if (options.getIds().get("tvShowIds") instanceof Map) {
-          Map<String, Object> tvShowIds = (Map<String, Object>) options.getIds().get("tvShowIds");
+        if (options.getIds().get(MediaMetadata.TVSHOW_IDS) instanceof Map) {
+          Map<String, Object> tvShowIds = (Map<String, Object>) options.getIds().get(MediaMetadata.TVSHOW_IDS);
           episodeSearchAndScrapeOptions.setTvShowIds(tvShowIds);
         }
         MediaMetadata md = new TvdbV3TvShowMetadataProvider().getMetadata(episodeSearchAndScrapeOptions);

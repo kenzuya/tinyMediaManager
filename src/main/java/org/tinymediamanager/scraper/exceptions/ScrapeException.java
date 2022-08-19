@@ -40,4 +40,14 @@ public class ScrapeException extends Exception {
   public ScrapeException(Throwable cause) {
     super(cause);
   }
+
+  /**
+   * a handy constructor to pass just a message to the exception
+   *
+   * @param message
+   *          the message for the exception
+   */
+  public ScrapeException(String message) {
+    super(message);
+  }
 }

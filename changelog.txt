@@ -1,3 +1,21 @@
+Version 4.3.3
+=======================
++ redesign fo the file type panel
++ added Top 250 column to the movie list #1838
+x fix displaying correct runtime for disc folders
+x preserve tags order #1848
+x better fallback scraper selection
+x merging multiple items should not remove anything #1840
+x (TMDB) fixed rating download for TV shows
+x do not try to get episode thumbs from fanart.tv #1855
+x ignore tmdbcol (from Ember) in the duplicate filter
+x (AniDB) fixed scraping of episodes
+x saving of changes genres/tags in the movie/TV show editor #1858
+x (TV shows) removed double assigned hotkey #1851
+x fix scraping TV season names #1856
+x also set unknown HDR values
+
+
 Version 4.3.2
 =======================
 + redesign ImageType naming panel

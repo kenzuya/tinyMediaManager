@@ -94,13 +94,13 @@ public class TvShowFetchIdsAction extends TmmAction {
                   Map<String, Object> ids = new HashMap<>(episode.getIds());
 
                   // inject meta ids
-                  ids.put("tvShowIds", episode.getTvShow().getIds());
+                  ids.put(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
                   ids.put(MediaMetadata.SEASON_NR, episode.getSeason());
                   ids.put(MediaMetadata.EPISODE_NR, episode.getEpisode());
                   MediaIdUtil.injectMissingIds(ids, MediaType.TV_EPISODE);
 
                   // remove meta ids
-                  ids.remove("tvShowIds");
+                  ids.remove(MediaMetadata.TVSHOW_IDS);
                   ids.remove(MediaMetadata.SEASON_NR);
                   ids.remove(MediaMetadata.EPISODE_NR);
 

@@ -1171,13 +1171,20 @@ public class TvShowEditorDialog extends TmmDialog {
       tvShowToEdit.setProductionCompany(tfStudio.getText());
       tvShowToEdit.setCountry(tfCountry.getText());
       tvShowToEdit.setNote(taNote.getText());
+
+      // remove all lists to avoid merging
+      tvShowToEdit.removeAllGenres();
       tvShowToEdit.setGenres(genres);
 
-      // remove cast to avoid merging
       tvShowToEdit.removeActors();
       tvShowToEdit.setActors(actors);
 
+      tvShowToEdit.removeAllTags();
       tvShowToEdit.setTags(tags);
+
+      tvShowToEdit.removeAllTrailers();
+      tvShowToEdit.addToTrailer(trailers);
+
       tvShowToEdit.setDateAdded((Date) spDateAdded.getValue());
       tvShowToEdit.setFirstAired(dpPremiered.getDate());
 
@@ -1263,9 +1270,6 @@ public class TvShowEditorDialog extends TmmDialog {
           container.tvShowEpisode.saveToDb();
         }
       }
-
-      tvShowToEdit.removeAllTrailers();
-      tvShowToEdit.addToTrailer(trailers);
 
       tvShowToEdit.writeNFO();
       tvShowToEdit.saveToDb();

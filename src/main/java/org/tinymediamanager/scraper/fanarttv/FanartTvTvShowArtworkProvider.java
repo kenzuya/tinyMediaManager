@@ -58,7 +58,7 @@ public class FanartTvTvShowArtworkProvider extends FanartTvMetadataProvider impl
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
-    if (options.getMediaType() != MediaType.TV_SHOW && options.getMediaType() != MediaType.TV_EPISODE) {
+    if (options.getMediaType() != MediaType.TV_SHOW) {
       return Collections.emptyList();
     }
 

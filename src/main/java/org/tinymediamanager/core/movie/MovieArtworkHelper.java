@@ -15,7 +15,9 @@
  */
 package org.tinymediamanager.core.movie;
 
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IFileNaming;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.Utils;
@@ -1221,6 +1224,49 @@ public class MovieArtworkHelper {
     }
 
     return fileNamings;
+  }
+
+  /**
+   * If found, copy the bluray metadata poster files into movieDir and add them as MF
+   * 
+   * @param movie
+   * @return true if ok or none found, false otherwise
+   */
+  public static boolean extractBlurayPosters(Movie movie) {
+    Path dlFolder = movie.getPathNIO().resolve("BDMV/META/DL/");
+    if (Files.exists(dlFolder)) {
+
+      List<Path> files = Utils.listFiles(dlFolder);
+      MediaFile largestPoster = null;
+      for (Path file : files) {
+        MediaFile mf = new MediaFile(file);
+        if (mf.isGraphic()) {
+          MediaFileHelper.gatherFileInformation(mf); // basics as size
+          if (largestPoster == null || largestPoster.getFilesize() < mf.getFilesize()) {
+            largestPoster = mf;
+          }
+        }
+      }
+
+      // we found some graphic - add it to our MFs as kickstart
+      if (largestPoster != null) {
+        // since we do not want the original to be renamed/removed, we make a copy
+        if (MovieModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
+          try {
+            Path newFile = movie.getPathNIO().resolve("BDMV-poster." + largestPoster.getExtension());
+            Utils.copyFileSafe(largestPoster.getFileAsPath(), newFile);
+            MediaFile poster = new MediaFile(newFile);
+            movie.addToMediaFiles(poster);
+          }
+          catch (IOException e) {
+            LOGGER.trace("Could not extract Bluray poster: {}", e.getMessage());
+            return false;
+          }
+        }
+      }
+
+    } // end meta/dl files
+    return true;
   }
 
   /**

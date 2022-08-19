@@ -65,7 +65,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = new MediaProviderInfo(ID, "tvshow", "aniDB", "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. "
         + "AniDB is a non-profit anime database that is open " + "freely to the public.</html>",
-        AniDbTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"));
+        AniDbTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"), -10);
 
     // configure/load settings
     info.getConfig().addInteger("numberOfTags", 10);
@@ -199,10 +199,10 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     return showsForLookup.entrySet()
         .stream()
         .flatMap(entry -> entry.getValue().stream())
-        .map(movie -> new MediaSearchResult.Builder(MediaType.MOVIE).providerId(providerInfo.getId())
-            .id(String.valueOf(movie.aniDbId))
-            .title(movie.title)
-            .score(Similarity.compareStrings(movie.title, finalSearchString))
+        .map(show -> new MediaSearchResult.Builder(MediaType.TV_SHOW).providerId(providerInfo.getId())
+            .id(String.valueOf(show.aniDbId))
+            .title(show.title)
+            .score(Similarity.compareStrings(show.title, finalSearchString))
             .build())
         .collect(Collectors.toCollection(TreeSet::new));
   }
@@ -265,12 +265,16 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     }
 
     Document doc = requestAnimeDocument(options);
-    if (doc == null || doc.children().isEmpty())
+    if (doc == null || doc.children().isEmpty()) {
       return null;
+    }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
     md.setScrapeOptions(options);
     String language = options.getLanguage().getLanguage();
+    String id = options.getIdAsString(providerInfo.getId());
+    md.setId(providerInfo.getId(), id);
+
     AniDbMetadataParser.fillAnimeMetadata(md, language, doc.child(0), providerInfo);
 
     return md;

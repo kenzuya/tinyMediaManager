@@ -57,7 +57,6 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToDvdOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowCleanUpFilesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowClearImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadActorImagesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
@@ -276,7 +275,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
-    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 0, 0);
+    MenuScroller.setScrollerFor(datasourcesMenu, 20, 50, 0, 0);
     datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -335,7 +334,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
+    // editPopupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
 
     editPopupMenu.addSeparator();
@@ -386,7 +385,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
-    MenuScroller.setScrollerFor(datasourcesMenu, 20, 25, 2, 5);
+    MenuScroller.setScrollerFor(datasourcesMenu, 20, 50, 2, 5);
     datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -433,7 +432,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
+    // enhancedEditMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));

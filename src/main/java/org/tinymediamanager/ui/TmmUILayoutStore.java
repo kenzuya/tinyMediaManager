@@ -30,6 +30,7 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -302,6 +303,30 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     if (table.getTableComparatorChooser() != null) {
       addParam(componentName + ".sortState", table.getTableComparatorChooser().toString());
+    }
+  }
+
+  /**
+   * allow to hide a new column after upgrade
+   * 
+   * @param tableIdentifier
+   *          the @{@link TmmTable} id to hide the column for
+   * @param columnName
+   *          the column id to hide
+   */
+  public void hideNewColumn(String tableIdentifier, String columnName) {
+    if (StringUtils.isBlank(tableIdentifier)) {
+      return;
+    }
+
+    String hiddenColumnsAsString = properties.getProperty(tableIdentifier + ".hiddenColumns");
+    if (StringUtils.isNotBlank(hiddenColumnsAsString)) {
+      List<String> hiddenColumns = new ArrayList<>(Arrays.asList(hiddenColumnsAsString.split(",")));
+      if (!hiddenColumns.contains(columnName)) {
+        hiddenColumns.add(columnName);
+      }
+      addParam(tableIdentifier + ".hiddenColumns", String.join(",", hiddenColumns));
+      properties.writeProperties();
     }
   }
 

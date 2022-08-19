@@ -56,7 +56,7 @@ public class ListUtils {
    * @param baseList
    *          the base list which will be altered
    * @param newItems
-   *          the new entries which should be merged into the the existing list
+   *          the new entries which should be merged into the existing list
    */
   public static <T> void mergeLists(List<T> baseList, List<T> newItems) {
     // if any of these lists is null, we cannot do anything here
@@ -64,15 +64,7 @@ public class ListUtils {
       return;
     }
 
-    // first remove old ones
-    for (int i = baseList.size() - 1; i >= 0; i--) {
-      T entry = baseList.get(i);
-      if (!newItems.contains(entry)) {
-        baseList.remove(entry);
-      }
-    }
-
-    // second, add new ones in the right order
+    // add new ones in the right order
     for (int i = 0; i < newItems.size(); i++) {
       T entry = newItems.get(i);
       if (!baseList.contains(entry)) {

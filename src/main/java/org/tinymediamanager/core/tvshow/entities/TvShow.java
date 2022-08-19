@@ -94,7 +94,6 @@ import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -130,6 +129,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   private static final Logger                   LOGGER                     = LoggerFactory.getLogger(TvShow.class);
   private static final Comparator<MediaFile>    MEDIA_FILE_COMPARATOR      = new TvShowMediaFileComparator();
 
+  public static final Pattern                   SEASON_ONLY_PATTERN        = Pattern.compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$",
+      Pattern.CASE_INSENSITIVE);
   private static final Pattern                  SEASON_NUMBER              = Pattern.compile("(?i)season([0-9]{1,4}).*");
   private static final Pattern                  SEASON_FOLDER_NUMBER       = Pattern.compile("(?i).*([0-9]{1,4}).*");
 
@@ -903,6 +904,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * Remove all genres from list
+   */
+  public void removeAllGenres() {
+    genres.clear();
+    firePropertyChange(GENRE, null, genres);
+    firePropertyChange(GENRES_AS_STRING, null, genres);
+  }
+
+  /**
    * Gets the genres as string.
    *
    * @return the genres as string
@@ -1079,15 +1089,27 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.SEASON_NAMES)) {
-      // only take _non common_ season names
       for (Map.Entry<Integer, String> entry : metadata.getSeasonNames().entrySet()) {
-        Matcher matcher = TvShowEpisodeAndSeasonParser.SEASON_PATTERN.matcher(entry.getValue());
+        // "Season XX" does not match (and not needed to set)
+        // "Season XX - some name" should be set, so the pattern checks the complete string!
+        Matcher matcher = SEASON_ONLY_PATTERN.matcher(entry.getValue());
         if (!matcher.find()) {
           if (overwriteExistingItems) {
             seasonTitleMap.put(entry.getKey(), entry.getValue());
           }
           else {
             seasonTitleMap.putIfAbsent(entry.getKey(), entry.getValue());
+          }
+        }
+      }
+      // now set all non-dummy season the scraped title
+      for (TvShowSeason season : getSeasons()) {
+        if (!season.isDummy()) {
+          String seasonTitle = seasonTitleMap.get(season.getSeason());
+          if (StringUtils.isNotBlank(seasonTitle)) {
+            if (StringUtils.isBlank(season.getTitle()) || overwriteExistingItems) {
+              season.setTitle(seasonTitle);
+            }
           }
         }
       }

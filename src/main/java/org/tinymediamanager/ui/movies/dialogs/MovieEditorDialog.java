@@ -1431,7 +1431,7 @@ public class MovieEditorDialog extends TmmDialog {
 
       movieToEdit.setProductionCompany(tfProductionCompanies.getText());
 
-      // remove cast to avoid merging
+      // remove all lists to avoid merging
       movieToEdit.removeActors();
       movieToEdit.setActors(cast);
       movieToEdit.removeProducers();
@@ -1440,12 +1440,16 @@ public class MovieEditorDialog extends TmmDialog {
       movieToEdit.setDirectors(directors);
       movieToEdit.removeWriters();
       movieToEdit.setWriters(writers);
+
+      movieToEdit.removeAllGenres();
       movieToEdit.setGenres(genres);
 
       movieToEdit.removeAllTrailers();
       movieToEdit.addToTrailer(trailers);
 
+      movieToEdit.removeAllTags();
       movieToEdit.setTags(tags);
+
       movieToEdit.setShowlinks(showlinks);
       movieToEdit.setDateAdded((Date) spDateAdded.getValue());
       movieToEdit.setSortTitle(tfSorttitle.getText());

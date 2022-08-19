@@ -29,6 +29,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.ui.components.MenuScroller;
 
 /**
  * This popup allows to select columns to be shown/hidden in the TmmTable
@@ -142,6 +143,11 @@ public class TmmTableColumnSelectionPopup {
         }
       }
       popup.add(checkBox);
+    }
+
+    // activate the menu scroller for low resolution devices
+    if (c.getGraphicsConfiguration().getDevice().getDisplayMode().getHeight() < 800) {
+      MenuScroller.setScrollerFor(popup, 25, 50);
     }
 
     popup.show(c, 8, 8);
