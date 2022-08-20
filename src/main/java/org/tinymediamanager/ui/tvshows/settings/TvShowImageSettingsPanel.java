@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -35,7 +34,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
@@ -46,6 +44,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -91,6 +90,7 @@ class TvShowImageSettingsPanel extends JPanel {
   private JCheckBox                  chckbxSpecialSeason;
   private JCheckBox                  chckbxExtraFanart1;
   private JCheckBox                  chckbxExtraFanart2;
+  private JCheckBox                  chckbxPreferLanguage;
 
   /**
    * Instantiates a new Tv show image scraper settings panel.
@@ -132,20 +132,19 @@ class TvShowImageSettingsPanel extends JPanel {
     tpScraperDescription.setEditorKit(new HTMLEditorKit());
     ((HTMLDocument) tpScraperDescription.getDocument()).getStyleSheet().addRule(bodyRule);
 
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            ScraperInTable changedScraper = artworkScrapers.get(row);
-            if (changedScraper.getActive()) {
-              settings.addTvShowArtworkScraper(changedScraper.getScraperId());
-            }
-            else {
-              settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
-            }
-          }
-        });
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        ScraperInTable changedScraper = artworkScrapers.get(row);
+        if (changedScraper.getActive()) {
+          settings.addTvShowArtworkScraper(changedScraper.getScraperId());
+        }
+        else {
+          settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
+        }
+      }
+    });
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
       int index = tableScraper.convertRowIndexToModel(tableScraper.getSelectedRow());
@@ -264,7 +263,7 @@ class TvShowImageSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][grow][]")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][15lp!][][][][grow][]")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
@@ -289,17 +288,20 @@ class TvShowImageSettingsPanel extends JPanel {
         cbImageFanartSize = new JComboBox(MediaArtwork.FanartSizes.values());
         panelOptions.add(cbImageFanartSize, "cell 1 2 2 1");
 
+        chckbxPreferLanguage = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.language"));
+        panelOptions.add(chckbxPreferLanguage, "cell 1 3 2 1");
+
         cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
-        panelOptions.add(cbActorImages, "cell 1 3 2 1");
+        panelOptions.add(cbActorImages, "cell 1 5 2 1");
 
         chckbxSpecialSeason = new JCheckBox(TmmResourceBundle.getString("tvshow.renamer.specialseason"));
-        panelOptions.add(chckbxSpecialSeason, "cell 1 4 2 1");
+        panelOptions.add(chckbxSpecialSeason, "cell 1 6 2 1");
 
         chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
-        panelOptions.add(chckbxEnableExtrafanart, "cell 1 5 2 1");
+        panelOptions.add(chckbxEnableExtrafanart, "cell 1 7 2 1");
 
         JPanel panel = new JPanel();
-        panelOptions.add(panel, "cell 2 6,growx");
+        panelOptions.add(panel, "cell 2 8,growx");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
 
         chckbxExtraFanart1 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
@@ -309,95 +311,90 @@ class TvShowImageSettingsPanel extends JPanel {
         panel.add(chckbxExtraFanart2, "cell 2 0");
 
         JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
-        panelOptions.add(lblDownloadCount, "cell 2 7");
+        panelOptions.add(lblDownloadCount, "cell 2 9");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelOptions.add(spDownloadCountExtrafanart, "cell 2 7");
+        panelOptions.add(spDownloadCountExtrafanart, "cell 2 9");
       }
     }
   }
 
   protected void initDataBindings() {
-    JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE,
-        artworkScrapers, tableScraper);
+    JTableBinding jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, artworkScrapers, tableScraper);
     //
-    BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty)
-        .setColumnName(TmmResourceBundle.getString("Settings.active"))
-        .setColumnClass(Boolean.class);
+    Property artworkScraperBeanProperty = BeanProperty.create("active");
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName("Aktiv").setColumnClass(Boolean.class);
     //
-    BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1)
-        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
-        .setEditable(false)
-        .setColumnClass(ImageIcon.class);
+    Property artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
     //
-    BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2)
-        .setColumnName(TmmResourceBundle.getString("metatag.name"))
-        .setEditable(false)
-        .setColumnClass(String.class);
+    Property artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
     //
     jTableBinding_1.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
-    BeanProperty<JTextPane, String> jTextPaneBeanProperty_1 = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextPane, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty,
-        tpScraperDescription, jTextPaneBeanProperty_1);
+    Property jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
+    Property jTextPaneBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty, tpScraperDescription,
+        jTextPaneBeanProperty_1);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty = BeanProperty.create("writeActorImages");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, cbActorImages, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty = BeanProperty.create("writeActorImages");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbActorImages,
+        jCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<TvShowSettings, Integer> tvShowSettingsBeanProperty_1 = BeanProperty.create("imageExtraFanartCount");
-    BeanProperty<JSpinner, Object> jSpinnerBeanProperty_1 = BeanProperty.create("value");
-    AutoBinding<TvShowSettings, Integer, JSpinner, Object> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_1, spDownloadCountExtrafanart, jSpinnerBeanProperty_1);
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("imageExtraFanartCount");
+    Property jSpinnerBeanProperty_1 = BeanProperty.create("value");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
+        spDownloadCountExtrafanart, jSpinnerBeanProperty_1);
     autoBinding_3.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_2 = BeanProperty.create("imageExtraFanart");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_2, chckbxEnableExtrafanart, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("imageExtraFanart");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<JSpinner, Boolean> jSpinnerBeanProperty = BeanProperty.create("enabled");
-    AutoBinding<JCheckBox, Boolean, JSpinner, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, chckbxEnableExtrafanart,
-        jCheckBoxBeanProperty, spDownloadCountExtrafanart, jSpinnerBeanProperty);
+    Property jSpinnerBeanProperty = BeanProperty.create("enabled");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, chckbxEnableExtrafanart, jCheckBoxBeanProperty,
+        spDownloadCountExtrafanart, jSpinnerBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<TvShowSettings, MediaLanguages> tvShowSettingsBeanProperty_3 = BeanProperty.create("imageScraperLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<TvShowSettings, MediaLanguages, JComboBox, Object> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_3, cbScraperLanguage, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("imageScraperLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbScraperLanguage,
+        jComboBoxBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSettings, MediaArtwork.PosterSizes> tvShowSettingsBeanProperty_4 = BeanProperty.create("imagePosterSize");
-    AutoBinding<TvShowSettings, MediaArtwork.PosterSizes, JComboBox, Object> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
-        settings, tvShowSettingsBeanProperty_4, cbImagePosterSize, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("imagePosterSize");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, cbImagePosterSize,
+        jComboBoxBeanProperty);
     autoBinding_6.bind();
     //
-    BeanProperty<TvShowSettings, MediaArtwork.FanartSizes> tvShowSettingsBeanProperty_5 = BeanProperty.create("imageFanartSize");
-    AutoBinding<TvShowSettings, MediaArtwork.FanartSizes, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
-        settings, tvShowSettingsBeanProperty_5, cbImageFanartSize, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_5 = BeanProperty.create("imageFanartSize");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, cbImageFanartSize,
+        jComboBoxBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_6 = BeanProperty.create("specialSeason");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_6, chckbxSpecialSeason, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_6 = BeanProperty.create("specialSeason");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6, chckbxSpecialSeason,
+        jCheckBoxBeanProperty);
     autoBinding_8.bind();
     //
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
-
-    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
-        jCheckBoxBeanProperty, chckbxExtraFanart1, jCheckBoxBeanProperty_2);
+    Property jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart1,
+        jCheckBoxBeanProperty_2);
     autoBinding_9.bind();
     //
-    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
-        jCheckBoxBeanProperty, chckbxExtraFanart2, jCheckBoxBeanProperty_2);
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart2,
+        jCheckBoxBeanProperty_2);
     autoBinding_10.bind();
+    //
+    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("imageLanguagePriority");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxPreferLanguage,
+        jCheckBoxBeanProperty);
+    autoBinding_11.bind();
   }
 }

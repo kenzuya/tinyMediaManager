@@ -15,14 +15,12 @@
  */
 package org.tinymediamanager.core.tvshow;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_FANART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
@@ -186,7 +184,7 @@ public class TvShowArtworkHelper {
 
     // poster
     if (tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.POSTER);
+      setBestPoster(tvShow, artwork);
     }
 
     // fanart
@@ -277,6 +275,100 @@ public class TvShowArtworkHelper {
     tvShow.saveToDb();
   }
 
+  private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {
+    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+    String preferredLanguage = TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
+
+    // sort artwork due to our preferences
+    List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtworkType.POSTER, preferredSizeOrder, preferredLanguage);
+
+    // assign and download the poster
+    if (!sortedPosters.isEmpty()) {
+      MediaArtwork foundPoster = sortedPosters.get(0);
+      tvShow.setArtworkUrl(foundPoster.getDefaultUrl(), MediaFileType.POSTER);
+
+      downloadArtwork(tvShow, MediaFileType.POSTER);
+    }
+  }
+
+  /**
+   * sort the artwork according to our preferences: <br/>
+   * 1) the right language and the right resolution<br/>
+   * 2) the right language and down to 2 resolutions lower (if language has priority)<br/>
+   * 3) the right resolution<br/>
+   * 4) down to 2 resolutions lower<br/>
+   * 5) the first we find
+   *
+   * @param artwork
+   *          the artworks to search in
+   * @param type
+   *          the artwork type
+   * @param sizeOrder
+   *          the preferred size
+   * @param language
+   *          the preferred language
+   * @return the found artwork or null
+   */
+  private static List<MediaArtwork> sortArtwork(List<MediaArtwork> artwork, MediaArtworkType type, int sizeOrder, String language) {
+    List<MediaArtwork> sortedArtwork = new ArrayList<>();
+
+    // the right language and the right resolution
+    for (MediaArtwork art : artwork) {
+      if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == sizeOrder) {
+        sortedArtwork.add(art);
+      }
+    }
+
+    // the right language and down to 2 resolutions lower (if language has priority)
+    if (TvShowModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
+      int counter = 1;
+      int newOrder = sizeOrder;
+      while (counter <= 2) {
+        newOrder = newOrder / 2;
+
+        for (MediaArtwork art : artwork) {
+          if (art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+        counter++;
+      }
+    }
+
+    // the right resolution
+    for (MediaArtwork art : artwork) {
+      // only get artwork in desired resolution
+      if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == sizeOrder) {
+        sortedArtwork.add(art);
+      }
+    }
+
+    // down to 2 resolutions lower
+    int counter = 1;
+    int newOrder = sizeOrder;
+    while (counter <= 2) {
+      newOrder = newOrder / 2;
+
+      for (MediaArtwork art : artwork) {
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
+          sortedArtwork.add(art);
+        }
+      }
+      counter++;
+    }
+
+    // the first we find
+    if (sortedArtwork.isEmpty() && !artwork.isEmpty()) {
+      for (MediaArtwork art : artwork) {
+        if (!sortedArtwork.contains(art) && art.getType() == type) {
+          sortedArtwork.add(art);
+        }
+      }
+    }
+
+    return sortedArtwork;
+  }
+
   /**
    * choose the best artwork for this tv show
    *
@@ -306,6 +398,10 @@ public class TvShowArtworkHelper {
    *          the artwork list
    */
   private static void setBestFanart(TvShow tvShow, List<MediaArtwork> artwork) {
+    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    String preferredLanguage = TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
+
+    // sort artwork due to our preferences
     List<MediaArtwork> sortedArtwork = new ArrayList<>(artwork);
 
     // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
@@ -319,16 +415,18 @@ public class TvShowArtworkHelper {
       }
     }
 
+    // sort artwork due to our preferences
+    List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder, preferredLanguage);
+
     if (fanartWoText != null) {
-      sortedArtwork.add(0, fanartWoText);
+      sortedFanarts.add(0, fanartWoText);
     }
 
-    for (MediaArtwork art : sortedArtwork) {
-      if (art.getType() == BACKGROUND && StringUtils.isNotBlank(art.getDefaultUrl())) {
-        tvShow.setArtworkUrl(art.getDefaultUrl(), MediaFileType.getMediaFileType(BACKGROUND));
-        downloadArtwork(tvShow, MediaFileType.getMediaFileType(BACKGROUND));
-        break;
-      }
+    // assign and download the fanart
+    if (!sortedFanarts.isEmpty()) {
+      MediaArtwork foundfanart = sortedFanarts.get(0);
+      tvShow.setArtworkUrl(foundfanart.getDefaultUrl(), MediaFileType.FANART);
+      downloadArtwork(tvShow, MediaFileType.FANART);
     }
   }
 
@@ -753,7 +851,7 @@ public class TvShowArtworkHelper {
 
     // poster
     if (config.contains(TvShowScraperMetadataConfig.POSTER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.POSTER)))) {
-      setBestArtwork(tvShow, artwork, POSTER);
+      setBestPoster(tvShow, artwork);
     }
 
     // fanart

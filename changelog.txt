@@ -14,6 +14,7 @@ x saving of changes genres/tags in the movie/TV show editor #1858
 x (TV shows) removed double assigned hotkey #1851
 x fix scraping TV season names #1856
 x also set unknown HDR values
+x respect preferred artwork sizes for TV shows too
 
 
 Version 4.3.2

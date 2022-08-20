@@ -200,6 +200,7 @@ public final class TvShowSettings extends AbstractSettings {
   MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
   MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
   MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
+  boolean                                        imageLanguagePriority                  = true;
   boolean                                        scrapeBestImage                        = true;
   boolean                                        writeActorImages                       = false;
   boolean                                        imageExtraFanart                       = false;
@@ -1125,6 +1126,16 @@ public final class TvShowSettings extends AbstractSettings {
     MediaArtwork.FanartSizes oldValue = this.imageFanartSize;
     this.imageFanartSize = newValue;
     firePropertyChange("imageFanartSize", oldValue, newValue);
+  }
+
+  public boolean isImageLanguagePriority() {
+    return imageLanguagePriority;
+  }
+
+  public void setImageLanguagePriority(boolean newValue) {
+    boolean oldValue = this.imageLanguagePriority;
+    this.imageLanguagePriority = newValue;
+    firePropertyChange("imageLanguagePriority", oldValue, newValue);
   }
 
   public void addNfoFilename(TvShowNfoNaming filename) {
