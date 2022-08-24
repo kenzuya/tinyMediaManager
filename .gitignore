@@ -25,6 +25,11 @@ pom.xml.*
 #Eclipse
 /bin
 
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
 #Vim
 *.swp
 

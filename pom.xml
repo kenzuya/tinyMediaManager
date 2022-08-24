@@ -4,7 +4,7 @@
 
 	<groupId>org.tinymediamanager</groupId>
 	<artifactId>tinyMediaManager</artifactId>
-	<version>4.3.3-SNAPSHOT</version>
+	<version>5.0-SNAPSHOT</version>
 
 	<name>tinyMediaManager</name>
 	<description>a media management tool written in Java</description>
@@ -88,9 +88,9 @@
 		<okhttp.version>4.9.3</okhttp.version>
 		<slf4j.version>1.7.36</slf4j.version>
 		<release.version>2.5.3</release.version>
-		<jre.version>17.0.2</jre.version>
+		<jre.version>17.0.4</jre.version>
 		<ffmpeg.version>5.0</ffmpeg.version>
-		<launcher.version>1.1.10</launcher.version>
+		<launcher.version>1.2</launcher.version>
 		<jackson.version>2.13.2</jackson.version>
 		<sonar.java.source>11</sonar.java.source>
 	</properties>
@@ -850,7 +850,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>unpack-JRE</id>
+								<id>unpack macOS x64 JRE</id>
 								<phase>prepare-package</phase>
 								<goals>
 									<goal>unpack</goal>
@@ -864,7 +864,27 @@
 											<type>tar.bz2</type>
 										</artifactItem>
 									</artifactItems>
-									<outputDirectory>${project.build.directory}/jre/macos</outputDirectory>
+									<outputDirectory>${project.build.directory}/jre/macos-x64</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack macOS aarch64 JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos_aarch64</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre/macos-aarch64</outputDirectory>
 									<overWriteReleases>true</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
@@ -976,10 +996,11 @@
 								</goals>
 								<configuration>
 									<descriptors>
-										<descriptor>src/assembly/windows.xml</descriptor>
-										<descriptor>src/assembly/linux.xml</descriptor>
-										<descriptor>src/assembly/arm.xml</descriptor>
-										<descriptor>src/assembly/macos.xml</descriptor>
+										<descriptor>src/assembly/windows-x64.xml</descriptor>
+										<descriptor>src/assembly/linux-x64.xml</descriptor>
+										<descriptor>src/assembly/linux-arm.xml</descriptor>
+										<descriptor>src/assembly/macos-x64.xml</descriptor>
+										<descriptor>src/assembly/macos-aarch64.xml</descriptor>
 									</descriptors>
 								</configuration>
 							</execution>
