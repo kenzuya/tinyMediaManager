@@ -1,6 +1,6 @@
 Version 4.3.3
 =======================
-+ redesign fo the file type panel
++ redesign the file type panel
 + added Top 250 column to the movie list #1838
 x fix displaying correct runtime for disc folders
 x preserve tags order #1848
