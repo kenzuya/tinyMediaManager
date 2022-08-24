@@ -15,6 +15,7 @@ x (TV shows) removed double assigned hotkey #1851
 x fix scraping TV season names #1856
 x also set unknown HDR values
 x respect preferred artwork sizes for TV shows too
+x fix loading values in the replacement renderer
 
 
 Version 4.3.2
