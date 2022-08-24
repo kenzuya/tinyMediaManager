@@ -1153,6 +1153,8 @@ public class ImageChooserDialog extends TmmDialog {
           }
           else if (mediaType == MediaType.TV_SHOW || mediaType == MediaType.TV_EPISODE) {
             options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
+            options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
+            options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
           }
           else {
             continue;

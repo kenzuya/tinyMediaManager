@@ -28,6 +28,12 @@ pom.xml.*
 #Vim
 *.swp
 
+# macOS
+.DS_Store
+
+# KDE plasma
+.directory
+
 #tinyMediaManager
 cache
 jspf.cache

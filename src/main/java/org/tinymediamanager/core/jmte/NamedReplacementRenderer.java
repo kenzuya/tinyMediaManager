@@ -70,6 +70,7 @@ public class NamedReplacementRenderer implements NamedRenderer {
             }
           }
           CACHE.put(filename, tokens);
+          csvContents = tokens;
         }
         catch (Exception e) {
           LOGGER.error("could not read csv: '{}'", e.getMessage());

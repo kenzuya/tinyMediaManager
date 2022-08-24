@@ -1,6 +1,6 @@
 Version 4.3.3
 =======================
-+ redesign fo the file type panel
++ redesign the file type panel
 + added Top 250 column to the movie list #1838
 x fix displaying correct runtime for disc folders
 x preserve tags order #1848
@@ -14,6 +14,8 @@ x saving of changes genres/tags in the movie/TV show editor #1858
 x (TV shows) removed double assigned hotkey #1851
 x fix scraping TV season names #1856
 x also set unknown HDR values
+x respect preferred artwork sizes for TV shows too
+x fix loading values in the replacement renderer
 
 
 Version 4.3.2
