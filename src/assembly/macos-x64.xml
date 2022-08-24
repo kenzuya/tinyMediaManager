@@ -1,0 +1,44 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>macos-x86_64</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <!-- copy BASE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-base</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/${project.artifactId}-getdown/macOS</directory>
+            <outputDirectory>tinyMediaManager.app/Contents</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- and just windows stuff from GD -->
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
+            <includes>
+                <include>digest*</include>
+                <include>getdown.txt</include>
+                <include>version</include>
+
+                <include>native/mac*</include>
+            </includes>
+            <excludes>
+                <exclude>macOS/*</exclude>
+                <exclude>templates/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <!-- extracted templates -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- JRE -->
+            <directory>${project.build.directory}/jre/macos-x64/</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/jre</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

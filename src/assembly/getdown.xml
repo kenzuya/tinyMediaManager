@@ -28,7 +28,7 @@
 			<directory>${project.build.directory}/jre</directory>
 			<outputDirectory>/jre</outputDirectory>
 			<excludes>
-				<exclude>macOS/*</exclude>
+				<exclude>macos/*</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
@@ -53,24 +53,26 @@
 
 		<!-- LAUNCHER -->
 		<file>
-			<source>${project.build.directory}/launcher/arm/tinyMediaManager</source>
+			<source>${project.build.directory}/launcher/linux_arm/tinyMediaManager</source>
 			<outputDirectory>/</outputDirectory>
 			<destName>tinyMediaManager-arm</destName>
 		</file>
 		<file>
-			<source>${project.build.directory}/launcher/linux/tinyMediaManager</source>
+			<source>${project.build.directory}/launcher/linux_x64/tinyMediaManager</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
 		<file>
-			<source>${project.build.directory}/launcher/macos/tinyMediaManager</source>
+			<source>${project.build.directory}/launcher/macos_x64/tinyMediaManager</source>
 			<outputDirectory>/macOS/MacOS/</outputDirectory>
+			<destName>tinyMediaManager</destName>
 		</file>
+
 		<file>
-			<source>${project.build.directory}/launcher/windows/tinyMediaManager.exe</source>
+			<source>${project.build.directory}/launcher/windows_x64/tinyMediaManager.exe</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
 		<file>
-			<source>${project.build.directory}/launcher/windows/tinyMediaManagerCMD.exe</source>
+			<source>${project.build.directory}/launcher/windows_x64/tinyMediaManagerCMD.exe</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
 	</files>
