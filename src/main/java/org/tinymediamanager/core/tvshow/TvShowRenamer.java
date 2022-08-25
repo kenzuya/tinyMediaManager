@@ -243,7 +243,6 @@ public class TvShowRenamer {
   private static void renameTvShowRoot(TvShow show) {
     // skip renamer, if all templates are empty!
     if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()
-        && TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername().isEmpty()
         && TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername().isEmpty()) {
       LOGGER.info("NOT renaming TvShow '{}' - renaming patterns are empty!", show.getTitle());
       return;
@@ -704,8 +703,7 @@ public class TvShowRenamer {
    */
   public static void renameEpisode(TvShowEpisode episode) {
     // skip renamer, if all episode related templates are empty!
-    if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()
-        && TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername().isEmpty()) {
+    if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()) {
       LOGGER.info("NOT renaming TvShow '{}' Episode {} - renaming patterns are empty!", episode.getTvShow().getTitle(), episode.getEpisode());
       return;
     }
