@@ -242,14 +242,16 @@ public final class TinyMediaManager {
           LanguageUtils.init();
 
           // init http server
-          // if(Globals.settings.isStartWebserver()) {
-          try {
-            TmmHttpServer.getInstance().start();
+          if (Settings.getInstance().isEnableHttpServer()) {
+            try {
+              // no need for start, because after creation the server is
+              // automatically started
+              TmmHttpServer.getInstance();
+            }
+            catch (Exception e) {
+              LOGGER.error("could not start webserver: {}", e.getMessage());
+            }
           }
-          catch (Exception e) {
-            LOGGER.error("could not start webserver: {}", e.getMessage());
-          }
-          // }
 
           // load modules //////////////////////////////////////////////////
           updateProgress("loading movie module", 30);
