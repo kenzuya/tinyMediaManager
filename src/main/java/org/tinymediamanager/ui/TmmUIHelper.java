@@ -701,12 +701,12 @@ public class TmmUIHelper {
 
     if (delayInSeconds > 0) {
       // update task start a few secs after GUI...
-      Timer timer = new Timer(delayInSeconds * 1000, e -> runnable.run());
+      Timer timer = new Timer(delayInSeconds * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
       timer.setRepeats(false);
       timer.start();
     }
     else {
-      runnable.run();
+      TmmTaskManager.getInstance().addUnnamedTask(runnable);
     }
   }
 
