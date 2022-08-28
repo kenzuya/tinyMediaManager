@@ -1,7 +1,5 @@
 package org.tinymediamanager.scraper.anidb;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -20,9 +18,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.Similarity;
 
 /**
@@ -34,17 +30,8 @@ import org.tinymediamanager.scraper.util.Similarity;
  */
 public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements IMovieMetadataProvider {
 
-  public static final String                               ID                  = "anidb";
-  private static final Logger                              LOGGER              = LoggerFactory.getLogger(AniDbMovieMetadataProvider.class);
-  private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
-
-  public static void addProvider(IMovieMetadataProvider provider) {
-    // called for each plugin implementing that interface
-    if (!provider.getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getId())
-        && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)) {
-      COMPATIBLE_SCRAPERS.put(provider.getId(), provider);
-    }
-  }
+  public static final String  ID     = "anidb";
+  private static final Logger LOGGER = LoggerFactory.getLogger(AniDbMovieMetadataProvider.class);
 
   @Override
   protected MediaProviderInfo createMediaProviderInfo() {
@@ -110,7 +97,7 @@ public class AniDbMovieMetadataProvider extends AniDbMetadataProvider implements
   }
 
   /**
-   * Gets the meta data.
+   * Gets the metadata.
    *
    * @param options
    *          the options
