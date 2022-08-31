@@ -80,6 +80,7 @@ public class TvShowChooserModel extends AbstractModelObject {
   private String                         originalTitle   = "";
   private String                         overview        = "";
   private String                         year            = "";
+  private String                         id              = "";
   private String                         combinedName    = "";
   private String                         posterUrl       = "";
   private boolean                        scraped         = false;
@@ -101,6 +102,12 @@ public class TvShowChooserModel extends AbstractModelObject {
     else {
       setYear("");
     }
+
+    Object obj = result.getId();
+    if (obj != null) {
+      setId(obj.toString());
+    }
+
     // combined title (title (year))
     setCombinedName();
 
@@ -167,6 +174,16 @@ public class TvShowChooserModel extends AbstractModelObject {
     String oldValue = this.year;
     this.year = year;
     firePropertyChange("year", oldValue, this.year);
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    String oldValue = this.id;
+    this.id = id;
+    firePropertyChange("id", oldValue, this.id);
   }
 
   public void setCombinedName() {

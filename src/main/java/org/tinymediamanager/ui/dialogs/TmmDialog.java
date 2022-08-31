@@ -163,7 +163,7 @@ public abstract class TmmDialog extends JDialog {
    * @param panel
    *          the panel to be set
    */
-  protected void setTopIformationPanel(JPanel panel) {
+  protected void setTopInformationPanel(JPanel panel) {
     if (topPanel == null) {
       topPanel = new JPanel();
       getContentPane().add(topPanel, BorderLayout.NORTH);

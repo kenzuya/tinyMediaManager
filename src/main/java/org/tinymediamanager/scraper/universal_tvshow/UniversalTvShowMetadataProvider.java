@@ -177,6 +177,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
     try {
       for (MediaSearchResult result : mp.search(options)) {
+        result.setId(providerInfo.getId(), result.getIdAsString(result.getProviderId()));
         result.setProviderId(providerInfo.getId());
         results.add(result);
       }

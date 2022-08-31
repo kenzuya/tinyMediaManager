@@ -108,6 +108,7 @@ import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieChooserModel;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
+import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -218,11 +219,11 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         });
         panelPath.add(btnPlay, "cell 1 0");
       }
-      setTopIformationPanel(panelPath);
+      setTopInformationPanel(panelPath);
     }
 
     JPanel contentPanel = new JPanel();
-    contentPanel.setLayout(new MigLayout("", "[600lp:900lp,grow]", "[][shrink 0][250lp:350lp,grow][shrink 0][][][]"));
+    contentPanel.setLayout(new MigLayout("insets 0 n n n", "[600lp:900lp,grow]", "[][shrink 0][250lp:350lp,grow][shrink 0][][][]"));
     getContentPane().add(contentPanel, BorderLayout.CENTER);
 
     {
@@ -282,6 +283,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
           tableSearchResults = new TmmTable(new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat()));
+          tableSearchResults.setName("moviechooser.searchResults");
+          TmmUILayoutStore.getInstance().install(tableSearchResults);
           tableSearchResults.configureScrollPane(scrollPane);
         }
       }
@@ -754,9 +757,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   private class ChangeScraperAction extends AbstractAction {
     private static final long serialVersionUID = -4365761222995534769L;
 
-    private ChangeScraperAction() {
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
       mediaScraper = (MediaScraper) cbScraper.getSelectedItem();
@@ -886,6 +886,17 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       col.setColumnResizeable(false);
       col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.2f));
       col.setMaxWidth((int) (fontMetrics.stringWidth("2000") * 1.4f));
+      addColumn(col);
+
+      /*
+       * id
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.id"), "id", MovieChooserModel::getId, String.class);
+      col.setColumnComparator(stringComparator);
+      col.setColumnResizeable(false);
+      col.setCellRenderer(new RightAlignTableCellRenderer());
+      col.setMinWidth((int) (fontMetrics.stringWidth("tt7830912") * 1.1f));
+      col.setMaxWidth((int) (fontMetrics.stringWidth("tt7830912") * 1.3f));
       addColumn(col);
     }
   }

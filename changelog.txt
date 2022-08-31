@@ -1,5 +1,6 @@
 Version 4.3.3
 =======================
++ added the ID of the movie/TV show to the search results #1824
 x do not check title token for valid episode name pattern #1870
 
 

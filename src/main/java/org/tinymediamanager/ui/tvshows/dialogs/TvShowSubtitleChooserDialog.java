@@ -163,7 +163,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       TmmFontHelper.changeFont(lblEpisodeTitle, 1.33, Font.BOLD);
       panelTitle.add(lblEpisodeTitle, "cell 0 0 5 1,growx, wmin 0");
 
-      setTopIformationPanel(panelTitle);
+      setTopInformationPanel(panelTitle);
     }
     {
       final JPanel panelContent = new JPanel();
