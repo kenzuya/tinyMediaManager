@@ -1780,7 +1780,7 @@ public class TvShowRenamer {
     int seFolderCnt = count(seasonPattern, seasonNumbers);// check season folder pattern
 
     // check rules
-    if (epCnt != 1 || titleCnt != 1 || seCnt > 1 || seFolderCnt > 1 || (seCnt + seFolderCnt) == 0) {
+    if (epCnt != 1 || titleCnt > 1 || seCnt > 1 || seFolderCnt > 1 || (seCnt + seFolderCnt) == 0) {
       LOGGER.debug("Too many/less episode/season/title replacer patterns");
       return false;
     }

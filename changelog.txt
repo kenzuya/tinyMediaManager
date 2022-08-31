@@ -1,5 +1,6 @@
 Version 4.3.3
 =======================
+x do not check title token for valid episode name pattern #1870
 
 
 Version 4.3.3
