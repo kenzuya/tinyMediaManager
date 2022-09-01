@@ -2,6 +2,7 @@ Version 4.3.4
 =======================
 + added the ID of the movie/TV show to the search results #1824
 x do not check title token for valid episode name pattern #1870
+x fixed timing of KodiRPC calls #1831
 
 
 Version 4.3.3

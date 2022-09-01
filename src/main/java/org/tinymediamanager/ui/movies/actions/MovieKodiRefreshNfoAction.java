@@ -73,6 +73,13 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
 
                 // if we have updated at least one movie, we need to re-match the movies
                 if (progressDone > 0) {
+                  try {
+                    // need some time to propagate the new movieId
+                    Thread.sleep(1000);
+                  }
+                  catch (InterruptedException e) {
+                    // ignore
+                  }
                   kodiRPC.updateMovieMappings();
                 }
               }
