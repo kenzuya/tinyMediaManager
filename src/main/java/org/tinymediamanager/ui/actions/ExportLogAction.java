@@ -20,10 +20,9 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.nio.file.Path;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +36,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -75,55 +75,20 @@ public class ExportLogAction extends TmmAction {
   private void writeLogsFile(File file) throws Exception {
     try (FileOutputStream os = new FileOutputStream(file); ZipOutputStream zos = new ZipOutputStream(os)) {
 
-      // trace logs
-
-      try (FileInputStream in = new FileInputStream("logs" + File.separator + "trace.log")) {
-        ZipEntry ze = new ZipEntry("trace.log");
-        zos.putNextEntry(ze);
-
-        IOUtils.copy(in, zos);
-        zos.closeEntry();
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not append trace file to the zip file: {}", e.getMessage());
-      }
-
       // attach logs
-      File[] logs = new File("logs").listFiles(new FilenameFilter() {
-        Pattern logPattern = Pattern.compile("tmm\\.log\\.*");
-
-        @Override
-        public boolean accept(File directory, String filename) {
-          Matcher matcher = logPattern.matcher(filename);
-          return matcher.find();
-        }
-      });
+      List<Path> logs = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
       if (logs != null) {
-        for (File logFile : logs) {
-          try (FileInputStream in = new FileInputStream(logFile)) {
-
-            ZipEntry ze = new ZipEntry(logFile.getName());
+        for (Path logFile : logs) {
+          try (FileInputStream in = new FileInputStream(logFile.toFile())) {
+            ZipEntry ze = new ZipEntry("logs/" + logFile.getFileName());
             zos.putNextEntry(ze);
-
             IOUtils.copy(in, zos);
             zos.closeEntry();
           }
           catch (Exception e) {
-            LOGGER.warn("unable to attach {} - {}", logFile.getName(), e.getMessage());
+            LOGGER.warn("unable to attach {} - {}", logFile, e.getMessage());
           }
         }
-      }
-
-      try (FileInputStream in = new FileInputStream("launcher.log")) {
-        ZipEntry ze = new ZipEntry("launcher.log");
-        zos.putNextEntry(ze);
-
-        IOUtils.copy(in, zos);
-        in.close();
-        zos.closeEntry();
-      }
-      catch (Exception e) {
-        LOGGER.warn("unable to attach launcher.log: {}", e.getMessage());
       }
 
       // attach config files, but not DB
@@ -134,7 +99,7 @@ public class ExportLogAction extends TmmAction {
         for (File dataFile : data) {
           try (FileInputStream in = new FileInputStream(dataFile)) {
 
-            ZipEntry ze = new ZipEntry(dataFile.getName());
+            ZipEntry ze = new ZipEntry("data/" + dataFile.getName());
             zos.putNextEntry(ze);
 
             IOUtils.copy(in, zos);
