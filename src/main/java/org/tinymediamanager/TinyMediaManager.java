@@ -325,6 +325,7 @@ public final class TinyMediaManager {
 
             TmmUILayoutStore.getInstance().loadSettings(window);
             window.setVisible(true);
+            LOGGER.info("UI loaded");
 
             // wizard for new user
             if (Settings.getInstance().isNewConfig()) {
