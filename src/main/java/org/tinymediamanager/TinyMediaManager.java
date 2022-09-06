@@ -162,6 +162,9 @@ public final class TinyMediaManager {
     LOGGER.info("=== tinyMediaManager (c) 2012 - 2022 Manuel Laggner ===");
     LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
+    if (!ReleaseInfo.isGitBuild()) {
+      LOGGER.info("tmm.build        : {}", ReleaseInfo.getRealBuildDate());
+    }
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
     LOGGER.info("os.version       : {}", System.getProperty("os.version"));
     LOGGER.info("os.arch          : {}", System.getProperty("os.arch"));
