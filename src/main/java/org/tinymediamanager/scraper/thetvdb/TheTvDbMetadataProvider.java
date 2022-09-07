@@ -53,7 +53,6 @@ import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
-import org.tinymediamanager.scraper.thetvdb.service.Controller;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 
 import retrofit2.Response;
@@ -72,13 +71,11 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
   private final MediaProviderInfo               providerInfo;
   private final Map<Integer, ArtworkTypeRecord> artworkTypes      = new HashMap<>();
-  private final Pattern                         artworkSeasonNumberPattern;
 
-  protected Controller                          tvdb;
+  protected TheTvDbController                   tvdb;
 
   TheTvDbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    artworkSeasonNumberPattern = Pattern.compile("https?.*seasons.*/\\d.*?-(\\d)(-.*)?\\..{3,}$");
   }
 
   protected abstract Logger getLogger();
@@ -105,9 +102,16 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   }
 
   String getAuthToken() {
-    if (StringUtils.isNotBlank(providerInfo.getConfig().getValue("apiKey"))) {
+    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userPin = providerInfo.getConfig().getValue("pin");
+
+    if (StringUtils.isNotBlank(userApiKey)) {
+      // always remember to avoid a force-reinit at every call
+      tvdb.setUserApiKey(userApiKey);
+      tvdb.setUserPin(userPin);
+
       try {
-        return Controller.login(providerInfo.getConfig().getValue("apiKey"));
+        return TheTvDbController.login(userApiKey, userPin);
       }
       catch (Exception e) {
         LOGGER.warn("could not logon with the user entered key - '{}'", e.getMessage());
@@ -119,13 +123,27 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
   protected synchronized void initAPI() throws ScrapeException {
 
+    // check if the API should change from current key to another
+    if (tvdb != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      String userPin = providerInfo.getConfig().getValue("pin");
+      if (StringUtils.isNotBlank(userApiKey) && (!userApiKey.equals(tvdb.getUserApiKey()) || !userPin.equals(tvdb.getUserPin()))) {
+        // force re-initialization with new key
+        tvdb = null;
+      }
+      else if (StringUtils.isBlank(userApiKey) && StringUtils.isNotBlank(tvdb.getUserApiKey())) {
+        // force re-initialization with new key
+        tvdb = null;
+      }
+    }
+
     if (tvdb == null) {
       if (!isActive()) {
         throw new ScrapeException(new FeatureNotEnabledException(this));
       }
 
       try {
-        tvdb = new Controller();
+        tvdb = new TheTvDbController();
         tvdb.setAuthToken(getAuthToken());
 
         artworkTypes.clear();
