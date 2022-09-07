@@ -21,7 +21,7 @@
 
                 <include>*.exe</include>
                 <include>jre/*windows*</include>
-                <include>native/windows/*</include>
+                <include>native/windows/**/*</include>
             </includes>
         </fileSet>
     </fileSets>

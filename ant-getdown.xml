@@ -11,6 +11,7 @@
 			<entry key="human.version" value="${human.version}" />
 			<entry key="build" value="${tmmRevision}" />
 			<entry key="date" value="${tmmTimestamp}" />
+			<entry key="timestamp" value="${tmmTimestamp2}" />
 		</propertyfile>
 		<replace file="${build.dir}/macOS/Info.plist" token="%VERSION%" value="${human.version}" />
 		<replace file="${build.dir}/macOS/Info.plist" token="%SVNREV%" value="${tmmRevision}" />
