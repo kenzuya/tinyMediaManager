@@ -81,7 +81,7 @@ build:
     - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
-    expire_in: never
+    expire_in: 4 weeks
     paths:
       - build/
       - dist/
