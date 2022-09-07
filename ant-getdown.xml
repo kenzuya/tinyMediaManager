@@ -30,6 +30,7 @@
 			<entry key="version" value="${project.version}" />
 			<entry key="build" value="${rev}" />
 			<entry key="date" value="${tmmTimestamp}" />
+			<entry key="timestamp" value="${tmmTimestamp2}" />
 		</propertyfile>
 
 		<!-- MacOS buildinfo-->

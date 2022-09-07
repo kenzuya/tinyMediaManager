@@ -20,7 +20,7 @@
 
                 <include>tinyMediaManager</include>
                 <include>jre/*linux_x64*</include>
-                <include>native/linux/*</include>
+                <include>native/linux/**/*</include>
             </includes>
         </fileSet>
     </fileSets>
