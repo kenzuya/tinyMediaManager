@@ -2,7 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "tinyMediaManager"
-#define MyAppVersion "v4"
+#ifndef MyAppVersion
+  #define MyAppVersion "v5"
+#endif
 #define MyAppPublisher "Manuel Laggner"
 #define MyAppURL "https://www.tinymediamanager.org/"
 #define MyAppExeName "tinyMediaManager.exe"
@@ -28,9 +30,7 @@ SetupIconFile=tmm.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-WizardImageFile=compiler:WizClassicImage-IS.bmp
-WizardSmallImageFile=compiler:WizClassicSmallImage-IS.bmp
-ShowLanguageDialog=auto
+ShowLanguageDialog=no
 
 [Languages]
 ; use language codes, else "auto" does not work!
