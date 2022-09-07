@@ -1,11 +1,15 @@
 #!/bin/sh
 
+VER=""
+if [ ! -z "$1" ] then
+    VER="/DMyAppVersion=$1"
+fi
+
 mkdir windows_installer
 cd windows_installer
-unzip ../dist/tmm_*_windows*.zip
+unzip ../target/tinyMediaManager*-windows-*.zip
 cp ../AppBundler/installer.iss .
-cp ../AppBundler/tmm.ico .
-iscc installer.iss
+iscc installer.iss $VER
 cp Output/tinyMediaManagerSetup.exe ../dist/
 cd ..
 rm -rf windows_installer

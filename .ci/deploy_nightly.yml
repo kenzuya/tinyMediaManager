@@ -35,7 +35,10 @@ build:
 
     # build windows installer
     - chmod 777 . dist
-    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
+    - VERSION=$(grep 'version' version | cut -d'=' -f2)
+    - TIMESTAMP=$(grep 'timestamp' version | cut -d'=' -f2)
+    - REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$TIMESTAMP/g")
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh $REALVERSION
 
     # build macOS dmg file
     - sh AppBundler/create_dmg.sh
