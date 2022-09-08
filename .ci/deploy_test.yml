@@ -6,6 +6,11 @@ variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository/
+
 build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
@@ -29,5 +34,5 @@ build:
   artifacts:
     expire_in: 1 day
     paths:
-      - target/
+      - target/*.exe
  
