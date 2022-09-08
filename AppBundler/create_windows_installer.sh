@@ -11,8 +11,8 @@ cp ../../AppBundler/installer.iss .
 ls -l 
 
 VERSION=$(grep 'version' version | cut -d'=' -f2)
-TIMESTAMP=$(grep 'timestamp' version | cut -d'=' -f2)
-REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$TIMESTAMP/g")
+BUILD=$(grep 'build' version | cut -d'=' -f2)
+REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$BUILD/g")
 
 iscc installer.iss "/DMyAppVersion=$REALVERSION"
 

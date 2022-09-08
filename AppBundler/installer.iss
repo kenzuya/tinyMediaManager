@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 LicenseFile=LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
-OutputBaseFilename={#MyAppName}Setup
+OutputBaseFilename={#MyAppName}Setup-{#MyAppVersion}
 SetupIconFile=tmm.ico
 Compression=lzma
 SolidCompression=yes
