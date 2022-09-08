@@ -3,7 +3,7 @@
 
 mkdir windows_installer
 cd windows_installer
-unzip ../target/tinyMediaManager*-windows-*.zip
+unzip ../target/tinyMediaManager*-windows-*.zip tinyMediaManager/*
 cp ../AppBundler/installer.iss .
 
 VERSION=$(grep 'version' tinyMediaManager/version | cut -d'=' -f2)

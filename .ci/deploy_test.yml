@@ -26,3 +26,8 @@ build:
     # build macOS dmg file
     - sh AppBundler/create_dmg.sh
 
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - target/
+ 
