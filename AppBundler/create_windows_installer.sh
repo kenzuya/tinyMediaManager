@@ -16,7 +16,7 @@ REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$BUILD/g")
 
 iscc installer.iss "/DMyAppVersion=$REALVERSION"
 
-cp Output/tinyMediaManagerSetup.exe ../../target/
+cp Output/tinyMediaManagerSetup*.exe ../../target/
 ls -l ../../target/
 cd ..
 cd ..
