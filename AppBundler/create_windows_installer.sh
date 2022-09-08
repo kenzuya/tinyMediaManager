@@ -6,8 +6,8 @@ cd windows_installer
 unzip ../target/tinyMediaManager*-windows-*.zip
 cp ../AppBundler/installer.iss .
 
-VERSION=$(grep 'version' version | cut -d'=' -f2)
-TIMESTAMP=$(grep 'timestamp' version | cut -d'=' -f2)
+VERSION=$(grep 'version' tinyMediaManager/version | cut -d'=' -f2)
+TIMESTAMP=$(grep 'timestamp' tinyMediaManager/version | cut -d'=' -f2)
 REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$TIMESTAMP/g")
 
 iscc installer.iss "$REALVERSION"
