@@ -3,16 +3,17 @@
     <formats>
         <format>zip</format>
     </formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <!-- copy BASE folder from former assembly -->
             <directory>${project.build.directory}/${project.artifactId}-${project.version}-base</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
         </fileSet>
         <fileSet>
             <!-- and just windows stuff from GD -->
             <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
             <includes>
                 <include>digest*</include>
                 <include>getdown.txt</include>
