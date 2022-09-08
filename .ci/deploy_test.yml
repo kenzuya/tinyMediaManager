@@ -36,4 +36,5 @@ build:
     expire_in: 1 day
     paths:
       - target/*.exe
+      - target/*.dmg
  
