@@ -12,6 +12,6 @@ REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$TIMESTAMP/g")
 
 iscc installer.iss "$REALVERSION"
 
-cp Output/tinyMediaManagerSetup.exe ../dist/
+cp Output/tinyMediaManagerSetup.exe ../target/
 cd ..
 rm -rf windows_installer
