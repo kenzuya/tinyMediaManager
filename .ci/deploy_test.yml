@@ -26,6 +26,7 @@ build:
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
 
     # build windows installer
+    - chmod 777 . target
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
 
     # build macOS dmg file
