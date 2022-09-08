@@ -10,7 +10,6 @@ cache:
     - .m2/repository/
 
 stages:
-  - test
   - build
   - package
   - deploy

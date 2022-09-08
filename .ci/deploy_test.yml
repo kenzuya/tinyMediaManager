@@ -15,11 +15,7 @@ build:
   allow_failure: false
   tags:
     - tmm # force running on own runners
-  variables:
-    PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
-    # generate changelog.txt for nightly builds
-    - sh generate_changelog.sh
 
     # package archives
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
@@ -31,11 +27,3 @@ build:
     # build macOS dmg file
     - sh AppBundler/create_dmg.sh
 
-    # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist; chmod -R g+w ./upload/v4"
-
-    # and publish the files on the webserver
-    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
-
-    # purge CF cache
-    - 'eval "$PURGE_CF_CACHE"'
