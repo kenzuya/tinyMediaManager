@@ -78,6 +78,7 @@
 		<maven.compiler.release>11</maven.compiler.release>
 		<skipTests>true</skipTests> <!-- to override on command line -->
 		<skipITests>true</skipITests> <!-- to override on command line -->
+		<tier>SNAPSHOT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
 
 		<jar.version>3.2.0</jar.version>
 		<surefire.version>3.0.0-M5</surefire.version>
@@ -460,6 +461,7 @@
 							</manifest>
 							<manifestEntries>
 								<SplashScreen-Image>splashscreen.png</SplashScreen-Image>
+								<Human-Version>${human.version}</Human-Version>
 								<Build-Nr>${buildNumber}</Build-Nr>
 								<Build-Date>${timestamp}</Build-Date>
 								<Build-By>${user.name}</Build-By>
@@ -574,6 +576,20 @@
 							<sources>
 								<source>src/integration-test/java</source>
 							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>regex-property</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>human.version</name>
+							<value>${project.version}</value>
+							<regex>SNAPSHOT</regex>
+							<replacement>${tier}</replacement>
+							<toUpperCase>true</toUpperCase>
+							<failIfNoMatch>false</failIfNoMatch>
 						</configuration>
 					</execution>
 				</executions>
@@ -965,6 +981,7 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<attach>false</attach>
 									<descriptors>
 										<descriptor>src/assembly/templates.xml</descriptor>
 										<descriptor>src/assembly/base.xml</descriptor>
@@ -979,6 +996,7 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<attach>false</attach>
 									<finalName>${project.artifactId}</finalName>
 									<appendAssemblyId>true</appendAssemblyId>
 									<descriptors>
@@ -995,6 +1013,9 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<outputDirectory>dist</outputDirectory>
+								    <finalName>${project.artifactId}-${human.version}</finalName>
+									<attach>false</attach>
 									<descriptors>
 										<descriptor>src/assembly/windows-x64.xml</descriptor>
 										<descriptor>src/assembly/linux-x64.xml</descriptor>
@@ -1026,7 +1047,6 @@
 							<target>
 								<property name="tmmRevision" value="${buildNumber}" />
 								<property name="tmmTimestamp" value="${timestamp}" />
-								<property name="tmmTimestamp2" value="${timestamp2}" />
 
 								<ant antfile="${project.basedir}/ant-getdown.xml">
 									<target name="getdown" />
