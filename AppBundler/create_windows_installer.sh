@@ -11,7 +11,7 @@ cp ../../AppBundler/installer.iss .
 VERSION=$(grep 'human.version' version | cut -d'=' -f2)
 iscc installer.iss "/DMyAppVersion=$VERSION"
 
-cp Output/tinyMediaManagerSetup*.exe ../../dist/
+cp Output/tinyMediaManager*.exe ../../dist/
 cd ..
 cd ..
 rm -rf windows_installer
