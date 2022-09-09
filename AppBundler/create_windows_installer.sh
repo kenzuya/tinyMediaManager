@@ -4,7 +4,7 @@
 mkdir windows_installer
 cd windows_installer
 
-unzip ../target/tinyMediaManager*-windows-*.zip
+unzip ../dist/tinyMediaManager*-windows-*.zip
 cd tinyMediaManager
 cp ../../AppBundler/installer.iss .
 

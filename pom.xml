@@ -433,6 +433,28 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.2.0</version>
+					<executions>
+						<execution>
+							<id>default-clean</id>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+							<configuration>
+								<filesets>
+									<fileset>
+										<directory>dist</directory>
+										<includes>
+											<include>**</include>
+										</includes>
+									</fileset>
+								</filesets>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>${release.version}</version>
@@ -1014,8 +1036,8 @@
 								</goals>
 								<configuration>
 									<outputDirectory>dist</outputDirectory>
-								    <finalName>${project.artifactId}-${human.version}</finalName>
-									<attach>false</attach>
+									<finalName>${project.artifactId}-${human.version}</finalName>
+									<attach>true</attach><!-- needed for docker -->
 									<descriptors>
 										<descriptor>src/assembly/windows-x64.xml</descriptor>
 										<descriptor>src/assembly/linux-x64.xml</descriptor>

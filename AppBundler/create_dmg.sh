@@ -2,7 +2,7 @@
 
 mkdir macos_dmg
 cd macos_dmg
-unzip -X ../target/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
+unzip -X ../dist/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
 OUTSIZE=$(du -s tinyMediaManager | cut -f1)
 dd if=/dev/zero of=temp.dmg bs=1124 count="${OUTSIZE}"
