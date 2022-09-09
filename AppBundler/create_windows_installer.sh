@@ -8,16 +8,10 @@ unzip ../target/tinyMediaManager*-windows-*.zip
 cd tinyMediaManager
 cp ../../AppBundler/installer.iss .
 
-ls -l 
+VERSION=$(grep 'human.version' version | cut -d'=' -f2)
+iscc installer.iss "/DMyAppVersion=$VERSION"
 
-VERSION=$(grep 'version' version | cut -d'=' -f2)
-BUILD=$(grep 'build' version | cut -d'=' -f2)
-REALVERSION=$(echo $VERSION | sed "s/SNAPSHOT/$BUILD/g")
-
-iscc installer.iss "/DMyAppVersion=$REALVERSION"
-
-cp Output/tinyMediaManagerSetup*.exe ../../target/
-ls -l ../../target/
+cp Output/tinyMediaManagerSetup*.exe ../../dist/
 cd ..
 cd ..
 rm -rf windows_installer

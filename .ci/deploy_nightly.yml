@@ -31,7 +31,7 @@ build:
     - sh generate_changelog.sh
 
     # package archives
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dtier=nightly -Dthread_pool_size=1 clean package
 
     # build windows installer
     - chmod 777 . dist

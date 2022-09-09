@@ -17,7 +17,7 @@ build:
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dtear=prerelease -Dthread_pool_size=1 clean package
 
     # build windows installer
     - chmod 777 . dist
