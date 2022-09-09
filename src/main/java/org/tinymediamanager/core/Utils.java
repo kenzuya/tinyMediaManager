@@ -1985,16 +1985,17 @@ public class Utils {
   }
 
   /**
-   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * Deletes "unwanted files/folders" according to settings. Same as the action, but w/o GUI.
    * 
    * @param me
+   *          the {@link MediaEntity} to clean
    */
-  public static void deleteUnwantedFilesFor(MediaEntity me) {
+  public static void deleteUnwantedFilesAndFoldersFor(MediaEntity me) {
     // Get Cleanup File Types from the settings
     List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
-    LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
+    LOGGER.info("Start cleanup of unwanted file types/folders: {}", regexPatterns);
 
-    HashSet<Path> fileList = new HashSet<>();
+    Set<Path> fileList = new HashSet<>();
     for (Path file : Utils.getUnknownFilesByRegex(me.getPathNIO(), regexPatterns)) {
       if (fileList.contains(file)) {
         continue;
@@ -2002,18 +2003,37 @@ public class Utils {
       fileList.add(file);
     }
 
+    boolean dirty = false;
+
     for (Path file : fileList) {
-      MediaFile mf = new MediaFile(file);
-      if (mf.getType() == MediaFileType.VIDEO) {
-        // prevent users from doing something stupid
-        continue;
+      if (Files.isDirectory(file)) {
+        try {
+          LOGGER.debug("Deleting folder - {}", file);
+          Utils.deleteDirectoryRecursive(file);
+          dirty = true;
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not delete folder - {}", e.getMessage());
+        }
       }
-      LOGGER.debug("Deleting File - {}", file);
-      Utils.deleteFileWithBackup(file, me.getDataSource());
-      // remove possible MediaFiles too
-      if (me.getMediaFiles().contains(mf)) {
-        me.removeFromMediaFiles(mf);
+      else {
+        MediaFile mf = new MediaFile(file);
+        if (mf.getType() == MediaFileType.VIDEO) {
+          // prevent users from doing something stupid
+          continue;
+        }
+        LOGGER.debug("Deleting file - {}", file);
+        Utils.deleteFileWithBackup(file, me.getDataSource());
+        // remove possible MediaFiles too
+        if (me.getMediaFiles().contains(mf)) {
+          me.removeFromMediaFiles(mf);
+          dirty = true;
+        }
       }
+    }
+
+    if (dirty) {
+      me.saveToDb();
     }
   }
 

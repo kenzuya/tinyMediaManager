@@ -1888,11 +1888,12 @@ public class TvShowRenamer {
   /**
    * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
    * 
-   * @param me
+   * @param show
+   *          the {@link TvShow} to clean up
    */
   private static void cleanupUnwantedFiles(TvShow show) {
     if (TvShowModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
-      Utils.deleteUnwantedFilesFor(show);
+      Utils.deleteUnwantedFilesAndFoldersFor(show);
     }
   }
 

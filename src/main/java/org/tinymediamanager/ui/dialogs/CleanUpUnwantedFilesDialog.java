@@ -258,7 +258,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
             // prevent users from doing something stupid
             continue;
           }
-          LOGGER.debug("Deleting folder - {}", selectedFile.file);
+          LOGGER.debug("Deleting file - {}", selectedFile.file);
           Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
           if (selectedFile.entity.getMediaFiles().contains(mf)) {
             selectedFile.entity.removeFromMediaFiles(mf);

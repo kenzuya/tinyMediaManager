@@ -335,14 +335,15 @@ public class MovieRenamer {
   /**
    * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
    * 
-   * @param me
+   * @param movie
+   *          the {@link Movie} to clean up
    */
   private static void cleanupUnwantedFiles(Movie movie) {
     if (movie.isMultiMovieDir()) {
       return;
     }
     if (MovieModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
-      Utils.deleteUnwantedFilesFor(movie);
+      Utils.deleteUnwantedFilesAndFoldersFor(movie);
     }
   }
 
