@@ -37,10 +37,10 @@ build:
     - sh AppBundler/create_dmg.sh
 
     # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist; chmod -R g+w ./upload/v4"
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
     # and publish the files on the webserver
-    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
+    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
 
     # purge CF cache
-    - 'eval "$PURGE_CF_CACHE"'
+    # - 'eval "$PURGE_CF_CACHE"'
