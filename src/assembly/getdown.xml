@@ -28,7 +28,7 @@
 			<directory>${project.build.directory}/jre</directory>
 			<outputDirectory>/jre</outputDirectory>
 			<excludes>
-				<exclude>macos/*</exclude>
+				<exclude>macos-*/**</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
@@ -66,7 +66,6 @@
 			<outputDirectory>/macOS/MacOS/</outputDirectory>
 			<destName>tinyMediaManager</destName>
 		</file>
-
 		<file>
 			<source>${project.build.directory}/launcher/windows_x64/tinyMediaManager.exe</source>
 			<outputDirectory>/</outputDirectory>
