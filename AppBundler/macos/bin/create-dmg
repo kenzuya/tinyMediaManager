@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+#
+# Copyright 2012 - 2022 Manuel Laggner
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 # Create a read-only disk image of the contents of a folder
 
 # Bail out on any unhandled errors
@@ -260,10 +276,10 @@ if [[ ! -d "$CDMG_SUPPORT_DIR" ]]; then
 	exit 1
 fi
 
-if [[ -f "$SRC_FOLDER/.DS_Store" ]]; then
-	echo "Deleting .DS_Store found in source folder"
-	rm "$SRC_FOLDER/.DS_Store"
-fi
+#if [[ -f "$SRC_FOLDER/.DS_Store" ]]; then
+#	echo "Deleting .DS_Store found in source folder"
+#	rm "$SRC_FOLDER/.DS_Store"
+#fi
 
 # Create the image
 echo "Creating disk image..."
