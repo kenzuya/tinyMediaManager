@@ -12,7 +12,7 @@ VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Re
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
 
 # prepare dmg
-cp -R ../AppBundler/macos/* tinyMediaManager
+cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
 ../AppBundler/macos/bin/create-dmg \
 --background ../AppBundler/macos/background.png \
 --volname "tinyMediaManager" \
@@ -52,7 +52,7 @@ VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Re
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
 
 # prepare dmg
-cp -R ../AppBundler/macos/* tinyMediaManager
+cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
 ../AppBundler/macos/bin/create-dmg \
 --background ../AppBundler/macos/background.png \
 --volname "tinyMediaManager" \
@@ -62,8 +62,8 @@ cp -R ../AppBundler/macos/* tinyMediaManager
 --icon "tinyMediaManager.app" 160 180 \
 --hide-extension "tinyMediaManager.app" \
 --app-drop-link 500 175 \
-tinyMediaManager.dmg \
 --skip-jenkins \
+tinyMediaManager.dmg \
 tinyMediaManager
 
 # sign dmg
