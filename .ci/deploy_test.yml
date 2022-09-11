@@ -66,6 +66,7 @@ deploy:
     name: test
     url: https://test.tinymediamanager.org
   script:
+    - echo "push"
   # and publish the files on the webserver
   # - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
 
