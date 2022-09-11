@@ -22,6 +22,7 @@ cp -R ../AppBundler/macos/* tinyMediaManager
 --icon "tinyMediaManager.app" 160 180 \
 --hide-extension "tinyMediaManager.app" \
 --app-drop-link 500 175 \
+--skip-jenkins \
 tinyMediaManager.dmg \
 tinyMediaManager
 
@@ -62,6 +63,7 @@ cp -R ../AppBundler/macos/* tinyMediaManager
 --hide-extension "tinyMediaManager.app" \
 --app-drop-link 500 175 \
 tinyMediaManager.dmg \
+--skip-jenkins \
 tinyMediaManager
 
 # sign dmg
