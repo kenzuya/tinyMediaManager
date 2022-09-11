@@ -14,9 +14,6 @@ cache:
 build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
-  environment:
-    name: test
-    url: https://test.tinymediamanager.org
   allow_failure: false
   tags:
     - tmm # force running on own runners
@@ -29,18 +26,48 @@ build:
     # package archives
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-test.txt -Dtier=test -Dthread_pool_size=1 clean package
 
-    # build windows installer
+    # build Windows installer
     - chmod 777 . dist
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
 
-    # build macOS dmg file
-    - sh AppBundler/create_dmg.sh
+    # push the build to the webserver
+    # - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
+
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dist/tmm*macos*
+
+build-mac:
+  stage: build
+  needs:
+    - build
+  dependencies:
+    - build
+  allow_failure: false
+  tags:
+    - tmm-mac # force running on own macOS runners
+  script:
+    - sh AppBundler/create_mac_image.sh
 
     # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
+    # - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev dist/*.dmg ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
-    # and publish the files on the webserver
-    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dist/*.dmg
 
-    # purge CF cache
-    # - 'eval "$PURGE_CF_CACHE"'
+deploy:
+  stage: deploy
+  image: curlimages/curl:7.85.0
+  when: manual
+  environment:
+    name: test
+    url: https://test.tinymediamanager.org
+  script:
+  # and publish the files on the webserver
+  # - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+
+  # purge CF cache
+  #- 'eval "$PURGE_CF_CACHE"'
