@@ -18,10 +18,9 @@ stages:
 test:jdk11:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk11:20220428182408
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -32,10 +31,9 @@ test:jdk11:
 test:jdk15:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk15:20220428182411
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -46,10 +44,9 @@ test:jdk15:
 test:jdk16:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk16:20220428182411
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -60,10 +57,9 @@ test:jdk16:
 test:jdk17:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk17:20220428182414
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
