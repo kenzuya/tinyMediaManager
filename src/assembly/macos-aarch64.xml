@@ -26,8 +26,7 @@
 				<include>getdown.txt</include>
 				<include>version</include>
 
-				<include>native/mac/**/*</include>
-				<include>native/macos/**/*</include>
+				<include>native/mac/*</include>
 			</includes>
 			<excludes>
 				<exclude>macOS/*</exclude>
