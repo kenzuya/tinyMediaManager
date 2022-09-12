@@ -932,7 +932,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movie.setNewlyAdded(true);
     }
 
-    // set the 3D flag/edition from the file/folder name ONLY at first import
+    // set the 3D flag/edition/source from the file/folder name ONLY at first import
     if (movie.isNewlyAdded()) {
       // if the String 3D is in the movie dir, assume it is a 3D movie
       Matcher matcher = VIDEO_3D_PATTERN.matcher(movieDir.getFileName().toString());
@@ -950,6 +950,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // remember the filename the first time the movie gets added to tmm
         if (StringUtils.isBlank(movie.getOriginalFilename())) {
           movie.setOriginalFilename(vid.getFilename());
+        }
+
+        // if the new file has a source identifier in its filename, update the source too
+        MediaSource newSource = MediaSource.parseMediaSource(vid.getPath());
+        if (newSource != MediaSource.UNKNOWN) {
+          // source has been found in the filename - update
+          movie.setMediaSource(newSource);
         }
       }
 
