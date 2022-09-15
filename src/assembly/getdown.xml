@@ -43,7 +43,7 @@
 			<outputDirectory>/native/linux/addons</outputDirectory>
 		</file>
 		<file>
-			<source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.br</source>
+			<source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.bz2</source>
 			<outputDirectory>/native/macos/addons</outputDirectory>
 		</file>
 		<file>

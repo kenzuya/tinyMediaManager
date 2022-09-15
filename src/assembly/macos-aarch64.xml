@@ -43,6 +43,11 @@
 			<directory>${project.build.directory}/jre/macos-aarch64/</directory>
 			<outputDirectory>tinyMediaManager.app/Contents/Resources/Java/jre</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<!-- FFmpeg -->
+			<directory>${project.build.directory}/ffmpeg/macos-aarch64/</directory>
+			<outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
+		</fileSet>
 	</fileSets>
 	<files>
 		<file>

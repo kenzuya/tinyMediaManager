@@ -49,13 +49,16 @@ resource = restart.jar
 resource = [windows-amd64] jre/jre-windows_x64.tar.br
 resource = [linux-amd64] jre/jre-linux_x64.tar.br
 resource = [linux-arm] jre/jre-linux_arm32.tar.br
+# for legacy installs
+resource = [mac os x] jre/jre-macos_x64.tar.bz2
 
 ## FFmpeg addon - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
 resource = [windows-amd64] native/windows/addons/ffmpeg-windows_x64.tar.br
 resource = [linux-amd64] native/linux/addons/ffmpeg-linux_x64.tar.br
 resource = [linux-arm] native/arm/addons/ffmpeg-linux_arm32.tar.br
-resource = [mac os x] native/macos/addons/ffmpeg-macos_x64.tar.br
+# for legacy installs
+resource = [mac os x] native/macos/addons/ffmpeg-macos_x64.tar.bz2
 
 # translations
 %LOCALES%

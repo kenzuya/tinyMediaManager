@@ -8,6 +8,8 @@ cd macos_dmg_x64
 unzip -X ../dist/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
 
+touch tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/.userdir
+
 # sign
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
 
@@ -47,6 +49,8 @@ mkdir macos_dmg_aarch64
 cd macos_dmg_aarch64
 unzip -X ../dist/tinyMediaManager-*macos-aarch64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
+
+touch tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/.userdir
 
 # sign
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
