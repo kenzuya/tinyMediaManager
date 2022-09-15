@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
@@ -108,6 +109,9 @@ public class TvShowEpisodeAndSeasonParser {
     // split and reassemble
     String[] splitted = StringUtils.split(title, "[\\[\\]() _,.-]");
     for (String s : splitted) {
+      if (MediaIdUtil.isValidImdbId(s)) {
+        s = ""; // remove IMDB ID from title
+      }
       ret.append(" ").append(s);
     }
     ret = new StringBuilder(ret.toString().trim());
