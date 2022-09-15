@@ -1665,7 +1665,7 @@ public class Utils {
     Date dateBefore30Days = cal.getTime();
 
     // the log file pattern is logs/tmm.%d.%i.log.gz
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("logs"))) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Globals.LOG_FOLDER))) {
       for (Path path : directoryStream) {
         Matcher matcher = pattern.matcher(path.getFileName().toString());
         if (matcher.find()) {
@@ -1684,6 +1684,15 @@ public class Utils {
     catch (IOException e) {
       LOGGER.debug("could not clean old logs: {}", e.getMessage());
     }
+
+    // keep last 3 TRACE log files
+    List<Path> traces = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
+    traces.removeIf(s -> !s.getFileName().toString().startsWith("trace"));
+    Collections.sort(traces);
+    for (int i = 0; i < traces.size() - 3; i++) {
+      Utils.deleteFileSafely(traces.get(i));
+    }
+
   }
 
   /**

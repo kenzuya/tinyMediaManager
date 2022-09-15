@@ -8,6 +8,7 @@
         3) a memory appender for providing more logs in case of bug reporting (TRACE)
     -->
     <property name="logfolder" value="logs"/>
+	<timestamp key="bySecond" datePattern="yyyyMMdd-HHmmss"/>
 
     <if condition='isDefined("tmm.logfolder")'>
         <then>
@@ -61,7 +62,7 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>TRACE</level>
         </filter>
-        <file>${logfolder}/trace.log</file>
+        <file>${logfolder}/trace-${bySecond}.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{ISO8601} %-5level [%thread] %logger{40}:%L - %msg%n</pattern>
