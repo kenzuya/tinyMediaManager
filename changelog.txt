@@ -3,6 +3,7 @@ Version 4.3.4
 + added the ID of the movie/TV show to the search results #1824
 + added a renamer token for TV show genres and TV show/episode ratings #1874
 + also delete unwanted folders on rename #1692
++ TV episodes: also detect IDs from filename
 x do not check title token for valid episode name pattern #1870
 x fixed timing of KodiRPC calls #1831
 x (TVDB) allow using a subscriber API key & pin
