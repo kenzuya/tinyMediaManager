@@ -801,6 +801,18 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   /**
+   * remove AL IDs
+   * 
+   * @param key
+   *          the ID-key
+   */
+  public void removeAllIds() {
+    for (var entry : ids.entrySet()) {
+      removeId(entry.getKey());
+    }
+  }
+
+  /**
    * get the given id
    *
    * @param key

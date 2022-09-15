@@ -770,12 +770,22 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setTitle(tfTitle.getText());
       episodeToEdit.setOriginalTitle(tfOriginalTitle.getText());
       episodeToEdit.setDvdOrder(cbDvdOrder.isSelected());
+
+      // check, if S/EE numbers changed - in that case we NEED to remove all IDs
+      if (episodeToEdit.getSeason() != (((Integer) spSeason.getValue()).intValue())
+          || episodeToEdit.getEpisode() != (((Integer) spEpisode.getValue()).intValue())
+          || episodeToEdit.getDvdSeason() != (((Integer) spDvdSeason.getValue()).intValue())
+          || episodeToEdit.getDvdEpisode() != (((Integer) spDvdEpisode.getValue()).intValue())) {
+        ids.clear(); // will be removed
+      }
+
       episodeToEdit.setAiredSeason((Integer) spSeason.getValue());
       episodeToEdit.setAiredEpisode((Integer) spEpisode.getValue());
       episodeToEdit.setDvdSeason((Integer) spDvdSeason.getValue());
       episodeToEdit.setDvdEpisode((Integer) spDvdEpisode.getValue());
       episodeToEdit.setDisplaySeason((Integer) spDisplaySeason.getValue());
       episodeToEdit.setDisplayEpisode((Integer) spDisplayEpisode.getValue());
+
       episodeToEdit.setPlot(taPlot.getText());
       episodeToEdit.setNote(taNote.getText());
 

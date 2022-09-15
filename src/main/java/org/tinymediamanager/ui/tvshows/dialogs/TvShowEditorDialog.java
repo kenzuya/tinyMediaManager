@@ -1239,7 +1239,7 @@ public class TvShowEditorDialog extends TmmDialog {
           else {
             container.tvShowEpisode.setAiredEpisode(container.episode);
           }
-
+          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
 
@@ -1250,6 +1250,7 @@ public class TvShowEditorDialog extends TmmDialog {
           else {
             container.tvShowEpisode.setAiredSeason(container.season);
           }
+          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
 
