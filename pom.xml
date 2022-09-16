@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.tinymediamanager</groupId>
@@ -901,9 +900,10 @@
 											<type>tar.bz2</type>
 										</artifactItem>
 									</artifactItems>
-									<outputDirectory>${project.build.directory}/jre/macos</outputDirectory>
-									<overWriteReleases>true</overWriteReleases>
+									<outputDirectory>${project.build.directory}/jre</outputDirectory>
+									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
+									<stripVersion>true</stripVersion>
 								</configuration>
 							</execution>
 							<execution>
