@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -23,7 +26,10 @@ import org.apache.commons.lang3.StringUtils;
  * @author Manuel Laggner
  */
 public final class Globals {
-  private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean DEBUG           = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean SELF_UPDATEABLE = (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) && !Files.exists(Paths.get(".managed")))
+      ? true
+      : false;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
@@ -122,5 +128,9 @@ public final class Globals {
    */
   public static boolean isRunningWebSwing() {
     return System.getProperty("webswing.classPath") != null;
+  }
+
+  public static boolean isSelfUpdateable() {
+    return SELF_UPDATEABLE;
   }
 }

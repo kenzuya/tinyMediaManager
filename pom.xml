@@ -793,6 +793,10 @@
 							<fileSets>
 								<fileSet>
 									<directory>dist</directory>
+									<excludes>
+										<exclude>*.md5</exclude>
+										<exclude>*.sha1</exclude>
+									</excludes>
 								</fileSet>
 							</fileSets>
 						</configuration>
