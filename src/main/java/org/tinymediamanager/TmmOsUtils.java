@@ -203,4 +203,27 @@ public class TmmOsUtils {
 
     return nativepath;
   }
+
+  public static Path getUserDir() {
+    Path userDir;
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      userDir = Paths.get(System.getenv("APPDATA"), "tinyMediaManager");
+    }
+    else if (SystemUtils.IS_OS_LINUX) {
+      userDir = Paths.get(System.getProperty("user.home"), ".local", "share", "tinyMediaManager");
+      if (Files.exists(Paths.get("/.dockerenv"))) {
+        userDir = Paths.get("/data");
+      }
+    }
+    else if (SystemUtils.IS_OS_MAC) {
+      userDir = Paths.get(System.getProperty("user.home"), "Library", "Application Support", "tinyMediaManager");
+    }
+    else {
+      // fallback
+      userDir = Paths.get(System.getProperty("user.home"), ".tinyMediaManager");
+    }
+
+    return userDir;
+  }
 }

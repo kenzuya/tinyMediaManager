@@ -44,50 +44,49 @@ public final class Globals {
     String backupFolder = System.getProperty("tmm.backupfolder");
     String logFolder = System.getProperty("tmm.logfolder");
 
+    // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
+    if (StringUtils.isBlank(contentFolder)) {
+      if (Files.exists(Paths.get(".userdir"))) {
+        // userdir
+        contentFolder = TmmOsUtils.getUserDir().toString();
+      }
+      else {
+        // portable - current folder
+        contentFolder = ".";
+      }
+    }
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {
       DATA_FOLDER = dataFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      DATA_FOLDER = contentFolder + "/data";
-    }
     else {
-      DATA_FOLDER = "data";
+      DATA_FOLDER = contentFolder + "/data";
     }
 
     // cache
     if (StringUtils.isNotBlank(cacheFolder)) {
       CACHE_FOLDER = cacheFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      CACHE_FOLDER = contentFolder + "/cache";
-    }
     else {
-      CACHE_FOLDER = "cache";
+      CACHE_FOLDER = contentFolder + "/cache";
     }
 
     // backup
     if (StringUtils.isNotBlank(backupFolder)) {
       BACKUP_FOLDER = backupFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      BACKUP_FOLDER = contentFolder + "/backup";
-    }
     else {
-      BACKUP_FOLDER = "backup";
+      BACKUP_FOLDER = contentFolder + "/backup";
     }
 
     // logs
     if (StringUtils.isNotBlank(logFolder)) {
       LOG_FOLDER = logFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      LOG_FOLDER = contentFolder + "/logs";
-    }
     else {
-      LOG_FOLDER = "logs";
+      LOG_FOLDER = contentFolder + "/logs";
     }
   }
 
