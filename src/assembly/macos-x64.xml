@@ -4,6 +4,7 @@
     <formats>
         <format>zip</format>
     </formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <!-- copy BASE folder from former assembly -->
@@ -23,8 +24,7 @@
                 <include>getdown.txt</include>
                 <include>version</include>
 
-                <include>native/mac/**/*</include>
-				<include>native/macos/**/*</include>
+                <include>native/mac/*</include>
             </includes>
             <excludes>
                 <exclude>macOS/*</exclude>
@@ -40,6 +40,11 @@
             <!-- JRE -->
             <directory>${project.build.directory}/jre/macos-x64/</directory>
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/jre</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- FFmpeg -->
+            <directory>${project.build.directory}/ffmpeg/macos-x64/</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>

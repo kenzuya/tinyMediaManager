@@ -21,7 +21,7 @@
 
                 <include>tinyMediaManager-arm</include>
                 <include>jre/*linux_arm*</include>
-                <include>native/arm/**/*</include>
+                <include>native/arm/*</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -589,18 +589,6 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>timestamp2-property</id>
-						<goals>
-							<goal>timestamp-property</goal>
-						</goals>
-						<phase>process-resources</phase>
-						<configuration>
-							<name>timestamp2</name>
-							<pattern>yyyyMMddHHmmss</pattern>
-							<timeZone>GMT+1</timeZone>
-						</configuration>
-					</execution>
-					<execution>
 						<id>add-itest-sources</id>
 						<phase>generate-sources</phase>
 						<goals>
@@ -1130,7 +1118,6 @@
 							<target>
 								<property name="tmmRevision" value="${buildNumber}" />
 								<property name="tmmTimestamp" value="${timestamp}" />
-								<property name="tmmTimestamp2" value="${timestamp2}" />
 
 								<ant antfile="${project.basedir}/ant-getdown.xml">
 									<target name="getdown" />
