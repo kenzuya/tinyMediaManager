@@ -31,10 +31,10 @@ build:
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
 
     # push the build to the webserver
-    # - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
   artifacts:
-    expire_in: 1 day
+    expire_in: 2 hours
     paths:
       - dist/tinyMediaManager*macos*.zip
 
@@ -51,7 +51,7 @@ build-mac:
     - sh AppBundler/create_mac_image.sh
 
     # push the build to the webserver
-    # - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev dist/*.dmg ./upload/v5/dist; chmod -R g+w ./upload/v5"
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev dist/*.dmg ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
   artifacts:
     expire_in: 1 day
@@ -66,9 +66,9 @@ deploy:
     name: test
     url: https://test.tinymediamanager.org
   script:
-    - echo "push"
-  # and publish the files on the webserver
-  # - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+    # and publish the files on the webserver
+    - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+    - curl https://test.tinymediamanager.org/${CREATE_INDEX}
 
-  # purge CF cache
-  #- 'eval "$PURGE_CF_CACHE"'
+    # purge CF cache
+    #- 'eval "$PURGE_CF_CACHE"'

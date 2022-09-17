@@ -25,6 +25,7 @@ cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
 --hide-extension "tinyMediaManager.app" \
 --app-drop-link 500 175 \
 --skip-jenkins \
+--format UDBZ \
 tinyMediaManager.dmg \
 tinyMediaManager
 
@@ -67,6 +68,7 @@ cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
 --hide-extension "tinyMediaManager.app" \
 --app-drop-link 500 175 \
 --skip-jenkins \
+--format ULMO \
 tinyMediaManager.dmg \
 tinyMediaManager
 
