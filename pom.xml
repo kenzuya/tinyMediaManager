@@ -960,7 +960,7 @@
 											<type>tar.bz2</type>
 										</artifactItem>
 									</artifactItems>
-									<outputDirectory>${project.build.directory}/ffmpeg/macos-x64</outputDirectory>
+									<outputDirectory>${project.build.directory}/addons/macos-x64</outputDirectory>
 									<overWriteReleases>true</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
@@ -980,7 +980,7 @@
 											<type>tar.bz2</type>
 										</artifactItem>
 									</artifactItems>
-									<outputDirectory>${project.build.directory}/ffmpeg/macos-aarch64</outputDirectory>
+									<outputDirectory>${project.build.directory}/addons/macos-aarch64</outputDirectory>
 									<overWriteReleases>true</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
