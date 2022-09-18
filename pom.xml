@@ -1060,6 +1060,23 @@
 										<descriptor>src/assembly/windows-x64.xml</descriptor>
 										<descriptor>src/assembly/linux-x64.xml</descriptor>
 										<descriptor>src/assembly/linux-arm.xml</descriptor>
+									</descriptors>
+									<tarLongFileMode>gnu</tarLongFileMode>
+								</configuration>
+							</execution>
+
+							<!-- create intermediate archives for the macOS packaging -->
+							<execution>
+								<id>assemble-mac</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>target</outputDirectory>
+									<finalName>${project.artifactId}-${human.version}</finalName>
+									<attach>true</attach> <!-- needed for docker -->
+									<descriptors>
 										<descriptor>src/assembly/macos-x64.xml</descriptor>
 										<descriptor>src/assembly/macos-aarch64.xml</descriptor>
 									</descriptors>

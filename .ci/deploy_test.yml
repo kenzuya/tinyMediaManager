@@ -36,7 +36,7 @@ build:
   artifacts:
     expire_in: 2 hours
     paths:
-      - dist/tinyMediaManager*macos*.zip
+      - target/tinyMediaManager*macos*.zip
 
 build-mac:
   stage: build

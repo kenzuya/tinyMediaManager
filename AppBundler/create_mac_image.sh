@@ -5,7 +5,7 @@
 ###############################
 mkdir macos_dmg_x64
 cd macos_dmg_x64
-unzip -X ../dist/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
+unzip -X ../target/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
 
 touch tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/.userdir
@@ -36,7 +36,7 @@ codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" 
 #xcrun notarytool submit tinyMediaManager.dmg --keychain-profile "tmm"
 
 # copy to dist
-cp tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-x86_64.dmg
+cp tinyMediaManager.dmg ../target/tinyMediaManager-$VERSION-macos-x86_64.dmg
 
 # cleanup
 cd ..
