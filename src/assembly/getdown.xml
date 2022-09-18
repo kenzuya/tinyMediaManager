@@ -23,6 +23,11 @@
 		<fileSet>
 			<directory>native</directory>
 			<outputDirectory>/native</outputDirectory>
+			<excludes>
+				<exclude>**/addons/*</exclude>
+				<exclude>**/compile.txt</exclude>
+				<exclude>**/*.sha256</exclude>
+			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>${project.build.directory}/jre</directory>

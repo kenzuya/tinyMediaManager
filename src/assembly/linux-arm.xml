@@ -24,9 +24,6 @@
                 <include>native/arm/*</include>
                 <include>native/arm/addons/*linux_arm*</include>
             </includes>
-            <excludes>
-                <exclude>native/arm/addons/*.sha256</exclude>
-            </excludes>
         </fileSet>
     </fileSets>
 </assembly>

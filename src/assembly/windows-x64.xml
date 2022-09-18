@@ -24,9 +24,6 @@
                 <include>native/windows/*</include>
                 <include>native/windows/addons/*windows_x64*</include>
             </includes>
-            <excludes>
-                <exclude>native/windows/addons/*.sha256</exclude>
-            </excludes>
         </fileSet>
     </fileSets>
 </assembly>

@@ -24,9 +24,6 @@
                 <include>native/linux/*</include>
                 <include>native/linux/addons/*linux_x64*</include>
             </includes>
-            <excludes>
-                <exclude>native/linux/addons/*.sha256</exclude>
-            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
