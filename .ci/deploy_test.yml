@@ -51,12 +51,7 @@ build-mac:
     - sh AppBundler/create_mac_image.sh
 
     # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
-
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - dist/*.dmg
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
 deploy:
   stage: deploy
