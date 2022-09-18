@@ -56,14 +56,12 @@ build-mac:
 deploy:
   stage: deploy
   image: curlimages/curl:7.85.0
-  when: manual
   environment:
     name: test
     url: https://test.tinymediamanager.org
   script:
     # and publish the files on the webserver
     - curl https://test.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
-    - curl https://test.tinymediamanager.org/${CREATE_INDEX}
 
     # purge CF cache
     #- 'eval "$PURGE_CF_CACHE"'
