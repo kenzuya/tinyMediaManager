@@ -1559,6 +1559,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
+      // upgrade MediaSource to UHD bluray, if video format says so
+      if (movie.getMediaSource() == MediaSource.BLURAY
+          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+        movie.setMediaSource(MediaSource.UHD_BLURAY);
+        dirty = true;
+      }
+
       // persist the movie
       if (dirty) {
         movie.saveToDb();
@@ -1594,6 +1601,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
           dirty = true;
         }
+      }
+
+      // upgrade MediaSource to UHD bluray, if video format says so
+      if (movie.getMediaSource() == MediaSource.BLURAY
+          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+        movie.setMediaSource(MediaSource.UHD_BLURAY);
+        dirty = true;
       }
 
       // persist the movie
