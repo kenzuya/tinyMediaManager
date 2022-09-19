@@ -33,7 +33,7 @@ build:
     # package archives
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dtier=nightly -Dthread_pool_size=1 clean package
 
-    # build windows installer
+    # build Windows installer
     - chmod 777 . dist
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
 
@@ -52,7 +52,7 @@ build:
     # - 'eval "$PURGE_CF_CACHE"'
 
   artifacts:
-    expire_in: 2 days
+    expire_in: 2 hours
     paths:
       - dist/tmm*linux-amd64.tar.gz # upload for docker build
 
