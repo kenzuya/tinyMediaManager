@@ -600,27 +600,26 @@ public class MediaFileHelper {
    * @return LD, SD or HD
    */
   public static String getVideoDefinitionCategory(MediaFile mediaFile) {
-    if (!mediaFile.isVideo()) {
+    String vf = getVideoFormat(mediaFile);
+    if (vf.isEmpty()) {
       return "";
     }
 
-    if (mediaFile.getVideoWidth() == 0 || mediaFile.getVideoHeight() == 0) {
-      return "";
-    }
-
-    if (mediaFile.getVideoWidth() <= 640 && mediaFile.getVideoHeight() <= 360) { // 360p and below os LD
+    if (List.of(VIDEO_FORMAT_96P, VIDEO_FORMAT_120P, VIDEO_FORMAT_144P, VIDEO_FORMAT_240P, VIDEO_FORMAT_288P, VIDEO_FORMAT_360P).contains(vf)) {
       return VIDEO_FORMAT_LD;
     }
-
-    else if (mediaFile.getVideoWidth() < 1280 && mediaFile.getVideoHeight() < 720) { // below 720p is SD
+    else if (List.of(VIDEO_FORMAT_480P, VIDEO_FORMAT_576P, VIDEO_FORMAT_540P).contains(vf)) {
       return VIDEO_FORMAT_SD;
     }
-
-    else if (mediaFile.getVideoWidth() <= 1920 && mediaFile.getVideoHeight() <= 1080) { // below 1080p is HD
+    else if (List.of(VIDEO_FORMAT_720P, VIDEO_FORMAT_1080P, VIDEO_FORMAT_1440P).contains(vf)) {
       return VIDEO_FORMAT_HD;
     }
-
-    return VIDEO_FORMAT_UHD; // anything above 1080p is considered UHD
+    else if (List.of(VIDEO_FORMAT_2160P, VIDEO_FORMAT_4320P).contains(vf)) {
+      return VIDEO_FORMAT_UHD;
+    }
+    else {
+      return "";
+    }
   }
 
   /**
