@@ -604,21 +604,31 @@ public class MediaFileHelper {
     if (vf.isEmpty()) {
       return "";
     }
+    switch (vf) {
+      case VIDEO_FORMAT_96P:
+      case VIDEO_FORMAT_120P:
+      case VIDEO_FORMAT_144P:
+      case VIDEO_FORMAT_240P:
+      case VIDEO_FORMAT_288P:
+      case VIDEO_FORMAT_360P:
+        return VIDEO_FORMAT_LD;
 
-    if (List.of(VIDEO_FORMAT_96P, VIDEO_FORMAT_120P, VIDEO_FORMAT_144P, VIDEO_FORMAT_240P, VIDEO_FORMAT_288P, VIDEO_FORMAT_360P).contains(vf)) {
-      return VIDEO_FORMAT_LD;
-    }
-    else if (List.of(VIDEO_FORMAT_480P, VIDEO_FORMAT_576P, VIDEO_FORMAT_540P).contains(vf)) {
-      return VIDEO_FORMAT_SD;
-    }
-    else if (List.of(VIDEO_FORMAT_720P, VIDEO_FORMAT_1080P, VIDEO_FORMAT_1440P).contains(vf)) {
-      return VIDEO_FORMAT_HD;
-    }
-    else if (List.of(VIDEO_FORMAT_2160P, VIDEO_FORMAT_4320P).contains(vf)) {
-      return VIDEO_FORMAT_UHD;
-    }
-    else {
-      return "";
+      case VIDEO_FORMAT_480P:
+      case VIDEO_FORMAT_576P:
+      case VIDEO_FORMAT_540P:
+        return VIDEO_FORMAT_SD;
+
+      case VIDEO_FORMAT_720P:
+      case VIDEO_FORMAT_1080P:
+      case VIDEO_FORMAT_1440P:
+        return VIDEO_FORMAT_HD;
+
+      case VIDEO_FORMAT_2160P:
+      case VIDEO_FORMAT_4320P:
+        return VIDEO_FORMAT_UHD;
+
+      default:
+        return "";
     }
   }
 
