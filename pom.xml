@@ -80,19 +80,19 @@
 		<skipITests>true</skipITests> <!-- to override on command line -->
 		<tier>SNAPSHOT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
 
-		<jar.version>3.2.0</jar.version>
-		<surefire.version>3.0.0-M5</surefire.version>
-		<compiler.version>3.8.1</compiler.version>
-		<enforcer.version>3.0.0</enforcer.version>
+		<jar.version>3.3.0</jar.version>
+		<surefire.version>3.0.0-M7</surefire.version>
+		<compiler.version>3.10.1</compiler.version>
+		<enforcer.version>3.1.0</enforcer.version>
 		<animal-sniffer.version>1.17</animal-sniffer.version>
 		<wagon-webdav-jackrabbit.version>3.0.0</wagon-webdav-jackrabbit.version>
-		<okhttp.version>4.9.3</okhttp.version>
-		<slf4j.version>1.7.36</slf4j.version>
+		<okhttp.version>4.10.0</okhttp.version>
+		<slf4j.version>2.0.2</slf4j.version>
 		<release.version>2.5.3</release.version>
 		<jre.version>17.0.4</jre.version>
 		<ffmpeg.version>5.1.1</ffmpeg.version>
 		<launcher.version>1.2.1-SNAPSHOT</launcher.version>
-		<jackson.version>2.13.2</jackson.version>
+		<jackson.version>2.13.4</jackson.version>
 		<sonar.java.source>11</sonar.java.source>
 	</properties>
 
@@ -126,7 +126,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.11</version>
+			<version>1.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>janino</artifactId>
-			<version>3.1.6</version>
+			<version>3.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -146,7 +146,7 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.14.3</version>
+			<version>1.15.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -181,7 +181,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.10.13</version>
+			<version>2.11.1</version>
 		</dependency>
 
 		<!-- J9 / J10 / J11 deps -->
@@ -220,7 +220,7 @@
 		<dependency>
 			<groupId>com.uwetrottmann.trakt5</groupId>
 			<artifactId>trakt-java</artifactId>
-			<version>6.10.0</version>
+			<version>6.11.2</version>
 		</dependency>
 		<dependency>
 			<groupId>it.tidalwave.betterbeansbinding</groupId>
@@ -239,8 +239,8 @@
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna-platform</artifactId>
-			<version>5.10.0</version>
+			<artifactId>jna-platform-jpms</artifactId>
+			<version>5.12.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.floreysoft</groupId>
@@ -304,23 +304,23 @@
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
 			<artifactId>imageio-jpeg</artifactId>
-			<version>3.8.2</version>
+			<version>3.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
 			<artifactId>imageio-webp</artifactId>
-			<version>3.8.2</version>
+			<version>3.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mp4parser</groupId>
 			<artifactId>muxer</artifactId>
-			<version>1.9.41</version>
+			<version>1.9.56</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
-			<version>2.3</version>
+			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
@@ -379,7 +379,7 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.22.0</version>
+			<version>3.23.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -557,7 +557,7 @@
 				<!-- get SVN/GIT revision numbers -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<phase>process-resources</phase>
@@ -574,7 +574,7 @@
 				<!-- generate a timestamp -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>timestamp-property</id>
@@ -649,7 +649,7 @@
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>7.1.0</version>
+				<version>7.2.1</version>
 				<configuration>
 					<formats>
 						<format>html</format>
@@ -682,7 +682,7 @@
 						<!-- get SVN/GIT revision numbers -->
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>buildnumber-maven-plugin</artifactId>
-						<version>1.4</version>
+						<version>3.0.0</version>
 						<executions>
 							<execution>
 								<phase>none</phase>
@@ -700,6 +700,7 @@
 						<!-- skip packaging on QA build -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>dist</id>
@@ -710,7 +711,7 @@
 					<plugin>
 						<groupId>de.thetaphi</groupId>
 						<artifactId>forbiddenapis</artifactId>
-						<version>3.1</version>
+						<version>3.3</version>
 						<configuration>
 							<targetVersion>${maven.compiler.release}</targetVersion>
 							<!-- if the used Java version is too new, don't fail, just do nothing: -->
@@ -741,7 +742,7 @@
 					<plugin>
 						<groupId>org.gaul</groupId>
 						<artifactId>modernizer-maven-plugin</artifactId>
-						<version>2.3.0</version>
+						<version>2.4.0</version>
 						<configuration>
 							<failOnViolations>false</failOnViolations>
 							<javaVersion>${maven.compiler.release}</javaVersion>
@@ -811,7 +812,7 @@
 						<!-- copies our dependencies WITHOUT version number for packaging -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.2</version>
+						<version>3.3.0</version>
 						<executions>
 							<execution>
 								<id>copy-tmm-dependencies</id>
@@ -1011,7 +1012,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>3.3.0</version>
+						<version>3.4.2</version>
 						<executions>
 							<execution>
 								<!-- first assemble a base folder to copy -->
@@ -1090,7 +1091,7 @@
 						<!-- ANT is called inbetween to do its GD magic -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>ant-getdown</id>
