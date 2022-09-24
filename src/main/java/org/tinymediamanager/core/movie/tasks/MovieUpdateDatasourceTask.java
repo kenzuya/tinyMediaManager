@@ -32,6 +32,7 @@ import static org.tinymediamanager.core.MediaFileType.LOGO;
 import static org.tinymediamanager.core.MediaFileType.POSTER;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
+import static org.tinymediamanager.core.Utils.containsSkipFile;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -1975,17 +1976,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     return false;
-  }
-
-  /**
-   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
-   *
-   * @param dir
-   *          the folder to check
-   * @return true/false
-   */
-  private boolean containsSkipFile(Path dir) {
-    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
   }
 
   /**
