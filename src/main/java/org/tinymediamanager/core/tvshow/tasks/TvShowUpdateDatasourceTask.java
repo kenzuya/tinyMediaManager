@@ -17,6 +17,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
+import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 import static org.tinymediamanager.core.Utils.containsSkipFile;
 
@@ -630,6 +631,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return "";
       }
 
+      if (cancel) {
+        return null;
+      }
+
       LOGGER.info("start parsing {}", showDir);
 
       fileLock.writeLock().lock();
@@ -743,6 +748,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // ******************************
       Set<Path> discFolders = new HashSet<>();
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.VIDEO)) {
+        if (cancel) {
+          return null;
+        }
 
         // build an array of MFs, which might be in same episode
         List<MediaFile> epFiles = new ArrayList<>();
@@ -1419,10 +1427,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private class AllFilesRecursive extends AbstractFileVisitor {
-    private final Set<Path>    fFound = new HashSet<>();
+    private final Set<Path> fFound = new HashSet<>();
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incVisFile();
 
       if (file.getFileName() == null) {
@@ -1459,7 +1471,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPreDir();
+
       // getFilename returns null on DS root!
       if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
         LOGGER.debug("Skipping dir: {}", dir);
@@ -1482,7 +1499,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPostDir();
+
       return CONTINUE;
     }
   }

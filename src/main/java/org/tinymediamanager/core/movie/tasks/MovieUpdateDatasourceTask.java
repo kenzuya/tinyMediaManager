@@ -1837,7 +1837,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incVisFile();
+
       if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         // check for video?
         if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
@@ -1856,7 +1861,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPreDir();
+
       String parent = "";
       if (!dir.equals(datasource) && !dir.getParent().equals(datasource)) {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
@@ -1871,10 +1881,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-      incPostDir();
       if (cancel) {
         return TERMINATE;
       }
+
+      incPostDir();
 
       if (this.videofolders.contains(dir)) {
         boolean update = true;
