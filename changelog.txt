@@ -11,7 +11,7 @@ x (TVDB) allow using a subscriber API key & pin
 x (TMDB) matching of episode numbers #1884
 x update movie media source on exchanged video files
 x remove all scraped IDs when changing episode/season numbers
-x upgrade MediaSource bluray to UHD-bluray, if videospecs say so
+x upgrade MediaSource BluRay to UHD-BluRay, if video specs say so
 
 
 Version 4.3.3
