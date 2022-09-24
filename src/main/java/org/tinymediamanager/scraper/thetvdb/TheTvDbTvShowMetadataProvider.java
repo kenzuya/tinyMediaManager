@@ -293,6 +293,14 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       md.addGenre(MediaGenres.getGenre(genreBaseRecord.name));
     }
 
+    // certifications
+    for (ContentRating contentRating : ListUtils.nullSafe(show.contentRatings)) {
+      MediaCertification mediaCertification = MediaCertification.findCertification(contentRating.name);
+      if (mediaCertification != MediaCertification.UNKNOWN) {
+        md.addCertification(mediaCertification);
+      }
+    }
+
     // artwork
     for (ArtworkBaseRecord artworkBaseRecord : ListUtils.nullSafe(show.artworks)) {
       MediaArtwork mediaArtwork = parseArtwork(artworkBaseRecord);

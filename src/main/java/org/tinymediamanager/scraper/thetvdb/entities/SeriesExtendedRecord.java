@@ -112,4 +112,7 @@ public class SeriesExtendedRecord {
 
   @SerializedName("averageRuntime")
   public Integer                   averageRuntime       = null;
+
+  @SerializedName("contentRatings")
+  public List<ContentRating>       contentRatings       = null;
 }
