@@ -199,7 +199,7 @@ public final class TinyMediaManager {
           Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
           if (!GraphicsEnvironment.isHeadless()) {
             Thread.currentThread().setName("main");
-            TmmTaskbar.setImage(new LogoCircle().getImage());
+            TmmTaskbar.setImage(new LogoCircle(512).getImage());
           }
           else {
             Thread.currentThread().setName("headless");
@@ -228,7 +228,7 @@ public final class TinyMediaManager {
           // upgrade check
           UpgradeTasks.setOldVersion();
           if (newVersion) {
-            LOGGER.info("Upgrade from " + UpgradeTasks.getOldVersion() + " to " + ReleaseInfo.getVersion());
+            LOGGER.info("Upgrade from '{}' to '{}'", UpgradeTasks.getOldVersion(), ReleaseInfo.getVersion());
             updateProgress("upgrading to new version", 10);
             UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
             Settings.getInstance().setCurrentVersion();
