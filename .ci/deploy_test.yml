@@ -6,6 +6,11 @@ variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository/
+
 build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
@@ -24,7 +29,7 @@ build:
     # package archives
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
 
-    # build windows installer
+    # build Windows installer
     - chmod 777 . dist
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
 
