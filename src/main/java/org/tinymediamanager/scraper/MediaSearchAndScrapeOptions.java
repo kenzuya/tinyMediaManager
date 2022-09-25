@@ -385,7 +385,7 @@ public abstract class MediaSearchAndScrapeOptions {
    * explicitly set a meta data
    * 
    * @param metadata
-   *          the meta data to set
+   *          the metadata to set
    */
   public void setMetadata(MediaMetadata metadata) {
     this.metadata = metadata;

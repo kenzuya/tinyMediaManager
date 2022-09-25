@@ -149,7 +149,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
       JButton btnSearch = new JButton(searchAction);
       panelHeader.add(btnSearch, "cell 1 0");
 
-      setTopIformationPanel(panelHeader);
+      setTopInformationPanel(panelHeader);
     }
     {
       JPanel panelContent = new JPanel();

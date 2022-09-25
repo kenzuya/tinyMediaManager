@@ -493,6 +493,10 @@ public class TvShowEditorDialog extends TmmDialog {
 
         spRating = new JSpinner();
         details1Panel.add(spRating, "cell 1 9,growx");
+
+        JLabel lblUserRatingHint = new JLabel(IconManager.HINT);
+        lblUserRatingHint.setToolTipText(TmmResourceBundle.getString("edit.userrating.hint"));
+        details1Panel.add(lblUserRatingHint, "cell 2 9");
       }
       {
         JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
@@ -1193,8 +1197,9 @@ public class TvShowEditorDialog extends TmmDialog {
       // user rating
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if ((double) spRating.getValue() > 0) {
-        newRatings.put(MediaRating.USER, new MediaRating(MediaRating.USER, (double) spRating.getValue(), 1, 10));
+      double userRating = (double) spRating.getValue();
+      if (userRating > 0) {
+        newRatings.put(MediaRating.USER, new MediaRating(MediaRating.USER, userRating, 1, 10));
       }
 
       // other ratings
@@ -1204,6 +1209,11 @@ public class TvShowEditorDialog extends TmmDialog {
         }
       }
       tvShowToEdit.setRatings(newRatings);
+
+      // if user rating = 0, delete it
+      if (userRating == 0) {
+        tvShowToEdit.removeRating(MediaRating.USER);
+      }
 
       // adapt episodes according to the episode table (in a 2 way sync)
       // remove episodes
@@ -1239,7 +1249,7 @@ public class TvShowEditorDialog extends TmmDialog {
           else {
             container.tvShowEpisode.setAiredEpisode(container.episode);
           }
-
+          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
 
@@ -1250,6 +1260,7 @@ public class TvShowEditorDialog extends TmmDialog {
           else {
             container.tvShowEpisode.setAiredSeason(container.season);
           }
+          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
 

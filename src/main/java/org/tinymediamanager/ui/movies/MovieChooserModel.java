@@ -83,6 +83,7 @@ public class MovieChooserModel extends AbstractModelObject {
   private String                        originalTitle    = "";
   private String                        overview         = "";
   private String                        year             = "";
+  private String                        id               = "";
   private String                        combinedName     = "";
   private String                        posterUrl        = "";
   private String                        tagline          = "";
@@ -104,6 +105,12 @@ public class MovieChooserModel extends AbstractModelObject {
     if (result.getYear() != 0) {
       setYear(Integer.toString(result.getYear()));
     }
+
+    Object obj = result.getId();
+    if (obj != null) {
+      setId(obj.toString());
+    }
+
     setCombinedName();
   }
 
@@ -154,6 +161,16 @@ public class MovieChooserModel extends AbstractModelObject {
 
   public String getOverview() {
     return overview;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    String oldValue = this.id;
+    this.id = id;
+    firePropertyChange("id", oldValue, this.id);
   }
 
   public List<Person> getCastMembers() {

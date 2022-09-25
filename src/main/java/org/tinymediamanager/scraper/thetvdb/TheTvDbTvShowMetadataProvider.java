@@ -98,6 +98,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     MediaProviderInfo info = super.createMediaProviderInfo();
 
     info.getConfig().addText("apiKey", "", true);
+    info.getConfig().addText("pin", "", true);
 
     ArrayList<String> fallbackLanguages = new ArrayList<>();
     for (MediaLanguages mediaLanguages : MediaLanguages.values()) {
@@ -290,6 +291,14 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     // genres
     for (GenreBaseRecord genreBaseRecord : ListUtils.nullSafe(show.genres)) {
       md.addGenre(MediaGenres.getGenre(genreBaseRecord.name));
+    }
+
+    // certifications
+    for (ContentRating contentRating : ListUtils.nullSafe(show.contentRatings)) {
+      MediaCertification mediaCertification = MediaCertification.findCertification(contentRating.name);
+      if (mediaCertification != MediaCertification.UNKNOWN) {
+        md.addCertification(mediaCertification);
+      }
     }
 
     // artwork

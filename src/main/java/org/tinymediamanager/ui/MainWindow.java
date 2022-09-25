@@ -27,6 +27,8 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BaseMultiResolutionImage;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -73,15 +75,15 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
 
-  private static final Logger     LOGGER           = LoggerFactory.getLogger(MainWindow.class);
-  private static final long       serialVersionUID = 1L;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(MainWindow.class);
+  private static final long   serialVersionUID = 1L;
 
-  public static final List<Image> LOGOS            = createLogos();
+  public static final Image   LOGOS            = createLogos();
 
-  private static MainWindow       instance;
+  private static MainWindow   instance;
 
-  private JTabbedPane             tabbedPane;
-  private JPanel                  detailPanel;
+  private JTabbedPane         tabbedPane;
+  private JPanel              detailPanel;
 
   /**
    * Gets the active instance.
@@ -116,10 +118,17 @@ public class MainWindow extends JFrame {
    * 
    * @return a list of all predefined logos
    */
-  private static List<Image> createLogos() {
+  private static Image createLogos() {
+    List<Image> images = new ArrayList<>();
+    images.add(new LogoCircle(48).getImage());
+    images.add(new LogoCircle(64).getImage());
+    images.add(new LogoCircle(96).getImage());
+    images.add(new LogoCircle(128).getImage());
+    images.add(new LogoCircle(256).getImage());
+    images.add(new LogoCircle(512).getImage());
+    images.add(new LogoCircle(1024).getImage());
 
-    return List.of(new LogoCircle(48).getImage(), new LogoCircle(64).getImage(), new LogoCircle(96).getImage(), new LogoCircle(128).getImage(),
-        new LogoCircle(256).getImage());
+    return new BaseMultiResolutionImage(5, images.toArray(new Image[0]));
   }
 
   /**
@@ -127,7 +136,7 @@ public class MainWindow extends JFrame {
    */
   private void initialize() {
     // set the logo
-    setIconImages(LOGOS);
+    setIconImage(LOGOS);
     setBounds(5, 5, 1100, 720);
     // do nothing, we have our own windowClosing() listener
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);

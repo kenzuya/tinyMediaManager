@@ -96,10 +96,15 @@ public abstract class TmmDialog extends JDialog {
     setModalityType(ModalityType.APPLICATION_MODAL);
 
     if (getOwner() != null) {
-      setIconImages(getOwner().getIconImages());
+      try {
+        setIconImage(getOwner().getIconImages().get(0));
+      }
+      catch (Exception ignored) {
+        setIconImage(MainWindow.LOGOS);
+      }
     }
     else {
-      setIconImages(MainWindow.LOGOS);
+      setIconImage(MainWindow.LOGOS);
     }
 
     initBottomPanel();
@@ -163,7 +168,7 @@ public abstract class TmmDialog extends JDialog {
    * @param panel
    *          the panel to be set
    */
-  protected void setTopIformationPanel(JPanel panel) {
+  protected void setTopInformationPanel(JPanel panel) {
     if (topPanel == null) {
       topPanel = new JPanel();
       getContentPane().add(topPanel, BorderLayout.NORTH);

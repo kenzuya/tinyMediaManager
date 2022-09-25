@@ -219,7 +219,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
 
     // check if there is a metadata containing an id
     if (options.getMetadata() != null && getId().equals(options.getMetadata().getProviderId())) {
-      id = (String) options.getMetadata().getId(providerInfo.getId());
+      id = options.getMetadata().getIdAsString(providerInfo.getId());
     }
 
     // get the id from the options

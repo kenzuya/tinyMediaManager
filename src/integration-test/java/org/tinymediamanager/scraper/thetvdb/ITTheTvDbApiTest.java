@@ -29,29 +29,28 @@ import org.tinymediamanager.scraper.thetvdb.entities.SeasonType;
 import org.tinymediamanager.scraper.thetvdb.entities.SeriesBaseResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.SeriesEpisodesResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.SeriesExtendedResponse;
-import org.tinymediamanager.scraper.thetvdb.service.Controller;
 
 public class ITTheTvDbApiTest extends BasicITest {
-  private Controller controller;
+  private TheTvDbController theTvDbController;
 
   @Before
   public void setup() throws Exception {
     super.setup();
     TheTvDbMetadataProvider md = new TheTvDbTvShowMetadataProvider();
 
-    controller = new Controller(true);
-    controller.setAuthToken(md.getAuthToken());
+    theTvDbController = new TheTvDbController(true);
+    theTvDbController.setAuthToken(md.getAuthToken());
   }
 
   @Test
   public void testAllSeries() throws Exception {
-    AllSeriesResponse response = controller.getSeriesService().getAllSeries(1).execute().body();
+    AllSeriesResponse response = theTvDbController.getSeriesService().getAllSeries(1).execute().body();
     assertThat(response.data).isNotEmpty();
   }
 
   @Test
   public void testSeriesBase() throws Exception {
-    SeriesBaseResponse response = controller.getSeriesService().getSeriesBase(79335).execute().body();
+    SeriesBaseResponse response = theTvDbController.getSeriesService().getSeriesBase(79335).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.id).isEqualTo(79335);
     assertThat(response.data.name).isEqualTo("Psych");
@@ -59,7 +58,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testSeriesExtended() throws Exception {
-    SeriesExtendedResponse response = controller.getSeriesService().getSeriesExtended(79335).execute().body();
+    SeriesExtendedResponse response = theTvDbController.getSeriesService().getSeriesExtended(79335).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.id).isEqualTo(79335);
     assertThat(response.data.name).isEqualTo("Psych");
@@ -67,7 +66,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testSeriesEpisodes() throws Exception {
-    SeriesEpisodesResponse response = controller.getSeriesService().getSeriesEpisodes(79335, SeasonType.DEFAULT, 0).execute().body();
+    SeriesEpisodesResponse response = theTvDbController.getSeriesService().getSeriesEpisodes(79335, SeasonType.DEFAULT, 0).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.series).isNotNull();
     assertThat(response.data.series.id).isEqualTo(79335);
@@ -77,7 +76,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testSeasonsBase() throws Exception {
-    SeasonBaseResponse response = controller.getSeasonsService().getSeasonBase(16284).execute().body();
+    SeasonBaseResponse response = theTvDbController.getSeasonsService().getSeasonBase(16284).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.number).isEqualTo(1);
     assertThat(response.data.seriesId).isEqualTo(79335);
@@ -85,7 +84,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testSeasonsExtended() throws Exception {
-    SeasonExtendedResponse response = controller.getSeasonsService().getSeasonExtended(16284).execute().body();
+    SeasonExtendedResponse response = theTvDbController.getSeasonsService().getSeasonExtended(16284).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.number).isEqualTo(1);
     assertThat(response.data.seriesId).isEqualTo(79335);
@@ -96,7 +95,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testEpisodesBase() throws Exception {
-    EpisodeBaseResponse response = controller.getEpisodesService().getEpisodeBase(307497).execute().body();
+    EpisodeBaseResponse response = theTvDbController.getEpisodesService().getEpisodeBase(307497).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.episodeNumber).isEqualTo(1);
     assertThat(response.data.seasonNumber).isEqualTo(1);
@@ -104,7 +103,7 @@ public class ITTheTvDbApiTest extends BasicITest {
 
   @Test
   public void testEpisodesExtended() throws Exception {
-    EpisodeExtendedResponse response = controller.getEpisodesService().getEpisodeExtended(307497).execute().body();
+    EpisodeExtendedResponse response = theTvDbController.getEpisodesService().getEpisodeExtended(307497).execute().body();
     assertThat(response.data).isNotNull();
     assertThat(response.data.episodeNumber).isEqualTo(1);
     assertThat(response.data.seasonNumber).isEqualTo(1);

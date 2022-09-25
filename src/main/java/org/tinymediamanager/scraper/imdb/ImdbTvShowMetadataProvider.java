@@ -40,7 +40,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
 /**
- * the class {@link ImdbTvShowMetadataProvider} provides meta data for TV shows
+ * the class {@link ImdbTvShowMetadataProvider} provides metadata for TV shows
  *
  * @author Manuel Laggner
  */
@@ -74,7 +74,6 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
 
   @Override
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
-
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
@@ -84,7 +83,6 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
 
   @Override
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
-
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }

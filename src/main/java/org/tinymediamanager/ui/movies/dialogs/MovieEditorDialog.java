@@ -527,6 +527,10 @@ public class MovieEditorDialog extends TmmDialog {
 
         spRating = new JSpinner();
         details1Panel.add(spRating, "cell 1 10,growx");
+
+        JLabel lblUserRatingHint = new JLabel(IconManager.HINT);
+        lblUserRatingHint.setToolTipText(TmmResourceBundle.getString("edit.userrating.hint"));
+        details1Panel.add(lblUserRatingHint, "cell 2 10");
       }
       {
         JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
@@ -540,7 +544,7 @@ public class MovieEditorDialog extends TmmDialog {
       }
       {
         JLabel lblTop = new TmmLabel(TmmResourceBundle.getString("metatag.top250"));
-        details1Panel.add(lblTop, "cell 3 10,alignx right,aligny top");
+        details1Panel.add(lblTop, "cell 3 10,alignx right");
 
         spTop250 = new JSpinner();
         details1Panel.add(spTop250, "cell 4 10,growx");
@@ -1473,8 +1477,9 @@ public class MovieEditorDialog extends TmmDialog {
       // user rating
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if ((double) spRating.getValue() > 0) {
-        newRatings.put(MediaRating.USER, new MediaRating(MediaRating.USER, (double) spRating.getValue(), 1, 10));
+      double userRating = (double) spRating.getValue();
+      if (userRating > 0) {
+        newRatings.put(MediaRating.USER, new MediaRating(MediaRating.USER, userRating, 1, 10));
       }
 
       // other ratings
@@ -1484,6 +1489,11 @@ public class MovieEditorDialog extends TmmDialog {
         }
       }
       movieToEdit.setRatings(newRatings);
+
+      // if user rating = 0, delete it
+      if (userRating == 0) {
+        movieToEdit.removeRating(MediaRating.USER);
+      }
 
       movieToEdit.writeNFO();
       movieToEdit.saveToDb();

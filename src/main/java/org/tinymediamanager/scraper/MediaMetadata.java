@@ -511,6 +511,22 @@ public class MediaMetadata {
   }
 
   /**
+   * Get the id for the given provider id as String
+   *
+   * @param providerId
+   *          the provider Id
+   * @return the id as String or null
+   */
+  public String getIdAsString(String providerId) {
+    Object id = ids.get(providerId);
+    if (id != null) {
+      return String.valueOf(id);
+    }
+
+    return null;
+  }
+
+  /**
    * Get the id for the given provider id as Integer
    *
    * @param providerId

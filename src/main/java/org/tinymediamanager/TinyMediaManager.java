@@ -162,6 +162,9 @@ public final class TinyMediaManager {
     LOGGER.info("=== tinyMediaManager (c) 2012 - 2022 Manuel Laggner ===");
     LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
+    if (!ReleaseInfo.isGitBuild()) {
+      LOGGER.info("tmm.build        : {}", ReleaseInfo.getRealBuildDate());
+    }
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
     LOGGER.info("os.version       : {}", System.getProperty("os.version"));
     LOGGER.info("os.arch          : {}", System.getProperty("os.arch"));
@@ -196,7 +199,7 @@ public final class TinyMediaManager {
           Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
           if (!GraphicsEnvironment.isHeadless()) {
             Thread.currentThread().setName("main");
-            TmmTaskbar.setImage(new LogoCircle().getImage());
+            TmmTaskbar.setImage(new LogoCircle(512).getImage());
           }
           else {
             Thread.currentThread().setName("headless");
@@ -225,7 +228,7 @@ public final class TinyMediaManager {
           // upgrade check
           UpgradeTasks.setOldVersion();
           if (newVersion) {
-            LOGGER.info("Upgrade from " + UpgradeTasks.getOldVersion() + " to " + ReleaseInfo.getVersion());
+            LOGGER.info("Upgrade from '{}' to '{}'", UpgradeTasks.getOldVersion(), ReleaseInfo.getVersion());
             updateProgress("upgrading to new version", 10);
             UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
             Settings.getInstance().setCurrentVersion();
@@ -325,6 +328,7 @@ public final class TinyMediaManager {
 
             TmmUILayoutStore.getInstance().loadSettings(window);
             window.setVisible(true);
+            LOGGER.info("UI loaded");
 
             // wizard for new user
             if (Settings.getInstance().isNewConfig()) {

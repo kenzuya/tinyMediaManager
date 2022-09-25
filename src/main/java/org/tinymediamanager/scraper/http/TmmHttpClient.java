@@ -28,6 +28,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.Globals;
 
 import okhttp3.Cache;
 import okhttp3.CacheControl;
@@ -44,28 +45,8 @@ import okhttp3.Response;
  * @since 1.0
  */
 public class TmmHttpClient {
-  private static final Cache  CACHE;
+  private static final Cache  CACHE  = new Cache(Paths.get(Globals.CACHE_FOLDER, "http").toFile(), 25L * 1024 * 1024);
   private static OkHttpClient client = createHttpClient();
-
-  static {
-    String cacheFolder = System.getProperty("tmm.cachefolder");
-    String contentFolder = System.getProperty("tmm.contentfolder");
-
-    String parent;
-
-    // cache
-    if (StringUtils.isNotBlank(cacheFolder)) {
-      parent = cacheFolder;
-    }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      parent = contentFolder + "/cache";
-    }
-    else {
-      parent = "cache";
-    }
-
-    CACHE = new Cache(Paths.get(parent, "http").toFile(), 25L * 1024 * 1024);
-  }
 
   private TmmHttpClient() {
     throw new IllegalAccessError();

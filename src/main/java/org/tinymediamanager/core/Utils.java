@@ -1665,7 +1665,7 @@ public class Utils {
     Date dateBefore30Days = cal.getTime();
 
     // the log file pattern is logs/tmm.%d.%i.log.gz
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("logs"))) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Globals.LOG_FOLDER))) {
       for (Path path : directoryStream) {
         Matcher matcher = pattern.matcher(path.getFileName().toString());
         if (matcher.find()) {
@@ -1684,6 +1684,15 @@ public class Utils {
     catch (IOException e) {
       LOGGER.debug("could not clean old logs: {}", e.getMessage());
     }
+
+    // keep last 3 TRACE log files
+    List<Path> traces = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
+    traces.removeIf(s -> !s.getFileName().toString().startsWith("trace"));
+    Collections.sort(traces);
+    for (int i = 0; i < traces.size() - 3; i++) {
+      Utils.deleteFileSafely(traces.get(i));
+    }
+
   }
 
   /**
@@ -1985,16 +1994,28 @@ public class Utils {
   }
 
   /**
-   * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
+   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
+   *
+   * @param dir
+   *          the folder to check
+   * @return true/false
+   */
+  public static boolean containsSkipFile(Path dir) {
+    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
+  }
+
+  /**
+   * Deletes "unwanted files/folders" according to settings. Same as the action, but w/o GUI.
    * 
    * @param me
+   *          the {@link MediaEntity} to clean
    */
-  public static void deleteUnwantedFilesFor(MediaEntity me) {
+  public static void deleteUnwantedFilesAndFoldersFor(MediaEntity me) {
     // Get Cleanup File Types from the settings
     List<String> regexPatterns = Settings.getInstance().getCleanupFileType();
-    LOGGER.info("Start cleanup of unwanted file types: {}", regexPatterns.toString());
+    LOGGER.info("Start cleanup of unwanted file types/folders: {}", regexPatterns);
 
-    HashSet<Path> fileList = new HashSet<>();
+    Set<Path> fileList = new HashSet<>();
     for (Path file : Utils.getUnknownFilesByRegex(me.getPathNIO(), regexPatterns)) {
       if (fileList.contains(file)) {
         continue;
@@ -2002,18 +2023,37 @@ public class Utils {
       fileList.add(file);
     }
 
+    boolean dirty = false;
+
     for (Path file : fileList) {
-      MediaFile mf = new MediaFile(file);
-      if (mf.getType() == MediaFileType.VIDEO) {
-        // prevent users from doing something stupid
-        continue;
+      if (Files.isDirectory(file)) {
+        try {
+          LOGGER.debug("Deleting folder - {}", file);
+          Utils.deleteDirectoryRecursive(file);
+          dirty = true;
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not delete folder - {}", e.getMessage());
+        }
       }
-      LOGGER.debug("Deleting File - {}", file);
-      Utils.deleteFileWithBackup(file, me.getDataSource());
-      // remove possible MediaFiles too
-      if (me.getMediaFiles().contains(mf)) {
-        me.removeFromMediaFiles(mf);
+      else {
+        MediaFile mf = new MediaFile(file);
+        if (mf.getType() == MediaFileType.VIDEO) {
+          // prevent users from doing something stupid
+          continue;
+        }
+        LOGGER.debug("Deleting file - {}", file);
+        Utils.deleteFileWithBackup(file, me.getDataSource());
+        // remove possible MediaFiles too
+        if (me.getMediaFiles().contains(mf)) {
+          me.removeFromMediaFiles(mf);
+          dirty = true;
+        }
       }
+    }
+
+    if (dirty) {
+      me.saveToDb();
     }
   }
 

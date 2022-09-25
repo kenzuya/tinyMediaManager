@@ -39,3 +39,9 @@ build:
 
     # purge CF cache
     - 'eval "$PURGE_CF_CACHE"'
+
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build/
+      - dist/

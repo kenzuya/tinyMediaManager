@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.scraper.thetvdb.service;
+package org.tinymediamanager.scraper.thetvdb;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +25,13 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.thetvdb.entities.LoginRequestRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.LoginResponse;
+import org.tinymediamanager.scraper.thetvdb.service.ConfigService;
+import org.tinymediamanager.scraper.thetvdb.service.EpisodesService;
+import org.tinymediamanager.scraper.thetvdb.service.LoginService;
+import org.tinymediamanager.scraper.thetvdb.service.MoviesService;
+import org.tinymediamanager.scraper.thetvdb.service.SearchService;
+import org.tinymediamanager.scraper.thetvdb.service.SeasonsService;
+import org.tinymediamanager.scraper.thetvdb.service.SeriesService;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -37,16 +44,18 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class Controller {
-  private static final Logger LOGGER       = LoggerFactory.getLogger(Controller.class);
+public class TheTvDbController {
+  private static final Logger LOGGER       = LoggerFactory.getLogger(TheTvDbController.class);
   private static final String API_BASE_URL = "https://api4.thetvdb.com/v4/";
 
   private final boolean       debug;
 
   private Retrofit            restAdapter;
+  private String              userApiKey;
+  private String              userPin;
   private String              authToken;
 
-  public Controller() {
+  public TheTvDbController() {
     this(false);
   }
 
@@ -56,8 +65,24 @@ public class Controller {
    * @param debug
    *          true or false
    */
-  public Controller(boolean debug) {
+  public TheTvDbController(boolean debug) {
     this.debug = debug;
+  }
+
+  public String getUserApiKey() {
+    return userApiKey;
+  }
+
+  public void setUserApiKey(String userApiKey) {
+    this.userApiKey = userApiKey;
+  }
+
+  public String getUserPin() {
+    return userPin;
+  }
+
+  public void setUserPin(String userPin) {
+    this.userPin = userPin;
   }
 
   private Retrofit getRestAdapter() {
@@ -96,7 +121,7 @@ public class Controller {
     return builder;
   }
 
-  public static String login(String apiKey) throws Exception {
+  static String login(String apiKey, String pin) throws Exception {
     if (StringUtils.isBlank(apiKey)) {
       return null;
     }
@@ -110,7 +135,7 @@ public class Controller {
 
     LoginRequestRecord data = new LoginRequestRecord();
     data.apikey = apiKey;
-    data.pin = "";
+    data.pin = pin;
 
     Response<LoginResponse> response = loginService.login(data).execute();
     String token = null;

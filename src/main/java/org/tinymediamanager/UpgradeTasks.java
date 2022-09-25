@@ -282,6 +282,11 @@ public class UpgradeTasks {
         }
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.3.4") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 4.3.4");
+      Utils.deleteFileSafely(Paths.get(Globals.LOG_FOLDER).resolve("trace.log"));
+    }
   }
 
   private static void copyFileSilently(Path source, Path destination) {

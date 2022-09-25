@@ -2736,6 +2736,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     super.callbackForGatheredMediainformation(mediaFile);
 
+    // upgrade MediaSource to UHD bluray, if video format says so
+    if (getMediaSource() == MediaSource.BLURAY && getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+      setMediaSource(MediaSource.UHD_BLURAY);
+      saveToDb();
+    }
+
     // did we get meta data via the video media file?
     if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
         && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {

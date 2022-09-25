@@ -42,6 +42,7 @@ public abstract class TheTvDbArtworkProvider extends TheTvDbMetadataProvider imp
     MediaProviderInfo info = super.createMediaProviderInfo();
 
     info.getConfig().addText("apiKey", "", true);
+    info.getConfig().addText("pin", "", true);
     info.getConfig().load();
 
     return info;

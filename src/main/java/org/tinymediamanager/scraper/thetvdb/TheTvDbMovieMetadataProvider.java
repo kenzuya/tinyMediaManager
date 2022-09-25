@@ -77,6 +77,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     MediaProviderInfo info = super.createMediaProviderInfo();
 
     info.getConfig().addText("apiKey", "", true);
+    info.getConfig().addText("pin", "", true);
 
     ArrayList<String> fallbackLanguages = new ArrayList<>();
     for (MediaLanguages mediaLanguages : MediaLanguages.values()) {

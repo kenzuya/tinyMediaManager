@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -77,6 +78,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   private JButton              btnAddDatasource;
   private JButton              btnRemoveDatasource;
   private JButton              btnAddSkipFolder;
+  private JButton              btnAddSkipRegexp;
   private JButton              btnRemoveSkipFolder;
   private JButton              btnRemoveBadWord;
   private JButton              btnAddBadWord;
@@ -99,6 +101,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         panelDatasources.revalidate();
       }
     });
+
     btnRemoveDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
@@ -115,6 +118,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         }
       }
     });
+
     btnAddSkipFolder.addActionListener(e -> {
       String path = TmmProperties.getInstance().getProperty("tvshow.ignore.path");
       Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.ignore"), path);
@@ -124,6 +128,15 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         panelIgnore.revalidate();
       }
     });
+
+    btnAddSkipRegexp.addActionListener(e -> {
+      String regexp = TmmUIHelper.showRegexpInputDialog(SwingUtilities.getWindowAncestor(this));
+      if (StringUtils.isNotBlank(regexp)) {
+        settings.addSkipFolder(regexp);
+        panelIgnore.revalidate();
+      }
+    });
+
     btnRemoveSkipFolder.addActionListener(e -> {
       int row = listSkipFolder.getSelectedIndex();
       if (row != -1) { // nothing selected
@@ -132,6 +145,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         panelIgnore.revalidate();
       }
     });
+
     btnAddBadWord.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfAddBadword.getText())) {
         try {
@@ -145,6 +159,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         tfAddBadword.setText("");
       }
     });
+
     btnRemoveBadWord.addActionListener(arg0 -> {
       int row = listBadWords.getSelectedIndex();
       if (row != -1) {
@@ -152,6 +167,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         TvShowModuleManager.getInstance().getSettings().removeBadWord(badWord);
       }
     });
+
     btnMoveUpDatasoure.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1 && row != 0) {
@@ -249,6 +265,10 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         btnAddSkipFolder = new SquareIconButton(IconManager.ADD_INV);
         panelIgnore.add(btnAddSkipFolder, "flowy, cell 2 0, aligny top, growx");
         btnAddSkipFolder.setToolTipText(TmmResourceBundle.getString("Settings.addignore"));
+
+        btnAddSkipRegexp = new SquareIconButton(IconManager.FILE_ADD_INV);
+        panelIgnore.add(btnAddSkipRegexp, "flowy, cell 2 0, aligny top, growx");
+        btnAddSkipRegexp.setToolTipText(TmmResourceBundle.getString("Settings.addignoreregexp"));
 
         btnRemoveSkipFolder = new SquareIconButton(IconManager.REMOVE_INV);
         panelIgnore.add(btnRemoveSkipFolder, "flowy, cell 2 0, aligny top, growx");

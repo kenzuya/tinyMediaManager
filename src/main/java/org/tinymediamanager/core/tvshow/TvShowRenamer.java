@@ -131,10 +131,13 @@ public class TvShowRenamer {
     tokenMap.put("parent", "tvShow.parent");
     tokenMap.put("showNote", "tvShow.note");
     tokenMap.put("showStatus", "tvShow.status");
+    tokenMap.put("showRating", "tvShow.rating.rating");
     tokenMap.put("showImdb", "tvShow.imdbId");
     tokenMap.put("showTmdb", "tvShow.tmdbId");
     tokenMap.put("showTvdb", "tvShow.tvdbId");
     tokenMap.put("showTags", "tvShow.tags");
+    tokenMap.put("showGenres", "tvShow.genres");
+    tokenMap.put("showGenresAsString", "tvShow.genresAsString");
 
     // Season tags
     tokenMap.put("seasonName", "season.title");
@@ -154,6 +157,7 @@ public class TvShowRenamer {
     tokenMap.put("titleSortable", "episode.titleSortable");
     tokenMap.put("year", "episode.year");
     tokenMap.put("airedDate", "episode.firstAired;date(yyyy-MM-dd)");
+    tokenMap.put("episodeRating", "episode.rating.rating");
     tokenMap.put("episodeImdb", "episode.imdbId");
     tokenMap.put("episodeTmdb", "episode.tmdbId");
     tokenMap.put("episodeTvdb", "episode.tvdbId");
@@ -1780,7 +1784,7 @@ public class TvShowRenamer {
     int seFolderCnt = count(seasonPattern, seasonNumbers);// check season folder pattern
 
     // check rules
-    if (epCnt != 1 || titleCnt != 1 || seCnt > 1 || seFolderCnt > 1 || (seCnt + seFolderCnt) == 0) {
+    if (epCnt != 1 || titleCnt > 1 || seCnt > 1 || seFolderCnt > 1 || (seCnt + seFolderCnt) == 0) {
       LOGGER.debug("Too many/less episode/season/title replacer patterns");
       return false;
     }
@@ -1884,11 +1888,12 @@ public class TvShowRenamer {
   /**
    * Deletes "unwanted files" according to settings. Same as the action, but w/o GUI.
    * 
-   * @param me
+   * @param show
+   *          the {@link TvShow} to clean up
    */
   private static void cleanupUnwantedFiles(TvShow show) {
     if (TvShowModuleManager.getInstance().getSettings().renamerCleanupUnwanted) {
-      Utils.deleteUnwantedFilesFor(show);
+      Utils.deleteUnwantedFilesAndFoldersFor(show);
     }
   }
 

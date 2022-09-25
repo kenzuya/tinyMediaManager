@@ -32,6 +32,7 @@ import static org.tinymediamanager.core.MediaFileType.LOGO;
 import static org.tinymediamanager.core.MediaFileType.POSTER;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
+import static org.tinymediamanager.core.Utils.containsSkipFile;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -932,7 +933,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movie.setNewlyAdded(true);
     }
 
-    // set the 3D flag/edition from the file/folder name ONLY at first import
+    // set the 3D flag/edition/source from the file/folder name ONLY at first import
     if (movie.isNewlyAdded()) {
       // if the String 3D is in the movie dir, assume it is a 3D movie
       Matcher matcher = VIDEO_3D_PATTERN.matcher(movieDir.getFileName().toString());
@@ -950,6 +951,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // remember the filename the first time the movie gets added to tmm
         if (StringUtils.isBlank(movie.getOriginalFilename())) {
           movie.setOriginalFilename(vid.getFilename());
+        }
+
+        // if the new file has a source identifier in its filename, update the source too
+        MediaSource newSource = MediaSource.parseMediaSource(vid.getPath());
+        if (newSource != MediaSource.UNKNOWN) {
+          // source has been found in the filename - update
+          movie.setMediaSource(newSource);
         }
       }
 
@@ -1552,6 +1560,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
+      // upgrade MediaSource to UHD bluray, if video format says so
+      if (movie.getMediaSource() == MediaSource.BLURAY
+          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+        movie.setMediaSource(MediaSource.UHD_BLURAY);
+        dirty = true;
+      }
+
       // persist the movie
       if (dirty) {
         movie.saveToDb();
@@ -1587,6 +1602,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
           dirty = true;
         }
+      }
+
+      // upgrade MediaSource to UHD bluray, if video format says so
+      if (movie.getMediaSource() == MediaSource.BLURAY
+          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+        movie.setMediaSource(MediaSource.UHD_BLURAY);
+        dirty = true;
       }
 
       // persist the movie
@@ -1815,7 +1837,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incVisFile();
+
       if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         // check for video?
         if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
@@ -1834,7 +1861,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPreDir();
+
       String parent = "";
       if (!dir.equals(datasource) && !dir.getParent().equals(datasource)) {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
@@ -1849,10 +1881,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-      incPostDir();
       if (cancel) {
         return TERMINATE;
       }
+
+      incPostDir();
 
       if (this.videofolders.contains(dir)) {
         boolean update = true;
@@ -1954,17 +1987,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     return false;
-  }
-
-  /**
-   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
-   *
-   * @param dir
-   *          the folder to check
-   * @return true/false
-   */
-  private boolean containsSkipFile(Path dir) {
-    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
   }
 
   /**

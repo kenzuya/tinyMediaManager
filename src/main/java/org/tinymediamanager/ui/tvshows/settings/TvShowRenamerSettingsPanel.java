@@ -207,6 +207,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${episodeNrDvd}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeNrDvd2}"));
     exampleEventList.add(new TvShowRenamerExample("${airedDate}"));
+    exampleEventList.add(new TvShowRenamerExample("${episodeRating}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeImdb}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeTmdb}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeTvdb}"));
@@ -216,11 +217,15 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${showTitle}"));
     exampleEventList.add(new TvShowRenamerExample("${showOriginalTitle}"));
     exampleEventList.add(new TvShowRenamerExample("${showTitleSortable}"));
+    exampleEventList.add(new TvShowRenamerExample("${showRating}"));
     exampleEventList.add(new TvShowRenamerExample("${showImdb}"));
     exampleEventList.add(new TvShowRenamerExample("${showTmdb}"));
     exampleEventList.add(new TvShowRenamerExample("${showTvdb}"));
     exampleEventList.add(new TvShowRenamerExample("${showStatus}"));
     exampleEventList.add(new TvShowRenamerExample("${showTags[0]}"));
+    exampleEventList.add(new TvShowRenamerExample("${showGenres[0]}"));
+    exampleEventList.add(new TvShowRenamerExample("${showGenres[0].name}"));
+    exampleEventList.add(new TvShowRenamerExample("${showGenresAsString}"));
     exampleEventList.add(new TvShowRenamerExample("${videoResolution}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio2}"));

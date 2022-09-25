@@ -29,8 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
@@ -143,7 +141,7 @@ public class UpdateCheck {
       Thread.currentThread().interrupt();
     }
     catch (Exception e) {
-      LOGGER.error("Update task failed badly! {}", e.getMessage());
+      LOGGER.warn("Update task failed badly! {}", e.getMessage());
 
       try {
         // try a hardcoded "backup url" for GD.txt, where we could specify a new location :)
@@ -171,8 +169,7 @@ public class UpdateCheck {
         Thread.currentThread().interrupt();
       }
       catch (Exception e2) {
-        LOGGER.error("Update fallback failed - {}", e2.getMessage());
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Update check failed :(", e2.getMessage()));
+        LOGGER.warn("Update fallback failed - {}", e2.getMessage());
       }
     }
     return false;

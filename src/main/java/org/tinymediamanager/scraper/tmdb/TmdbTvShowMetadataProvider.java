@@ -667,9 +667,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       }
 
       // get full episode data
-      if (episode != null) {
+      if (episode != null && episode.episode_number != null && episode.season_number != null) {
         Response<TvEpisode> episodeResponse = api.tvEpisodesService()
-            .episode(tmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), language,
+            .episode(tmdbId, episode.season_number, episode.episode_number, language,
                 new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS,
                     AppendToResponseItem.IMAGES))
             .execute();

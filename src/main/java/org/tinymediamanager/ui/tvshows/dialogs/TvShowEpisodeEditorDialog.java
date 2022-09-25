@@ -408,6 +408,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
         spRating = new JSpinner();
         detailsPanel.add(spRating, "cell 1 9,growx");
+
+        JLabel lblUserRatingHint = new JLabel(IconManager.HINT);
+        lblUserRatingHint.setToolTipText(TmmResourceBundle.getString("edit.userrating.hint"));
+        detailsPanel.add(lblUserRatingHint, "cell 2 9");
       }
       {
         JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
@@ -770,12 +774,22 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setTitle(tfTitle.getText());
       episodeToEdit.setOriginalTitle(tfOriginalTitle.getText());
       episodeToEdit.setDvdOrder(cbDvdOrder.isSelected());
+
+      // check, if S/EE numbers changed - in that case we NEED to remove all IDs
+      if (episodeToEdit.getAiredSeason() != (((Integer) spSeason.getValue()).intValue())
+          || episodeToEdit.getAiredEpisode() != (((Integer) spEpisode.getValue()).intValue())
+          || episodeToEdit.getDvdSeason() != (((Integer) spDvdSeason.getValue()).intValue())
+          || episodeToEdit.getDvdEpisode() != (((Integer) spDvdEpisode.getValue()).intValue())) {
+        ids.clear(); // will be removed
+      }
+
       episodeToEdit.setAiredSeason((Integer) spSeason.getValue());
       episodeToEdit.setAiredEpisode((Integer) spEpisode.getValue());
       episodeToEdit.setDvdSeason((Integer) spDvdSeason.getValue());
       episodeToEdit.setDvdEpisode((Integer) spDvdEpisode.getValue());
       episodeToEdit.setDisplaySeason((Integer) spDisplaySeason.getValue());
       episodeToEdit.setDisplayEpisode((Integer) spDisplayEpisode.getValue());
+
       episodeToEdit.setPlot(taPlot.getText());
       episodeToEdit.setNote(taNote.getText());
 
@@ -829,8 +843,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // user rating
       Map<String, MediaRating> ratings = new HashMap<>();
 
-      if ((double) spRating.getValue() > 0) {
-        ratings.put(MediaRating.USER, new MediaRating(MediaRating.USER, (double) spRating.getValue(), 1, 10));
+      double userRating = (double) spRating.getValue();
+      if (userRating > 0) {
+        ratings.put(MediaRating.USER, new MediaRating(MediaRating.USER, userRating, 1, 10));
       }
 
       // other ratings
@@ -841,6 +856,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         }
       }
       episodeToEdit.setRatings(ratings);
+
+      // if user rating = 0, delete it
+      if (userRating == 0) {
+        episodeToEdit.removeRating(MediaRating.USER);
+      }
 
       episodeToEdit.setDateAdded((Date) spDateAdded.getValue());
       episodeToEdit.setFirstAired(dpFirstAired.getDate());

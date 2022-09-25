@@ -122,7 +122,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
         panelPath.add(lblPath, "cell 0 0, wmin 0");
       }
 
-      setTopIformationPanel(panelPath);
+      setTopInformationPanel(panelPath);
     }
 
     JPanel contentPanel = new JPanel();

@@ -190,7 +190,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * aired
+     * aired (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.aired"), "aired", this::getAiredDate, Date.class);
     col.setHeaderIcon(IconManager.DATE_AIRED);
@@ -201,8 +201,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f));
     }
     catch (Exception ignored) {
+      // ignored
     }
     col.setColumnComparator(dateComparator);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
