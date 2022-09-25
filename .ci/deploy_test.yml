@@ -21,6 +21,8 @@ build:
   tags:
     - tmm # force running on own runners
   variables:
+    CODE_SIGN_CERT: $CODE_SIGN_CERT
+    CODE_SIGN_PASS: $CODE_SIGN_PASS
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     # generate changelog.txt for nightly builds
