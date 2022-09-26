@@ -2,30 +2,36 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "tinyMediaManager"
-#ifndef MyAppVersion
-  #define MyAppVersion "v5"
+#ifndef MyAppVersionNum
+  #define MyAppVersionNum "5.0.0.0"
+#endif
+#ifndef MyAppVersionText
+  #define MyAppVersionText "5.0.0.0"
 #endif
 #define MyAppPublisher "Manuel Laggner"
 #define MyAppURL "https://www.tinymediamanager.org/"
 #define MyAppExeName "tinyMediaManager.exe"
+#define Year GetDateTimeString('yyyy', '', '');
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{2184DD8F-1056-4C7C-8A68-011ECEA03AF9}
 AppName={#MyAppName}
-AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+AppVersion={#MyAppVersionText}
+AppVerName={#MyAppName} {#MyAppVersionText}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+VersionInfoCopyright=© 2012-{#Year} {#MyAppPublisher}
+VersionInfoVersion={#MyAppVersionNum}
 DefaultDirName={userpf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
-OutputBaseFilename={#MyAppName}-{#MyAppVersion}-Setup
+OutputBaseFilename={#MyAppName}-{#MyAppVersionText}-Setup
 SetupIconFile=tmm.ico
 Compression=lzma2/ultra
 SolidCompression=yes
