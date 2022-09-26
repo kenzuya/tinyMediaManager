@@ -13,7 +13,7 @@ cache:
 
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
+  image: tinymediamanager/packaging:20220926090140
   environment:
     name: nightly
     url: https://nightly.tinymediamanager.org
