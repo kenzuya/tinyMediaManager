@@ -231,7 +231,7 @@ public class SplitUri {
       if (!file.contains("://") && (file.contains("@") || file.contains(":"))) {
         file = "file:///" + file;
       }
-      u = parseToUri(file); // retry
+      u = parseToUri(file.trim()); // retry (and remove spaces around)
     }
 
     return u;

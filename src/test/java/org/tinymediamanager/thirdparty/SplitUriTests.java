@@ -48,7 +48,7 @@ public class SplitUriTests extends BasicTest {
     testUri("c:\\videos\\", movieBack, movieFwd);
 
     // windows SMB
-    testUri("\\\\localhost\\videos\\", movieBack, movieFwd);
+    testUri("\\\\localhost\\videos\\ ", movieBack, movieFwd);
 
     // testUri("",
     // "zip:///C%3a%5cUsers%5cmamk%5cVideos%5cFilme%5cAvatar%20-%20Aufbruch%20nach%20Pandora%20(2009).zip/Avatar - Aufbruch nach Pandora (2009)/Avatar

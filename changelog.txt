@@ -14,6 +14,7 @@ x update movie media source on exchanged video files
 x remove all scraped IDs when changing episode/season numbers
 x upgrade MediaSource BluRay to UHD-BluRay, if video specs say so
 x (TVDB) also scrape certification data for TV shows
+x fix stack overflow when having a space at the end of an uri #1903
 
 
 Version 4.3.3
