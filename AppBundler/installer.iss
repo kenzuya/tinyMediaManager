@@ -3,9 +3,13 @@
 
 #define MyAppName "tinyMediaManager"
 #define MyAppVersion "v4"
+#ifndef MyAppVersionNum
+  #define MyAppVersionNum "4.0.0.0"
+#endif
 #define MyAppPublisher "Manuel Laggner"
 #define MyAppURL "https://www.tinymediamanager.org/"
 #define MyAppExeName "tinyMediaManager.exe"
+#define Year GetDateTimeString('yyyy', '', '');
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -18,6 +22,8 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+VersionInfoCopyright=© 2012-{#Year} {#MyAppPublisher}
+VersionInfoVersion={#MyAppVersionNum}
 DefaultDirName={userpf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE
