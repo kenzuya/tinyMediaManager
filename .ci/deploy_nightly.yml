@@ -13,7 +13,7 @@ cache:
 
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
+  image: tinymediamanager/packaging:20220926090140
   environment:
     name: nightly
     url: https://nightly.tinymediamanager.org
@@ -35,7 +35,7 @@ build:
 
     # build Windows installer
     - chmod 777 . dist
-    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh "$CODE_SIGN_CERT" "$CODE_SIGN_PASS"
 
     # build macOS dmg file
     #- sh AppBundler/create_mac_image.sh

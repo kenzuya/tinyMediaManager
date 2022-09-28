@@ -1,6 +1,6 @@
 #!/bin/sh
 
-
+# prepare
 mkdir windows_installer
 cd windows_installer
 
@@ -12,9 +12,14 @@ VERSION_T=$(grep 'human.version' version | cut -d'=' -f2)
 VERSION_N=$(echo "$VERSION_T" | sed "s/[-].*//")
 touch .userdir
 
+# build
 iscc installer.iss "/DMyAppVersionText=$VERSION_T" "/DMyAppVersionNum=$VERSION_N"
 
-cp Output/tinyMediaManager*.exe ../../dist/
+# sign
+echo -n "$1" | base64 -d > "code-sign-cert.p12"
+osslsigncode sign -pkcs12 "code-sign-cert.p12" -pass "$2" -n "tinyMediaManager" -i https://www.tinymediamanager.org/ -in Output/tinyMediaManagerSetup.exe -out ../../dist/tinyMediaManagerSetup.exe
+
+# cleanup
 cd ..
 cd ..
 rm -rf windows_installer

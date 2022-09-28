@@ -77,7 +77,7 @@ public class TmmUIHelper {
   protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private TmmUIHelper() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   public static Path selectDirectory(String title, String initialPath) {

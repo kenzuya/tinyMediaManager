@@ -1994,6 +1994,17 @@ public class Utils {
   }
 
   /**
+   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
+   *
+   * @param dir
+   *          the folder to check
+   * @return true/false
+   */
+  public static boolean containsSkipFile(Path dir) {
+    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
+  }
+
+  /**
    * Deletes "unwanted files/folders" according to settings. Same as the action, but w/o GUI.
    * 
    * @param me

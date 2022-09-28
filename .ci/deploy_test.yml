@@ -13,7 +13,10 @@ cache:
 
 build:
   stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging:20220601182613
+  image: tinymediamanager/packaging:20220926090140
+  environment:
+    name: test
+    url: https://test.tinymediamanager.org
   allow_failure: false
   tags:
     - tmm # force running on own runners
@@ -28,7 +31,7 @@ build:
 
     # build Windows installer
     - chmod 777 . dist
-    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh "$CODE_SIGN_CERT" "$CODE_SIGN_PASS"
 
     # push the build to the webserver
     - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"

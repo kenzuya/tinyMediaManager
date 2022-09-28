@@ -2,11 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "tinyMediaManager"
+#define MyAppVersion "v4"
 #ifndef MyAppVersionNum
-  #define MyAppVersionNum "5.0.0.0"
-#endif
-#ifndef MyAppVersionText
-  #define MyAppVersionText "5.0.0.0"
+  #define MyAppVersionNum "4.0.0.0"
 #endif
 #define MyAppPublisher "Manuel Laggner"
 #define MyAppURL "https://www.tinymediamanager.org/"
@@ -18,8 +16,8 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{2184DD8F-1056-4C7C-8A68-011ECEA03AF9}
 AppName={#MyAppName}
-AppVersion={#MyAppVersionText}
-AppVerName={#MyAppName} {#MyAppVersionText}
+AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -31,12 +29,14 @@ DisableProgramGroupPage=yes
 LicenseFile=LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
-OutputBaseFilename={#MyAppName}-{#MyAppVersionText}-Setup
+OutputBaseFilename={#MyAppName}Setup
 SetupIconFile=tmm.ico
-Compression=lzma2/ultra
+Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-ShowLanguageDialog=no
+WizardImageFile=compiler:WizClassicImage-IS.bmp
+WizardSmallImageFile=compiler:WizClassicSmallImage-IS.bmp
+ShowLanguageDialog=auto
 
 [Languages]
 ; use language codes, else "auto" does not work!

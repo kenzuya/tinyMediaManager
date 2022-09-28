@@ -32,6 +32,7 @@ import static org.tinymediamanager.core.MediaFileType.LOGO;
 import static org.tinymediamanager.core.MediaFileType.POSTER;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
+import static org.tinymediamanager.core.Utils.containsSkipFile;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -1836,7 +1837,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incVisFile();
+
       if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         // check for video?
         if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
@@ -1855,7 +1861,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPreDir();
+
       String parent = "";
       if (!dir.equals(datasource) && !dir.getParent().equals(datasource)) {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
@@ -1870,10 +1881,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-      incPostDir();
       if (cancel) {
         return TERMINATE;
       }
+
+      incPostDir();
 
       if (this.videofolders.contains(dir)) {
         boolean update = true;
@@ -1975,17 +1987,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     return false;
-  }
-
-  /**
-   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
-   *
-   * @param dir
-   *          the folder to check
-   * @return true/false
-   */
-  private boolean containsSkipFile(Path dir) {
-    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
   }
 
   /**

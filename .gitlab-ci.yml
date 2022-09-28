@@ -17,7 +17,7 @@ stages:
 
 test:jdk11:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk11:20220428182408
+  image: tinymediamanager/testing:jdk11-20220926085938
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -30,7 +30,7 @@ test:jdk11:
 
 test:jdk15:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk15:20220428182411
+  image: tinymediamanager/testing:jdk15-20220926090137
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -43,7 +43,7 @@ test:jdk15:
 
 test:jdk16:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk16:20220428182411
+  image: tinymediamanager/testing:jdk16-20220926090138
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -56,7 +56,7 @@ test:jdk16:
 
 test:jdk17:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk17:20220428182414
+  image: tinymediamanager/testing:jdk17-20220926090140
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -70,7 +70,7 @@ test:jdk17:
 # sonarqube analysis
 sonarqube-qa:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/reporting:20220530063549
+  image: tinymediamanager/reporting:20220926090138
   only:
     variables:
       - $QA_BUILD == "true"

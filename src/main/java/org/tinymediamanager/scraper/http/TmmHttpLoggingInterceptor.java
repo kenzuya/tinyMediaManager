@@ -210,6 +210,9 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
   private static boolean isTextResponse(Response response) {
     MediaType type = response.body().contentType();
+    if (type == null || type.subtype() == null) {
+      return false;
+    }
 
     // only log XML/JSON responses
     switch (type.subtype().toLowerCase(Locale.ROOT)) {
