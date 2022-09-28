@@ -1,5 +1,5 @@
 # The URL from which the client is downloaded
-appbase = https://nightly.tinymediamanager.org/v4/build/
+appbase = https://nightly.tinymediamanager.org/v5/build/
 
 # UI Configuration
 ui.name = tinyMediaManager
