@@ -66,8 +66,11 @@ public class OnDiskCachedUrl extends Url {
   private Interceptor provideCacheInterceptor(final int timeToLive, final TimeUnit timeUnit) {
     return chain -> {
       Response response = chain.proceed(chain.request());
+      if (!response.isSuccessful()) {
+        // do not cache unsuccessful requests
+        return response;
+      }
       CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
-
       return response.newBuilder().header("Cache-Control", cacheControl.toString()).build();
     };
   }
