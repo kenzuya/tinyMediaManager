@@ -25,11 +25,13 @@ public class SplitUriTests extends BasicTest {
     String movieFwd = "movie (2020)/movie.avi";
     String movieBack = "movie (2020)\\movie.avi";
 
+    testUri("\\\\127.0.0.1\\media\\streams\\Un entretien - Canal+\\", movieBack, movieFwd); // 2 backslashes are smb!
+
     // schema, creds, host:port
     testUri("dav://user:pass@localhost:12345/videos/", movieFwd);
 
     // schema, creds
-    testUri("smb://user:pass@localhost/videos/", movieFwd);
+    testUri("smb://user:pass@localhost/videos/ ", movieFwd);
 
     // no schema, creds
     testUri("user:pass@localhost/videos/", movieFwd); // shall fail?

@@ -18,10 +18,6 @@ package org.tinymediamanager.thirdparty;
 
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -100,7 +96,27 @@ public class SplitUri {
       this.file = file.substring(datasource.length());
     }
 
-    URI u = parseToUri(file);
+    URI u = null;
+    try {
+      u = parseToUri(file);
+    }
+    catch (Exception e) {
+      // we might have an user:pass@server string, but without schema?
+      // add one...m since url parser NEEDS one...
+      if (!file.contains("://") && (file.contains("@") || file.contains(":"))) {
+        file = "smb://" + file;
+        try {
+          u = parseToUri(file); // retry
+        }
+        catch (Exception e2) {
+          LOGGER.warn("Could not parse URI: {}", file);
+        }
+      }
+      else {
+        LOGGER.warn("Could not parse URI: {}", file);
+      }
+    }
+
     if (u != null && !StringUtils.isBlank(u.getHost())) {
       if (file.startsWith("upnp")) {
         this.type = "UPNP";
@@ -184,56 +200,21 @@ public class SplitUri {
     return file;
   }
 
-  private URI parseToUri(String file) {
-
+  private URI parseToUri(String file) throws Exception {
     URI u = null;
-    try {
-      try {
-        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
-        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
-        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
-      }
-      catch (Exception e) {
-        LOGGER.warn("Could not decode uri '{}': {}", file, e.getMessage());
-      }
-      file = file.replace("\\\\", "/");
-
-      if (file.contains(":///")) {
-        // 3 = file with scheme - parse as URI, but keep one slash
-        file = file.replace(" ", "%20"); // space in urls
-        file = file.replace("#", "%23"); // hash sign in urls
-        u = new URI(file.substring(file.indexOf(":///") + 3));
-      }
-      else if (file.contains("://")) {
-        // 2 = //hostname/path - parse as URI
-        file = file.replace(" ", "%20"); // space in urls
-        file = file.replace("#", "%23"); // hash sign in urls
-        u = new URI(file);
-      }
-      else {
-        // 0 = local file - parse as Path
-        u = Paths.get(file).toUri();
-      }
+    file = file.replaceAll("\\\\", "/"); // normalize all to slashes
+    // are we an URI with scheme? Or just local file?
+    if (file.contains("://")) {
+      // Kodi sends the path 1:1 and not URI encoded...
+      file = file.replace(" ", "%20"); // space in urls
+      file = file.replace("#", "%23"); // hash sign in urls
+      file = file.replace("+", "%2B"); // plus sign in file should be treated directly, not as "space" as in url
+      u = URI.create(file);
     }
-    catch (URISyntaxException e) {
-      try {
-        file = file.replaceAll(".*?:/{2,3}", ""); // replace scheme
-        u = Paths.get(file).toAbsolutePath().toUri();
-      }
-      catch (InvalidPathException e2) {
-        LOGGER.warn("Invalid path: {} - {}", file, e2.getMessage());
-      }
+    else {
+      file = file.trim(); // no whitespaces around
+      u = Paths.get(file).toUri();
     }
-    catch (InvalidPathException e) {
-      LOGGER.warn("Invalid path: {} - {}", file, e.getMessage());
-      // we might have an user:pass@server string, but without schema?
-      // add one...m since url parser NEEDS one...
-      if (!file.contains("://") && (file.contains("@") || file.contains(":"))) {
-        file = "file:///" + file;
-      }
-      u = parseToUri(file.trim()); // retry (and remove spaces around)
-    }
-
     return u;
   }
 
