@@ -263,13 +263,6 @@ public class TvShowRenamer {
       // move directory if needed
       if (!srcDir.toAbsolutePath().toString().equals(destDir.toAbsolutePath().toString())) {
         try {
-          // ######################################################################
-          // ## invalidate image cache
-          // ######################################################################
-          for (MediaFile gfx : show.getMediaFiles()) {
-            ImageCache.invalidateCachedImage(gfx);
-          }
-
           // create parent if needed
           if (!Files.exists(destDir.getParent())) {
             Files.createDirectory(destDir.getParent());
@@ -288,7 +281,7 @@ public class TvShowRenamer {
             // ######################################################################
             if (Settings.getInstance().isImageCache()) {
               for (MediaFile gfx : show.getMediaFiles()) {
-                ImageCache.cacheImageSilently(gfx);
+                ImageCache.cacheImageSilently(gfx, false);
               }
             }
           }
@@ -415,7 +408,7 @@ public class TvShowRenamer {
     // ######################################################################
     if (Settings.getInstance().isImageCache()) {
       for (MediaFile gfx : tvShow.getMediaFiles()) {
-        ImageCache.cacheImageSilently(gfx);
+        ImageCache.cacheImageSilently(gfx, false);
       }
     }
 
@@ -692,7 +685,7 @@ public class TvShowRenamer {
     // ######################################################################
     if (Settings.getInstance().isImageCache()) {
       for (MediaFile gfx : tvShow.getMediaFiles()) {
-        ImageCache.cacheImageSilently(gfx);
+        ImageCache.cacheImageSilently(gfx, false);
       }
     }
 
@@ -790,6 +783,20 @@ public class TvShowRenamer {
         boolean ok = copyFile(mf.getFileAsPath(), newMF.getFileAsPath());
         if (ok) {
           needed.add(newMF);
+
+          // update the cached image by just COPYing it around
+          if (ImageCache.isImageCached(mf.getFileAsPath())) {
+            Path oldCache = ImageCache.getAbsolutePath(mf);
+            Path newCache = ImageCache.getAbsolutePath(newMF);
+            LOGGER.trace("updating imageCache {} -> {}", oldCache, newCache);
+            // just use plain copy here, since we do not need all the safety checks done in our method
+            try {
+              Files.copy(oldCache, newCache);
+            }
+            catch (IOException e) {
+              LOGGER.warn("Error moving cached file", e.getMessage());
+            }
+          }
         }
       }
     }
@@ -930,7 +937,7 @@ public class TvShowRenamer {
       // ######################################################################
       if (Settings.getInstance().isImageCache()) {
         for (MediaFile gfx : e.getMediaFiles()) {
-          ImageCache.cacheImageSilently(gfx);
+          ImageCache.cacheImageSilently(gfx, false);
         }
       }
     }

@@ -148,6 +148,16 @@ public class ImageCache {
   }
 
   /**
+   * returns the absolute path of the cached file from this MediaFile
+   * 
+   * @param mf
+   * @return
+   */
+  public static Path getAbsolutePath(MediaFile mf) {
+    return CACHE_DIR.resolve(getMD5WithSubfolder(mf.getFileAsPath().toString()) + "." + mf.getExtension());
+  }
+
+  /**
    * Cache image without overwriting an existing one
    * 
    * @param mediaFile
@@ -177,7 +187,7 @@ public class ImageCache {
     }
 
     Path originalFile = mediaFile.getFileAsPath();
-    Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(originalFile.toString()) + "." + Utils.getExtension(originalFile));
+    Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(originalFile.toString()) + "." + mediaFile.getExtension());
     if (overwrite || !Files.exists(cachedFile)) {
       // check if the original file exists && size > 0
       if (!Files.exists(originalFile)) {
@@ -363,7 +373,8 @@ public class ImageCache {
   }
 
   /**
-   * Cache image silently without throwing an exception. Use the method {@link #cacheImageSilently(MediaFile)} if possible!
+   * Cache image silently without throwing an exception. Use the method {@link #cacheImageSilently(MediaFile)} if possible!<br>
+   * Overwriting existing files!
    *
    * @param path
    *          the path to this image
@@ -373,12 +384,25 @@ public class ImageCache {
   }
 
   /**
-   * Cache image silently without throwing an exception.
+   * Caches image silently without throwing an exception.<br>
+   * Overwriting existing files!
    *
    * @param mediaFile
    *          the media file
    */
   public static void cacheImageSilently(MediaFile mediaFile) {
+    cacheImageSilently(mediaFile, true);
+  }
+
+  /**
+   * Cache image silently without throwing an exception.
+   *
+   * @param mediaFile
+   *          the media file
+   * @param overwrite
+   *          should existing files be overwritten?
+   */
+  public static void cacheImageSilently(MediaFile mediaFile, boolean overwrite) {
     if (!Settings.getInstance().isImageCache()) {
       return;
     }
@@ -388,7 +412,7 @@ public class ImageCache {
     }
 
     try {
-      cacheImage(mediaFile, true);
+      cacheImage(mediaFile, overwrite);
     }
     catch (Exception e) {
       LOGGER.debug("could not cache image: {}", e.getMessage());

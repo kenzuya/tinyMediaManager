@@ -507,6 +507,20 @@ public class MovieRenamer {
         boolean ok = copyFile(mf.getFileAsPath(), newMF.getFileAsPath());
         if (ok) {
           needed.add(newMF);
+
+          // update the cached image by just COPYing it around (1:N)
+          if (ImageCache.isImageCached(mf.getFileAsPath())) {
+            Path oldCache = ImageCache.getAbsolutePath(mf);
+            Path newCache = ImageCache.getAbsolutePath(newMF);
+            LOGGER.trace("updating imageCache {} -> {}", oldCache, newCache);
+            // just use plain copy here, since we do not need all the safety checks done in our method
+            try {
+              Files.copy(oldCache, newCache);
+            }
+            catch (IOException e) {
+              LOGGER.warn("Error moving cached file", e.getMessage());
+            }
+          }
         }
       }
     }

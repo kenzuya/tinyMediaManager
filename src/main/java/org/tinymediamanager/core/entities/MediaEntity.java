@@ -46,6 +46,8 @@ import static org.tinymediamanager.core.Constants.TITLE;
 import static org.tinymediamanager.core.Constants.YEAR;
 
 import java.awt.Dimension;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -69,6 +71,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -93,6 +97,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject {
+  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
+
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -1259,12 +1265,23 @@ public abstract class MediaEntity extends AbstractModelObject {
     }
 
     for (MediaFile mf : mfs) {
-      // invalidate image cache
-      if (mf.isGraphic()) {
-        ImageCache.invalidateCachedImage(mf);
-      }
-
+      // update the cached image by just MOVEing it around
+      Path oldCache = ImageCache.getAbsolutePath(mf);
       mf.replacePathForRenamedFolder(oldPath, newPath);
+
+      if (mf.isGraphic()) {
+        if (Files.exists(oldCache)) {
+          Path newCache = ImageCache.getAbsolutePath(mf);
+          LOGGER.trace("updating imageCache {} -> {}", oldCache, newCache);
+          // just use plain move here, since we do not need all the safety checks done in our method
+          try {
+            Files.move(oldCache, newCache);
+          }
+          catch (IOException e) {
+            LOGGER.warn("Error moving cached file", e.getMessage());
+          }
+        }
+      }
     }
   }
 
