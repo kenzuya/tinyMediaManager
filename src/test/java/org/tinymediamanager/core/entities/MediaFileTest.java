@@ -14,14 +14,6 @@ import org.tinymediamanager.core.movie.entities.Movie;
 public class MediaFileTest extends BasicTest {
 
   @Test
-  public void testLanguageDetection() {
-    MediaFile mf = new MediaFile(getWorkFolder().resolve("Django Unchained Special Edition.pt-br.sub"));
-    mf.gatherMediaInformation();
-    assertThat(mf.getSubtitles()).isNotEmpty();
-    assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo("pob");
-  }
-
-  @Test
   public void mediaFileTypeNoTrailer() {
     Path filename = getWorkFolder().resolve("South Park - S00E00 - The New Terrance and Phillip Movie Trailer.avi");
     MediaFileType mft = MediaFileHelper.parseMediaFileType(filename);
