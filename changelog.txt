@@ -6,6 +6,7 @@ Version 4.3.4
 + TV episodes: also detect IDs from filename
 + changing the user rating will remove it from the ratings
 + added regular expression based skip folders for TV shows #1402
++ added a path based filter for movies and TV shows #1891
 x do not check title token for valid episode name pattern #1870
 x fixed timing of KodiRPC calls #1831
 x (TVDB) allow using a subscriber API key & pin
