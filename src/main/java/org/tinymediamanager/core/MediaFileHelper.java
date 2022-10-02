@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.core;
 
+import static org.tinymediamanager.core.MediaFileType.SUBTITLE;
 import static org.tinymediamanager.scraper.util.LanguageUtils.parseLanguageFromString;
 
 import java.io.BufferedInputStream;
@@ -314,7 +315,7 @@ public class MediaFileHelper {
     }
 
     if (Settings.getInstance().getSubtitleFileType().contains("." + ext)) {
-      return MediaFileType.SUBTITLE;
+      return SUBTITLE;
     }
 
     if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
@@ -1916,7 +1917,7 @@ public class MediaFileHelper {
 
     int streams = getSubtitleStreamCount(miSnapshot);
 
-    if (streams == 0) {
+    if (streams == 0 && mediaFile.getType() == SUBTITLE) {
       // no streams found? try to parse the data out of the file name
       gatherSubtitleInformationFromFilename(mediaFile);
     }
@@ -2607,7 +2608,7 @@ public class MediaFileHelper {
     }
 
     // container format for all except subtitles (subtitle container format is handled another way)
-    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+    if (mediaFile.getType() == SUBTITLE) {
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
     else {
@@ -2991,7 +2992,7 @@ public class MediaFileHelper {
    *          the common part of the filename which is shared with the video file
    */
   public static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
-    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
+    if (mediaFile.getType() != SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
       return;
     }
 
@@ -3035,7 +3036,7 @@ public class MediaFileHelper {
       title = title.strip();
     }
 
-    if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
+    if (mediaFile.getType() == SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
       MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
       if (StringUtils.isBlank(sub.getLanguage())) {
         sub.setLanguage(language);
