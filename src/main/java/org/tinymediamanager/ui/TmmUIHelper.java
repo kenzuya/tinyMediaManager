@@ -695,7 +695,7 @@ public class TmmUIHelper {
         }
       }
       catch (Exception e) {
-        LOGGER.error("Update check failed - {}", e.getMessage());
+        LOGGER.warn("Update check failed - {}", e.getMessage());
       }
     };
 

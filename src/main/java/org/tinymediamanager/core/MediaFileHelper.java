@@ -775,9 +775,9 @@ public class MediaFileHelper {
     }
 
     // gather subtitle infos independent of MI
-    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-      gatherSubtitleInformationFromFilename(mediaFile);
-    }
+    // if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+    // gatherSubtitleInformationFromFilename(mediaFile);
+    // }
 
     // do not work further on 0 byte files
     if (mediaFile.getFilesize() == 0 && StringUtils.isBlank(mediaFile.getContainerFormat())) {
@@ -789,7 +789,6 @@ public class MediaFileHelper {
 
     // do not work further on non media files files
     switch (mediaFile.getType()) {
-      case SUBTITLE:
       case NFO:
       case TEXT:
       case MEDIAINFO:
@@ -1917,35 +1916,42 @@ public class MediaFileHelper {
 
     int streams = getSubtitleStreamCount(miSnapshot);
 
-    List<MediaFileSubtitle> subtitles = new ArrayList<>();
-
-    for (int i = 0; i < streams; i++) {
-      MediaFileSubtitle stream = new MediaFileSubtitle();
-      stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
-
-      String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
-      stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-      String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
-      stream.setLanguage(parseLanguageFromString(lang));
-
-      String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
-      boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
-      stream.setForced(b);
-
-      String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
-      if (StringUtils.isNotBlank(title)) {
-        stream.setTitle(title);
-      }
-
-      // "default" subtitle stream?
-      String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
-      if (def.equalsIgnoreCase("yes")) {
-        stream.setDefaultStream(true);
-      }
-      subtitles.add(stream);
+    if (streams == 0 && mediaFile.getType() == MediaFileType.SUBTITLE) {
+      // no streams found? try to parse the data out of the file name
+      gatherSubtitleInformationFromFilename(mediaFile);
     }
+    else {
+      // streams found - take MI info
+      List<MediaFileSubtitle> subtitles = new ArrayList<>();
 
-    mediaFile.setSubtitles(subtitles);
+      for (int i = 0; i < streams; i++) {
+        MediaFileSubtitle stream = new MediaFileSubtitle();
+        stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
+
+        String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
+        stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
+        String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+        stream.setLanguage(parseLanguageFromString(lang));
+
+        String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
+        boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
+        stream.setForced(b);
+
+        String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+        if (StringUtils.isNotBlank(title)) {
+          stream.setTitle(title);
+        }
+
+        // "default" subtitle stream?
+        String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
+        if (def.equalsIgnoreCase("yes")) {
+          stream.setDefaultStream(true);
+        }
+        subtitles.add(stream);
+      }
+
+      mediaFile.setSubtitles(subtitles);
+    }
   }
 
   /**
@@ -2591,6 +2597,10 @@ public class MediaFileHelper {
       case NFO: // do nothing here, but do not display default warning (since we got the filedate)
         break;
 
+      case SUBTITLE:
+        gatherSubtitleInformation(mediaFile, miSnapshot);
+        break;
+
       default:
         LOGGER.debug("no mediainformation handling for MediaFile type {} yet.", mediaFile.getType());
         break;
@@ -3025,7 +3035,7 @@ public class MediaFileHelper {
       title = title.strip();
     }
 
-    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+    if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
       MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
       if (StringUtils.isBlank(sub.getLanguage())) {
         sub.setLanguage(language);
@@ -3033,7 +3043,7 @@ public class MediaFileHelper {
       sub.setTitle(title);
       sub.set(flags);
     }
-    else if (mediaFile.getType() == MediaFileType.AUDIO) {
+    else if (mediaFile.getType() == MediaFileType.AUDIO && mediaFile.getAudioChannels().isEmpty()) {
       MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
       if (StringUtils.isBlank(audio.getLanguage())) {
         audio.setLanguage(language);
