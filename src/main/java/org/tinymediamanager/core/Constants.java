@@ -109,6 +109,7 @@ public final class Constants {
   public static final String SUBTITLES              = "subtitles";
   public static final String SUBTITLES_COUNT        = "countSubtitles";
   public static final String SUBTITLE_LANGUAGES     = "subtitleLanguages";
+  public static final String SUBTITLE_FORMATS       = "subtitleFormats";
   public static final String TAGS                   = "tags";
   public static final String TAGS_AS_STRING         = "tagsAsString";
   public static final String THUMB                  = "thumb";

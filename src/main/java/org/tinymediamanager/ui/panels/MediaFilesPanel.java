@@ -157,6 +157,12 @@ public abstract class MediaFilesPanel extends JPanel {
       addColumn(col);
 
       /*
+       * title
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MediaFile::getTitle, String.class);
+      addColumn(col);
+
+      /*
        * video codec
        */
       col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videocodec", MediaFile::getVideoCodec, String.class);
@@ -304,14 +310,17 @@ public abstract class MediaFilesPanel extends JPanel {
 
     @Override
     public void mousePressed(MouseEvent e) {
+      // nothing to do here
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+      // nothing to do here
     }
 
     @Override
     public void mouseDragged(MouseEvent arg0) {
+      // nothing to do here
     }
   }
 }

@@ -60,6 +60,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -105,6 +106,8 @@ public final class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             audioLanguagesInEpisodes;
   private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInEpisodes;
+  private final CopyOnWriteArrayList<String>             subtitleFormatsInEpisodes;
+
   private final CopyOnWriteArrayList<String>             hdrFormatInEpisodes;
   private final CopyOnWriteArrayList<String>             audioTitlesInEpisodes;
 
@@ -130,8 +133,9 @@ public final class TvShowList extends AbstractModelObject {
     subtitleLanguagesInEpisodes = new CopyOnWriteArrayList<>();
     hdrFormatInEpisodes = new CopyOnWriteArrayList<>();
     audioTitlesInEpisodes = new CopyOnWriteArrayList<>();
+    subtitleFormatsInEpisodes = new CopyOnWriteArrayList<>();
 
-    // the tag listener: its used to always have a full list of all tags used in tmm
+    // the tag listener: it's used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
       if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
@@ -875,6 +879,7 @@ public final class TvShowList extends AbstractModelObject {
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
     Set<String> audioTitles = new HashSet<>();
+    Set<String> subtitleFormats = new HashSet<>();
 
     for (TvShowEpisode episode : episodes) {
       int audioCount = 0;
@@ -918,9 +923,6 @@ public final class TvShowList extends AbstractModelObject {
           // subtitles stream count
           subtitleCount = mf.getSubtitles().size();
 
-          // subtitle languages
-          subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
-
           // HDR Format
           hdrFormat.add(mf.getHdrFormat());
         }
@@ -928,10 +930,17 @@ public final class TvShowList extends AbstractModelObject {
         first = false;
       }
 
-      // get subtitle data also from subtitle files
-      for (MediaFile mf : episode.getMediaFiles(MediaFileType.SUBTITLE)) {
-        subtitleCount++;
-        subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+      // get subtitle language/format from video files and subtitle files
+      for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
+        // subtitle language
+        if (!mf.getSubtitleLanguagesList().isEmpty()) {
+          subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+        }
+        // subtitle formats
+        for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
+          subtitleCount++;
+          subtitleFormats.add(subtitle.getCodec());
+        }
       }
 
       // get audio data also from audio files
@@ -986,6 +995,11 @@ public final class TvShowList extends AbstractModelObject {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInEpisodes);
     }
 
+    // subtitle formats
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleFormatsInEpisodes, subtitleFormats)) {
+      firePropertyChange(Constants.SUBTITLE_FORMATS, null, subtitleFormatsInEpisodes);
+    }
+
     // HDR Format
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInEpisodes, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInEpisodes);
@@ -1031,6 +1045,10 @@ public final class TvShowList extends AbstractModelObject {
 
   public Collection<String> getSubtitleLanguagesInEpisodes() {
     return Collections.unmodifiableList(subtitleLanguagesInEpisodes);
+  }
+
+  public Collection<String> getSubtitleFormatsInEpisodes() {
+    return Collections.unmodifiableList(subtitleFormatsInEpisodes);
   }
 
   public Collection<String> getHdrFormatInEpisodes() {

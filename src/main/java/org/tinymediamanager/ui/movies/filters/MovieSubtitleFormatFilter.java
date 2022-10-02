@@ -28,24 +28,25 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * the class {@link MovieSubtitleLanguageFilter} is used to provide a filter for the movie subtitle language
+ * the class {@link MovieSubtitleFormatFilter} is used to provide a filter for the movie subtitle formats
  * 
- * @author Wolfgang Janes
+ * @author Manuel Laggner
  */
-public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
+public class MovieSubtitleFormatFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
   private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
-  public MovieSubtitleLanguageFilter() {
+  public MovieSubtitleFormatFilter() {
     super();
     checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-    buildSubtitleLanguageArray();
-    movieList.addPropertyChangeListener(Constants.SUBTITLE_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildSubtitleLanguageArray));
+    buildSubtitleFormatArray();
+    movieList.addPropertyChangeListener(Constants.SUBTITLE_FORMATS, evt -> SwingUtilities.invokeLater(this::buildSubtitleFormatArray));
   }
 
   @Override
@@ -60,12 +61,12 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitlelanguage"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitleformat"));
   }
 
   @Override
   public String getId() {
-    return "movieSubtitleLanguage";
+    return "movieSubtitleFormat";
   }
 
   @Override
@@ -74,8 +75,8 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
     List<String> selectedItems = checkComboBox.getSelectedItems();
 
     for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
-      for (String lang : mf.getSubtitleLanguagesList()) {
-        if (selectedItems.contains(lang)) {
+      for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
+        if (selectedItems.contains(subtitle.getCodec())) {
           return true;
         }
       }
@@ -84,9 +85,9 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
     return false;
   }
 
-  public void buildSubtitleLanguageArray() {
-    List<String> subtitleLanguages = new ArrayList<>(movieList.getSubtitleLanguagesInMovies());
-    Collections.sort(subtitleLanguages);
-    setValues(subtitleLanguages);
+  public void buildSubtitleFormatArray() {
+    List<String> subtitleFormats = new ArrayList<>(movieList.getSubtitleFormatsInMovies());
+    Collections.sort(subtitleFormats);
+    setValues(subtitleFormats);
   }
 }

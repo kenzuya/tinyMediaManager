@@ -65,6 +65,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -114,6 +115,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             decadeInMovies;
   private final CopyOnWriteArrayList<String>             hdrFormatInMovies;
   private final CopyOnWriteArrayList<String>             audioTitlesInMovies;
+  private final CopyOnWriteArrayList<String>             subtitleFormatsInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -143,8 +145,9 @@ public final class MovieList extends AbstractModelObject {
     decadeInMovies = new CopyOnWriteArrayList<>();
     hdrFormatInMovies = new CopyOnWriteArrayList<>();
     audioTitlesInMovies = new CopyOnWriteArrayList<>();
+    subtitleFormatsInMovies = new CopyOnWriteArrayList<>();
 
-    // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
+    // movie listener: it's used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
       if (evt.getSource() instanceof Movie) {
         Movie movie = (Movie) evt.getSource();
@@ -1015,13 +1018,18 @@ public final class MovieList extends AbstractModelObject {
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
     Set<String> audioTitles = new HashSet<>();
+    Set<String> subtitleFormats = new HashSet<>();
 
-    // get Subtitle language from video files and subtitle files
+    // get subtitle language/format from video files and subtitle files
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
         // subtitle language
         if (!mf.getSubtitleLanguagesList().isEmpty()) {
           subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+        }
+        // subtitle formats
+        for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
+          subtitleFormats.add(subtitle.getCodec());
         }
       }
     }
@@ -1116,6 +1124,11 @@ public final class MovieList extends AbstractModelObject {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInMovies);
     }
 
+    // subtitle formats
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleFormatsInMovies, subtitleFormats)) {
+      firePropertyChange(Constants.SUBTITLE_FORMATS, null, subtitleFormatsInMovies);
+    }
+
     // HDR Format
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInMovies, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInMovies);
@@ -1203,6 +1216,10 @@ public final class MovieList extends AbstractModelObject {
 
   public Collection<String> getSubtitleLanguagesInMovies() {
     return Collections.unmodifiableList(subtitleLanguagesInMovies);
+  }
+
+  public Collection<String> getSubtitleFormatsInMovies() {
+    return Collections.unmodifiableList(subtitleFormatsInMovies);
   }
 
   public Collection<String> getHDRFormatInMovies() {

@@ -1,3 +1,4 @@
 Version 5.0
 =======================
-⚡️ better handling of image cache upon rename
++ added subtitle format info to media files tab and filters #1709
+x better handling of image cache upon rename

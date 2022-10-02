@@ -339,6 +339,7 @@ abstract public class MediaInformationPanel extends JPanel {
     public MediaFileSubtitle subtitle;
 
     public SubtitleContainer() {
+      // to be accessible
     }
   }
 
@@ -381,6 +382,13 @@ abstract public class MediaInformationPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.sdh"), "sdh", container -> container.subtitle.isSdh(), Boolean.class);
       col.setColumnComparator(booleanComparator);
+      addColumn(col);
+
+      /*
+       * format
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.format"), "format", container -> container.subtitle.getCodec(), String.class);
+      col.setColumnComparator(stringComparator);
       addColumn(col);
 
       /*

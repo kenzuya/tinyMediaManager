@@ -789,7 +789,6 @@ public class MediaFileHelper {
 
     // do not work further on non media files files
     switch (mediaFile.getType()) {
-      case SUBTITLE:
       case NFO:
       case TEXT:
       case MEDIAINFO:
@@ -2589,6 +2588,10 @@ public class MediaFileHelper {
         break;
 
       case NFO: // do nothing here, but do not display default warning (since we got the filedate)
+        break;
+
+      case SUBTITLE:
+        gatherSubtitleInformation(mediaFile, miSnapshot);
         break;
 
       default:

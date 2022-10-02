@@ -1,18 +1,19 @@
 /*
  * Copyright 2012 - 2022 Manuel Laggner
- *
+ *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *  
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.tinymediamanager.ui.tvshows.filters;
 
 import static org.tinymediamanager.core.MediaFileType.SUBTITLE;
@@ -29,6 +30,7 @@ import javax.swing.SwingUtilities;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -36,18 +38,18 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * the class {@link TvShowSubtitleLanguageFilter} is a filter for subtitle languages for TV shows
+ * the class {@link TvShowSubtitleFormatFilter} is used to provide a filter for the TV show subtitle formats
  * 
- * @author Wolfgang Janes
+ * @author Manuel Laggner
  */
-public class TvShowSubtitleLanguageFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
+public class TvShowSubtitleFormatFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
   private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
-  public TvShowSubtitleLanguageFilter() {
+  public TvShowSubtitleFormatFilter() {
     super();
     checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-    buildSubtitleLanguageArray();
-    tvShowList.addPropertyChangeListener(Constants.SUBTITLE_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildSubtitleLanguageArray));
+    buildSubtitleFormatArray();
+    tvShowList.addPropertyChangeListener(Constants.SUBTITLE_FORMATS, evt -> SwingUtilities.invokeLater(this::buildSubtitleFormatArray));
 
   }
 
@@ -69,8 +71,8 @@ public class TvShowSubtitleLanguageFilter extends AbstractCheckComboBoxTvShowUIF
     for (TvShowEpisode episode : episodes) {
       List<MediaFile> mfs = episode.getMediaFiles(VIDEO, SUBTITLE);
       for (MediaFile mf : mfs) {
-        for (String lang : mf.getSubtitleLanguagesList()) {
-          if (invert ^ selectedItems.contains(lang)) {
+        for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
+          if (invert ^ selectedItems.contains(subtitle.getCodec())) {
             return true;
           }
         }
@@ -82,17 +84,17 @@ public class TvShowSubtitleLanguageFilter extends AbstractCheckComboBoxTvShowUIF
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitlelanguage"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitleformat"));
   }
 
   @Override
   public String getId() {
-    return "tvShowSubtitleLanguage";
+    return "tvShowSubtitleFormat";
   }
 
-  private void buildSubtitleLanguageArray() {
-    List<String> subtitles = new ArrayList<>(tvShowList.getSubtitleLanguagesInEpisodes());
-    Collections.sort(subtitles);
-    setValues(subtitles);
+  private void buildSubtitleFormatArray() {
+    List<String> subtitleFormats = new ArrayList<>(tvShowList.getSubtitleFormatsInEpisodes());
+    Collections.sort(subtitleFormats);
+    setValues(subtitleFormats);
   }
 }
