@@ -136,9 +136,9 @@ public class TvShowScrapeTask extends TmmThreadPool {
         MediaSearchResult result1 = null;
         if (tvShowScrapeParams.doSearch) {
           List<MediaSearchResult> results = tvShowList.searchTvShow(tvShow.getTitle(), tvShow.getYear(), tvShow.getIds(), mediaMetadataScraper);
-          if (results != null && !results.isEmpty()) {
+          if (ListUtils.isNotEmpty(results)) {
             result1 = results.get(0);
-            // check if there is an other result with 100% score
+            // check if there is another result with 100% score
             if (results.size() > 1) {
               MediaSearchResult result2 = results.get(1);
               // if both results have 100% score - do not take any result
@@ -386,8 +386,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
   public static class TvShowScrapeParams {
     private final List<TvShow>                             tvShowsToScrape;
     private final TvShowSearchAndScrapeOptions             scrapeOptions;
-    private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig;
-    private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig;
+    private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig  = new ArrayList<>();
+    private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = new ArrayList<>();
 
     private boolean                                        doSearch;
     private boolean                                        overwriteExistingItems;
@@ -396,8 +396,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
         List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
       this.tvShowsToScrape = tvShowsToScrape;
       this.scrapeOptions = scrapeOptions;
-      this.tvShowScraperMetadataConfig = tvShowScraperMetadataConfig;
-      this.episodeScraperMetadataConfig = episodeScraperMetadataConfig;
+      this.tvShowScraperMetadataConfig.addAll(tvShowScraperMetadataConfig);
+      this.episodeScraperMetadataConfig.addAll(episodeScraperMetadataConfig);
 
       this.doSearch = true;
       this.overwriteExistingItems = true;
