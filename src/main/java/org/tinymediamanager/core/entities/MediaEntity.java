@@ -303,7 +303,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return a map of all IDs
    */
   public Map<String, Object> getIds() {
-    return ids;
+    return Collections.unmodifiableMap(ids);
   }
 
   /**
