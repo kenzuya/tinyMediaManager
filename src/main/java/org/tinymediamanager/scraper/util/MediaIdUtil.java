@@ -154,6 +154,7 @@ public class MediaIdUtil {
     if (mediaType == null) {
       return;
     }
+
     switch (mediaType) {
       case MOVIE:
         injectMovieIds(ids);
