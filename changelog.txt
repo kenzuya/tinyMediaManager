@@ -1,3 +1,7 @@
+Version 4.3.5
+=======================
+
+
 Version 4.3.4
 =======================
 + added the ID of the movie/TV show to the search results #1824
