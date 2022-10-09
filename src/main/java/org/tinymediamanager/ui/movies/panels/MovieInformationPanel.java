@@ -645,7 +645,7 @@ public class MovieInformationPanel extends InformationPanel {
     autoBinding_23.setConverter(new CertificationImageConverter());
     autoBinding_23.bind();
     //
-    Property movieSelectionModelBeanProperty_24 = BeanProperty.create("selectedMovie.traktTvId");
+    Property movieSelectionModelBeanProperty_24 = BeanProperty.create("selectedMovie.traktId");
     AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_24,
         lblTraktTvId, JTextPaneBeanProperty);
     autoBinding_24.setConverter(new ZeroIdConverter());
