@@ -1,5 +1,6 @@
 Version 4.3.5
 =======================
+x prevent crashes in the episode editor due to too large episode numbers #1917
 
 
 Version 4.3.4
