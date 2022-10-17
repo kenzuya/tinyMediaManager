@@ -563,10 +563,10 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getVideoHeight() != mfOriginal.getVideoHeight()) {
             mfOriginal.setVideoHeight(mfEditor.getVideoHeight());
           }
-          if (mfEditor.getAspectRatio() != mfOriginal.getAspectRatio()) {
+          if (Float.compare(mfEditor.getAspectRatio(), mfOriginal.getAspectRatio()) != 0) {
             mfOriginal.setAspectRatio(mfEditor.getAspectRatio());
           }
-          if (mfEditor.getAspectRatio2() != mfOriginal.getAspectRatio2()) {
+          if (Float.compare(mfEditor.getAspectRatio2(), mfOriginal.getAspectRatio2()) != 0) {
             mfOriginal.setAspectRatio2(mfEditor.getAspectRatio2());
           }
           if (mfEditor.getFrameRate() != mfOriginal.getFrameRate()) {
@@ -587,9 +587,26 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getDuration() != mfOriginal.getDuration()) {
             mfOriginal.setDuration(mfEditor.getDuration());
           }
-          // audio streams and subtitles will be completely set
-          mfOriginal.setAudioStreams(mfEditor.getAudioStreams());
-          mfOriginal.setSubtitles(mfEditor.getSubtitles());
+
+          // audio streams and subtitles will be completely set (except empty ones)
+          List<MediaFileAudioStream> audioStreams = new ArrayList<>();
+          for (MediaFileAudioStream audioStream : mfEditor.getAudioStreams()) {
+            if (StringUtils.isBlank(audioStream.getCodec()) || audioStream.getBitrate() == 0 || audioStream.getAudioChannels() == 0) {
+              continue;
+            }
+            audioStreams.add(audioStream);
+          }
+          mfOriginal.setAudioStreams(audioStreams);
+
+          List<MediaFileSubtitle> subtitles = new ArrayList<>();
+          for (MediaFileSubtitle subtitle : mfEditor.getSubtitles()) {
+            if (StringUtils.isBlank(subtitle.getLanguage())) {
+              continue;
+            }
+            subtitles.add(subtitle);
+          }
+          mfOriginal.setSubtitles(subtitles);
+
           break;
         }
       }
