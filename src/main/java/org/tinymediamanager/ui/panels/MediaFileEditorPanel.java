@@ -597,7 +597,12 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   public void unbindBindings() {
-    bindingGroup.unbind();
+    try {
+      bindingGroup.unbind();
+    }
+    catch (Exception ignored) {
+      // just not crash
+    }
   }
 
   protected void initDataBindings() {
