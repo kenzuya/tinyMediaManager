@@ -66,6 +66,7 @@ import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
@@ -563,10 +564,10 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getVideoHeight() != mfOriginal.getVideoHeight()) {
             mfOriginal.setVideoHeight(mfEditor.getVideoHeight());
           }
-          if (Float.compare(mfEditor.getAspectRatio(), mfOriginal.getAspectRatio()) != 0) {
+          if (MetadataUtil.unboxFloat(mfEditor.getAspectRatio()) != MetadataUtil.unboxFloat(mfOriginal.getAspectRatio())) {
             mfOriginal.setAspectRatio(mfEditor.getAspectRatio());
           }
-          if (Float.compare(mfEditor.getAspectRatio2(), mfOriginal.getAspectRatio2()) != 0) {
+          if (MetadataUtil.unboxFloat(mfEditor.getAspectRatio2()) != MetadataUtil.unboxFloat(mfOriginal.getAspectRatio2())) {
             mfOriginal.setAspectRatio2(mfEditor.getAspectRatio2());
           }
           if (mfEditor.getFrameRate() != mfOriginal.getFrameRate()) {
