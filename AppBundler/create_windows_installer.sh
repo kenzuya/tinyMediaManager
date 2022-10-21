@@ -17,7 +17,7 @@ iscc installer.iss "/DMyAppVersionText=$VERSION_T" "/DMyAppVersionNum=$VERSION_N
 
 # sign
 echo -n "$1" | base64 -d > "code-sign-cert.p12"
-osslsigncode sign -pkcs12 "code-sign-cert.p12" -pass "$2" -n "tinyMediaManager" -i https://www.tinymediamanager.org/ -in Output/tinyMediaManagerSetup.exe -out ../../dist/tinyMediaManagerSetup.exe
+osslsigncode sign -pkcs12 "code-sign-cert.p12" -pass "$2" -n "tinyMediaManager" -i https://www.tinymediamanager.org/ -in Output/tinyMediaManager-$VERSION_T-Setup.exe -out ../../dist/tinyMediaManager-$VERSION_T-Setup.exe
 
 # cleanup
 cd ..
