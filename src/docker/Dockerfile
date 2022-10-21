@@ -1,6 +1,15 @@
 # Building application container
 FROM max06net/base-gui:0.2.1-buster-slim
 
+LABEL "org.opencontainers.image.version"="${human.version}"
+LABEL "org.opencontainers.image.title"="${project.artifactId}"
+LABEL "org.opencontainers.image.description"="${project.description}"
+LABEL "org.opencontainers.image.url"="${project.url}"
+LABEL "org.opencontainers.image.licenses"="Apache License, Version 2.0"
+LABEL "org.opencontainers.image.revision"="${buildNumber}"
+LABEL "org.opencontainers.image.documentation"="https://hub.docker.com/r/tinymediamanager/tinymediamanager"
+LABEL "org.opencontainers.image.source "="${procejt.scm.url}"
+
 ENV APP=tinyMediaManager
 ENV ALLOW_DIRECT_VNC=true
 
@@ -29,8 +38,6 @@ RUN \
 
 ADD launcher-extra.yml /app/
 ADD tmm.prop /data/data/
-
-LABEL Name="tinyMediaManager prerelease" Version="v4"
 
 WORKDIR /app
 CMD ["/app/tinyMediaManager"]

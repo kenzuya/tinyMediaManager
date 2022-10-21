@@ -78,7 +78,7 @@
 		<maven.compiler.release>11</maven.compiler.release>
 		<skipTests>true</skipTests> <!-- to override on command line -->
 		<skipITests>true</skipITests> <!-- to override on command line -->
-		<tier>SNAPSHOT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
+		<tier>GIT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
 
 		<jar.version>3.3.0</jar.version>
 		<surefire.version>3.0.0-M7</surefire.version>
@@ -423,6 +423,11 @@
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
 			</resource>
+			<resource>
+				<directory>src/docker</directory>
+				<filtering>true</filtering>
+				<targetPath>${basedir}/target/docker</targetPath>
+			</resource>
 		</resources>
 		<testResources>
 			<testResource>
@@ -560,7 +565,7 @@
 				<version>3.0.0</version>
 				<executions>
 					<execution>
-						<phase>process-resources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
@@ -601,7 +606,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>regex-property</id>
+						<id>generate-human-version</id>
 						<goals>
 							<goal>regex-property</goal>
 						</goals>
@@ -1056,7 +1061,7 @@
 								<configuration>
 									<outputDirectory>dist</outputDirectory>
 									<finalName>${project.artifactId}-${human.version}</finalName>
-									<attach>true</attach> <!-- needed for docker -->
+									<attach>false</attach>
 									<descriptors>
 										<descriptor>src/assembly/windows-x64.xml</descriptor>
 										<descriptor>src/assembly/linux-x64.xml</descriptor>
@@ -1076,7 +1081,7 @@
 								<configuration>
 									<outputDirectory>target</outputDirectory>
 									<finalName>${project.artifactId}-${human.version}</finalName>
-									<attach>true</attach> <!-- needed for docker -->
+									<attach>false</attach>
 									<descriptors>
 										<descriptor>src/assembly/macos-x64.xml</descriptor>
 										<descriptor>src/assembly/macos-aarch64.xml</descriptor>
@@ -1113,7 +1118,6 @@
 							</target>
 						</configuration>
 					</plugin>
-
 				</plugins>
 			</build>
 		</profile>

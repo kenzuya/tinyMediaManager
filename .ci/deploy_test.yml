@@ -23,7 +23,7 @@ build:
   variables:
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
-    # generate changelog.txt for test builds
+    # generate changelog.txt
     - sh generate_changelog.sh
 
     # package archives
@@ -39,6 +39,8 @@ build:
   artifacts:
     expire_in: 2 hours
     paths:
+      - dist/tinyMediaManager*linux-amd64.tar.xz # upload for docker build
+      - target/docker # compiled Dockerfile
       - target/tinyMediaManager*macos*.zip
 
 build-mac:
@@ -55,6 +57,27 @@ build-mac:
 
     # push the build to the webserver
     - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
+
+deploy-docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - name: docker:dind
+  needs:
+    - build
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager:5-test
+  script:
+    # login
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+
+    # build
+    - tar xzf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
+    - cd target/docker
+    - docker build -t $IMAGE_NAME .
+
+    # push to the registry
+    #- docker push $IMAGE_NAME
 
 deploy:
   stage: deploy
