@@ -17,6 +17,7 @@ package org.tinymediamanager.ui;
 
 import java.awt.Desktop;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -78,6 +81,29 @@ public class TmmUIHelper {
 
   private TmmUIHelper() {
     throw new IllegalAccessError();
+  }
+
+  public static void setLookAndFeel() {
+    // load font settings
+    try {
+      // sanity check
+      Font font = Font.decode(Settings.getInstance().getFontFamily());
+      Font savedFont = new Font(font.getFamily(), font.getStyle(), Settings.getInstance().getFontSize());
+
+      UIManager.put("defaultFont", savedFont);
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not set default font - {}", e.getMessage());
+    }
+
+    try {
+      TmmUIHelper.setTheme();
+      // decrease the tooltip timeout
+      ToolTipManager.sharedInstance().setInitialDelay(300);
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to initialize LaF - {}", e.getMessage());
+    }
   }
 
   public static Path selectDirectory(String title, String initialPath) {

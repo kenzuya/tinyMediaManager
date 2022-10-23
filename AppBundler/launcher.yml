@@ -12,7 +12,6 @@ jvmOpts:
   - '-XX:+UseG1GC'
   - '-XX:+UseStringDeduplication'
   - '-Dsun.java2d.renderer=sun.java2d.marlin.MarlinRenderingEngine'
-  - '-splash:splashscreen.png'
   - '-Djava.net.preferIPv4Stack=true'
   - '-Dfile.encoding=UTF-8'
   - '-Dsun.jnu.encoding=UTF-8'

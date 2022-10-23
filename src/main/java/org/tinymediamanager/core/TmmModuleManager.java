@@ -108,7 +108,7 @@ public final class TmmModuleManager {
 
         isActive = false;
       }
-    }, 0, 60000);
+    }, 20000, 60000);
 
     // trigger the first log entry
     isActive = true;
