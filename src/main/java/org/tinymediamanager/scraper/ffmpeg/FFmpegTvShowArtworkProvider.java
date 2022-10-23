@@ -53,6 +53,16 @@ public class FFmpegTvShowArtworkProvider extends FFmpegArtworkProvider implement
   }
 
   @Override
+  protected boolean isFanartEnabled() {
+    return false;
+  }
+
+  @Override
+  protected boolean isThumbEnabled() {
+    return Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("episodeThumb"));
+  }
+
+  @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
     if (!isActive()) {
@@ -63,12 +73,11 @@ public class FFmpegTvShowArtworkProvider extends FFmpegArtworkProvider implement
       return Collections.emptyList();
     }
 
-    if (options.getArtworkType() != MediaArtwork.MediaArtworkType.THUMB && options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL) {
+    if (!isThumbEnabled()) {
       return Collections.emptyList();
     }
 
-    if ((options.getArtworkType() != MediaArtwork.MediaArtworkType.THUMB || options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL)
-        && Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("episodeThumb"))) {
+    if (options.getArtworkType() != MediaArtwork.MediaArtworkType.THUMB && options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL) {
       return Collections.emptyList();
     }
 

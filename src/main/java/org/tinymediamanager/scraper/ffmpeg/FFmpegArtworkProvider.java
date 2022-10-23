@@ -128,11 +128,21 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second);
 
-        MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-        still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
-        still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
-        still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-        artworks.add(still);
+        // set the artwork type depending on the configured type
+        if (isFanartEnabled()) {
+          MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+          still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+          still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+          artworks.add(still);
+        }
+        if (isThumbEnabled()) {
+          MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
+          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+          still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+          still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+          artworks.add(still);
+        }
 
       }
       catch (Exception e) {
@@ -188,11 +198,21 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
           FFmpeg.createStill(path, tempFile, second);
 
-          MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
-          still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
-          still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-          artworks.add(still);
+          // set the artwork type depending on the configured type
+          if (isFanartEnabled()) {
+            MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+            still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+            still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+            still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            artworks.add(still);
+          }
+          if (isThumbEnabled()) {
+            MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
+            still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+            still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+            still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            artworks.add(still);
+          }
         }
         catch (Exception e) {
           // has already been logged in FFmpeg
@@ -202,4 +222,18 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
     return artworks;
   }
+
+  /**
+   * checks if fanart is activated in the scraper settings
+   * 
+   * @return true/false
+   */
+  protected abstract boolean isFanartEnabled();
+
+  /**
+   * checks if thumb is activated in the scraper settings
+   * 
+   * @return true/false
+   */
+  protected abstract boolean isThumbEnabled();
 }
