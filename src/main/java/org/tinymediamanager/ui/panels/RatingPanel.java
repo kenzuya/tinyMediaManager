@@ -62,6 +62,7 @@ public class RatingPanel extends JPanel {
     // 1. user rating
     MediaRating userRating = ratings.get(MediaRating.USER);
     if (userRating != null) {
+      addedRatings.add(userRating);
       add(new RatingContainer(userRating));
     }
 
