@@ -27,7 +27,6 @@ import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -518,24 +517,6 @@ public final class TinyMediaManager {
       // should we change the log level for the console?
       // in GUI mode we set that directly. in CLI mode we set that after startup
       setConsoleLogLevel();
-    }
-
-    // check if we have write permissions to this folder
-    try {
-      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
-      f.close();
-      Files.deleteIfExists(Paths.get("access.test"));
-    }
-    catch (Exception e2) {
-      String msg = "Cannot write to TMM directory, have no rights - exiting.";
-      if (!GraphicsEnvironment.isHeadless()) {
-        JOptionPane.showMessageDialog(null, msg);
-      }
-      else {
-        System.out.println(msg); // NOSONAR
-      }
-      shutdownLogger();
-      System.exit(1);
     }
 
     TinyMediaManager tinyMediaManager = new TinyMediaManager();

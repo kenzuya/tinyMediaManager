@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager;
 
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -47,7 +48,7 @@ public final class Globals {
     // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
     if (StringUtils.isBlank(contentFolder)) {
-      if (Files.exists(Paths.get(".userdir"))) {
+      if (Files.exists(Paths.get(".userdir")) || !isTmmDirWritable()) {
         // userdir
         contentFolder = TmmOsUtils.getUserDir().toString();
       }
@@ -92,6 +93,19 @@ public final class Globals {
 
   private Globals() {
     throw new IllegalAccessError();
+  }
+
+  private static boolean isTmmDirWritable() {
+    try {
+      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
+      f.close();
+      Files.deleteIfExists(Paths.get("access.test"));
+      return true;
+    }
+    catch (Exception e) {
+      // ignore
+    }
+    return false;
   }
 
   /**
