@@ -716,6 +716,18 @@ public final class MovieList extends AbstractModelObject {
     LOGGER.info("=====================================================");
     sr.addAll(provider.search(options));
 
+    // Before retrying ALL scrapers, use this as first fallback:
+    // check if title starts with a year, and remove/retry...
+    if (sr.isEmpty() && options.getSearchQuery().matches("^\\d{4}.*")) {
+      MovieSearchAndScrapeOptions o = new MovieSearchAndScrapeOptions(options); // copy
+      o.setSearchQuery(options.getSearchQuery().substring(4));
+      LOGGER.info("=====================================================");
+      LOGGER.info("Searching again without year in title: {}", provider.getProviderInfo().getId());
+      LOGGER.info("options: {}", o);
+      LOGGER.info("=====================================================");
+      sr.addAll(provider.search(o));
+    }
+
     // if result is empty, try all scrapers
     if (sr.isEmpty() && MovieModuleManager.getInstance().getSettings().isScraperFallback()) {
       for (MediaScraper ms : getAvailableMediaScrapers()) {
