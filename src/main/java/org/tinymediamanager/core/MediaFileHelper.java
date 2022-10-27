@@ -1328,7 +1328,7 @@ public class MediaFileHelper {
         }
         // sometimes also an error is thrown
         catch (Exception | Error e) {
-          LOGGER.debug("Mediainfo could not open file UDF for file {} - {}", entry.getPath(), e.getMessage());
+          LOGGER.debug("Mediainfo could not open file UDF for file {} - {}", entry.getPath(), e);
         }
       }
     }
