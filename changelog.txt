@@ -6,6 +6,7 @@ x do not show rating star twice in the ratings panel #1931
 x (TV show) normalize text before filtering the tree #1929
 x AniDB: better filtering of search results
 x Improved search results when having a date in title #1932
+x revert change, which prevented renaming of episodes w/o patterns
 
 
 Version 4.3.4
