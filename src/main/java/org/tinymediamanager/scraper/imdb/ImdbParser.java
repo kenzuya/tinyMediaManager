@@ -1361,7 +1361,7 @@ public abstract class ImdbParser {
       }
       catch (InterruptedException | InterruptedIOException e) {
         // do not swallow these Exceptions
-        Thread.currentThread().interrupt();
+        throw e;
       }
       catch (Exception e) {
         getLogger().debug("tried to fetch imdb page {} - {}", this.pageUrl, e);
