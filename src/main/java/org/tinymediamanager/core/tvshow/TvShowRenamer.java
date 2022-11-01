@@ -1445,10 +1445,16 @@ public class TvShowRenamer {
   public static String getTvShowFoldername(String template, TvShow tvShow) {
     String newPathname;
 
-    if (StringUtils.isNotBlank(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername())) {
-      newPathname = Paths.get(tvShow.getDataSource(), createDestination(template, tvShow)).toString();
+    try {
+      if (StringUtils.isNotBlank(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername())) {
+        newPathname = Paths.get(tvShow.getDataSource(), createDestination(template, tvShow)).toString();
+      }
+      else {
+        newPathname = tvShow.getPathNIO().toString();
+      }
     }
-    else {
+    catch (Exception e) {
+      // could not create a new pathname - stick to old
       newPathname = tvShow.getPathNIO().toString();
     }
 
