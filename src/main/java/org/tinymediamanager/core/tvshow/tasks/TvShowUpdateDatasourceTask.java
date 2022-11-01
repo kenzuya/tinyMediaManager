@@ -70,6 +70,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
+import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
@@ -92,28 +93,25 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  */
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
+  private static final Logger          LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>    SKIP_FOLDERS         = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+  private static final List<String>    SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
       "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
-  private static final String          SKIP_REGEX           = "^[.][\\w@]+.*";
+  private static final String          SKIP_REGEX    = "^[.][\\w@]+.*";
 
-  private static final Pattern         SEASON_NUMBER        = Pattern.compile("(?i)season([0-9]{1,4}).*");
-  private static final Pattern         SEASON_FOLDER_NUMBER = Pattern.compile("(?i).*([0-9]{1,4}).*");
-
-  private static long                  preDir               = 0;
-  private static long                  postDir              = 0;
-  private static long                  visFile              = 0;
+  private static long                  preDir        = 0;
+  private static long                  postDir       = 0;
+  private static long                  visFile       = 0;
 
   private final List<String>           dataSources;
-  private final List<Pattern>          skipFolders          = new ArrayList<>();
-  private final List<Path>             tvShowFolders        = new ArrayList<>();
+  private final List<Pattern>          skipFolders   = new ArrayList<>();
+  private final List<Path>             tvShowFolders = new ArrayList<>();
   private final TvShowList             tvShowList;
-  private final Set<Path>              filesFound           = new HashSet<>();
-  private final ReentrantReadWriteLock fileLock             = new ReentrantReadWriteLock();
+  private final Set<Path>              filesFound    = new HashSet<>();
+  private final ReentrantReadWriteLock fileLock      = new ReentrantReadWriteLock();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -1133,35 +1131,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // fill season artwork map
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
           MediaFileType.SEASON_THUMB)) {
-        int season = Integer.MAX_VALUE;
         try {
-          if (mf.getFilename().startsWith("season-specials")) {
-            season = 0;
-          }
-          else if (mf.getFilename().startsWith("season-all")) {
-            season = -1;
-          }
-          else {
-            // parse out the season from the name
-            Matcher matcher = SEASON_NUMBER.matcher(mf.getFilename());
-            if (matcher.matches()) {
-              season = Integer.parseInt(matcher.group(1));
-            }
-
-            // try to parse out the season from the parent
-            if (season == Integer.MIN_VALUE) {
-              matcher = SEASON_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
-              if (matcher.matches()) {
-                season = Integer.parseInt(matcher.group(1));
-              }
-            }
-            if (season == Integer.MIN_VALUE) {
-              matcher = SEASON_FOLDER_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
-              if (matcher.matches()) {
-                season = Integer.parseInt(matcher.group(1));
-              }
-            }
-          }
+          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
           if (season == Integer.MIN_VALUE) {
             throw new IllegalStateException("did not find a season number");
           }
