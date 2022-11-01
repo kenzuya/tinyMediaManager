@@ -1,5 +1,6 @@
 Version 4.3.5
 =======================
++ added the "date added" column to the movie set table #1937
 x prevent crashes in the episode editor due to too large episode numbers #1917
 x also enable FFmpeg for automatic fanart scraping #1927
 x do not show rating star twice in the ratings panel #1931
