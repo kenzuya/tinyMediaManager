@@ -91,7 +91,7 @@
 		<release.version>2.5.3</release.version>
 		<jre.version>17.0.4</jre.version>
 		<ffmpeg.version>5.1.1</ffmpeg.version>
-		<launcher.version>5.0.1-SNAPSHOT</launcher.version>
+		<launcher.version>5.0.0-SNAPSHOT</launcher.version>
 		<jackson.version>2.13.4</jackson.version>
 		<sonar.java.source>11</sonar.java.source>
 	</properties>
