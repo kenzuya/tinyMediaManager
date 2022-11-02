@@ -1,6 +1,7 @@
 Version 4.3.5
 =======================
 + added the "date added" column to the movie set table #1937
++ IMDB serves different search result pages - parse other one too
 x fixed wrong detection of the season number in season artwork filename (resulting in season2147483647-poster.jpg) #1943
 x prevent crashes in the episode editor due to too large episode numbers #1917
 x also enable FFmpeg for automatic fanart scraping #1927
