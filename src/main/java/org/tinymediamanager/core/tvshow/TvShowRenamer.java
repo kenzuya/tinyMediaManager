@@ -498,6 +498,7 @@ public class TvShowRenamer {
       default:
         neededMediaFiles.add(original);
         break;
+
     }
 
     if (filenamings != null) {
@@ -664,6 +665,7 @@ public class TvShowRenamer {
         MediaFile cl = cleanup.get(i);
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
+          tvShow.removeFromMediaFiles(cl);
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
         }
 
