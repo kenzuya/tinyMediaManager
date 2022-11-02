@@ -15,16 +15,13 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.LinearGradientPaint;
+import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.awt.geom.Point2D;
-import java.awt.geom.RoundRectangle2D;
 import java.net.URISyntaxException;
 import java.util.ResourceBundle;
 
@@ -49,7 +46,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TmmSplashScreen extends JDialog {
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+  private static final Color            FOREGROUND_COLOR = new Color(134, 134, 134);
+
   private final JProgressBar            progressBar;
   private final JLabel                  lblText;
   private final JLabel                  lblVersion;
@@ -74,11 +74,11 @@ public class TmmSplashScreen extends JDialog {
       panelSouth.add(progressBar, "cell 0 0 2 1,growx");
 
       lblText = new JLabel(TmmResourceBundle.getString("splash.loading"));
-      lblText.setForeground(new Color(134, 134, 134));
+      lblText.setForeground(FOREGROUND_COLOR);
       panelSouth.add(lblText, "cell 0 1,growx , wmin 0");
 
       lblVersion = new JLabel("");
-      lblVersion.setForeground(new Color(134, 134, 134));
+      lblVersion.setForeground(FOREGROUND_COLOR);
       TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L2);
       panelSouth.add(lblVersion, "cell 1 1,alignx right");
     }
@@ -139,35 +139,37 @@ public class TmmSplashScreen extends JDialog {
     }
   }
 
-  class TmmSplashProgressBar extends BasicProgressBarUI {
+  static class TmmSplashProgressBar extends BasicProgressBarUI {
+
+    private static final int   PROGRESS_BAR_HEIGHT = 6;
+    private static final int   PROGRESS_BAR_ARC    = 6;
+    private static final Color BACKGROUND_COLOR    = new Color(20, 20, 20);
 
     @Override
     public void paint(Graphics g, JComponent c) {
-      Graphics2D g2d = (Graphics2D) g.create();
-      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-      int iStrokWidth = 2;
-      g2d.setStroke(new BasicStroke(iStrokWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-      g2d.setColor(c.getForeground());
-      g2d.setBackground(c.getBackground());
-      int width = c.getWidth();
-      int height = c.getHeight();
-      RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2), (iStrokWidth / 2), width - iStrokWidth, height - iStrokWidth, height,
-          height);
-      g2d.draw(outline);
-      int iInnerHeight = height - (iStrokWidth * 4);
-      int iInnerWidth = width - (iStrokWidth * 4);
-      iInnerWidth = (int) Math.round(iInnerWidth * progressBar.getPercentComplete());
-      int x = iStrokWidth * 2;
-      int y = iStrokWidth * 2;
-      Point2D start = new Point2D.Double(x, y);
-      Point2D end = new Point2D.Double(x, y + iInnerHeight);
-      float[] dist = { 0.0f, 0.25f, 1.0f };
-      Color[] colors = { c.getForeground(), c.getForeground().brighter(), c.getBackground().darker() };
-      LinearGradientPaint p = new LinearGradientPaint(start, end, dist, colors);
-      g2d.setPaint(p);
-      RoundRectangle2D fill = new RoundRectangle2D.Double(iStrokWidth * 2, iStrokWidth * 2, iInnerWidth, iInnerHeight, iInnerHeight, iInnerHeight);
-      g2d.fill(fill);
-      g2d.dispose();
+      Graphics2D g2D = (Graphics2D) g.create();
+      try {
+        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Insets b = progressBar.getInsets(); // area for border
+        int w = progressBar.getWidth() - (b.right + b.left);
+        int h = progressBar.getHeight() - (b.top + b.bottom);
+
+        // amount of progress to draw
+        int amountFull = getAmountFull(b, w, h);
+
+        // calculate the origin for the progress bar
+        int y = b.top + (h - PROGRESS_BAR_HEIGHT) / 2;
+
+        // draw background
+        g2D.setColor(BACKGROUND_COLOR);
+        g2D.fillRoundRect(b.left, y, w, PROGRESS_BAR_HEIGHT, PROGRESS_BAR_ARC, PROGRESS_BAR_ARC);
+
+        g2D.setColor(FOREGROUND_COLOR);
+        g2D.fillRoundRect(b.left, y, amountFull, PROGRESS_BAR_HEIGHT, PROGRESS_BAR_ARC, PROGRESS_BAR_ARC);
+      }
+      finally {
+        g2D.dispose();
+      }
     }
 
     @Override
