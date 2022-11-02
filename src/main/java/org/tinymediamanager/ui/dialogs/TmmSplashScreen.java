@@ -15,16 +15,26 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
+import java.awt.RenderingHints;
+import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
 import java.net.URISyntaxException;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
@@ -56,9 +66,11 @@ public class TmmSplashScreen extends JDialog {
       JPanel panelSouth = new JPanel();
       panelSouth.setOpaque(false);
       lblBackground.add(panelSouth, BorderLayout.SOUTH);
-      panelSouth.setLayout(new MigLayout("", "[grow,fill][]", "[][]"));
+      panelSouth.setLayout(new MigLayout("ins 20", "[grow,fill][]", "[][]"));
 
       progressBar = new JProgressBar();
+      progressBar.setUI(new TmmSplashProgressBar());
+      progressBar.setPreferredSize(new Dimension(200, 15));
       panelSouth.add(progressBar, "cell 0 0 2 1,growx");
 
       lblText = new JLabel(TmmResourceBundle.getString("splash.loading"));
@@ -124,6 +136,45 @@ public class TmmSplashScreen extends JDialog {
     }
     catch (Exception e) {
       lblText.setText(text);
+    }
+  }
+
+  class TmmSplashProgressBar extends BasicProgressBarUI {
+
+    @Override
+    public void paint(Graphics g, JComponent c) {
+      Graphics2D g2d = (Graphics2D) g.create();
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      int iStrokWidth = 2;
+      g2d.setStroke(new BasicStroke(iStrokWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+      g2d.setColor(c.getForeground());
+      g2d.setBackground(c.getBackground());
+      int width = c.getWidth();
+      int height = c.getHeight();
+      RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2), (iStrokWidth / 2), width - iStrokWidth, height - iStrokWidth, height,
+          height);
+      g2d.draw(outline);
+      int iInnerHeight = height - (iStrokWidth * 4);
+      int iInnerWidth = width - (iStrokWidth * 4);
+      iInnerWidth = (int) Math.round(iInnerWidth * progressBar.getPercentComplete());
+      int x = iStrokWidth * 2;
+      int y = iStrokWidth * 2;
+      Point2D start = new Point2D.Double(x, y);
+      Point2D end = new Point2D.Double(x, y + iInnerHeight);
+      float[] dist = { 0.0f, 0.25f, 1.0f };
+      Color[] colors = { c.getForeground(), c.getForeground().brighter(), c.getBackground().darker() };
+      LinearGradientPaint p = new LinearGradientPaint(start, end, dist, colors);
+      g2d.setPaint(p);
+      RoundRectangle2D fill = new RoundRectangle2D.Double(iStrokWidth * 2, iStrokWidth * 2, iInnerWidth, iInnerHeight, iInnerHeight, iInnerHeight);
+      g2d.fill(fill);
+      g2d.dispose();
+    }
+
+    @Override
+    protected void installDefaults() {
+      super.installDefaults();
+      progressBar.setOpaque(false);
+      progressBar.setBorderPainted(false);
     }
   }
 }
