@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -354,6 +355,11 @@ public class Url {
       cleanup();
       // there is something wrong with the SSL certificate
       throw new IOException("SSL verification failed for '" + UrlUtil.getDomainUrl(url) + "'");
+    }
+    catch (SocketTimeoutException e) {
+      cleanup();
+      LOGGER.debug("timeout: {}", logUrl);
+      throw new HttpException(logUrl, e.getMessage());
     }
     catch (InterruptedIOException | IllegalStateException e) {
       cleanup();

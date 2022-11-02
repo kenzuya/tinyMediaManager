@@ -9,6 +9,7 @@ x (TV show) normalize text before filtering the tree #1929
 x AniDB: better filtering of search results
 x Improved search results when having a date in title #1932
 x revert change, which prevented renaming of episodes w/o patterns
+x better handling of timeouts #1925
 
 
 Version 4.3.4

@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -358,6 +359,10 @@ public abstract class ImdbParser {
     catch (Exception e) {
       getLogger().debug("tried to fetch search response", e);
       throw new ScrapeException(e);
+    }
+
+    if (doc == null) {
+      return Collections.emptySortedSet();
     }
 
     // check if it was directly redirected to the site
@@ -1361,7 +1366,7 @@ public abstract class ImdbParser {
       }
       catch (InterruptedException | InterruptedIOException e) {
         // do not swallow these Exceptions
-        throw e;
+        Thread.currentThread().interrupt();
       }
       catch (Exception e) {
         getLogger().debug("tried to fetch imdb page {} - {}", this.pageUrl, e);
