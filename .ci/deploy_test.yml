@@ -72,7 +72,7 @@ deploy-docker:
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
     # build
-    - tar xzf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
+    - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
     - cd target/docker
     - docker build -t $IMAGE_NAME .
 
