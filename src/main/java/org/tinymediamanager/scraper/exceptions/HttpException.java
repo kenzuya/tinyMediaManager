@@ -33,10 +33,16 @@ public class HttpException extends IOException {
   private final int         statusCode;
   private final String      message;
 
+  public HttpException(String message) {
+    this(null, 0, message);
+  }
+
+  public HttpException(String url, String message) {
+    this(url, 0, message);
+  }
+
   public HttpException(int statusCode, String message) {
-    this.url = null;
-    this.statusCode = statusCode;
-    this.message = message;
+    this(null, statusCode, message);
   }
 
   public HttpException(String url, int statusCode, String message) {
@@ -52,11 +58,17 @@ public class HttpException extends IOException {
 
   @Override
   public String toString() {
-    if (StringUtils.isNotBlank(url)) {
+    if (StringUtils.isNotBlank(url) && statusCode > 0) {
       return "HTTP " + statusCode + " / " + message + " | " + url;
     }
-    else {
+    else if (StringUtils.isNotBlank(url)) {
+      return message + " | " + url;
+    }
+    else if (statusCode > 0) {
       return "HTTP " + statusCode + " / " + message;
+    }
+    else {
+      return message;
     }
   }
 

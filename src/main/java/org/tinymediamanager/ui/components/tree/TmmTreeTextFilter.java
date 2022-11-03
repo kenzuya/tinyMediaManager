@@ -95,9 +95,9 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
 
       private void updateFilter() {
         String oldValue = filterText;
-        filterText = getText();
+        filterText = prepareFilterText();
         try {
-          filterPattern = Pattern.compile("(?i)" + filterText);
+          filterPattern = Pattern.compile(filterText, Pattern.CASE_INSENSITIVE);
           firePropertyChange(ITmmTreeFilter.TREE_FILTER_CHANGED, oldValue, filterText);
         }
         catch (PatternSyntaxException e) {
@@ -105,6 +105,15 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
         }
       }
     });
+  }
+
+  /**
+   * hook for preparing the filter text prior to filtering (e.g. normalizing)
+   * 
+   * @return the prepared filter text
+   */
+  protected String prepareFilterText() {
+    return getText();
   }
 
   @Override

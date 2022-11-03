@@ -220,12 +220,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       tfTitle.setText(episodeToEdit.getTitle());
       tfOriginalTitle.setText(episodeToEdit.getOriginalTitle());
       cbDvdOrder.setSelected(episodeToEdit.isDvdOrder());
-      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, 999999, 1));
-      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, 999999, 1));
-      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, 999999, 1));
-      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, 999999, 1));
-      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, 999999, 1));
-      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, 999999, 1));
+      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, Integer.MAX_VALUE, 1));
+      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, Integer.MAX_VALUE, 1));
+      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, Integer.MAX_VALUE, 1));
+      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, Integer.MAX_VALUE, 1));
+      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, Integer.MAX_VALUE, 1));
+      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, Integer.MAX_VALUE, 1));
       spDateAdded.setValue(episodeToEdit.getDateAdded());
       spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 0.1));
 

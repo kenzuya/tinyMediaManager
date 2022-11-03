@@ -646,7 +646,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *
    * @return the trakt.tv id
    */
-  public int getTraktTvId() {
+  public int getTraktId() {
     return this.getIdAsInt(TRAKT);
   }
 
@@ -656,7 +656,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @param newValue
    *          the new trakt.tv id
    */
-  public void setTraktTvId(int newValue) {
+  public void setTraktId(int newValue) {
     this.setId(TRAKT, newValue);
   }
 

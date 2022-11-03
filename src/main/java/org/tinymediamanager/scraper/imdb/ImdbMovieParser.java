@@ -158,19 +158,6 @@ public class ImdbMovieParser extends ImdbParser {
         parsePlotsummaryPage(doc, options, md);
       }
 
-      // title also from chosen site if we are not scraping akas.imdb.com
-      Element title = doc.getElementById("tn15title");
-      if (title != null) {
-        Element element;
-        // title
-        Elements elements = title.getElementsByClass("main");
-        if (!elements.isEmpty()) {
-          element = elements.first();
-          String movieTitle = cleanString(element.ownText());
-          md.setTitle(movieTitle);
-        }
-      }
-
       if (futureKeywords != null) {
         doc = futureKeywords.get();
         if (doc != null) {
@@ -427,6 +414,7 @@ public class ImdbMovieParser extends ImdbParser {
         return tmdb.getMetadata(options);
       }
       catch (Exception e) {
+        LOGGER.debug("could fetch TMDB API - '{}'", e.getMessage());
         return null;
       }
     }

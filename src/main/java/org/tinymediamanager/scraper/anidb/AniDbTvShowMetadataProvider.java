@@ -204,6 +204,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
             .title(show.title)
             .score(Similarity.compareStrings(show.title, finalSearchString))
             .build())
+        .filter(msr -> msr.getScore() >= 0.75f) // use default
         .collect(Collectors.toCollection(TreeSet::new));
   }
 

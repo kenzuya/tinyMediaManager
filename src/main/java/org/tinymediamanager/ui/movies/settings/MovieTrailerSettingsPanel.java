@@ -133,20 +133,19 @@ class MovieTrailerSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraperInTable, 5);
 
-    tableScraperInTable.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            ScraperInTable changedScraper = scrapers.get(row);
-            if (changedScraper.getActive()) {
-              settings.addMovieTrailerScraper(changedScraper.getScraperId());
-            }
-            else {
-              settings.removeMovieTrailerScraper(changedScraper.getScraperId());
-            }
-          }
-        });
+    tableScraperInTable.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive()) {
+          settings.addMovieTrailerScraper(changedScraper.getScraperId());
+        }
+        else {
+          settings.removeMovieTrailerScraper(changedScraper.getScraperId());
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableScraperInTable.getSelectionModel().addListSelectionListener(e -> {
@@ -316,7 +315,8 @@ class MovieTrailerSettingsPanel extends JPanel {
         trailerFilenameButtonGroup.add(cbTrailerFilename2);
         panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
 
-        cbTrailerFilename3 = new JCheckBox("trailers/movie-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        cbTrailerFilename3 = new JCheckBox("trailers/" + TmmResourceBundle.getString("Settings.moviefilename") + "-trailer."
+            + TmmResourceBundle.getString("Settings.artwork.extension"));
         trailerFilenameButtonGroup.add(cbTrailerFilename3);
         panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
       }

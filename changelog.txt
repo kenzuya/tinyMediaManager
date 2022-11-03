@@ -1,3 +1,18 @@
+Version 4.3.5
+=======================
++ added the "date added" column to the movie set table #1937
++ IMDB serves different search result pages - parse other one too
+x fixed wrong detection of the season number in season artwork filename (resulting in season2147483647-poster.jpg) #1943
+x prevent crashes in the episode editor due to too large episode numbers #1917
+x also enable FFmpeg for automatic fanart scraping #1927
+x do not show rating star twice in the ratings panel #1931
+x (TV show) normalize text before filtering the tree #1929
+x AniDB: better filtering of search results
+x Improved search results when having a date in title #1932
+x revert change, which prevented renaming of episodes w/o patterns
+x better handling of timeouts #1925
+
+
 Version 4.3.4
 =======================
 + added the ID of the movie/TV show to the search results #1824

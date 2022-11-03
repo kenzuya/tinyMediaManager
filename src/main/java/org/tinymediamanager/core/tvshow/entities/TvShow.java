@@ -94,6 +94,7 @@ import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
+import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -131,8 +132,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   public static final Pattern                   SEASON_ONLY_PATTERN        = Pattern.compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$",
       Pattern.CASE_INSENSITIVE);
-  private static final Pattern                  SEASON_NUMBER              = Pattern.compile("(?i)season([0-9]{1,4}).*");
-  private static final Pattern                  SEASON_FOLDER_NUMBER       = Pattern.compile("(?i).*([0-9]{1,4}).*");
 
   @JsonProperty
   private int                                   runtime                    = 0;
@@ -286,36 +285,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         continue;
       }
 
-      int season = Integer.MIN_VALUE;
       try {
-        if (mf.getFilename().startsWith("season-specials")) {
-          season = 0;
-        }
-        else if (mf.getFilename().startsWith("season-all")) {
-          season = -1;
-        }
-        else {
-          // parse out the season from the name
-          Matcher matcher = SEASON_NUMBER.matcher(mf.getFilename());
-          if (matcher.matches()) {
-            season = Integer.parseInt(matcher.group(1));
-          }
-
-          // try to parse out the season from the parent
-          if (season == Integer.MIN_VALUE) {
-            matcher = SEASON_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
-            if (matcher.matches()) {
-              season = Integer.parseInt(matcher.group(1));
-            }
-          }
-          if (season == Integer.MIN_VALUE) {
-            matcher = SEASON_FOLDER_NUMBER.matcher(mf.getFileAsPath().getParent().toString());
-            if (matcher.matches()) {
-              season = Integer.parseInt(matcher.group(1));
-            }
-          }
-
-        }
+        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
 
         if (season == Integer.MIN_VALUE) {
           throw new IllegalStateException("did not find a season number");
@@ -348,7 +319,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    for (TvShowEpisode episode : episodes) {
+    for (
+
+    TvShowEpisode episode : episodes) {
       episode.addPropertyChangeListener(propertyChangeListener);
     }
   }
@@ -2208,6 +2181,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do
   }
 
   @Override

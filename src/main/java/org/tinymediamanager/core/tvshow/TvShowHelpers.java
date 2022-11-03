@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -48,10 +49,13 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
  * @author Manuel Laggner
  */
 public class TvShowHelpers {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShow.class);
+  private static final Logger  LOGGER               = LoggerFactory.getLogger(TvShow.class);
+
+  private static final Pattern SEASON_NUMBER        = Pattern.compile("(?i)season(\\d+).*");
+  private static final Pattern SEASON_FOLDER_NUMBER = Pattern.compile("(?i).*(\\d+).*");
 
   private TvShowHelpers() {
-    // hide constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -194,8 +198,8 @@ public class TvShowHelpers {
   public static void startAutomaticTrailerDownload(TvShow tvShow) {
     // start movie trailer download?
     if (TvShowModuleManager.getInstance().getSettings().isUseTrailerPreference()
-        && TvShowModuleManager.getInstance().getSettings().isAutomaticTrailerDownload()
-        && tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !tvShow.getTrailer().isEmpty()) {
+        && TvShowModuleManager.getInstance().getSettings().isAutomaticTrailerDownload() && tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty()
+        && !tvShow.getTrailer().isEmpty()) {
       downloadBestTrailer(tvShow);
     }
   }
@@ -253,6 +257,7 @@ public class TvShowHelpers {
       }
       else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
+
           @Override
           protected Path getDestinationWoExtension() {
             return tvshow.getPathNIO().resolve(filename);
@@ -271,5 +276,53 @@ public class TvShowHelpers {
       MessageManager.instance.pushMessage(
           new Message(Message.MessageLevel.ERROR, tvshow, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
     }
+  }
+
+  /**
+   * detect the season number of season-xxx named files
+   * 
+   * @param filename
+   *          the filename
+   * @param foldername
+   *          the folder name
+   * @return the season number OR Integer.MIN_VALUE if not detectable
+   */
+  public static int detectSeasonFromFileAndFolder(String filename, String foldername) {
+    int season = Integer.MIN_VALUE;
+
+    if (filename.startsWith("season-specials")) {
+      season = 0;
+    }
+    else if (filename.startsWith("season-all")) {
+      season = -1;
+    }
+    else {
+      // parse out the season from the name
+      Matcher matcher = SEASON_NUMBER.matcher(filename);
+      if (matcher.matches()) {
+        season = Integer.parseInt(matcher.group(1));
+      }
+
+      // try to parse out the season from the parent
+      if (season == Integer.MIN_VALUE) {
+        matcher = SEASON_NUMBER.matcher(foldername);
+        if (matcher.matches()) {
+          season = Integer.parseInt(matcher.group(1));
+        }
+      }
+      if (season == Integer.MIN_VALUE) {
+        matcher = SEASON_FOLDER_NUMBER.matcher(foldername);
+        if (matcher.matches()) {
+          season = Integer.parseInt(matcher.group(1));
+        }
+      }
+    }
+
+    // mitigation for corrupt ones
+    if (season == Integer.MAX_VALUE) {
+      season = Integer.MIN_VALUE;
+    }
+
+    return season;
   }
 }
