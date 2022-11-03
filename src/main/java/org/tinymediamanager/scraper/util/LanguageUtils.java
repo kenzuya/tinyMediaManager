@@ -446,13 +446,31 @@ public class LanguageUtils {
   }
 
   /**
-   * parse the language from a given String
+   * parse the language from a given String and return the ISO 3 code
    * 
    * @param string
    *          the string to parse
-   * @return the language or an empty string
+   * @return the language code (ISO3) or an empty string
    */
   public static String parseLanguageFromString(String string) {
+    String result = findLanguageInString(string);
+
+    if (StringUtils.isNotBlank(result)) {
+      return LanguageUtils.getIso3LanguageFromLocalizedString(result);
+
+    }
+
+    return "";
+  }
+
+  /**
+   * find a language tag at the end of a given string
+   *
+   * @param string
+   *          the string to parse
+   * @return the language tag an empty string
+   */
+  public static String findLanguageInString(String string) {
     if (StringUtils.isBlank(string)) {
       return "";
     }
@@ -463,7 +481,7 @@ public class LanguageUtils {
     for (String s : langArray) {
       try {
         if (LanguageUtils.doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
-          return LanguageUtils.getIso3LanguageFromLocalizedString(s);
+          return s;
         }
       }
       catch (Exception ignored) {

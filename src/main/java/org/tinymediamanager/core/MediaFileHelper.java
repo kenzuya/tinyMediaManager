@@ -911,8 +911,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isDVDFile(String filename) {
@@ -949,8 +947,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isHDDVDFile(String filename) {
@@ -988,8 +984,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isBlurayFile(String filename) {
@@ -2999,41 +2993,50 @@ public class MediaFileHelper {
 
     shortname = shortname.replace(commonPart, "");
 
-    // split the shortname into chunks and search from the end to the beginning for the language
-    List<String> chunks = ParserUtils.splitByPunctuation(shortname);
-
     String language = "";
-    int languageIndex = 0;
     String title = "";
     List<Flags> flags = new ArrayList<>();
 
-    for (int i = chunks.size() - 1; i >= 0; i--) {
-      language = LanguageUtils.parseLanguageFromString(chunks.get(i));
-      if (StringUtils.isNotBlank(language)) {
-        languageIndex = i;
-        break;
+    // look with the whole term first
+    String foundToken = LanguageUtils.findLanguageInString(shortname);
+    if (StringUtils.isNotBlank(foundToken)) {
+      // found trailing language code - just need to remove it from the title
+      language = LanguageUtils.getIso3LanguageFromLocalizedString(foundToken);
+      title = shortname.replaceAll("(?i).*" + Pattern.quote(foundToken) + "$", "");
+    }
+    else {
+      // split the shortname into chunks and search from the end to the beginning for the language
+      List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+
+      int languageIndex = 0;
+
+      for (int i = chunks.size() - 1; i >= 0; i--) {
+        language = LanguageUtils.parseLanguageFromString(chunks.get(i));
+        if (StringUtils.isNotBlank(language)) {
+          languageIndex = i;
+          break;
+        }
+      }
+
+      if (languageIndex < chunks.size() - 1) {
+        // the language index was not the last chunk. Save the part between the language index and the last chunk as title
+        title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
       }
     }
-
-    if (languageIndex < chunks.size() - 1) {
-      // the language index was not the last chunk. Save the part between the language index and the last chunk as title
-      title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
-
-      if (title.contains("forced")) {
-        flags.add(Flags.FLAG_FORCED);
-        title = title.replaceAll("\\p{Punct}*forced", "");
-      }
-      if (title.contains("sdh")) {
-        flags.add(Flags.FLAG_HEARING_IMPAIRED);
-        title = title.replaceAll("\\p{Punct}*sdh", "");
-      }
-      else if (title.contains("cc")) { // basically the same as sdh
-        flags.add(Flags.FLAG_HEARING_IMPAIRED);
-        title = title.replaceAll("\\p{Punct}*cc", "");
-      }
-
-      title = title.strip();
+    if (title.contains("forced")) {
+      flags.add(Flags.FLAG_FORCED);
+      title = title.replaceAll("\\p{Punct}*forced", "");
     }
+    if (title.contains("sdh")) {
+      flags.add(Flags.FLAG_HEARING_IMPAIRED);
+      title = title.replaceAll("\\p{Punct}*sdh", "");
+    }
+    else if (title.contains("cc")) { // basically the same as sdh
+      flags.add(Flags.FLAG_HEARING_IMPAIRED);
+      title = title.replaceAll("\\p{Punct}*cc", "");
+    }
+
+    title = title.strip();
 
     if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
       MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
