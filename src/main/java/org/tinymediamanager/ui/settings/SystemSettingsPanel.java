@@ -53,6 +53,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.LauncherExtraConfig;
 import org.tinymediamanager.addon.FFmpegAddon;
 import org.tinymediamanager.core.Settings;
@@ -397,7 +398,7 @@ class SystemSettingsPanel extends JPanel {
   private void writeMemorySettings() {
     int memoryAmount = sliderMemory.getValue();
 
-    Path file = Paths.get(LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+    Path file = Paths.get(Globals.DATA_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
     try {
       LauncherExtraConfig extraConfig = LauncherExtraConfig.readFile(file.toFile());
 
