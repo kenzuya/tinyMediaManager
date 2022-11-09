@@ -1931,7 +1931,9 @@ public class MediaFileHelper {
         else {
           MediaFile copy = new MediaFile(mediaFile);
           gatherSubtitleInformationFromFilename(copy);
-          stream.setLanguage(copy.getSubtitleLanguagesList().get(0)); // get first
+          if (copy.getSubtitleLanguagesList() != null && copy.getSubtitleLanguagesList().size() > 0) {
+            stream.setLanguage(copy.getSubtitleLanguagesList().get(0)); // get first
+          }
         }
 
         String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
