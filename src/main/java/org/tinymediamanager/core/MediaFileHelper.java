@@ -1925,7 +1925,14 @@ public class MediaFileHelper {
         String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
         stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
         String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
-        stream.setLanguage(parseLanguageFromString(lang));
+        if (!lang.isEmpty() || i > 0) { // do not parse stream 2+ from filename - just first one!
+          stream.setLanguage(parseLanguageFromString(lang));
+        }
+        else {
+          MediaFile copy = new MediaFile(mediaFile);
+          gatherSubtitleInformationFromFilename(copy);
+          stream.setLanguage(copy.getSubtitleLanguagesList().get(0)); // get first
+        }
 
         String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
         boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
@@ -1938,7 +1945,7 @@ public class MediaFileHelper {
 
         // "default" subtitle stream?
         String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
-        if (def.equalsIgnoreCase("yes")) {
+        if (def.equalsIgnoreCase("true") || def.equalsIgnoreCase("yes")) {
           stream.setDefaultStream(true);
         }
         subtitles.add(stream);
