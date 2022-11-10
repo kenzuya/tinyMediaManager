@@ -1845,7 +1845,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static void gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
+  private static MediaFileSubtitle gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
 
@@ -1895,7 +1895,34 @@ public class MediaFileHelper {
     }
 
     sub.setCodec(mediaFile.getExtension());
-    mediaFile.setSubtitles(Collections.singletonList(sub));
+    return sub;
+  }
+
+  private static MediaFileSubtitle gatherSubtitleInformationFromMediainfo(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, int i) {
+
+    MediaFileSubtitle stream = new MediaFileSubtitle();
+    stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
+
+    String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
+    stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
+    String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+    stream.setLanguage(parseLanguageFromString(lang));
+
+    String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
+    boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
+    stream.setForced(b);
+
+    String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+    if (StringUtils.isNotBlank(title)) {
+      stream.setTitle(title);
+    }
+
+    // "default" subtitle stream?
+    String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
+    if (def.equalsIgnoreCase("true") || def.equalsIgnoreCase("yes")) {
+      stream.setDefaultStream(true);
+    }
+    return stream;
   }
 
   /**
@@ -1910,46 +1937,32 @@ public class MediaFileHelper {
 
     int streams = getSubtitleStreamCount(miSnapshot);
 
-    if (streams == 0 && mediaFile.getType() == MediaFileType.SUBTITLE) {
-      // no streams found? try to parse the data out of the file name
-      gatherSubtitleInformationFromFilename(mediaFile);
+    // subtitle FILE, can have ONE stream, or just parse filename
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      MediaFileSubtitle sub = new MediaFileSubtitle();
+      if (streams > 0) {
+        MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, 0);
+        sub = stream;
+      }
+      MediaFileSubtitle file = gatherSubtitleInformationFromFilename(mediaFile);
+      // overwrite with file infos
+      if (sub.getLanguage().isEmpty()) {
+        sub.setLanguage(file.getLanguage());
+      }
+      if (file.isSdh()) {
+        sub.setSdh(true);
+      }
+      if (file.isForced()) {
+        sub.setForced(true);
+      }
+      mediaFile.setSubtitles(Collections.singletonList(sub));
     }
     else {
-      // streams found - take MI info
+      // embedded
       List<MediaFileSubtitle> subtitles = new ArrayList<>();
 
       for (int i = 0; i < streams; i++) {
-        MediaFileSubtitle stream = new MediaFileSubtitle();
-        stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
-
-        String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
-        stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-        String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
-        if (!lang.isEmpty() || i > 0) { // do not parse stream 2+ from filename - just first one!
-          stream.setLanguage(parseLanguageFromString(lang));
-        }
-        else {
-          MediaFile copy = new MediaFile(mediaFile);
-          gatherSubtitleInformationFromFilename(copy);
-          if (copy.getSubtitleLanguagesList() != null && copy.getSubtitleLanguagesList().size() > 0) {
-            stream.setLanguage(copy.getSubtitleLanguagesList().get(0)); // get first
-          }
-        }
-
-        String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
-        boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
-        stream.setForced(b);
-
-        String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
-        if (StringUtils.isNotBlank(title)) {
-          stream.setTitle(title);
-        }
-
-        // "default" subtitle stream?
-        String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
-        if (def.equalsIgnoreCase("true") || def.equalsIgnoreCase("yes")) {
-          stream.setDefaultStream(true);
-        }
+        MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, i);
         subtitles.add(stream);
       }
 
