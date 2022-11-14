@@ -1,4 +1,5 @@
 Version 5.0
 =======================
 + added subtitle format info to media files tab and filters #1709
++ fetch ratings: remember last used rating sources #1940
 x better handling of image cache upon rename
