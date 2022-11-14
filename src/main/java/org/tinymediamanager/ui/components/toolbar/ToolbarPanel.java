@@ -256,37 +256,22 @@ public class ToolbarPanel extends JPanel {
 
     JMenuItem tmmFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotoinstalldir"));
     menu.add(tmmFolder);
-    tmmFolder.addActionListener(arg0 -> {
-      Path path = Paths.get(System.getProperty("user.dir"));
-      try {
-        // check whether this location exists
-        if (Files.exists(path)) {
-          TmmUIHelper.openFile(path);
-        }
-      }
-      catch (Exception ex) {
-        LOGGER.error("open filemanager", ex);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-      }
-    });
+    tmmFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotoinstalldir.desc"));
+    tmmFolder.addActionListener(arg0 -> openFolder(Paths.get(System.getProperty("user.dir"))));
+
+    JMenuItem dataFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotodatadir"));
+    menu.add(dataFolder);
+    dataFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotodatadir.desc"));
+    dataFolder.addActionListener(arg0 -> openFolder(Paths.get(Globals.DATA_FOLDER)));
+
+    JMenuItem logFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotologdir"));
+    menu.add(logFolder);
+    logFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotologdir.desc"));
+    logFolder.addActionListener(arg0 -> openFolder(Paths.get(Globals.LOG_FOLDER)));
 
     JMenuItem tmpFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gototmpdir"));
     menu.add(tmpFolder);
-    tmpFolder.addActionListener(arg0 -> {
-      Path path = Paths.get(Utils.getTempFolder());
-      try {
-        // check whether this location exists
-        if (Files.exists(path)) {
-          TmmUIHelper.openFile(path);
-        }
-      }
-      catch (Exception ex) {
-        LOGGER.error("open filemanager", ex);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-      }
-    });
+    tmpFolder.addActionListener(arg0 -> openFolder(Paths.get(Utils.getTempFolder())));
 
     menu.add(new DeleteTrashAction());
     menu.addSeparator();
@@ -296,10 +281,12 @@ public class ToolbarPanel extends JPanel {
     menuWakeOnLan.addMenuListener(new MenuListener() {
       @Override
       public void menuCanceled(MenuEvent arg0) {
+        // nothing to do
       }
 
       @Override
       public void menuDeselected(MenuEvent arg0) {
+        // nothing to do
       }
 
       @Override
@@ -340,10 +327,12 @@ public class ToolbarPanel extends JPanel {
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // nothing to do
       }
 
       @Override
       public void popupMenuCanceled(PopupMenuEvent e) {
+        // nothing to do
       }
     });
 
@@ -390,6 +379,20 @@ public class ToolbarPanel extends JPanel {
     }
 
     return menu;
+  }
+
+  private static void openFolder(Path path) {
+    try {
+      // check whether this location exists
+      if (Files.exists(path)) {
+        TmmUIHelper.openFile(path);
+      }
+    }
+    catch (Exception ex) {
+      LOGGER.error("open filemanager", ex);
+      MessageManager.instance
+          .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+    }
   }
 
   private JPopupMenu buildInfoMenu() {

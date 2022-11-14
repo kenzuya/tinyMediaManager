@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
 
 public class ToolbarMenu extends ToolbarLabel {
-  public static Color        COLOR       = Color.GRAY;
-  public static Color        COLOR_HOVER = Color.WHITE;
+  public static final Color COLOR       = Color.GRAY;
+  public static final Color COLOR_HOVER = Color.WHITE;
 
-  protected JPopupMenu       popupMenu   = null;
+  protected JPopupMenu      popupMenu   = null;
 
   public ToolbarMenu(String text) {
     super(text);
