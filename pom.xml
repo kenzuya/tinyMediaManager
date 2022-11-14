@@ -77,7 +77,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compiler.release>11</maven.compiler.release>
+		<maven.compiler.release>17</maven.compiler.release>
 		<skipTests>true</skipTests> <!-- to override on command line -->
 		<skipITests>true</skipITests> <!-- to override on command line -->
 
@@ -94,7 +94,7 @@
 		<ffmpeg.version>5.0</ffmpeg.version>
 		<launcher.version>1.1.12</launcher.version>
 		<jackson.version>2.13.2</jackson.version>
-		<sonar.java.source>11</sonar.java.source>
+		<sonar.java.source>17</sonar.java.source>
 	</properties>
 
 	<dependencies>
