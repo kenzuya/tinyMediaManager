@@ -60,8 +60,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationPanel extends JPanel {
-  private static final long          serialVersionUID = 1610264727610254912L;
-
   private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private final TvShowSelectionModel selectionModel;

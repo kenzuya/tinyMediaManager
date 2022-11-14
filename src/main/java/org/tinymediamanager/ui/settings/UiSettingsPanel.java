@@ -66,8 +66,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class UiSettingsPanel extends JPanel {
-  private static final long          serialVersionUID   = 6409982195347794360L;
-
   private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 

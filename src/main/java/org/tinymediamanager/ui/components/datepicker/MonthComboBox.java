@@ -27,8 +27,6 @@ import javax.swing.JComboBox;
  * @author Manuel Laggner
  */
 class MonthComboBox extends JComboBox<String> {
-  private static final long serialVersionUID = 5078860132234256877L;
-
   MonthComboBox() {
     DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(Locale.getDefault());
     String[] monthNames = dateFormatSymbols.getMonths();

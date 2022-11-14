@@ -37,9 +37,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieExporterDialog;
  * @author Manuel Laggner
  */
 public class MovieExportAction extends TmmAction {
-  private static final long           serialVersionUID = -6731682301579049379L;
-  
-
   public MovieExportAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);
     putValue(SMALL_ICON, IconManager.EXPORT);

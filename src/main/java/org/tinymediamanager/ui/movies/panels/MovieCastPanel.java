@@ -49,8 +49,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieCastPanel extends JPanel {
-  private static final long         serialVersionUID  = 2972207353452870494L;
-
   private final MovieSelectionModel selectionModel;
 
   private EventList<Person>         actorEventList    = null;

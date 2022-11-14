@@ -47,8 +47,6 @@ import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
-  private static final long                 serialVersionUID = 2513029074142934502L;
-
   private final TvShowEpisodeSelectionModel selectionModel;
 
   public TvShowEpisodeMediaInformationPanel(TvShowEpisodeSelectionModel model) {

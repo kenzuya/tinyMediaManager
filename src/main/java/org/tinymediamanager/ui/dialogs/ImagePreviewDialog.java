@@ -53,8 +53,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePreviewDialog extends TmmDialog {
-  private static final long   serialVersionUID = -7479476493187235867L;
-
   private static final Logger LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
 
   private final JPanel        imagePanel       = new JPanel();

@@ -67,9 +67,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieSetMissingMovieInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(MovieSetMissingMovieInformationPanel.class);
-  private static final long                  serialVersionUID      = -8527285262749511617L;
-
-
 
   private final MovieSelectionModel          movieSelectionModel;
   private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();

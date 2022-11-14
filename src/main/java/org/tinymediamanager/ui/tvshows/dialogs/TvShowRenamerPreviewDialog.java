@@ -64,8 +64,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowRenamerPreviewDialog extends TmmDialog {
-  private static final long                              serialVersionUID = -8163631711234589277L;
-
   private final EventList<TvShowRenamerPreviewContainer> results;
   private final ResultSelectionModel                     resultSelectionModel;
   private final EventList<MediaFileContainer>            oldMediaFileEventList;

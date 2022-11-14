@@ -86,8 +86,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ToolbarPanel extends JPanel {
-  private static final long   serialVersionUID = 7969400170662870244L;
-
   private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private final ToolbarButton btnSearch;

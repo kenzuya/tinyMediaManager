@@ -94,7 +94,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetEditorDialog extends TmmDialog {
-  private static final long        serialVersionUID    = -4446433759280691976L;
   private static final Logger      LOGGER              = LoggerFactory.getLogger(MovieSetEditorDialog.class);
   private static final String      ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String      SPACER              = "        ";
@@ -633,8 +632,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class RemoveMovieAction extends AbstractAction {
-    private static final long serialVersionUID = 8013039811395731218L;
-
     RemoveMovieAction() {
       putValue(LARGE_ICON_KEY, IconManager.REMOVE_INV);
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.movie.remove"));
@@ -656,8 +653,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class OkAction extends AbstractAction {
-    private static final long serialVersionUID = -7322270015667230646L;
-
     OkAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.save"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.save"));
@@ -746,8 +741,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = -6214112833170817002L;
-
     CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
@@ -762,8 +755,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class AbortAction extends AbstractAction {
-    private static final long serialVersionUID = 1215596133205394653L;
-
     AbortAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.abortqueue"));
@@ -779,8 +770,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class NavigateBackAction extends AbstractAction {
-    private static final long serialVersionUID = -1652218154720642310L;
-
     public NavigateBackAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
@@ -794,8 +783,6 @@ public class MovieSetEditorDialog extends TmmDialog {
   }
 
   private class SearchIdAction extends AbstractAction {
-    private static final long serialVersionUID = -8980803676368394987L;
-
     SearchIdAction() {
       putValue(NAME, TmmResourceBundle.getString("movieset.tmdb.find"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.tmdb.desc"));

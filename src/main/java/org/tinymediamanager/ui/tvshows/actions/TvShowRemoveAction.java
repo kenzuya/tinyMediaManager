@@ -45,8 +45,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRemoveAction extends TmmAction {
-  private static final long serialVersionUID = -2355545751433709417L;
-
   public TvShowRemoveAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.remove"));
     putValue(SMALL_ICON, IconManager.DELETE);

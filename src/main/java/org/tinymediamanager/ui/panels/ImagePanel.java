@@ -64,7 +64,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePanel extends JPanel implements HierarchyListener {
-  private static final long     serialVersionUID = -5344085698387374260L;
   private static final Logger   LOGGER           = LoggerFactory.getLogger(ImagePanel.class);
 
   private final List<MediaFile> mediaFiles;

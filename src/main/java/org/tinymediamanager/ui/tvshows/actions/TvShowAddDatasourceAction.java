@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowAddDatasourceAction extends TmmAction {
-  private static final long serialVersionUID = -4417368111497702010L;
-
   public TvShowAddDatasourceAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.datasource.add"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.datasource.add"));

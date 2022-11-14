@@ -38,8 +38,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * the class TvShowDownloadMissingArtworkAction is used to search/download missing artwork
  */
 public class TvShowDownloadMissingArtworkAction extends TmmAction {
-  private static final long serialVersionUID = 6102632119900792735L;
-
   public TvShowDownloadMissingArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);

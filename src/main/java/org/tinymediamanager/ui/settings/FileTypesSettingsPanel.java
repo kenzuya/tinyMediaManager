@@ -49,9 +49,8 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import net.miginfocom.swing.MigLayout;
 
 class FileTypesSettingsPanel extends JPanel {
-  private static final long serialVersionUID = 9136097757447080369L;
+  private final Settings settings = Settings.getInstance();
 
-  private Settings          settings         = Settings.getInstance();
   private JTextField        tfVideoFiletype;
   private JList<String>     listVideoFiletypes;
   private JTextField        tfSubtitleFiletype;

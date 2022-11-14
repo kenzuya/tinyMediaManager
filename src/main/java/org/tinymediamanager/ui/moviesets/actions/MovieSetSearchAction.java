@@ -30,8 +30,6 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetChooserDialog;
  * 
  */
 public class MovieSetSearchAction extends TmmAction {
-  private static final long serialVersionUID = -2260581786599155278L;
-
   /**
    * Instantiates a new search movie set action.
    */

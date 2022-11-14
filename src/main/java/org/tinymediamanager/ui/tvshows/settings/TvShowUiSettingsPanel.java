@@ -70,7 +70,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowUiSettingsPanel extends JPanel {
-  private static final long                                        serialVersionUID = -675729644848101096L;
   private static final int                                         COL_COUNT        = 7;
 
   private final TvShowSettings                                     settings         = TvShowModuleManager.getInstance().getSettings();

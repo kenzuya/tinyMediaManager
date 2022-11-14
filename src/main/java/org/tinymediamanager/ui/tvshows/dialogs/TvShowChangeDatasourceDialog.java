@@ -48,11 +48,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowChangeDatasourceDialog extends TmmDialog {
-  private static final long           serialVersionUID = -1515243604267310274L;
-
-
-
-  private List<TvShow>                tvShowsToEdit    = new ArrayList<>();
+  private final List<TvShow> tvShowsToEdit = new ArrayList<>();
 
   private JComboBox<String>           cbDatasource;
 
@@ -92,8 +88,6 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
   }
 
   private class ChangeDatasourceAction extends AbstractAction {
-    private static final long serialVersionUID = -3767744690599233490L;
-
     private ChangeDatasourceAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.changedatasource"));
@@ -114,8 +108,6 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
   }
 
   private class DiscardAction extends AbstractAction {
-    private static final long serialVersionUID = -5581329896797961536L;
-
     private DiscardAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));

@@ -33,8 +33,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetEditMovieAction extends TmmAction {
-  private static final long serialVersionUID = 1848573591741154631L;
-
   public MovieSetEditMovieAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.edit"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);

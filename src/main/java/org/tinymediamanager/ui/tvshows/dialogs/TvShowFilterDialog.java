@@ -104,8 +104,6 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
 import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
-  private static final long                          serialVersionUID = 2298540526328945319L;
-
   protected static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TmmTreeTable                         treeTable;

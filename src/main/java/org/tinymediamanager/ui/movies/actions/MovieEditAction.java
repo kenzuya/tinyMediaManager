@@ -35,18 +35,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
  * @author Manuel Laggner
  */
 public class MovieEditAction extends TmmAction {
-  private static final long serialVersionUID = -8473181347332963044L;
-
-  @Deprecated
-  public MovieEditAction(boolean withTitle) {
-    if (withTitle) {
-      putValue(NAME, TmmResourceBundle.getString("movie.edit"));
-    }
-    putValue(LARGE_ICON_KEY, IconManager.EDIT);
-    putValue(SMALL_ICON, IconManager.EDIT);
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit"));
-  }
-
   public MovieEditAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.edit"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);

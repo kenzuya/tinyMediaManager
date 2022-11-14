@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Myron Boyle
  */
 public class MovieSetKodiGetWatchedMovieAction extends TmmAction {
-  private static final long serialVersionUID = -6731682301579049379L;
-
   public MovieSetKodiGetWatchedMovieAction() {
     putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
     putValue(SMALL_ICON, IconManager.WATCHED_MENU);

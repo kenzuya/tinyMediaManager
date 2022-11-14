@@ -36,8 +36,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowChangeSeasonArtworkAction extends TmmAction {
-  private static final long serialVersionUID = 8356413227405772558L;
-
   public TvShowChangeSeasonArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.changeseasonartwork"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);

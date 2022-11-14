@@ -38,8 +38,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class RebuildImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = -9178351750617647813L;
-
   public RebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.rebuildimagecache"));

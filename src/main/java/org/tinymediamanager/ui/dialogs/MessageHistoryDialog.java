@@ -44,8 +44,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MessageHistoryDialog extends TmmDialog implements ListEventListener<Message> {
-  private static final long           serialVersionUID = -5054005564554148578L;
-
   private static MessageHistoryDialog instance;
 
   private final Map<Message, JPanel>  messageMap;

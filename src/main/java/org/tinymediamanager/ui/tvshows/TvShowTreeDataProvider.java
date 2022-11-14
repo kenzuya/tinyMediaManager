@@ -570,8 +570,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   }
 
   public static class TvShowTreeNode extends AbstractTvShowTreeNode {
-    private static final long serialVersionUID = -1316609340104597133L;
-
     /**
      * Instantiates a new tv show tree node.
      * 
@@ -626,8 +624,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   }
 
   public static class TvShowSeasonTreeNode extends AbstractTvShowTreeNode {
-    private static final long serialVersionUID = -5734830011018805194L;
-
     /**
      * Instantiates a new tv show season tree node.
      * 
@@ -683,8 +679,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   }
 
   public static class TvShowEpisodeTreeNode extends AbstractTvShowTreeNode {
-    private static final long serialVersionUID = -7108614568808831980L;
-
     /**
      * Instantiates a new tv show episode tree node.
      * 

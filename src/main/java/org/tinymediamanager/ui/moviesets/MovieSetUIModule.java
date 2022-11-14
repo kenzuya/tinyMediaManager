@@ -103,8 +103,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for movie sets
     JTabbedPane movieSetDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -121,8 +119,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for movies
     JTabbedPane movieDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548867189767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -156,8 +152,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for missing movies
     JTabbedPane missingMovieDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548834189767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");

@@ -48,9 +48,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRebuildMediainfoXmlAction extends TmmAction {
-
-  private static final long serialVersionUID = -2019243514238173721L;
-
   public MovieRebuildMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rebuildmediainfoxml"));

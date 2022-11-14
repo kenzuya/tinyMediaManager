@@ -81,7 +81,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieUiSettingsPanel extends JPanel {
-  private static final long                                serialVersionUID = -4173835431245178069L;
   private static final int                                 COL_COUNT        = 7;
 
   private final MovieSettings                              settings         = MovieModuleManager.getInstance().getSettings();

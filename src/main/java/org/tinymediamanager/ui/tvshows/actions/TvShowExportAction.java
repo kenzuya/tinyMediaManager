@@ -32,8 +32,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowExporterDialog;
  * @author Manuel Laggner
  */
 public class TvShowExportAction extends TmmAction {
-  private static final long serialVersionUID = 6746506855715337027L;
-
   public TvShowExportAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);
     putValue(SMALL_ICON, IconManager.EXPORT);

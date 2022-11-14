@@ -23,8 +23,6 @@ import javax.swing.JCheckBox;
  * @author Manuel Laggner
  */
 class TmmCheckComboBoxItem<E> extends JCheckBox {
-  private static final long serialVersionUID = 6243546057910976652L;
-
   private final E           userObject;
 
   /**

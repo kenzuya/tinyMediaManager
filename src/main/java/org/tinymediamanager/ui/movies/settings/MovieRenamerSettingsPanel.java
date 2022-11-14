@@ -93,8 +93,6 @@ import net.miginfocom.swing.MigLayout;
  * The class MovieRenamerSettingsPanel.
  */
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
-  private static final long                    serialVersionUID = 5039498266207230875L;
-
   private static final Logger                  LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
   private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();

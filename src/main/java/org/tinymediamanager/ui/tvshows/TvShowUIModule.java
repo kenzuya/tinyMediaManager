@@ -145,8 +145,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for TV shows
     JTabbedPane tvShowDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3344548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -165,8 +163,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for seasons
     JTabbedPane tvShowSeasonDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3134567895608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -180,8 +176,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for episodes
     JTabbedPane tvShowEpisodeDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3344548905108767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");

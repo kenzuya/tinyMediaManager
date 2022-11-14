@@ -35,9 +35,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * 
  */
 public class MovieSetRenameAction extends TmmAction {
-
-  private static final long serialVersionUID = 1677285197819210130L;
-
   public MovieSetRenameAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rename"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rename"));

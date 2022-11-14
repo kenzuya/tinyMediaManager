@@ -72,6 +72,7 @@ abstract class AbstractCheckComboBoxMovieUIFilter<E> extends AbstractMovieUIFilt
 
     }
     catch (Exception ignored) {
+      // just do not crash
     }
 
     checkComboBox.setSelectedItems(selectedItems);

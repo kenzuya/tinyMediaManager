@@ -50,8 +50,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class TvShowScrapeNewItemsAction extends TmmAction {
-  private static final long serialVersionUID = -3365542777082781952L;
-
   public TvShowScrapeNewItemsAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.newitems"));
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);

@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class MovieAddDatasourceAction extends TmmAction {
-  private static final long serialVersionUID = -4417368111497702010L;
-
   public MovieAddDatasourceAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.datasource.add"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.datasource.add"));

@@ -28,8 +28,6 @@ import org.tinymediamanager.ui.dialogs.AboutDialog;
  * @author Manuel Laggner
  */
 public class AboutAction extends TmmAction {
-  private static final long serialVersionUID = -6578562721885387890L;
-
   public AboutAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.about"));
   }

@@ -30,8 +30,6 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Myron Boyle
  */
 public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
-
-  private static final long                    serialVersionUID = 1L;
   private static final Document.OutputSettings NO_PRETTYPRINT   = new Document.OutputSettings().prettyPrint(false);
 
   public ReadOnlyTextPaneHTML() {

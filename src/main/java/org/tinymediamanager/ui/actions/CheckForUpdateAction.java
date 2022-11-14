@@ -27,8 +27,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @author Manuel Laggner
  */
 public class CheckForUpdateAction extends TmmAction {
-  private static final long serialVersionUID = 3046686017542572465L;
-
   public CheckForUpdateAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.updater.check"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.updater.check"));

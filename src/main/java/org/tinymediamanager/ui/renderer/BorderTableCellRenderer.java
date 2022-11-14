@@ -30,8 +30,6 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author Manuel Laggner
  */
 public class BorderTableCellRenderer extends DefaultTableCellRenderer {
-  private static final long serialVersionUID = -6545791732880295743L;
-
   private final Border      border;
 
   /**

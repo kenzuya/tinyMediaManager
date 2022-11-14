@@ -48,8 +48,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TinyMediaManagerWizard extends TmmDialog {
-  private static final long  serialVersionUID = 1112053710541745443L;
-
   private final List<JPanel> panels;
   private int                activePanelIndex = 0;
 
@@ -139,8 +137,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
   }
 
   private class BackAction extends AbstractAction {
-    private static final long serialVersionUID = -510135441507847318L;
-
     public BackAction() {
       putValue(NAME, TmmResourceBundle.getString("wizard.back"));
     }
@@ -160,8 +156,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
   }
 
   private class NextAction extends AbstractAction {
-    private static final long serialVersionUID = -7813935881525980050L;
-
     public NextAction() {
       putValue(NAME, TmmResourceBundle.getString("wizard.next"));
     }
@@ -182,8 +176,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
   }
 
   private class FinishAction extends AbstractAction {
-    private static final long serialVersionUID = 8047070989186510289L;
-
     public FinishAction() {
       putValue(NAME, TmmResourceBundle.getString("wizard.finish"));
     }

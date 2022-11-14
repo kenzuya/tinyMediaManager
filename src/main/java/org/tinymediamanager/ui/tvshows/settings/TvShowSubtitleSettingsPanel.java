@@ -68,8 +68,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowSubtitleSettingsPanel extends JPanel {
-  private static final long          serialVersionUID = -1607146878528487625L;
-
   private final TvShowSettings       settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers         = new ArrayList<>();
 

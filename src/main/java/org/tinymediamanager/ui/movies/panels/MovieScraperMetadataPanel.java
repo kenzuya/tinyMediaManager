@@ -41,7 +41,6 @@ import org.tinymediamanager.ui.components.JHintCheckBox;
  * @author Manuel Laggner
  */
 public class MovieScraperMetadataPanel extends JPanel {
-  private static final long                          serialVersionUID = 1053348917399322570L;
   private static final int                           COL_COUNT        = 6;
   /**
    * @wbp.nls.resourceBundle messages

@@ -28,8 +28,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 public class DebugDumpShowAction extends TmmAction {
-  private static final long serialVersionUID = -8473181347332963044L;
-
   public DebugDumpShowAction() {
     putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("debug.entity.dump.desc"));

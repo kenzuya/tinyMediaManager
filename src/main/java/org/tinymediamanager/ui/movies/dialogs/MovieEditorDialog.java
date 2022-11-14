@@ -137,7 +137,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieEditorDialog extends TmmDialog {
-  private static final long                        serialVersionUID    = -286251957529920347L;
   private static final Logger                      LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
@@ -1320,8 +1319,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class ChangeMovieAction extends AbstractAction {
-    private static final long serialVersionUID = -3767744690599233490L;
-
     public ChangeMovieAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.change"));
@@ -1536,8 +1533,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class DiscardAction extends AbstractAction {
-    private static final long serialVersionUID = -5581329896797961536L;
-
     public DiscardAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
@@ -1551,8 +1546,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddRatingAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414533349267L;
-
     public AddRatingAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1576,8 +1569,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveRatingAction extends AbstractAction {
-    private static final long serialVersionUID = -7079821950827356996L;
-
     public RemoveRatingAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1594,8 +1585,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddIdAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414553349267L;
-
     public AddIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1615,8 +1604,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveIdAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826950827356996L;
-
     public RemoveIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1633,8 +1620,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddActorAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414153349267L;
-
     public AddActorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.actor.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1658,8 +1643,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveActorAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826970827356996L;
-
     public RemoveActorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.actor.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1676,8 +1659,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddProducerAction extends AbstractAction {
-    private static final long serialVersionUID = -8834531637996987853L;
-
     public AddProducerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.producer.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1697,8 +1678,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveProducerAction extends AbstractAction {
-    private static final long serialVersionUID = -3907776089614305086L;
-
     public RemoveProducerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.producer.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1715,8 +1694,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddGenreAction extends AbstractAction {
-    private static final long serialVersionUID = 176474809593575743L;
-
     public AddGenreAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("genre.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1766,8 +1743,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveGenreAction extends AbstractAction {
-    private static final long serialVersionUID = 2733654945906747720L;
-
     public RemoveGenreAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("genre.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1783,8 +1758,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddTrailerAction extends AbstractAction {
-    private static final long serialVersionUID = -4446154040952056823L;
-
     public AddTrailerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1802,8 +1775,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveTrailerAction extends AbstractAction {
-    private static final long serialVersionUID = -6956921050689930101L;
-
     public RemoveTrailerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1865,8 +1836,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddTagAction extends AbstractAction {
-    private static final long serialVersionUID = 9160043031922897785L;
-
     public AddTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1910,8 +1879,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveTagAction extends AbstractAction {
-    private static final long serialVersionUID = -1580945350962234235L;
-
     public RemoveTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1927,8 +1894,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddShowlinkAction extends AbstractAction {
-    private static final long serialVersionUID = 9160043031922897715L;
-
     public AddShowlinkAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("showlink.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1950,8 +1915,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveShowlinkAction extends AbstractAction {
-    private static final long serialVersionUID = -1580945350962234215L;
-
     public RemoveShowlinkAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("showlink.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1967,8 +1930,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AbortQueueAction extends AbstractAction {
-    private static final long serialVersionUID = -7652218354710642510L;
-
     public AbortQueueAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.abortqueue.desc"));
@@ -1982,8 +1943,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class NavigateBackAction extends AbstractAction {
-    private static final long serialVersionUID = -1652218154720642310L;
-
     public NavigateBackAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
@@ -1997,8 +1956,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveActorUpAction extends AbstractAction {
-    private static final long serialVersionUID = 5775423424097844658L;
-
     public MoveActorUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveactorup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2015,8 +1972,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveActorDownAction extends AbstractAction {
-    private static final long serialVersionUID = -6564146895819191932L;
-
     public MoveActorDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveactordown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -2033,8 +1988,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveProducerUpAction extends AbstractAction {
-    private static final long serialVersionUID = -6855661707692602266L;
-
     public MoveProducerUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveproducerup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2051,8 +2004,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveProducerDownAction extends AbstractAction {
-    private static final long serialVersionUID = -1135108943010008069L;
-
     public MoveProducerDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveproducerdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -2069,8 +2020,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveGenreUpAction extends AbstractAction {
-    private static final long serialVersionUID = -6855661707692602266L;
-
     public MoveGenreUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movegenreup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2087,8 +2036,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveGenreDownAction extends AbstractAction {
-    private static final long serialVersionUID = -1135108943010008069L;
-
     public MoveGenreDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movegenredown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -2105,8 +2052,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveTagUpAction extends AbstractAction {
-    private static final long serialVersionUID = -6855661707692602266L;
-
     public MoveTagUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2123,8 +2068,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveTagDownAction extends AbstractAction {
-    private static final long serialVersionUID = -1135108943010008069L;
-
     public MoveTagDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -2141,8 +2084,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddDirectorAction extends AbstractAction {
-    private static final long serialVersionUID = -8929331442958057771L;
-
     public AddDirectorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.director.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -2162,8 +2103,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveDirectorAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826920821356196L;
-
     public RemoveDirectorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.director.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -2180,8 +2119,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveDirectorUpAction extends AbstractAction {
-    private static final long serialVersionUID = 5775423424097844658L;
-
     public MoveDirectorUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movedirectorup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2198,8 +2135,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveDirectorDownAction extends AbstractAction {
-    private static final long serialVersionUID = -6564146895819191932L;
-
     public MoveDirectorDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movedirectordown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -2216,8 +2151,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class AddWriterAction extends AbstractAction {
-    private static final long serialVersionUID = -8929331442958057771L;
-
     public AddWriterAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.writer.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -2237,8 +2170,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class RemoveWriterAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826920821356196L;
-
     public RemoveWriterAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.writer.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -2255,8 +2186,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveWriterUpAction extends AbstractAction {
-    private static final long serialVersionUID = 5775423424097844658L;
-
     public MoveWriterUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movewriterup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -2273,8 +2202,6 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private class MoveWriterDownAction extends AbstractAction {
-    private static final long serialVersionUID = -6564146895819191932L;
-
     public MoveWriterDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movewriterdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);

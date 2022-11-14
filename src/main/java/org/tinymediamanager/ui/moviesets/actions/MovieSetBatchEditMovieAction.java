@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetBatchEditMovieAction extends TmmAction {
-  private static final long serialVersionUID = -3974602352019088416L;
-
   public MovieSetBatchEditMovieAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.bulkedit"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.bulkedit.desc"));

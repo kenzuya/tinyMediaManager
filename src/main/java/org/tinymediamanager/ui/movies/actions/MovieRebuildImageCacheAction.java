@@ -38,8 +38,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRebuildImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = -5089957097690621345L;
-
   public MovieRebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rebuildimagecache"));

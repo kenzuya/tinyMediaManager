@@ -61,8 +61,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieDatasourceSettingsPanel extends JPanel {
-  private static final long   serialVersionUID = -7580437046944123496L;
-
   private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JTextField          tfAddBadword;

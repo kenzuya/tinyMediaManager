@@ -30,9 +30,6 @@ import org.tinymediamanager.ui.dialogs.BugReportDialog;
  * @author Manuel Laggner
  */
 public class BugReportAction extends TmmAction {
-  private static final long           serialVersionUID = 2468561945547768259L;
-
-
   public BugReportAction() {
     putValue(NAME, TmmResourceBundle.getString("BugReport"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("BugReport"));

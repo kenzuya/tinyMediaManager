@@ -38,8 +38,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieTrailerDownloadAction extends TmmAction {
-  private static final long serialVersionUID = -8668265401054434251L;
-
   public MovieTrailerDownloadAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.downloadtrailer"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.downloadtrailer"));

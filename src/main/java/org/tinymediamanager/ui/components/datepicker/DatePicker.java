@@ -40,7 +40,6 @@ import org.tinymediamanager.ui.IconManager;
  * @author Manuel Laggner
  */
 public class DatePicker extends JPanel implements PropertyChangeListener {
-  private static final long   serialVersionUID = -2806415143740677890L;
   private static final String uiClassID        = "DatePickerUI";
 
   private final DateTextField dateEditor;

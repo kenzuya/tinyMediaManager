@@ -31,8 +31,6 @@ import ca.odell.glazedlists.GlazedLists;
  * @author Manuel Laggner
  */
 public class AutocompleteComboBox<E> extends JComboBox<E> {
-  private static final long      serialVersionUID = 6366300597464784607L;
-
   private EventList<E>           items;
   private AutoCompleteSupport<E> autoCompleteSupport;
 

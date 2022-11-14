@@ -42,7 +42,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class BugReportDialog extends TmmDialog {
-  private static final long   serialVersionUID = 1992385114573899815L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(BugReportDialog.class);
 
   private static final String DIALOG_ID        = "bugReportdialog";

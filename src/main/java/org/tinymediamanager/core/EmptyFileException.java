@@ -23,8 +23,6 @@ import java.nio.file.Path;
  * @author Manuel Laggner
  */
 public class EmptyFileException extends Exception {
-  private static final long    serialVersionUID = -7369038801049706860L;
-
   private final transient Path file;
 
   public EmptyFileException(Path file) {

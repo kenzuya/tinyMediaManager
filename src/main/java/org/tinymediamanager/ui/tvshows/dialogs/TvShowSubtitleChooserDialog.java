@@ -85,7 +85,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleChooserDialog extends TmmDialog {
-  private static final long                           serialVersionUID = -3104541519073924724L;
   private static final Logger                         LOGGER           = LoggerFactory.getLogger(TvShowSubtitleChooserDialog.class);
 
   private final TvShowList                            tvShowList       = TvShowModuleManager.getInstance().getTvShowList();

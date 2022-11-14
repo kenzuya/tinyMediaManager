@@ -36,9 +36,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieAssignMovieSetAction extends TmmAction {
-  private static final long           serialVersionUID = -4213315298837335636L;
-
-
   public MovieAssignMovieSetAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.assignmovieset"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.assignmovieset.desc"));

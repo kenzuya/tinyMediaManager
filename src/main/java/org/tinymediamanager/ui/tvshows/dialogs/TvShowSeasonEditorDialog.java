@@ -71,7 +71,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonEditorDialog extends TmmDialog {
-  private static final long   serialVersionUID    = 3270218410302989845L;
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
@@ -395,8 +394,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   }
 
   private class OKAction extends AbstractAction {
-    private static final long serialVersionUID = 6699599213348390696L;
-
     OKAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.change"));
@@ -422,8 +419,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = -4617793684152607277L;
-
     CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
@@ -438,8 +433,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   }
 
   private class NavigateBackAction extends AbstractAction {
-    private static final long serialVersionUID = -1652218154720642310L;
-
     public NavigateBackAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
@@ -471,8 +464,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   }
 
   private class AbortAction extends AbstractAction {
-    private static final long serialVersionUID = -7652218354710642510L;
-
     AbortAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));

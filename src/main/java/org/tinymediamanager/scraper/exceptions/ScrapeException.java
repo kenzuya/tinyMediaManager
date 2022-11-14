@@ -23,8 +23,6 @@ package org.tinymediamanager.scraper.exceptions;
  * @since 3.0
  */
 public class ScrapeException extends Exception {
-  private static final long serialVersionUID = 2860692702692312470L;
-
   /**
    * the package private constructor -> to be used in child classes
    */

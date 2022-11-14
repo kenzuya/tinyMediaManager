@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowClearImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = 3452373237085274937L;
-
   public TvShowClearImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.clearimagecache"));
   }

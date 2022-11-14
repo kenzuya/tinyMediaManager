@@ -46,8 +46,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowCastPanel extends JPanel {
-  private static final long          serialVersionUID = 2374973082749248956L;
-
   private final TvShowSelectionModel selectionModel;
   private EventList<Person>          actorEventList   = null;
 

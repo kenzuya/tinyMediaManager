@@ -31,7 +31,6 @@ import org.tinymediamanager.ui.IconManager;
  * @since August 30, 2010
  */
 public class StarRater extends JPanel {
-  private static final long      serialVersionUID      = -5601531605019166004L;
   private static final ImageIcon STAR_BACKGROUND_IMAGE = IconManager.STAR_EMPTY;
   private static final ImageIcon STAR_FOREGROUND_IMAGE = IconManager.STAR_FILLED;
 

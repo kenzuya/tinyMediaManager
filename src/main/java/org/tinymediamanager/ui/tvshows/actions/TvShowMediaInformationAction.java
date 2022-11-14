@@ -36,8 +36,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationAction extends TmmAction {
-  private static final long serialVersionUID = -1274423130095036944L;
-
   public TvShowMediaInformationAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.updatemediainfo"));
     putValue(SMALL_ICON, IconManager.MEDIAINFO);

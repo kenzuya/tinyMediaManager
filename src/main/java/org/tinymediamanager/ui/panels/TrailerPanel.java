@@ -60,7 +60,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class TrailerPanel extends JPanel {
-  private static final long          serialVersionUID = 2506465845096043845L;
   private static final Logger        LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
   protected TmmTable                 table;

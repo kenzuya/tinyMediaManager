@@ -29,8 +29,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  */
 public class NonEmptyToStringStyle extends ToStringStyle {
-
-  private static final long serialVersionUID     = 1L;
   private boolean           ignoreNegativeNumber = true;
   private boolean           ignoreEmptyString    = true; // won't trim()
 

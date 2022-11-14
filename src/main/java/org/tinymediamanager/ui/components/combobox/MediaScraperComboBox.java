@@ -43,7 +43,6 @@ import org.tinymediamanager.ui.images.TmmSvgIcon;
  * @author Manuel Laggner
  */
 public class MediaScraperComboBox extends JComboBox<MediaScraper> {
-  private static final long   serialVersionUID = 7845502706645523958L;
   private Map<URI, ImageIcon> imageCache;
   private int                 listWidth        = 0;
 
@@ -144,7 +143,6 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
 
   class MediaScraperComboBoxRenderer extends JLabel implements ListCellRenderer<MediaScraper> {
     protected final ListCellRenderer defaultRenderer;
-    private static final long        serialVersionUID = -4726883292397768525L;
 
     public MediaScraperComboBoxRenderer() {
       setOpaque(true);

@@ -128,8 +128,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     // tabbed pane containing the movie data
     JTabbedPane tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 1234548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");

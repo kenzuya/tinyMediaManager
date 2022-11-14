@@ -34,9 +34,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class MovieUpdateDatasourceAction extends TmmAction {
-  private static final long           serialVersionUID = 6885253964781733478L;
-
-
   public MovieUpdateDatasourceAction() {
     putValue(NAME, TmmResourceBundle.getString("update.datasource.all"));
     putValue(SMALL_ICON, IconManager.REFRESH);

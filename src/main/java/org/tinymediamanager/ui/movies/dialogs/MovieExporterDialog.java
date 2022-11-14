@@ -67,7 +67,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieExporterDialog extends TmmDialog {
-  private static final long    serialVersionUID = 4085262825778794266L;
   private static final Logger  LOGGER           = LoggerFactory.getLogger(MovieExporterDialog.class);
 
   private static final String  DIALOG_ID        = "movieExporter";

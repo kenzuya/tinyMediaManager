@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieSubtitleChooserDialog;
  * @author Manuel Laggner
  */
 public class MovieSubtitleSearchAction extends TmmAction {
-  private static final long serialVersionUID = -6006932119900795735L;
-
   public MovieSubtitleSearchAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.search.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);

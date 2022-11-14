@@ -46,8 +46,6 @@ import org.tinymediamanager.ui.panels.MediaInformationPanel;
  * @author Manuel Laggner
  */
 public class MovieMediaInformationPanel extends MediaInformationPanel {
-  private static final long         serialVersionUID = 2513029074142934502L;
-
   private final MovieSelectionModel movieSelectionModel;
 
   /**

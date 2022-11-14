@@ -48,7 +48,6 @@ import org.tinymediamanager.ui.images.TmmSvgIcon;
  * @author Manuel Laggner
  */
 public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
-  private static final long   serialVersionUID = 8153649858409237947L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaScraperCheckComboBox.class);
 
   private Map<URI, ImageIcon> imageCache;

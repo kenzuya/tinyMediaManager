@@ -33,8 +33,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetSyncSelectedRatingTraktTvAction extends TmmAction {
-  private static final long serialVersionUID = 6640292090443882545L;
-
   public MovieSetSyncSelectedRatingTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected.rating"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.rating.desc"));

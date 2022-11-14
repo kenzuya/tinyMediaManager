@@ -61,8 +61,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-abstract public class MediaInformationPanel extends JPanel {
-  private static final long                 serialVersionUID = 2513029074142934502L;
+public abstract class MediaInformationPanel extends JPanel {
 
   private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
 
@@ -218,8 +217,6 @@ abstract public class MediaInformationPanel extends JPanel {
     }
     {
       panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        private static final long serialVersionUID = -8712860341504013403L;
-
         @Override
         public MediaEntity getMediaEntity() {
           return MediaInformationPanel.this.getMediaEntity();

@@ -175,15 +175,10 @@ public class TriStateCheckBox extends JCheckBox implements ActionListener {
   }
 
   public static class TriStateButtonModel extends JToggleButton.ToggleButtonModel {
-    private static final long serialVersionUID = 1257832793162900012L;
-
     /**
      * Identifies the "mixed" bit in the bitmask, which indicates that the button is partial selected.
      */
     public static final int   MIXED            = 1 << 7;
-
-    public TriStateButtonModel() {
-    }
 
     public void setState(int state) {
       switch (state) {

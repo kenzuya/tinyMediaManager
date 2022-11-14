@@ -26,9 +26,6 @@ import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
  * @author Manuel Laggner
  */
 public class ShowChangelogAction extends TmmAction {
-  private static final long           serialVersionUID = -6578562721885387890L;
-
-
   public ShowChangelogAction() {
     putValue(NAME, TmmResourceBundle.getString("whatsnew.title"));
   }

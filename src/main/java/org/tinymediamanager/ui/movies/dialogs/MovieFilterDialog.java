@@ -110,8 +110,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieFilterDialog extends TmmDialog {
-  private static final long                      serialVersionUID = 2298540526428945319L;
-
   protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel              selectionModel;

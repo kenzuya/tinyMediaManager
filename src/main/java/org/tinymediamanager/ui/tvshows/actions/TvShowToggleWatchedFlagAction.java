@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowToggleWatchedFlagAction extends TmmAction {
-  private static final long serialVersionUID = 5762347331284295996L;
-
   public TvShowToggleWatchedFlagAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshowepisode.togglewatchedflag"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));

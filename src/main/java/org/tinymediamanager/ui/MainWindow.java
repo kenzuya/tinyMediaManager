@@ -74,10 +74,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MainWindow extends JFrame {
-
   private static final Logger LOGGER           = LoggerFactory.getLogger(MainWindow.class);
-  private static final long   serialVersionUID = 1L;
-
   public static final Image   LOGOS            = createLogos();
 
   private static MainWindow   instance;

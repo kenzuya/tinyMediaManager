@@ -71,8 +71,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditorDialog extends TmmDialog {
-  private static final long               serialVersionUID = 3527478264068979388L;
-
   private final TvShowList                tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
   private final Collection<TvShow>        tvShowsToEdit;
   private final Collection<TvShowEpisode> tvShowEpisodesToEdit;

@@ -36,7 +36,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class RegexpInputDialog extends TmmDialog {
-  private static final long   serialVersionUID = 123315882962746712L;
   private static final String DIALOG_ID        = "regexpInput";
 
   private String              regularExpression;

@@ -33,9 +33,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieRenamerPreviewDialog;
  * @author Manuel Laggner
  */
 public class MovieRenamePreviewAction extends TmmAction {
-  private static final long           serialVersionUID = 5158514686702295145L;
-  
-
   public MovieRenamePreviewAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.renamepreview"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.renamepreview.hint"));

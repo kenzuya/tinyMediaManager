@@ -51,8 +51,6 @@ public class LightBox {
     this.frame = parent;
 
     backgroundPanel = new JPanel() {
-      private static final long serialVersionUID = -1543129046893570172L;
-
       @Override
       protected void paintComponent(Graphics g1) {
         super.paintComponent(g1);

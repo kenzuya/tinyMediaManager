@@ -32,8 +32,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowChangeToAiredOrderAction extends TmmAction {
-  private static final long serialVersionUID = 7866485217093335182L;
-
   public TvShowChangeToAiredOrderAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.changefromdvdorder"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.changeorder.desc"));

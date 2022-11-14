@@ -82,8 +82,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaFileEditorPanel extends JPanel {
-  private static final long                serialVersionUID = -2416409052145301941L;
-
   private final BindingGroup               bindingGroup     = new BindingGroup();
 
   private TmmTask                          ardTask;
@@ -359,8 +357,6 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   private class AddAudioStreamAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414523349267L;
-
     public AddAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("audiostream.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -378,8 +374,6 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   private class RemoveAudioStreamAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826940827356996L;
-
     public RemoveAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("audiostream.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -403,8 +397,6 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   private class AddSubtitleAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414523349767L;
-
     public AddSubtitleAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("subtitle.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -422,8 +414,6 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   private class RemoveSubtitleAction extends AbstractAction {
-    private static final long serialVersionUID = -7079866940827356996L;
-
     public RemoveSubtitleAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("subtitle.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -447,8 +437,6 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   private class ScanAspectRationAction extends AbstractAction implements TmmTaskListener {
-    private static final long serialVersionUID = 8777310652284455423L;
-
     public ScanAspectRationAction() {
       putValue(NAME, TmmResourceBundle.getString("task.ard"));
       putValue(SMALL_ICON, IconManager.ASPECT_RATIO);

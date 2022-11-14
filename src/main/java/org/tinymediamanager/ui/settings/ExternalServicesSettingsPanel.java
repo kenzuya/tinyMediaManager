@@ -43,8 +43,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalServicesSettingsPanel extends JPanel {
-  private static final long serialVersionUID = 7266564870819511988L;
-
   private JButton           btnGetTraktPin;
   private JButton           btnTestTraktConnection;
   private JLabel            lblTraktStatus;

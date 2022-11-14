@@ -40,10 +40,6 @@ import ca.odell.glazedlists.gui.WritableTableFormat;
  * @author Manuel Laggner
  */
 public class MediaRatingTable extends TmmTable {
-  private static final long              serialVersionUID = 8010732881277204728L;
-
-
-
   private final Map<String, MediaRating> ratingMap;
   private final EventList<Rating>        ratingList;
 

@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  * @param <E>
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
-  private static final long serialVersionUID = 8492300503787395800L;
-
   protected String          filterText       = "";
   protected Pattern         filterPattern;
 

@@ -47,15 +47,13 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class TmmDialog extends JDialog {
-  private static final long             serialVersionUID = 1L;
+  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
-  protected static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  protected BindingGroup                bindingGroup = null;
 
-  protected BindingGroup                bindingGroup     = null;
-
-  protected JPanel                      topPanel         = null;
-  protected JPanel                      bottomPanel      = null;
-  protected JPanel                      buttonPanel      = null;
+  protected JPanel                      topPanel     = null;
+  protected JPanel                      bottomPanel  = null;
+  protected JPanel                      buttonPanel  = null;
 
   /**
    * @wbp.parser.constructor
@@ -223,8 +221,6 @@ public abstract class TmmDialog extends JDialog {
     JRootPane rootPane = super.createRootPane();
     KeyStroke stroke = KeyStroke.getKeyStroke("ESCAPE");
     Action actionListener = new AbstractAction() {
-      private static final long serialVersionUID = 3943345336176709047L;
-
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
         setVisible(false);

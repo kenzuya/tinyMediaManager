@@ -95,8 +95,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListener {
-  private static final long                        serialVersionUID  = 5189531235704401313L;
-
   private static final Logger                      LOGGER            = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
 
   private final TvShowSettings                     settings          = TvShowModuleManager.getInstance().getSettings();

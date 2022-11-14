@@ -46,7 +46,6 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class ExportLogAction extends TmmAction {
   private static final Logger LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
-  private static final long   serialVersionUID = -1578568721825387890L;
 
   public ExportLogAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));

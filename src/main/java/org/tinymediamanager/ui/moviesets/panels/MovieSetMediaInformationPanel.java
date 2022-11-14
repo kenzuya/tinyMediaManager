@@ -41,8 +41,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetMediaInformationPanel extends JPanel {
-  private static final long            serialVersionUID = 1610264727610254912L;
-
   private final MovieSetSelectionModel selectionModel;
   private final EventList<MediaFile>   mediaFileEventList;
 

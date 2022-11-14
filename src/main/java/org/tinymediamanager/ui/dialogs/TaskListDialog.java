@@ -42,8 +42,6 @@ import org.tinymediamanager.ui.components.TaskListComponent;
 import net.miginfocom.swing.MigLayout;
 
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
-  private static final long                           serialVersionUID = 4151412495928010232L;
-
   protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;

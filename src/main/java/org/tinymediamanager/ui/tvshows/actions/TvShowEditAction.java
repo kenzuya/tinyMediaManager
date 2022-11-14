@@ -41,8 +41,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowEditAction extends TmmAction {
-  private static final long serialVersionUID = -3911290901017607679L;
-
   public TvShowEditAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.edittvshowepisodes"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);

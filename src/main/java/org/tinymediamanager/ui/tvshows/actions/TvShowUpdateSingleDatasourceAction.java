@@ -29,8 +29,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowUpdateSingleDatasourceAction extends TmmAction {
-  private static final long serialVersionUID = 1520541175183435685L;
-
   private final String      datasource;
 
   public TvShowUpdateSingleDatasourceAction(String datasource) {

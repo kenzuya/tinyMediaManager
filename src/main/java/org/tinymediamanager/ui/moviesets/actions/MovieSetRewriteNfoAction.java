@@ -37,8 +37,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetRewriteNfoAction extends TmmAction {
-  private static final long serialVersionUID = 1848573591741154631L;
-
   public MovieSetRewriteNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("movieset.rewritenfo"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));

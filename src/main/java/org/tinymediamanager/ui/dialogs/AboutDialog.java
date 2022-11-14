@@ -51,7 +51,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class AboutDialog extends TmmDialog {
-  private static final long   serialVersionUID = 2298570526828925319L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(AboutDialog.class);
 
   public AboutDialog() {
@@ -147,8 +146,6 @@ public class AboutDialog extends TmmDialog {
   }
 
   private class CloseAction extends AbstractAction {
-    private static final long serialVersionUID = 4652946848116365706L;
-
     CloseAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.close"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);

@@ -41,7 +41,6 @@ import org.tinymediamanager.core.TmmDateFormat;
  * @author Manuel Laggner
  */
 class DateTextField extends JFormattedTextField implements CaretListener, FocusListener, ActionListener {
-  private static final long   serialVersionUID = -8901842591101625304L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(DateTextField.class);
 
   private Date                date;

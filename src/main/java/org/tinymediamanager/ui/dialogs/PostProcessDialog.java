@@ -121,8 +121,6 @@ public abstract class PostProcessDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = -8416641526799936831L;
-
     CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
@@ -136,8 +134,6 @@ public abstract class PostProcessDialog extends TmmDialog {
   }
 
   private class SaveAction extends AbstractAction {
-    private static final long serialVersionUID = 1740130137146252281L;
-
     SaveAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.save"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);

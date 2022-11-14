@@ -63,7 +63,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class MediaFilesPanel extends JPanel {
-  private static final long          serialVersionUID = -4929581173434859034L;
   private static final Logger        LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
 
   private TmmTable                   tableFiles;

@@ -36,8 +36,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowScrapeMissingEpisodesAction extends TmmAction {
-  private static final long serialVersionUID = -389165862194237592L;
-
   public TvShowScrapeMissingEpisodesAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.missingepisodes"));
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);

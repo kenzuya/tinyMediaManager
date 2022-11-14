@@ -32,8 +32,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowSyncSelectedWatchedTraktTvAction extends TmmAction {
-  private static final long serialVersionUID = 6640292090443882545L;
-
   public TvShowSyncSelectedWatchedTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt.selected.watched"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctrakt.selected.watched.desc"));

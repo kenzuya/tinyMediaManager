@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowReadEpisodeNfoAction extends TmmAction {
-  private static final long serialVersionUID = 5762347331284295996L;
-
   public TvShowReadEpisodeNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshowepisode.readnfo"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshowepisode.readnfo.desc"));

@@ -65,8 +65,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperPanel extends JPanel {
-  private static final long          serialVersionUID = 405588171648074608L;
-
   private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
   private final List<MovieScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
 

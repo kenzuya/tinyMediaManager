@@ -39,7 +39,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class RatingEditorDialog extends TmmDialog {
-  private static final long                  serialVersionUID = 535315882962742572L;
   private static final String                DIALOG_ID        = "ratingEditor";
 
   private final MediaRatingTable.Rating ratingToEdit;

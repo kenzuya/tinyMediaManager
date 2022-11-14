@@ -46,11 +46,11 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieDownloadMissingArtworkDialog extends TmmDialog {
-  private static final long                                              serialVersionUID = -2126984610197979241L;
 
-  private MediaScraperCheckComboBox                                      cbArtworkScraper;
+  private final MediaScraperCheckComboBox                                      cbArtworkScraper;
+  private final ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
+
   private boolean                                                        startScrape      = false;
-  private ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
 
   public MovieDownloadMissingArtworkDialog() {
     super(TmmResourceBundle.getString("movie.downloadmissingartwork"), "downloadMissingArtwork");

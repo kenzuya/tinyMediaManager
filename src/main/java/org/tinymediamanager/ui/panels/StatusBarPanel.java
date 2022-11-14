@@ -62,8 +62,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
-  private static final long        serialVersionUID = -6375900257553323558L;
-
   private final Set<TmmTaskHandle> taskSet;
 
   private TmmTaskHandle            activeTask;

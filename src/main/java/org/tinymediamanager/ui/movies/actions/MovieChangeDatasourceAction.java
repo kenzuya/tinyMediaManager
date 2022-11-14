@@ -37,8 +37,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChangeDatasourceDialog;
  * @author Manuel Laggner
  */
 public class MovieChangeDatasourceAction extends TmmAction {
-  private static final long serialVersionUID = -2731782311579049379L;
-
   public MovieChangeDatasourceAction() {
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);

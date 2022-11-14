@@ -68,8 +68,6 @@ import org.tinymediamanager.ui.moviesets.filters.MovieSetWithMoreThanOneMovieFil
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetFilterDialog extends TmmDialog {
-  private static final long                            serialVersionUID = 5003714573168481816L;
-
   protected static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TmmTreeTable                           treeTable;

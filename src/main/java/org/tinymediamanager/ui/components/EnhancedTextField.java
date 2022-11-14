@@ -43,8 +43,6 @@ import com.formdev.flatlaf.FlatClientProperties;
  * @author Manuel Laggner
  */
 public class EnhancedTextField extends JTextField {
-  private static final long serialVersionUID = 5397356153111919435L;
-
   protected JLabel          lblIcon;
 
   /**

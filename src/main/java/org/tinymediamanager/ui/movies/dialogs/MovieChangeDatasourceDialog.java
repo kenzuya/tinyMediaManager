@@ -48,13 +48,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieChangeDatasourceDialog extends TmmDialog {
-  private static final long           serialVersionUID = -1515243604267310274L;
 
-  
+  private final List<Movie>       moviesToEdit = new ArrayList<>();
 
-  private List<Movie>                 moviesToEdit     = new ArrayList<>();
-
-  private JComboBox<String>           cbDatasource;
+  private final JComboBox<String> cbDatasource;
 
   public MovieChangeDatasourceDialog(final List<Movie> movies) {
     super(TmmResourceBundle.getString("movie.changedatasource"), "movieDatasourceEditor");
@@ -92,8 +89,6 @@ public class MovieChangeDatasourceDialog extends TmmDialog {
   }
 
   private class ChangeDatasourceAction extends AbstractAction {
-    private static final long serialVersionUID = -3767744690599233490L;
-
     private ChangeDatasourceAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.changedatasource"));
@@ -114,8 +109,6 @@ public class MovieChangeDatasourceDialog extends TmmDialog {
   }
 
   private class DiscardAction extends AbstractAction {
-    private static final long serialVersionUID = -5581329896797961536L;
-
     private DiscardAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));

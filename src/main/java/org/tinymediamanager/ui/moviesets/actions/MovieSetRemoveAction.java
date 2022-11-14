@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * 
  */
 public class MovieSetRemoveAction extends TmmAction {
-  private static final long serialVersionUID = -9030996266835702009L;
-
   /**
    * Instantiates a new removes the movie set action.
    */

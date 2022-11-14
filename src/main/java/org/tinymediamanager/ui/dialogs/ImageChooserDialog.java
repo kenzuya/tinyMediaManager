@@ -117,7 +117,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final long                 serialVersionUID = 8193355920006275933L;
   private static final Logger               LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
   private static final String               DIALOG_ID        = "imageChooser";
 
@@ -954,8 +953,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class OkAction extends AbstractAction {
-    private static final long serialVersionUID = -1255049344169945137L;
-
     public OkAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.seteselected"));
@@ -1094,8 +1091,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = 403327079655572423L;
-
     public CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.cancel"));
@@ -1331,8 +1326,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class LocalFileChooseAction extends AbstractAction {
-    private static final long serialVersionUID = -1178325861474276709L;
-
     public LocalFileChooseAction() {
       putValue(NAME, TmmResourceBundle.getString("image.choose.file"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.choose.file"));

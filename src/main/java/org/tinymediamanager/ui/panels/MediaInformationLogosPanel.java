@@ -22,8 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Utils;
@@ -39,9 +37,6 @@ import net.miginfocom.swing.MigLayout;
  * The class MediaInformationLogosPanel is used to display all media info related logos
  */
 public class MediaInformationLogosPanel extends JPanel {
-  private static final long   serialVersionUID = -3403472105793548302L;
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MediaInformationLogosPanel.class);
-
   private IMediaInformation   mediaInformationSource;
 
   private JLabel              lblVideoFormat   = new JLabel();

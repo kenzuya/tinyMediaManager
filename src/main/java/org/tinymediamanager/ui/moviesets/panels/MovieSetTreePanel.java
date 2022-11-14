@@ -81,8 +81,6 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long            serialVersionUID = 5889203009864512935L;
-
   private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
   private final MovieSetSelectionModel selectionModel;
 
@@ -436,8 +434,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
    * local helper classes
    **************************************************************************/
   public class CollapseAllAction extends AbstractAction {
-    private static final long serialVersionUID = -1444530142931061317L;
-
     public CollapseAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
@@ -451,8 +447,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   public class ExpandAllAction extends AbstractAction {
-    private static final long serialVersionUID = 6191727607109012198L;
-
     public ExpandAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }

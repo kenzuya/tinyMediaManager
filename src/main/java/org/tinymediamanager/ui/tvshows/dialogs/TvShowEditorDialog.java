@@ -140,7 +140,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEditorDialog extends TmmDialog {
-  private static final long                        serialVersionUID    = 3270218410302989845L;
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
   private final TvShow                             tvShowToEdit;
@@ -1099,8 +1098,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class OKAction extends AbstractAction {
-    private static final long serialVersionUID = 6699599213348390696L;
-
     OKAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.change"));
@@ -1323,8 +1320,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = -4617793684152607277L;
-
     CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
@@ -1339,8 +1334,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddRatingAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414533349267L;
-
     private AddRatingAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1364,8 +1357,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveRatingAction extends AbstractAction {
-    private static final long serialVersionUID = -7079821950827356996L;
-
     private RemoveRatingAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1382,8 +1373,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddActorAction extends AbstractAction {
-    private static final long serialVersionUID = -5879601617842300526L;
-
     AddActorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.actor.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1406,8 +1395,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveActorAction extends AbstractAction {
-    private static final long serialVersionUID = 6970920169867315771L;
-
     RemoveActorAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.actor.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1424,8 +1411,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveActorUpAction extends AbstractAction {
-    private static final long serialVersionUID = 5775423424097844658L;
-
     MoveActorUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveactorup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -1442,8 +1427,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveActorDownAction extends AbstractAction {
-    private static final long serialVersionUID = -6564146895819191932L;
-
     MoveActorDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.moveactordown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -1460,8 +1443,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddGenreAction extends AbstractAction {
-    private static final long serialVersionUID = 6666302391216952247L;
-
     AddGenreAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("genre.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1511,8 +1492,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveGenreAction extends AbstractAction {
-    private static final long serialVersionUID = -5459615776560234688L;
-
     RemoveGenreAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("genre.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1527,8 +1506,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveGenreUpAction extends AbstractAction {
-    private static final long serialVersionUID = -6855661707692602266L;
-
     MoveGenreUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movegenreup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -1545,8 +1522,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveGenreDownAction extends AbstractAction {
-    private static final long serialVersionUID = -1135108943010008069L;
-
     MoveGenreDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movegenredown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -1573,8 +1548,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddTagAction extends AbstractAction {
-    private static final long serialVersionUID = 9160043031922897785L;
-
     AddTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1625,8 +1598,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddIdAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414553349267L;
-
     AddIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -1646,8 +1617,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveIdAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826950827356996L;
-
     RemoveIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1664,8 +1633,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveTagAction extends AbstractAction {
-    private static final long serialVersionUID = -1580945350962234235L;
-
     RemoveTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1680,8 +1647,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveTagUpAction extends AbstractAction {
-    private static final long serialVersionUID = -6855661707692602266L;
-
     MoveTagUpAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
@@ -1698,8 +1663,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class MoveTagDownAction extends AbstractAction {
-    private static final long serialVersionUID = -1135108943010008069L;
-
     MoveTagDownAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
@@ -1716,8 +1679,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AbortAction extends AbstractAction {
-    private static final long serialVersionUID = -7652218354710642510L;
-
     AbortAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));
@@ -1733,8 +1694,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class NavigateBackAction extends AbstractAction {
-    private static final long serialVersionUID = -1652218154720642310L;
-
     private NavigateBackAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
@@ -1816,8 +1775,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class CloneEpisodeAction extends AbstractAction {
-    private static final long serialVersionUID = -3255090541823134232L;
-
     CloneEpisodeAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshowepisode.clone"));
       putValue(SMALL_ICON, IconManager.COPY_INV);
@@ -1841,8 +1798,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveEpisodeAction extends AbstractAction {
-    private static final long serialVersionUID = -8233854057648972649L;
-
     RemoveEpisodeAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshowepisode.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
@@ -1991,8 +1946,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class AddTrailerAction extends AbstractAction {
-    private static final long serialVersionUID = -4446154040952056823L;
-
     public AddTrailerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -2010,8 +1963,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private class RemoveTrailerAction extends AbstractAction {
-    private static final long serialVersionUID = -6956921050689930101L;
-
     public RemoveTrailerAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);

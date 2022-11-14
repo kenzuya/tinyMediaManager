@@ -40,8 +40,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRebuildImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = 3452373237085274937L;
-
   public TvShowRebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rebuildimagecache"));

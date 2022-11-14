@@ -38,8 +38,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 public class LinkLabel extends JLabel {
-  private static final long serialVersionUID = 3762584745632060187L;
-
   protected String          link;
   protected ActionListener  activeListener   = null;
 

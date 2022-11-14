@@ -87,7 +87,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSubtitleChooserDialog extends TmmDialog {
-  private static final long                          serialVersionUID = -3104541519073924724L;
   private static final Logger                        LOGGER           = LoggerFactory.getLogger(MovieSubtitleChooserDialog.class);
 
   private final MovieList                            movieList        = MovieModuleManager.getInstance().getMovieList();

@@ -69,8 +69,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieImageSettingsPanel extends JPanel {
-  private static final long          serialVersionUID = 7312645402037806284L;
-
   private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers         = new ArrayList<>();
 

@@ -23,8 +23,6 @@ import javax.swing.JTabbedPane;
  * @author Manuel Laggner
  */
 public class MainTabbedPane extends JTabbedPane {
-  private static final long serialVersionUID = -2587027562615455270L;
-
   public MainTabbedPane() {
     super(TOP, SCROLL_TAB_LAYOUT);
   }

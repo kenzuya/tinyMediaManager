@@ -32,8 +32,6 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class ForumAction extends TmmAction {
-  private static final long           serialVersionUID = 1668251251156765161L;
-  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ForumAction.class);
 
   public ForumAction() {

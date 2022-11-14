@@ -42,8 +42,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class TvShowSelectedScrapeAction extends TmmAction {
-  private static final long serialVersionUID = 699165862194137592L;
-
   public TvShowSelectedScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.selected.force"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.scrape.selected.force.desc"));

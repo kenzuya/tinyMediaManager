@@ -52,20 +52,18 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class UiSettingsPanel extends JPanel {
-  private static final long      serialVersionUID   = -1241134514329815223L;
+  private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
 
-  private static final Logger    LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
+  private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
-  private static final Integer[] DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
+  private final Settings             settings           = Settings.getInstance();
+  private final List<LocaleComboBox> locales            = new ArrayList<>();
 
-  private Settings               settings           = Settings.getInstance();
-  private List<LocaleComboBox>   locales            = new ArrayList<>();
-
-  private JComboBox              cbLanguage;
-  private JRadioButton           rdbtnLight;
-  private JRadioButton           rdbtnDark;
-  private JComboBox              cbFontSize;
-  private JComboBox              cbFontFamily;
+  private JComboBox                  cbLanguage;
+  private JRadioButton               rdbtnLight;
+  private JRadioButton               rdbtnDark;
+  private JComboBox                  cbFontSize;
+  private JComboBox                  cbFontFamily;
 
   public UiSettingsPanel() {
     LocaleComboBox actualLocale = null;

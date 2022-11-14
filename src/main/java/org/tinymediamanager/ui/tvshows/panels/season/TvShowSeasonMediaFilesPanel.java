@@ -40,8 +40,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonMediaFilesPanel extends JPanel {
-  private static final long          serialVersionUID = -1895363438194617002L;
-
   private final EventList<MediaFile> mediaFileEventList;
   private MediaFilesPanel            panelMediaFiles;
 

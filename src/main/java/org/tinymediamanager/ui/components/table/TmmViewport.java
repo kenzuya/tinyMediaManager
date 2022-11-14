@@ -29,8 +29,6 @@ import javax.swing.JViewport;
  * @author Manuel Laggner
  */
 class TmmViewport extends JViewport {
-  private static final long   serialVersionUID = 3786918873070899884L;
-
   private final JTable        fTable;
   private final List<Integer> colsWoRightGrid;
 

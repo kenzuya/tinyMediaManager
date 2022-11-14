@@ -34,8 +34,6 @@ import ca.odell.glazedlists.gui.WritableTableFormat;
  * @author Manuel Laggner
  */
 public class MediaIdTable extends TmmTable {
-  private static final long         serialVersionUID = 8010722883277208728L;
-
   private final Map<String, Object> idMap;
   private final EventList<MediaId>  idList;
 

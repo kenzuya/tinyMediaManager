@@ -29,8 +29,6 @@ import org.tinymediamanager.scraper.http.TmmHttpClient;
  * @author Manuel Laggner
  */
 public class ClearHttpCacheAction extends TmmAction {
-  private static final long           serialVersionUID = -4615019451671427233L;
-  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearHttpCacheAction.class);
 
   public ClearHttpCacheAction() {

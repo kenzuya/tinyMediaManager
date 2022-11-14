@@ -42,7 +42,6 @@ import javax.swing.tree.TreeNode;
  * @param <E>
  */
 public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
-  private static final long              serialVersionUID          = 894025254282580674L;
   protected static final long            TIMER_DELAY               = 100L;
 
   protected final TmmTreeDataProvider<E> dataProvider;

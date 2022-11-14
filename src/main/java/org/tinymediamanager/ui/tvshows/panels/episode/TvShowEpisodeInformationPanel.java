@@ -89,7 +89,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowEpisodeInformationPanel extends InformationPanel {
   private static final Logger               LOGGER                 = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
-  private static final long                 serialVersionUID       = 2032708149757390567L;
 
   private static final String               LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
   private static final String               LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";

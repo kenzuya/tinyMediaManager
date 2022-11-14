@@ -64,8 +64,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieRenamerPreviewDialog extends TmmDialog {
-  private static final long                             serialVersionUID = -8162631708278089277L;
-
   private final EventList<MovieRenamerPreviewContainer> results;
   private final ResultSelectionModel                    resultSelectionModel;
   private final EventList<MediaFileContainer>           oldMediaFileEventList;

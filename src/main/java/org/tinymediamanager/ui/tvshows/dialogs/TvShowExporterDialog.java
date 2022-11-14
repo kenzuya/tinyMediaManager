@@ -66,7 +66,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowExporterDialog extends TmmDialog {
-  private static final long    serialVersionUID = -2197076428245222349L;
   private static final Logger  LOGGER           = LoggerFactory.getLogger(TvShowExporterDialog.class);
 
   private static final String  DIALOG_ID        = "tvShowExporter";

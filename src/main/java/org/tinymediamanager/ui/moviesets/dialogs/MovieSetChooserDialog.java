@@ -103,25 +103,25 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                                 serialVersionUID = -1023959850452480592L;
-  private static final Logger                                               LOGGER           = LoggerFactory.getLogger(MovieSetChooserDialog.class);
+  private static final Logger                                                     LOGGER         = LoggerFactory
+      .getLogger(MovieSetChooserDialog.class);
 
-  private MovieSet                                                          movieSetToScrape;
-  private List<MovieSetChooserModel>                                        movieSetsFound   = ObservableCollections
+  private final MovieSet                                                          movieSetToScrape;
+  private final List<MovieSetChooserModel>                                        movieSetsFound = ObservableCollections
       .observableList(new ArrayList<>());
-  private boolean                                                           continueQueue    = true;
+  private final JLabel                                                            lblProgressAction;
+  private final JProgressBar                                                      progressBar;
+  private final JTextField                                                        tfMovieSetName;
+  private final TmmTable                                                          tableMovieSets;
+  private final JLabel                                                            lblMovieSetName;
+  private final ImageLabel                                                        lblMovieSetPoster;
+  private final TmmTable                                                          tableMovies;
+  private final JCheckBox                                                         cbAssignMovies;
+  private final JButton                                                           btnOk;
+  private final JTextPane                                                         tpPlot;
+  private final ScraperMetadataConfigCheckComboBox<MovieSetScraperMetadataConfig> cbScraperConfig;
 
-  private JLabel                                                            lblProgressAction;
-  private JProgressBar                                                      progressBar;
-  private JTextField                                                        tfMovieSetName;
-  private TmmTable                                                          tableMovieSets;
-  private JLabel                                                            lblMovieSetName;
-  private ImageLabel                                                        lblMovieSetPoster;
-  private TmmTable                                                          tableMovies;
-  private JCheckBox                                                         cbAssignMovies;
-  private JButton                                                           btnOk;
-  private JTextPane                                                         tpPlot;
-  private ScraperMetadataConfigCheckComboBox<MovieSetScraperMetadataConfig> cbScraperConfig;
+  private boolean                                                                 continueQueue  = true;
 
   /**
    * Instantiates a new movie set chooser panel.
@@ -364,8 +364,6 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchAction extends AbstractAction {
-    private static final long serialVersionUID = -6561883838396668177L;
-
     SearchAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.search"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.search"));

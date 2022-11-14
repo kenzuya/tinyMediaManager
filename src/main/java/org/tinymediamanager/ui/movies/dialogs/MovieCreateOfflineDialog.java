@@ -41,9 +41,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieCreateOfflineDialog extends TmmDialog {
-  private static final long serialVersionUID = -8515248604267318279L;
-
-  private MovieList         movieList        = MovieModuleManager.getInstance().getMovieList();
+  private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
   public MovieCreateOfflineDialog() {
     super(TmmResourceBundle.getString("movie.createoffline"), "movieCreateOffline");

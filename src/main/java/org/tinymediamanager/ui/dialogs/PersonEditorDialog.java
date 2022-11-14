@@ -52,8 +52,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class PersonEditorDialog extends TmmDialog {
-  private static final long        serialVersionUID = 535326891112742179L;
-
   private final Person             personToEdit;
   private final EventList<MediaId> ids;
 
@@ -202,8 +200,6 @@ public class PersonEditorDialog extends TmmDialog {
   }
 
   private class AddIdAction extends AbstractAction {
-    private static final long serialVersionUID = 2903255414553349267L;
-
     public AddIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
@@ -223,8 +219,6 @@ public class PersonEditorDialog extends TmmDialog {
   }
 
   private class RemoveIdAction extends AbstractAction {
-    private static final long serialVersionUID = -7079826950827356996L;
-
     public RemoveIdAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);

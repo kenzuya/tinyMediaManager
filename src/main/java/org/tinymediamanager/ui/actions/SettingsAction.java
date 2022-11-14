@@ -28,9 +28,6 @@ import org.tinymediamanager.ui.dialogs.SettingsDialog;
  * @author Manuel Laggner
  */
 public class SettingsAction extends TmmAction {
-  private static final long           serialVersionUID = 8930602755330446751L;
-
-
   public SettingsAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.settings"));
   }

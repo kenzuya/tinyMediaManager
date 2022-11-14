@@ -67,8 +67,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long            serialVersionUID = 6150939811851709115L;
-
   private TmmTableComparatorChooser<?> tableComparatorChooser;
 
   public TmmTable() {
@@ -312,8 +310,6 @@ public class TmmTable extends JTable {
   }
 
   protected static class IconHeaderRenderer extends DefaultTableCellRenderer {
-    private static final long serialVersionUID = 7963585655106103415L;
-
     public IconHeaderRenderer() {
       setHorizontalAlignment(CENTER);
       setOpaque(true);
@@ -362,7 +358,6 @@ public class TmmTable extends JTable {
   }
 
   protected static class SortableIconHeaderRenderer extends JPanel implements TableCellRenderer, SortableRenderer {
-    private static final long       serialVersionUID = 7963585655186183415L;
     private final TableCellRenderer delegate;
     private final JLabel            labelLeft;
     private final JLabel            labelRight;

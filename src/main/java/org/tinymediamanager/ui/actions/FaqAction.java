@@ -33,7 +33,6 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class FaqAction extends TmmAction {
-  private static final long   serialVersionUID = 1668251251156765161L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(FaqAction.class);
 
   public FaqAction() {

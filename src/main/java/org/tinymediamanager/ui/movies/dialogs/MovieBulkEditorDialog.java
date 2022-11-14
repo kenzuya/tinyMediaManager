@@ -89,8 +89,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieBulkEditorDialog extends TmmDialog {
-  private static final long              serialVersionUID = -8515248604267310279L;
-
   private final MovieList                movieList        = MovieModuleManager.getInstance().getMovieList();
   private final List<Movie>              moviesToEdit     = new ArrayList<>();
 

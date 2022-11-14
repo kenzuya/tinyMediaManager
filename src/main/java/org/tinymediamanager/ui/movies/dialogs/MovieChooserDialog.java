@@ -125,8 +125,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                                    serialVersionUID      = -3104541519073924724L;
-
   private static final Logger                                                  LOGGER                = LoggerFactory
       .getLogger(MovieChooserDialog.class);
 
@@ -755,8 +753,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
    * helper classes
    ******************************************************************************/
   private class ChangeScraperAction extends AbstractAction {
-    private static final long serialVersionUID = -4365761222995534769L;
-
     @Override
     public void actionPerformed(ActionEvent e) {
       mediaScraper = (MediaScraper) cbScraper.getSelectedItem();

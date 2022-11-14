@@ -30,9 +30,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @author Manuel Laggner
  */
 public class CreateDesktopFileAction extends TmmAction {
-  private static final long           serialVersionUID = 1668251251156765161L;
-
-
   public CreateDesktopFileAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.createdesktopentry"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.createdesktopentry.hint"));

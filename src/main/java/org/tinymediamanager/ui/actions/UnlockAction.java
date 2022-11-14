@@ -27,8 +27,6 @@ import org.tinymediamanager.ui.dialogs.UnlockDialog;
  * @author Manuel Laggner
  */
 public class UnlockAction extends TmmAction {
-  private static final long serialVersionUID = 8930602755330446751L;
-
   public UnlockAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.license.register"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Toolbar.upgrade.desc"));

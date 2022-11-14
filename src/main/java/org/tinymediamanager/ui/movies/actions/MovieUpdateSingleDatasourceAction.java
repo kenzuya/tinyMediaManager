@@ -29,10 +29,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class MovieUpdateSingleDatasourceAction extends TmmAction {
-  private static final long           serialVersionUID = 6885253964781733478L;
-
-
-  private String                      datasource;
+  private final String datasource;
 
   public MovieUpdateSingleDatasourceAction(String datasource) {
     this.datasource = datasource;

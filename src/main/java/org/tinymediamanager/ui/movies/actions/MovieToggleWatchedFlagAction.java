@@ -36,9 +36,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieToggleWatchedFlagAction extends TmmAction {
-  private static final long           serialVersionUID = 2866581962767395824L;
-
-
   public MovieToggleWatchedFlagAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.togglewatchedflag"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));

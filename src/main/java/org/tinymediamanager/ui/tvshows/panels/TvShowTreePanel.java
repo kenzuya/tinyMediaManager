@@ -92,8 +92,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long          serialVersionUID      = 5889203009864512935L;
-
   private final TvShowList           tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
   private final TvShowSelectionModel selectionModel;
 
@@ -532,8 +530,6 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
    * local helper classes
    **************************************************************************/
   public class CollapseAllAction extends AbstractAction {
-    private static final long serialVersionUID = -1444530142931061317L;
-
     public CollapseAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
@@ -547,8 +543,6 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   public class ExpandAllAction extends AbstractAction {
-    private static final long serialVersionUID = 6191727607109012198L;
-
     public ExpandAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }

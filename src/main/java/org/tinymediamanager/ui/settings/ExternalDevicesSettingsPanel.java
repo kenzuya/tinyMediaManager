@@ -58,7 +58,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalDevicesSettingsPanel extends JPanel {
-  private static final long   serialVersionUID = 8176824801347872222L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
   private final Settings      settings         = Settings.getInstance();

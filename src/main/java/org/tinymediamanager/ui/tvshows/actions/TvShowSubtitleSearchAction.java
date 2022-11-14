@@ -37,8 +37,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSubtitleChooserDialog;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleSearchAction extends TmmAction {
-  private static final long serialVersionUID = -6006932119900795735L;
-
   public TvShowSubtitleSearchAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.search.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);

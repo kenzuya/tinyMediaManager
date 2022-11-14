@@ -31,9 +31,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class MovieAspectRatioDetectAction extends TmmAction {
-
-  private static final long serialVersionUID = 2040242768614719459L;
-
   public MovieAspectRatioDetectAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.ard"));
     putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO_BLUE);

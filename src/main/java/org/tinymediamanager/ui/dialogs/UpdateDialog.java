@@ -48,7 +48,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class UpdateDialog extends TmmDialog {
-  private static final long   serialVersionUID = 535315282932742179L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(UpdateDialog.class);
 
   public UpdateDialog(String changelog) {
