@@ -28,9 +28,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class Globals {
   private static final boolean DEBUG           = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
-  private static final boolean SELF_UPDATEABLE = (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) && !Files.exists(Paths.get(".managed")))
-      ? true
-      : false;
+  private static final boolean SELF_UPDATEABLE = (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) && !Files.exists(Paths.get(".managed"))
+      && isTmmDirWritable()) ? true : false;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
