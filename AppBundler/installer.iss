@@ -66,6 +66,10 @@ Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "*";  Excludes: "Output,*.iss,tmm.ico"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[InstallDelete]
+; cleanup possible left-overs from former installation BEFORE installing
+Type: filesandordirs; Name: "{app}\libs"
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\jre"
 Type: filesandordirs; Name: "{app}\templates"
