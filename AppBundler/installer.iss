@@ -68,7 +68,7 @@ Source: "*";  Excludes: "Output,*.iss,tmm.ico"; DestDir: "{app}"; Flags: ignorev
 
 [InstallDelete]
 ; cleanup possible left-overs from former installation BEFORE installing
-Type: filesandordirs; Name: "{app}\libs"
+Type: filesandordirs; Name: "{app}\lib"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\jre"
