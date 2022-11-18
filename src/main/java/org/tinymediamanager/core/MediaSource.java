@@ -34,6 +34,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public class MediaSource extends DynaEnum<MediaSource> {
   private static final Comparator<MediaSource> COMPARATOR  = new MediaSourceComparator();
+  private static final Comparator<MediaSource> COMP_LENGTH = new MediaSourceLengthComparator();
 
   // the well known and XBMC/Kodi compatible sources
   // tokens taken from http://en.wikipedia.org/wiki/Pirated_movie_release_types
@@ -141,12 +142,9 @@ public class MediaSource extends DynaEnum<MediaSource> {
   public static MediaSource parseMediaSource(String filename) {
     String fn = filename.toLowerCase(Locale.ROOT);
 
-    // make sure we try UHD_BLURAY first, since there could be false positives with BLURAY regexp
-    if (UHD_BLURAY.pattern.matcher(filename).find()) {
-      return UHD_BLURAY;
-    }
-
-    for (MediaSource mediaSource : MediaSource.values()) {
+    MediaSource[] s = MediaSource.values();
+    Arrays.sort(s, MediaSource.COMP_LENGTH);
+    for (MediaSource mediaSource : s) {
       if (mediaSource.pattern != null && mediaSource.pattern.matcher(filename).find()) {
         return mediaSource;
       }
@@ -207,6 +205,25 @@ public class MediaSource extends DynaEnum<MediaSource> {
         return -1;
       }
       return o1.toString().compareTo(o2.toString());
+    }
+  }
+
+  /**
+   * Comparator for sorting our MediaSource from longest to shortest
+   */
+  private static class MediaSourceLengthComparator implements Comparator<MediaSource> {
+    @Override
+    public int compare(MediaSource o1, MediaSource o2) {
+      if (o1 == null && o2 == null) {
+        return 0;
+      }
+      if (o1.name() == null) {
+        return 1;
+      }
+      if (o2.name() == null) {
+        return -1;
+      }
+      return Integer.compare(o2.name().length(), o1.name().length());
     }
   }
 }

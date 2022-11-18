@@ -2,6 +2,7 @@ Version 4.3.6
 =======================
 + added reloading of mediainfo to the commandline interface
 + Subtitles: also parse language from filename, if MediaInfo detects none #1947
+x improved MediaSource detection (false positives, ordering) #1950
 
 
 Version 4.3.5
