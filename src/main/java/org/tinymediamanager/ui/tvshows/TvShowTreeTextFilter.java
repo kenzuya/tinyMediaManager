@@ -112,19 +112,19 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
     if (node instanceof TvShowTreeDataProvider.AbstractTvShowTreeNode) {
       TvShowTreeDataProvider.AbstractTvShowTreeNode treeNode = (TvShowTreeDataProvider.AbstractTvShowTreeNode) node;
       // first: filter on the node
-      Matcher matcher = pattern.matcher(treeNode.toString());
+      Matcher matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.toString()));
       if (matcher.find()) {
         return true;
       }
 
       // second: filter on the orignal title
-      matcher = pattern.matcher(treeNode.getTitle());
+      matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.getTitle()));
       if (matcher.find()) {
         return true;
       }
 
       // third: filter on the original title
-      matcher = pattern.matcher(treeNode.getOriginalTitle());
+      matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.getOriginalTitle()));
       if (matcher.find()) {
         return true;
       }
