@@ -1,5 +1,10 @@
 Version 5.0
 =======================
++ Adopted storage locations to the operating system defaults (for new installations):
+  - macOS: ~/Library/Application Support/tinyMediaManager
+  - Windows: Users home\AppData\Roaming
+  - added an extra portable build for local storage
++ providing signed installers (Windows, macOS)
 + added subtitle format info to media files tab and filters #1709
 + fetch ratings: remember last used rating sources #1940
 x better handling of image cache upon rename

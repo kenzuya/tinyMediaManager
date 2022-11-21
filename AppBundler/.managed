@@ -1,0 +1,2 @@
+This file indicates, that this instance of tinyMediaManager is NOT self-update able.
+For example when being packaged and distributed via a package manager.

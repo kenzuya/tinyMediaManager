@@ -15,6 +15,10 @@
  */
 package org.tinymediamanager;
 
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -23,7 +27,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author Manuel Laggner
  */
 public final class Globals {
-  private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean DEBUG           = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean SELF_UPDATEABLE = (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) && !Files.exists(Paths.get(".managed"))
+      && isTmmDirWritable()) ? true : false;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
@@ -38,55 +44,67 @@ public final class Globals {
     String backupFolder = System.getProperty("tmm.backupfolder");
     String logFolder = System.getProperty("tmm.logfolder");
 
+    // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
+    if (StringUtils.isBlank(contentFolder)) {
+      if (Files.exists(Paths.get(".userdir")) || !isTmmDirWritable()) {
+        // userdir
+        contentFolder = TmmOsUtils.getUserDir().toString();
+      }
+      else {
+        // portable - current folder
+        contentFolder = ".";
+      }
+    }
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {
       DATA_FOLDER = dataFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      DATA_FOLDER = contentFolder + "/data";
-    }
     else {
-      DATA_FOLDER = "data";
+      DATA_FOLDER = Paths.get(contentFolder, "data").toAbsolutePath().toString();
     }
 
     // cache
     if (StringUtils.isNotBlank(cacheFolder)) {
       CACHE_FOLDER = cacheFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      CACHE_FOLDER = contentFolder + "/cache";
-    }
     else {
-      CACHE_FOLDER = "cache";
+      CACHE_FOLDER = Paths.get(contentFolder, "cache").toAbsolutePath().toString();
     }
 
     // backup
     if (StringUtils.isNotBlank(backupFolder)) {
       BACKUP_FOLDER = backupFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      BACKUP_FOLDER = contentFolder + "/backup";
-    }
     else {
-      BACKUP_FOLDER = "backup";
+      BACKUP_FOLDER = Paths.get(contentFolder, "backup").toAbsolutePath().toString();
     }
 
     // logs
     if (StringUtils.isNotBlank(logFolder)) {
       LOG_FOLDER = logFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      LOG_FOLDER = contentFolder + "/logs";
-    }
     else {
-      LOG_FOLDER = "logs";
+      LOG_FOLDER = Paths.get(contentFolder, "logs").toAbsolutePath().toString();
     }
   }
 
   private Globals() {
     throw new IllegalAccessError();
+  }
+
+  private static boolean isTmmDirWritable() {
+    try {
+      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
+      f.close();
+      Files.deleteIfExists(Paths.get("access.test"));
+      return true;
+    }
+    catch (Exception e) {
+      // ignore
+    }
+    return false;
   }
 
   /**
@@ -122,5 +140,9 @@ public final class Globals {
    */
   public static boolean isRunningWebSwing() {
     return System.getProperty("webswing.classPath") != null;
+  }
+
+  public static boolean isSelfUpdateable() {
+    return SELF_UPDATEABLE;
   }
 }

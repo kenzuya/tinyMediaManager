@@ -18,10 +18,9 @@ stages:
 test:jdk17:
   stage: test
   image: tinymediamanager/testing:jdk17-20220926090140
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -32,10 +31,9 @@ test:jdk17:
 test:jdk18:
   stage: test
   image: tinymediamanager/testing:jdk18-20221002133514
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -46,10 +44,9 @@ test:jdk18:
 test:jdk19:
   stage: test
   image: tinymediamanager/testing:jdk19-20221002133519
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -122,7 +119,7 @@ deploy:DOCKER-RELEASE:
   services:
     - name: docker:dind
   variables:
-    TMM_VERSION: "5.0"
+    TMM_VERSION: "5.0.0"
     IMAGE_NAME: tinymediamanager/tinymediamanager:${TMM_VERSION}
   script:
     # login

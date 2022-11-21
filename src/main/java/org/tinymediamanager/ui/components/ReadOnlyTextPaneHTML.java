@@ -20,7 +20,7 @@ import javax.swing.event.HyperlinkEvent;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -63,7 +63,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         // performance: just do a quick contains, before doing all the fancy stuff
         if (t.contains("http") || t.contains("www")) {
           // remove all existing href tags, to not reHTMLify existing ones
-          t = Jsoup.clean(t, "", Whitelist.simpleText(), NO_PRETTYPRINT);
+          t = Jsoup.clean(t, "", Safelist.simpleText(), NO_PRETTYPRINT);
 
           t = t.replaceAll("\\n", " <br/> ");
 

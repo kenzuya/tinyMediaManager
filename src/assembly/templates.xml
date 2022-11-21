@@ -2,6 +2,7 @@
     <id>templates</id>
     <formats>
         <format>tar.bz2</format>
+        <format>dir</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>

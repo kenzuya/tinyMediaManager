@@ -13,34 +13,42 @@ build:
     name: prerelease
     url: https://prerelease.tinymediamanager.org
   allow_failure: false
+  tags:
+    - tmm # force running on own runners
   variables:
     PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
-    # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean package
+    # package archives
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dtier=prerelease -Dthread_pool_size=1 clean package
 
     # build Windows installer
     - chmod 777 . dist
     - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh "$CODE_SIGN_CERT" "$CODE_SIGN_PASS"
 
-    # build macOS dmg file
-    - sh AppBundler/create_dmg.sh
-
     # push the build to the webserver
-    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_PREREL},${FTP_PASSWORD_PREREL} ${FTP_HOST}; mirror -Rev build/ ./upload/v4/build; mirror -Rev dist/ ./upload/v4/dist; chmod -R g+w ./upload/v4"
-
-    # and publish the files on the webserver
-    - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V4}
-    - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX}
-    - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX_V4}
-
-    # purge CF cache
-    - 'eval "$PURGE_CF_CACHE"'
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_PREREL},${FTP_PASSWORD_PREREL} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
   artifacts:
     expire_in: 2 hours
     paths:
-      - dist/tmm*linux-amd64.tar.gz # upload for docker build
+      - dist/tinyMediaManager*linux-amd64.tar.xz # upload for docker build
+      - target/docker # compiled Dockerfile
+      - target/tinyMediaManager*macos*.zip
+
+build-mac:
+  stage: build
+  needs:
+    - build
+  dependencies:
+    - build
+  allow_failure: false
+  tags:
+    - tmm-mac # force running on own macOS runners
+  script:
+    - sh AppBundler/create_mac_image.sh
+
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_PREREL},${FTP_PASSWORD_PREREL} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
 deploy-docker:
   stage: deploy
@@ -50,15 +58,28 @@ deploy-docker:
   needs:
     - build
   variables:
-    IMAGE_NAME: tinymediamanager/tinymediamanager:4-prerelease
+    IMAGE_NAME: tinymediamanager/tinymediamanager:5-prerelease
   script:
     # login
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
     # build
-    - tar xzf dist/tmm*linux-amd64.tar.gz -C docker/
-    - cd docker
-    - docker build -f Dockerfile.prerelease -t $IMAGE_NAME .
+    - tar xzf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
+    - cd target/docker
+    - docker build -t $IMAGE_NAME .
 
     # push to the registry
     - docker push $IMAGE_NAME
+
+deploy:
+  stage: deploy
+  image: curlimages/curl:7.85.0
+  environment:
+    name: test
+    url: https://prerelease.tinymediamanager.org
+  script:
+    # and publish the files on the webserver
+    - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+
+    # purge CF cache
+    - 'eval "$PURGE_CF_CACHE"'

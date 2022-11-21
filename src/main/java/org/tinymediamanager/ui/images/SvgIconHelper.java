@@ -24,7 +24,7 @@ import com.kitfox.svg.xml.StyleAttribute;
 
 class SvgIconHelper {
   private SvgIconHelper() {
-    // hide constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**

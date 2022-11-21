@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.tinymediamanager</groupId>
@@ -58,7 +57,7 @@
 	</mailingLists>
 
 	<prerequisites>
-		<maven>3.3.9</maven> <!-- although it should not be used here, it is needed for version update 
+		<maven>3.3.9</maven> <!-- although it should not be used here, it is needed for version update
 			plugin -->
 	</prerequisites>
 
@@ -80,20 +79,21 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<skipTests>true</skipTests> <!-- to override on command line -->
 		<skipITests>true</skipITests> <!-- to override on command line -->
+		<tier>GIT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
 
-		<jar.version>3.2.0</jar.version>
-		<surefire.version>3.0.0-M5</surefire.version>
-		<compiler.version>3.8.1</compiler.version>
-		<enforcer.version>3.0.0</enforcer.version>
+		<jar.version>3.3.0</jar.version>
+		<surefire.version>3.0.0-M7</surefire.version>
+		<compiler.version>3.10.1</compiler.version>
+		<enforcer.version>3.1.0</enforcer.version>
 		<animal-sniffer.version>1.17</animal-sniffer.version>
 		<wagon-webdav-jackrabbit.version>3.0.0</wagon-webdav-jackrabbit.version>
-		<okhttp.version>4.9.3</okhttp.version>
-		<slf4j.version>1.7.36</slf4j.version>
+		<okhttp.version>4.10.0</okhttp.version>
+		<slf4j.version>2.0.2</slf4j.version>
 		<release.version>2.5.3</release.version>
-		<jre.version>17.0.2</jre.version>
-		<ffmpeg.version>5.0</ffmpeg.version>
-		<launcher.version>1.1.12</launcher.version>
-		<jackson.version>2.13.2</jackson.version>
+		<jre.version>17.0.5</jre.version>
+		<ffmpeg.version>5.1.1</ffmpeg.version>
+		<launcher.version>5.0.0-SNAPSHOT</launcher.version>
+		<jackson.version>2.13.4</jackson.version>
 		<sonar.java.source>17</sonar.java.source>
 	</properties>
 
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.11</version>
+			<version>1.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -137,7 +137,7 @@
 		<dependency>
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>janino</artifactId>
-			<version>3.1.6</version>
+			<version>3.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -147,7 +147,7 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.14.3</version>
+			<version>1.15.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -182,7 +182,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.10.13</version>
+			<version>2.11.1</version>
 		</dependency>
 
 		<!-- J9 / J10 / J11 deps -->
@@ -221,7 +221,7 @@
 		<dependency>
 			<groupId>com.uwetrottmann.trakt5</groupId>
 			<artifactId>trakt-java</artifactId>
-			<version>6.10.0</version>
+			<version>6.11.2</version>
 		</dependency>
 		<dependency>
 			<groupId>it.tidalwave.betterbeansbinding</groupId>
@@ -241,7 +241,7 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
-			<version>5.10.0</version>
+			<version>5.12.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.floreysoft</groupId>
@@ -251,7 +251,7 @@
 		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-swing</artifactId>
-			<version>5.2</version><!-- 5.3 and 11 have scaling issues when using a bigger font-->
+			<version>5.2</version> <!-- 5.3 and 11 have scaling issues when using a bigger font-->
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -305,17 +305,17 @@
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
 			<artifactId>imageio-jpeg</artifactId>
-			<version>3.8.2</version>
+			<version>3.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
 			<artifactId>imageio-webp</artifactId>
-			<version>3.8.2</version>
+			<version>3.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mp4parser</groupId>
 			<artifactId>muxer</artifactId>
-			<version>1.9.41</version>
+			<version>1.9.56</version>
 		</dependency>
 
 		<dependency>
@@ -380,7 +380,7 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.22.0</version>
+			<version>3.23.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -424,6 +424,11 @@
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
 			</resource>
+			<resource>
+				<directory>src/docker</directory>
+				<filtering>true</filtering>
+				<targetPath>${basedir}/target/docker</targetPath>
+			</resource>
 		</resources>
 		<testResources>
 			<testResource>
@@ -434,13 +439,35 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.2.0</version>
+					<executions>
+						<execution>
+							<id>default-clean</id>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+							<configuration>
+								<filesets>
+									<fileset>
+										<directory>dist</directory>
+										<includes>
+											<include>**</include>
+										</includes>
+									</fileset>
+								</filesets>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>${release.version}</version>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<useReleaseProfile>false</useReleaseProfile>
-						<releaseProfiles>dist,release</releaseProfiles>
+						<releaseProfiles>dist</releaseProfiles>
 						<goals>deploy</goals>
 					</configuration>
 				</plugin>
@@ -462,6 +489,7 @@
 							</manifest>
 							<manifestEntries>
 								<SplashScreen-Image>splashscreen.png</SplashScreen-Image>
+								<Human-Version>${human.version}</Human-Version>
 								<Build-Nr>${buildNumber}</Build-Nr>
 								<Build-Date>${timestamp}</Build-Date>
 								<Build-By>${user.name}</Build-By>
@@ -535,10 +563,10 @@
 				<!-- get SVN/GIT revision numbers -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
-						<phase>process-resources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
@@ -552,7 +580,7 @@
 				<!-- generate a timestamp -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>timestamp-property</id>
@@ -576,6 +604,20 @@
 							<sources>
 								<source>src/integration-test/java</source>
 							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-human-version</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>human.version</name>
+							<value>${project.version}</value>
+							<regex>SNAPSHOT</regex>
+							<replacement>${tier}</replacement>
+							<toUpperCase>true</toUpperCase>
+							<failIfNoMatch>false</failIfNoMatch>
 						</configuration>
 					</execution>
 				</executions>
@@ -613,7 +655,7 @@
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>7.1.0</version>
+				<version>7.2.1</version>
 				<configuration>
 					<formats>
 						<format>html</format>
@@ -638,163 +680,6 @@
 
 	<profiles>
 		<profile>
-			<id>dist</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<!-- copies our dependencies WITHOUT version number for packaging -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.2</version>
-						<executions>
-							<execution>
-								<id>copy-tmm-dependencies</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy-dependencies</goal>
-								</goals>
-								<configuration>
-									<includeScope>runtime</includeScope>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-JRE</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-windows_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-linux_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-linux_arm32</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>jre-macos_x64</artifactId>
-											<version>${jre.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/jre</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-addons</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<!-- FFmpeg -->
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-windows_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-linux_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-linux_arm32</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-										<artifactItem>
-											<groupId>org.tinymediamanager.addon</groupId>
-											<artifactId>ffmpeg-macos_x64</artifactId>
-											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/addons</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-launcher</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.tinymediamanager</groupId>
-											<artifactId>launcher</artifactId>
-											<version>${launcher.version}</version>
-											<type>tar.gz</type>
-										</artifactItem>
-									</artifactItems>
-									<outputDirectory>${project.build.directory}/launcher</outputDirectory>
-									<overWriteReleases>false</overWriteReleases>
-									<overWriteSnapshots>true</overWriteSnapshots>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<!-- call our ant file, since it's too complicated to do our packaging 
-							solely in maven -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>3.0.0</version>
-						<executions>
-							<execution>
-								<id>dist</id>
-								<phase>package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<exportAntProperties>true</exportAntProperties>
-							<target>
-								<property name="tmmName" value="${project.artifactId}" />
-								<property name="tmmVersion" value="${project.version}" />
-								<property name="tmmRevision" value="${buildNumber}" />
-								<property name="tmmTimestamp" value="${timestamp}" />
-
-								<ant antfile="${project.basedir}/ant-package.xml">
-									<target name="package-app" />
-								</ant>
-							</target>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>gitlab-ci</id>
 			<build>
 				<plugins>
@@ -803,7 +688,7 @@
 						<!-- get SVN/GIT revision numbers -->
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>buildnumber-maven-plugin</artifactId>
-						<version>1.4</version>
+						<version>3.0.0</version>
 						<executions>
 							<execution>
 								<phase>none</phase>
@@ -879,6 +764,7 @@
 						<!-- skip packaging on QA build -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>dist</id>
@@ -889,7 +775,7 @@
 					<plugin>
 						<groupId>de.thetaphi</groupId>
 						<artifactId>forbiddenapis</artifactId>
-						<version>3.1</version>
+						<version>3.3</version>
 						<configuration>
 							<targetVersion>${maven.compiler.release}</targetVersion>
 							<!-- if the used Java version is too new, don't fail, just do nothing: -->
@@ -897,7 +783,7 @@
 							<failOnViolation>false</failOnViolation>
 							<!-- more https://github.com/policeman-tools/forbidden-apis/wiki/BundledSignatures -->
 							<bundledSignatures>
-								<!-- This will automatically choose the right signatures based on 
+								<!-- This will automatically choose the right signatures based on
 									'maven.compiler.target': -->
 								<bundledSignature>jdk-deprecated</bundledSignature>
 								<bundledSignature>jdk-non-portable</bundledSignature>
@@ -920,7 +806,7 @@
 					<plugin>
 						<groupId>org.gaul</groupId>
 						<artifactId>modernizer-maven-plugin</artifactId>
-						<version>2.3.0</version>
+						<version>2.4.0</version>
 						<configuration>
 							<failOnViolations>false</failOnViolations>
 							<javaVersion>${maven.compiler.release}</javaVersion>
@@ -939,7 +825,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>test</id>
+			<id>dist</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -957,12 +843,40 @@
 							</execution>
 						</executions>
 					</plugin>
-
+					<plugin>
+						<groupId>net.nicoulaj.maven.plugins</groupId>
+						<artifactId>checksum-maven-plugin</artifactId>
+						<version>1.11</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>files</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<algorithms>
+								<algorithm>MD5</algorithm>
+								<algorithm>SHA-1</algorithm>
+								<algorithm>SHA-256</algorithm>
+							</algorithms>
+							<fileSets>
+								<fileSet>
+									<directory>dist</directory>
+									<excludes>
+										<exclude>*.md5</exclude>
+										<exclude>*.sha256</exclude>
+										<exclude>*.sha1</exclude>
+									</excludes>
+								</fileSet>
+							</fileSets>
+						</configuration>
+					</plugin>
 					<plugin>
 						<!-- copies our dependencies WITHOUT version number for packaging -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.2</version>
+						<version>3.3.0</version>
 						<executions>
 							<execution>
 								<id>copy-tmm-dependencies</id>
@@ -1001,6 +915,7 @@
 											<version>${jre.version}</version>
 											<type>tar.br</type>
 										</artifactItem>
+										<!-- for legacy macOS installs -->
 										<artifactItem>
 											<groupId>org.tinymediamanager</groupId>
 											<artifactId>jre-macos_x64</artifactId>
@@ -1012,6 +927,46 @@
 									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack macOS x64 JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos_x64</artifactId>
+											<version>${jre.version}-bz2</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre/macos-x64</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack macOS aarch64 JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos_aarch64</artifactId>
+											<version>${jre.version}-bz2</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre/macos-aarch64</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
 							</execution>
 							<execution>
@@ -1041,17 +996,58 @@
 											<version>${ffmpeg.version}</version>
 											<type>tar.br</type>
 										</artifactItem>
+										<!-- for legacy macOS installs -->
 										<artifactItem>
 											<groupId>org.tinymediamanager.addon</groupId>
 											<artifactId>ffmpeg-macos_x64</artifactId>
 											<version>${ffmpeg.version}</version>
-											<type>tar.br</type>
+											<type>tar.bz2</type>
 										</artifactItem>
 									</artifactItems>
 									<outputDirectory>${project.build.directory}/addons</outputDirectory>
 									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
 									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack macOS x64 ffmpeg</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager.addon</groupId>
+											<artifactId>ffmpeg-macos_x64</artifactId>
+											<version>${ffmpeg.version}</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/addons/macos-x64</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unpack macOS aarch64 ffmpeg</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager.addon</groupId>
+											<artifactId>ffmpeg-macos_aarch64</artifactId>
+											<version>${ffmpeg.version}</version>
+											<type>tar.bz2</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/addons/macos-aarch64</outputDirectory>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
 								</configuration>
 							</execution>
 							<execution>
@@ -1080,7 +1076,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>3.3.0</version>
+						<version>3.4.2</version>
 						<executions>
 							<execution>
 								<!-- first assemble a base folder to copy -->
@@ -1090,6 +1086,7 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<attach>false</attach>
 									<descriptors>
 										<descriptor>src/assembly/templates.xml</descriptor>
 										<descriptor>src/assembly/base.xml</descriptor>
@@ -1104,6 +1101,7 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<attach>false</attach>
 									<finalName>${project.artifactId}</finalName>
 									<appendAssemblyId>true</appendAssemblyId>
 									<descriptors>
@@ -1120,12 +1118,34 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<outputDirectory>dist</outputDirectory>
+									<finalName>${project.artifactId}-${human.version}</finalName>
+									<attach>false</attach>
 									<descriptors>
-										<descriptor>src/assembly/windows.xml</descriptor>
-										<descriptor>src/assembly/linux.xml</descriptor>
-										<descriptor>src/assembly/arm.xml</descriptor>
-										<descriptor>src/assembly/macos.xml</descriptor>
+										<descriptor>src/assembly/windows-x64.xml</descriptor>
+										<descriptor>src/assembly/linux-x64.xml</descriptor>
+										<descriptor>src/assembly/linux-arm.xml</descriptor>
 									</descriptors>
+									<tarLongFileMode>gnu</tarLongFileMode>
+								</configuration>
+							</execution>
+
+							<!-- create intermediate archives for the macOS packaging -->
+							<execution>
+								<id>assemble-mac</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>target</outputDirectory>
+									<finalName>${project.artifactId}-${human.version}</finalName>
+									<attach>false</attach>
+									<descriptors>
+										<descriptor>src/assembly/macos-x64.xml</descriptor>
+										<descriptor>src/assembly/macos-aarch64.xml</descriptor>
+									</descriptors>
+									<tarLongFileMode>gnu</tarLongFileMode>
 								</configuration>
 							</execution>
 						</executions>
@@ -1135,7 +1155,7 @@
 						<!-- ANT is called inbetween to do its GD magic -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>ant-getdown</id>
@@ -1157,7 +1177,6 @@
 							</target>
 						</configuration>
 					</plugin>
-
 				</plugins>
 			</build>
 		</profile>

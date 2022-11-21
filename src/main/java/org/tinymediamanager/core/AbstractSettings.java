@@ -238,33 +238,35 @@ public abstract class AbstractSettings extends AbstractModelObject {
 
     // unmarshall the JSON
     try {
-      try {
-        LOGGER.debug("Loading settings ({}) from {}", filename, folder);
-        Reader reader = new FileReader(new File(folder, filename));
-        String settingsAsJson = IOUtils.toString(reader);
+      LOGGER.debug("Loading settings ({}) from {}", filename, folder);
+      Reader reader = new FileReader(new File(folder, filename));
+      String settingsAsJson = IOUtils.toString(reader);
 
-        ObjectReader objectReader = objectMapper.readerFor(clazz);
-        instance = objectReader.readValue(settingsAsJson);
-        instance.afterLoading();
+      ObjectReader objectReader = objectMapper.readerFor(clazz);
+      instance = objectReader.readValue(settingsAsJson);
+      instance.afterLoading();
+
+      instance.settingsFolder = folder;
+      instance.dirty = false;
+    }
+    catch (Exception e) {
+      if (!(e instanceof FileNotFoundException)) {
+        // log only if there are other Exceptions than the FileNotFoundException
+        LOGGER.error("failed loading settings", e);
       }
-      catch (Exception e) {
-        if (!(e instanceof FileNotFoundException)) {
-          // log only if there are other Exceptions than the FileNotFoundException
-          LOGGER.error("failed loading settings", e);
-        }
-        LOGGER.warn("could not load settings - creating default ones...");
+      LOGGER.warn("could not load settings - creating default ones...");
+
+      try {
         instance = clazz.getDeclaredConstructor().newInstance();
         instance.settingsFolder = folder;
         instance.newConfig = true;
         instance.dirty = true;
         instance.writeDefaultSettings();
       }
-      instance.settingsFolder = folder;
-      instance.dirty = false;
-    }
-    catch (Exception e) {
-      LOGGER.error("getInstance", e);
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "tmm.settings", "message.config.loadsettingserror"));
+      catch (Throwable e2) {
+        LOGGER.error("getInstance", e2);
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "tmm.settings", "message.config.loadsettingserror"));
+      }
     }
 
     return instance;

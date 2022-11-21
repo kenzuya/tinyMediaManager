@@ -1,4 +1,5 @@
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
     <id>getdown</id>
     <formats>
         <format>dir</format>
@@ -23,10 +24,18 @@
         <fileSet>
             <directory>native</directory>
             <outputDirectory>/native</outputDirectory>
+            <excludes>
+                <exclude>**/addons/*</exclude>
+                <exclude>**/compile.txt</exclude>
+                <exclude>**/*.sha256</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/jre</directory>
             <outputDirectory>/jre</outputDirectory>
+            <excludes>
+                <exclude>macos-*/**</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
     <files>
@@ -40,7 +49,7 @@
             <outputDirectory>/native/linux/addons</outputDirectory>
         </file>
         <file>
-            <source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.br</source>
+            <source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.bz2</source>
             <outputDirectory>/native/macos/addons</outputDirectory>
         </file>
         <file>
@@ -50,24 +59,25 @@
 
         <!-- LAUNCHER -->
         <file>
-            <source>${project.build.directory}/launcher/arm/tinyMediaManager</source>
+            <source>${project.build.directory}/launcher/linux_arm/tinyMediaManager</source>
             <outputDirectory>/</outputDirectory>
             <destName>tinyMediaManager-arm</destName>
         </file>
         <file>
-            <source>${project.build.directory}/launcher/linux/tinyMediaManager</source>
+            <source>${project.build.directory}/launcher/linux_x64/tinyMediaManager</source>
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
-            <source>${project.build.directory}/launcher/macos/tinyMediaManager</source>
+            <source>${project.build.directory}/launcher/macos_x64/tinyMediaManager</source>
             <outputDirectory>/macOS/MacOS/</outputDirectory>
+            <destName>tinyMediaManager</destName>
         </file>
         <file>
-            <source>${project.build.directory}/launcher/windows/tinyMediaManager.exe</source>
+            <source>${project.build.directory}/launcher/windows_x64/tinyMediaManager.exe</source>
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
-            <source>${project.build.directory}/launcher/windows/tinyMediaManagerCMD.exe</source>
+            <source>${project.build.directory}/launcher/windows_x64/tinyMediaManagerCMD.exe</source>
             <outputDirectory>/</outputDirectory>
         </file>
     </files>

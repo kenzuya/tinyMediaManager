@@ -334,11 +334,11 @@ public class ToolbarPanel extends JPanel {
       }
     });
 
-    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || Globals.isDebug()) {
+    if (Globals.isSelfUpdateable() || Globals.isDebug()) {
       menu.addSeparator();
     }
 
-    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+    if (Globals.isSelfUpdateable()) {
       menu.add(new CheckForUpdateAction());
     }
 
