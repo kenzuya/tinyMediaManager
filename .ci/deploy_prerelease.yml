@@ -8,7 +8,7 @@ variables:
 
 build:
   stage: build
-  image: tinymediamanager/packaging:20220926090140
+  image: tinymediamanager/packaging:20221121194626
   environment:
     name: prerelease
     url: https://prerelease.tinymediamanager.org
