@@ -72,15 +72,16 @@ deploy-docker:
     # build
     - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
     - cd target/docker
-    - ls -laR
-    - pwd
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
     - docker build  .
+    - env
+    - docker images
     
     # tag
-    - docker tag "$IMAGE_NAME:$VERSION" 
-    - docker tag "$IMAGE_NAME:5-test" 
-    - docker tag "$IMAGE_NAME:latest-test"
+    - docker tag $IMAGE_NAME "$IMAGE_NAME:$VERSION" 
+    - docker tag $IMAGE_NAME "$IMAGE_NAME:5-test" 
+    - docker tag $IMAGE_NAME "$IMAGE_NAME:latest-test"
+    - docker images
 
     # push to the registry
     - echo would docker push "$IMAGE_NAME:$VERSION"
