@@ -7,7 +7,7 @@ LABEL "org.opencontainers.image.description"="${project.description}"
 LABEL "org.opencontainers.image.url"="${project.url}"
 LABEL "org.opencontainers.image.licenses"="Apache License, Version 2.0"
 LABEL "org.opencontainers.image.revision"="${buildNumber}"
-LABEL "org.opencontainers.image.documentation"="https://hub.docker.com/r/tinymediamanager/tinymediamanager"
+LABEL "org.opencontainers.image.documentation"="https://www.tinymediamanager.org/docs/docker"
 LABEL "org.opencontainers.image.source "="${project.scm.url}"
 
 ENV APP=tinyMediaManager
