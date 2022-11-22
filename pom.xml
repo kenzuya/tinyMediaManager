@@ -699,64 +699,6 @@
 			</build>
 		</profile>
 		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>3.2.0</version>
-						<executions>
-							<execution>
-								<id>attach-dist</id>
-								<phase>package</phase>
-								<goals>
-									<goal>attach-artifact</goal>
-								</goals>
-								<configuration>
-									<artifacts>
-										<artifact>
-											<file>dist/tmm_${project.version}_windows-amd64.zip</file>
-											<type>zip</type>
-											<classifier>win</classifier>
-										</artifact>
-										<artifact>
-											<file>dist/tmm_${project.version}_macos-x86_64.zip</file>
-											<type>zip</type>
-											<classifier>mac</classifier>
-										</artifact>
-										<artifact>
-											<file>dist/tmm_${project.version}_linux-amd64.tar.gz</file>
-											<type>tar.gz</type>
-											<classifier>linux</classifier>
-										</artifact>
-										<artifact>
-											<file>dist/tmm_${project.version}_linux-arm.tar.gz</file>
-											<type>tar.gz</type>
-											<classifier>arm</classifier>
-										</artifact>
-									</artifacts>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>net.nicoulaj.maven.plugins</groupId>
-						<artifactId>checksum-maven-plugin</artifactId>
-						<version>1.11</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>artifacts</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration></configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>qa</id>
 			<build>
 				<plugins>
