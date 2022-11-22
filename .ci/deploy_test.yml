@@ -77,9 +77,9 @@ deploy-docker:
     - docker images
     
     # tag
-    - docker tag $IMAGE_NAME "$IMAGE_NAME:$VERSION" 
-    - docker tag $IMAGE_NAME "$IMAGE_NAME:5-test" 
-    - docker tag $IMAGE_NAME "$IMAGE_NAME:latest-test"
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA "$IMAGE_NAME:$VERSION" 
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA "$IMAGE_NAME:5-test" 
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA "$IMAGE_NAME:latest-test"
     - docker images
 
     # push to the registry
