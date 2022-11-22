@@ -64,7 +64,7 @@ deploy-docker:
   needs:
     - build
   variables:
-    IMAGE_NAME: tinymediamanager/tinymediamanager:5-test
+    IMAGE_NAME: tinymediamanager/tinymediamanager
   script:
     # login
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
@@ -72,10 +72,18 @@ deploy-docker:
     # build
     - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
     - cd target/docker
-    - docker build -t $IMAGE_NAME .
+    - VERSION=$(grep 'human.version' 'tinyMediaManager\version' | cut -d'=' -f2)
+    - docker build  .
+    
+    # tag
+    - docker tag "$IMAGE_NAME:$VERSION" 
+    - docker tag "$IMAGE_NAME:5-test" 
+    - docker tag "$IMAGE_NAME:latest-test"
 
     # push to the registry
-    #- docker push $IMAGE_NAME
+    - echo would docker push "$IMAGE_NAME:$VERSION"
+    - echo would docker push "$IMAGE_NAME:5-test" 
+    - echo would docker push "$IMAGE_NAME:latest"
 
 deploy:
   stage: deploy
