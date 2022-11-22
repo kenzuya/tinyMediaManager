@@ -16,7 +16,6 @@
 
 package org.tinymediamanager.core;
 
-import static org.tinymediamanager.core.MediaFileType.SUBTITLE;
 import static org.tinymediamanager.scraper.util.LanguageUtils.parseLanguageFromString;
 
 import java.io.BufferedInputStream;
@@ -315,7 +314,7 @@ public class MediaFileHelper {
     }
 
     if (Settings.getInstance().getSubtitleFileType().contains("." + ext)) {
-      return SUBTITLE;
+      return MediaFileType.SUBTITLE;
     }
 
     if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
@@ -912,8 +911,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isDVDFile(String filename) {
@@ -950,8 +947,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isHDDVDFile(String filename) {
@@ -989,8 +984,6 @@ public class MediaFileHelper {
    *
    * @param filename
    *          the filename to check
-   * @param path
-   *          the path to check
    * @return true/false
    */
   public static boolean isBlurayFile(String filename) {
@@ -1329,7 +1322,7 @@ public class MediaFileHelper {
         }
         // sometimes also an error is thrown
         catch (Exception | Error e) {
-          LOGGER.debug("Mediainfo could not open file UDF for file {} - {}", entry.getPath(), e.getMessage());
+          LOGGER.debug("Mediainfo could not open file UDF for file {} - {}", entry.getPath(), e);
         }
       }
     }
@@ -1852,7 +1845,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static void gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
+  private static MediaFileSubtitle gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
 
@@ -1902,7 +1895,34 @@ public class MediaFileHelper {
     }
 
     sub.setCodec(mediaFile.getExtension());
-    mediaFile.setSubtitles(Collections.singletonList(sub));
+    return sub;
+  }
+
+  private static MediaFileSubtitle gatherSubtitleInformationFromMediainfo(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, int i) {
+
+    MediaFileSubtitle stream = new MediaFileSubtitle();
+    stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
+
+    String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
+    stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
+    String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+    stream.setLanguage(parseLanguageFromString(lang));
+
+    String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
+    boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
+    stream.setForced(b);
+
+    String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+    if (StringUtils.isNotBlank(title)) {
+      stream.setTitle(title);
+    }
+
+    // "default" subtitle stream?
+    String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
+    if (def.equalsIgnoreCase("true") || def.equalsIgnoreCase("yes")) {
+      stream.setDefaultStream(true);
+    }
+    return stream;
   }
 
   /**
@@ -1917,37 +1937,32 @@ public class MediaFileHelper {
 
     int streams = getSubtitleStreamCount(miSnapshot);
 
-    if (streams == 0 && mediaFile.getType() == SUBTITLE) {
-      // no streams found? try to parse the data out of the file name
-      gatherSubtitleInformationFromFilename(mediaFile);
+    // subtitle FILE, can have ONE stream, or just parse filename
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      MediaFileSubtitle sub = new MediaFileSubtitle();
+      if (streams > 0) {
+        MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, 0);
+        sub = stream;
+      }
+      MediaFileSubtitle file = gatherSubtitleInformationFromFilename(mediaFile);
+      // overwrite with file infos
+      if (sub.getLanguage().isEmpty()) {
+        sub.setLanguage(file.getLanguage());
+      }
+      if (file.isSdh()) {
+        sub.setSdh(true);
+      }
+      if (file.isForced()) {
+        sub.setForced(true);
+      }
+      mediaFile.setSubtitles(Collections.singletonList(sub));
     }
     else {
-      // streams found - take MI info
+      // embedded
       List<MediaFileSubtitle> subtitles = new ArrayList<>();
 
       for (int i = 0; i < streams; i++) {
-        MediaFileSubtitle stream = new MediaFileSubtitle();
-        stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
-
-        String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
-        stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-        String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
-        stream.setLanguage(parseLanguageFromString(lang));
-
-        String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
-        boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
-        stream.setForced(b);
-
-        String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
-        if (StringUtils.isNotBlank(title)) {
-          stream.setTitle(title);
-        }
-
-        // "default" subtitle stream?
-        String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
-        if (def.equalsIgnoreCase("yes")) {
-          stream.setDefaultStream(true);
-        }
+        MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, i);
         subtitles.add(stream);
       }
 
@@ -2608,7 +2623,7 @@ public class MediaFileHelper {
     }
 
     // container format for all except subtitles (subtitle container format is handled another way)
-    if (mediaFile.getType() == SUBTITLE) {
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
     else {
@@ -2992,7 +3007,7 @@ public class MediaFileHelper {
    *          the common part of the filename which is shared with the video file
    */
   public static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
-    if (mediaFile.getType() != SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
+    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
       return;
     }
 
@@ -3000,43 +3015,52 @@ public class MediaFileHelper {
 
     shortname = shortname.replace(commonPart, "");
 
-    // split the shortname into chunks and search from the end to the beginning for the language
-    List<String> chunks = ParserUtils.splitByPunctuation(shortname);
-
     String language = "";
-    int languageIndex = 0;
     String title = "";
     List<Flags> flags = new ArrayList<>();
 
-    for (int i = chunks.size() - 1; i >= 0; i--) {
-      language = LanguageUtils.parseLanguageFromString(chunks.get(i));
-      if (StringUtils.isNotBlank(language)) {
-        languageIndex = i;
-        break;
+    // look with the whole term first
+    String foundToken = LanguageUtils.findLanguageInString(shortname);
+    if (StringUtils.isNotBlank(foundToken)) {
+      // found trailing language code - just need to remove it from the title
+      language = LanguageUtils.getIso3LanguageFromLocalizedString(foundToken);
+      title = shortname.replaceAll("(?i).*" + Pattern.quote(foundToken) + "$", "");
+    }
+    else {
+      // split the shortname into chunks and search from the end to the beginning for the language
+      List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+
+      int languageIndex = 0;
+
+      for (int i = chunks.size() - 1; i >= 0; i--) {
+        language = LanguageUtils.parseLanguageFromString(chunks.get(i));
+        if (StringUtils.isNotBlank(language)) {
+          languageIndex = i;
+          break;
+        }
+      }
+
+      if (languageIndex < chunks.size() - 1) {
+        // the language index was not the last chunk. Save the part between the language index and the last chunk as title
+        title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
       }
     }
-
-    if (languageIndex < chunks.size() - 1) {
-      // the language index was not the last chunk. Save the part between the language index and the last chunk as title
-      title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
-
-      if (title.contains("forced")) {
-        flags.add(Flags.FLAG_FORCED);
-        title = title.replaceAll("\\p{Punct}*forced", "");
-      }
-      if (title.contains("sdh")) {
-        flags.add(Flags.FLAG_HEARING_IMPAIRED);
-        title = title.replaceAll("\\p{Punct}*sdh", "");
-      }
-      else if (title.contains("cc")) { // basically the same as sdh
-        flags.add(Flags.FLAG_HEARING_IMPAIRED);
-        title = title.replaceAll("\\p{Punct}*cc", "");
-      }
-
-      title = title.strip();
+    if (title.contains("forced")) {
+      flags.add(Flags.FLAG_FORCED);
+      title = title.replaceAll("\\p{Punct}*forced", "");
+    }
+    if (title.contains("sdh")) {
+      flags.add(Flags.FLAG_HEARING_IMPAIRED);
+      title = title.replaceAll("\\p{Punct}*sdh", "");
+    }
+    else if (title.contains("cc")) { // basically the same as sdh
+      flags.add(Flags.FLAG_HEARING_IMPAIRED);
+      title = title.replaceAll("\\p{Punct}*cc", "");
     }
 
-    if (mediaFile.getType() == SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
+    title = title.strip();
+
+    if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
       MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
       if (StringUtils.isBlank(sub.getLanguage())) {
         sub.setLanguage(language);

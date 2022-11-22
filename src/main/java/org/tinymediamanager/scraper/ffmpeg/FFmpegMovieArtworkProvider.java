@@ -54,6 +54,16 @@ public class FFmpegMovieArtworkProvider extends FFmpegArtworkProvider implements
   }
 
   @Override
+  protected boolean isFanartEnabled() {
+    return Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"));
+  }
+
+  @Override
+  protected boolean isThumbEnabled() {
+    return Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"));
+  }
+
+  @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
@@ -64,26 +74,25 @@ public class FFmpegMovieArtworkProvider extends FFmpegArtworkProvider implements
       return Collections.emptyList();
     }
 
-    // only allow ALL, THUMB and BACKGROUD per se
+    // only allow ALL, THUMB and BACKGROUND per se
     switch (options.getArtworkType()) {
       case ALL:
         // if ALL is selected and all are deselected -> return an empty list
-        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"))
-            && Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"))) {
+        if (!isFanartEnabled() && !isThumbEnabled()) {
           return Collections.emptyList();
         }
         break;
 
       // for BACKGROUND "fanart" has to be selected
       case BACKGROUND:
-        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"))) {
+        if (!isFanartEnabled()) {
           return Collections.emptyList();
         }
         break;
 
       // for THUMB "thumb" has to be selected
       case THUMB:
-        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"))) {
+        if (!isThumbEnabled()) {
           return Collections.emptyList();
         }
         break;

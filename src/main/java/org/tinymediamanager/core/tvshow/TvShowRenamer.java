@@ -247,6 +247,7 @@ public class TvShowRenamer {
   private static void renameTvShowRoot(TvShow show) {
     // skip renamer, if all templates are empty!
     if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()
+        && TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername().isEmpty()
         && TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername().isEmpty()) {
       LOGGER.info("NOT renaming TvShow '{}' - renaming patterns are empty!", show.getTitle());
       return;
@@ -490,6 +491,7 @@ public class TvShowRenamer {
       default:
         neededMediaFiles.add(original);
         break;
+
     }
 
     if (filenamings != null) {
@@ -656,6 +658,7 @@ public class TvShowRenamer {
         MediaFile cl = cleanup.get(i);
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
+          tvShow.removeFromMediaFiles(cl);
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
         }
 
@@ -700,7 +703,9 @@ public class TvShowRenamer {
    */
   public static void renameEpisode(TvShowEpisode episode) {
     // skip renamer, if all episode related templates are empty!
-    if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()) {
+    if (TvShowModuleManager.getInstance().getSettings().getRenamerFilename().isEmpty()
+        && TvShowModuleManager.getInstance().getSettings().getRenamerSeasonFoldername().isEmpty()
+        && TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername().isEmpty()) {
       LOGGER.info("NOT renaming TvShow '{}' Episode {} - renaming patterns are empty!", episode.getTvShow().getTitle(), episode.getEpisode());
       return;
     }
@@ -1452,10 +1457,16 @@ public class TvShowRenamer {
   public static String getTvShowFoldername(String template, TvShow tvShow) {
     String newPathname;
 
-    if (StringUtils.isNotBlank(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername())) {
-      newPathname = Paths.get(tvShow.getDataSource(), createDestination(template, tvShow)).toString();
+    try {
+      if (StringUtils.isNotBlank(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername())) {
+        newPathname = Paths.get(tvShow.getDataSource(), createDestination(template, tvShow)).toString();
+      }
+      else {
+        newPathname = tvShow.getPathNIO().toString();
+      }
     }
-    else {
+    catch (Exception e) {
+      // could not create a new pathname - stick to old
       newPathname = tvShow.getPathNIO().toString();
     }
 

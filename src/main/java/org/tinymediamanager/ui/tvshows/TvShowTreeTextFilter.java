@@ -25,6 +25,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 
@@ -33,11 +34,16 @@ import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
  * 
  * @author Manuel Laggner
  */
-public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilter {
+public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilter<E> {
   private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   @Override
-  public boolean accept(TmmTreeNode node) {
+  protected String prepareFilterText() {
+    return StrgUtils.normalizeString(getText());
+  }
+
+  @Override
+  public boolean accept(E node) {
     if (StringUtils.isBlank(filterText)) {
       return true;
     }
@@ -93,10 +99,11 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
       return false;
     }
 
-    // no AbstractTvShowTreeNode? super call the accept from super
+    // no AbstractTvShowTreeNode? super call accept from super
     return super.accept(node);
   }
 
+  @Override
   protected boolean checkParent(TmmTreeNode node, Pattern pattern) {
     if (node == null) {
       return false;
@@ -105,19 +112,19 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
     if (node instanceof TvShowTreeDataProvider.AbstractTvShowTreeNode) {
       TvShowTreeDataProvider.AbstractTvShowTreeNode treeNode = (TvShowTreeDataProvider.AbstractTvShowTreeNode) node;
       // first: filter on the node
-      Matcher matcher = pattern.matcher(treeNode.toString());
+      Matcher matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.toString()));
       if (matcher.find()) {
         return true;
       }
 
       // second: filter on the orignal title
-      matcher = pattern.matcher(treeNode.getTitle());
+      matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.getTitle()));
       if (matcher.find()) {
         return true;
       }
 
       // third: filter on the original title
-      matcher = pattern.matcher(treeNode.getOriginalTitle());
+      matcher = pattern.matcher(StrgUtils.normalizeString(treeNode.getOriginalTitle()));
       if (matcher.find()) {
         return true;
       }

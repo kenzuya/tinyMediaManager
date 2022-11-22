@@ -479,7 +479,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       String filename = "";
       if (StringUtils.isNotBlank(tfMoviePath.getText())) {
         path = MovieRenamer.createDestinationForFoldername(tfMoviePath.getText(), movie);
-        path = Paths.get(movie.getDataSource(), path).toString();
+        try {
+          path = Paths.get(movie.getDataSource(), path).toString();
+        }
+        catch (Exception e) {
+          // catch invalid paths (e.g. illegal characters in the pathname)
+        }
       }
       else {
         // the old folder name

@@ -62,11 +62,11 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  */
 public class TvShowEpisodeScrapeTask extends TmmTask {
 
-  private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowEpisodeScrapeTask.class);
+  private static final Logger                            LOGGER   = LoggerFactory.getLogger(TvShowEpisodeScrapeTask.class);
 
-  private final List<TvShowEpisode>                      episodes;
+  private final List<TvShowEpisode>                      episodes = new ArrayList<>();
+  private final List<TvShowEpisodeScraperMetadataConfig> config   = new ArrayList<>();
   private final TvShowEpisodeSearchAndScrapeOptions      scrapeOptions;
-  private final List<TvShowEpisodeScraperMetadataConfig> config;
   private final boolean                                  overwrite;
 
   /**
@@ -80,9 +80,9 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
   public TvShowEpisodeScrapeTask(List<TvShowEpisode> episodes, TvShowEpisodeSearchAndScrapeOptions options,
       List<TvShowEpisodeScraperMetadataConfig> config, boolean overwrite) {
     super(TmmResourceBundle.getString("tvshow.scraping"), episodes.size(), TaskType.BACKGROUND_TASK);
-    this.episodes = episodes;
+    this.episodes.addAll(episodes);
+    this.config.addAll(config);
     this.scrapeOptions = options;
-    this.config = config;
     this.overwrite = overwrite;
   }
 
@@ -133,7 +133,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         // also fill other ratings if ratings are requested
         if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings() && config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
           Map<String, Object> ids = new HashMap<>(metadata.getIds());
-          ids.put(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
+          ids.put(MediaMetadata.TVSHOW_IDS, new HashMap<>(episode.getTvShow().getIds()));
 
           for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(ids, MediaType.TV_EPISODE))) {
             if (!metadata.getRatings().contains(rating)) {
@@ -173,9 +173,12 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         LOGGER.debug("nothing found");
       }
       catch (ScrapeException e) {
-        LOGGER.error("searchMovieFallback", e);
+        LOGGER.error("scrape error - '{}'", e.getMessage());
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not scrape episode - unknown error", e);
       }
     }
 
@@ -224,7 +227,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         artwork.addAll(artworkProvider.getArtwork(options));
       }
       catch (MissingIdException ignored) {
-        LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
+        LOGGER.debug("no id available for scraper {}", artworkScraper.getId());
       }
       catch (ScrapeException e) {
         LOGGER.error("getArtwork", e);

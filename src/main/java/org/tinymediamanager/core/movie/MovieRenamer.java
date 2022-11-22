@@ -395,9 +395,15 @@ public class MovieRenamer {
     String oldPathname = movie.getPathNIO().toString();
 
     if (!newPathname.isEmpty()) {
-      newPathname = Paths.get(movie.getDataSource(), newPathname).toString();
-      if (!renameMovieFolder(movie, newPathname)) {
-        return;
+      try {
+        newPathname = Paths.get(movie.getDataSource(), newPathname).toString();
+        if (!renameMovieFolder(movie, newPathname)) {
+          return;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("new movie folder name is illegal - '{}'", e.getMessage());
+        newPathname = movie.getPathNIO().toString();
       }
     } // folder pattern empty
     else {
@@ -823,7 +829,13 @@ public class MovieRenamer {
       // Path relativize(Path other)
       newPathname = Utils.relPath(Paths.get(movie.getDataSource()), movie.getPathNIO());
     }
-    Path newMovieDir = Paths.get(movie.getDataSource(), newPathname);
+    Path newMovieDir = movie.getPathNIO();
+    try {
+      newMovieDir = Paths.get(movie.getDataSource(), newPathname);
+    }
+    catch (Exception e) {
+      LOGGER.warn("new movie folder name is illegal - '{}'", e.getMessage());
+    }
 
     String newFilename = videoFileName;
     if (newFilename == null || newFilename.isEmpty()) {
@@ -1390,12 +1402,17 @@ public class MovieRenamer {
       newDestination = StrgUtils.convertToAscii(newDestination, false);
     }
 
-    // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
+    // the colon is handled by JMTE, but it looks like some users are stupid enough to add this to the pattern itself
     newDestination = newDestination.replace(": ", " - "); // nicer
     newDestination = newDestination.replace(":", "-"); // nicer
 
     // replace multiple spaces with a single one
     newDestination = newDestination.replaceAll(" +", " ").trim();
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      // remove illegal characters on Windows
+      newDestination = newDestination.replace("\"", " ").trim();
+    }
 
     return newDestination.trim();
   }
@@ -1526,12 +1543,12 @@ public class MovieRenamer {
    * replace all path separators in the given {@link String} with a space
    *
    * @param source
-   *          the the original {@link String}
+   *          the original {@link String}
    * @return the cleaned {@link String}
    */
   public static String replacePathSeparators(String source) {
-    String result = source.replaceAll("\\/", " ");
-    return result.replaceAll("\\\\", " ");
+    String result = source.replace("\\/", " ");
+    return result.replace("\\\\", " ");
   }
 
   public static class MovieNamedFirstCharacterRenderer implements NamedRenderer {

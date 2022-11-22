@@ -84,7 +84,13 @@ public class MovieRenamerPreview {
       container.newPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());
     }
     else {
-      container.newPath = Paths.get(MovieRenamer.createDestinationForFoldername(pattern, movie));
+      try {
+        container.newPath = Paths.get(MovieRenamer.createDestinationForFoldername(pattern, movie));
+      }
+      catch (Exception e) {
+        // new folder name is invalid
+        container.newPath = movie.getPathNIO();
+      }
     }
     Path newMovieFolder = Paths.get(movie.getDataSource()).resolve(container.newPath);
 

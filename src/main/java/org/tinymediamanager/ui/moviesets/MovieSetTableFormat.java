@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.moviesets;
 import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -25,6 +26,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -35,9 +37,11 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
+import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
 
@@ -98,6 +102,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Comparator<String> fileSizeComparator = new FileSizeComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<String> stringComparator = new StringComparator();
+    Comparator<Date> dateTimeComparator = new DateTimeComparator();
 
     /*
      * movie count
@@ -173,6 +178,24 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
     col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * date added (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
+    col.setColumnComparator(dateTimeComparator);
+    col.setHeaderIcon(IconManager.DATE_ADDED);
+    col.setCellRenderer(new DateTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+    }
+    catch (Exception ignored) {
+      // ignore
+    }
     addColumn(col);
 
     /*
@@ -517,8 +540,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
 
     if (userObject instanceof Movie) {
-      String videoFormat = ((Movie) userObject).getMediaInfoVideoFormat();
-      return videoFormat;
+      return ((Movie) userObject).getMediaInfoVideoFormat();
     }
 
     return null;
@@ -532,8 +554,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
 
     if (userObject instanceof Movie) {
-      String videoCodec = ((Movie) userObject).getMediaInfoVideoCodec();
-      return videoCodec;
+      return ((Movie) userObject).getMediaInfoVideoCodec();
     }
 
     return null;
@@ -578,6 +599,20 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     if (userObject instanceof Movie) {
       return String.valueOf(((MediaEntity) userObject).getRating().getVotes());
+    }
+
+    return null;
+  }
+
+  private Date getDateAdded(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      return ((MediaEntity) userObject).getDateAddedForUi();
     }
 
     return null;

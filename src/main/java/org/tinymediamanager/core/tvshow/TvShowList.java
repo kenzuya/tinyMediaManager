@@ -828,6 +828,18 @@ public final class TvShowList extends AbstractModelObject {
     LOGGER.info("=====================================================");
     results.addAll(provider.search(options));
 
+    // Fallback:
+    // check if title starts with a year, and remove/retry...
+    if (results.isEmpty() && options.getSearchQuery().matches("^\\d{4}.*")) {
+      TvShowSearchAndScrapeOptions o = new TvShowSearchAndScrapeOptions(options); // copy
+      o.setSearchQuery(options.getSearchQuery().substring(4));
+      LOGGER.info("=====================================================");
+      LOGGER.info("Searching again without year in title: {}", provider.getProviderInfo().getId());
+      LOGGER.info("options: {}", o);
+      LOGGER.info("=====================================================");
+      results.addAll(provider.search(o));
+    }
+
     return new ArrayList<>(results);
   }
 

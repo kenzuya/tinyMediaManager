@@ -260,7 +260,12 @@ public abstract class TmmDialog extends JDialog {
    */
   protected void unbind() {
     if (bindingGroup != null) {
-      bindingGroup.unbind();
+      try {
+        bindingGroup.unbind();
+      }
+      catch (Exception ignored) {
+        // just not crash
+      }
     }
   }
 }
