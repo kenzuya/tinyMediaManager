@@ -35,7 +35,7 @@ abstract class ImdbMetadataProvider implements IMediaProvider {
 
   static final String                    ID        = "imdb";
 
-  static final String                    CAT_TITLE = "&s=tt";
+  static final String                    CAT_TITLE = "&s=tt&ref_=fn_tt";
 
   private final MediaProviderInfo        providerInfo;
 

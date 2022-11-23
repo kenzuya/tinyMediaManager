@@ -5,6 +5,7 @@ Version 4.3.6
 + updated Java to 17.0.5 #1948 #1933
 x improved MediaSource detection (false positives, ordering) #1950
 x (TV show) also normalize database values before filtering the tree #1929
+x (IMDB) fixed search
 
 
 Version 4.3.5
