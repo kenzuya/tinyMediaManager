@@ -383,6 +383,9 @@ public class TvShowChooserModel extends AbstractModelObject {
         catch (MissingIdException e) {
           LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
         }
+        catch (NothingFoundException e) {
+          LOGGER.debug("did not find artwork for '{}'", tvShowToScrape.getTitle());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
