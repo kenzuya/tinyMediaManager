@@ -15,12 +15,14 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -65,7 +67,15 @@ public class TvShowMediaSourceFilter extends AbstractCheckComboBoxTvShowUIFilter
   }
 
   private void buildAndInstallMediaSources() {
-    setValues(MediaSource.values());
+    List<MediaSource> mediaSources = new ArrayList<>();
+
+    for (MediaSource mediaSource : MediaSource.values()) {
+      if (StringUtils.isNotBlank(mediaSource.toString())) {
+        mediaSources.add(mediaSource);
+      }
+    }
+
+    setValues(mediaSources);
   }
 
   @Override

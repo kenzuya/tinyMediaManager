@@ -229,6 +229,9 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       catch (MissingIdException ignored) {
         LOGGER.debug("no id available for scraper {}", artworkScraper.getId());
       }
+      catch (NothingFoundException e) {
+        LOGGER.debug("did not find artwork for '{}' - S{}/E{}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode());
+      }
       catch (ScrapeException e) {
         LOGGER.error("getArtwork", e);
         MessageManager.instance.pushMessage(

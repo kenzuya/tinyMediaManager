@@ -18,6 +18,7 @@ package org.tinymediamanager.cli;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowReloadMediaInformationTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
@@ -105,6 +107,9 @@ class TvShowCommand implements Runnable {
   @CommandLine.ArgGroup
   AspectRatioDetect           ard;
 
+  @CommandLine.ArgGroup
+  MovieCommand.MediaInfo      mediaInfo;
+
   @Override
   public void run() {
     // update data sources
@@ -118,6 +123,10 @@ class TvShowCommand implements Runnable {
     // scrape tv shows/episodes
     if (scrape != null) {
       scrapeTvShows(showsToScrape, episodesToScrape);
+    }
+
+    if (mediaInfo != null) {
+      gatherMediaInfo();
     }
 
     if (ard != null) {
@@ -283,6 +292,15 @@ class TvShowCommand implements Runnable {
 
     if (!episodesToDetect.isEmpty()) {
       TmmTask task = new TvShowARDetectorTask(episodesToDetect);
+      task.run();
+    }
+  }
+
+  private void gatherMediaInfo() {
+    List<TvShow> tvShows = TvShowModuleManager.getInstance().getTvShowList().getTvShows();
+
+    if (!tvShows.isEmpty()) {
+      TmmTask task = new TvShowReloadMediaInformationTask(tvShows, Collections.emptyList());
       task.run();
     }
   }
@@ -465,5 +483,13 @@ class TvShowCommand implements Runnable {
 
     @CommandLine.Option(names = { "-eP", "--exportPath" }, required = true, description = "The path to export your TV show list to")
     Path    path;
+  }
+
+  static class MediaInfo {
+    @CommandLine.Option(names = { "-mi", "--mediainfo" }, description = "Update mediainfo")
+    boolean medainfo;
+
+    @CommandLine.Option(names = { "-mix", "--mediainfoXml" }, description = "Update medianifo - ignore XML")
+    boolean mediainfoXml;
   }
 }

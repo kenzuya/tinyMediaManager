@@ -1,3 +1,14 @@
+Version 4.3.6
+=======================
++ added reloading of mediainfo to the commandline interface
++ Subtitles: also parse language from filename, if MediaInfo detects none #1947
++ updated Java to 17.0.5 #1948 #1933
+x improved MediaSource detection (false positives, ordering) #1950
+x (TV show) also normalize database values before filtering the tree #1929
+x (IMDB) fixed search
+x (TV show) enhanced season detection for season artwork #1943
+
+
 Version 4.3.5
 =======================
 + added the "date added" column to the movie set table #1937

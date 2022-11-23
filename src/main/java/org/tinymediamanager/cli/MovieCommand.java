@@ -35,6 +35,7 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
+import org.tinymediamanager.core.movie.tasks.MovieReloadMediaInformationTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
@@ -96,6 +97,9 @@ class MovieCommand implements Runnable {
   @CommandLine.ArgGroup
   AspectRatioDetect           ard;
 
+  @CommandLine.ArgGroup
+  MediaInfo                   mediaInfo;
+
   @Override
   public void run() {
     // update data sources
@@ -108,6 +112,10 @@ class MovieCommand implements Runnable {
     // scrape movies
     if (scrape != null) {
       scrapeMovies(moviesToScrape);
+    }
+
+    if (mediaInfo != null) {
+      gatherMediaInfo();
     }
 
     if (ard != null) {
@@ -212,6 +220,15 @@ class MovieCommand implements Runnable {
 
     if (!moviesToDetect.isEmpty()) {
       TmmTask task = new MovieARDetectorTask(moviesToDetect);
+      task.run();
+    }
+  }
+
+  private void gatherMediaInfo() {
+    List<Movie> movies = MovieModuleManager.getInstance().getMovieList().getMovies();
+
+    if (!movies.isEmpty()) {
+      TmmTask task = new MovieReloadMediaInformationTask(movies);
       task.run();
     }
   }
@@ -371,5 +388,13 @@ class MovieCommand implements Runnable {
 
     @CommandLine.Option(names = { "-eP", "--exportPath" }, required = true, description = "The path to export your movie list to")
     Path    path;
+  }
+
+  static class MediaInfo {
+    @CommandLine.Option(names = { "-mi", "--mediainfo" }, description = "Update mediainfo")
+    boolean medainfo;
+
+    @CommandLine.Option(names = { "-mix", "--mediainfoXml" }, description = "Update medianifo - ignore XML")
+    boolean mediainfoXml;
   }
 }
