@@ -1132,7 +1132,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
           MediaFileType.SEASON_THUMB)) {
         try {
-          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
+          String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
           if (season == Integer.MIN_VALUE) {
             throw new IllegalStateException("did not find a season number");
           }

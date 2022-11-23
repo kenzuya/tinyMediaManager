@@ -286,7 +286,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
 
       try {
-        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
+        String foldername = getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
 
         if (season == Integer.MIN_VALUE) {
           throw new IllegalStateException("did not find a season number");
