@@ -1544,8 +1544,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
-      boolean dirty = false;
-
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
@@ -1556,7 +1554,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             // okay, something changed with that movie file - force fetching mediainfo
             submitTask(new MediaFileInformationFetcherTask(mf, movie, true));
           }
-          dirty = true;
         }
       }
 
@@ -1564,11 +1561,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (movie.getMediaSource() == MediaSource.BLURAY
           && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
         movie.setMediaSource(MediaSource.UHD_BLURAY);
-        dirty = true;
-      }
-
-      // persist the movie
-      if (dirty) {
         movie.saveToDb();
       }
     }
