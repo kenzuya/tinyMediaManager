@@ -845,6 +845,8 @@ public class MediaFileHelper {
         parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
       }
     }
+
+    LOGGER.debug("end MediaInfo for {}", mediaFile.getFileAsPath());
   }
 
   /**
