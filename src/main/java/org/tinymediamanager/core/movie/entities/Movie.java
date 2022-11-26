@@ -2736,16 +2736,17 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     super.callbackForGatheredMediainformation(mediaFile);
 
+    boolean dirty = false;
+
     // upgrade MediaSource to UHD bluray, if video format says so
     if (getMediaSource() == MediaSource.BLURAY && getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
       setMediaSource(MediaSource.UHD_BLURAY);
-      saveToDb();
+      dirty = true;
     }
 
     // did we get meta data via the video media file?
     if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
         && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
-      boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");
       if (StringUtils.isNotBlank(title)) {
@@ -2791,10 +2792,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
       if (StringUtils.isNotBlank(date)) {
         setReleaseDate(date);
       }
+    }
 
-      if (dirty) {
-        saveToDb();
-      }
+    if (dirty) {
+      saveToDb();
     }
 
     if (mediaFile.getType() == MediaFileType.TRAILER) {

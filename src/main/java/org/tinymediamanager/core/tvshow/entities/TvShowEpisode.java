@@ -73,6 +73,7 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.ScraperMetadataConfig;
@@ -1308,10 +1309,17 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     super.callbackForGatheredMediainformation(mediaFile);
 
-    // did we get meta data via the video media file?
+    boolean dirty = false;
+
+    // upgrade MediaSource to UHD bluray, if video format says so
+    if (getMediaSource() == MediaSource.BLURAY && getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
+      setMediaSource(MediaSource.UHD_BLURAY);
+      dirty = true;
+    }
+
+    // did we get metadata via the video media file?
     if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata()
         && getMediaFiles(MediaFileType.NFO).isEmpty() && !mediaFile.getExtraData().isEmpty()) {
-      boolean dirty = false;
 
       if (getEpisode() == -1) {
         String e = mediaFile.getExtraData().get("episode");
@@ -1356,11 +1364,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         setPlot(plot);
         dirty = true;
       }
-
-      if (dirty) {
-        saveToDb();
-      }
     }
+
+    if (dirty) {
+      saveToDb();
+    }
+
   }
 
   @Override

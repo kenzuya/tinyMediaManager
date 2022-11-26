@@ -7,6 +7,7 @@ x improved MediaSource detection (false positives, ordering) #1950
 x (TV show) also normalize database values before filtering the tree #1929
 x (IMDB) fixed search
 x (TV show) enhanced season detection for season artwork #1943
+x added some performance improvements to the launcher
 
 
 Version 4.3.5

@@ -727,7 +727,7 @@ public class MediaFileHelper {
       }
 
       long size = view.size();
-      if (mediaFile.getFile().toFile().isDirectory()) {
+      if (view.isDirectory()) {
         size = Utils.getDirectorySizeOfDiscFiles(mediaFile.getFile());
       }
       if (size > 0 && mediaFile.getFilesize() > 0 && size != mediaFile.getFilesize()) {
@@ -845,6 +845,8 @@ public class MediaFileHelper {
         parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
       }
     }
+
+    LOGGER.debug("end MediaInfo for {}", mediaFile.getFileAsPath());
   }
 
   /**
