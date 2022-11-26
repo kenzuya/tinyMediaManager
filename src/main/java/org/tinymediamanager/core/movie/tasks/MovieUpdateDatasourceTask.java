@@ -1556,13 +1556,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       }
-
-      // upgrade MediaSource to UHD bluray, if video format says so
-      if (movie.getMediaSource() == MediaSource.BLURAY
-          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
-        movie.setMediaSource(MediaSource.UHD_BLURAY);
-        movie.saveToDb();
-      }
     }
     waitForCompletionOrCancel();
   }
