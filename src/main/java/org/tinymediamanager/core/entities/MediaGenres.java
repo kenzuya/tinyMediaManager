@@ -257,7 +257,6 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
           // match both names without prefix
           if (name.length() > 3 && notation.substring(3).equalsIgnoreCase(name.substring(3))) {
             return genre;
-
           }
         }
       }
@@ -265,6 +264,49 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
 
     // dynamically create new one
     return new MediaGenres(name, values(MediaGenres.class).length, name);
+  }
+
+  /**
+   * Same as getGenre(), but without creating a new one
+   * 
+   * @param name
+   *          the name
+   * @return true/false if existent
+   */
+  public static boolean containsGenre(String name) {
+    String cleanedName = name.replaceAll("[._-]", " ");
+    for (MediaGenres genre : values(MediaGenres.class)) {
+      // check if the "enum" name matches
+      if (genre.name().equals(name)) {
+        return true;
+      }
+      // check if the printable name matches
+      if (genre.name.equalsIgnoreCase(name)) {
+        return true;
+      }
+      if (genre.name.equalsIgnoreCase(cleanedName)) {
+        return true;
+      }
+      // check if one of the possible names matches
+      for (String notation : genre.alternateNames) {
+        if (notation.equalsIgnoreCase(name)) {
+          return true;
+        }
+        // only do the following check, if the notation start with ??-
+        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}-")) {
+          // first 3 chars are language like "de-"
+          if (notation.substring(3).equalsIgnoreCase(name)) {
+            return true;
+          }
+
+          // match both names without prefix
+          if (name.length() > 3 && notation.substring(3).equalsIgnoreCase(name.substring(3))) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   /**
