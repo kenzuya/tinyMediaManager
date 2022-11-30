@@ -125,7 +125,7 @@ public class MovieFilterDialog extends TmmDialog {
   private JComboBox<String>                      cbPreset;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
-    super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieFilter");
+    super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.movies"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
     setMinimumSize(new Dimension(550, 400));
 

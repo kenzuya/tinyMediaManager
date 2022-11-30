@@ -118,7 +118,7 @@ public class TvShowFilterDialog extends TmmDialog {
   private JComboBox<String>                          cbPreset;
 
   public TvShowFilterDialog(TmmTreeTable treeTable) {
-    super(TmmResourceBundle.getString("movieextendedsearch.options"), "tvShowFilter");
+    super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.tvshows"), "tvShowFilter");
     setModalityType(ModalityType.MODELESS);
     setMinimumSize(new Dimension(550, 400));
 
