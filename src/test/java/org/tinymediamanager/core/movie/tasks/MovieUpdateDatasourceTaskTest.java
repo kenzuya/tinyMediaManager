@@ -33,9 +33,10 @@ import org.tinymediamanager.core.movie.entities.Movie;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES = 73;
+  private static final int NUMBER_OF_EXPECTED_MOVIES = 81;
   private static final int NUMBER_OF_STACKED_MOVIES  = 12;
   private static final int NUMBER_OF_DISC_MOVIES     = 8;
+  private static final int NUMBER_OF_MULTIMOVIEDIRS  = 39;
 
   @Before
   public void setup() throws Exception {
@@ -79,6 +80,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
     int stack = 0;
     int disc = 0;
+    int mmd = 0;
     for (Movie m : MovieModuleManager.getInstance().getMovieList().getMovies()) {
       System.out.println(rpad(m.getTitle(), 30) + "(Disc:" + rpad(m.isDisc(), 5) + " Stack:" + rpad(m.isStacked(), 5) + " Multi:"
           + rpad(m.isMultiMovieDir(), 5) + ")\t" + m.getPathNIO());
@@ -88,9 +90,13 @@ public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
       if (m.isDisc()) {
         disc++;
       }
+      if (m.isMultiMovieDir()) {
+        mmd++;
+      }
     }
     assertEqual("Amount of stacked movies does not match!", NUMBER_OF_STACKED_MOVIES, stack);
     assertEqual("Amount of disc folders does not match!", NUMBER_OF_DISC_MOVIES, disc);
+    assertEqual("Amount of multimoviedirs does not match!", NUMBER_OF_MULTIMOVIEDIRS, mmd);
   }
 
   public static String rpad(Object s, int n) {

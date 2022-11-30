@@ -878,7 +878,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // process artwork
       processArtwork(MediaFileType.THUMB, lblThumb, tfThumb);
 
+      episodeToEdit.removeAllTags();
       episodeToEdit.setTags(tags);
+
       episodeToEdit.writeNFO();
       episodeToEdit.saveToDb();
 

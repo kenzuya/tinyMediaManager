@@ -66,7 +66,7 @@ public class InMemoryCachedUrl extends Url {
     if (cachedResponse == null) {
       // need to fetch it with a real request
       Url url = new Url(this.url);
-      url.headersRequest = headersRequest;
+      url.headersRequest.addAll(headersRequest);
       try (InputStream is = url.getInputStream();
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           GZIPOutputStream gzip = new GZIPOutputStream(outputStream)) {
