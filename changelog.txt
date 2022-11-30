@@ -3,6 +3,7 @@ Version 4.3.7
 x better detect and parse movie structures #1932
 x fixed changing of tags in episodes #1955
 x (IMDB) make cleaner calls to avoid HTTP 403 responses
+x (TV show) better cleanup after scraping in the episode editor
 
 
 Version 4.3.6
