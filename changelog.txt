@@ -1,3 +1,7 @@
+Version 4.3.8
+=======================
+
+
 Version 4.3.7
 =======================
 x better detect and parse movie structures #1932
