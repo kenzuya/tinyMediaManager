@@ -123,18 +123,33 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    */
   @JsonCreator
   public static MovieEdition getMovieEdition(String name) {
-    if (StringUtils.isNotBlank(name)) {
+    if (StringUtils.isBlank(name)) {
       return NONE;
     }
 
+    // split checks for performance
     for (MovieEdition edition : values()) {
       // check if the "enum" name matches
       if (edition.name().equals(name)) {
         return edition;
       }
-      // check if the printable name matches
+    }
+
+    // check if the printable name matches
+    for (MovieEdition edition : values()) {
       if (edition.title.equalsIgnoreCase(name)) {
         return edition;
+      }
+
+    }
+
+    // check if any regular expression matches
+    for (MovieEdition edition : values()) {
+      if (edition.pattern != null) {
+        Matcher matcher = edition.pattern.matcher(name);
+        if (matcher.find()) {
+          return edition;
+        }
       }
     }
 
