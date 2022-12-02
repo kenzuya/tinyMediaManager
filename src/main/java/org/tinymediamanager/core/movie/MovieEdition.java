@@ -49,8 +49,8 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   public static final MovieEdition              SPECIAL_EDITION    = new MovieEdition("SPECIAL_EDITION", 7, "Special Edition",
       ".(Special|Remastered|Collectors|Ultimate|Final).(Cut|Edition|Version)");
 
-  private String                                title;
-  private Pattern                               pattern;
+  private final String                          title;
+  private final Pattern                         pattern;
 
   private MovieEdition(String enumName, int ordinal, String title, String pattern) {
     super(enumName, ordinal);
@@ -123,6 +123,10 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    */
   @JsonCreator
   public static MovieEdition getMovieEdition(String name) {
+    if (StringUtils.isNotBlank(name)) {
+      return NONE;
+    }
+
     for (MovieEdition edition : values()) {
       // check if the "enum" name matches
       if (edition.name().equals(name)) {
@@ -142,7 +146,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * Comparator for sorting our MovieEditions in a localized fashion
    */
   public static class MovieEditionComparator implements Comparator<MovieEdition> {
-    private RuleBasedCollator stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
+    private final RuleBasedCollator stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
 
     @Override
     public int compare(MovieEdition o1, MovieEdition o2) {

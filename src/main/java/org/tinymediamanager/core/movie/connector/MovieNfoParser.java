@@ -1550,7 +1550,7 @@ public class MovieNfoParser {
     Element element = getSingleElement(root, "edition");
     if (element != null) {
       try {
-        edition = MovieEdition.getMovieEditionFromString(element.ownText());
+        edition = MovieEdition.getMovieEdition(element.ownText());
       }
       catch (Exception ignored) {
         // just ignore
