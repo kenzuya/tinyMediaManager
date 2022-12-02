@@ -128,12 +128,12 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     for (TvShowEpisode e : episodes) {
       // - if that is a dummy episode; do not add it if a the real episode is available
       if (episode.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
-          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
+          || (episode.getDvdEpisode() > 0 && episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         return;
       }
       // - if that is a real episode; remove the corresponding dummy episode if available
       if (!episode.isDummy() && e.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
-          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
+          || (episode.getDvdEpisode() > 0 && episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         tvShow.removeEpisode(e);
       }
     }

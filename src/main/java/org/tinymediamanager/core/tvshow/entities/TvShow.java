@@ -532,6 +532,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         // also fire the event there was no episode for that dummy yet
         boolean found = false;
         for (TvShowEpisode e : season.getEpisodesForDisplay()) {
+          if (e.isDummy()) {
+            continue;
+          }
+
           if ((e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode())
               || (e.getDvdSeason() > 0 && e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
             found = true;
