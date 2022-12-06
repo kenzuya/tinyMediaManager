@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -135,7 +136,7 @@ public abstract class ImdbParser {
 
   protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
     getLogger().debug("search(): {}", options);
-    SortedSet<MediaSearchResult> result = new TreeSet<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     /*
      * IMDb matches seem to come in several "flavours".
@@ -160,7 +161,7 @@ public abstract class ImdbParser {
     }
 
     if (StringUtils.isEmpty(searchTerm)) {
-      return result;
+      return results;
     }
 
     // parse out language and country from the scraper query
@@ -207,6 +208,10 @@ public abstract class ImdbParser {
     catch (Exception e) {
       getLogger().debug("tried to fetch search response", e);
       throw new ScrapeException(e);
+    }
+
+    if (doc == null) {
+      return Collections.emptySortedSet();
     }
 
     // check if it was directly redirected to the site
@@ -263,12 +268,10 @@ public abstract class ImdbParser {
           sr.setPosterUrl(posterUrl);
         }
 
-        result.add(sr);
-        return result;
+        results.add(sr);
+        return results;
       }
     }
-
-    Pattern unwantedSearchResultPattern = getUnwantedSearchResultPattern();
 
     // parse results
     elements = doc.getElementsByClass("findResult");
@@ -277,116 +280,185 @@ public abstract class ImdbParser {
       if (!"tr".equalsIgnoreCase(tr.tagName())) {
         continue;
       }
-
-      // find the id / name
-      String movieName = "";
-      String movieId = "";
-      int year = 0;
-      Elements tds = tr.getElementsByClass("result_text");
-      for (Element element : tds) {
-        // we only want the td's
-        if (!"td".equalsIgnoreCase(element.tagName())) {
-          continue;
-        }
-
-        // filter out unwanted results
-        if (unwantedSearchResultPattern != null) {
-          Matcher matcher = unwantedSearchResultPattern.matcher(element.text());
-          if (matcher.find()) {
-            continue;
-          }
-        }
-
-        // is there a localized name? (aka)
-        String localizedName = "";
-        Elements italics = element.getElementsByTag("i");
-        if (!italics.isEmpty()) {
-          localizedName = italics.text().replace("\"", "");
-        }
-
-        // get the name inside the link
-        Elements anchors = element.getElementsByTag("a");
-        for (Element a : anchors) {
-          if (StringUtils.isNotEmpty(a.text())) {
-            // movie name
-            if (StringUtils.isNotBlank(localizedName) && !language.equals("en")) {
-              // take AKA as title, but only if not EN
-              movieName = localizedName;
-            }
-            else {
-              movieName = a.text();
-            }
-
-            // parse id
-            String href = a.attr("href");
-            Matcher matcher = IMDB_ID_PATTERN.matcher(href);
-            while (matcher.find()) {
-              if (matcher.group(1) != null) {
-                movieId = matcher.group(1);
-              }
-            }
-
-            // try to parse out the year
-            Pattern yearPattern = Pattern.compile("\\(([0-9]{4})|/\\)");
-            matcher = yearPattern.matcher(element.text());
-            while (matcher.find()) {
-              if (matcher.group(1) != null) {
-                try {
-                  year = Integer.parseInt(matcher.group(1));
-                  break;
-                }
-                catch (Exception ignored) {
-                  // nothing to do here
-                }
-              }
-            }
-            break;
-          }
-        }
+      MediaSearchResult sr = parseSearchResults(tr, options);
+      if (sr != null) {
+        results.add(sr);
       }
-
-      // if an id/name was found - parse the poster image
-      String posterUrl = "";
-      tds = tr.getElementsByClass("primary_photo");
-      for (Element element : tds) {
-        Elements imgs = element.getElementsByTag("img");
-        for (Element img : imgs) {
-          posterUrl = img.attr("src");
-          posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-          posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
-          posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
-        }
-      }
-
-      // if no movie name/id was found - continue
-      if (StringUtils.isEmpty(movieName) || StringUtils.isEmpty(movieId)) {
-        continue;
-      }
-
-      MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.providerInfo.getId(), options.getMediaType());
-      sr.setTitle(movieName);
-      sr.setIMDBId(movieId);
-      sr.setYear(year);
-      sr.setPosterUrl(posterUrl);
-
-      if (movieId.equals(options.getImdbId())) {
-        // perfect match
-        sr.setScore(1);
-      }
-      else {
-        // calculate the score by comparing the search result with the search options
-        sr.calculateScore(options);
-      }
-
-      result.add(sr);
-
       // only get 80 results
-      if (result.size() >= 80) {
+      if (results.size() >= 80) {
         break;
       }
     }
 
-    return result;
+    // parse results newer style
+    if (elements == null || elements.isEmpty()) {
+      elements = doc.getElementsByClass("find-result-item");
+      for (Element tr : elements) {
+        MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
+        if (sr != null) {
+          results.add(sr);
+        }
+        // only get 80 results
+        if (results.size() >= 80) {
+          break;
+        }
+      }
+    }
+
+    return results;
+  }
+
+  private MediaSearchResult parseSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
+    // find the id / name
+    String movieName = "";
+    String movieId = "";
+    Pattern unwantedSearchResultPattern = getUnwantedSearchResultPattern();
+    int year = 0;
+    Elements tds = tr.getElementsByClass("result_text");
+    for (Element element : tds) {
+      // we only want the td's
+      if (!"td".equalsIgnoreCase(element.tagName())) {
+        continue;
+      }
+
+      // filter out unwanted results
+      if (unwantedSearchResultPattern != null) {
+        Matcher matcher = unwantedSearchResultPattern.matcher(element.text());
+        if (matcher.find()) {
+          continue;
+        }
+      }
+
+      // is there a localized name? (aka)
+      String localizedName = "";
+      Elements italics = element.getElementsByTag("i");
+      if (!italics.isEmpty()) {
+        localizedName = italics.text().replace("\"", "");
+      }
+
+      // get the name inside the link
+      Elements anchors = element.getElementsByTag("a");
+      for (Element a : anchors) {
+        if (StringUtils.isNotEmpty(a.text())) {
+          // movie name
+          if (StringUtils.isNotBlank(localizedName) && !options.getLanguage().getLanguage().equals("en")) {
+            // take AKA as title, but only if not EN
+            movieName = localizedName;
+          }
+          else {
+            movieName = a.text();
+          }
+
+          // parse id
+          String href = a.attr("href");
+          Matcher matcher = IMDB_ID_PATTERN.matcher(href);
+          while (matcher.find()) {
+            if (matcher.group(1) != null) {
+              movieId = matcher.group(1);
+            }
+          }
+
+          // try to parse out the year
+          Pattern yearPattern = Pattern.compile("\\(([0-9]{4})|/\\)");
+          matcher = yearPattern.matcher(element.text());
+          while (matcher.find()) {
+            if (matcher.group(1) != null) {
+              try {
+                year = Integer.parseInt(matcher.group(1));
+                break;
+              }
+              catch (Exception ignored) {
+                // nothing to do here
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    // if an id/name was found - parse the poster image
+    String posterUrl = "";
+    tds = tr.getElementsByClass("primary_photo");
+    for (Element element : tds) {
+      Elements imgs = element.getElementsByTag("img");
+      for (Element img : imgs) {
+        posterUrl = img.attr("src");
+        posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
+        posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
+        posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
+      }
+    }
+
+    // if no movie name/id was found - continue
+    if (StringUtils.isEmpty(movieName) || StringUtils.isEmpty(movieId)) {
+      return null;
+    }
+
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+    sr.setTitle(movieName);
+    sr.setIMDBId(movieId);
+    sr.setYear(year);
+    sr.setPosterUrl(posterUrl);
+
+    if (movieId.equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+
+    return sr;
+  }
+
+  private MediaSearchResult parseSearchResultsNewStyle(Element element, MediaSearchAndScrapeOptions options) {
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+    Element titleEl = element.getElementsByClass("ipc-metadata-list-summary-item__t").first();
+    if (titleEl != null) {
+      sr.setTitle(titleEl.text());
+      String href = titleEl.absUrl("href");
+      sr.setUrl(href);
+      // parse id
+      Matcher matcher = IMDB_ID_PATTERN.matcher(href);
+      while (matcher.find()) {
+        if (matcher.group(1) != null) {
+          sr.setIMDBId(matcher.group(1));
+        }
+      }
+    }
+
+    // parse poster
+    Element img = element.getElementsByClass("ipc-image").first();
+    if (img != null) {
+      String posterUrl = img.attr("src");
+      posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
+      posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
+      posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
+      sr.setPosterUrl(posterUrl);
+    }
+
+    // parse year xxxx-yyyy
+    Elements items = element.getElementsByClass("ipc-metadata-list-summary-item__li");
+    for (Element span : items) {
+      String text = span.text();
+      if (text.matches("\\d{4}[-]?.*")) {
+        int year = MetadataUtil.parseInt(text.substring(0, 4));
+        sr.setYear(year);
+      }
+    }
+
+    if (sr.getIMDBId().equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+
+    return sr;
   }
 
   /**
