@@ -99,7 +99,7 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
         try {
           Url url;
           if (useCache) {
-            url = new OnDiskCachedUrl(urlAsString, 12, TimeUnit.HOURS);
+            url = new OnDiskCachedUrl(urlAsString, 2, TimeUnit.DAYS);
           }
           else {
             url = new Url(urlAsString);
