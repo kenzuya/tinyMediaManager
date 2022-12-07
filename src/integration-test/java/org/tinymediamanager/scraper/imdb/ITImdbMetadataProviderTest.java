@@ -85,7 +85,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       assertNotNull("Result", results);
 
       // result count
-      assertThat(results.size()).isGreaterThanOrEqualTo(40);
+      assertThat(results.size()).isGreaterThanOrEqualTo(25);
 
       // check if the result is found (9 - 2016 - tt5719388)
       checkSearchResult("9", 2016, "tt5719388", results);
@@ -146,7 +146,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       assertNotNull("Result", results);
 
       // result count
-      assertEquals("Result count", 1, results.size());
+      assertThat(results.size()).isGreaterThanOrEqualTo(1);
 
       // check first result (Asterix der Gallier - 1967 - tt0061369)
       checkSearchResult("Asterix der Gallier", 1967, "tt0061369", results);
@@ -451,7 +451,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       assertEquals("Mit einer Ausrede fängt es an", md.getTitle());
       assertThat(md.getPlot()).contains("Shawn", "Polizei");
       assertEquals("7 July 2006", sdf.format(md.getReleaseDate()));
-      assertEquals(34, md.getCastMembers(ACTOR).size());
+      assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(27);
       assertEquals(1, md.getCastMembers(DIRECTOR).size());
       assertEquals("Michael Engler", md.getCastMembers(DIRECTOR).get(0).getName());
       assertEquals(1, md.getCastMembers(WRITER).size());
@@ -512,7 +512,8 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       assertNotNull("MediaMetadata", md);
 
       // check moviedetails
-      checkMovieDetails("9", 2009, "9", 7.0, 63365, "When our world ended their mission began.", 79, "Shane Acker", "Pamela Pettler, Shane Acker", "PG-13", "09-09-2009",
+      checkMovieDetails("9", 2009, "9", 7.0, 63365, "(1) To Protect Us...", 79, "Shane Acker", "Pamela Pettler, Shane Acker, Ben Gluck", "PG-13",
+          "09-09-2009",
           md);
 
       assertThat(md.getGenres().size()).isGreaterThan(0);
@@ -522,7 +523,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       checkProductionCompany(md);
 
       // check localized values
-      assertThat(md.getCountries()).containsOnly("US");
+      assertThat(md.getCountries()).contains("US");
       assertThat(md.getSpokenLanguages()).containsOnly("en");
 
       assertThat(md.getTags()).isNotEmpty();
@@ -561,8 +562,8 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       checkMoviePoster(md);
 
       // check localized values
-      assertThat(md.getCountries()).containsAnyOf("US");
-      assertThat(md.getSpokenLanguages()).containsOnly("en", "fr");
+      assertThat(md.getCountries()).contains("US");
+      assertThat(md.getSpokenLanguages()).contains("en", "fr");
 
       assertThat(md.getTags()).isNotEmpty();
     }
@@ -707,7 +708,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
     // original title
     assertEquals("originalTitle", originalTitle, md.getOriginalTitle());
     // rating
-    assertThat(md.getRatings().size()).isEqualTo(1);
+    assertThat(md.getRatings().size()).isGreaterThanOrEqualTo(1);
     MediaRating mediaRating = md.getRatings().get(0);
 
     assertEquals("rating", rating, mediaRating.getRating(), 0.5);
