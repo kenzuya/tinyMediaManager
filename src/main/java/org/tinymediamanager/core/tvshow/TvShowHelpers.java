@@ -290,7 +290,7 @@ public class TvShowHelpers {
   public static int detectSeasonFromFileAndFolder(String filename, String foldername) {
     int season = Integer.MIN_VALUE;
 
-    if (filename.startsWith("season-specials")) {
+    if (filename.startsWith("season-specials") || foldername.equalsIgnoreCase("specials")) {
       season = 0;
     }
     else if (filename.startsWith("season-all")) {

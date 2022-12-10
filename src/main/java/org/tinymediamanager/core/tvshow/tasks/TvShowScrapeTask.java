@@ -335,6 +335,9 @@ public class TvShowScrapeTask extends TmmThreadPool {
         catch (MissingIdException ignored) {
           LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
         }
+        catch (NothingFoundException e) {
+          LOGGER.debug("did not find artwork for '{}'", tvShow.getTitle());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(

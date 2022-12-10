@@ -31,7 +31,7 @@ import ca.odell.glazedlists.GlazedLists;
  * @author Manuel Laggner
  */
 public class AutocompleteComboBox<E> extends JComboBox<E> {
-  private EventList<E>           items;
+  private final EventList<E>     items;
   private AutoCompleteSupport<E> autoCompleteSupport;
 
   public AutocompleteComboBox(Collection<E> items) {

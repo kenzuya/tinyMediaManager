@@ -260,6 +260,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       SwingUtilities.invokeLater(() -> {
         if (results.isEmpty()) { // check has to be in here, since it needs some time to propagate
           JOptionPane.showMessageDialog(TvShowRenamerPreviewDialog.this, TmmResourceBundle.getString("movie.renamerpreview.nothingtorename"));
+          setVisible(false);
         }
       });
 

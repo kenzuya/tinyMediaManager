@@ -540,30 +540,22 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    * detect which mediafiles has to be parsed and start a thread to do that
    */
   private void gatherMediaInformationForUngatheredMediaFiles(TvShow tvShow) {
-    boolean dirty = false;
     // get mediainfo for tv show (fanart/poster..)
     for (MediaFile mf : tvShow.getMediaFiles()) {
       if (StringUtils.isBlank(mf.getContainerFormat())) {
         submitTask(new MediaFileInformationFetcherTask(mf, tvShow, false));
       }
       else {
-        // at least update the file dates
+        // // did the file dates/size change?
         if (MediaFileHelper.gatherFileInformation(mf)) {
           // okay, something changed with that movie file - force fetching mediainfo
           submitTask(new MediaFileInformationFetcherTask(mf, tvShow, true));
         }
-        dirty = true;
       }
-    }
-
-    // persist the TV show
-    if (dirty) {
-      tvShow.saveToDb();
     }
 
     // get mediainfo for all episodes within this tv show
     for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
-      dirty = false;
       for (MediaFile mf : episode.getMediaFiles()) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, episode, false));
@@ -574,13 +566,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // okay, something changed with that movie file - force fetching mediainfo
             submitTask(new MediaFileInformationFetcherTask(mf, episode, true));
           }
-          dirty = true;
         }
-      }
-
-      // persist the episode
-      if (dirty) {
-        episode.saveToDb();
       }
     }
   }
@@ -1132,7 +1118,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
           MediaFileType.SEASON_THUMB)) {
         try {
-          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
+          String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
           if (season == Integer.MIN_VALUE) {
             throw new IllegalStateException("did not find a season number");
           }

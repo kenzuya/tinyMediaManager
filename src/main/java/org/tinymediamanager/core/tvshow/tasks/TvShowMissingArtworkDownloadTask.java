@@ -45,6 +45,7 @@ import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
+import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 
@@ -151,6 +152,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           catch (MissingIdException ignored) {
             LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
           }
+          catch (NothingFoundException e) {
+            LOGGER.debug("did not find artwork for '{}'", tvShow.getTitle());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(
@@ -216,6 +220,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           }
           catch (MissingIdException ignored) {
             LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
+          }
+          catch (NothingFoundException e) {
+            LOGGER.debug("did not find artwork for '{}' - S{}/E{}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode());
           }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);

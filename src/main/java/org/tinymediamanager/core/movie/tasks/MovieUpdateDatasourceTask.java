@@ -79,6 +79,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
@@ -122,6 +123,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
+  // MMD detected as single movie in a structured folder such as /A/, /2010/ or decade
+  private final static String          FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
   private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>           dataSources;
@@ -766,7 +769,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     for (Path file : allFiles) {
       mfs.add(new MediaFile(file));
     }
-    allFiles.clear();
 
     // ***************************************************************
     // first round - try to parse NFO(s) first
@@ -833,9 +835,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     if (movie.getTitle().isEmpty()) {
+      String[] video = null;
+      // Fact: we came into this method, because only one video file is in this folder.
+      // Fact: for single folder movies, we usually take the folder name as title
+      // BUT: when having such file in some structure like /A/, /2010/, decade or genre folder
+      // it is better to take the filename. And it has to be threaten as MMD
+      // Known issues: movies folders like "2012" are now also being imported with filename
+      if (movieDir.getFileName().toString().matches(FOLDER_STRUCTURE) || MediaGenres.containsGenre(movieDir.getFileName().toString())) {
+        createMultiMovieFromDir(dataSource, movieDir, new ArrayList<>(allFiles));
+        return;
+      }
+      else {
+        video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(), MovieModuleManager.getInstance().getSettings().getBadWord());
+      }
+
       // get the "cleaner" name/year combo from
-      String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(),
-          MovieModuleManager.getInstance().getSettings().getBadWord());
       movie.setTitle(video[0]);
       if (!video[1].isEmpty()) {
         try {
@@ -862,6 +876,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
     }
+
+    allFiles.clear(); // moved down here, since we need that for MMD detection
 
     if (StringUtils.isBlank(movie.getTitle()) && StringUtils.isNotBlank(bdinfoTitle)) {
       movie.setTitle(bdinfoTitle);
@@ -1544,8 +1560,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
-      boolean dirty = false;
-
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
@@ -1556,20 +1570,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             // okay, something changed with that movie file - force fetching mediainfo
             submitTask(new MediaFileInformationFetcherTask(mf, movie, true));
           }
-          dirty = true;
         }
-      }
-
-      // upgrade MediaSource to UHD bluray, if video format says so
-      if (movie.getMediaSource() == MediaSource.BLURAY
-          && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
-        movie.setMediaSource(MediaSource.UHD_BLURAY);
-        dirty = true;
-      }
-
-      // persist the movie
-      if (dirty) {
-        movie.saveToDb();
       }
     }
     waitForCompletionOrCancel();
@@ -1588,19 +1589,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         break;
       }
 
-      boolean dirty = false;
-
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
         }
         else {
-          // at least update the file dates
+          // did the file dates/size change?
           if (MediaFileHelper.gatherFileInformation(mf)) {
             // okay, something changed with that movie file - force fetching mediainfo
             submitTask(new MediaFileInformationFetcherTask(mf, movie, true));
           }
-          dirty = true;
         }
       }
 
@@ -1608,11 +1606,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (movie.getMediaSource() == MediaSource.BLURAY
           && movie.getMainVideoFile().getVideoDefinitionCategory().equals(MediaFileHelper.VIDEO_FORMAT_UHD)) {
         movie.setMediaSource(MediaSource.UHD_BLURAY);
-        dirty = true;
-      }
-
-      // persist the movie
-      if (dirty) {
         movie.saveToDb();
       }
     }

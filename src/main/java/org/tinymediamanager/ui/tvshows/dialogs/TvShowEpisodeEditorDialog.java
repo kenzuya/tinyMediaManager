@@ -88,7 +88,6 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
-import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.scraper.rating.RatingProvider;
@@ -181,6 +180,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private JTextField                               tfOriginalTitle;
   private JTextField                               tfThumb;
   private JTextArea                                taNote;
+
+  private ScrapeTask                               scrapeTask          = null;
 
   /**
    * Instantiates a new TV show episode scrape dialog.
@@ -684,6 +685,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     return continueQueue;
   }
 
+  private void cancelScrapeTask() {
+    if (scrapeTask != null && !scrapeTask.isDone()) {
+      scrapeTask.cancel(true);
+    }
+  }
+
   private class ScrapeAction extends AbstractAction {
     ScrapeAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.scrape"));
@@ -692,8 +699,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       MediaScraper scraper = (MediaScraper) cbScraper.getSelectedItem();
-      ScrapeTask task = new ScrapeTask(scraper);
-      task.execute();
+      cancelScrapeTask();
+
+      scrapeTask = new ScrapeTask(scraper);
+      scrapeTask.execute();
     }
   }
 
@@ -764,6 +773,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      cancelScrapeTask();
+
       episodeToEdit.setTitle(tfTitle.getText());
       episodeToEdit.setOriginalTitle(tfOriginalTitle.getText());
       episodeToEdit.setDvdOrder(cbDvdOrder.isSelected());
@@ -871,7 +882,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // process artwork
       processArtwork(MediaFileType.THUMB, lblThumb, tfThumb);
 
+      episodeToEdit.removeAllTags();
       episodeToEdit.setTags(tags);
+
       episodeToEdit.writeNFO();
       episodeToEdit.saveToDb();
 
@@ -912,6 +925,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      cancelScrapeTask();
+
       setVisible(false);
     }
   }
@@ -933,6 +948,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private class ScrapeTask extends SwingWorker<Void, Void> {
     private final MediaScraper mediaScraper;
     private MediaMetadata      metadata = null;
+    private String             message  = null;
 
     ScrapeTask(MediaScraper mediaScraper) {
       this.mediaScraper = mediaScraper;
@@ -973,19 +989,21 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
-        MessageManager.instance
-            .pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit, "scraper.error.missingid"));
+        message = TmmResourceBundle.getString("scraper.error.missingid");
       }
       catch (NothingFoundException ignored) {
         LOGGER.debug("nothing found");
+        message = TmmResourceBundle.getString("message.scrape.tvshowepisodefailed");
       }
-      catch (ScrapeException e) {
+      catch (Exception e) {
+        // other exception
         LOGGER.error("getMetadata", e);
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit,
-            "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
+        message = TmmResourceBundle.getString("message.scrape.tvshowepisodefailed");
+      }
+      finally {
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       }
 
-      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       return null;
     }
 
@@ -993,12 +1011,17 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     protected void done() {
       super.done();
 
-      // if nothing has been found -> open the search box
-      if (metadata == null || StringUtils.isBlank(metadata.getTitle())) {
-        // message
-        JOptionPane.showMessageDialog(TvShowEpisodeEditorDialog.this, TmmResourceBundle.getString("message.scrape.tvshowepisodefailed"));
+      if (isCancelled()) {
+        return;
       }
-      else {
+
+      if (StringUtils.isNotBlank(message)) {
+        // message
+        JOptionPane.showMessageDialog(TvShowEpisodeEditorDialog.this, message);
+      }
+
+      // if nothing has been found -> open the search box
+      if (metadata != null && StringUtils.isNotBlank(metadata.getTitle())) {
         tfTitle.setText(metadata.getTitle());
         tfOriginalTitle.setText(metadata.getOriginalTitle());
         taPlot.setText(metadata.getPlot());

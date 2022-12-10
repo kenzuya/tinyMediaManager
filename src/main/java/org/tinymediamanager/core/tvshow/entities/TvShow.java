@@ -286,7 +286,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
 
       try {
-        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), mf.getFileAsPath().getParent().toString());
+        String foldername = getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
 
         if (season == Integer.MIN_VALUE) {
           throw new IllegalStateException("did not find a season number");
@@ -531,6 +532,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         // also fire the event there was no episode for that dummy yet
         boolean found = false;
         for (TvShowEpisode e : season.getEpisodesForDisplay()) {
+          if (e.isDummy()) {
+            continue;
+          }
+
           if ((e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode())
               || (e.getDvdSeason() > 0 && e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
             found = true;

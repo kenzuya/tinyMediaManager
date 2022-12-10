@@ -81,7 +81,7 @@ public class MovieSetFilterDialog extends TmmDialog {
   private JCheckBox                                    chkbxEnableAll;
 
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
-    super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieSetFilter");
+    super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.moviesets"), "movieSetFilter");
     setModalityType(ModalityType.MODELESS);
     setMinimumSize(new Dimension(400, 300));
 

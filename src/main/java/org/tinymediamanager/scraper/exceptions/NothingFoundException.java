@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.scraper.exceptions;
 
+import java.util.ResourceBundle;
+
 /**
  * the class {@link NothingFoundException} indicates that nothing has been found with this operation
  *
@@ -28,5 +30,20 @@ public class NothingFoundException extends ScrapeException {
    */
   public NothingFoundException() {
     super();
+  }
+
+  @Override
+  public String getMessage() {
+    return "Nothing found";
+  }
+
+  @Override
+  public String getLocalizedMessage() {
+    try {
+      return ResourceBundle.getBundle("messages").getString("nothingfound");
+    }
+    catch (Exception e) {
+      return getMessage();
+    }
   }
 }

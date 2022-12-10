@@ -15,12 +15,14 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -37,9 +39,9 @@ public class MovieMediaSourceFilter extends AbstractCheckComboBoxMovieUIFilter<M
     super();
     checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     // initial filling
-    setValues(MediaSource.values());
+    buildAndInstallMediaSourceArray();
     // listen to changes
-    MediaSource.addListener(evt -> SwingUtilities.invokeLater(() -> setValues(MediaSource.values())));
+    MediaSource.addListener(evt -> SwingUtilities.invokeLater(this::buildAndInstallMediaSourceArray));
   }
 
   @Override
@@ -66,5 +68,17 @@ public class MovieMediaSourceFilter extends AbstractCheckComboBoxMovieUIFilter<M
   @Override
   protected MediaSource parseStringToType(String string) throws Exception {
     return MediaSource.getMediaSource(string);
+  }
+
+  private void buildAndInstallMediaSourceArray() {
+    List<MediaSource> mediaSources = new ArrayList<>();
+
+    for (MediaSource mediaSource : MediaSource.values()) {
+      if (StringUtils.isNotBlank(mediaSource.toString())) {
+        mediaSources.add(mediaSource);
+      }
+    }
+
+    setValues(mediaSources);
   }
 }
