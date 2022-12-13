@@ -226,7 +226,7 @@ public class Url {
       return;
     }
 
-    LOGGER.trace("add HTTP header: {}={}", key, value);
+    // LOGGER.trace("add HTTP header: {}={}", key, value);
 
     // looks like there is no need for duplicate check since some headers can
     // occur several times

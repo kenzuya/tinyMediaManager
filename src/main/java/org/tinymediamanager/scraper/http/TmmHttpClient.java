@@ -61,11 +61,11 @@ public class TmmHttpClient {
   private static OkHttpClient createHttpClient() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-    // add an own logging interceptor to only log text responses
-    builder.addInterceptor(new TmmHttpLoggingInterceptor());
-
     // enable brotli
     builder.addInterceptor(BrotliInterceptor.INSTANCE);
+
+    // add an own logging interceptor to only log text responses
+    builder.addInterceptor(new TmmHttpLoggingInterceptor());
 
     // pool
     builder.connectionPool(new ConnectionPool(5, 5000, TimeUnit.MILLISECONDS));
