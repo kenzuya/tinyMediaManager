@@ -93,40 +93,11 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   /**
    * Parse the given string for an appropriate movie edition (via name & regexp)
    *
-   * @param stringToParse
+   * @param name
    *          the string to parse out the movie edition
    * @return the found edition
    */
-  public static MovieEdition getMovieEditionFromString(String stringToParse) {
-    for (MovieEdition edition : MovieEdition.values()) {
-      if (edition.name().equalsIgnoreCase(stringToParse)) {
-        return edition;
-      }
-
-      if (edition.pattern != null) {
-        Matcher matcher = edition.pattern.matcher(stringToParse);
-        if (matcher.find()) {
-          return edition;
-        }
-      }
-    }
-
-    return NONE;
-  }
-
-  /**
-   * Gets the right movie edition for the given string.
-   *
-   * @param name
-   *          the name
-   * @return the movie edition
-   */
-  @JsonCreator
-  public static MovieEdition getMovieEdition(String name) {
-    if (StringUtils.isBlank(name)) {
-      return NONE;
-    }
-
+  public static MovieEdition getMovieEditionFromString(String name) {
     // split checks for performance
     for (MovieEdition edition : values()) {
       // check if the "enum" name matches
@@ -153,8 +124,29 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
       }
     }
 
-    // dynamically create new one
-    return new MovieEdition(name, values().length, name, "");
+    return NONE;
+  }
+
+  /**
+   * Gets the right movie edition for the given string.
+   *
+   * @param name
+   *          the name
+   * @return the movie edition
+   */
+  @JsonCreator
+  public static MovieEdition getMovieEdition(String name) {
+    if (StringUtils.isBlank(name)) {
+      return NONE;
+    }
+
+    MovieEdition edition = getMovieEditionFromString(name);
+    if (edition == NONE) {
+      // dynamically create new one
+      edition = new MovieEdition(name, values().length, name, "");
+    }
+
+    return edition;
   }
 
   /**
@@ -185,7 +177,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * @param listener
    *          the new listener to be added
    */
-  public static void addListener(DynaEnumEventListener listener) {
+  public static void addListener(DynaEnumEventListener<MovieEdition> listener) {
     addListener(MovieEdition.class, listener);
   }
 
@@ -195,7 +187,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * @param listener
    *          the listener to be removed
    */
-  public static void removeListener(DynaEnumEventListener listener) {
+  public static void removeListener(DynaEnumEventListener<MovieEdition> listener) {
     removeListener(MovieEdition.class, listener);
   }
 }
