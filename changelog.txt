@@ -1,5 +1,6 @@
 Version 4.3.8
 =======================
+x adapt/fix IMDB scraper
 x automatically close renamer preview if nothing needs to be renamed #1964
 x do not store filters if they are not active #1961
 x do not remove missing episodes with unset DVD S/E #1960

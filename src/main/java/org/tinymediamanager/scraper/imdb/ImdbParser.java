@@ -18,7 +18,9 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_MOVIES;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TVSHOWS;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -340,8 +342,35 @@ public abstract class ImdbParser {
     Document doc = null;
 
     Url url;
+    String sub = "";
+    boolean advancedSearch = false;
+    if (options.getMediaType() == MediaType.MOVIE) {
+      sub = CAT_MOVIES;
+      if (isIncludeShortResults() || isIncludeTvMovieResults()) {
+        advancedSearch = true;
+      }
+    }
+    else if (options.getMediaType() == MediaType.TV_SHOW) {
+      sub = CAT_TVSHOWS;
+    }
     try {
-      url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
+      if (advancedSearch) {
+        // /search/title/?title=christmas&title_type=feature,tv_movie,tv_special,documentary,video_game,short
+        String cats = "&title_type=feature,documentary";
+        if (isIncludeShortResults()) {
+          cats += ",short";
+        }
+        if (isIncludeTvMovieResults()) {
+          cats += ",tv_movie,tv_special";
+        }
+        if (isIncludeVideogameResults()) {
+          cats += ",video_game";
+        }
+        url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE, cats));
+      }
+      else {
+        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE, sub));
+      }
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
     catch (Exception e) {
@@ -367,6 +396,7 @@ public abstract class ImdbParser {
     }
 
     // check if it was directly redirected to the site
+    // TODO: does this still happen? when? cannot reproduce anylonger with new search
     Elements elements = doc.getElementsByAttributeValue("rel", "canonical");
     for (Element element : elements) {
       MediaMetadata md = null;
@@ -436,14 +466,10 @@ public abstract class ImdbParser {
       }
     }
 
-    // parse results
-    elements = doc.getElementsByClass("findResult");
+    // parse results newer style
+    elements = doc.getElementsByClass("find-result-item");
     for (Element tr : elements) {
-      // we only want the tr's
-      if (!"tr".equalsIgnoreCase(tr.tagName())) {
-        continue;
-      }
-      MediaSearchResult sr = parseSearchResults(tr, options);
+      MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
       if (sr != null) {
         results.add(sr);
       }
@@ -453,11 +479,30 @@ public abstract class ImdbParser {
       }
     }
 
-    // parse results newer style
+    // parse results old style
     if (elements == null || elements.isEmpty()) {
-      elements = doc.getElementsByClass("find-result-item");
+      elements = doc.getElementsByClass("findResult");
       for (Element tr : elements) {
-        MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
+        // we only want the tr's
+        if (!"tr".equalsIgnoreCase(tr.tagName())) {
+          continue;
+        }
+        MediaSearchResult sr = parseSearchResults(tr, options);
+        if (sr != null) {
+          results.add(sr);
+        }
+        // only get 80 results
+        if (results.size() >= 80) {
+          break;
+        }
+      }
+    }
+
+    // parse results advanced search
+    if (elements == null || elements.isEmpty()) {
+      elements = doc.getElementsByClass("lister-item");
+      for (Element tr : elements) {
+        MediaSearchResult sr = parseAdvancedSearchResults(tr, options);
         if (sr != null) {
           results.add(sr);
         }
@@ -469,6 +514,54 @@ public abstract class ImdbParser {
     }
 
     return results;
+  }
+
+  private MediaSearchResult parseAdvancedSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
+
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+    String movieId = "";
+    Element header = null;
+    try {
+      header = tr.getElementsByClass("lister-item-header").get(0);
+      sr.setTitle(header.getElementsByTag("a").text());
+      sr.setUrl(header.getElementsByTag("a").attr("href"));
+      movieId = StrgUtils.substr(sr.getUrl(), ".*?(tt\\d+).*");
+      sr.setIMDBId(movieId);
+    }
+    catch (Exception e) {
+      // basic info error?
+      return null;
+    }
+
+    try {
+      String yr = header.getElementsByClass("lister-item-year").get(0).text();
+      String year = StrgUtils.substr(yr, ".*?(\\d{4}).*"); // first 4 nums
+      sr.setYear(MetadataUtil.parseInt(year, 0));
+    }
+    catch (Exception e) {
+      // ignore year parsing errors
+    }
+
+    try {
+      Element img = tr.getElementsByClass("lister-item-image").get(0);
+      // String imgurl = img.getElementsByAttribute("loadlate").get(0).attr("src");
+      String imgurlSmall = img.getElementsByAttribute("loadlate").get(0).attr("loadlate");
+      sr.setPosterUrl(imgurlSmall);
+    }
+    catch (Exception e) {
+      // ignore poster parsing errors
+    }
+
+    if (movieId.equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+
+    return sr;
   }
 
   private MediaSearchResult parseSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
