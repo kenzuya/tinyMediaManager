@@ -195,6 +195,9 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:2", detectEpisode("season 1/nam.e.2.mkv"));
     assertEqual("S:-1 E:1", detectEpisode("Wisher.2021.E01.V2.WEB-DL.4k.H265.DDP.AAC-HDCTV.mp4"));
 
+    assertEqual("S:-1 E:1", detectEpisode("[01].ext")); // just optionals!
+    assertEqual("S:-1 E:2", detectEpisode("[01] 02.ext")); // ignore optionals
+
     // TODO: currently we take the FIRST number and treat it as episode
     // NO multi matching for just numbers!!
     assertEqual("S:-1 E:2", detectEpisode("2 3 6.mkv"));
@@ -253,7 +256,6 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:-1 E:1 Split", detectEpisode("name.ep01a_01.discb.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.1.s01e01.2.of.2.ext"));
     assertEqual("S:1 E:1", detectEpisode("name.1x01.1x01.2.ext")); // do not detect that one
-
   }
 
   /**

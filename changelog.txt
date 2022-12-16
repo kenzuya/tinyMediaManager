@@ -6,6 +6,7 @@ x do not store filters if they are not active #1961
 x do not remove missing episodes with unset DVD S/E #1960
 x (movie) create new editions when importing NFO files #1959
 x (movie) reserve more space for the edition dropdown #1963
+x improve episode detection to find them also in optional [brackets]
 
 
 Version 4.3.7

@@ -237,9 +237,6 @@ public class TvShowEpisodeAndSeasonParser {
     // strip as many as we know... it's the last change to do some detection!
     // ======================================================================
 
-    // strip all [optionals]!
-    basename = basename.replaceAll("\\[(.*?)\\]", "");
-
     // ignore disc files
     MediaFile mf = new MediaFile();
     mf.setFilename(filename); // cant use Paths.get()
@@ -247,12 +244,23 @@ public class TvShowEpisodeAndSeasonParser {
       return postClean(result);
     }
 
-    // multiple numbers: get consecutive ones
-    String delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
+    // strip all [optionals]!
+    String woOptionals = basename.replaceAll("\\[(.*?)\\]", "");
+
+    // multiple numbers: get consecutive ones (removed optionals [] first)
+    String delimitedNumbers = woOptionals.replaceAll("\\|", "_"); // replace our delimiter
     delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
     delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
     String[] numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
     // now we have something like "8|804|2020"
+
+    // nothing found removing []? try with optionals... wuah
+    if (numbersOnly.length == 0 || (numbersOnly.length == 1 && numbersOnly[0].isBlank())) {
+      delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
+      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
+      delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
+      numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
+    }
 
     result = parseNumbers3(result, numbersOnly);
     if (!result.episodes.isEmpty()) {
