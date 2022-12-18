@@ -970,7 +970,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // if the new file has a source identifier in its filename, update the source too
-        MediaSource newSource = MediaSource.parseMediaSource(vid.getPath());
+        MediaSource newSource = MediaSource.parseMediaSource(movieDir.getFileName().toString());
         if (newSource != MediaSource.UNKNOWN) {
           // source has been found in the filename - update
           movie.setMediaSource(newSource);
@@ -1249,16 +1249,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (mf.getPath().toUpperCase(Locale.ROOT).contains("BDMV") || mf.getPath().toUpperCase(Locale.ROOT).contains("VIDEO_TS")
             || mf.getPath().toUpperCase(Locale.ROOT).contains("HVDVD_TS") || mf.isDiscFile()) {
           if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-            movie.setMediaSource(MediaSource.parseMediaSource(mf.getPath()));
+            String folderNameComplete = Paths.get(movie.getPath()).relativize(mf.getFileAsPath()).toString();
+            movie.setMediaSource(MediaSource.parseMediaSource(folderNameComplete));
           }
         }
         // try to parse the imdb id from the filename
         if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
-          movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
+          movie.setImdbId(ParserUtils.detectImdbId(mf.getFilename()));
         }
         // try to parse the tmdb id from the filename
         if (movie.getTmdbId() == 0) {
-          movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
+          movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFilename()));
         }
 
         LOGGER.debug("| parsing {} {}", mf.getType().name(), mf.getFileAsPath());
@@ -1270,7 +1271,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             movie.addToMediaFiles(mf);
 
             if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-              movie.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+              movie.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
             }
             break;
 

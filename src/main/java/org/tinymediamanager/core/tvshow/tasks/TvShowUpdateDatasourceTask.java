@@ -849,7 +849,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setTvShow(tvShow);
 
                 if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-                  episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+                  episode.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
                 }
                 episode.setNewlyAdded(true);
 
@@ -953,7 +953,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
               }
               if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-                episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+                episode.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
               }
               episode.setNewlyAdded(true);
 
@@ -1027,7 +1027,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
             }
             if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-              episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+              episode.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
             }
             episode.setNewlyAdded(true);
 
