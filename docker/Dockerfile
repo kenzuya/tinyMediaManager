@@ -34,7 +34,6 @@ RUN \
     rm -rf /var/lib/apt/lists/* 
 
 ADD launcher-extra.yml /app/
-ADD tmm.prop /data/data/
 
 LABEL Name="tinyMediaManager" Version=${TMM_VERSION}
 
