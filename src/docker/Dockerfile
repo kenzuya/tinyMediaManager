@@ -36,8 +36,5 @@ RUN \
     rm *.deb && \
     rm -rf /var/lib/apt/lists/*
 
-ADD launcher-extra.yml /data/data/
-ADD tmm.prop /data/data/
-
 WORKDIR /app
-CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data"]
+CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]

@@ -1,5 +1,0 @@
----
-javaHome: ""
-jvmOpts:
-  - "-Dtmm.noupdate=true"
-env: [ ]
