@@ -102,10 +102,6 @@ public class TmmProperties {
    *          the value
    */
   public void putProperty(String key, String value) {
-    if (properties.containsKey(key)) {
-      properties.remove(key);
-    }
-
     properties.put(key, value);
     dirty = true;
   }
@@ -148,13 +144,7 @@ public class TmmProperties {
       return Boolean.FALSE;
     }
 
-    try {
-      return Boolean.parseBoolean(value);
-    }
-    catch (Exception ignored) {
-    }
-
-    return Boolean.FALSE;
+    return Boolean.parseBoolean(value);
   }
 
   /**

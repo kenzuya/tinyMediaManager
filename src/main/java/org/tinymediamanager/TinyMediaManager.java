@@ -56,6 +56,7 @@ import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -87,6 +88,7 @@ import com.sun.jna.Platform;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 
@@ -261,7 +263,10 @@ public final class TinyMediaManager {
           TmmModuleManager.getInstance().startUp();
 
           // register the shutdown handler
-          Runtime.getRuntime().addShutdownHook(new Thread(() -> TmmModuleManager.getInstance().shutDown()));
+          Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            shutdown();
+            shutdownLogger();
+          }));
 
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
@@ -393,21 +398,8 @@ public final class TinyMediaManager {
             }
 
             LOGGER.info("bye bye");
-            try {
-              // send shutdown signal
-              TmmTaskManager.getInstance().shutdown();
-              // save unsaved settings
-              TmmModuleManager.getInstance().saveSettings();
-              // hard kill
-              TmmTaskManager.getInstance().shutdownNow();
-              // close dabatbases
-              TmmModuleManager.getInstance().shutDown();
-              // shutdown the logger
-              shutdownLogger();
-            }
-            catch (Exception ex) {
-              LOGGER.warn(ex.getMessage());
-            }
+            shutdown();
+            shutdownLogger();
             System.exit(0);
           }
         }
@@ -544,6 +536,28 @@ public final class TinyMediaManager {
     }
   }
 
+  /**
+   * make a clean shutdown
+   */
+  public static void shutdown() {
+    try {
+      // persist all stored properties
+      TmmProperties.getInstance().writeProperties();
+
+      // send shutdown signal
+      TmmTaskManager.getInstance().shutdown();
+      // save unsaved settings
+      TmmModuleManager.getInstance().saveSettings();
+      // hard kill
+      TmmTaskManager.getInstance().shutdownNow();
+      // close database connection
+      TmmModuleManager.getInstance().shutDown();
+    }
+    catch (Exception ex) {
+      LOGGER.warn("Problem in shutdown", ex);
+    }
+  }
+
   public static void shutdownLogger() {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     loggerContext.stop();
@@ -585,7 +599,7 @@ public final class TinyMediaManager {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 
     // get the console appender
-    Appender consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
+    Appender<ILoggingEvent> consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
     if (consoleAppender instanceof ConsoleAppender) {
       if (level == null) {
         consoleAppender.stop();
