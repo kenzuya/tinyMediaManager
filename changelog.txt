@@ -1,5 +1,6 @@
 Version 4.3.8
 =======================
++ added an option to specify update check interval/disable update check completely
 x adapt/fix IMDB scraper
 x automatically close renamer preview if nothing needs to be renamed #1964
 x do not store filters if they are not active #1961

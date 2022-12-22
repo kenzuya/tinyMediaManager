@@ -18,6 +18,7 @@ package org.tinymediamanager;
 
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
 import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
@@ -262,12 +263,6 @@ public final class TinyMediaManager {
           updateProgress("loading movie module", 30);
           TmmModuleManager.getInstance().startUp();
 
-          // register the shutdown handler
-          Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            shutdown();
-            shutdownLogger();
-          }));
-
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
 
@@ -341,14 +336,24 @@ public final class TinyMediaManager {
               wizard.setLocationRelativeTo(null); // center
               wizard.setVisible(true);
             }
-            else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+            else if (Settings.getInstance().isEnableAutomaticUpdate() && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
               // if the wizard is not run, check for an update
               // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is showing, the
               // wizard will no more appear
               // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
               // startup
-              checkForUpdate(5);
+
+              // only update if the last update check is more than the specified interval ago
+              if (shouldCheckForUpdate()) {
+                checkForUpdate(5);
+              }
             }
+
+            // register the shutdown handler
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+              shutdown();
+              shutdownLogger();
+            }));
 
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
