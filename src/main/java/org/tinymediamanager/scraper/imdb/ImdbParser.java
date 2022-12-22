@@ -18,9 +18,7 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_MOVIES;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TVSHOWS;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -88,6 +86,8 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_TV_SERIES        = "includeTvSeriesResults";
   static final String                 INCLUDE_SHORT            = "includeShortResults";
   static final String                 INCLUDE_VIDEOGAME        = "includeVideogameResults";
+  static final String                 INCLUDE_PODCAST          = "includePodcastResults";
+  static final String                 INCLUDE_ADULT            = "includeAdultResults";
   static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
   static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
@@ -162,6 +162,24 @@ public abstract class ImdbParser {
   }
 
   /**
+   * should we include adult results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeAdultResults() {
+    return config.getValueAsBool(INCLUDE_ADULT, false);
+  }
+
+  /**
+   * should we include podcast series results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludePodcastResults() {
+    return config.getValueAsBool(INCLUDE_PODCAST, false);
+  }
+
+  /**
    * scrape tmdb for movies too?
    *
    * @return true/false
@@ -228,6 +246,7 @@ public abstract class ImdbParser {
     return value;
   }
 
+  @Deprecated
   protected boolean includeSearchResult(String text) {
     // strip out episodes
     if (text.contains("(TV Episode)")) {
@@ -260,6 +279,7 @@ public abstract class ImdbParser {
     }
   }
 
+  @Deprecated
   protected ResultCategory getResultCategory(String text) {
     Matcher matcher = MOVIE_PATTERN.matcher(text);
     if (matcher.matches()) {
@@ -342,34 +362,47 @@ public abstract class ImdbParser {
     Document doc = null;
 
     Url url;
-    String sub = "";
+
     boolean advancedSearch = false;
-    if (options.getMediaType() == MediaType.MOVIE) {
-      sub = CAT_MOVIES;
-      if (isIncludeShortResults() || isIncludeTvMovieResults()) {
-        advancedSearch = true;
-      }
+    // always use advSearch for TV, since we need to filter out tvMovies on TV scraping :/
+    if (options.getMediaType() == MediaType.TV_SHOW) {
+      advancedSearch = true;
     }
-    else if (options.getMediaType() == MediaType.TV_SHOW) {
-      sub = CAT_TVSHOWS;
+    if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
+      advancedSearch = true;
     }
+
     try {
       if (advancedSearch) {
-        // /search/title/?title=christmas&title_type=feature,tv_movie,tv_special,documentary,video_game,short
-        String cats = "&title_type=feature,documentary";
-        if (isIncludeShortResults()) {
-          cats += ",short";
+
+        // build advanced search queries per entity
+        String cats = "";
+        if (options.getMediaType() == MediaType.MOVIE) {
+          cats = "&title_type=feature,documentary";
+          if (isIncludeShortResults()) {
+            cats += ",short,tv_short"; // tv shorts are "short movies played solely on tv, mostly ads, but also dinnerForOne"
+          }
+          if (isIncludeTvMovieResults()) {
+            cats += ",tv_movie,tv_special";
+          }
+          if (isIncludeVideogameResults()) {
+            cats += ",video_game";
+          }
         }
-        if (isIncludeTvMovieResults()) {
-          cats += ",tv_movie,tv_special";
+        else if (options.getMediaType() == MediaType.TV_SHOW) {
+          cats = "&title_type=tv_series,tv_miniseries";
+          if (isIncludePodcastResults()) {
+            cats += ",podcast_series";
+          }
         }
-        if (isIncludeVideogameResults()) {
-          cats += ",video_game";
+
+        if (isIncludeAdultResults()) {
+          cats += "&adult=include";
         }
-        url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE, cats));
+        url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), cats));
       }
       else {
-        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE, sub));
+        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
       }
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }

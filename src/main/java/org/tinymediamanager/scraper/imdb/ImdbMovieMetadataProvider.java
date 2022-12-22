@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_ADULT;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_METACRITIC;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_PREMIERE_DATE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_SHORT;
@@ -62,10 +63,11 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
     MediaProviderInfo providerInfo = super.createMediaProviderInfo();
 
     // configure/load settings
-    providerInfo.getConfig().addBoolean(INCLUDE_TV_MOVIE, false); // only via advanced search
+    providerInfo.getConfig().addBoolean(INCLUDE_TV_MOVIE, false); // & TvSpecials; only via advanced search
     providerInfo.getConfig().addBoolean(INCLUDE_SHORT, false); // only via advanced search
-    // providerInfo.getConfig().addBoolean(INCLUDE_TV_SERIES, false); // what for?
     providerInfo.getConfig().addBoolean(INCLUDE_VIDEOGAME, false);
+    providerInfo.getConfig().addBoolean(INCLUDE_ADULT, false);
+
     providerInfo.getConfig().addBoolean(INCLUDE_METACRITIC, true);
     providerInfo.getConfig().addBoolean(USE_TMDB_FOR_MOVIES, false);
     providerInfo.getConfig().addBoolean(SCRAPE_COLLETION_INFO, false);
