@@ -1088,11 +1088,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       // 1) check if MF is already assigned to a movie within path
       for (Movie m : movies) {
-        if (m.getMediaFiles(MediaFileType.VIDEO).contains(mf)) {
-          // ok, our MF is already in an movie
-          LOGGER.debug("| found movie '{}' from MediaFile {}", m.getTitle(), mf);
-          movie = m;
-          break;
+        for (MediaFile mfile : m.getMediaFiles(MediaFileType.VIDEO)) {
+          if (mfile.equals(mfs) || mfile.getBasename().equalsIgnoreCase(mf.getBasename())) {
+            // ok, our MF is already in an movie
+            LOGGER.debug("| found movie '{}' from MediaFile {}", m.getTitle(), mf);
+            movie = m;
+          }
         }
         // NOPE - the cleaned filename might be found - but might be a different version!!
         // so only match strictly with filename above, not loose with clean name

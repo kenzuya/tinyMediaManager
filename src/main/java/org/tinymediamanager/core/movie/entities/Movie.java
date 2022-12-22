@@ -2353,10 +2353,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
     List<MediaFile> mfs = getMediaFiles(MediaFileType.VIDEO);
     if (mfs.size() > 1 && !isDisc()) {
       // ok, more video files means stacking (if not a disc folder)
-      this.setStacked(true);
+      // not always true - having a duplicated video with other extension - check explicitly
+      boolean stacked = false;
       for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
         mf.detectStackingInformation();
+        if (mf.getStacking() > 0) {
+          stacked = true;
+        }
       }
+      this.setStacked(stacked);
     }
     else {
       // only ONE video? remove any stacking markers from MFs
