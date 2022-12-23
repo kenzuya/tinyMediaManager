@@ -1,7 +1,7 @@
 Version 4.3.8
 =======================
 + added an option to specify update check interval/disable update check completely
-x adapt/fix IMDB scraper (check settings!)
+x adapt/fix IMDB scraper (check scraper settings!)
 x automatically close renamer preview if nothing needs to be renamed #1964
 x do not store filters if they are not active #1961
 x do not remove missing episodes with unset DVD S/E #1960
@@ -10,6 +10,7 @@ x (movie) reserve more space for the edition dropdown #1963
 x improve episode detection to find them also in optional [brackets]
 x (TV shows) fixed filtering for missing episode thumbs #1977
 x able to exchange movies with same name in case of MMD
+x fix parsing MediaSource on exchanged video files #1992
 
 
 Version 4.3.7

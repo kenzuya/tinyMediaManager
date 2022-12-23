@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.core;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
@@ -141,12 +143,29 @@ public class MediaSource extends DynaEnum<MediaSource> {
    */
   public static MediaSource parseMediaSource(String filename) {
     String fn = filename.toLowerCase(Locale.ROOT);
-
     MediaSource[] s = MediaSource.values();
     Arrays.sort(s, MediaSource.COMP_LENGTH);
-    for (MediaSource mediaSource : s) {
-      if (mediaSource.pattern != null && mediaSource.pattern.matcher(filename).find()) {
-        return mediaSource;
+
+    // convert to path, and start parsing from filename upto base directory
+    // better than before, but due to having our tokens around, /DVD/ and such won't work
+    try {
+      Path p = Paths.get(fn);
+      while (p.getNameCount() > 0) {
+        String name = p.getName(p.getNameCount() - 1).toString();
+        for (MediaSource mediaSource : s) {
+          if (mediaSource.pattern != null && mediaSource.pattern.matcher(name).find()) {
+            return mediaSource;
+          }
+        }
+        p = p.getParent();
+      }
+    }
+    catch (Exception e) {
+      // does not work? parse as string as before
+      for (MediaSource mediaSource : s) {
+        if (mediaSource.pattern != null && mediaSource.pattern.matcher(filename).find()) {
+          return mediaSource;
+        }
       }
     }
 
