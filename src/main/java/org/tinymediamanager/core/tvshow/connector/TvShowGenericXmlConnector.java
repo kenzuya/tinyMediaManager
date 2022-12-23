@@ -44,6 +44,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
@@ -540,43 +541,61 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       return;
     }
 
-    // create the new episodeguide format
-    // <episodeguide>
-    // <url post="yes"
-    // cache="auth.json">https://api.thetvdb.com/login?{&quot;apikey&quot;:&quot;439DFEBA9D3059C6&quot;,&quot;id&quot;:289574}|Content-Type=application/json</url>
-    // </episodeguide>
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteNewEpisodeguideStyle()) {
+      root.appendChild(createNewEpisodeGuide());
+    }
+    else {
+      // <episodeguide>
+      // <url post="yes"
+      // cache="auth.json">https://api.thetvdb.com/login?{&quot;apikey&quot;:&quot;439DFEBA9D3059C6&quot;,&quot;id&quot;:289574}|Content-Type=application/json</url>
+      // </episodeguide>
 
-    // prefer last scraper id
-    if (MediaMetadata.TVDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getTvdbId())) {
-      root.appendChild(createTvdbEpisodeGuide());
-    }
-    else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
-      root.appendChild(createTmdbEpisodeGuide());
-    }
-    // or existing IDs
-    else if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
-      root.appendChild(createTvdbEpisodeGuide());
-    }
-    else if (StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
-      root.appendChild(createTmdbEpisodeGuide());
-    }
-    // or even import it from the parser
-    else if (parser != null && StringUtils.isNotBlank(parser.episodeguide)) {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); // NOSONAR
-      try {
-        Element episodeguide = document.createElement("episodeguide");
-
-        // parse content of episodeguide into own elements
-        Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes(StandardCharsets.UTF_8)));
-        episodeguide.appendChild(document.importNode(unsupported.getFirstChild(), true));
-
-        // and append it
-        root.appendChild(episodeguide);
+      // prefer last scraper id
+      if (MediaMetadata.TVDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getTvdbId())) {
+        root.appendChild(createTvdbEpisodeGuide());
       }
-      catch (Exception e) {
-        LOGGER.warn("could not set episodeguide");
+      else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+        root.appendChild(createTmdbEpisodeGuide());
+      }
+      // or existing IDs
+      else if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
+        root.appendChild(createTvdbEpisodeGuide());
+      }
+      else if (StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+        root.appendChild(createTmdbEpisodeGuide());
+      }
+      // or even import it from the parser
+      else if (parser != null && StringUtils.isNotBlank(parser.episodeguide)) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); // NOSONAR
+        try {
+          Element episodeguide = document.createElement("episodeguide");
+
+          // parse content of episodeguide into own elements
+          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(parser.episodeguide.getBytes(StandardCharsets.UTF_8)));
+          episodeguide.appendChild(document.importNode(unsupported.getFirstChild(), true));
+
+          // and append it
+          root.appendChild(episodeguide);
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not set episodeguide");
+        }
       }
     }
+  }
+
+  private Element createNewEpisodeGuide() {
+    // create the new episodeguide style:
+    // <episodeguide>{"tvmaze": "428", "tvrage": "2610", "tvdb": "71035", "tmdb": "2426", "imdb": "tt0162065"}</episodeguide>
+    Element episodeguide = document.createElement("episodeguide");
+    try {
+      episodeguide.setTextContent(new ObjectMapper().writeValueAsString(tvShow.getIds()));
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not create episodeguide - '{}'", e.getMessage());
+    }
+
+    return episodeguide;
   }
 
   private Element createTvdbEpisodeGuide() {

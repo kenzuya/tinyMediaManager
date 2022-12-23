@@ -32,8 +32,12 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.DateField;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -43,9 +47,11 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
+import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -57,6 +63,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
+  private static final Logger                  LOGGER           = LoggerFactory.getLogger(TvShowScraperNfoSettingsPanel.class);
 
   private final TvShowSettings                 settings         = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
@@ -74,6 +81,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private JCheckBox                            chckbxEmbedAllActors;
   private JCheckBox                            chckbxFirstStudio;
   private JHintCheckBox                        chckbxLockdata;
+  private JCheckBox                            chckbxNewEpisodeguideFormat;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -105,7 +113,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     {
       JPanel panelNfo = new JPanel();
       // 16lp ~ width of the checkbox
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][][10lp!][][]"));
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][][][10lp!][][]"));
       JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#nfo-settings"));
@@ -165,23 +173,39 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         chckbxWriteEpisodeguide = new JCheckBox(TmmResourceBundle.getString("Settings.writeepisodeguide"));
         panelNfo.add(chckbxWriteEpisodeguide, "cell 1 9 2 1");
 
+        chckbxNewEpisodeguideFormat = new JCheckBox(TmmResourceBundle.getString("Settings.writeepisodeguide.newstyle"));
+        panelNfo.add(chckbxNewEpisodeguideFormat, "cell 2 10");
+
+        LinkLabel lblEpisodeGuideLink = new LinkLabel("https://forum.kodi.tv/showthread.php?tid=370489");
+        lblEpisodeGuideLink.addActionListener(arg0 -> {
+          try {
+            TmmUIHelper.browseUrl(lblEpisodeGuideLink.getText());
+          }
+          catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, lblEpisodeGuideLink.getText(), "message.erroropenurl",
+                new String[] { ":", e.getLocalizedMessage() }));//$NON-NLS-1$
+          }
+        });
+        panelNfo.add(lblEpisodeGuideLink, "cell 2 10");
+
         chckbxWriteDateEnded = new JCheckBox(TmmResourceBundle.getString("Settings.nfo.writeenddate"));
-        panelNfo.add(chckbxWriteDateEnded, "cell 1 10 2 1");
+        panelNfo.add(chckbxWriteDateEnded, "cell 1 11 2 1");
 
         chckbxEmbedAllActors = new JCheckBox(TmmResourceBundle.getString("Settings.nfo.includeallactors"));
-        panelNfo.add(chckbxEmbedAllActors, "cell 1 11 2 1");
+        panelNfo.add(chckbxEmbedAllActors, "cell 1 12 2 1");
 
         chckbxFirstStudio = new JCheckBox(TmmResourceBundle.getString("Settings.singlestudio"));
-        panelNfo.add(chckbxFirstStudio, "cell 1 12 2 1");
+        panelNfo.add(chckbxFirstStudio, "cell 1 13 2 1");
 
         chckbxWriteCleanNfo = new JCheckBox(TmmResourceBundle.getString("Settings.writecleannfo"));
-        panelNfo.add(chckbxWriteCleanNfo, "cell 1 14 2 1");
+        panelNfo.add(chckbxWriteCleanNfo, "cell 1 15 2 1");
       }
 
       chckbxLockdata = new JHintCheckBox(TmmResourceBundle.getString("Settings.lockdata"));
       chckbxLockdata.setToolTipText(TmmResourceBundle.getString("Settings.lockdata.hint"));
       chckbxLockdata.setHintIcon(IconManager.HINT);
-      panelNfo.add(chckbxLockdata, "cell 1 15 2 1");
+      panelNfo.add(chckbxLockdata, "cell 1 16 2 1");
     }
   }
 
@@ -309,5 +333,10 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8, chckbxLockdata,
         jCheckBoxBeanProperty);
     autoBinding_8.bind();
+    //
+    Property tvShowSettingsBeanProperty_9 = BeanProperty.create("nfoWriteNewEpisodeguideStyle");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_9,
+        chckbxNewEpisodeguideFormat, jCheckBoxBeanProperty);
+    autoBinding_9.bind();
   }
 }

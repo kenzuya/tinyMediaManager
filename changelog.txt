@@ -1,5 +1,6 @@
 Version 4.3.8
 =======================
++ added new <episodeguide> style for Kodi v19+ - https://forum.kodi.tv/showthread.php?tid=370489
 + added an option to specify update check interval/disable update check completely
 x adapt/fix IMDB scraper (check scraper settings!)
 x automatically close renamer preview if nothing needs to be renamed #1964
