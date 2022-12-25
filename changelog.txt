@@ -5,6 +5,8 @@ Version 5.0
   - Windows: Users home\AppData\Roaming
   - added an extra portable build for local storage
 + providing signed installers (Windows, macOS)
++ reworked some dialogs to a material design like input dialog
 + added subtitle format info to media files tab and filters #1709
 + fetch ratings: remember last used rating sources #1940
++ added some more movie editions per default #1987
 x better handling of image cache upon rename

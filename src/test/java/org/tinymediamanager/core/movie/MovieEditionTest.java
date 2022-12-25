@@ -1,12 +1,16 @@
 package org.tinymediamanager.core.movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tinymediamanager.core.movie.MovieEdition.COLLECTORS_EDITION;
 import static org.tinymediamanager.core.movie.MovieEdition.DIRECTORS_CUT;
 import static org.tinymediamanager.core.movie.MovieEdition.EXTENDED_EDITION;
+import static org.tinymediamanager.core.movie.MovieEdition.FINAL_CUT;
 import static org.tinymediamanager.core.movie.MovieEdition.IMAX;
 import static org.tinymediamanager.core.movie.MovieEdition.NONE;
+import static org.tinymediamanager.core.movie.MovieEdition.REMASTERED;
 import static org.tinymediamanager.core.movie.MovieEdition.SPECIAL_EDITION;
 import static org.tinymediamanager.core.movie.MovieEdition.THEATRICAL_EDITION;
+import static org.tinymediamanager.core.movie.MovieEdition.ULTIMATE_EDITION;
 import static org.tinymediamanager.core.movie.MovieEdition.UNCUT;
 import static org.tinymediamanager.core.movie.MovieEdition.UNRATED;
 
@@ -55,8 +59,24 @@ public class MovieEditionTest extends BasicMovieTest {
     assertThat(parse("The.Hunger.Games.Catching.Fire.2013.IMAX.720p.BluRay.H264.AAC-xxx")).isEqualTo(IMAX);
     assertThat(parse("Transformers Revenge Of The Fallen 2009 IMAX 1080p BluRay x264-abc")).isEqualTo(IMAX);
 
+    // REMASTERED
+    assertThat(parse("Halloween.2.Das.Grauen.Kehrt.Zurueck.1981.REMASTERED.GERMAN.DL.BDRIP.X264-WATCHABLE")).isEqualTo(REMASTERED);
+    assertThat(parse("Airplane.1980.MULTi.REMASTERED.COMPLETE.BLURAY-WDC")).isEqualTo(REMASTERED);
+    assertThat(parse("Audrey.Rose.1977.REMASTERED.COMPLETE.BLURAY-INCUBO")).isEqualTo(REMASTERED);
+
+    // COLLECTORS
+    assertThat(parse("Hammer Hart Too Fat Too Furious Collectors Edition iNTERNAL")).isEqualTo(COLLECTORS_EDITION);
+    assertThat(parse("Thunderbirds.Collectors.Edition.1966.MULTi.COMPLETE.BLURAY-SharpHD")).isEqualTo(COLLECTORS_EDITION);
+
+    // ULTIMATE
+    assertThat(parse("Watchmen.2009.Ultimate.Cut.TrueHD.AC3.MULTISUBS.1080p.BluRay.x264.HQ-TUSAHD")).isEqualTo(ULTIMATE_EDITION);
+
+    // FINAL
+    assertThat(parse("The.Wicker.Man.1973.Final.Cut.German.DL.1080p.BluRay.x264-SPiCY")).isEqualTo(FINAL_CUT);
+    assertThat(parse("Blade.Runner.The.Final.Cut.1982.BluRay.1080p")).isEqualTo(FINAL_CUT);
+
     // SPECIAL_EDITION
-    assertThat(parse("Blade.Runner.The.Final.Cut.1982.BluRay.1080p")).isEqualTo(SPECIAL_EDITION);
+    assertThat(parse("Close.Encounters.Of.The.Third.Kind.SPECIAL.EDITION.1977.iNTERNAL.1080p.BluRay.x264-EwDp")).isEqualTo(SPECIAL_EDITION);
 
     // NORMAL
     assertThat(parse("Boomerang.1992.Incl.Directors.Commentary.DVDRip.x264-xyz")).isEqualTo(NONE);
@@ -65,6 +85,8 @@ public class MovieEditionTest extends BasicMovieTest {
     assertThat(parse("Spies 1928 720p BluRay x264-hhh")).isEqualTo(NONE);
     assertThat(parse("Rodeo Girl 2016 DVDRip x264-yxc")).isEqualTo(NONE);
     assertThat(parse("Climax")).isEqualTo(NONE);
+    assertThat(parse("The.Ultimate.Weapon.1998.720p.BluRay.x264-GUACAMOLE")).isEqualTo(NONE);
+    assertThat(parse("Final.Cut.1988.VHSRIP.X264-WATCHABLE")).isEqualTo(NONE);
   }
 
   private MovieEdition parse(String name) {

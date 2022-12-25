@@ -46,8 +46,16 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   public static final MovieEdition              UNRATED            = new MovieEdition("UNRATED", 4, "Unrated", ".Unrated.(Cut|Edition|Version)?");
   public static final MovieEdition              UNCUT              = new MovieEdition("UNCUT", 5, "Uncut", ".Uncut.(Cut|Edition|Version)?");
   public static final MovieEdition              IMAX               = new MovieEdition("IMAX", 6, "IMAX", "^(IMAX|.*?.IMAX).(Cut|Edition|Version)?");
+  public static final MovieEdition              REMASTERED         = new MovieEdition("REMASTERED", 7, "Remastered",
+      ".Remastered.(Cut|Edition|Version)?");
+  public static final MovieEdition              COLLECTORS_EDITION = new MovieEdition("COLLECTORS_EDITION", 8, "Collectors Edition",
+      ".Collectors.(Cut|Edition|Version)");
+  public static final MovieEdition              ULTIMATE_EDITION   = new MovieEdition("ULTIMATE_EDITION", 9, "Ultimate Edition",
+      ".Ultimate.(Cut|Edition|Version)");
+  public static final MovieEdition              FINAL_CUT          = new MovieEdition("FINAL_CUT", 9, "Final Edition",
+      ".Final.(Cut|Edition|Version)");
   public static final MovieEdition              SPECIAL_EDITION    = new MovieEdition("SPECIAL_EDITION", 7, "Special Edition",
-      ".(Special|Remastered|Collectors|Ultimate|Final).(Cut|Edition|Version)");
+      ".Special.(Cut|Edition|Version)");
 
   private final String                          title;
   private final Pattern                         pattern;
