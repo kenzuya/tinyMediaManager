@@ -22,15 +22,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -46,10 +46,7 @@ public class UpdateCheck {
   private boolean             forceUpdate = false;
 
   public boolean isUpdateAvailable() {
-    return isUpdateAvailable(false);
-  }
-
-  public boolean isUpdateAvailable(boolean useCache) {
+    TmmProperties.getInstance().putProperty("lastUpdateCheck", Long.toString(new Date().getTime()));
     if (ReleaseInfo.isGitBuild()) {
       return false;
     }
@@ -80,13 +77,8 @@ public class UpdateCheck {
 
         LOGGER.trace("Checking {}", uu);
         try {
-          Url url;
-          if (useCache) {
-            url = new OnDiskCachedUrl(urlAsString, 12, TimeUnit.HOURS);
-          }
-          else {
-            url = new Url(urlAsString);
-          }
+          Url url = new Url(urlAsString);
+
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {
             remoteDigest = remoteDigest.trim();

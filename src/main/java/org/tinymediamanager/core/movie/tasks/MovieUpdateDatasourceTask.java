@@ -970,7 +970,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // if the new file has a source identifier in its filename, update the source too
-        MediaSource newSource = MediaSource.parseMediaSource(vid.getPath());
+        MediaSource newSource = MediaSource.parseMediaSource(vid.getFileAsPath().toString());
         if (newSource != MediaSource.UNKNOWN) {
           // source has been found in the filename - update
           movie.setMediaSource(newSource);
@@ -1088,11 +1088,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       // 1) check if MF is already assigned to a movie within path
       for (Movie m : movies) {
-        if (m.getMediaFiles(MediaFileType.VIDEO).contains(mf)) {
-          // ok, our MF is already in an movie
-          LOGGER.debug("| found movie '{}' from MediaFile {}", m.getTitle(), mf);
-          movie = m;
-          break;
+        for (MediaFile mfile : m.getMediaFiles(MediaFileType.VIDEO)) {
+          if (mfile.equals(mfs) || mfile.getBasename().equalsIgnoreCase(mf.getBasename())) {
+            // ok, our MF is already in an movie
+            LOGGER.debug("| found movie '{}' from MediaFile {}", m.getTitle(), mf);
+            movie = m;
+          }
         }
         // NOPE - the cleaned filename might be found - but might be a different version!!
         // so only match strictly with filename above, not loose with clean name
@@ -1161,7 +1162,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
       }
       if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-        movie.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+        movie.setMediaSource(MediaSource.parseMediaSource(mf.getFileAsPath().toString()));
       }
       LOGGER.debug("| parsing video file {}", mf.getFilename());
       movie.setMultiMovieDir(true);
@@ -1249,16 +1250,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (mf.getPath().toUpperCase(Locale.ROOT).contains("BDMV") || mf.getPath().toUpperCase(Locale.ROOT).contains("VIDEO_TS")
             || mf.getPath().toUpperCase(Locale.ROOT).contains("HVDVD_TS") || mf.isDiscFile()) {
           if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-            movie.setMediaSource(MediaSource.parseMediaSource(mf.getPath()));
+            String folderNameComplete = Paths.get(movie.getPath()).relativize(mf.getFileAsPath()).toString();
+            movie.setMediaSource(MediaSource.parseMediaSource(folderNameComplete));
           }
         }
         // try to parse the imdb id from the filename
         if (!MediaIdUtil.isValidImdbId(movie.getImdbId())) {
-          movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
+          movie.setImdbId(ParserUtils.detectImdbId(mf.getFilename()));
         }
         // try to parse the tmdb id from the filename
         if (movie.getTmdbId() == 0) {
-          movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
+          movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFilename()));
         }
 
         LOGGER.debug("| parsing {} {}", mf.getType().name(), mf.getFileAsPath());
@@ -1270,7 +1272,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             movie.addToMediaFiles(mf);
 
             if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-              movie.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
+              movie.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
             }
             break;
 

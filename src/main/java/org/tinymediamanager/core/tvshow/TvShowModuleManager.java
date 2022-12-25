@@ -342,7 +342,7 @@ public final class TvShowModuleManager implements ITmmModule {
 
     if (Settings.getInstance().isDeleteTrashOnExit()) {
       for (String ds : getSettings().getTvShowDataSource()) {
-        Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
+        Path file = Paths.get(ds, Constants.DS_TRASH_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
     }

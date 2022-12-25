@@ -161,6 +161,7 @@ public final class TvShowSettings extends AbstractSettings {
   DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
   MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
   boolean                                        nfoWriteEpisodeguide                   = true;
+  boolean                                        nfoWriteNewEpisodeguideStyle           = true;
   boolean                                        nfoWriteDateEnded                      = false;
   boolean                                        nfoWriteAllActors                      = false;
   boolean                                        nfoWriteSingleStudio                   = false;
@@ -1617,6 +1618,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.nfoWriteEpisodeguide;
     this.nfoWriteEpisodeguide = newValue;
     firePropertyChange("nfoWriteEpisodeguide", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteNewEpisodeguideStyle() {
+    return nfoWriteNewEpisodeguideStyle;
+  }
+
+  public void setNfoWriteNewEpisodeguideStyle(boolean newValue) {
+    boolean oldValue = this.nfoWriteNewEpisodeguideStyle;
+    this.nfoWriteNewEpisodeguideStyle = newValue;
+    firePropertyChange("nfoWriteNewEpisodeguideStyle", oldValue, newValue);
   }
 
   public boolean isNfoWriteDateEnded() {

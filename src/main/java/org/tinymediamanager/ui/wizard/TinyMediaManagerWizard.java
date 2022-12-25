@@ -29,6 +29,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -57,7 +58,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
   private JPanel             panelContent;
 
   public TinyMediaManagerWizard() {
-    super("tinyMediaManager Setup Wizard", "wizard");
+    super("tinyMediaManager Setup Wizard", "");
     setMinimumSize(new Dimension(800, 600));
 
     initComponents();
@@ -83,7 +84,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        Utils.deleteFileSafely(Paths.get("data", "tmm.json"));
+        Utils.deleteFileSafely(Paths.get(Globals.DATA_FOLDER, "tmm.json"));
         System.exit(0);
       }
     });
@@ -109,14 +110,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
       btnFinish = new JButton(new FinishAction());
       addButton(btnFinish);
     }
-  }
-
-  @Override
-  public void setVisible(boolean visible) {
-    if (!visible) {
-      TmmModuleManager.getInstance().saveSettings();
-    }
-    super.setVisible(visible);
   }
 
   JButton getBtnBack() {
@@ -182,6 +175,8 @@ public class TinyMediaManagerWizard extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      TmmModuleManager.getInstance().saveSettings();
+
       // fire events, that the wizard finished
       MovieModuleManager.getInstance().getSettings().firePropertyChange("wizard", false, true);
       TvShowModuleManager.getInstance().getSettings().firePropertyChange("wizard", false, true);

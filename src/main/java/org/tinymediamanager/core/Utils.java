@@ -1028,10 +1028,24 @@ public class Utils {
         return true;
       }
 
+      // create backup folder
+      try {
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER);
+        if (!Files.exists(backup)) {
+          Files.createDirectories(backup);
+        }
+        if (!Files.exists(backup.resolve(".nomedia"))) {
+          Files.createFile(backup.resolve(".nomedia"));
+        }
+      }
+      catch (Exception e) {
+        // ignore
+      }
+
       // backup
       try {
         // create path
-        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.BACKUP_FOLDER, ds.relativize(file).toString());
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(file).toString());
         if (!Files.exists(backup.getParent())) {
           Files.createDirectories(backup.getParent());
         }
@@ -1094,12 +1108,26 @@ public class Utils {
       return false;
     }
 
+    // create backup folder
+    try {
+      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER);
+      if (!Files.exists(backup)) {
+        Files.createDirectories(backup);
+      }
+      if (!Files.exists(backup.resolve(".nomedia"))) {
+        Files.createFile(backup.resolve(".nomedia"));
+      }
+    }
+    catch (Exception e) {
+      // ignore
+    }
+
     // backup
     try {
       Instant instant = Instant.now();
       long timeStampSeconds = instant.getEpochSecond();
       // create path
-      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.BACKUP_FOLDER, ds.relativize(folder).toString() + timeStampSeconds);
+      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(folder).toString() + timeStampSeconds);
       if (!Files.exists(backup.getParent())) {
         Files.createDirectories(backup.getParent());
       }

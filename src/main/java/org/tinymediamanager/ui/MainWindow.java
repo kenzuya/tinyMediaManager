@@ -47,10 +47,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
@@ -253,22 +253,7 @@ public class MainWindow extends JFrame {
     }
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
-      try {
-        // persist all stored properties
-        TmmProperties.getInstance().writeProperties();
-
-        // send shutdown signal
-        TmmTaskManager.getInstance().shutdown();
-        // save unsaved settings
-        TmmModuleManager.getInstance().saveSettings();
-        // hard kill
-        TmmTaskManager.getInstance().shutdownNow();
-        // close database connection
-        TmmModuleManager.getInstance().shutDown();
-      }
-      catch (Exception ex) {
-        LOGGER.warn("", ex);
-      }
+      TinyMediaManager.shutdown();
       dispose();
 
       // spawn our process

@@ -30,7 +30,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -41,6 +43,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.DateField;
@@ -84,6 +87,9 @@ class UiSettingsPanel extends JPanel {
   private JComboBox                  cbDatefield;
   private JCheckBox                  chckbxImageChooserLastFolder;
   private JCheckBox                  chckbxImageChooserEntityFolder;
+  private JSpinner                   spUpdateInterval;
+  private JCheckBox                  chckbxAutomaticUpdates;
+  private JLabel                     lblUpdateHint;
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
@@ -142,6 +148,7 @@ class UiSettingsPanel extends JPanel {
     cbFontFamily.addActionListener(actionListener);
     cbFontSize.addActionListener(actionListener);
     cbTheme.addActionListener(actionListener);
+    chckbxAutomaticUpdates.addActionListener(actionListener);
 
     Settings.getInstance().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
@@ -175,11 +182,15 @@ class UiSettingsPanel extends JPanel {
 
     chckbxImageChooserLastFolder.addActionListener(actionListener);
     chckbxImageChooserEntityFolder.addActionListener(actionListener);
+
+    if (!chckbxAutomaticUpdates.isSelected()) {
+      lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
+    }
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private void initComponents() {
-    setLayout(new MigLayout("hidemode 1", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("hidemode 1", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][][15lp!][][grow]"));
     {
       JPanel panelLanguage = new JPanel();
       panelLanguage.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
@@ -295,6 +306,33 @@ class UiSettingsPanel extends JPanel {
         panelMisc.add(chckbxShowMemory, "cell 1 8 2 1");
       }
     }
+    {
+      JPanel panelUpdate = new JPanel();
+      panelUpdate.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][]")); // 16lp ~ width of the
+
+      JLabel lblUpdateT = new TmmLabel(TmmResourceBundle.getString("Settings.update"), H3);
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUpdate, lblUpdateT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#update"));
+      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+
+      {
+        chckbxAutomaticUpdates = new JCheckBox(TmmResourceBundle.getString("Settings.updatecheck"));
+        panelUpdate.add(chckbxAutomaticUpdates, "cell 1 0 2 1");
+      }
+      {
+        JLabel lblUpdateInterval = new JLabel(TmmResourceBundle.getString("Settings.updatecheck.interval"));
+        panelUpdate.add(lblUpdateInterval, "flowx,cell 2 1");
+
+        spUpdateInterval = new JSpinner();
+        spUpdateInterval.setModel(new SpinnerNumberModel(1, 1, 30, 1));
+        panelUpdate.add(spUpdateInterval, "cell 2 1");
+      }
+      {
+        lblUpdateHint = new JLabel("");
+        TmmFontHelper.changeFont(lblUpdateHint, Font.BOLD);
+        panelUpdate.add(lblUpdateHint, "cell 1 2 2 1");
+      }
+    }
   }
 
   /**
@@ -341,6 +379,14 @@ class UiSettingsPanel extends JPanel {
 
     // image chooser folder
     settings.setImageChooserUseEntityFolder(chckbxImageChooserEntityFolder.isSelected());
+
+    // update
+    if (chckbxAutomaticUpdates.isSelected()) {
+      lblUpdateHint.setText("");
+    }
+    else {
+      lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
+    }
   }
 
   /**
@@ -392,21 +438,37 @@ class UiSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<Settings, Boolean> settingsBeanProperty = BeanProperty.create("storeWindowPreferences");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, chckbxStoreWindowPreferences, jCheckBoxBeanProperty);
+    Property settingsBeanProperty = BeanProperty.create("storeWindowPreferences");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxStoreWindowPreferences,
+        jCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<Settings, Boolean> settingsBeanProperty_1 = BeanProperty.create("showMemory");
-    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_1, chckbxShowMemory, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_1 = BeanProperty.create("showMemory");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, chckbxShowMemory,
+        jCheckBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<Settings, DateField> settingsBeanProperty_2 = BeanProperty.create("dateField");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<Settings, DateField, JComboBox, Object> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_2, cbDatefield, jComboBoxBeanProperty);
+    Property settingsBeanProperty_2 = BeanProperty.create("dateField");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2, cbDatefield,
+        jComboBoxBeanProperty);
     autoBinding_2.bind();
+    //
+    Property jSpinnerBeanProperty = BeanProperty.create("enabled");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxAutomaticUpdates, jCheckBoxBeanProperty, spUpdateInterval,
+        jSpinnerBeanProperty);
+    autoBinding_3.bind();
+    //
+    Property settingsBeanProperty_3 = BeanProperty.create("enableAutomaticUpdate");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_3, chckbxAutomaticUpdates,
+        jCheckBoxBeanProperty);
+    autoBinding_4.bind();
+    //
+    Property settingsBeanProperty_4 = BeanProperty.create("automaticUpdateInterval");
+    Property jSpinnerBeanProperty_1 = BeanProperty.create("value");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_4, spUpdateInterval,
+        jSpinnerBeanProperty_1);
+    autoBinding_5.bind();
   }
 }

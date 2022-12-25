@@ -19,6 +19,7 @@ package org.tinymediamanager;
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
@@ -48,6 +49,7 @@ import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -385,9 +387,6 @@ public final class TinyMediaManager {
     updateProgress("splash.movie", 30);
     TmmModuleManager.getInstance().startUp();
 
-    // register the shutdown handler
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> TmmModuleManager.getInstance().shutDown()));
-
     TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
     TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
 
@@ -492,7 +491,7 @@ public final class TinyMediaManager {
 
   /**
    * The main method.
-   * 
+   *
    * @param args
    *          the arguments
    */
@@ -537,6 +536,28 @@ public final class TinyMediaManager {
     TmmTaskManager.getInstance().shutdownNow();
     // close dabatbases
     TmmModuleManager.getInstance().shutDown();
+  }
+
+  /**
+   * make a clean shutdown
+   */
+  public static void shutdown() {
+    try {
+      // persist all stored properties
+      TmmProperties.getInstance().writeProperties();
+
+      // send shutdown signal
+      TmmTaskManager.getInstance().shutdown();
+      // save unsaved settings
+      TmmModuleManager.getInstance().saveSettings();
+      // hard kill
+      TmmTaskManager.getInstance().shutdownNow();
+      // close database connection
+      TmmModuleManager.getInstance().shutDown();
+    }
+    catch (Exception ex) {
+      LOGGER.warn("Problem in shutdown", ex);
+    }
   }
 
   public static void shutdownLogger() {

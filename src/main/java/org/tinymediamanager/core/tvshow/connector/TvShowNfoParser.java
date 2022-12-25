@@ -1381,7 +1381,14 @@ public class TvShowNfoParser {
 
     Element element = getSingleElement(root, "episodeguide");
     if (element != null) {
-      episodeguide = element.children().toString();
+      if (!element.children().isEmpty()) {
+        // old style
+        episodeguide = element.children().toString();
+      }
+      else {
+        // empty or new style
+        episodeguide = element.text();
+      }
     }
 
     return null;

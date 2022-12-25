@@ -67,6 +67,7 @@ tvshows.db
 launcher-extra.yml
 /native/addons/
 /native/*/addons/**
+/update/
 
 /src/test/resources/tmm_build_license
 /dependency-reduced-pom.xml

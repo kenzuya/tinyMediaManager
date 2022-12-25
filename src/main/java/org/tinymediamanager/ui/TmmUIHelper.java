@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -51,6 +52,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -676,12 +678,26 @@ public class TmmUIHelper {
     }
   }
 
+  public static boolean shouldCheckForUpdate() {
+    try {
+      // get the property for the last update check
+      String lastUpdateCheck = TmmProperties.getInstance().getProperty("lastUpdateCheck");
+
+      long old = Long.parseLong(lastUpdateCheck);
+      long now = new Date().getTime();
+
+      return now > old + (long) Settings.getInstance().getAutomaticUpdateInterval() * 1000 * 3600 * 24F;
+    }
+    catch (Exception ignored) {
+      return true;
+    }
+  }
+
   public static void checkForUpdate(int delayInSeconds) {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();
-        boolean useCache = delayInSeconds > 0; // use the cache on startup check
-        if (updateCheck.isUpdateAvailable(useCache)) {
+        if (updateCheck.isUpdateAvailable()) {
           LOGGER.info("update available");
 
           // we might need this somewhen...

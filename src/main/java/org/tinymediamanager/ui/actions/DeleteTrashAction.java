@@ -43,7 +43,7 @@ public class DeleteTrashAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
-      Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
+      Path file = Paths.get(ds, Constants.DS_TRASH_FOLDER);
       try {
         Utils.deleteDirectoryRecursive(file);
       }
@@ -53,7 +53,7 @@ public class DeleteTrashAction extends TmmAction {
     }
 
     for (String ds : TvShowModuleManager.getInstance().getSettings().getTvShowDataSource()) {
-      Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
+      Path file = Paths.get(ds, Constants.DS_TRASH_FOLDER);
       try {
         Utils.deleteDirectoryRecursive(file);
       }

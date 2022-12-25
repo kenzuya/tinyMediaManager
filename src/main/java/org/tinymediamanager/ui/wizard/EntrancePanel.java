@@ -18,9 +18,10 @@ package org.tinymediamanager.ui.wizard;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-import javax.swing.text.html.HTMLEditorKit;
 
+import org.jsoup.Jsoup;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.images.Logo;
 
@@ -40,17 +41,18 @@ class EntrancePanel extends JPanel {
    * init UI components
    */
   private void initComponents() {
-    setLayout(new MigLayout("", "[50lp:50lp,grow][][10lp][][50lp:50lp,grow]", "[20lp:20lp,grow][][20lp:20lp][][50lp:50lp,grow]"));
-
-    final JTextPane tpGreetingHeader = new ReadOnlyTextPane(TmmResourceBundle.getString("wizard.greeting.header"));
-    tpGreetingHeader.setEditorKit(new HTMLEditorKit());
-    add(tpGreetingHeader, "cell 0 1 5 1,alignx center");
+    setLayout(new MigLayout("", "[50lp:50lp,grow][][10lp][][50lp:50lp,grow]", "[grow][25lp!][][20lp:20lp][][50lp:50lp,grow]"));
 
     JLabel lblLogo = new JLabel("");
-    lblLogo.setIcon(new Logo(96));
-    add(lblLogo, "cell 1 3,alignx right,aligny top");
+    lblLogo.setIcon(new Logo(256));
+    add(lblLogo, "cell 3 0,alignx center,aligny bottom");
+
+    String greetingText = Jsoup.parse(TmmResourceBundle.getString("wizard.greeting.header")).text();
+    final JTextPane tpGreetingHeader = new ReadOnlyTextPane(greetingText);
+    TmmFontHelper.changeFont(tpGreetingHeader, TmmFontHelper.H1);
+    add(tpGreetingHeader, "cell 0 2 5 1,alignx center");
 
     JTextPane tpGreetingText = new ReadOnlyTextPane(TmmResourceBundle.getString("wizard.greeting.text"));
-    add(tpGreetingText, "cell 3 3,grow");
+    add(tpGreetingText, "cell 3 4,grow");
   }
 }
