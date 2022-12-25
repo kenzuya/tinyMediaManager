@@ -146,11 +146,19 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
           episode.setMetadata(metadata, config, overwrite);
           episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
           episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
+          episode.saveToDb();
+        }
+
+        if (cancel) {
+          return;
         }
 
         // scrape artwork if wanted
         if (ScraperMetadataConfig.containsAnyArtwork(config)) {
           List<MediaArtwork> artworks = getArtwork(episode, metadata, options);
+
+          // also add the thumb url from the metadata provider to the end (in case, the artwork provider does not fetch anything)
+          artworks.addAll(metadata.getMediaArt(MediaArtwork.MediaArtworkType.THUMB));
 
           // thumb
           if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
@@ -158,11 +166,15 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
             for (MediaArtwork art : artworks) {
               if (art.getType() == THUMB && StringUtils.isNotBlank(art.getDefaultUrl())) {
                 episode.setArtworkUrl(art.getDefaultUrl(), MediaFileType.THUMB);
-                episode.downloadArtwork(MediaFileType.THUMB);
+                episode.downloadArtwork(MediaFileType.THUMB, false);
                 break;
               }
             }
           }
+        }
+
+        if (cancel) {
+          return;
         }
       }
       catch (MissingIdException e) {
@@ -180,6 +192,10 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       catch (Exception e) {
         LOGGER.warn("could not scrape episode - unknown error", e);
       }
+    }
+
+    if (cancel) {
+      return;
     }
 
     if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
