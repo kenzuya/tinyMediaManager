@@ -22,8 +22,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
@@ -42,10 +42,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class LightBox {
-  private JPanel     backgroundPanel;
-  private JPanel     imagePanel;
-  private ImageLabel image;
-  private JFrame     frame;
+  private final JPanel     backgroundPanel;
+  private final JPanel     imagePanel;
+  private final ImageLabel image;
+  private final JFrame     frame;
 
   private LightBox(JFrame parent, String url, String path) {
     this.frame = parent;
@@ -89,23 +89,7 @@ public class LightBox {
 
     imagePanel.add(image, "cell 0 0,grow");
 
-    backgroundPanel.addMouseListener(new MouseListener() {
-      @Override
-      public void mouseReleased(MouseEvent e) {
-      }
-
-      @Override
-      public void mousePressed(MouseEvent e) {
-      }
-
-      @Override
-      public void mouseExited(MouseEvent e) {
-      }
-
-      @Override
-      public void mouseEntered(MouseEvent e) {
-      }
-
+    backgroundPanel.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         frame.getLayeredPane().remove(imagePanel);
@@ -120,7 +104,7 @@ public class LightBox {
     frame.getLayeredPane().add(backgroundPanel, JLayeredPane.PALETTE_LAYER);
     imagePanel.setLocation(((frame.getLayeredPane().getWidth() - imagePanel.getWidth()) / 2),
         (frame.getLayeredPane().getHeight() - imagePanel.getHeight()) / 2);
-    frame.getLayeredPane().add(imagePanel, JLayeredPane.POPUP_LAYER);
+    frame.getLayeredPane().add(imagePanel, JLayeredPane.MODAL_LAYER);
   }
 
   public static void showLightBox(JFrame frame, String path, String url) {

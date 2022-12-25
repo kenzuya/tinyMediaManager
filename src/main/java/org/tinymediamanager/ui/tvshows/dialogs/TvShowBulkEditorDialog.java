@@ -36,6 +36,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -58,10 +59,11 @@ import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
-import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
-import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.SubtitleEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.PersonEditorPanel;
+import org.tinymediamanager.ui.panels.RatingEditorPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -71,12 +73,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditorDialog extends TmmDialog {
-  private final TvShowList                tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowList                tvShowList      = TvShowModuleManager.getInstance().getTvShowList();
   private final Collection<TvShow>        tvShowsToEdit;
   private final Collection<TvShowEpisode> tvShowEpisodesToEdit;
 
-  private boolean                         episodesChanged  = false;
-  private boolean                         tvShowsChanged   = false;
+  private boolean                         episodesChanged = false;
+  private boolean                         tvShowsChanged  = false;
 
   /**
    * Instantiates a new movie batch editor.
@@ -276,18 +278,26 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           rating.maxValue = 10;
           rating.votes = 1;
 
-          RatingEditorDialog dialog = new RatingEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("rating.add"), rating);
-          dialog.setVisible(true);
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("rating.add"));
 
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShow tvShow : tvShowsToEdit) {
-            MediaRating mr = new MediaRating(rating.key);
-            mr.setVotes(rating.votes);
-            mr.setRating(rating.value);
-            mr.setMaxValue(rating.maxValue);
-            tvShow.setRating(mr);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          popupPanel.setOnCloseHandler(() -> {
+            if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+              setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+              for (TvShow tvShow : tvShowsToEdit) {
+                MediaRating mr = new MediaRating(rating.key);
+                mr.setVotes(rating.votes);
+                mr.setRating(rating.value);
+                mr.setMaxValue(rating.maxValue);
+                tvShow.setRating(mr);
+              }
+              setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+          });
+
+          RatingEditorPanel ratingEditorPanel = new RatingEditorPanel(rating);
+          popupPanel.setContent(ratingEditorPanel);
+          showModalPopupPanel(popupPanel);
         });
       }
     }
@@ -482,18 +492,32 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         btnAddActors.addActionListener(e -> {
           episodesChanged = true;
           // Open Person Dialog
-          Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
+          Person person = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
               TmmResourceBundle.getString("cast.role.unknown"));
-          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("cast.actor.add"), actor);
-          dialog.setVisible(true);
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
 
-            List<Person> actors = new ArrayList<>();
-            actors.add(new Person(actor)); // force copy constructor
-            episode.addToActors(actors);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("cast.actor.add"));
+
+          popupPanel.setOnCloseHandler(() -> {
+            if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
+              if (person.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+                person.setRole("");
+              }
+
+              setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+              for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+
+                List<Person> actors = new ArrayList<>();
+                actors.add(new Person(person)); // force copy constructor
+                episode.addToActors(actors);
+              }
+              setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+          });
+
+          PersonEditorPanel personEditorPanel = new PersonEditorPanel(person);
+          popupPanel.setContent(personEditorPanel);
+          showModalPopupPanel(popupPanel);
         });
 
       }
@@ -503,17 +527,31 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         btnAddDirectors.addActionListener(e -> {
           episodesChanged = true;
           // Open Director Dialog
-          Person director = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
-          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("cast.director.add"), director);
-          dialog.setVisible(true);
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+          Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
 
-            List<Person> directors = new ArrayList<>();
-            directors.add(new Person(director)); // force copy constructor
-            episode.addToDirectors(directors);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("cast.director.add"));
+
+          popupPanel.setOnCloseHandler(() -> {
+            if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("director.name.unknown"))) {
+              if (person.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
+                person.setRole("");
+              }
+
+              setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+              for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+
+                List<Person> directors = new ArrayList<>();
+                directors.add(new Person(person)); // force copy constructor
+                episode.addToDirectors(directors);
+              }
+              setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+          });
+
+          PersonEditorPanel personEditorPanel = new PersonEditorPanel(person);
+          popupPanel.setContent(personEditorPanel);
+          showModalPopupPanel(popupPanel);
         });
       }
 
@@ -526,18 +564,26 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           rating.maxValue = 10;
           rating.votes = 1;
 
-          RatingEditorDialog dialog = new RatingEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("rating.add"), rating);
-          dialog.setVisible(true);
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("rating.add"));
 
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            MediaRating mr = new MediaRating(rating.key);
-            mr.setVotes(rating.votes);
-            mr.setRating(rating.value);
-            mr.setMaxValue(rating.maxValue);
-            episode.setRating(mr);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          popupPanel.setOnCloseHandler(() -> {
+            if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+              setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+              for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+                MediaRating mr = new MediaRating(rating.key);
+                mr.setVotes(rating.votes);
+                mr.setRating(rating.value);
+                mr.setMaxValue(rating.maxValue);
+                episode.setRating(mr);
+              }
+              setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+          });
+
+          RatingEditorPanel ratingEditorPanel = new RatingEditorPanel(rating);
+          popupPanel.setContent(ratingEditorPanel);
+          showModalPopupPanel(popupPanel);
         });
       }
       {

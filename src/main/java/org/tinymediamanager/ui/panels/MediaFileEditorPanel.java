@@ -71,10 +71,16 @@ import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.MediaFileAudioStreamTable;
+import org.tinymediamanager.ui.components.MediaFileSubtitleTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -83,42 +89,47 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaFileEditorPanel extends JPanel {
-  private final BindingGroup               bindingGroup     = new BindingGroup();
+  private final BindingGroup                    bindingGroup  = new BindingGroup();
 
-  private TmmTask                          ardTask;
-  private List<MediaFileContainer>         mediaFiles;
-  private TmmTable                         tableMediaFiles;
-  private JLabel                           lblFilename;
-  private JTextField                       tfCodec;
-  private JTextField                       tfContainerFormat;
-  private JTextField                       tfWidth;
-  private JTextField                       tfHeight;
-  private TmmTable                         tableAudioStreams;
-  private TmmTable                         tableSubtitles;
-  private JButton                          btnAddAudioStream;
-  private JButton                          btnRemoveAudioStream;
-  private JButton                          btnAddSubtitle;
-  private JButton                          btnRemoveSubtitle;
-  private JComboBox<String>                cb3dFormat;
-  private JComboBox                        cbAspectRatio;
-  private JComboBox                        cbAspectRatio2;
-  private JSpinner                         spFrameRate;
-  private JTextField                       tfBitDepth;
-  private JTextField                       tfHdrFormat;
-  private JTextField                       tfVideoBitrate;
-  private JTextField                       tfRuntime;
-  private JButton                          btnARD;
+  private final List<MediaFileContainer>        mediaFiles;
+  private final TmmTable                        tableMediaFiles;
+  private final JLabel                          lblFilename;
+  private final JTextField                      tfCodec;
+  private final JTextField                      tfContainerFormat;
+  private final JTextField                      tfWidth;
+  private final JTextField                      tfHeight;
+  private final MediaFileAudioStreamTable       tableAudioStreams;
+  private final MediaFileSubtitleTable          tableSubtitles;
+  private final JButton                         btnAddAudioStream;
+  private final JButton                         btnRemoveAudioStream;
+  private final JButton                         btnAddSubtitle;
+  private final JButton                         btnRemoveSubtitle;
+  private final JComboBox<String>               cb3dFormat;
+  private final JComboBox                       cbAspectRatio;
+  private final JComboBox                       cbAspectRatio2;
+  private final JSpinner                        spFrameRate;
+  private final JTextField                      tfBitDepth;
+  private final JTextField                      tfHdrFormat;
+  private final JTextField                      tfVideoBitrate;
+  private final JTextField                      tfRuntime;
+  private final JButton                         btnARD;
 
-  private final List<AspectRatioContainer> aspectRatios     = new ArrayList<>();
-  private final List<AspectRatioContainer> aspectRatios2    = new ArrayList<>();
+  private final EventList<MediaFileAudioStream> audioStreams;
+  private final EventList<MediaFileSubtitle>    subtitles;
+  private final List<AspectRatioContainer>      aspectRatios  = new ArrayList<>();
+  private final List<AspectRatioContainer>      aspectRatios2 = new ArrayList<>();
+
+  private TmmTask                               ardTask;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
-
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
     for (MediaFile mediaFile : mediaFiles) {
       MediaFileContainer container = new MediaFileContainer(mediaFile);
       this.mediaFiles.add(container);
     }
+    audioStreams = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()),
+        GlazedLists.beanConnector(MediaFileAudioStream.class));
+    subtitles = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFileSubtitle.class));
 
     Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
 
@@ -263,7 +274,7 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
-          tableAudioStreams = new TmmTable();
+          tableAudioStreams = new MediaFileAudioStreamTable(audioStreams, true);
           tableAudioStreams.configureScrollPane(scrollPane);
         }
         {
@@ -273,7 +284,7 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 7 8 1,grow");
 
-          tableSubtitles = new TmmTable();
+          tableSubtitles = new MediaFileSubtitleTable(subtitles, true);
           tableSubtitles.configureScrollPane(scrollPane);
         }
         {
@@ -297,44 +308,54 @@ public class MediaFileEditorPanel extends JPanel {
 
     initDataBindings();
 
-    // select first
-    if (!this.mediaFiles.isEmpty()) {
-      tableMediaFiles.getSelectionModel().setSelectionInterval(0, 0);
-    }
-
     // add selection listener to disable editing when needed
     tableMediaFiles.getSelectionModel().addListSelectionListener(listener -> {
       if (!listener.getValueIsAdjusting()) {
         int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
         if (selectedRow > -1) {
-          MediaFile mf = MediaFileEditorPanel.this.mediaFiles.get(selectedRow).mediaFile;
+          MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
           // codec should not be enabled for NFOs
-          tfCodec.setEnabled(mf.getType() != NFO);
+          tfCodec.setEnabled(container.mediaFile.getType() != NFO);
           // audio streams and subtitles should not be enabled for anything except VIDEOS/TRAILER/SAMPLES
-          btnAddAudioStream.setEnabled(videoTypes.contains(mf.getType()));
-          btnRemoveAudioStream.setEnabled(videoTypes.contains(mf.getType()));
-          btnAddSubtitle.setEnabled(videoTypes.contains(mf.getType()));
-          btnRemoveSubtitle.setEnabled(videoTypes.contains(mf.getType()));
+          btnAddAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+          btnRemoveAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+          btnAddSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+          btnRemoveSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()));
           // 3D is only available for video types
-          cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
+          cb3dFormat.setEnabled(videoTypes.contains(container.mediaFile.getType()));
           // runtime is also only available for video types
-          tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
-          btnARD.setEnabled(videoTypes.contains(mf.getType()) && FFmpeg.isAvailable());
+          tfRuntime.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+          btnARD.setEnabled(videoTypes.contains(container.mediaFile.getType()) && FFmpeg.isAvailable());
+
+          audioStreams.clear();
+          audioStreams.addAll(container.getAudioStreams());
+
+          subtitles.clear();
+          subtitles.addAll(container.getSubtitles());
         }
       }
     });
 
-    // adjust columnn titles - we have to do it this way - thx to windowbuilder pro
-    tableAudioStreams.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("metatag.language"));
-    tableAudioStreams.getColumnModel().getColumn(1).setHeaderValue(TmmResourceBundle.getString("metatag.codec"));
-    tableAudioStreams.getColumnModel().getColumn(2).setHeaderValue(TmmResourceBundle.getString("metatag.channels"));
-    tableAudioStreams.getColumnModel().getColumn(3).setHeaderValue(TmmResourceBundle.getString("metatag.bitrate"));
-    tableAudioStreams.getColumnModel().getColumn(4).setHeaderValue(TmmResourceBundle.getString("metatag.title"));
+    // select first
+    if (!this.mediaFiles.isEmpty()) {
+      tableMediaFiles.getSelectionModel().setSelectionInterval(0, 0);
+    }
 
-    tableSubtitles.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("metatag.language"));
-    tableSubtitles.getColumnModel().getColumn(1).setHeaderValue(TmmResourceBundle.getString("metatag.forced"));
-    tableSubtitles.getColumnModel().getColumn(2).setHeaderValue(TmmResourceBundle.getString("metatag.sdh"));
-    tableSubtitles.getColumnModel().getColumn(3).setHeaderValue(TmmResourceBundle.getString("metatag.title"));
+    audioStreams.addListEventListener(listChanges -> {
+      int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
+      if (selectedRow > -1) {
+        MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
+        container.setAudioStreams(audioStreams);
+      }
+    });
+
+    subtitles.addListEventListener(listChanges -> {
+      int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
+      if (selectedRow > -1) {
+        MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
+        container.setSubtitles(subtitles);
+      }
+    });
   }
 
   private List<AspectRatioContainer> getAspectRatios() {
@@ -365,12 +386,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int mediaFileRow = tableMediaFiles.getSelectedRow();
-      if (mediaFileRow > -1) {
-        mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
-        MediaFileContainer mf = mediaFiles.get(mediaFileRow);
-        mf.addAudioStream();
-      }
+      tableAudioStreams.addAudioStream();
     }
   }
 
@@ -383,16 +399,8 @@ public class MediaFileEditorPanel extends JPanel {
     @Override
     public void actionPerformed(ActionEvent e) {
       int[] audioRows = convertSelectedRowsToModelRows(tableAudioStreams);
-      if (audioRows.length > 0) {
-        int mediaFileRow = tableMediaFiles.getSelectedRow();
-        if (mediaFileRow > -1) {
-          mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
-          MediaFileContainer mf = mediaFiles.get(mediaFileRow);
-
-          for (int row : audioRows) {
-            mf.removeAudioStream(row);
-          }
-        }
+      for (int index : audioRows) {
+        audioStreams.remove(index);
       }
     }
   }
@@ -405,12 +413,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int mediaFileRow = tableMediaFiles.getSelectedRow();
-      if (mediaFileRow > -1) {
-        mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
-        MediaFileContainer mf = mediaFiles.get(mediaFileRow);
-        mf.addSubtitle();
-      }
+      tableSubtitles.addSubtitle();
     }
   }
 
@@ -422,17 +425,9 @@ public class MediaFileEditorPanel extends JPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int[] subtitleRows = convertSelectedRowsToModelRows(tableSubtitles);
-      if (subtitleRows.length > 0) {
-        int mediaFileRow = tableMediaFiles.getSelectedRow();
-        if (mediaFileRow > -1) {
-          mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
-          MediaFileContainer mf = mediaFiles.get(mediaFileRow);
-
-          for (int row : subtitleRows) {
-            mf.removeSubtitle(row);
-          }
-        }
+      int[] audioRows = convertSelectedRowsToModelRows(tableAudioStreams);
+      for (int index : audioRows) {
+        subtitles.remove(index);
       }
     }
   }
@@ -502,27 +497,19 @@ public class MediaFileEditorPanel extends JPanel {
       return audioStreams;
     }
 
+    public void setAudioStreams(List<MediaFileAudioStream> audioStreams) {
+      this.audioStreams.clear();
+      this.audioStreams.addAll(audioStreams);
+      mediaFile.setAudioStreams(audioStreams);
+    }
+
     public List<MediaFileSubtitle> getSubtitles() {
       return subtitles;
     }
 
-    public void addAudioStream() {
-      audioStreams.add(new MediaFileAudioStream());
-      mediaFile.setAudioStreams(audioStreams);
-    }
-
-    public void removeAudioStream(int index) {
-      audioStreams.remove(index);
-      mediaFile.setAudioStreams(audioStreams);
-    }
-
-    public void addSubtitle() {
-      subtitles.add(new MediaFileSubtitle());
-      mediaFile.setSubtitles(subtitles);
-    }
-
-    public void removeSubtitle(int index) {
-      subtitles.remove(index);
+    public void setSubtitles(List<MediaFileSubtitle> subtitles) {
+      this.subtitles.clear();
+      this.subtitles.addAll(subtitles);
       mediaFile.setSubtitles(subtitles);
     }
   }
@@ -650,45 +637,6 @@ public class MediaFileEditorPanel extends JPanel {
         jTextFieldBeanProperty_5);
     autoBinding_6.bind();
     //
-    Property jTableBeanProperty_2 = BeanProperty.create("selectedElement.audioStreams");
-    JTableBinding jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_2,
-        tableAudioStreams);
-    //
-    Property mediaFileAudioStreamBeanProperty = BeanProperty.create("language");
-    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty).setColumnName("Language").setColumnClass(String.class);
-    //
-    Property mediaFileAudioStreamBeanProperty_1 = BeanProperty.create("codec");
-    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_1).setColumnName("Codec");
-    //
-    Property mediaFileAudioStreamBeanProperty_2 = BeanProperty.create("audioChannels");
-    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_2).setColumnName("Channels");
-    //
-    Property mediaFileAudioStreamBeanProperty_3 = BeanProperty.create("bitrate");
-    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_3).setColumnName("Bitrate").setColumnClass(Integer.class);
-    //
-    Property mediaFileAudioStreamBeanProperty_4 = BeanProperty.create("audioTitle");
-    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_4).setColumnName("Audio Title").setColumnClass(String.class);
-
-    jTableBinding_1.bind();
-    //
-    Property jTableBeanProperty_4 = BeanProperty.create("selectedElement.subtitles");
-    JTableBinding jTableBinding_2 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_4,
-        tableSubtitles);
-    //
-    Property mediaFileSubtitleBeanProperty = BeanProperty.create("language");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty).setColumnName("Language").setColumnClass(String.class);
-    //
-    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("forced");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Forced").setColumnClass(Boolean.class);
-    //
-    Property mediaFileSubtitleBeanProperty_2 = BeanProperty.create("sdh");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_2).setColumnName("Hearing Impaired").setColumnClass(Boolean.class);
-    //
-    Property mediaFileSubtitleBeanProperty_3 = BeanProperty.create("title");
-    jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_3).setColumnName("Title").setColumnClass(String.class);
-    //
-    jTableBinding_2.bind();
-    //
     Property jTableBeanProperty_7 = BeanProperty.create("selectedElement.mediaFile.video3DFormat");
     Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_7, cb3dFormat,
@@ -738,8 +686,6 @@ public class MediaFileEditorPanel extends JPanel {
     autoBinding_11.bind();
     //
     bindingGroup.addBinding(jTableBinding);
-    bindingGroup.addBinding(jTableBinding_1);
-    bindingGroup.addBinding(jTableBinding_2);
   }
 
   public void cancelTask() {

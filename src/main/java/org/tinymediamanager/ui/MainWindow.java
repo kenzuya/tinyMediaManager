@@ -34,6 +34,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLayer;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -61,6 +62,8 @@ import org.tinymediamanager.ui.dialogs.SettingsDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.StatusBarPanel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -73,14 +76,15 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MainWindow extends JFrame {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MainWindow.class);
-  public static final Image   LOGOS            = createLogos();
+public class MainWindow extends JFrame implements IModalPopupPanelProvider {
+  private static final Logger LOGGER     = LoggerFactory.getLogger(MainWindow.class);
+  public static final Image   LOGOS      = createLogos();
 
   private static MainWindow   instance;
 
   private JTabbedPane         tabbedPane;
   private JPanel              detailPanel;
+  private int                 popupIndex = JLayeredPane.MODAL_LAYER;
 
   /**
    * Gets the active instance.
@@ -282,5 +286,19 @@ public class MainWindow extends JFrame {
 
   public void createLightbox(String pathToFile, String urlToFile) {
     LightBox.showLightBox(instance, pathToFile, urlToFile);
+  }
+
+  @Override
+  public void showModalPopupPanel(ModalPopupPanel popupPanel) {
+    popupPanel.setBounds(getContentPane().getBounds());
+    getLayeredPane().add(popupPanel, popupIndex++, 0);
+  }
+
+  @Override
+  public void hideModalPopupPanel(ModalPopupPanel popupPanel) {
+    getLayeredPane().remove(popupPanel);
+    popupIndex--;
+    validate();
+    repaint();
   }
 }

@@ -17,6 +17,7 @@ package org.tinymediamanager.core.entities;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -26,17 +27,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class MediaFileAudioStream extends MediaStreamInfo {
   @JsonProperty
-  private int    audioChannels = 0;
+  private int audioChannels = 0;
   @JsonProperty
-  private int    bitrate       = 0;
+  private int bitrate       = 0;
   @JsonProperty
-  private String audioTitle    = "";
-  @JsonProperty
-  private int    bitDepth      = 0;
-
-  @JsonProperty
-  @Deprecated
-  public boolean defaultStream = false;
+  private int bitDepth      = 0;
 
   public MediaFileAudioStream() {
     // empty constructor for jackson
@@ -74,14 +69,6 @@ public class MediaFileAudioStream extends MediaStreamInfo {
     this.bitDepth = bitDepth;
   }
 
-  public void setAudioTitle(String audioTitle) {
-    this.audioTitle = audioTitle;
-  }
-
-  public String getAudioTitle() {
-    return audioTitle;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -96,11 +83,34 @@ public class MediaFileAudioStream extends MediaStreamInfo {
 
     MediaFileAudioStream that = (MediaFileAudioStream) o;
 
-    return audioChannels == that.audioChannels && bitrate == that.bitrate && defaultStream == that.defaultStream && audioTitle == that.audioTitle;
+    return audioChannels == that.audioChannels && bitrate == that.bitrate;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), audioChannels, bitrate, defaultStream, audioTitle);
+    return Objects.hash(super.hashCode(), audioChannels, bitrate);
+  }
+
+  /**
+   * used to migrate values to their new location
+   *
+   * @param property
+   *          the property/value name
+   * @param value
+   *          the value itself
+   */
+  @JsonAnySetter
+  public void setUnknownFields(String property, Object value) {
+    if (value == null) {
+      return;
+    }
+
+    // integer values
+    if (property.equals("audioTitle")) {
+      setTitle(value.toString());
+    }
+    else if (property.equals("defaultStream")) {
+      setDefaultStream(Boolean.parseBoolean(value.toString()));
+    }
   }
 }

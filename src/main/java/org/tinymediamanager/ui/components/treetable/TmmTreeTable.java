@@ -48,6 +48,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -632,7 +633,7 @@ public class TmmTreeTable extends TmmTable {
    *          the mouse event
    * @return the tooltip or null
    */
-  public String getToolTipText(MouseEvent e) {
+  public String getToolTipText(@NotNull MouseEvent e) {
     if (!(getModel() instanceof TmmTreeTableModel)) {
       return null;
     }

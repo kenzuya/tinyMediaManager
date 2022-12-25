@@ -57,12 +57,14 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The class {@link TvShowScraperSettingsPanel} is used to display NFO related settings.
+ * The class {@link TvShowScraperNfoSettingsPanel} is used to display NFO related settings.
  * 
  * @author Manuel Laggner
  */
 class TvShowScraperNfoSettingsPanel extends JPanel {
-  private final TvShowSettings                 settings         = TvShowModuleManager.getInstance().getSettings();
+  private static final Logger                  LOGGER   = LoggerFactory.getLogger(TvShowScraperNfoSettingsPanel.class);
+
+  private final TvShowSettings                 settings = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 

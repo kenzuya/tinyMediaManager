@@ -16,8 +16,11 @@
 package org.tinymediamanager.ui.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
@@ -27,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JSeparator;
@@ -38,6 +42,8 @@ import org.jdesktop.beansbinding.BindingGroup;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -46,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public abstract class TmmDialog extends JDialog {
+public abstract class TmmDialog extends JDialog implements IModalPopupPanelProvider {
   protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
   protected BindingGroup                bindingGroup = null;
@@ -54,6 +60,8 @@ public abstract class TmmDialog extends JDialog {
   protected JPanel                      topPanel     = null;
   protected JPanel                      bottomPanel  = null;
   protected JPanel                      buttonPanel  = null;
+
+  private int                           popupIndex   = JLayeredPane.MODAL_LAYER;
 
   /**
    * @wbp.parser.constructor
@@ -106,6 +114,19 @@ public abstract class TmmDialog extends JDialog {
     }
 
     initBottomPanel();
+
+    // always resize all popups too
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(ComponentEvent e) {
+        for (Component component : getLayeredPane().getComponents()) {
+          int layer = getLayeredPane().getLayer(component);
+          if (layer >= JLayeredPane.MODAL_LAYER) {
+            component.setBounds(getContentPane().getBounds());
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -223,7 +244,19 @@ public abstract class TmmDialog extends JDialog {
     Action actionListener = new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
-        setVisible(false);
+        // hide topmost modal panel or hide the dialog at all
+        if (popupIndex > JLayeredPane.MODAL_LAYER) {
+          Component[] components = getLayeredPane().getComponentsInLayer(popupIndex - 1);
+          for (Component component : components) {
+            if (component instanceof ModalPopupPanel popupPanel) {
+              hideModalPopupPanel(popupPanel);
+            }
+          }
+        }
+        else {
+          // no modal panel - hide the dialog
+          setVisible(false);
+        }
       }
     };
 
@@ -267,5 +300,19 @@ public abstract class TmmDialog extends JDialog {
         // just not crash
       }
     }
+  }
+
+  @Override
+  public void showModalPopupPanel(ModalPopupPanel popupPanel) {
+    popupPanel.setBounds(getContentPane().getBounds());
+    getLayeredPane().add(popupPanel, popupIndex++, 0);
+  }
+
+  @Override
+  public void hideModalPopupPanel(ModalPopupPanel popupPanel) {
+    getLayeredPane().remove(popupPanel);
+    popupIndex--;
+    validate();
+    repaint();
   }
 }

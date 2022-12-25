@@ -2157,7 +2157,7 @@ public class MediaFileHelper {
 
       // Title of audiostream
       String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Title");
-      stream.setAudioTitle(title);
+      stream.setTitle(title);
 
       audioStreams.add(stream);
     }
@@ -3076,7 +3076,7 @@ public class MediaFileHelper {
         audio.setLanguage(language);
       }
       if (StringUtils.isBlank(audio.getTitle())) {
-        audio.setAudioTitle(title);
+        audio.setTitle(title);
       }
       audio.set(flags);
     }

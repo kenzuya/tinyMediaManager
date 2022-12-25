@@ -63,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public abstract class MediaInformationPanel extends JPanel {
 
-  private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
+  private static final Logger               LOGGER = LoggerFactory.getLogger(MediaInformationPanel.class);
 
   protected EventList<MediaFile>            mediaFileEventList;
   protected EventList<AudioStreamContainer> audioStreamEventList;
@@ -226,13 +226,13 @@ public abstract class MediaInformationPanel extends JPanel {
     }
   }
 
-  abstract protected MediaEntity getMediaEntity();
+  protected abstract MediaEntity getMediaEntity();
 
-  abstract protected void fillVideoStreamDetails();
+  protected abstract void fillVideoStreamDetails();
 
-  abstract protected void buildAudioStreamDetails();
+  protected abstract void buildAudioStreamDetails();
 
-  abstract protected void buildSubtitleStreamDetails();
+  protected abstract void buildSubtitleStreamDetails();
 
   /*
    * helper classes
@@ -325,7 +325,7 @@ public abstract class MediaInformationPanel extends JPanel {
       /*
        * Audio title
        */
-      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.audioStream.getAudioTitle(), String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.audioStream.getTitle(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
     }

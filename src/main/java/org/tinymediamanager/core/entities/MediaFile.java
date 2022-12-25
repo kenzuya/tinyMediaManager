@@ -790,7 +790,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     List<String> audioTitleList = new ArrayList<>();
 
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
-      audioTitleList.add(stream.getAudioTitle());
+      audioTitleList.add(stream.getTitle());
     }
 
     return audioTitleList;

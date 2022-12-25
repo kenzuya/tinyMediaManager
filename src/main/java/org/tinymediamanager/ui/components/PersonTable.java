@@ -16,15 +16,10 @@
 
 package org.tinymediamanager.ui.components;
 
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,10 +30,13 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmEditorTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
-import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
+import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.PersonEditorPanel;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
@@ -48,8 +46,13 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  *
  * @author Manuel Laggner
  */
-public class PersonTable extends TmmTable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PersonTable.class);
+public class PersonTable extends TmmEditorTable {
+  private static final Logger     LOGGER    = LoggerFactory.getLogger(PersonTable.class);
+
+  private final EventList<Person> personEventList;
+
+  private String                  addTitle  = "";
+  private String                  editTitle = "";
 
   /**
    * create a PersonTable for display only
@@ -60,16 +63,222 @@ public class PersonTable extends TmmTable {
   public PersonTable(EventList<Person> personEventList) {
     super();
 
+    this.personEventList = personEventList;
+
     setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList), new PersonTableFormat()));
 
     adjustColumnPreferredWidths(3);
-    PersonTableButtonListener listener = new PersonTableButtonListener(this, personEventList, TmmResourceBundle.getString("cast.edit"));
-    addMouseListener(listener);
-    addMouseMotionListener(listener);
   }
 
   /**
-   * helper class for the table model
+   * Utility to get the right {@link Person} for the given row
+   * 
+   * @param row
+   *          the row number to get the {@link Person} for
+   * @return the {@link Person}
+   */
+  private Person getPerson(int row) {
+    int index = convertRowIndexToModel(row);
+    return personEventList.get(index);
+  }
+
+  @Override
+  protected void editButtonClicked(int row) {
+    IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(this);
+    if (iModalPopupPanelProvider == null) {
+      return;
+    }
+
+    Person person = getPerson(row);
+
+    ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+    popupPanel.setTitle(getEditTitle());
+    popupPanel.setOnCloseHandler(() -> onPersonChanged(person));
+
+    PersonEditorPanel personEditorPanel = new PersonEditorPanel(person);
+    popupPanel.setContent(personEditorPanel);
+    iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
+  }
+
+  private String getEditTitle() {
+    if (StringUtils.isNotBlank(editTitle)) {
+      return editTitle;
+    }
+    else {
+      return TmmResourceBundle.getString("cast.edit");
+    }
+  }
+
+  public void onPersonChanged(Person person) {
+    // to override
+  }
+
+  @Override
+  protected boolean isLinkCell(int row, int column) {
+    return isEditorColumn(column) || (isProfileColumn(column) && isProfileAvailable(row)) || (isImageColumn(column) && isImageAvailable(row));
+  }
+
+  /**
+   * check if this column is the profile column
+   *
+   * @param column
+   *          the column index
+   * @return true/false
+   */
+  private boolean isProfileColumn(int column) {
+    if (column < 0) {
+      return false;
+    }
+
+    return "profileUrl".equals(getColumnModel().getColumn(column).getIdentifier());
+  }
+
+  /**
+   * checks whether a profile url is available or not
+   * 
+   * @param row
+   *          the row to get the data for
+   * @return true if a profile url is available, false otherwise
+   */
+  private boolean isProfileAvailable(int row) {
+    return StringUtils.isNotBlank(getPerson(row).getProfileUrl());
+  }
+
+  /**
+   * check if this column is the image column
+   *
+   * @param column
+   *          the column index
+   * @return true/false
+   */
+  private boolean isImageColumn(int column) {
+    if (column < 0) {
+      return false;
+    }
+
+    return "imageUrl".equals(getColumnModel().getColumn(column).getIdentifier());
+  }
+
+  /**
+   * checks whether an image url is available or not
+   *
+   * @param row
+   *          the row to get the data for
+   * @return true if an image url is available, false otherwise
+   */
+  private boolean isImageAvailable(int row) {
+    return StringUtils.isNotBlank(getPerson(row).getThumbUrl());
+  }
+
+  @Override
+  protected void linkClicked(int row, int column) {
+    Person person = getPerson(row);
+
+    if (person != null) {
+      if (isProfileColumn(column) && StringUtils.isNotBlank(person.getProfileUrl())) {
+        try {
+          TmmUIHelper.browseUrl(person.getProfileUrl());
+        }
+        catch (Exception e1) {
+          LOGGER.error("Opening actor profile", e1);
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, person.getProfileUrl(), "message.erroropenurl",
+              new String[] { ":", e1.getLocalizedMessage() }));
+        }
+      }
+      else if (isImageColumn(column) && StringUtils.isNotBlank(person.getThumbUrl())) {
+        ImagePreviewDialog dialog = new ImagePreviewDialog(person.getThumbUrl());
+        dialog.setVisible(true);
+      }
+    }
+  }
+
+  public void setAddTitle(String addTitle) {
+    this.addTitle = addTitle;
+  }
+
+  private String getAddTitle() {
+    if (StringUtils.isNotBlank(addTitle)) {
+      return addTitle;
+    }
+    else {
+      return TmmResourceBundle.getString("cast.add");
+    }
+  }
+
+  public void setEditTitle(String editTitle) {
+    this.editTitle = editTitle;
+  }
+
+  /**
+   * get all selected {@link Person}s
+   * 
+   * @return a {@link List} of all selected {@link Person}s
+   */
+  public List<Person> getSelectedPersons() {
+    List<Person> selectedPersons = new ArrayList<>();
+    for (int i : getSelectedRows()) {
+      Person person = getPerson(i);
+      if (person != null) {
+        selectedPersons.add(person);
+      }
+
+    }
+    return selectedPersons;
+  }
+
+  public void addPerson(Person.Type personType) {
+    IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(this);
+    if (iModalPopupPanelProvider == null) {
+      return;
+    }
+
+    String defaultName;
+    String defaultRole;
+
+    switch (personType) {
+      case ACTOR -> {
+        defaultName = TmmResourceBundle.getString("cast.actor.unknown");
+        defaultRole = TmmResourceBundle.getString("cast.role.unknown");
+      }
+      case DIRECTOR -> {
+        defaultName = TmmResourceBundle.getString("director.name.unknown");
+        defaultRole = "Director";
+      }
+      case WRITER -> {
+        defaultName = TmmResourceBundle.getString("writer.name.unknown");
+        defaultRole = "Writer";
+      }
+      case PRODUCER -> {
+        defaultName = TmmResourceBundle.getString("producer.name.unknown");
+        defaultRole = TmmResourceBundle.getString("producer.role.unknown");
+      }
+      default -> {
+        defaultName = "";
+        defaultRole = "";
+      }
+    }
+
+    Person person = new Person(personType, defaultName, defaultRole);
+
+    ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+    popupPanel.setTitle(getAddTitle());
+
+    popupPanel.setOnCloseHandler(() -> {
+      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(defaultName)) {
+        if (person.getRole().equals(defaultRole)) {
+          person.setRole("");
+        }
+        personEventList.add(0, person);
+      }
+    });
+
+    PersonEditorPanel personEditorPanel = new PersonEditorPanel(person);
+    popupPanel.setContent(personEditorPanel);
+    iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
+  }
+
+  /**
+   * helper classes
    */
   private static class PersonTableFormat extends TmmTableFormat<Person> {
     private PersonTableFormat() {
@@ -120,165 +329,6 @@ public class PersonTable extends TmmTable {
       col.setColumnResizeable(false);
       col.setHeaderIcon(IconManager.EDIT_HEADER);
       addColumn(col);
-    }
-  }
-
-  public void onPersonChanged(Person person) {
-    // to override
-  }
-
-  /**
-   * helper class for listening to the edit button
-   */
-  private class PersonTableButtonListener implements MouseListener, MouseMotionListener {
-    private final JTable            personTable;
-    private final EventList<Person> personEventList;
-    private final String            windowTitle;
-
-    private PersonTableButtonListener(JTable personTable, EventList<Person> personEventList, String windowTitle) {
-      this.personTable = personTable;
-      this.personEventList = personEventList;
-      this.windowTitle = windowTitle;
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent arg0) {
-      int row = personTable.rowAtPoint(arg0.getPoint());
-      int col = personTable.columnAtPoint(arg0.getPoint());
-
-      if (isLinkColumn(row, col)) {
-        row = personTable.convertRowIndexToModel(row);
-        Person person = personEventList.get(row);
-
-        if (person != null) {
-          if (isEditorColumn(col)) {
-            PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(personTable), windowTitle, person);
-            dialog.setVisible(true);
-
-            if (dialog.isSavePressed()) {
-              onPersonChanged(person);
-            }
-          }
-          else if (isProfileColumn(row, col)) {
-            try {
-              TmmUIHelper.browseUrl(person.getProfileUrl());
-            }
-            catch (Exception e1) {
-              LOGGER.error("Opening actor profile", e1);
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, person.getProfileUrl(), "message.erroropenurl",
-                  new String[] { ":", e1.getLocalizedMessage() }));
-            }
-          }
-        }
-      }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-      JTable table = (JTable) e.getSource();
-
-      Point point = new Point(e.getX(), e.getY());
-      int row = table.rowAtPoint(point);
-      int col = table.columnAtPoint(point);
-
-      if (isLinkColumn(row, col)) {
-        table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      }
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-      JTable table = (JTable) e.getSource();
-
-      Point point = new Point(e.getX(), e.getY());
-      int row = table.rowAtPoint(point);
-      int col = table.columnAtPoint(point);
-
-      if (!isLinkColumn(row, col)) {
-        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-      }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-      JTable table = (JTable) e.getSource();
-
-      Point point = new Point(e.getX(), e.getY());
-      int row = table.rowAtPoint(point);
-      int col = table.columnAtPoint(point);
-
-      if (!isLinkColumn(row, col) && table.getCursor().getType() == Cursor.HAND_CURSOR) {
-        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-      }
-      if (isLinkColumn(row, col) && table.getCursor().getType() == Cursor.DEFAULT_CURSOR) {
-        table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-      // nothing to do
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-      // nothing to do
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent arg0) {
-      // nothing to do
-    }
-
-    /**
-     * check whether this column is the profile column
-     * 
-     * @param column
-     *          the column
-     * @return true/false
-     */
-    private boolean isLinkColumn(int row, int column) {
-      return isEditorColumn(column) || isProfileColumn(row, column);
-    }
-
-    /**
-     * check whether this column is the profile column
-     *
-     * @param row
-     *          the row index
-     * 
-     * @param column
-     *          the column index
-     * @return true/false
-     */
-    private boolean isProfileColumn(int row, int column) {
-      if (column < 0 || row < 0) {
-        return false;
-      }
-
-      if (!"profileUrl".equals(personTable.getColumnModel().getColumn(column).getIdentifier())) {
-        return false;
-      }
-
-      // check if that person has a profile url
-      row = personTable.convertRowIndexToModel(row);
-      Person person = personEventList.get(row);
-
-      return StringUtils.isNotBlank(person.getProfileUrl());
-    }
-
-    /**
-     * check whether this column is the edit column
-     *
-     * @param column
-     *          the column index
-     * @return true/false
-     */
-    private boolean isEditorColumn(int column) {
-      if (column < 0) {
-        return false;
-      }
-      return "edit".equals(personTable.getColumnModel().getColumn(column).getIdentifier());
     }
   }
 }

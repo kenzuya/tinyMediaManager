@@ -75,6 +75,7 @@ public class TmmSplashScreen extends JDialog {
 
       lblText = new JLabel(TmmResourceBundle.getString("splash.loading"));
       lblText.setForeground(FOREGROUND_COLOR);
+      TmmFontHelper.changeFont(lblText, TmmFontHelper.L2);
       panelSouth.add(lblText, "cell 0 1,growx , wmin 0");
 
       lblVersion = new JLabel("");

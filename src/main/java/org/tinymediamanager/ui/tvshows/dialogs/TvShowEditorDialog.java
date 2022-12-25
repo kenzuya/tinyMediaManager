@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
@@ -57,23 +56,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
-import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JListBinding;
-import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaAiredStatus;
@@ -108,6 +102,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaIdTable.MediaId;
 import org.tinymediamanager.ui.components.MediaRatingTable;
+import org.tinymediamanager.ui.components.MediaTrailerTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -119,11 +114,11 @@ import org.tinymediamanager.ui.components.datepicker.YearSpinner;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
-import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
-import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.IdEditorPanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.RatingEditorPanel;
 import org.tinymediamanager.ui.renderer.LeftDotTableCellRenderer;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -150,7 +145,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private final EventList<MediaRatingTable.Rating> ratings;
   private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<EpisodeEditorContainer>  episodes;
-  private final List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private final EventList<MediaTrailer>            trailers;
   private final int                                queueIndex;
   private final int                                queueSize;
 
@@ -164,7 +159,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private JTextField                               tfTitle;
   private YearSpinner                              spYear;
   private JTextArea                                taPlot;
-  private TmmTable                                 tableActors;
+  private PersonTable                              tableActors;
   private ImageLabel                               lblPoster;
   private ImageLabel                               lblFanart;
   private ImageLabel                               lblBanner;
@@ -208,7 +203,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private JTextField                               tfCharacterart;
   private JTextField                               tfKeyart;
 
-  private TmmTable                                 tableTrailer;
+  private MediaTrailerTable                        tableTrailer;
 
   /**
    * Instantiates a new tv show editor dialog.
@@ -235,6 +230,7 @@ public class TvShowEditorDialog extends TmmDialog {
     actors = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
     episodes = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()),
         GlazedLists.beanConnector(EpisodeEditorContainer.class));
+    trailers = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class));
 
     initComponents();
     bindingGroup = initDataBindings();
@@ -320,17 +316,6 @@ public class TvShowEditorDialog extends TmmDialog {
     // adjust table columns
     TableColumnResizer.adjustColumnPreferredWidths(tableActors, 6);
     TableColumnResizer.adjustColumnPreferredWidths(tableEpisodes, 6);
-
-    // adjust columnn titles - we have to do it this way - thx to windowbuilder pro
-    tableTrailer.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("metatag.nfo"));
-    tableTrailer.getColumnModel().getColumn(1).setHeaderValue(TmmResourceBundle.getString("metatag.name"));
-    tableTrailer.getColumnModel().getColumn(2).setHeaderValue(TmmResourceBundle.getString("metatag.source"));
-    tableTrailer.getColumnModel().getColumn(3).setHeaderValue(TmmResourceBundle.getString("metatag.quality"));
-    tableTrailer.getColumnModel().getColumn(4).setHeaderValue(TmmResourceBundle.getString("metatag.url"));
-
-    // adjust table columns
-    tableTrailer.getColumnModel().getColumn(0).setMaxWidth(55);
-    tableTrailer.adjustColumnPreferredWidths(5);
 
     // implement listener to simulate button group
     tableTrailer.getModel().addTableModelListener(arg0 -> {
@@ -580,6 +565,8 @@ public class TvShowEditorDialog extends TmmDialog {
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
 
         tableActors = new PersonTable(actors);
+        tableActors.setAddTitle(TmmResourceBundle.getString("cast.actor.add"));
+        tableActors.setEditTitle(TmmResourceBundle.getString("cast.actor.edit"));
 
         JScrollPane scrollPaneActors = new JScrollPane();
         tableActors.configureScrollPane(scrollPaneActors);
@@ -1064,8 +1051,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
         JScrollPane scrollPaneTrailer = new JScrollPane();
         trailerPanel.add(scrollPaneTrailer, "cell 1 0,grow");
-        tableTrailer = new TmmTable();
-        tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        tableTrailer = new MediaTrailerTable(trailers, true);
         tableTrailer.configureScrollPane(scrollPaneTrailer);
       }
     }
@@ -1087,7 +1073,7 @@ public class TvShowEditorDialog extends TmmDialog {
       addButton(cancelButton);
 
       JButton okButton = new JButton(new OKAction());
-      addDefaultButton(okButton);
+      addButton(okButton);
     }
   }
 
@@ -1346,13 +1332,18 @@ public class TvShowEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("rating.add"),
-          rating);
-      dialog.setVisible(true);
+      ModalPopupPanel popupPanel = createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("rating.add"));
 
-      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
-        ratings.add(rating);
-      }
+      popupPanel.setOnCloseHandler(() -> {
+        if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+          ratings.add(rating);
+        }
+      });
+
+      RatingEditorPanel ratingEditorPanel = new RatingEditorPanel(rating);
+      popupPanel.setContent(ratingEditorPanel);
+      showModalPopupPanel(popupPanel);
     }
   }
 
@@ -1380,17 +1371,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person actor = new Person(ACTOR, TmmResourceBundle.getString("cast.actor.unknown"), TmmResourceBundle.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("cast.actor.add"),
-          actor);
-      dialog.setVisible(true);
-
-      if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
-        if (actor.getRole().equals(TmmResourceBundle.getString("cast.role.unknown"))) {
-          actor.setRole("");
-        }
-        actors.add(0, actor);
-      }
+      tableActors.addPerson(Person.Type.ACTOR);
     }
   }
 
@@ -1402,11 +1383,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int row = tableActors.getSelectedRow();
-      if (row > -1) {
-        row = tableActors.convertRowIndexToModel(row);
-        actors.remove(row);
-      }
+      actors.removeAll(tableActors.getSelectedPersons());
     }
   }
 
@@ -1605,14 +1582,20 @@ public class TvShowEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaId mediaId = new MediaId();
-      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), TmmResourceBundle.getString("id.add"), mediaId,
-          ScraperType.TV_SHOW);
-      dialog.setVisible(true);
+      MediaIdTable.MediaId mediaId = new MediaIdTable.MediaId();
 
-      if (StringUtils.isNoneBlank(mediaId.key, mediaId.value)) {
-        ids.add(mediaId);
-      }
+      ModalPopupPanel popupPanel = createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("id.add"));
+
+      popupPanel.setOnCloseHandler(() -> {
+        if (StringUtils.isNoneBlank(mediaId.key, mediaId.value)) {
+          ids.add(mediaId);
+        }
+      });
+
+      IdEditorPanel idEditorPanel = new IdEditorPanel(mediaId, ScraperType.TVSHOW_ARTWORK);
+      popupPanel.setContent(idEditorPanel);
+      showModalPopupPanel(popupPanel);
     }
   }
 
@@ -1893,31 +1876,10 @@ public class TvShowEditorDialog extends TmmDialog {
     JListBinding<String, List<String>, JList> jListBinding_1 = SwingBindings.createJListBinding(UpdateStrategy.READ, tags, listTags);
     jListBinding_1.bind();
     //
-
-    JTableBinding<MediaTrailer, List<MediaTrailer>, JTable> jTableBinding_2 = SwingBindings.createJTableBinding(AutoBinding.UpdateStrategy.READ,
-        trailers, tableTrailer);
-    //
-    BeanProperty<MediaTrailer, Boolean> trailerBeanProperty = BeanProperty.create("inNfo");
-    jTableBinding_2.addColumnBinding(trailerBeanProperty).setColumnClass(Boolean.class);
-    //
-    BeanProperty<MediaTrailer, String> trailerBeanProperty_1 = BeanProperty.create("name");
-    jTableBinding_2.addColumnBinding(trailerBeanProperty_1);
-    //
-    BeanProperty<MediaTrailer, String> trailerBeanProperty_2 = BeanProperty.create("provider");
-    jTableBinding_2.addColumnBinding(trailerBeanProperty_2);
-    //
-    BeanProperty<MediaTrailer, String> trailerBeanProperty_3 = BeanProperty.create("quality");
-    jTableBinding_2.addColumnBinding(trailerBeanProperty_3);
-    //
-    BeanProperty<MediaTrailer, String> trailerBeanProperty_4 = BeanProperty.create("url");
-    jTableBinding_2.addColumnBinding(trailerBeanProperty_4);
-    //
-    jTableBinding_2.bind();
     BindingGroup bindingGroup = new BindingGroup();
     //
     bindingGroup.addBinding(jListBinding);
     bindingGroup.addBinding(jListBinding_1);
-    bindingGroup.addBinding(jTableBinding_2);
 
     return bindingGroup;
   }
@@ -1953,12 +1915,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaTrailer trailer = new MediaTrailer();
-      trailer.setName("unknown");
-      trailer.setProvider("unknown");
-      trailer.setQuality("unknown");
-      trailer.setUrl("http://");
-      trailers.add(0, trailer);
+      tableTrailer.addTrailer();
     }
   }
 

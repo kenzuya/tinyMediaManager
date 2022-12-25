@@ -19,7 +19,6 @@ package org.tinymediamanager;
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
-import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
@@ -179,6 +178,12 @@ public final class TinyMediaManager {
                   // startup
                   checkForUpdate(5);
                 }
+
+                // register the shutdown handler
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                  shutdown();
+                  shutdownLogger();
+                }));
 
                 // show changelog
                 if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
@@ -525,17 +530,6 @@ public final class TinyMediaManager {
     TinyMediaManager tinyMediaManager = new TinyMediaManager();
     tinyMediaManager.launch(args);
 
-  }
-
-  public static void shutdown() {
-    // send shutdown signal
-    TmmTaskManager.getInstance().shutdown();
-    // save unsaved settings
-    TmmModuleManager.getInstance().saveSettings();
-    // hard kill
-    TmmTaskManager.getInstance().shutdownNow();
-    // close dabatbases
-    TmmModuleManager.getInstance().shutDown();
   }
 
   /**

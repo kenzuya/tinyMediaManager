@@ -53,7 +53,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
@@ -111,12 +110,12 @@ import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.table.TmmTable;
-import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
-import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.RatingEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -174,9 +173,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
   private TmmTable                                 tableIds;
   private TmmTable                                 tableRatings;
-  private TmmTable                                 tableGuests;
-  private TmmTable                                 tableDirectors;
-  private TmmTable                                 tableWriters;
+  private PersonTable                              tableGuests;
+  private PersonTable                              tableDirectors;
+  private PersonTable                              tableWriters;
   private JTextField                               tfOriginalTitle;
   private JTextField                               tfThumb;
   private JTextArea                                taNote;
@@ -510,13 +509,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JScrollPane scrollPaneIds = new JScrollPane();
         details2Panel.add(scrollPaneIds, "cell 6 3,grow");
 
-        tableIds = new MediaIdTable(ids);
+        tableIds = new MediaIdTable(ids, ScraperType.TV_SHOW);
         tableIds.configureScrollPane(scrollPaneIds);
 
-        JButton btnAddId = new JButton(new AddIdAction());
+        JButton btnAddId = new SquareIconButton(new AddIdAction());
         details2Panel.add(btnAddId, "cell 5 3,alignx right,aligny top");
 
-        JButton btnRemoveId = new JButton(new RemoveIdAction());
+        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
         details2Panel.add(btnRemoveId, "cell 5 3,alignx right,aligny top");
       }
 
@@ -542,6 +541,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
         tableGuests = new PersonTable(guests);
+        tableGuests.setAddTitle(TmmResourceBundle.getString("cast.guest.add"));
+        tableGuests.setEditTitle(TmmResourceBundle.getString("cast.guest.edit"));
 
         JScrollPane scrollPane = new JScrollPane();
         tableGuests.configureScrollPane(scrollPane);
@@ -552,6 +553,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
         tableDirectors = new PersonTable(directors);
+        tableDirectors.setAddTitle(TmmResourceBundle.getString("cast.director.add"));
+        tableDirectors.setEditTitle(TmmResourceBundle.getString("cast.director.edit"));
 
         JScrollPane scrollPane = new JScrollPane();
         tableDirectors.configureScrollPane(scrollPane);
@@ -562,6 +565,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
         tableWriters = new PersonTable(writers);
+        tableWriters.setAddTitle(TmmResourceBundle.getString("cast.writer.add"));
+        tableWriters.setEditTitle(TmmResourceBundle.getString("cast.writer.edit"));
 
         JScrollPane scrollPane = new JScrollPane();
         tableWriters.configureScrollPane(scrollPane);
@@ -665,7 +670,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
       JButton okButton = new JButton(new ChangeEpisodeAction());
       okButton.addActionListener(e -> mediaFilesPanel.cancelTask());
-      addDefaultButton(okButton);
+      addButton(okButton);
     }
   }
 
@@ -1135,13 +1140,18 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"),
-          rating);
-      dialog.setVisible(true);
+      ModalPopupPanel popupPanel = createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("rating.add"));
 
-      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
-        ratings.add(rating);
-      }
+      popupPanel.setOnCloseHandler(() -> {
+        if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+          ratings.add(rating);
+        }
+      });
+
+      RatingEditorPanel ratingEditorPanel = new RatingEditorPanel(rating);
+      popupPanel.setContent(ratingEditorPanel);
+      showModalPopupPanel(popupPanel);
     }
   }
 
@@ -1174,16 +1184,15 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         return;
       }
 
-      // check, if text is selected (from auto completion), in this case we just
+      // check, if text is selected (from auto-completion), in this case we just
       // remove the selection
       Component editorComponent = cbTags.getEditor().getEditorComponent();
-      if (editorComponent instanceof JTextField) {
-        JTextField tf = (JTextField) editorComponent;
-        String selectedText = tf.getSelectedText();
+      if (editorComponent instanceof JTextField textField) {
+        String selectedText = textField.getSelectedText();
         if (selectedText != null) {
-          tf.setSelectionStart(0);
-          tf.setSelectionEnd(0);
-          tf.setCaretPosition(tf.getText().length());
+          textField.setSelectionStart(0);
+          textField.setSelectionEnd(0);
+          textField.setCaretPosition(textField.getText().length());
           return;
         }
       }
@@ -1267,13 +1276,19 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       MediaIdTable.MediaId mediaId = new MediaIdTable.MediaId();
-      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), TmmResourceBundle.getString("id.add"), mediaId,
-          ScraperType.TV_SHOW);
-      dialog.setVisible(true);
 
-      if (StringUtils.isNoneBlank(mediaId.key, mediaId.value)) {
-        ids.add(mediaId);
-      }
+      ModalPopupPanel popupPanel = createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("id.add"));
+
+      popupPanel.setOnCloseHandler(() -> {
+        if (StringUtils.isNoneBlank(mediaId.key, mediaId.value)) {
+          ids.add(mediaId);
+        }
+      });
+
+      IdEditorPanel idEditorPanel = new IdEditorPanel(mediaId, ScraperType.TV_SHOW);
+      popupPanel.setContent(idEditorPanel);
+      showModalPopupPanel(popupPanel);
     }
   }
 
@@ -1301,15 +1316,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
-          TmmResourceBundle.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableGuests), TmmResourceBundle.getString("cast.guest.add"),
-          actor);
-      dialog.setVisible(true);
-
-      if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
-        guests.add(0, actor);
-      }
+      tableGuests.addPerson(Person.Type.ACTOR);
     }
   }
 
@@ -1322,11 +1329,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int row = tableGuests.getSelectedRow();
-      if (row > -1) {
-        row = tableGuests.convertRowIndexToModel(row);
-        guests.remove(row);
-      }
+      guests.removeAll(tableGuests.getSelectedPersons());
     }
   }
 
@@ -1370,14 +1373,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors),
-          TmmResourceBundle.getString("cast.director.add"), person);
-      dialog.setVisible(true);
-
-      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("director.name.unknown"))) {
-        directors.add(0, person);
-      }
+      tableDirectors.addPerson(Person.Type.DIRECTOR);
     }
   }
 
@@ -1389,11 +1385,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int row = tableDirectors.getSelectedRow();
-      if (row > -1) {
-        row = tableDirectors.convertRowIndexToModel(row);
-        directors.remove(row);
-      }
+      directors.removeAll(tableDirectors.getSelectedPersons());
     }
   }
 
@@ -1437,14 +1429,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("writer.name.unknown"), "Writer");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters),
-          TmmResourceBundle.getString("cast.writer.add"), person);
-      dialog.setVisible(true);
-
-      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("writer.name.unknown"))) {
-        writers.add(0, person);
-      }
+      tableWriters.addPerson(Person.Type.WRITER);
     }
   }
 
@@ -1456,11 +1441,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int row = tableWriters.getSelectedRow();
-      if (row > -1) {
-        row = tableWriters.convertRowIndexToModel(row);
-        writers.remove(row);
-      }
+      writers.removeAll(tableWriters.getSelectedPersons());
     }
   }
 
