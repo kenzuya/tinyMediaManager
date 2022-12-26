@@ -42,6 +42,7 @@ import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.tree.TmmTree;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -147,6 +148,8 @@ public class SettingsDialog extends TmmDialog {
       getContentPane().add(contentPanel, BorderLayout.CENTER);
 
       JSplitPane splitPane = new JSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 0, grow");
 
       rightPanel = new JPanel();

@@ -45,6 +45,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
@@ -91,6 +92,8 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       panelContent.setLayout(new MigLayout("", "[950lp,grow]", "[600lp,grow]"));
       {
         JSplitPane splitPane = new JSplitPane();
+        splitPane.setName(getName() + ".splitPane");
+        TmmUILayoutStore.getInstance().install(splitPane);
         splitPane.setResizeWeight(0.3);
         panelContent.add(splitPane, "cell 0 0,grow");
         {
