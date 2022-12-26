@@ -13,6 +13,7 @@ x (TV shows) fixed filtering for missing episode thumbs #1977
 x able to exchange movies with same name in case of MMD
 x fix parsing MediaSource on exchanged video files #1992
 x remember all splitter locations #1966
+x (movie) enhanced detection of movie titles when parsing the data source
 
 
 Version 4.3.7

@@ -850,7 +850,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // get the "cleaner" name/year combo from
-      movie.setTitle(video[0]);
+      movie.setTitle(Utils.removeSortableName(video[0]));
       if (!video[1].isEmpty()) {
         try {
           movie.setYear(Integer.parseInt(video[1]));
@@ -864,7 +864,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (StringUtils.isNotBlank(bdmtTitle)) {
         video = ParserUtils.detectCleanTitleAndYear(bdmtTitle, MovieModuleManager.getInstance().getSettings().getBadWord());
         if (!video[0].isEmpty()) {
-          movie.setTitle(video[0]);
+          movie.setTitle(Utils.removeSortableName(video[0]));
         }
         if (!video[1].isEmpty()) {
           try {
@@ -884,7 +884,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
     else if (StringUtils.isBlank(movie.getTitle())) {
       // .45 for ex
-      movie.setTitle(videoName);
+      movie.setTitle(Utils.removeSortableName(videoName));
     }
 
     movie.setPath(movieDir.toAbsolutePath().toString());
