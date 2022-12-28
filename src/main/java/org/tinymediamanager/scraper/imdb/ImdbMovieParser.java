@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -110,8 +111,21 @@ public class ImdbMovieParser extends ImdbParser {
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
+    // worker for detail page
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
+    Future<Document> futureDetail = executor.submit(worker);
+    Document doc;
+    try {
+      doc = futureDetail.get();
+      parseDetailPageJson(doc, options, md);
+    }
+    catch (InterruptedException | ExecutionException e1) {
+      LOGGER.warn("Could not get detailpage for id {}", imdbId, e1.getMessage());
+    }
+
     // workers for imdb requests
-    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = executor.submit(worker);
 
@@ -146,7 +160,6 @@ public class ImdbMovieParser extends ImdbParser {
       futureTmdb = executor.submit(worker2);
     }
 
-    Document doc;
     try {
       doc = futureReference.get();
       if (doc != null) {

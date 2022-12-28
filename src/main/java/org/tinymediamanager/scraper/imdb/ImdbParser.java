@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -46,6 +47,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
@@ -60,11 +62,22 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
+import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
+import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
+import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
+import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
+import org.tinymediamanager.scraper.imdb.entities.SearchResult;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The abstract class ImdbParser holds all relevant parsing logic which can be used either by the movie parser and TV show parser
@@ -72,6 +85,8 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner
  */
 public abstract class ImdbParser {
+  private static final Logger         LOGGER                   = LoggerFactory.getLogger(ImdbParser.class);
+
   static final Pattern                IMDB_ID_PATTERN          = Pattern.compile("/title/(tt[0-9]{6,})/");
   static final Pattern                PERSON_ID_PATTERN        = Pattern.compile("/name/(nm[0-9]{6,})/");
   static final Pattern                MOVIE_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)$");
@@ -104,6 +119,7 @@ public abstract class ImdbParser {
   protected final MediaType           type;
   protected final MediaProviderConfig config;
   protected final ExecutorService     executor;
+  private ObjectMapper                mapper                   = new ObjectMapper();
 
   protected ImdbParser(IMediaProvider mediaProvider, MediaType type, ExecutorService executor) {
     this.metadataProvider = mediaProvider;
@@ -363,14 +379,17 @@ public abstract class ImdbParser {
 
     Url url;
 
+    // ***************************************
+    // ignore for now!
+    // ***************************************
     boolean advancedSearch = false;
     // always use advSearch for TV, since we need to filter out tvMovies on TV scraping :/
-    if (options.getMediaType() == MediaType.TV_SHOW) {
-      advancedSearch = true;
-    }
-    if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
-      advancedSearch = true;
-    }
+    // if (options.getMediaType() == MediaType.TV_SHOW) {
+    // advancedSearch = true;
+    // }
+    // if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
+    // advancedSearch = true;
+    // }
 
     try {
       if (advancedSearch) {
@@ -402,7 +421,7 @@ public abstract class ImdbParser {
         url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), cats));
       }
       else {
-        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
+        url = new InMemoryCachedUrl(constructUrl("find/?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
       }
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
@@ -426,6 +445,30 @@ public abstract class ImdbParser {
 
     if (doc == null) {
       return Collections.emptySortedSet();
+    }
+
+    // parse regular search result page
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      if (!json.isEmpty()) {
+        JsonNode node = mapper.readTree(json);
+        JsonNode resultsNode = node.at("/props/pageProps/titleResults/results");
+
+        for (SearchResult result : parseList(mapper, resultsNode, SearchResult.class)) {
+          MediaSearchResult sr = parseJsonSearchResults(result, options);
+          // only add wanted ones
+          if (sr != null && options.getMediaType().equals(result.getMediaType())) {
+            results.add(sr);
+          }
+          // only get 80 results
+          if (results.size() >= 80) {
+            break;
+          }
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.warn("Error parsing JSON:", e.getMessage());
     }
 
     // check if it was directly redirected to the site
@@ -500,7 +543,6 @@ public abstract class ImdbParser {
     }
 
     // parse results newer style
-    elements = doc.getElementsByClass("find-result-item");
     for (Element tr : elements) {
       MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
       if (sr != null) {
@@ -547,6 +589,37 @@ public abstract class ImdbParser {
     }
 
     return results;
+  }
+
+  private MediaSearchResult parseJsonSearchResults(SearchResult result, MediaSearchAndScrapeOptions options) {
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+
+    sr.setIMDBId(result.getId());
+    sr.setTitle(result.titleNameText);
+    String year = result.titleReleaseText;
+    if (!year.isEmpty()) {
+      if (year.length() == 4) {
+        sr.setYear(MetadataUtil.parseInt(year, 0));
+      }
+      else {
+        if (year.matches("\\d{4}[-]?.*")) {
+          sr.setYear(MetadataUtil.parseInt(year.substring(0, 4), 0));
+        }
+      }
+    }
+    if (result.titlePosterImageModel != null) {
+      sr.setPosterUrl(result.titlePosterImageModel.url);
+    }
+
+    if (sr.getIMDBId().equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+    return sr;
   }
 
   private MediaSearchResult parseAdvancedSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
@@ -817,6 +890,120 @@ public abstract class ImdbParser {
     }
 
     return languages.toString().toLowerCase(Locale.ROOT);
+  }
+
+  private static <E> E parseObject(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
+    JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
+    try {
+      return mapper.readValue(jsonParser, clazz);
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
+
+  private static <E> List<E> parseList(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
+    JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
+    try {
+      return mapper.readValue(jsonParser, listType(mapper, clazz));
+    }
+    catch (Exception e) {
+      return Collections.emptyList();
+    }
+  }
+
+  private static <E> JavaType listType(ObjectMapper mapper, Class<E> clazz) {
+    return mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+  }
+
+  protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+    String json = doc.getElementById("__NEXT_DATA__").data();
+    if (json != null) {
+      try {
+        JsonNode node = mapper.readTree(json);
+
+        // ***** TOP column *****
+
+        md.setTitle(node.at("/props/pageProps/aboveTheFoldData/titleText/text").asText());
+        md.setOriginalTitle(node.at("/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
+        md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
+
+        int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
+        int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
+        int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
+        Date date = new GregorianCalendar(y, m - 1, d).getTime();
+        md.setReleaseDate(date);
+
+        md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+
+        MediaRating rating = new MediaRating("imdb");
+        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating").floatValue());
+        rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
+        rating.setMaxValue(10);
+        if (rating.getRating() > 0) {
+          md.addRating(rating);
+        }
+        rating = new MediaRating("metacritic");
+        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
+        rating.setMaxValue(100);
+        if (rating.getRating() > 0) {
+          md.addRating(rating);
+        }
+
+        JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
+        for (ImdbGenre genre : parseList(mapper, genreNode, ImdbGenre.class)) {
+          md.addGenre(genre.toTmm());
+        }
+
+        JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
+        for (ImdbKeyword kw : parseList(mapper, keywordsNode, ImdbKeyword.class)) {
+          md.addTag(kw.node.text);
+        }
+
+        // primaryVideos for all trailers
+        JsonNode imageNode = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
+        ImdbImage img = parseObject(mapper, imageNode, ImdbImage.class);
+
+        // ***** MAIN column *****
+
+        JsonNode arr = node.at("/props/pageProps/mainColumnData/directors");
+        JsonNode crew = arr.get(0).get("credits");
+        for (JsonNode dir : crew) {
+          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
+          md.addCastMember(c.toTmm(Person.Type.DIRECTOR));
+        }
+
+        arr = node.at("/props/pageProps/mainColumnData/writers");
+        crew = arr.get(0).get("credits");
+        for (JsonNode dir : crew) {
+          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
+          md.addCastMember(c.toTmm(Person.Type.WRITER));
+        }
+
+        arr = node.at("/props/pageProps/mainColumnData/cast/edges");
+        crew = arr.get(0).get("credits");
+        for (JsonNode dir : crew) {
+          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
+          md.addCastMember(c.toTmm(Person.Type.DIRECTOR));
+        }
+
+        JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
+        for (ImdbIdTextType lang : parseList(mapper, spokenNode, ImdbIdTextType.class)) {
+          md.addSpokenLanguage(lang.text);
+        }
+
+        JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
+        for (JsonNode p : prods) {
+          md.addProductionCompany(p.at("/node/company/companyText/text").asText());
+        }
+
+        // is this a tvshow which has episodes?
+        boolean tvshow = node.at("/props/pageProps/mainColumnData/canHaveEpisodes").asBoolean();
+      }
+      catch (Exception e) {
+        // TODO: handle exception
+      }
+    }
   }
 
   protected void parseReferencePage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
