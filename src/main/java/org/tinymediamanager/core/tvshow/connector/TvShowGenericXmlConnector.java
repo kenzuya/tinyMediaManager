@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -589,7 +590,11 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     // <episodeguide>{"tvmaze": "428", "tvrage": "2610", "tvdb": "71035", "tmdb": "2426", "imdb": "tt0162065"}</episodeguide>
     Element episodeguide = document.createElement("episodeguide");
     try {
-      episodeguide.setTextContent(new ObjectMapper().writeValueAsString(tvShow.getIds()));
+      Map<String, String> ids = new LinkedHashMap<>();
+      for (var entry : tvShow.getIds().entrySet()) {
+        ids.put(entry.getKey(), String.valueOf(entry.getValue()));
+      }
+      episodeguide.setTextContent(new ObjectMapper().writeValueAsString(ids));
     }
     catch (Exception e) {
       LOGGER.warn("could not create episodeguide - '{}'", e.getMessage());
