@@ -3,6 +3,7 @@ package org.tinymediamanager.scraper.imdb.entities;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -25,7 +26,8 @@ public class ImdbCast {
     Person p = new Person(type);
     p.setId("imdb", name.id);
     p.setName(name.nameText.text);
-    p.setRole(characters.get(0).name); // FIXME
+    String chars = characters.stream().map(characters -> characters.name).collect(Collectors.joining(" / "));
+    p.setRole(chars);
     return p;
   }
 

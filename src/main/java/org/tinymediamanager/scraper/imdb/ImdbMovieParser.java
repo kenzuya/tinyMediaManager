@@ -116,41 +116,85 @@ public class ImdbMovieParser extends ImdbParser {
         options.getCertificationCountry().getAlpha2());
     Future<Document> futureDetail = executor.submit(worker);
     Document doc;
+    boolean json = false;
     try {
       doc = futureDetail.get();
-      parseDetailPageJson(doc, options, md);
+      json = parseDetailPageJson(doc, options, md);
     }
     catch (InterruptedException | ExecutionException e1) {
       LOGGER.warn("Could not get detailpage for id {}", imdbId, e1.getMessage());
     }
 
     // workers for imdb requests
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    Future<Document> futureReference = executor.submit(worker);
-
-    Future<Document> futurePlotsummary;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = executor.submit(worker);
-
-    Future<Document> futureReleaseinfo;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futureReleaseinfo = executor.submit(worker);
-
-    Future<Document> futureCritics = null;
-    if (Boolean.TRUE.equals(config.getValueAsBool("includeMetacritic"))) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
+    if (!json) {
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2());
-      futureCritics = executor.submit(worker);
-    }
+      Future<Document> futureReference = executor.submit(worker);
 
-    Future<Document> futureKeywords = null;
-    if (isScrapeKeywordsPage()) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+      Future<Document> futurePlotsummary;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2());
-      futureKeywords = executor.submit(worker);
+      futurePlotsummary = executor.submit(worker);
+
+      Future<Document> futureReleaseinfo;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
+      futureReleaseinfo = executor.submit(worker);
+
+      Future<Document> futureCritics = null;
+      if (Boolean.TRUE.equals(config.getValueAsBool("includeMetacritic"))) {
+        worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2());
+        futureCritics = executor.submit(worker);
+      }
+
+      Future<Document> futureKeywords = null;
+      if (isScrapeKeywordsPage()) {
+        worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2());
+        futureKeywords = executor.submit(worker);
+      }
+
+      try {
+        doc = futureReference.get();
+        if (doc != null) {
+          parseReferencePage(doc, options, md);
+        }
+
+        doc = futurePlotsummary.get();
+        if (doc != null) {
+          parsePlotsummaryPage(doc, options, md);
+        }
+
+        if (futureKeywords != null) {
+          doc = futureKeywords.get();
+          if (doc != null) {
+            parseKeywordsPage(doc, options, md);
+          }
+        }
+
+        // get the release info page
+        Document releaseinfoDoc = futureReleaseinfo.get();
+        // parse original title here!!
+        if (releaseinfoDoc != null) {
+          parseReleaseinfoPageAKAs(releaseinfoDoc, md);
+
+          // get the date from the releaseinfo page
+          parseReleaseinfoPage(releaseinfoDoc, options, md);
+        }
+
+        // get critics
+        if (futureCritics != null) {
+          Document criticsDoc = futureCritics.get();
+          if (criticsDoc != null) {
+            parseCritics(criticsDoc, md);
+          }
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("problem while scraping: {}", e.getMessage());
+        throw new ScrapeException(e);
+      }
     }
 
     // worker for tmdb request
@@ -158,50 +202,6 @@ public class ImdbMovieParser extends ImdbParser {
     if (isUseTmdbForMovies() || isScrapeCollectionInfo()) {
       Callable<MediaMetadata> worker2 = new TmdbMovieWorker(options);
       futureTmdb = executor.submit(worker2);
-    }
-
-    try {
-      doc = futureReference.get();
-      if (doc != null) {
-        parseReferencePage(doc, options, md);
-      }
-
-      doc = futurePlotsummary.get();
-      if (doc != null) {
-        parsePlotsummaryPage(doc, options, md);
-      }
-
-      if (futureKeywords != null) {
-        doc = futureKeywords.get();
-        if (doc != null) {
-          parseKeywordsPage(doc, options, md);
-        }
-      }
-
-      // get the release info page
-      Document releaseinfoDoc = futureReleaseinfo.get();
-      // parse original title here!!
-      if (releaseinfoDoc != null) {
-        parseReleaseinfoPageAKAs(releaseinfoDoc, md);
-
-        // get the date from the releaseinfo page
-        parseReleaseinfoPage(releaseinfoDoc, options, md);
-      }
-
-      // get critics
-      if (futureCritics != null) {
-        Document criticsDoc = futureCritics.get();
-        if (criticsDoc != null) {
-          parseCritics(criticsDoc, md);
-        }
-      }
-
-      // if everything worked so far, we can set the given id
-      md.setId(ImdbMetadataProvider.ID, imdbId);
-    }
-    catch (Exception e) {
-      LOGGER.error("problem while scraping: {}", e.getMessage());
-      throw new ScrapeException(e);
     }
 
     if (md.getIds().isEmpty()) {

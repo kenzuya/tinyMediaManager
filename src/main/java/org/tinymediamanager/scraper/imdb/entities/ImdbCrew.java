@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ImdbCrew {
 
-  public String               id                   = "";
   public ImdbName             name                 = null;
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -22,7 +21,7 @@ public class ImdbCrew {
       return null;
     }
     Person p = new Person(type);
-    p.setId("imdb", id);
+    p.setId("imdb", name.id);
     p.setName(name.nameText.text);
     return p;
   }

@@ -62,6 +62,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
 import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
@@ -70,12 +71,11 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.SearchResult;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -119,7 +119,7 @@ public abstract class ImdbParser {
   protected final MediaType           type;
   protected final MediaProviderConfig config;
   protected final ExecutorService     executor;
-  private ObjectMapper                mapper                   = new ObjectMapper();
+  private ObjectMapper                mapper                   = new ObjectMapper();;
 
   protected ImdbParser(IMediaProvider mediaProvider, MediaType type, ExecutorService executor) {
     this.metadataProvider = mediaProvider;
@@ -247,6 +247,15 @@ public abstract class ImdbParser {
    */
   protected boolean isScrapeKeywordsPage() {
     return config.getValueAsBool(SCRAPE_KEYWORDS_PAGE, false);
+  }
+
+  /**
+   * should we scrape Metacritic ratings
+   *
+   * @return true/false
+   */
+  protected boolean isScrapeMetacriticRatings() {
+    return config.getValueAsBool(INCLUDE_METACRITIC, false);
   }
 
   /**
@@ -454,16 +463,16 @@ public abstract class ImdbParser {
         JsonNode node = mapper.readTree(json);
         JsonNode resultsNode = node.at("/props/pageProps/titleResults/results");
 
-        for (SearchResult result : parseList(mapper, resultsNode, SearchResult.class)) {
+        for (SearchResult result : ImdbJsonHelper.parseList(mapper, resultsNode, SearchResult.class)) {
           MediaSearchResult sr = parseJsonSearchResults(result, options);
           // only add wanted ones
           if (sr != null && options.getMediaType().equals(result.getMediaType())) {
             results.add(sr);
           }
-          // only get 80 results
-          if (results.size() >= 80) {
-            break;
-          }
+        }
+
+        if (results.size() > 0) {
+          return results; // we found something
         }
       }
     }
@@ -471,78 +480,8 @@ public abstract class ImdbParser {
       LOGGER.warn("Error parsing JSON:", e.getMessage());
     }
 
-    // check if it was directly redirected to the site
-    // TODO: does this still happen? when? cannot reproduce anylonger with new search
-    Elements elements = doc.getElementsByAttributeValue("rel", "canonical");
-    for (Element element : elements) {
-      MediaMetadata md = null;
-      // we have been redirected to the movie site
-      String movieName = null;
-      String movieId = null;
-
-      String href = element.attr("href");
-      Matcher matcher = IMDB_ID_PATTERN.matcher(href);
-      while (matcher.find()) {
-        if (matcher.group(1) != null) {
-          movieId = matcher.group(1);
-        }
-      }
-
-      // get full information
-      if (!StringUtils.isEmpty(movieId)) {
-        try {
-          md = getMetadata(options);
-          if (!StringUtils.isEmpty(md.getTitle())) {
-            movieName = md.getTitle();
-          }
-        }
-        catch (Exception e) {
-          getLogger().trace("could not get (sub)metadata: {}", e.getMessage());
-        }
-      }
-
-      // if a movie name/id was found - return it
-      if (StringUtils.isNotEmpty(movieName) && StringUtils.isNotEmpty(movieId)) {
-        MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
-        sr.setTitle(movieName);
-        sr.setIMDBId(movieId);
-        sr.setYear(md.getYear());
-        sr.setMetadata(md);
-        sr.setScore(1);
-
-        // and parse out the poster
-        String posterUrl = "";
-        Elements posters = doc.getElementsByClass("ipc-poster");
-        if (posters != null && !posters.isEmpty()) {
-          Elements imgs = posters.get(0).getElementsByTag("img");
-          for (Element img : imgs) {
-            posterUrl = img.attr("src");
-            int fileStart = posterUrl.lastIndexOf('/');
-            if (fileStart > 0) {
-              int parameterStart = posterUrl.indexOf('_', fileStart);
-              if (parameterStart > 0) {
-                int startOfExtension = posterUrl.lastIndexOf('.');
-                if (startOfExtension > parameterStart) {
-                  posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
-                }
-              }
-            }
-
-            // and resize to the default preview size
-            String extension = FilenameUtils.getExtension(posterUrl);
-            posterUrl = posterUrl.replace("." + extension, "_UX342." + extension);
-          }
-        }
-        if (StringUtils.isNotBlank(posterUrl)) {
-          sr.setPosterUrl(posterUrl);
-        }
-
-        results.add(sr);
-        return results;
-      }
-    }
-
     // parse results newer style
+    Elements elements = doc.getElementsByClass("ipc-metadata-list-summary-item");
     for (Element tr : elements) {
       MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
       if (sr != null) {
@@ -555,7 +494,7 @@ public abstract class ImdbParser {
     }
 
     // parse results old style
-    if (elements == null || elements.isEmpty()) {
+    if (elements.isEmpty()) {
       elements = doc.getElementsByClass("findResult");
       for (Element tr : elements) {
         // we only want the tr's
@@ -574,7 +513,7 @@ public abstract class ImdbParser {
     }
 
     // parse results advanced search
-    if (elements == null || elements.isEmpty()) {
+    if (elements.isEmpty()) {
       elements = doc.getElementsByClass("lister-item");
       for (Element tr : elements) {
         MediaSearchResult sr = parseAdvancedSearchResults(tr, options);
@@ -892,31 +831,7 @@ public abstract class ImdbParser {
     return languages.toString().toLowerCase(Locale.ROOT);
   }
 
-  private static <E> E parseObject(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
-    JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
-    try {
-      return mapper.readValue(jsonParser, clazz);
-    }
-    catch (Exception e) {
-      return null;
-    }
-  }
-
-  private static <E> List<E> parseList(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
-    JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
-    try {
-      return mapper.readValue(jsonParser, listType(mapper, clazz));
-    }
-    catch (Exception e) {
-      return Collections.emptyList();
-    }
-  }
-
-  private static <E> JavaType listType(ObjectMapper mapper, Class<E> clazz) {
-    return mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-  }
-
-  protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+  protected boolean parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
     String json = doc.getElementById("__NEXT_DATA__").data();
     if (json != null) {
       try {
@@ -943,52 +858,55 @@ public abstract class ImdbParser {
         if (rating.getRating() > 0) {
           md.addRating(rating);
         }
-        rating = new MediaRating("metacritic");
-        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
-        rating.setMaxValue(100);
-        if (rating.getRating() > 0) {
-          md.addRating(rating);
+        if (isScrapeMetacriticRatings()) {
+          rating = new MediaRating("metacritic");
+          rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
+          rating.setMaxValue(100);
+          if (rating.getRating() > 0) {
+            md.addRating(rating);
+          }
         }
 
         JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
-        for (ImdbGenre genre : parseList(mapper, genreNode, ImdbGenre.class)) {
+        for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
           md.addGenre(genre.toTmm());
         }
 
-        JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
-        for (ImdbKeyword kw : parseList(mapper, keywordsNode, ImdbKeyword.class)) {
-          md.addTag(kw.node.text);
+        if (isScrapeKeywordsPage()) {
+          JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
+          for (ImdbKeyword kw : ImdbJsonHelper.parseList(mapper, keywordsNode, ImdbKeyword.class)) {
+            md.addTag(kw.node.text);
+          }
         }
 
         // primaryVideos for all trailers
         JsonNode imageNode = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
-        ImdbImage img = parseObject(mapper, imageNode, ImdbImage.class);
-
+        ImdbImage img = ImdbJsonHelper.parseObject(mapper, imageNode, ImdbImage.class);
+        // add poster MA
         // ***** MAIN column *****
 
         JsonNode arr = node.at("/props/pageProps/mainColumnData/directors");
         JsonNode crew = arr.get(0).get("credits");
-        for (JsonNode dir : crew) {
-          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
+        for (JsonNode dir : ListUtils.nullSafe(crew)) {
+          ImdbCrew c = ImdbJsonHelper.parseObject(mapper, dir, ImdbCrew.class);
           md.addCastMember(c.toTmm(Person.Type.DIRECTOR));
         }
 
         arr = node.at("/props/pageProps/mainColumnData/writers");
         crew = arr.get(0).get("credits");
-        for (JsonNode dir : crew) {
-          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
+        for (JsonNode dir : ListUtils.nullSafe(crew)) {
+          ImdbCrew c = ImdbJsonHelper.parseObject(mapper, dir, ImdbCrew.class);
           md.addCastMember(c.toTmm(Person.Type.WRITER));
         }
 
         arr = node.at("/props/pageProps/mainColumnData/cast/edges");
-        crew = arr.get(0).get("credits");
-        for (JsonNode dir : crew) {
-          ImdbCrew c = parseObject(mapper, dir, ImdbCrew.class);
-          md.addCastMember(c.toTmm(Person.Type.DIRECTOR));
+        for (JsonNode actors : ListUtils.nullSafe(arr)) {
+          ImdbCast c = ImdbJsonHelper.parseObject(mapper, actors.get("node"), ImdbCast.class);
+          md.addCastMember(c.toTmm(Person.Type.ACTOR));
         }
 
         JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
-        for (ImdbIdTextType lang : parseList(mapper, spokenNode, ImdbIdTextType.class)) {
+        for (ImdbIdTextType lang : ImdbJsonHelper.parseList(mapper, spokenNode, ImdbIdTextType.class)) {
           md.addSpokenLanguage(lang.text);
         }
 
@@ -999,11 +917,17 @@ public abstract class ImdbParser {
 
         // is this a tvshow which has episodes?
         boolean tvshow = node.at("/props/pageProps/mainColumnData/canHaveEpisodes").asBoolean();
+
+        // all good :)
+        return true;
       }
       catch (Exception e) {
-        // TODO: handle exception
+        LOGGER.warn("Error parsing JSON: {}", e.getMessage());
+        return false;
       }
     }
+    LOGGER.debug("did not find JSON to parse...");
+    return false;
   }
 
   protected void parseReferencePage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
@@ -1658,6 +1582,7 @@ public abstract class ImdbParser {
 
         if (scaling > 0) {
           if ("X".equals(direction)) {
+            // https://stackoverflow.com/a/73501833
             // scale horizontally
             imageSrc = imageSrc.replace("SX" + scaling, "UY" + desiredHeight);
           }
@@ -1769,6 +1694,7 @@ public abstract class ImdbParser {
     ma.setDefaultUrl(image);
     ma.setOriginalUrl(image);
 
+    // https://stackoverflow.com/a/73501833
     // create preview url (width = 342 as in TMDB)
     String extension = FilenameUtils.getExtension(image);
     String previewUrl = image.replace("." + extension, "_SX342." + extension);
@@ -1811,6 +1737,7 @@ public abstract class ImdbParser {
     if (width > 0 && height > 0) {
       String image = artwork.getDefaultUrl();
       String extension = FilenameUtils.getExtension(image);
+      // https://stackoverflow.com/a/73501833
       String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
 
       artwork.setDefaultUrl(defaultUrl);
