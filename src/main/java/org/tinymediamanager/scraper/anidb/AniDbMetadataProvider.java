@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
@@ -24,10 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RingBuffer;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -147,6 +150,15 @@ public abstract class AniDbMetadataProvider implements TmmFeature {
       Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + getApiKey() + "aid=" + id, 1, TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser().settings(ParseSettings.htmlDefault));
+      }
+
+      // check if there is an error response
+      Element error = doc.getElementsByTag("error").first();
+      if (error != null) {
+        // we got an error
+        int httpCode = MetadataUtil.parseInt(error.attr("code"), 500);
+        String message = error.ownText();
+        throw new HttpException(httpCode, message);
       }
     }
     catch (InterruptedException | InterruptedIOException e) {
