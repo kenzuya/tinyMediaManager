@@ -104,7 +104,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   private void initComponents() {
     movieList = MovieModuleManager.getInstance().getMovieList();
-    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList) movieList.getMovies()),
+    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList<Movie>) movieList.getMovies()),
         new MovieComparator());
     sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
 
