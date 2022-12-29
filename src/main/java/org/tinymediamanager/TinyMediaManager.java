@@ -21,6 +21,7 @@ import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
 
 import java.awt.AWTEvent;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
@@ -37,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Locale;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -70,7 +72,9 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmTaskbar;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.TmmUILogCollector;
+import org.tinymediamanager.ui.dialogs.AboutDialog;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
+import org.tinymediamanager.ui.dialogs.SettingsDialog;
 import org.tinymediamanager.ui.dialogs.TmmSplashScreen;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
@@ -151,6 +155,8 @@ public final class TinyMediaManager {
               updateProgress("splash.ui", 80);
 
               SwingUtilities.invokeLater(() -> {
+                systemUiInit();
+
                 MainWindow window = MainWindow.getInstance();
 
                 // finished ////////////////////////////////////////////////////
@@ -285,6 +291,29 @@ public final class TinyMediaManager {
         LOGGER.warn(ex.getMessage());
       }
       System.exit(0);
+    }
+  }
+
+  private void systemUiInit() {
+    Desktop desktop = Desktop.getDesktop();
+    if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+      desktop.setAboutHandler(e -> {
+        JDialog about = new AboutDialog();
+        about.setVisible(true);
+      });
+    }
+    if (desktop.isSupported(Desktop.Action.APP_PREFERENCES)) {
+      desktop.setPreferencesHandler(e -> {
+        JDialog settings = SettingsDialog.getInstance();
+        settings.setVisible(true);
+      });
+    }
+    if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+      desktop.setQuitHandler((e, response) -> {
+        shutdown();
+        shutdownLogger();
+        System.exit(0);
+      });
     }
   }
 
@@ -529,7 +558,6 @@ public final class TinyMediaManager {
 
     TinyMediaManager tinyMediaManager = new TinyMediaManager();
     tinyMediaManager.launch(args);
-
   }
 
   /**

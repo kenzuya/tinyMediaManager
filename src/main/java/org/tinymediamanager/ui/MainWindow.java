@@ -165,8 +165,6 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     rootPanel.add(splitPane, "cell 0 0, grow");
 
     tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 9041548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("rightBorder", "half");
