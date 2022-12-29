@@ -19,6 +19,7 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -36,8 +37,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieToggleWatchedFlagAction extends TmmAction {
-  private static final long           serialVersionUID = 2866581962767395824L;
-
+  private static final long serialVersionUID = 2866581962767395824L;
 
   public MovieToggleWatchedFlagAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.togglewatchedflag"));
@@ -55,7 +55,17 @@ public class MovieToggleWatchedFlagAction extends TmmAction {
 
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : selectedMovies) {
-      movie.setWatched(!movie.isWatched());
+      if (!movie.isWatched()) {
+        // set the watched flag along with playcount = 1 and lastplayed = now
+        movie.setWatched(true);
+        movie.setPlaycount(1);
+        movie.setLastWatched(new Date());
+      }
+      else {
+        movie.setWatched(false);
+        movie.setPlaycount(0);
+        movie.setLastWatched(null);
+      }
       movie.writeNFO();
       movie.saveToDb();
     }

@@ -19,6 +19,7 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.KeyStroke;
@@ -52,7 +53,17 @@ public class TvShowToggleWatchedFlagAction extends TmmAction {
 
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShowEpisode episode : selectedEpisodes) {
-      episode.setWatched(!episode.isWatched());
+      if (!episode.isWatched()) {
+        // set the watched flag along with playcount = 1 and lastplayed = now
+        episode.setWatched(true);
+        episode.setPlaycount(1);
+        episode.setLastWatched(new Date());
+      }
+      else {
+        episode.setWatched(false);
+        episode.setPlaycount(0);
+        episode.setLastWatched(null);
+      }
       episode.writeNFO();
       episode.saveToDb();
     }

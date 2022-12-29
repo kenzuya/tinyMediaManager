@@ -1825,6 +1825,7 @@ public class MovieNfoParser {
 
     movie.setWatched(watched);
     movie.setPlaycount(playcount);
+    movie.setLastWatched(lastplayed);
     movie.setSpokenLanguages(languages);
     movie.setMediaSource(source);
     movie.setEdition(edition);
