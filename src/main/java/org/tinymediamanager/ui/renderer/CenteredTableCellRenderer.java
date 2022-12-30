@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.ui.images;
 
-import java.awt.Color;
-import java.net.URI;
+package org.tinymediamanager.ui.renderer;
 
-public class TmmAwesomeIcon extends TmmSvgIcon {
+import javax.swing.table.DefaultTableCellRenderer;
 
-  public TmmAwesomeIcon(URI uri, Color color) {
-    super(uri);
-    setColor(color);
-    setAutosize(AUTOSIZE_BESTFIT);
+/**
+ * the class {@link CenteredTableCellRenderer} is used to render table cells centered aligned (especially icons)
+ *
+ * @author Manuel Laggner
+ */
+public class CenteredTableCellRenderer extends DefaultTableCellRenderer {
+
+  public CenteredTableCellRenderer() {
+    setHorizontalAlignment(CENTER);
   }
 }

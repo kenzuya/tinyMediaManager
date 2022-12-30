@@ -240,7 +240,7 @@ public class MediaTrailerTable extends TmmEditorTable {
        * name
        */
       col = new Column(TmmResourceBundle.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
-      col.setColumnTooltip(MediaTrailer::getName);
+      col.setCellTooltip(MediaTrailer::getName);
       col.setColumnComparator(stringComparator);
       addColumn(col);
 
@@ -248,7 +248,7 @@ public class MediaTrailerTable extends TmmEditorTable {
        * source
        */
       col = new Column(TmmResourceBundle.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
-      col.setColumnTooltip(MediaTrailer::getProvider);
+      col.setCellTooltip(MediaTrailer::getProvider);
       col.setColumnComparator(stringComparator);
       col.setColumnResizeable(false);
       addColumn(col);
@@ -282,7 +282,7 @@ public class MediaTrailerTable extends TmmEditorTable {
          * url (only in the editor)
          */
         col = new Column(TmmResourceBundle.getString("metatag.url"), "url", MediaTrailer::getUrl, String.class);
-        col.setColumnTooltip(MediaTrailer::getUrl);
+        col.setCellTooltip(MediaTrailer::getUrl);
         col.setColumnComparator(stringComparator);
         col.setColumnResizeable(false);
         addColumn(col);

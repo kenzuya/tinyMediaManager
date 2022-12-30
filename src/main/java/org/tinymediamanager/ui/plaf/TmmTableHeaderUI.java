@@ -52,6 +52,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
     bottomSeparatorColor = null;
   }
 
+  @Override
   public void paint(Graphics g, JComponent c) {
     super.paint(g, c);
 
@@ -115,7 +116,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
             continue;
           }
 
-          g2.fill(new Rectangle2D.Float((float) x - lineWidth, topLineIndent, lineWidth, (float) height - bottomLineIndent));
+          g2.drawLine(x - 1, (int) topLineIndent, x - 1, (int) (height - bottomLineIndent));
         }
       }
       else {
@@ -123,8 +124,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
 
         for (i = 0; i < sepCount; ++i) {
           x -= columnModel.getColumn(i).getWidth();
-          g2.fill(
-              new Rectangle2D.Float((float) x - (i < sepCount - 1 ? lineWidth : 0.0F), topLineIndent, lineWidth, (float) height - bottomLineIndent));
+          g2.fill(new Rectangle2D.Float(x - (i < sepCount - 1 ? lineWidth : 0.0F), topLineIndent, lineWidth, height - bottomLineIndent));
         }
       }
     }

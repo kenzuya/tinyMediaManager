@@ -92,9 +92,18 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     return columns.get(i).columnValue.apply(e);
   }
 
+  public String getHeaderTooltip(int i) {
+    Column column = columns.get(i);
+    if (StringUtils.isNotBlank(column.headerTooltip)) {
+      return column.headerTooltip;
+    }
+    return null;
+  }
+
   public String getColumnTooltip(E e, int i) {
-    if (columns.get(i).columnTooltip != null) {
-      return columns.get(i).columnTooltip.apply(e);
+    Column column = columns.get(i);
+    if (column.cellTooltip != null) {
+      return column.cellTooltip.apply(e);
     }
     return null;
   }
@@ -133,14 +142,15 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     private final Function<E, ?> columnValue;
     private final Class<?>       columnClass;
 
-    private Function<E, String> columnTooltip    = null;
-    private Comparator<?>       columnComparator = null;
-    private TableCellRenderer   cellRenderer     = null;
-    private ImageIcon           headerIcon       = null;
-    private boolean             columnResizeable = true;
-    private int                 minWidth         = 0;
-    private int                 maxWidth         = 0;
-    private boolean             defaultHidden    = false;
+    private String               headerTooltip    = null;
+    private Function<E, String>  cellTooltip      = null;
+    private Comparator<?>        columnComparator = null;
+    private TableCellRenderer    cellRenderer     = null;
+    private ImageIcon            headerIcon       = null;
+    private boolean              columnResizeable = true;
+    private int                  minWidth         = 0;
+    private int                  maxWidth         = 0;
+    private boolean              defaultHidden    = false;
 
     public Column(String title, String identifier, Function<E, ?> value, Class<?> clazz) {
       columnTitle = title;
@@ -148,6 +158,10 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       columnValue = value;
       columnClass = clazz;
       minWidth = (int) (Settings.getInstance().getFontSize() * 2.3);
+
+      // if (Icon.class.isAssignableFrom(clazz)) {
+      // setCellRenderer(new CenteredTableCellRenderer());
+      // }
     }
 
     public void setColumnComparator(Comparator<?> comparator) {
@@ -174,8 +188,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       this.maxWidth = maxWidth;
     }
 
-    public void setColumnTooltip(Function<E, String> tooltip) {
-      this.columnTooltip = tooltip;
+    public void setHeaderTooltip(String tooltip) {
+      this.headerTooltip = tooltip;
+    }
+
+    public void setCellTooltip(Function<E, String> tooltipFunction) {
+      this.cellTooltip = tooltipFunction;
     }
 
     public void setDefaultHidden(boolean defaultHidden) {
@@ -201,7 +219,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     protected Collator stringCollator;
 
     public StringComparator() {
-      RuleBasedCollator defaultCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
+      RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance();
       try {
         // default collator ignores whitespaces
         // using hack from http://stackoverflow.com/questions/16567287/java-collation-ignores-space

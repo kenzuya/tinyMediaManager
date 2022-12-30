@@ -346,7 +346,7 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
        * episode title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "title", TvShowEpisode::getTitle, String.class);
-      col.setColumnTooltip(TvShowEpisode::getTitle);
+      col.setCellTooltip(TvShowEpisode::getTitle);
       addColumn(col);
 
       /*

@@ -122,7 +122,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(),
           String.class);
-      col.setColumnTooltip(fileContainer -> fileContainer.file.toString());
+      col.setCellTooltip(fileContainer -> fileContainer.file.toString());
       addColumn(col);
 
       /*

@@ -380,14 +380,14 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
        * title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MovieSubtitleChooserModel::getName, String.class);
-      col.setColumnTooltip(MovieSubtitleChooserModel::getName);
+      col.setCellTooltip(MovieSubtitleChooserModel::getName);
       addColumn(col);
 
       /*
        * release name
        */
       col = new Column(TmmResourceBundle.getString("metatag.releasename"), "releasename", MovieSubtitleChooserModel::getReleaseName, String.class);
-      col.setColumnTooltip(MovieSubtitleChooserModel::getReleaseName);
+      col.setCellTooltip(MovieSubtitleChooserModel::getReleaseName);
       addColumn(col);
     }
   }

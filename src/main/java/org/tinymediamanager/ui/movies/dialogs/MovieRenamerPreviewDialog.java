@@ -216,7 +216,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(),
           String.class);
-      col.setColumnTooltip(container -> container.getMovie().getTitleSortable());
+      col.setCellTooltip(container -> container.getMovie().getTitleSortable());
       addColumn(col);
     }
   }
@@ -233,7 +233,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
        * filename
        */
       col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.mediaFile.getFilename(), String.class);
-      col.setColumnTooltip(container -> container.mediaFile.getFilename());
+      col.setCellTooltip(container -> container.mediaFile.getFilename());
       addColumn(col);
     }
   }

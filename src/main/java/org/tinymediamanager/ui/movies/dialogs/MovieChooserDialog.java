@@ -869,7 +869,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * title
        */
       Column col = new Column(TmmResourceBundle.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
-      col.setColumnTooltip(MovieChooserModel::getTitle);
+      col.setCellTooltip(MovieChooserModel::getTitle);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
       addColumn(col);
@@ -945,14 +945,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * name
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.name"), "name", Person::getName, String.class);
-      col.setColumnTooltip(Person::getName);
+      col.setCellTooltip(Person::getName);
       addColumn(col);
 
       /*
        * role
        */
       col = new Column(TmmResourceBundle.getString("metatag.role"), "role", Person::getRole, String.class);
-      col.setColumnTooltip(Person::getRole);
+      col.setCellTooltip(Person::getRole);
       addColumn(col);
     }
   }

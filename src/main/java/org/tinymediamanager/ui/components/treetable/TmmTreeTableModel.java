@@ -26,6 +26,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.VariableHeightLayoutCache;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 
 /**
@@ -218,11 +219,34 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer() instanceof JComponent) {
-      ((JComponent) column.getHeaderRenderer()).setToolTipText(tmmTableFormat.getColumnName(columnIndex));
+    if (column.getHeaderRenderer()instanceof JComponent headerRenderer) {
+      headerRenderer.setToolTipText(getHeaderTooltip(columnIndex));
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));
     column.setMinWidth(tmmTableFormat.getMinWidth(columnIndex));
+  }
+
+  public String getHeaderTooltip(int column) {
+    int columnIndex = column - 1;
+    if (columnIndex < 0) {
+      return null;
+    }
+
+    var tmmTableFormat = tableModel.getTableFormat();
+
+    String tooltip;
+    try {
+      tooltip = tmmTableFormat.getHeaderTooltip(columnIndex);
+    }
+    catch (Exception e) {
+      tooltip = null;
+    }
+
+    if (StringUtils.isBlank(tooltip)) {
+      tooltip = tmmTableFormat.getColumnName(columnIndex);
+    }
+
+    return tooltip;
   }
 }

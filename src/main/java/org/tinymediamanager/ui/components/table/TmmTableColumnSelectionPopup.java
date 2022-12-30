@@ -30,6 +30,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.components.MenuScroller;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableModel;
 
 /**
  * This popup allows to select columns to be shown/hidden in the TmmTable
@@ -39,7 +40,7 @@ import org.tinymediamanager.ui.components.MenuScroller;
 public class TmmTableColumnSelectionPopup {
 
   private TmmTableColumnSelectionPopup() {
-    // hide constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -65,17 +66,31 @@ public class TmmTableColumnSelectionPopup {
 
     TableModel tableModel = table.getModel();
 
-    for (final TableColumn etc : columns) {
-      String columnName = tableModel.getColumnName(etc.getModelIndex());
-
+    for (int i = 0; i < columns.size(); i++) {
+      TableColumn etc = columns.get(i);
       // prevent removing of the Nodes column in the Tree-Table
-      if ("Nodes".equals(columnName) && etc.getModelIndex() == 0) {
+      if ("Nodes".equals(tableModel.getColumnName(etc.getModelIndex())) && etc.getModelIndex() == 0) {
         continue;
       }
 
+      String columnName = null;
+
+      // tooltip text
+      if (table.getModel()instanceof TmmTableModel<?> tmmTableModel && StringUtils.isNotBlank(tmmTableModel.getHeaderTooltip(i))) {
+        columnName = tmmTableModel.getHeaderTooltip(i);
+      }
+      else if (table.getModel()instanceof TmmTreeTableModel tmmTreeTableModel && StringUtils.isNotBlank(tmmTreeTableModel.getHeaderTooltip(i))) {
+        columnName = tmmTreeTableModel.getHeaderTooltip(i);
+      }
+
+      // column name
+      if (StringUtils.isBlank(columnName)) {
+        columnName = tableModel.getColumnName(etc.getModelIndex());
+      }
+
       // header value
-      if (StringUtils.isBlank(columnName) && etc.getHeaderValue() != null) {
-        columnName = etc.getHeaderValue().toString();
+      if (StringUtils.isBlank(columnName) && etc.getHeaderValue()instanceof String value) {
+        columnName = value;
       }
 
       // fallback
@@ -108,7 +123,7 @@ public class TmmTableColumnSelectionPopup {
         }
         else {
           // already a list there
-          if (theFirstOne instanceof ArrayList) {
+          if (theFirstOne instanceof ArrayList<?> arrayList) {
             al = (ArrayList<JCheckBoxMenuItem>) theFirstOne;
           }
           else {

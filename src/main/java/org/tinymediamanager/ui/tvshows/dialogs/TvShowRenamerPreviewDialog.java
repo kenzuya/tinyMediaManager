@@ -216,7 +216,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.tvshow"), "title", container -> container.getTvShow().getTitleSortable(),
           String.class);
-      col.setColumnTooltip(container -> container.getTvShow().getTitleSortable());
+      col.setCellTooltip(container -> container.getTvShow().getTitleSortable());
       addColumn(col);
     }
   }
@@ -233,7 +233,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
        * filename
        */
       col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.filename, String.class);
-      col.setColumnTooltip(container -> container.filename);
+      col.setCellTooltip(container -> container.filename);
       addColumn(col);
     }
   }

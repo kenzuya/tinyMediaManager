@@ -333,7 +333,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("tmm.metadata"), "metadata", this::hasMetadata, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
-    col.setColumnTooltip(this::hasMetadataTooltip);
+    col.setCellTooltip(this::hasMetadataTooltip);
     col.setColumnComparator(imageComparator);
     addColumn(col);
 
@@ -343,7 +343,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("tmm.images"), "images", this::hasArtwork, ImageIcon.class);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
-    col.setColumnTooltip(this::hasImageTooltip);
+    col.setCellTooltip(this::hasImageTooltip);
     col.setColumnComparator(imageComparator);
     addColumn(col);
 

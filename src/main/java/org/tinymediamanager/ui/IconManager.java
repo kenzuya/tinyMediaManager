@@ -185,10 +185,8 @@ public class IconManager {
   public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
   public static final ImageIcon              HDR                          = createTableHeaderIcon("delicious-brands.svg");
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
-  public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
   public static final ImageIcon              LOCK                         = createTableHeaderIcon("lock-alt.svg");
-  public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
   public static final ImageIcon              MUSIC_HEADER                 = createTableHeaderIcon("music.svg");
   public static final ImageIcon              NEW                          = createTableHeaderIcon("circle-plus.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-lines.svg");
@@ -197,9 +195,6 @@ public class IconManager {
   public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
   public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
-  public static final ImageIcon              TMDB                         = createTextIcon("TMDB", 0.9);
-  public static final ImageIcon              TOP250                       = createTextIcon("Top", 0.9);
-  public static final ImageIcon              ROTTEN_TOMATOES              = createTextIcon("RT", 0.9);
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              USER_RATING                  = createTableHeaderIcon("star-solid.svg");
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");

@@ -501,8 +501,8 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
       final Component rendered;
 
       // 1. look for our custom SortableRenderer interface
-      if (delegateRenderer instanceof SortableRenderer) {
-        ((SortableRenderer) delegateRenderer).setSortIcon(sortIcon);
+      if (delegateRenderer instanceof SortableRenderer sortableRenderer) {
+        sortableRenderer.setSortIcon(sortIcon);
         rendered = getDelegateTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
         // 2. Otherwise check whether the rendered component is a JLabel (this is the case of the default header renderer)
@@ -512,8 +512,7 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
 
         // we check for a JLabel rather than a DefaultTableCellRenderer to support WinLAF,
         // which installs a decorator over the DefaultTableCellRenderer
-        if (rendered instanceof JLabel) {
-          final JLabel label = (JLabel) rendered;
+        if (rendered instanceof JLabel label) {
           label.setIcon(sortIcon);
           label.setHorizontalTextPosition(SwingConstants.LEADING);
         }
