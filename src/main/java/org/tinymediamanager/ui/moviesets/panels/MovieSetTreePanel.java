@@ -151,7 +151,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
+        MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
