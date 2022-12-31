@@ -91,6 +91,7 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.renderer.MultilineTableCellRenderer;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -673,12 +674,14 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
        * token description
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.token"), "description", token -> token.description, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
 
       /*
        * token value
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.value"), "value", token -> token.example, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
     }
   }

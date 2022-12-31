@@ -90,6 +90,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.renderer.MultilineTableCellRenderer;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -707,12 +708,14 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
        * token description
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.token"), "description", token -> token.description, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
 
       /*
        * token value
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.value"), "value", token -> token.example, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
     }
   }
