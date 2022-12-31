@@ -18,6 +18,7 @@ x remember all splitter locations #1966
 x (movie) enhanced detection of movie titles when parsing the data source
 x (AniDB) inform users when they are banned #1997
 x (movie, TV show) set playcount and lastplayed along with watched state in the NFO #1983
+x fixed deletion of filter presets when the warning has been disabled #2002
 
 
 Version 4.3.7
