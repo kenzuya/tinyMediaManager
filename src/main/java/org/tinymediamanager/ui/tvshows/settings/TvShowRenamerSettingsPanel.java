@@ -210,6 +210,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${titleSortable}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNr}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNr2}"));
+    exampleEventList.add(new TvShowRenamerExample("${seasonName}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNrDvd}"));
     exampleEventList.add(new TvShowRenamerExample("${seasonNrDvd2}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeNr}"));
@@ -635,8 +636,8 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   @SuppressWarnings("unused")
   private static class TvShowRenamerExample extends AbstractModelObject {
     private static final Pattern TOKEN_PATTERN = Pattern.compile("^\\$\\{(.*?)([\\}\\[;\\.]+.*)");
-    private String               token;
-    private String               completeToken;
+    private final String         token;
+    private final String         completeToken;
     private String               description;
     private String               example       = "";
 
