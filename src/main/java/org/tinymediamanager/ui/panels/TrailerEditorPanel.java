@@ -17,11 +17,8 @@ package org.tinymediamanager.ui.panels;
 
 import java.util.Date;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -36,19 +33,18 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author Manuel Laggner
  */
-public class TrailerEditorPanel extends JPanel implements IModalPopupPanel {
+public class TrailerEditorPanel extends AbstractModalInputPanel {
+  private final MediaTrailer mediaTrailer;
 
-  private final JTextField tfName;
-  private final JTextField tfSource;
-  private final JTextField tfQuality;
-  private final JTextField tfUrl;
-  private final JButton    btnClose;
-  private final JButton    btnCancel;
-
-  boolean                  cancel = false;
+  private final JTextField   tfName;
+  private final JTextField   tfSource;
+  private final JTextField   tfQuality;
+  private final JTextField   tfUrl;
 
   public TrailerEditorPanel(MediaTrailer mediaTrailer) {
     super();
+
+    this.mediaTrailer = mediaTrailer;
 
     {
       setLayout(new MigLayout("", "[][800lp,grow]", "[][][][]"));
@@ -82,29 +78,6 @@ public class TrailerEditorPanel extends JPanel implements IModalPopupPanel {
         tfUrl.setColumns(10);
         add(tfUrl, "cell 1 3,growx,wmin 0");
       }
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          if (StringUtils.isAnyBlank(tfName.getText(), tfUrl.getText())) {
-            JOptionPane.showMessageDialog(TrailerEditorPanel.this, TmmResourceBundle.getString("message.missingitems"));
-            return;
-          }
-
-          mediaTrailer.setName(tfName.getText());
-          mediaTrailer.setProvider(tfSource.getText());
-          mediaTrailer.setQuality(tfQuality.getText());
-          mediaTrailer.setUrl(tfUrl.getText());
-          mediaTrailer.setDate(new Date());
-
-          setVisible(false);
-        });
-      }
     }
 
     tfName.setText(mediaTrailer.getName());
@@ -117,22 +90,18 @@ public class TrailerEditorPanel extends JPanel implements IModalPopupPanel {
   }
 
   @Override
-  public JComponent getContent() {
-    return this;
-  }
+  protected void onClose() {
+    if (StringUtils.isAnyBlank(tfName.getText(), tfUrl.getText())) {
+      JOptionPane.showMessageDialog(TrailerEditorPanel.this, TmmResourceBundle.getString("message.missingitems"));
+      return;
+    }
 
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
+    mediaTrailer.setName(tfName.getText());
+    mediaTrailer.setProvider(tfSource.getText());
+    mediaTrailer.setQuality(tfQuality.getText());
+    mediaTrailer.setUrl(tfUrl.getText());
+    mediaTrailer.setDate(new Date());
 
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return cancel;
+    setVisible(false);
   }
 }

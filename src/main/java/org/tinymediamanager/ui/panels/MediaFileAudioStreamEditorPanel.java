@@ -20,11 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -46,7 +43,9 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MediaFileAudioStreamEditorPanel extends JPanel implements IModalPopupPanel {
+public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
+
+  private final MediaFileAudioStream            audioStream;
 
   private final JTextField                      tfCodec;
   private final JSpinner                        spChannels;
@@ -55,15 +54,12 @@ public class MediaFileAudioStreamEditorPanel extends JPanel implements IModalPop
   private final JComboBox<String>               cbLanguage;
   private final JTextField                      tfTitle;
 
-  private final JButton                         btnClose;
-  private final JButton                         btnCancel;
-
   private final TmmTableFormat.StringComparator stringComparator;
-
-  private boolean                               cancel = false;
 
   public MediaFileAudioStreamEditorPanel(MediaFileAudioStream audioStream) {
     super();
+
+    this.audioStream = audioStream;
 
     stringComparator = new TmmTableFormat.StringComparator();
 
@@ -122,30 +118,6 @@ public class MediaFileAudioStreamEditorPanel extends JPanel implements IModalPop
         tfTitle.setColumns(30);
         add(tfTitle, "cell 1 5 2 1, growx");
       }
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          audioStream.setCodec(tfCodec.getText());
-          audioStream.setAudioChannels((int) spChannels.getValue());
-          audioStream.setBitrate((int) spBitrate.getValue());
-          audioStream.setBitDepth((int) spBitdepth.getValue());
-
-          Object obj = cbLanguage.getSelectedItem();
-          if (obj instanceof LocaleContainer localeContainer) {
-            audioStream.setLanguage(localeContainer.iso3);
-          }
-
-          audioStream.setTitle(tfTitle.getText());
-
-          setVisible(false);
-        });
-      }
     }
 
     tfCodec.setText(audioStream.getCodec());
@@ -160,23 +132,20 @@ public class MediaFileAudioStreamEditorPanel extends JPanel implements IModalPop
   }
 
   @Override
-  public JComponent getContent() {
-    return this;
-  }
+  protected void onClose() {
+    audioStream.setCodec(tfCodec.getText());
+    audioStream.setAudioChannels((int) spChannels.getValue());
+    audioStream.setBitrate((int) spBitrate.getValue());
+    audioStream.setBitDepth((int) spBitdepth.getValue());
 
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
+    Object obj = cbLanguage.getSelectedItem();
+    if (obj instanceof LocaleContainer localeContainer) {
+      audioStream.setLanguage(localeContainer.iso3);
+    }
 
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
+    audioStream.setTitle(tfTitle.getText());
 
-  @Override
-  public boolean isCancelled() {
-    return cancel;
+    setVisible(false);
   }
 
   private static class LocaleContainer {

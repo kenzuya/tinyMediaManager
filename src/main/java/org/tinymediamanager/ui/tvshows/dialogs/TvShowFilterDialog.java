@@ -57,8 +57,9 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
-import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.FilterSavePanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.tvshows.filters.ITvShowUIFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAllInOneFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAspectRatioFilter;
@@ -105,7 +106,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
 import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
-  protected static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle              BUNDLE = ResourceBundle.getBundle("messages");
 
   private final TmmTreeTable                         treeTable;
 
@@ -286,20 +287,28 @@ public class TvShowFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
+            Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(
                 TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
-            FilterSaveDialog saveDialog = new FilterSaveDialog(TvShowFilterDialog.this, activeUiFilters, tvShowUiFilters);
-            saveDialog.setVisible(true);
 
-            String savedPreset = saveDialog.getSavedPreset();
-            if (StringUtils.isNotBlank(savedPreset)) {
-              cbPreset.removeActionListener(actionListener);
-              TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
-              TvShowModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.setSelectedItem(savedPreset);
-              cbPreset.addActionListener(actionListener);
-            }
+            ModalPopupPanel popupPanel = createModalPopupPanel();
+            popupPanel.setTitle(TmmResourceBundle.getString("filter.savepreset"));
+
+            FilterSavePanel filterSavePanel = new FilterSavePanel(activeUiFilters, uiFilters);
+
+            popupPanel.setOnCloseHandler(() -> {
+              String savedPreset = filterSavePanel.getSavedPreset();
+              if (StringUtils.isNotBlank(savedPreset)) {
+                cbPreset.removeActionListener(actionListener);
+                TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(uiFilters);
+                TvShowModuleManager.getInstance().getSettings().saveSettings();
+                loadPresets();
+                cbPreset.setSelectedItem(savedPreset);
+                cbPreset.addActionListener(actionListener);
+              }
+            });
+
+            popupPanel.setContent(filterSavePanel);
+            showModalPopupPanel(popupPanel);
           }
         });
         panelFilterPreset.add(btnSavePreset, "cell 2 3");

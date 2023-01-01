@@ -57,18 +57,19 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
-import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.moviesets.filters.IMovieSetUIFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetDatasourceFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetMissingMoviesFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetNewMoviesFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetWithMoreThanOneMovieFilter;
+import org.tinymediamanager.ui.panels.FilterSavePanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetFilterDialog extends TmmDialog {
-  protected static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle                BUNDLE = ResourceBundle.getBundle("messages");
 
   private final TmmTreeTable                           treeTable;
 
@@ -157,18 +158,26 @@ public class MovieSetFilterDialog extends TmmDialog {
         if (!activeUiFilters.isEmpty()) {
           Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(
               MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets());
-          FilterSaveDialog saveDialog = new FilterSaveDialog(MovieSetFilterDialog.this, activeUiFilters, uiFilters);
-          saveDialog.setVisible(true);
 
-          String savedPreset = saveDialog.getSavedPreset();
-          if (StringUtils.isNotBlank(savedPreset)) {
-            cbPreset.removeActionListener(actionListener);
-            MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
-            MovieModuleManager.getInstance().getSettings().saveSettings();
-            loadPresets();
-            cbPreset.setSelectedItem(savedPreset);
-            cbPreset.addActionListener(actionListener);
-          }
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("filter.savepreset"));
+
+          FilterSavePanel filterSavePanel = new FilterSavePanel(activeUiFilters, uiFilters);
+
+          popupPanel.setOnCloseHandler(() -> {
+            String savedPreset = filterSavePanel.getSavedPreset();
+            if (StringUtils.isNotBlank(savedPreset)) {
+              cbPreset.removeActionListener(actionListener);
+              MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
+              MovieModuleManager.getInstance().getSettings().saveSettings();
+              loadPresets();
+              cbPreset.setSelectedItem(savedPreset);
+              cbPreset.addActionListener(actionListener);
+            }
+          });
+
+          popupPanel.setContent(filterSavePanel);
+          showModalPopupPanel(popupPanel);
         }
       });
       panelFilterPreset.add(btnSavePreset, "cell 2 3");

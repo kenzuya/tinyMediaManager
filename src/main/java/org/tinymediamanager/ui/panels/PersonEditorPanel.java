@@ -24,9 +24,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -44,8 +42,9 @@ import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
 import ca.odell.glazedlists.EventList;
 import net.miginfocom.swing.MigLayout;
 
-public class PersonEditorPanel extends JPanel implements IModalPopupPanel {
+public class PersonEditorPanel extends AbstractModalInputPanel {
   private final EventList<MediaIdTable.MediaId> ids;
+  private final Person                          person;
 
   private final JTextField                      tfName;
   private final JTextField                      tfRole;
@@ -53,15 +52,11 @@ public class PersonEditorPanel extends JPanel implements IModalPopupPanel {
   private final JTextField                      tfProfileUrl;
   private final TmmTable                        tableIds;
 
-  private final JButton                         btnClose;
-  private final JButton                         btnCancel;
-
-  private boolean                               cancel = false;
-
-  public PersonEditorPanel(Person personToEdit) {
+  public PersonEditorPanel(Person person) {
     super();
 
-    this.ids = MediaIdTable.convertIdMapToEventList(personToEdit.getIds());
+    this.person = person;
+    this.ids = MediaIdTable.convertIdMapToEventList(person.getIds());
 
     {
       setLayout(new MigLayout("", "[][500lp:n,grow][]", "[][][][][50lp:150lp][20lp]"));
@@ -133,79 +128,50 @@ public class PersonEditorPanel extends JPanel implements IModalPopupPanel {
       add(btnRemoveId, "cell 0 4,alignx right,aligny top");
     }
 
-    {
-      btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-      btnCancel.addActionListener(e -> {
-        cancel = true;
-        setVisible(false);
-      });
-
-      btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-      btnClose.addActionListener(e -> {
-        personToEdit.setName(tfName.getText());
-        personToEdit.setRole(tfRole.getText());
-        personToEdit.setThumbUrl(tfImageUrl.getText());
-        personToEdit.setProfileUrl(tfProfileUrl.getText());
-
-        // sync of media ids
-        // first round -> add existing ids
-        for (MediaIdTable.MediaId id : ids) {
-          // first try to cast it into an Integer
-          try {
-            Integer value = Integer.parseInt(id.value);
-            // cool, it is an Integer
-            personToEdit.setId(id.key, value);
-          }
-          catch (NumberFormatException ex) {
-            // okay, we set it as a String
-            personToEdit.setId(id.key, id.value);
-          }
-        }
-        // second round -> remove deleted ids
-        List<String> removeIds = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : personToEdit.getIds().entrySet()) {
-          MediaIdTable.MediaId id = new MediaIdTable.MediaId(entry.getKey());
-          if (!ids.contains(id)) {
-            removeIds.add(entry.getKey());
-          }
-        }
-        for (String id : removeIds) {
-          // set a null value causes to fire the right events
-          personToEdit.setId(id, null);
-        }
-
-        setVisible(false);
-      });
-
-    }
-
-    tfName.setText(personToEdit.getName());
-    tfRole.setText(personToEdit.getRole());
-    tfImageUrl.setText(personToEdit.getThumbUrl());
-    tfProfileUrl.setText(personToEdit.getProfileUrl());
+    tfName.setText(person.getName());
+    tfRole.setText(person.getRole());
+    tfImageUrl.setText(person.getThumbUrl());
+    tfProfileUrl.setText(person.getProfileUrl());
 
     // set focus to the first textfield
     SwingUtilities.invokeLater(tfName::requestFocus);
   }
 
   @Override
-  public JComponent getContent() {
-    return this;
-  }
+  protected void onClose() {
+    person.setName(tfName.getText());
+    person.setRole(tfRole.getText());
+    person.setThumbUrl(tfImageUrl.getText());
+    person.setProfileUrl(tfProfileUrl.getText());
 
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
+    // sync of media ids
+    // first round -> add existing ids
+    for (MediaIdTable.MediaId id : ids) {
+      // first try to cast it into an Integer
+      try {
+        Integer value = Integer.parseInt(id.value);
+        // cool, it is an Integer
+        person.setId(id.key, value);
+      }
+      catch (NumberFormatException ex) {
+        // okay, we set it as a String
+        person.setId(id.key, id.value);
+      }
+    }
+    // second round -> remove deleted ids
+    List<String> removeIds = new ArrayList<>();
+    for (Map.Entry<String, Object> entry : person.getIds().entrySet()) {
+      MediaIdTable.MediaId id = new MediaIdTable.MediaId(entry.getKey());
+      if (!ids.contains(id)) {
+        removeIds.add(entry.getKey());
+      }
+    }
+    for (String id : removeIds) {
+      // set a null value causes to fire the right events
+      person.setId(id, null);
+    }
 
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return cancel;
+    setVisible(false);
   }
 
   /**********************

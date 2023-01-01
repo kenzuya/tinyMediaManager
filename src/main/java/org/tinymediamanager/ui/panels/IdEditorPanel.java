@@ -18,12 +18,9 @@ package org.tinymediamanager.ui.panels;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -42,15 +39,11 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class IdEditorPanel extends JPanel implements IModalPopupPanel {
+public class IdEditorPanel extends AbstractModalInputPanel {
 
   private final MediaIdTable.MediaId idToEdit;
   private final JComboBox<String>    cbProviderId;
   private final JTextField           tfId;
-  private final JButton              btnClose;
-  private final JButton              btnCancel;
-
-  private boolean                    cancel = false;
 
   public IdEditorPanel(MediaIdTable.MediaId mediaId, ScraperType type) {
     super();
@@ -84,33 +77,24 @@ public class IdEditorPanel extends JPanel implements IModalPopupPanel {
         tfId.setColumns(10);
       }
     }
-    {
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          if (StringUtils.isAnyBlank(tfId.getText(), (String) cbProviderId.getSelectedItem())) {
-            JOptionPane.showMessageDialog(IdEditorPanel.this, TmmResourceBundle.getString("id.empty"));
-            return;
-          }
-
-          idToEdit.key = (String) cbProviderId.getSelectedItem();
-          idToEdit.value = tfId.getText();
-          setVisible(false);
-        });
-      }
-    }
 
     cbProviderId.setSelectedItem(idToEdit.key);
     tfId.setText(idToEdit.value);
 
     // set focus to the first combobox
     SwingUtilities.invokeLater(cbProviderId::requestFocus);
+  }
+
+  @Override
+  protected void onClose() {
+    if (StringUtils.isAnyBlank(tfId.getText(), (String) cbProviderId.getSelectedItem())) {
+      JOptionPane.showMessageDialog(IdEditorPanel.this, TmmResourceBundle.getString("id.empty"));
+      return;
+    }
+
+    idToEdit.key = (String) cbProviderId.getSelectedItem();
+    idToEdit.value = tfId.getText();
+    setVisible(false);
   }
 
   @NotNull
@@ -124,25 +108,5 @@ public class IdEditorPanel extends JPanel implements IModalPopupPanel {
       providerIds.add(scraper.getId());
     }
     return providerIds;
-  }
-
-  @Override
-  public JComponent getContent() {
-    return this;
-  }
-
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
-
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return cancel;
   }
 }

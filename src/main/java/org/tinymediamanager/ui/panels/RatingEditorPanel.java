@@ -17,12 +17,9 @@ package org.tinymediamanager.ui.panels;
 
 import java.util.Arrays;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
@@ -41,17 +38,18 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class RatingEditorPanel extends JPanel implements IModalPopupPanel {
-  private final JComboBox<String> cbProviderId;
-  private final JSpinner          spRating;
-  private final JSpinner          spMaxValue;
-  private final JSpinner          spVotes;
-  private final JButton           btnClose;
-  private final JButton           btnCancel;
-  private boolean                 cancel = false;
+public class RatingEditorPanel extends AbstractModalInputPanel {
+  private final MediaRatingTable.Rating ratingToEdit;
 
-  public RatingEditorPanel(MediaRatingTable.Rating ratingToEdit) {
+  private final JComboBox<String>       cbProviderId;
+  private final JSpinner                spRating;
+  private final JSpinner                spMaxValue;
+  private final JSpinner                spVotes;
+
+  public RatingEditorPanel(MediaRatingTable.Rating rating) {
     super();
+
+    this.ratingToEdit = rating;
 
     {
       setLayout(new MigLayout("", "[][50lp][20lp:n][][50lp]", "[][][]"));
@@ -83,52 +81,6 @@ public class RatingEditorPanel extends JPanel implements IModalPopupPanel {
         spVotes = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
         add(spVotes, "cell 1 2,growx");
       }
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          float rating = 0;
-          Object obj = spRating.getValue();
-          if (obj instanceof Double d) {
-            rating = d.floatValue();
-          }
-          else if (obj instanceof Float f) {
-            rating = f;
-          }
-
-          int maxValue = (int) spMaxValue.getValue();
-
-          String key;
-          obj = cbProviderId.getSelectedItem();
-          if (obj == null || StringUtils.isBlank(obj.toString())) {
-            JOptionPane.showMessageDialog(RatingEditorPanel.this, TmmResourceBundle.getString("id.empty"));
-            return;
-          }
-          else {
-            key = obj.toString();
-          }
-
-          if (rating > maxValue) {
-            JOptionPane.showMessageDialog(RatingEditorPanel.this, TmmResourceBundle.getString("rating.rating.higher.maxvalue"));
-            return;
-          }
-
-          ratingToEdit.key = key;
-          ratingToEdit.value = rating;
-          ratingToEdit.maxValue = maxValue;
-          ratingToEdit.votes = (int) spVotes.getValue();
-
-          // store the ID for the next usage
-          TmmProperties.getInstance().putProperty("ratingid", ratingToEdit.key);
-
-          setVisible(false);
-        });
-      }
     }
 
     cbProviderId.setSelectedItem(ratingToEdit.key);
@@ -149,22 +101,41 @@ public class RatingEditorPanel extends JPanel implements IModalPopupPanel {
   }
 
   @Override
-  public JComponent getContent() {
-    return this;
-  }
+  protected void onClose() {
+    float rating = 0;
+    Object obj = spRating.getValue();
+    if (obj instanceof Double d) {
+      rating = d.floatValue();
+    }
+    else if (obj instanceof Float f) {
+      rating = f;
+    }
 
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
+    int maxValue = (int) spMaxValue.getValue();
 
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
+    String key;
+    obj = cbProviderId.getSelectedItem();
+    if (obj == null || StringUtils.isBlank(obj.toString())) {
+      JOptionPane.showMessageDialog(RatingEditorPanel.this, TmmResourceBundle.getString("id.empty"));
+      return;
+    }
+    else {
+      key = obj.toString();
+    }
 
-  @Override
-  public boolean isCancelled() {
-    return cancel;
+    if (rating > maxValue) {
+      JOptionPane.showMessageDialog(RatingEditorPanel.this, TmmResourceBundle.getString("rating.rating.higher.maxvalue"));
+      return;
+    }
+
+    ratingToEdit.key = key;
+    ratingToEdit.value = rating;
+    ratingToEdit.maxValue = maxValue;
+    ratingToEdit.votes = (int) spVotes.getValue();
+
+    // store the ID for the next usage
+    TmmProperties.getInstance().putProperty("ratingid", ratingToEdit.key);
+
+    setVisible(false);
   }
 }

@@ -34,7 +34,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -55,6 +54,9 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.ExchangeDatasourceDialog;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.RegexInputPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -64,7 +66,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowDatasourceSettingsPanel extends JPanel {
-  private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   private JCheckBox            chckbxDvdOrder;
   private JTextField           tfAddBadword;
@@ -128,11 +130,25 @@ class TvShowDatasourceSettingsPanel extends JPanel {
     });
 
     btnAddSkipRegexp.addActionListener(e -> {
-      String regexp = TmmUIHelper.showRegexpInputDialog(SwingUtilities.getWindowAncestor(this));
-      if (StringUtils.isNotBlank(regexp)) {
-        settings.addSkipFolder(regexp);
-        panelIgnore.revalidate();
+      IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(this);
+      if (iModalPopupPanelProvider == null) {
+        return;
       }
+
+      ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("tmm.regexp"));
+
+      RegexInputPanel regexInputPanel = new RegexInputPanel();
+
+      popupPanel.setOnCloseHandler(() -> {
+        if (StringUtils.isNotBlank(regexInputPanel.getRegularExpression())) {
+          settings.addSkipFolder(regexInputPanel.getRegularExpression());
+          panelIgnore.revalidate();
+        }
+      });
+
+      popupPanel.setContent(regexInputPanel);
+      iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
     });
 
     btnRemoveSkipFolder.addActionListener(e -> {

@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class ModalPopupPanel extends JPanel {
   private final IModalPopupPanelProvider popupPanelProvider;
 
-  private JLabel                         lblTitle;
+  private final JLabel                   lblTitle;
   private final JPanel                   contentPanel;
   private final JPanel                   buttonPanel;
 

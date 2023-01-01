@@ -43,12 +43,13 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 import org.tinymediamanager.thirdparty.KodiRPC;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
-import org.tinymediamanager.ui.dialogs.WolDeviceDialog;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.WolDevicePanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -58,9 +59,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalDevicesSettingsPanel extends JPanel {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
+  private static final Logger LOGGER   = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
-  private final Settings      settings         = Settings.getInstance();
+  private final Settings      settings = Settings.getInstance();
 
   private JTable              tableWolDevices;
   private JTextField          tfKodiHost;
@@ -82,11 +83,23 @@ class ExternalDevicesSettingsPanel extends JPanel {
 
     // button listeners
     btnAddWolDevice.addActionListener(arg0 -> {
-      WolDeviceDialog dialog = new WolDeviceDialog();
-      dialog.pack();
-      dialog.setLocationRelativeTo(MainWindow.getInstance());
-      dialog.setVisible(true);
+      IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(this);
+      if (iModalPopupPanelProvider == null) {
+        return;
+      }
+
+      ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("tmm.regexp"));
+
+      WolDevice wolDevice = new WolDevice();
+      WolDevicePanel wolDevicePanel = new WolDevicePanel(wolDevice);
+
+      popupPanel.setOnCloseHandler(() -> settings.addWolDevices(wolDevice));
+
+      popupPanel.setContent(wolDevicePanel);
+      iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
     });
+
     btnRemoveWolDevice.addActionListener(e -> {
       int row = tableWolDevices.getSelectedRow();
       row = tableWolDevices.convertRowIndexToModel(row);
@@ -95,20 +108,33 @@ class ExternalDevicesSettingsPanel extends JPanel {
         Settings.getInstance().removeWolDevices(device);
       }
     });
+
     btnEditWolDevice.addActionListener(e -> {
       int row = tableWolDevices.getSelectedRow();
       row = tableWolDevices.convertRowIndexToModel(row);
       if (row != -1) {
         WolDevice device = Settings.getInstance().getWolDevices().get(row);
         if (device != null) {
-          WolDeviceDialog dialog = new WolDeviceDialog();
-          dialog.setDevice(device);
-          dialog.pack();
-          dialog.setLocationRelativeTo(MainWindow.getInstance());
-          dialog.setVisible(true);
+          IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(this);
+          if (iModalPopupPanelProvider == null) {
+            return;
+          }
+
+          ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("tmm.regexp"));
+
+          WolDevice wolDevice = new WolDevice(device);
+          WolDevicePanel wolDevicePanel = new WolDevicePanel(wolDevice);
+
+          popupPanel.setOnCloseHandler(() -> {
+            device.setName(wolDevice.getName());
+            device.setMacAddress(wolDevice.getMacAddress());
+          });
+
+          popupPanel.setContent(wolDevicePanel);
+          iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
         }
       }
-
     });
 
     // set column titles

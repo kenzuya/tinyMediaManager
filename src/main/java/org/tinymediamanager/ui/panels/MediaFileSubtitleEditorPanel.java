@@ -20,12 +20,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -45,7 +42,8 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MediaFileSubtitleEditorPanel extends JPanel implements IModalPopupPanel {
+public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
+  private final MediaFileSubtitle               subtitle;
 
   private final JComboBox<LocaleContainer>      cbLanguage;
   private final JCheckBox                       chkbxForced;
@@ -53,15 +51,12 @@ public class MediaFileSubtitleEditorPanel extends JPanel implements IModalPopupP
   private final JTextField                      tfFormat;
   private final JTextField                      tfTitle;
 
-  private final JButton                         btnClose;
-  private final JButton                         btnCancel;
-
   private final TmmTableFormat.StringComparator stringComparator;
-
-  private boolean                               cancel = false;
 
   public MediaFileSubtitleEditorPanel(MediaFileSubtitle subtitle) {
     super();
+
+    this.subtitle = subtitle;
 
     stringComparator = new TmmTableFormat.StringComparator();
 
@@ -113,29 +108,6 @@ public class MediaFileSubtitleEditorPanel extends JPanel implements IModalPopupP
         tfTitle.setColumns(30);
         add(tfTitle, "cell 1 4 2 1, growx");
       }
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          subtitle.setCodec(tfFormat.getText());
-          subtitle.setForced(chkbxForced.isSelected());
-          subtitle.setSdh(chkbxSdh.isSelected());
-
-          Object obj = cbLanguage.getSelectedItem();
-          if (obj instanceof LocaleContainer localeContainer) {
-            subtitle.setLanguage(localeContainer.iso3);
-          }
-
-          subtitle.setTitle(tfTitle.getText());
-
-          setVisible(false);
-        });
-      }
     }
 
     tfFormat.setText(subtitle.getCodec());
@@ -149,23 +121,19 @@ public class MediaFileSubtitleEditorPanel extends JPanel implements IModalPopupP
   }
 
   @Override
-  public JComponent getContent() {
-    return this;
-  }
+  protected void onClose() {
+    subtitle.setCodec(tfFormat.getText());
+    subtitle.setForced(chkbxForced.isSelected());
+    subtitle.setSdh(chkbxSdh.isSelected());
 
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
+    Object obj = cbLanguage.getSelectedItem();
+    if (obj instanceof LocaleContainer localeContainer) {
+      subtitle.setLanguage(localeContainer.iso3);
+    }
 
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
+    subtitle.setTitle(tfTitle.getText());
 
-  @Override
-  public boolean isCancelled() {
-    return cancel;
+    setVisible(false);
   }
 
   private static class LocaleContainer {

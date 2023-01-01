@@ -52,15 +52,14 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
-import org.tinymediamanager.ui.dialogs.SubtitleEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.MediaFileSubtitleEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.PersonEditorPanel;
 import org.tinymediamanager.ui.panels.RatingEditorPanel;
@@ -590,18 +589,22 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         JButton btnAddSubtitle = new JButton(TmmResourceBundle.getString("subtitle.add"));
         panelContent.add(btnAddSubtitle, "cell 1 10");
         btnAddSubtitle.addActionListener(e -> {
+          MediaFileSubtitle subtitle = new MediaFileSubtitle();
 
-          // Open Subtitle Dialog
-          MediaFileSubtitle mediaFileSubtitle = new MediaFileSubtitle();
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("subtitle.add"));
 
-          SubtitleEditorDialog dialog = new SubtitleEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("subtitle.add"),
-              mediaFileSubtitle);
-          dialog.setVisible(true);
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.getMainFile().addSubtitle(mediaFileSubtitle);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          popupPanel.setOnCloseHandler(() -> {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+              episode.getMainFile().addSubtitle(subtitle);
+            }
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          });
+
+          MediaFileSubtitleEditorPanel subtitleEditorPanel = new MediaFileSubtitleEditorPanel(subtitle);
+          popupPanel.setContent(subtitleEditorPanel);
+          showModalPopupPanel(popupPanel);
         });
       }
 

@@ -55,7 +55,6 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
-import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -102,6 +101,8 @@ import org.tinymediamanager.ui.movies.filters.MovieVideoFilenameFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieWatchedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
+import org.tinymediamanager.ui.panels.FilterSavePanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -111,7 +112,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieFilterDialog extends TmmDialog {
-  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle          BUNDLE = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel              selectionModel;
 
@@ -301,19 +302,27 @@ public class MovieFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
-            FilterSaveDialog saveDialog = new FilterSaveDialog(MovieFilterDialog.this, activeUiFilters, movieUiFilters);
-            saveDialog.setVisible(true);
+            Map<String, List<UIFilters>> uiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
 
-            String savedPreset = saveDialog.getSavedPreset();
-            if (StringUtils.isNotBlank(savedPreset)) {
-              cbPreset.removeActionListener(actionListener);
-              MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
-              MovieModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.setSelectedItem(savedPreset);
-              cbPreset.addActionListener(actionListener);
-            }
+            ModalPopupPanel popupPanel = createModalPopupPanel();
+            popupPanel.setTitle(TmmResourceBundle.getString("filter.savepreset"));
+
+            FilterSavePanel filterSavePanel = new FilterSavePanel(activeUiFilters, uiFilters);
+
+            popupPanel.setOnCloseHandler(() -> {
+              String savedPreset = filterSavePanel.getSavedPreset();
+              if (StringUtils.isNotBlank(savedPreset)) {
+                cbPreset.removeActionListener(actionListener);
+                MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(uiFilters);
+                MovieModuleManager.getInstance().getSettings().saveSettings();
+                loadPresets();
+                cbPreset.setSelectedItem(savedPreset);
+                cbPreset.addActionListener(actionListener);
+              }
+            });
+
+            popupPanel.setContent(filterSavePanel);
+            showModalPopupPanel(popupPanel);
           }
         });
         panelFilterPreset.add(btnSavePreset, "cell 2 3");
