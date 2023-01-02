@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.scraper.thetvdb.entities;
 
-import com.google.gson.annotations.SerializedName;
+package org.tinymediamanager.scraper.tmdb.services;
 
-public class SeasonTypeRecord {
-  @SerializedName("id")
-  public Integer    id   = null;
+import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroups;
 
-  @SerializedName("name")
-  public String     name = null;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
-  @SerializedName("type")
-  public SeasonType type = null;
+public interface TvEpisodeGroupsService {
 
-  @SerializedName("alternateName")
-  public String     alternateName;
+  /**
+   * Get episode group details
+   *
+   * @param episodeGroupId
+   *          the episode group id
+   * @param language
+   *          <em>Optional.</em> ISO 639-1 code.
+   */
+  @GET("tv/episode_group/{id}")
+  Call<TvEpisodeGroups> episodeGroup(@Path("id") String episodeGroupId, @Query("language") String language);
 }

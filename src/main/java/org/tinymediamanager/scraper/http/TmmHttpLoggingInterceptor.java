@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
   private static final int     HTTP_CONTINUE        = 100;
   private static final int     MAX_TEXT_BODY_LENGTH = 1000;
 
+  @NotNull
   @Override
   public Response intercept(Chain chain) throws IOException {
     Request request = chain.request();
@@ -61,7 +63,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       boolean hasRequestBody = requestBody != null;
 
       Connection connection = chain.connection();
-      String requestStartMessage = "--> " + request.method() + ' ' + request.url() + (connection != null ? " " + connection.protocol() : "");
+      String requestStartMessage = "--> " + request.method() + ' ' + prepareUrlToLog(request.url().toString())
+          + (connection != null ? " " + connection.protocol() : "");
 
       LOGGER.trace(requestStartMessage);
 
@@ -121,12 +124,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
-      String logUrl = response.request()
-          .url()
-          .toString()
-          .replaceAll("api_key=\\w+", "api_key=<API_KEY>")
-          .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
-          .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
+      String logUrl = prepareUrlToLog(response.request().url().toString());
       LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
           + ", " + bodySize + " body" + ')');
 
@@ -280,5 +278,11 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
     catch (EOFException e) {
       return false; // Truncated UTF-8 sequence.
     }
+  }
+
+  private String prepareUrlToLog(String url) {
+    return url.replaceAll("api_key=\\w+", "api_key=<API_KEY>")
+        .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
+        .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
   }
 }

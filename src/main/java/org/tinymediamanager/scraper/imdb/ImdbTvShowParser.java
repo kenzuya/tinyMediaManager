@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -51,6 +52,7 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -64,6 +66,7 @@ import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.TvUtils;
 
 /**
  * The class ImdbTvShowParser is used to parse TV show site of imdb.com
@@ -257,7 +260,7 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
-    // only if we get a S/E number
+    // only if we get S/E number
     MediaMetadata wantedEpisode = null;
     if (seasonNr >= 0 && episodeNr > 0) {
       if (!MediaIdUtil.isValidImdbId(showId)) {
@@ -280,7 +283,12 @@ public class ImdbTvShowParser extends ImdbParser {
       // search by S/E
       if (wantedEpisode == null) {
         for (MediaMetadata episode : episodes) {
-          if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
+          if (episodeNumber == null) {
+            continue;
+          }
+
+          if (episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
             // search via season/episode number
             wantedEpisode = episode;
             break;
@@ -302,8 +310,7 @@ public class ImdbTvShowParser extends ImdbParser {
     // match via episodelist found
     if (wantedEpisode != null && wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
       episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
-      md.setEpisodeNumber(wantedEpisode.getEpisodeNumber());
-      md.setSeasonNumber(wantedEpisode.getSeasonNumber());
+      md.setEpisodeNumbers(wantedEpisode.getEpisodeNumbers());
       md.setTitle(wantedEpisode.getTitle());
       md.setPlot(wantedEpisode.getPlot());
       md.setRatings(wantedEpisode.getRatings());
@@ -326,6 +333,12 @@ public class ImdbTvShowParser extends ImdbParser {
             options.getCertificationCountry().getAlpha2());
         Future<Document> futureReference = compSvcImdb.submit(worker);
 
+        // worker for imdb request (/releaseinfo)
+        Future<Document> futureReleaseinfo;
+        worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2());
+        futureReleaseinfo = executor.submit(worker);
+
         // worker for imdb keywords (/keywords)
         Future<Document> futureKeywords = null;
         if (isScrapeKeywordsPage()) {
@@ -338,6 +351,13 @@ public class ImdbTvShowParser extends ImdbParser {
           Document doc = futureReference.get();
           if (doc != null) {
             parseEpisodeReference(doc, md, episodeId);
+          }
+
+          // get the release info page
+          Document releaseinfoDoc = futureReleaseinfo.get();
+          if (releaseinfoDoc != null) {
+            // get the date from the releaseinfo page
+            parseReleaseinfoPage(releaseinfoDoc, options, md);
           }
 
           if (futureKeywords != null) {
@@ -528,17 +548,18 @@ public class ImdbTvShowParser extends ImdbParser {
 
             // parse season and ep number
             if (season <= 0) {
-              ep.setSeasonNumber(0);
-              ep.setEpisodeNumber(++episodeCounter);
+              ep.setEpisodeNumber(AIRED, 0, ++episodeCounter);
             }
             else {
-              ep.setSeasonNumber(Integer.parseInt(matcher.group(1)));
-              ep.setEpisodeNumber(Integer.parseInt(matcher.group(2)));
-            }
+              int s = Integer.parseInt(matcher.group(1));
+              int e = Integer.parseInt(matcher.group(2));
 
-            // check if we have still valid data
-            if (season > 0 && season != ep.getSeasonNumber()) {
-              return false;
+              // check if we have still valid data
+              if (season != s) {
+                return false;
+              }
+
+              ep.setEpisodeNumber(AIRED, s, e);
             }
 
             // get ep title and id
@@ -645,6 +666,22 @@ public class ImdbTvShowParser extends ImdbParser {
         if (yearStart > 0) {
           episodeTitle = episodeTitle.substring(0, yearStart - 1).trim();
           md.setTitle(episodeTitle);
+        }
+      }
+    }
+
+    // when we do not have S/E, parse it from the reference page
+    MediaEpisodeNumber episodeNumber = md.getEpisodeNumber(AIRED);
+    if (episodeNumber == null || episodeNumber.season() < 0 || episodeNumber.episode() < 0) {
+      Element se = doc.getElementsByClass("titlereference-overview-season-episode-numbers").first();
+      if (se != null) {
+        try {
+          int s = TvUtils.getSeasonNumber(se.children().get(0).text().replace("Season", "").trim());
+          int e = TvUtils.getSeasonNumber(se.children().get(1).text().replace("Episode", "").trim());
+          md.setEpisodeNumber(AIRED, s, e);
+        }
+        catch (Exception ignored) {
+          // ignored
         }
       }
     }

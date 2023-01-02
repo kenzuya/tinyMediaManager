@@ -18,8 +18,10 @@ package org.tinymediamanager.core.tvshow;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 
 /**
@@ -28,7 +30,9 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
-  private final Map<String, Object> tvShowIds = new HashMap<>();
+  private final Map<String, Object> tvShowIds    = new HashMap<>();
+
+  private MediaEpisodeGroup         episodeGroup = MediaEpisodeGroup.DEFAULT;
 
   /**
    * a minimal constructor for special cases. Do not forget to pass the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids via
@@ -42,8 +46,9 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    * the _main_ constructor to give all {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids to the options
    * 
    * @param tvShowIds
+   *          a {@link Map} with all TV show ids
    */
-  public TvShowEpisodeSearchAndScrapeOptions(final Map<String, Object> tvShowIds) {
+  public TvShowEpisodeSearchAndScrapeOptions(@NotNull final Map<String, Object> tvShowIds) {
     super(MediaType.TV_EPISODE);
     setTvShowIds(tvShowIds);
   }
@@ -57,13 +62,15 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
   public TvShowEpisodeSearchAndScrapeOptions(TvShowEpisodeSearchAndScrapeOptions original) {
     super(original);
     setTvShowIds(original.tvShowIds);
+    setEpisodeGroup(original.episodeGroup);
   }
 
   @Override
-  public void setDataFromOtherOptions(MediaSearchAndScrapeOptions original) {
+  public void setDataFromOtherOptions(@NotNull MediaSearchAndScrapeOptions original) {
     super.setDataFromOtherOptions(original);
-    if (original instanceof TvShowEpisodeSearchAndScrapeOptions) {
-      setTvShowIds(((TvShowEpisodeSearchAndScrapeOptions) original).tvShowIds);
+    if (original instanceof TvShowEpisodeSearchAndScrapeOptions options) {
+      setTvShowIds(options.tvShowIds);
+      setEpisodeGroup(options.episodeGroup);
     }
     if (original instanceof TvShowSearchAndScrapeOptions) {
       setTvShowIds(original.getIds());
@@ -71,37 +78,51 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
   }
 
   /**
-   * get all set {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids
+   * get all set TV show ids
    * 
-   * @return all set {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids
+   * @return a {@link Map} with all set TV show ids
    */
   public Map<String, Object> getTvShowIds() {
     return tvShowIds;
   }
 
   /**
-   * set the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids for this options
+   * set the TV show ids for this options
    * 
    * @param tvShowIds
-   *          a {@link Map} with the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids to set
+   *          a {@link Map} with the TV shows ids to set
    */
-  public void setTvShowIds(final Map<String, Object> tvShowIds) {
+  public void setTvShowIds(@NotNull final Map<String, Object> tvShowIds) {
     if (this.tvShowIds == null) { // can happen in the constructor // NOSONAR
       return;
     }
 
     this.tvShowIds.clear();
-
-    if (tvShowIds == null) {
-      return;
-    }
-
     this.tvShowIds.putAll(tvShowIds);
     this.ids.put(MediaMetadata.TVSHOW_IDS, tvShowIds);
   }
 
   /**
-   * create an instance of {@link TvShowSearchAndScrapeOptions} from this options for further usage
+   * get the desired {@link MediaEpisodeGroup}
+   * 
+   * @return the {@link MediaEpisodeGroup}
+   */
+  public MediaEpisodeGroup getEpisodeGroup() {
+    return episodeGroup;
+  }
+
+  /**
+   * set the desired {@link MediaEpisodeGroup}
+   * 
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup}
+   */
+  public void setEpisodeGroup(@NotNull MediaEpisodeGroup episodeGroup) {
+    this.episodeGroup = episodeGroup;
+  }
+
+  /**
+   * create an instance of {@link TvShowSearchAndScrapeOptions} from this instance for further usage
    * 
    * @return the created {@link TvShowSearchAndScrapeOptions}
    */

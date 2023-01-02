@@ -41,7 +41,10 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 /**
  * a collection of various helpers for the TV show module
@@ -49,7 +52,7 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
  * @author Manuel Laggner
  */
 public class TvShowHelpers {
-  private static final Logger  LOGGER               = LoggerFactory.getLogger(TvShow.class);
+  private static final Logger  LOGGER               = LoggerFactory.getLogger(TvShowHelpers.class);
 
   private static final Pattern SEASON_NUMBER        = Pattern.compile("(?i)season(\\d+).*");
   private static final Pattern SEASON_FOLDER_NUMBER = Pattern.compile("(?i).*(\\d+).*");
@@ -184,7 +187,7 @@ public class TvShowHelpers {
     // just fake an episode here, since the real foldername can only be generated out of the episode
     // create a dummy episode to inject the season number
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setSeason(season);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, season, -1));
 
     return TvShowRenamer.getSeasonFoldername(tvShow, episode);
   }
@@ -280,7 +283,7 @@ public class TvShowHelpers {
 
   /**
    * detect the season number of season-xxx named files
-   * 
+   *
    * @param filename
    *          the filename
    * @param foldername
@@ -324,5 +327,22 @@ public class TvShowHelpers {
     }
 
     return season;
+  }
+
+  /**
+   * attempt to find the best matching episode group for the given {@link TvShow}
+   *
+   * @param tvShow
+   *          the {@link TvShow} to find the match for
+   * @param episodeGroups
+   *          a {@link List} with all available {@link MediaEpisodeGroup}s
+   * @param episodeList
+   *          the episode list from the scraper
+   * @return the best matching {@link MediaEpisodeGroup} or null (if nothing matches)
+   */
+  public static MediaEpisodeGroup findBestMatchingEpisodeGroup(TvShow tvShow, List<MediaEpisodeGroup> episodeGroups,
+      List<MediaMetadata> episodeList) {
+    // FIXME find a good algorithm to detect the episode group
+    return null;
   }
 }

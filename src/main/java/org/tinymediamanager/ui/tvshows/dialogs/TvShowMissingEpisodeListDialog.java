@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
 import java.util.Comparator;
@@ -41,9 +43,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -64,14 +68,15 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
-  private static final Logger         LOGGER            = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
+  private static final Logger               LOGGER            = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
 
-  private JButton                     btnClose;
-  private JCheckBox                   chckbxShowMissingSpecials;
-  private JProgressBar                pbListEpisodes;
-  private EventList<EpisodeContainer> results;
-  private TmmTable                    tblMissingEpisodeList;
-  private SwingWorker<Void, Void>     episodeListWorker = null;
+  private final JButton                     btnClose;
+  private final JCheckBox                   chckbxShowMissingSpecials;
+  private final JProgressBar                pbListEpisodes;
+  private final EventList<EpisodeContainer> results;
+  private final TmmTable                    tblMissingEpisodeList;
+
+  private SwingWorker<Void, Void>           episodeListWorker = null;
 
   public TvShowMissingEpisodeListDialog(List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("tvshow.missingepisodelist"), "missingepisodelist");
@@ -256,15 +261,19 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
         List<TvShowEpisode> scrapedEpisodes = tvshow.getEpisodes();
         List<MediaMetadata> mediaEpisodes = getEpisodes(tvshow);
 
-        for (MediaMetadata mediaEpisode : mediaEpisodes) {
+        for (MediaMetadata mediaEpisode : ListUtils.nullSafe(mediaEpisodes)) {
 
           boolean entryFound = false;
 
           EpisodeContainer container = new EpisodeContainer();
           container.tvShowTitle = tvshow.getTitle();
           container.episodeTitle = mediaEpisode.getTitle();
-          container.season = mediaEpisode.getSeasonNumber();
-          container.episode = mediaEpisode.getEpisodeNumber();
+
+          MediaEpisodeNumber episodeNumber = mediaEpisode.getEpisodeNumber(AIRED);
+          if (episodeNumber != null) {
+            container.season = episodeNumber.season();
+            container.episode = episodeNumber.episode();
+          }
 
           for (TvShowEpisode scrapedEpisode : scrapedEpisodes) {
 

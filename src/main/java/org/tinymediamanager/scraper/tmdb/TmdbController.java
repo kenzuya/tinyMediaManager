@@ -39,6 +39,7 @@ import org.tinymediamanager.scraper.tmdb.services.ConfigurationService;
 import org.tinymediamanager.scraper.tmdb.services.FindService;
 import org.tinymediamanager.scraper.tmdb.services.MoviesService;
 import org.tinymediamanager.scraper.tmdb.services.SearchService;
+import org.tinymediamanager.scraper.tmdb.services.TvEpisodeGroupsService;
 import org.tinymediamanager.scraper.tmdb.services.TvEpisodesService;
 import org.tinymediamanager.scraper.tmdb.services.TvSeasonsService;
 import org.tinymediamanager.scraper.tmdb.services.TvService;
@@ -197,35 +198,39 @@ class TmdbController {
     return builder;
   }
 
-  public CollectionsService collectionService() {
+  CollectionsService collectionService() {
     return getRetrofit().create(CollectionsService.class);
   }
 
-  public ConfigurationService configurationService() {
+  ConfigurationService configurationService() {
     return getRetrofit().create(ConfigurationService.class);
   }
 
-  public FindService findService() {
+  FindService findService() {
     return getRetrofit().create(FindService.class);
   }
 
-  public MoviesService moviesService() {
+  MoviesService moviesService() {
     return getRetrofit().create(MoviesService.class);
   }
 
-  public SearchService searchService() {
+  SearchService searchService() {
     return getRetrofit().create(SearchService.class);
   }
 
-  public TvService tvService() {
+  TvService tvService() {
     return getRetrofit().create(TvService.class);
   }
 
-  public TvSeasonsService tvSeasonsService() {
+  TvSeasonsService tvSeasonsService() {
     return getRetrofit().create(TvSeasonsService.class);
   }
 
-  public TvEpisodesService tvEpisodesService() {
+  TvEpisodesService tvEpisodesService() {
     return getRetrofit().create(TvEpisodesService.class);
+  }
+
+  TvEpisodeGroupsService tvEpisodeGroupsService() {
+    return getRetrofit().create(TvEpisodeGroupsService.class);
   }
 }

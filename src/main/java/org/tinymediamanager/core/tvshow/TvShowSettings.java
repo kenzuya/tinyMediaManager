@@ -224,7 +224,6 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        syncTraktCollection                    = true;
   boolean                                        syncTraktWatched                       = true;
   boolean                                        syncTraktRating                        = true;
-  boolean                                        dvdOrder                               = false;
   String                                         preferredRating                        = "tvdb";
   boolean                                        extractArtworkFromVsmeta               = false;
   boolean                                        useMediainfoMetadata                   = false;
@@ -361,7 +360,7 @@ public final class TvShowSettings extends AbstractSettings {
     addSeasonCheckArtwork(TvShowScraperMetadataConfig.SEASON_THUMB);
 
     episodeCheckMetadata.clear();
-    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE);
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.SEASON_EPISODE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.TITLE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.ACTORS);
 
@@ -876,16 +875,6 @@ public final class TvShowSettings extends AbstractSettings {
 
   public boolean getSyncTraktRating() {
     return syncTraktRating;
-  }
-
-  public boolean isDvdOrder() {
-    return dvdOrder;
-  }
-
-  public void setDvdOrder(boolean newValue) {
-    boolean oldValue = this.dvdOrder;
-    this.dvdOrder = newValue;
-    firePropertyChange("dvdOrder", oldValue, newValue);
   }
 
   @JsonSetter

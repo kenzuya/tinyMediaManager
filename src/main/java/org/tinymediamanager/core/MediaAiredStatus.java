@@ -26,9 +26,8 @@ public enum MediaAiredStatus {
   CONTINUING("Continuing", new String[] { "Continuing", "returning series" }),
   ENDED("Ended", new String[] { "Ended" });
 
-  
-  private String                      name;
-  private String[]                    possibleNotations;
+  private final String   name;
+  private final String[] possibleNotations;
 
   MediaAiredStatus(String name, String[] possibleNotations) {
     this.name = name;

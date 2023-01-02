@@ -52,8 +52,6 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeSeasonArtworkAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToAiredOrderAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToDvdOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowCleanUpFilesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowClearImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
@@ -322,8 +320,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
@@ -421,8 +417,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));

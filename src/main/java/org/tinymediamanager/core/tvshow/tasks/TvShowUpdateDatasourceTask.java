@@ -78,6 +78,8 @@ import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -932,9 +934,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // something found with the season detection?
             for (int ep : result.episodes) {
               TvShowEpisode episode = new TvShowEpisode();
-              episode.setDvdOrder(TvShowModuleManager.getInstance().getSettings().isDvdOrder());
-              episode.setEpisode(ep);
-              episode.setSeason(result.season);
+              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, result.season, ep));
               episode.setFirstAired(result.date);
               if (result.name.isEmpty()) {
                 result.name = FilenameUtils.getBaseName(mf.getFilename());
@@ -997,9 +997,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // video as -1/-1
             // ******************************
             TvShowEpisode episode = new TvShowEpisode();
-            episode.setDvdOrder(TvShowModuleManager.getInstance().getSettings().isDvdOrder());
-            episode.setEpisode(-1);
-            episode.setSeason(-1);
             episode.setPath(mf.getPath());
 
             if (mf.isDiscFile()) {

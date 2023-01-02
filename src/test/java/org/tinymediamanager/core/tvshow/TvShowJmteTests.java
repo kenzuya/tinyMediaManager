@@ -50,6 +50,8 @@ import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 import com.floreysoft.jmte.Engine;
 
@@ -221,8 +223,8 @@ public class TvShowJmteTests extends BasicTvShowTest {
       TvShowEpisode episode1 = createEpisode();
       tvShow.addEpisode(episode1);
       TvShowEpisode episode2 = createEpisode();
-      episode2.setEpisode(4);
-      episode2.setDvdEpisode(6);
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 4));
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 6));
       episode2.setTitle("Part 2");
       episode2.setFirstAired("1987-04-27");
       tvShow.addEpisode(episode2);
@@ -309,10 +311,8 @@ public class TvShowJmteTests extends BasicTvShowTest {
     TvShowEpisode episode = new TvShowEpisode();
     episode.setTvShow(createTvShow());
 
-    episode.setSeason(1);
-    episode.setEpisode(3);
-    episode.setDvdSeason(1);
-    episode.setDvdEpisode(5);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 3));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 5));
     episode.setTitle("Don't Pet the Teacher");
     episode.setYear(1987);
     episode.setFirstAired("1987-04-26");

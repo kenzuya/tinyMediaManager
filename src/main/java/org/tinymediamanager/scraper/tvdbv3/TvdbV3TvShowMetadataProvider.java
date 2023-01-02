@@ -19,6 +19,10 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DISPLAY;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -43,6 +48,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -104,7 +110,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
@@ -231,13 +237,11 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
     initAPI();
-
-    boolean useDvdOrder = false;
 
     // do we have an id from the options?
     int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault(MediaMetadata.TVDB, 0);
@@ -256,10 +260,6 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
     if (seasonNr == -1 || episodeNr == -1) {
       seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR_DVD, -1);
       episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR_DVD, -1);
-
-      if (seasonNr != -1 && episodeNr != -1) {
-        useDvdOrder = true;
-      }
     }
 
     Date releaseDate = null;
@@ -282,11 +282,13 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
         foundEpisode = episode;
         break;
       }
-      else if (useDvdOrder && episode.getDvdSeasonNumber() == seasonNr && episode.getDvdEpisodeNumber() == episodeNr) {
-        foundEpisode = episode;
-        break;
+
+      MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
+      if (episodeNumber == null) {
+        continue;
       }
-      else if (!useDvdOrder && episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+
+      if (seasonNr == episodeNumber.season() && episodeNr == episodeNumber.episode()) {
         foundEpisode = episode;
         break;
       }
@@ -506,20 +508,18 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       if (MediaIdUtil.isValidImdbId(ep.imdbId)) {
         episode.setId(MediaMetadata.IMDB, ep.imdbId);
       }
-      episode.setSeasonNumber(TvUtils.getSeasonNumber(ep.airedSeason));
-      episode.setEpisodeNumber(TvUtils.getEpisodeNumber(ep.airedEpisodeNumber));
-      episode.setDvdSeasonNumber(TvUtils.getSeasonNumber(ep.dvdSeason));
-      episode.setDvdEpisodeNumber(TvUtils.getEpisodeNumber(ep.dvdEpisodeNumber));
-      if (MetadataUtil.unboxInteger(ep.airsBeforeSeason, -1) > -1) {
-        episode.setDisplaySeasonNumber(MetadataUtil.unboxInteger(ep.airsBeforeSeason));
+      episode.setEpisodeNumber(AIRED, TvUtils.getSeasonNumber(ep.airedSeason), TvUtils.getEpisodeNumber(ep.airedEpisodeNumber));
+      episode.setEpisodeNumber(ABSOLUTE, 1, TvUtils.getEpisodeNumber(ep.absoluteNumber));
+      episode.setEpisodeNumber(DVD, TvUtils.getSeasonNumber(ep.dvdSeason), TvUtils.getEpisodeNumber(ep.dvdEpisodeNumber));
+
+      if (MetadataUtil.unboxInteger(ep.airsBeforeSeason, -1) > -1 || MetadataUtil.unboxInteger(ep.airsBeforeEpisode, -1) > -1) {
+        episode.setEpisodeNumber(DISPLAY, MetadataUtil.unboxInteger(ep.airsBeforeSeason), MetadataUtil.unboxInteger(ep.airsBeforeEpisode));
       }
-      if (MetadataUtil.unboxInteger(ep.airsBeforeEpisode, -1) > -1) {
-        episode.setDisplayEpisodeNumber(MetadataUtil.unboxInteger(ep.airsBeforeEpisode));
-      }
+
       if (MetadataUtil.unboxInteger(ep.airsAfterSeason, -1) > -1) {
-        episode.setDisplaySeasonNumber(MetadataUtil.unboxInteger(ep.airsAfterSeason));
-        episode.setDisplayEpisodeNumber(4096); // like emm
+        episode.setEpisodeNumber(DISPLAY, MetadataUtil.unboxInteger(ep.airsAfterSeason), 4096); // like emm
       }
+
       episode.setTitle(ep.episodeName);
       episode.setPlot(ep.overview);
 

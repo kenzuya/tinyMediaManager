@@ -22,6 +22,8 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -34,6 +36,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -88,7 +91,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search() - {}", options);
 
     // lazy initialization of the api
@@ -133,7 +136,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public List<MediaMetadata> getEpisodeList(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList(): {}", options);
 
     // lazy initialization of the api
@@ -171,8 +174,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
         MediaMetadata ep = new MediaMetadata(getId());
         ep.setScrapeOptions(options);
-        ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
-        ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
+        ep.setEpisodeNumber(AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
         ep.setTitle(episode.title);
 
         if (episode.rating != null && episode.votes != null) {
@@ -447,9 +449,8 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       throw new NothingFoundException();
     }
 
-    md.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
-    md.setAbsoluteNumber(TvUtils.getEpisodeNumber(episode.number_abs));
-    md.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
+    md.setEpisodeNumber(AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
+    md.setEpisodeNumber(ABSOLUTE, 1, TvUtils.getEpisodeNumber(episode.number_abs)); // fixate to S01 like others do
 
     if (episode.ids != null) {
       md.setId(getId(), episode.ids.trakt);

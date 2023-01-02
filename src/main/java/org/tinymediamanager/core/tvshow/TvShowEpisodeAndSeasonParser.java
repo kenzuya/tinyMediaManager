@@ -515,8 +515,8 @@ public class TvShowEpisodeAndSeasonParser {
 
   private static EpisodeMatchingResult postClean(EpisodeMatchingResult emr) {
     // try to clean the filename
-    emr.cleanedName = cleanFilename(emr.name, new Pattern[] { SEASON_PATTERN, seasonMultiEP, seasonMultiEP2, episodePattern, episodePattern2,
-        numbers3Pattern, numbers2Pattern, romanPattern, date1, date2 });
+    emr.cleanedName = cleanFilename(emr.name,
+        new Pattern[] { SEASON_PATTERN, seasonMultiEP, seasonMultiEP2, episodePattern, episodePattern2, date1, date2 });
     Collections.sort(emr.episodes);
     LOGGER.trace("returning result '{}'", emr);
     return emr;
@@ -531,7 +531,7 @@ public class TvShowEpisodeAndSeasonParser {
       }
     }
 
-    // last but not least clean all leading/trailing separators
+    // last but not least, clean all leading/trailing separators
     result = result.replaceAll("^[ \\.\\-_]+", "");
     result = result.replaceAll("[ \\.\\-_]+$", "");
 

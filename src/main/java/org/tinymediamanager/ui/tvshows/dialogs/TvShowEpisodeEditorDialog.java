@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -29,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +86,8 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -116,6 +120,8 @@ import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.RatingEditorPanel;
+import org.tinymediamanager.ui.tvshows.EpisodeNumberTable;
+import org.tinymediamanager.ui.tvshows.TvShowEpisodeNumberEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -141,6 +147,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private final int                                queueIndex;
   private final int                                queueSize;
 
+  private final EventList<MediaEpisodeNumber>      episodeNumbers;
   private final EventList<MediaIdTable.MediaId>    ids;
   private final EventList<MediaRatingTable.Rating> ratings;
   private final EventList<Person>                  guests;
@@ -151,14 +158,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private boolean                                  navigateBack        = false;
 
   private JTextField                               tfTitle;
-  private JSpinner                                 spEpisode;
-  private JSpinner                                 spSeason;
   private JSpinner                                 spRating;
-  private JSpinner                                 spDvdSeason;
-  private JSpinner                                 spDvdEpisode;
-  private JCheckBox                                cbDvdOrder;
-  private JSpinner                                 spDisplaySeason;
-  private JSpinner                                 spDisplayEpisode;
   private DatePicker                               dpFirstAired;
   private JSpinner                                 spDateAdded;
   private JCheckBox                                chckbxWatched;
@@ -179,6 +179,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private JTextField                               tfOriginalTitle;
   private JTextField                               tfThumb;
   private JTextArea                                taNote;
+  private TmmTable                                 tableEpisodeNumbers;
 
   private ScrapeTask                               scrapeTask          = null;
 
@@ -196,6 +197,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     super(TmmResourceBundle.getString("tvshowepisode.edit") + "  < " + episode.getMainVideoFile().getFilename() + " >", DIALOG_ID);
 
     // creation of lists
+    episodeNumbers = GlazedLists.threadSafeList(new BasicEventList<>());
     guests = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
     directors = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
     writers = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -218,13 +220,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     {
       tfTitle.setText(episodeToEdit.getTitle());
       tfOriginalTitle.setText(episodeToEdit.getOriginalTitle());
-      cbDvdOrder.setSelected(episodeToEdit.isDvdOrder());
-      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, Integer.MAX_VALUE, 1));
-      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, Integer.MAX_VALUE, 1));
-      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, Integer.MAX_VALUE, 1));
-      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, Integer.MAX_VALUE, 1));
-      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, Integer.MAX_VALUE, 1));
-      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, Integer.MAX_VALUE, 1));
       spDateAdded.setValue(episodeToEdit.getDateAdded());
       spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 0.1));
 
@@ -235,6 +230,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       taPlot.setCaretPosition(0);
       cbMediaSource.setSelectedItem(episodeToEdit.getMediaSource());
       taNote.setText(episodeToEdit.getNote());
+
+      episodeNumbers.addAll(episodeToEdit.getEpisodeNumbers().values());
 
       for (Person origCast : episodeToEdit.getActors()) {
         guests.add(new Person(origCast));
@@ -263,17 +260,17 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     {
       JPanel detailsPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), detailsPanel);
-      detailsPanel.setLayout(new MigLayout("", "[][20lp:75lp,grow][50lp:75lp][][60lp:75lp][50lp:75lp][20lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][50lp:50lp:100lp,grow 50][]"));
+      detailsPanel.setLayout(new MigLayout("", "[][20lp:100lp:175lp][50lp:100lp:175lp][200lp:250lp,grow][][25lp:n][200lp:250lp,grow]",
+          "[][][100lp:15%:20%][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][50lp:50lp:100lp,grow 50][]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         detailsPanel.add(lblTitle, "cell 0 0,alignx right");
 
         tfTitle = new JTextField();
-        detailsPanel.add(tfTitle, "flowx,cell 1 0 7 1,growx");
+        detailsPanel.add(tfTitle, "flowx,cell 1 0 4 1,growx");
 
-        final JButton btnPlay = new JButton(IconManager.PLAY_INV);
+        final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
           MediaFile mf = episodeToEdit.getMainVideoFile();
@@ -286,27 +283,52 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
                 .pushMessage(new Message(MessageLevel.ERROR, mf, "message.erroropenfile", new String[] { ":", ex.getLocalizedMessage() }));
           }
         });
-        detailsPanel.add(btnPlay, "cell 1 0 7 1");
+        detailsPanel.add(btnPlay, "cell 1 0 4 1");
       }
       {
         JLabel lblOriginalTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.originaltitle"));
         detailsPanel.add(lblOriginalTitleT, "cell 0 1,alignx trailing");
 
         tfOriginalTitle = new JTextField();
-        detailsPanel.add(tfOriginalTitle, "cell 1 1 7 1,growx");
+        detailsPanel.add(tfOriginalTitle, "cell 1 1 4 1,growx");
       }
       {
-        JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
-        detailsPanel.add(lblSeason, "cell 0 2,alignx right");
-
-        spSeason = new JSpinner();
-        detailsPanel.add(spSeason, "cell 1 2,growx");
-
         JLabel lblEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
-        detailsPanel.add(lblEpisode, "cell 3 2,alignx right");
+        detailsPanel.add(lblEpisode, "flowy,cell 0 2,alignx right,aligny top");
 
-        spEpisode = new JSpinner();
-        detailsPanel.add(spEpisode, "cell 4 2,growx");
+        JScrollPane scrollPaneEpisodeNumbers = new JScrollPane();
+
+        tableEpisodeNumbers = new EpisodeNumberTable(episodeNumbers) {
+          @Override
+          protected void editButtonClicked(int row) {
+            MediaEpisodeNumber episodeNumber = episodeNumbers.get(row);
+            if (episodeNumber == null) {
+              return;
+            }
+
+            ModalPopupPanel popupPanel = createModalPopupPanel();
+            popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.edit"));
+
+            TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(episodeNumber);
+            popupPanel.setContent(episodeNumberEditorPanel);
+            popupPanel.setOnCloseHandler(() -> {
+              MediaEpisodeNumber episodeNumber1 = episodeNumberEditorPanel.getEpisodeNumber();
+              if (episodeNumber1 != null && episodeNumber1.containsAnyNumber()) {
+                addOrEditEpisodeNumber(episodeNumber1);
+              }
+            });
+
+            showModalPopupPanel(popupPanel);
+          }
+        };
+        tableEpisodeNumbers.configureScrollPane(scrollPaneEpisodeNumbers);
+        detailsPanel.add(scrollPaneEpisodeNumbers, "cell 1 2 2 1,grow");
+
+        JButton btnAddEpisodeNumber = new SquareIconButton(new AddEpisodeNumberAction());
+        detailsPanel.add(btnAddEpisodeNumber, "cell 0 2,alignx right");
+
+        JButton btnRemoveEpisodeNumber = new SquareIconButton(new RemoveEpisodeNumberAction());
+        detailsPanel.add(btnRemoveEpisodeNumber, "cell 0 2,alignx right");
       }
       {
         JLabel lblFirstAired = new TmmLabel(TmmResourceBundle.getString("metatag.aired"));
@@ -316,43 +338,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       dpFirstAired = new DatePicker(episodeToEdit.getFirstAired());
       detailsPanel.add(dpFirstAired, "cell 1 3 2 1,growx");
       {
-        JLabel lblDvdSeason = new TmmLabel(TmmResourceBundle.getString("metatag.dvdseason"));
-        detailsPanel.add(lblDvdSeason, "cell 0 4,alignx right,aligny center");
-
-        spDvdSeason = new JSpinner();
-        detailsPanel.add(spDvdSeason, "cell 1 4,growx");
-
-        JLabel lblDvdEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.dvdepisode"));
-        detailsPanel.add(lblDvdEpisode, "cell 3 4,alignx right");
-
-        spDvdEpisode = new JSpinner();
-        detailsPanel.add(spDvdEpisode, "cell 4 4,growx");
-
-        JLabel lblDvdOrder = new TmmLabel(TmmResourceBundle.getString("metatag.dvdorder"));
-        detailsPanel.add(lblDvdOrder, "flowx,cell 6 4 2 1");
-
-        cbDvdOrder = new JCheckBox("");
-        detailsPanel.add(cbDvdOrder, "cell 6 4 2 1");
-      }
-      {
-        JLabel lblDisplaySeason = new TmmLabel(TmmResourceBundle.getString("metatag.displayseason"));
-        detailsPanel.add(lblDisplaySeason, "cell 0 5,alignx right");
-
-        spDisplaySeason = new JSpinner();
-        detailsPanel.add(spDisplaySeason, "cell 1 5,growx");
-
-        JLabel lblDisplayEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.displayepisode"));
-        detailsPanel.add(lblDisplayEpisode, "cell 3 5,alignx right");
-
-        spDisplayEpisode = new JSpinner();
-        detailsPanel.add(spDisplayEpisode, "cell 4 5,growx");
-      }
-      {
         JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
-        detailsPanel.add(lblPlot, "cell 0 6,alignx right,aligny top");
+        detailsPanel.add(lblPlot, "cell 0 4,alignx right,aligny top");
 
         JScrollPane scrollPane = new JScrollPane();
-        detailsPanel.add(scrollPane, "cell 1 6 7 1,grow");
+        detailsPanel.add(scrollPane, "cell 1 4 4 1,grow");
 
         taPlot = new JTextArea();
         taPlot.setLineWrap(true);
@@ -360,10 +350,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         scrollPane.setViewportView(taPlot);
       }
       {
-        detailsPanel.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb")), "cell 9 0");
+        detailsPanel.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb")), "cell 6 0");
 
         LinkLabel lblThumbSize = new LinkLabel();
-        detailsPanel.add(lblThumbSize, "cell 9 0");
+        detailsPanel.add(lblThumbSize, "cell 6 0");
 
         JButton btnDeleteThumb = new FlatButton(IconManager.DELETE_GRAY);
         btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
@@ -371,7 +361,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
           lblThumb.clearImage();
           tfThumb.setText("");
         });
-        detailsPanel.add(btnDeleteThumb, "cell 9 0");
+        detailsPanel.add(btnDeleteThumb, "cell 6 0");
 
         lblThumb = new ImageLabel();
         lblThumb.setDesiredAspectRatio(16 / 9f);
@@ -379,8 +369,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             Map<String, Object> newIds = new HashMap<>(episodeToEdit.getIds());
-            newIds.put(MediaMetadata.SEASON_NR, spSeason.getValue());
-            newIds.put(MediaMetadata.EPISODE_NR, spEpisode.getValue());
+            newIds.put(MediaMetadata.EPISODE_NR, new ArrayList<>(episodeNumbers));
             newIds.put("mediaFile", episodeToEdit.getMainFile());
             newIds.put(MediaMetadata.TVSHOW_IDS, episodeToEdit.getTvShow().getIds());
 
@@ -397,43 +386,43 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
           }
         });
         lblThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        detailsPanel.add(lblThumb, "cell 9 1 1 6,grow");
+        detailsPanel.add(lblThumb, "cell 6 1 1 4,grow");
         lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
             e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, btnDeleteThumb, MediaFileType.THUMB));
       }
       {
         JLabel lblRating = new TmmLabel(TmmResourceBundle.getString("metatag.userrating"));
-        detailsPanel.add(lblRating, "cell 0 9,alignx right");
+        detailsPanel.add(lblRating, "cell 0 7,alignx right");
 
         spRating = new JSpinner();
-        detailsPanel.add(spRating, "cell 1 9,growx");
+        detailsPanel.add(spRating, "cell 1 7 2 1,flowx");
 
         JLabel lblUserRatingHint = new JLabel(IconManager.HINT);
         lblUserRatingHint.setToolTipText(TmmResourceBundle.getString("edit.userrating.hint"));
-        detailsPanel.add(lblUserRatingHint, "cell 2 9");
+        detailsPanel.add(lblUserRatingHint, "cell 1 7 2 1");
       }
       {
         JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
-        detailsPanel.add(lblRatingsT, "flowy,cell 0 10,alignx right,aligny top");
+        detailsPanel.add(lblRatingsT, "flowy,cell 0 8,alignx right,aligny top");
 
         JScrollPane scrollPaneRatings = new JScrollPane();
-        detailsPanel.add(scrollPaneRatings, "cell 1 10 5 2,grow");
+        detailsPanel.add(scrollPaneRatings, "cell 1 8 2 2,grow");
 
         tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
 
         JButton btnAddRating = new SquareIconButton(new AddRatingAction());
-        detailsPanel.add(btnAddRating, "cell 0 10,alignx right,aligny top");
+        detailsPanel.add(btnAddRating, "cell 0 8,alignx right,aligny top");
 
         JButton btnRemoveRating = new SquareIconButton(new RemoveRatingAction());
-        detailsPanel.add(btnRemoveRating, "cell 0 10,alignx right,aligny top");
+        detailsPanel.add(btnRemoveRating, "cell 0 8,alignx right,aligny top");
       }
       {
         JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-        detailsPanel.add(lblNoteT, "cell 0 12,alignx right,aligny top");
+        detailsPanel.add(lblNoteT, "cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPane = new JScrollPane();
-        detailsPanel.add(scrollPane, "cell 1 12 7 1,grow,wmin 0");
+        detailsPanel.add(scrollPane, "cell 1 10 4 1,wmin 0,grow");
 
         taNote = new JTextArea();
         taNote.setLineWrap(true);
@@ -724,14 +713,18 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       dialog.setLocationRelativeTo(TvShowEpisodeEditorDialog.this);
       dialog.setVisible(true);
       MediaMetadata metadata = dialog.getMetadata();
-      if (metadata != null && metadata.getSeasonNumber() > -1 && metadata.getEpisodeNumber() > -1) {
+      if (metadata != null && !metadata.getEpisodeNumbers().isEmpty()) {
         tfTitle.setText(metadata.getTitle());
         tfOriginalTitle.setText(metadata.getOriginalTitle());
         taPlot.setText(metadata.getPlot());
-        spEpisode.setValue(metadata.getEpisodeNumber());
-        spSeason.setValue(metadata.getSeasonNumber());
-        spDvdEpisode.setValue(metadata.getDvdEpisodeNumber());
-        spDvdSeason.setValue(metadata.getDvdSeasonNumber());
+
+        episodeNumbers.clear();
+        for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
+          MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
+          if (episodeNumber.isValid()) {
+            episodeNumbers.add(episodeNumber);
+          }
+        }
 
         ids.clear();
         ids.addAll(MediaIdTable.convertIdMapToEventList(metadata.getIds()));
@@ -743,20 +736,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         // force copy constructors here
         for (Person member : metadata.getCastMembers()) {
           switch (member.getType()) {
-            case ACTOR:
-              guests.add(new Person(member));
-              break;
-
-            case DIRECTOR:
-              directors.add(new Person(member));
-              break;
-
-            case WRITER:
-              writers.add(new Person(member));
-              break;
-
-            default:
-              break;
+            case ACTOR -> guests.add(new Person(member));
+            case DIRECTOR -> directors.add(new Person(member));
+            case WRITER -> writers.add(new Person(member));
           }
         }
 
@@ -782,32 +764,24 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
       episodeToEdit.setTitle(tfTitle.getText());
       episodeToEdit.setOriginalTitle(tfOriginalTitle.getText());
-      episodeToEdit.setDvdOrder(cbDvdOrder.isSelected());
 
-      // check, if S/EE numbers changed - in that case we NEED to remove all IDs
-      if (episodeToEdit.getAiredSeason() != (((Integer) spSeason.getValue()).intValue())
-          || episodeToEdit.getAiredEpisode() != (((Integer) spEpisode.getValue()).intValue())
-          || episodeToEdit.getDvdSeason() != (((Integer) spDvdSeason.getValue()).intValue())
-          || episodeToEdit.getDvdEpisode() != (((Integer) spDvdEpisode.getValue()).intValue())) {
-        ids.clear(); // will be removed
+      Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> epNumbers = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
+      for (MediaEpisodeNumber episodeNumber : episodeNumbers) {
+        if (episodeNumber.containsAnyNumber()) {
+          epNumbers.put(episodeNumber.episodeGroup(), episodeNumber);
+        }
       }
-
-      episodeToEdit.setAiredSeason((Integer) spSeason.getValue());
-      episodeToEdit.setAiredEpisode((Integer) spEpisode.getValue());
-      episodeToEdit.setDvdSeason((Integer) spDvdSeason.getValue());
-      episodeToEdit.setDvdEpisode((Integer) spDvdEpisode.getValue());
-      episodeToEdit.setDisplaySeason((Integer) spDisplaySeason.getValue());
-      episodeToEdit.setDisplayEpisode((Integer) spDisplayEpisode.getValue());
+      episodeToEdit.setEpisodeNumbers(epNumbers);
 
       episodeToEdit.setPlot(taPlot.getText());
       episodeToEdit.setNote(taNote.getText());
 
-      Object mediaSource = cbMediaSource.getSelectedItem();
-      if (mediaSource instanceof MediaSource) {
-        episodeToEdit.setMediaSource((MediaSource) mediaSource);
+      Object obj = cbMediaSource.getSelectedItem();
+      if (obj instanceof MediaSource mediaSource) {
+        episodeToEdit.setMediaSource(mediaSource);
       }
-      else if (mediaSource instanceof String) {
-        episodeToEdit.setMediaSource(MediaSource.getMediaSource((String) mediaSource));
+      else if (obj instanceof String mediaSource) {
+        episodeToEdit.setMediaSource(MediaSource.getMediaSource(mediaSource));
       }
       else {
         episodeToEdit.setMediaSource(MediaSource.UNKNOWN);
@@ -968,11 +942,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       for (MediaIdTable.MediaId mediaId : ids) {
         options.setId(mediaId.key, mediaId.value);
       }
-      options.setId(MediaMetadata.SEASON_NR, spSeason.getValue().toString());
-      options.setId(MediaMetadata.EPISODE_NR, spEpisode.getValue().toString());
 
-      options.setId(MediaMetadata.SEASON_NR_DVD, spDvdSeason.getValue().toString());
-      options.setId(MediaMetadata.EPISODE_NR_DVD, spDvdEpisode.getValue().toString());
+      options.setId(MediaMetadata.EPISODE_NR, new ArrayList<>(episodeNumbers));
+
       try {
         LOGGER.info("=====================================================");
         LOGGER.info("Scraper metadata with scraper: {}", mediaScraper.getMediaProvider().getProviderInfo().getId());
@@ -1032,13 +1004,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         taPlot.setText(metadata.getPlot());
         dpFirstAired.setDate(metadata.getReleaseDate());
 
-        // set aired or dvd ep/season
-        spSeason.setValue(metadata.getSeasonNumber());
-        spEpisode.setValue(metadata.getEpisodeNumber());
-        spDvdSeason.setValue(metadata.getDvdSeasonNumber());
-        spDvdEpisode.setValue(metadata.getDvdEpisodeNumber());
-        spDisplayEpisode.setValue(metadata.getDisplayEpisodeNumber());
-        spDisplaySeason.setValue(metadata.getDisplaySeasonNumber());
+        episodeNumbers.clear();
+        for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
+          MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
+          if (episodeNumber.isValid()) {
+            episodeNumbers.add(episodeNumber);
+          }
+        }
 
         ratings.clear();
         ratings.addAll(MediaRatingTable.convertRatingMapToEventList(metadata.getRatings()));
@@ -1054,20 +1026,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         // force copy constructors here
         for (Person member : metadata.getCastMembers()) {
           switch (member.getType()) {
-            case ACTOR:
-              guests.add(new Person(member));
-              break;
-
-            case DIRECTOR:
-              directors.add(new Person(member));
-              break;
-
-            case WRITER:
-              writers.add(new Person(member));
-              break;
-
-            default:
-              break;
+            case ACTOR -> guests.add(new Person(member));
+            case DIRECTOR -> directors.add(new Person(member));
+            case WRITER -> writers.add(new Person(member));
           }
         }
 
@@ -1125,6 +1086,60 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     lblSize.setVisible(true);
     buttonDelete.setVisible(true);
+  }
+
+  private class AddEpisodeNumberAction extends AbstractAction {
+    AddEpisodeNumberAction() {
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("episodenumber.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      ModalPopupPanel popupPanel = createModalPopupPanel();
+      popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.add"));
+
+      TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(new MediaEpisodeNumber(AIRED, -1, -1));
+      popupPanel.setContent(episodeNumberEditorPanel);
+      popupPanel.setOnCloseHandler(() -> {
+        MediaEpisodeNumber episodeNumber = episodeNumberEditorPanel.getEpisodeNumber();
+        if (episodeNumber != null && episodeNumber.containsAnyNumber()) {
+          addOrEditEpisodeNumber(episodeNumber);
+        }
+      });
+
+      showModalPopupPanel(popupPanel);
+    }
+  }
+
+  private void addOrEditEpisodeNumber(MediaEpisodeNumber episodeNumber) {
+    // remove the old one
+    MediaEpisodeNumber existing = episodeNumbers.stream().filter(ep -> ep.episodeGroup() == episodeNumber.episodeGroup()).findFirst().orElse(null);
+    if (existing != null) {
+      int index = episodeNumbers.indexOf(existing);
+      episodeNumbers.remove(existing);
+      episodeNumbers.add(index, episodeNumber);
+      ids.clear();
+    }
+    else {
+      episodeNumbers.add(episodeNumber);
+    }
+  }
+
+  private class RemoveEpisodeNumberAction extends AbstractAction {
+    RemoveEpisodeNumberAction() {
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("episodenumber.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableEpisodeNumbers.getSelectedRow();
+      if (row > -1) {
+        row = tableEpisodeNumbers.convertRowIndexToModel(row);
+        episodeNumbers.remove(row);
+      }
+    }
   }
 
   private class AddRatingAction extends AbstractAction {

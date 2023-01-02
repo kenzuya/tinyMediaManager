@@ -213,10 +213,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
             try {
               for (MediaMetadata me : ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getEpisodeList(options)) {
                 TvShowEpisode ep = new TvShowEpisode();
-                ep.setEpisode(me.getEpisodeNumber());
-                ep.setSeason(me.getSeasonNumber());
-                ep.setDvdEpisode(me.getDvdEpisodeNumber());
-                ep.setDvdSeason(me.getDvdSeasonNumber());
+                ep.setEpisodeNumbers(me.getEpisodeNumbers());
                 ep.setFirstAired(me.getReleaseDate());
                 ep.setTitle(me.getTitle());
                 ep.setOriginalTitle(me.getOriginalTitle());

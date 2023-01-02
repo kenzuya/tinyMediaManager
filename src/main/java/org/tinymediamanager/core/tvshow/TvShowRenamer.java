@@ -102,7 +102,7 @@ public class TvShowRenamer {
   private static final String[]            seasonNumbers  = { "seasonNr", "seasonNr2", "seasonNrDvd", "seasonNrDvd2", "episode.season",
       "episode.dvdSeason" };
   private static final String[]            episodeNumbers = { "episodeNr", "episodeNr2", "episodeNrDvd", "episodeNrDvd2", "episode.episode",
-      "episode.dvdEpisode" };
+      "episode.dvdEpisode", "absoluteNr", "absoluteNr2", "episode.absoluteNumber" };
   private static final String[]            episodeTitles  = { "title", "originalTitle", "titleSortable", "episode.title", "episode.originalTitle",
       "episode.titleSortable" };
   private static final String[]            episodeAired   = { "airedDate", "episode.firstAired" };
@@ -145,12 +145,18 @@ public class TvShowRenamer {
     // episode tags
     tokenMap.put("episodeNr", "episode.episode");
     tokenMap.put("episodeNr2", "episode.episode;number(%02d)");
+    tokenMap.put("episodeNrAired", "episode.airedEpisode");
+    tokenMap.put("episodeNrAired2", "episode.airedEpisode;number(%02d)");
     tokenMap.put("episodeNrDvd", "episode.dvdEpisode");
     tokenMap.put("episodeNrDvd2", "episode.dvdEpisode;number(%02d)");
     tokenMap.put("seasonNr", "episode.season;number(%d)");
     tokenMap.put("seasonNr2", "episode.season;number(%02d)");
+    tokenMap.put("seasonNrAired", "episode.airedSeason;number(%d)");
+    tokenMap.put("seasonNrAired2", "episode.airedSeason;number(%02d)");
     tokenMap.put("seasonNrDvd", "episode.dvdSeason;number(%d)");
     tokenMap.put("seasonNrDvd2", "episode.dvdSeason;number(%02d)");
+    tokenMap.put("absoluteNr", "episode.absoluteNumber;number(%d)");
+    tokenMap.put("absoluteNr2", "episode.absoluteNumber;number(%02d)");
     tokenMap.put("title", "episode.title");
     tokenMap.put("originalTitle", "episode.originalTitle");
     tokenMap.put("originalFilename", "episode.originalFilename");

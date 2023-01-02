@@ -67,6 +67,9 @@ public class TmmHttpClient {
     // add an own logging interceptor to only log text responses
     builder.addInterceptor(new TmmHttpLoggingInterceptor());
 
+    // enable brotli compression
+    builder.addInterceptor(BrotliInterceptor.INSTANCE);
+
     // pool
     builder.connectionPool(new ConnectionPool(5, 5000, TimeUnit.MILLISECONDS));
 

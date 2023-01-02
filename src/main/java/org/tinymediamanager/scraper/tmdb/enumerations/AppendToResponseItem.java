@@ -28,6 +28,7 @@ public enum AppendToResponseItem {
 
   // Applies to TV Shows
   CONTENT_RATINGS("content_ratings"),
+  EPISODE_GROUPS("episode_groups"),
 
   // Applies to People
   MOVIE_CREDITS("movie_credits"),

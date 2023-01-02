@@ -59,6 +59,8 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 import com.google.gson.stream.JsonReader;
 
@@ -700,8 +702,7 @@ public class VSMeta {
     TvShowEpisode ep = new TvShowEpisode();
     ep.setIds(ids);
     ep.setTitle(info.title3);
-    ep.setSeason(info.season);
-    ep.setEpisode(info.episode);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, info.season, info.episode));
 
     ep.setPlot(info.summary);
     ep.setFirstAired(info.releaseDate);

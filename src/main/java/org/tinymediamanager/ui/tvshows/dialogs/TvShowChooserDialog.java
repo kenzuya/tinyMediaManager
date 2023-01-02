@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
@@ -84,6 +85,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -157,6 +159,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   private final JButton                                                                okButton;
   private final JLabel                                                                 lblPath;
   private final JLabel                                                                 lblOriginalTitle;
+  private final JComboBox<MediaEpisodeGroup>                                           cbEpisodeGroup;
+  private final JLabel                                                                 lblEpisodeGroup;
+  private final JButton                                                                btnCompareEpisodeGroup;
   private final ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>        cbTvShowScraperConfig;
   private final ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
   private final JHintCheckBox                                                          chckbxDoNotOverwrite;
@@ -289,7 +294,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow 3]", "[][][150lp:200lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow]", "[][][150lp:300lp,grow][]"));
         {
           lblTtitle = new JLabel("");
           TmmFontHelper.changeFont(lblTtitle, 1.166, Font.BOLD);
@@ -298,7 +303,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         {
           lblTvShowPoster = new ImageLabel(false);
           lblTvShowPoster.setDesiredAspectRatio(2 / 3f);
-          panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 3,grow");
+          panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 4,grow");
         }
         {
           lblOriginalTitle = new JLabel("");
@@ -310,6 +315,29 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           taOverview = new ReadOnlyTextArea();
           scrollPane.setViewportView(taOverview);
+        }
+        {
+          JPanel panelEpisodeGroup = new JPanel();
+          panelEpisodeGroup.setLayout(new FlowLayout());
+
+          lblEpisodeGroup = new JLabel(TmmResourceBundle.getString("tvshow.episodegroup"));
+          lblEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(lblEpisodeGroup);
+
+          cbEpisodeGroup = new JComboBox();
+          cbEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(cbEpisodeGroup);
+
+          btnCompareEpisodeGroup = new JButton(TmmResourceBundle.getString("tmm.episodegroup.compare"));
+          btnCompareEpisodeGroup.setToolTipText(TmmResourceBundle.getString("tmm.episodegroup.compare.desc"));
+          btnCompareEpisodeGroup.addActionListener(actionEvent -> {
+            TvShowChooserEpisodeListDialog dialog = new TvShowChooserEpisodeListDialog(TvShowChooserDialog.this, tvShow, selectedResult);
+            dialog.setVisible(true);
+          });
+          btnCompareEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(btnCompareEpisodeGroup);
+
+          panelSearchDetail.add(panelEpisodeGroup, "cell 1 3,aligny bottom");
         }
       }
     }
@@ -423,6 +451,21 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             lblTvShowPoster.setImageUrl(model.getPosterUrl());
           }
           taOverview.setText(model.getOverview());
+
+          cbEpisodeGroup.removeAllItems();
+          if (model.getEpisodeGroups().isEmpty()) {
+            lblEpisodeGroup.setVisible(false);
+            cbEpisodeGroup.setVisible(false);
+            btnCompareEpisodeGroup.setVisible(false);
+          }
+          else {
+            lblEpisodeGroup.setVisible(true);
+            cbEpisodeGroup.setVisible(true);
+            btnCompareEpisodeGroup.setVisible(true);
+            model.getEpisodeGroups().forEach(cbEpisodeGroup::addItem);
+
+            cbEpisodeGroup.setSelectedItem(model.getEpisodeGroup());
+          }
         }
       }
     };
@@ -442,6 +485,10 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         lblTtitle.setText(model.getCombinedName());
         lblOriginalTitle.setText(model.getOriginalTitle());
         taOverview.setText(model.getOverview());
+
+        lblEpisodeGroup.setVisible(false);
+        cbEpisodeGroup.setVisible(false);
+        btnCompareEpisodeGroup.setVisible(false);
 
         selectedResult = model;
         selectedResult.addPropertyChangeListener(listener);
@@ -514,6 +561,13 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
           tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
           tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
+          if (cbEpisodeGroup.getSelectedItem()instanceof MediaEpisodeGroup episodeGroup) {
+            tvShowToScrape.setEpisodeGroup(episodeGroup);
+          }
+          else {
+            tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT);
+          }
+          tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
 
           // get the episode list for display?
           if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
@@ -808,7 +862,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             if (mpFromResult == null) {
               mpFromResult = tvShowList.getMediaScraperById(result.getProviderId());
             }
-            searchResultEventList.add(new TvShowChooserModel(mpFromResult, artworkScrapers, trailerScrapers, result, language));
+            searchResultEventList.add(new TvShowChooserModel(tvShowToScrape, mpFromResult, artworkScrapers, trailerScrapers, result, language));
           }
         }
       }

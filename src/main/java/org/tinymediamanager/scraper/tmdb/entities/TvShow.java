@@ -3,6 +3,8 @@ package org.tinymediamanager.scraper.tmdb.entities;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public class TvShow extends BaseTvShow {
 
   public List<Person>      created_by;
@@ -35,4 +37,7 @@ public class TvShow extends BaseTvShow {
 
   public BaseTvEpisode     last_episode_to_air;
   public BaseTvEpisode     next_episode_to_air;
+
+  @SerializedName(value = "episode_groups")
+  public EpisodeGroups     episodeGroups;
 }

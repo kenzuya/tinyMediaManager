@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
@@ -43,6 +44,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.renderer.CenteredTableCellRenderer;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 
@@ -159,9 +161,9 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       columnClass = clazz;
       minWidth = (int) (Settings.getInstance().getFontSize() * 2.3);
 
-      // if (Icon.class.isAssignableFrom(clazz)) {
-      // setCellRenderer(new CenteredTableCellRenderer());
-      // }
+      if (Icon.class.isAssignableFrom(clazz)) {
+        setCellRenderer(new CenteredTableCellRenderer());
+      }
     }
 
     public void setColumnComparator(Comparator<?> comparator) {

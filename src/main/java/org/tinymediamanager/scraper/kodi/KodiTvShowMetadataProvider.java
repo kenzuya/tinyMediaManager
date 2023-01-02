@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.kodi;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -155,8 +157,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
       Element epXmlEl = epDetailXml.getDocumentElement();
 
       addMetadata(md, epXmlEl);
-      md.setEpisodeNumber(ep);
-      md.setSeasonNumber(season);
+      md.setEpisodeNumber(AIRED, season, ep);
       LOGGER.trace("MetaData: {}", md);
 
       // cache EPISODE MetaData as provideId_S00_E00
@@ -272,8 +273,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
         MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
         md.setScrapeOptions(options);
-        md.setEpisodeNumber(ep);
-        md.setSeasonNumber(season);
+        md.setEpisodeNumber(AIRED, season, ep);
         md.setTitle(DOMUtils.getElementValue(el, "title"));
         md.setId(scraper.getProviderInfo().getId(), DOMUtils.getElementValue(el, "id"));
         // String epUrl = DOMUtils.getElementValue(el, "url"); // cannot save in ME!!!

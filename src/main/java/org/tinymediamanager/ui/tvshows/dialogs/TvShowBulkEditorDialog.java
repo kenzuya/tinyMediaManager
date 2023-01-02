@@ -49,6 +49,8 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -335,6 +337,9 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
         panelContent.add(lblSeason, "cell 0 2,alignx right");
 
+        JComboBox<MediaEpisodeGroup.EpisodeGroup> cbEpisodeGroup = new JComboBox(MediaEpisodeGroup.EpisodeGroup.values());
+        panelContent.add(cbEpisodeGroup, "cell 1 2");
+
         JSpinner spSeason = new JSpinner();
         spSeason.setModel(new SpinnerNumberModel(0, -1, 9999, 1));
         panelContent.add(spSeason, "cell 1 2");
@@ -346,47 +351,16 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
             Integer season = (Integer) spSeason.getValue();
-            episode.setSeason(season);
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        });
-      }
-
-      {
-        JLabel lblDvdOrder = new TmmLabel(TmmResourceBundle.getString("metatag.dvdorder"));
-        panelContent.add(lblDvdOrder, "cell 0 3,alignx right");
-
-        final JCheckBox cbDvdOrder = new JCheckBox("");
-        panelContent.add(cbDvdOrder, "cell 1 3");
-
-        JButton btnDvdOrder = new SquareIconButton(IconManager.APPLY_INV);
-        panelContent.add(btnDvdOrder, "cell 2 3");
-        btnDvdOrder.addActionListener(arg0 -> {
-          episodesChanged = true;
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.setDvdOrder(cbDvdOrder.isSelected());
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        });
-      }
-
-      {
-        JLabel lblDisplaySeason = new JLabel(TmmResourceBundle.getString("metatag.displayseason"));
-        panelContent.add(lblDisplaySeason, "cell 0 4,alignx right");
-
-        JSpinner spDisplaySeason = new JSpinner();
-        spDisplaySeason.setModel(new SpinnerNumberModel(0, -1, 9999, 1));
-        panelContent.add(spDisplaySeason, "cell 1 4");
-
-        SquareIconButton btnDisplaySeason = new SquareIconButton(IconManager.APPLY_INV);
-        panelContent.add(btnDisplaySeason, "cell 2 4");
-        btnDisplaySeason.addActionListener(arg0 -> {
-          episodesChanged = true;
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            Integer season = (Integer) spDisplaySeason.getValue();
-            episode.setDisplaySeason(season);
+            MediaEpisodeGroup.EpisodeGroup episodeGroup = (MediaEpisodeGroup.EpisodeGroup) cbEpisodeGroup.getSelectedItem();
+            if (episodeGroup != null) {
+              MediaEpisodeNumber existingEpisodeNumber = episode.getEpisodeNumber(episodeGroup);
+              if (existingEpisodeNumber != null) {
+                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, existingEpisodeNumber.episode()));
+              }
+              else {
+                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, -1));
+              }
+            }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });

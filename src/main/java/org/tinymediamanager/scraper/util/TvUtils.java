@@ -62,8 +62,7 @@ public class TvUtils {
           continue;
         }
         if (nr <= minimumValue) {
-          if (o instanceof String) {
-            String s = (String) o;
+          if (o instanceof String s) {
             if (!s.isEmpty()) {
               try {
                 nr = Integer.parseInt(s);

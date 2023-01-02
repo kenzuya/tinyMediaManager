@@ -53,6 +53,8 @@ import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -196,6 +198,7 @@ public class TvShowEpisodeNfoParser {
     public List<Person>               actors              = new ArrayList<>();
     public List<Person>               directors           = new ArrayList<>();
     public List<Person>               credits             = new ArrayList<>();
+    public List<MediaEpisodeNumber>   episodeNumbers      = new ArrayList<>();
 
     public List<String>               unsupportedElements = new ArrayList<>();
 
@@ -261,6 +264,7 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::parseDateadded);
       parseTag(Episode::parseOriginalFilename);
       parseTag(Episode::parseUserNote);
+      parseTag(Episode::parseEpisodeGroups);
 
       // MUST BE THE LAST ONE!
       parseTag(Episode::findUnsupportedElements);
@@ -1538,6 +1542,32 @@ public class TvShowEpisodeNfoParser {
     }
 
     /**
+     * the episode groups are in the episode_group tag
+     */
+    private Void parseEpisodeGroups() {
+      supportedElements.add("episode_groups");
+
+      Element element = getSingleElement(root, "episode_groups");
+      if (element != null) {
+        for (Element group : element.children()) {
+          try {
+            MediaEpisodeGroup.EpisodeGroup episodeGroup = MediaEpisodeGroup.EpisodeGroup.valueOf(group.attr("id"));
+            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(episodeGroup, Integer.parseInt(group.attr("season")),
+                Integer.parseInt(group.attr("episode")));
+
+            if (episodeNumber.containsAnyNumber()) {
+              episodeNumbers.add(episodeNumber);
+            }
+          }
+          catch (Exception ignored) {
+            // nothing to do
+          }
+        }
+      }
+      return null;
+    }
+
+    /**
      * morph this instance to a TvShowEpisode object
      *
      * @return the TvShowEpisode Object
@@ -1546,10 +1576,18 @@ public class TvShowEpisodeNfoParser {
       TvShowEpisode episode = new TvShowEpisode();
       episode.setTitle(title);
       episode.setOriginalTitle(originaltitle);
-      episode.setSeason(season);
-      episode.setEpisode(this.episode);
-      episode.setDisplayEpisode(displayepisode);
-      episode.setDisplaySeason(displayseason);
+
+      // do we have episode group information
+      if (!episodeNumbers.isEmpty()) {
+        for (MediaEpisodeNumber episodeNumber : episodeNumbers) {
+          episode.setEpisode(episodeNumber);
+        }
+      }
+      else {
+        // no - just add the S/E from the old style NFO
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, this.season, this.episode));
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DISPLAY, displayseason, displayepisode));
+      }
 
       for (Map.Entry<String, TvShowEpisodeNfoParser.Rating> entry : ratings.entrySet()) {
         TvShowEpisodeNfoParser.Rating r = entry.getValue();

@@ -198,15 +198,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
         options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
         options.setId("mediaFile", episode.getMainFile());
-
-        if (episode.isDvdOrder()) {
-          options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
-          options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));
-        }
-        else {
-          options.setId(MediaMetadata.SEASON_NR, String.valueOf(episode.getAiredSeason()));
-          options.setId(MediaMetadata.EPISODE_NR, String.valueOf(episode.getAiredEpisode()));
-        }
+        options.setId(MediaMetadata.EPISODE_NR, episode.getEpisodeNumbers());
         options.setArtworkType(MediaArtwork.MediaArtworkType.THUMB);
 
         // scrape providers till one artwork has been found

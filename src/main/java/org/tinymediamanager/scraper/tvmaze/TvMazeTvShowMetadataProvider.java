@@ -1,5 +1,7 @@
 package org.tinymediamanager.scraper.tvmaze;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -11,6 +13,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +54,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
@@ -61,7 +64,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     md.setScrapeOptions(options);
 
     // do we have an id from the options?
-    Integer tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
+    int tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
     if (tvMazeId == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException("tvmaze");
@@ -144,7 +147,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShowEpisode: {}", options);
 
     // lazy initialization of the api
@@ -181,14 +184,14 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     md.setId("tvmaze", episode.id);
     md.setTitle(episode.name);
     md.setPlot(Jsoup.parse(episode.summary).text());
-    md.setEpisodeNumber(episode.episode);
-    md.setSeasonNumber(episode.season);
+    md.setEpisodeNumber(AIRED, episode.season, episode.episode);
     md.setRuntime(episode.runtime);
     try {
       md.setReleaseDate(premieredFormat.parse(episode.airdate));
       md.setYear(parseYear(episode.airdate));
     }
     catch (ParseException ignored) {
+      // ignored
     }
 
     // Get Image Information for the given TV Show
@@ -328,8 +331,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       // found the correct episode
       md.setTitle(episode.name);
       md.setPlot(Jsoup.parse(episode.summary).text());
-      md.setEpisodeNumber(episode.episode);
-      md.setSeasonNumber(episode.season);
+      md.setEpisodeNumber(AIRED, episode.season, episode.episode);
       md.setRuntime(episode.runtime);
       try {
         md.setReleaseDate(premieredFormat.parse(episode.airdate));

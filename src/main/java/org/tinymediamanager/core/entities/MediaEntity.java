@@ -807,15 +807,11 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   /**
-   * remove AL IDs
-   * 
-   * @param key
-   *          the ID-key
+   * remove all IDs
+   *
    */
   public void removeAllIds() {
-    for (var entry : ids.entrySet()) {
-      removeId(entry.getKey());
-    }
+    new ArrayList<>(ids.keySet()).forEach(this::removeId);
   }
 
   /**

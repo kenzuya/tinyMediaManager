@@ -4,6 +4,7 @@ Version 5.0
   - macOS: ~/Library/Application Support/tinyMediaManager
   - Windows: Users home\AppData\Roaming
   - added an extra portable build for local storage
++ enabled usage of different episode groups #1935 #1138 #736
 + providing signed installers (Windows, macOS)
 + reworked some dialogs to a material design like input dialog
 + added subtitle format info to media files tab and filters #1709

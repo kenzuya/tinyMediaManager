@@ -495,13 +495,24 @@ public class UpgradeTasks {
         TmmUILayoutStore.getInstance().hideNewColumn("movies.movieTable", "top250");
       }
     }
+
+    /*
+     * V5
+     */
+    if (StrgUtils.compareVersion(v, "5.0") < 0) {
+      // upgrade TV show episode layout
+      for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          episode.saveToDb();
+        }
+        tvShow.saveToDb();
+      }
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
     switch (mediaFile.getContainerFormat().toLowerCase()) {
-      case "video_ts":
-      case "mpeg-ps":
-      case "dvd-video":
+      case "video_ts", "mpeg-ps", "dvd-video":
         mediaFile.setContainerFormat("DVD Video");
         return true;
 

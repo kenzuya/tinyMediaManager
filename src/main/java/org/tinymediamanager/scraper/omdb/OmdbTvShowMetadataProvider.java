@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.omdb;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -35,6 +38,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -46,6 +50,7 @@ import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.scraper.util.TvUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements ITvShowMetadataProvider {
@@ -64,7 +69,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - TvShow: '{}'", options);
 
     // id from the options
@@ -106,7 +111,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - episode: '{}'", options);
 
     // get episode number and season number
@@ -123,7 +128,12 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
     String imdbId = "";
     for (MediaMetadata metadata : episodeList) {
-      if (seasonNr == metadata.getSeasonNumber() && episodeNr == metadata.getEpisodeNumber()) {
+      MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(AIRED);
+      if (episodeNumber == null) {
+        continue;
+      }
+
+      if (seasonNr == episodeNumber.season() && episodeNr == episodeNumber.episode()) {
         imdbId = metadata.getId(MediaMetadata.IMDB).toString();
         break;
       }
@@ -359,8 +369,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
         md.setId(MediaMetadata.IMDB, result.attr("imdbID"));
       }
 
-      md.setSeasonNumber(season);
-      md.setEpisodeNumber(MetadataUtil.parseInt(result.attr("episode"), -1));
+      md.setEpisodeNumber(AIRED, season, TvUtils.getEpisodeNumber(result.attr("episode"), -1));
 
       md.setTitle(result.attr("Title"));
       try {

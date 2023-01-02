@@ -273,7 +273,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addSeason(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element season = document.createElement("season");
-    season.setTextContent(Integer.toString(episode.getSeason()));
+    season.setTextContent(Integer.toString(episode.getAiredSeason()));
     root.appendChild(season);
   }
 
@@ -282,7 +282,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addEpisode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element episode1 = document.createElement("episode");
-    episode1.setTextContent(Integer.toString(episode.getEpisode()));
+    episode1.setTextContent(Integer.toString(episode.getAiredEpisode()));
     root.appendChild(episode1);
   }
 
@@ -673,6 +673,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     addSource(episode, parser);
     addOriginalFilename(episode, parser);
     addUserNote(episode, parser);
+    addEpisodeGroups(episode, parser);
   }
 
   /**
@@ -700,6 +701,23 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     Element userNote = document.createElement("user_note");
     userNote.setTextContent(episode.getNote());
     root.appendChild(userNote);
+  }
+
+  /**
+   * add the episode group information <episode_groups>xxx</episode_groups>
+   */
+  protected void addEpisodeGroups(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element episodeGroups = document.createElement("episode_groups");
+
+    for (var entry : episode.getEpisodeNumbers().entrySet()) {
+      Element group = document.createElement("group");
+      group.setAttribute("id", entry.getKey().name());
+      group.setAttribute("season", String.valueOf(entry.getValue().season()));
+      group.setAttribute("episode", String.valueOf(entry.getValue().episode()));
+      episodeGroups.appendChild(group);
+    }
+
+    root.appendChild(episodeGroups);
   }
 
   /**

@@ -372,10 +372,8 @@ public final class TvShowModuleManager implements ITmmModule {
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
         if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
-            if (entry.getKey() instanceof TvShow) {
+            if (entry.getKey()instanceof TvShow tvShow) {
               // store TV show
-              TvShow tvShow = (TvShow) entry.getKey();
-
               // only diffs
               String oldValue = tvShowMap.get(tvShow.getDbId());
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
@@ -383,10 +381,8 @@ public final class TvShowModuleManager implements ITmmModule {
                 tvShowMap.put(tvShow.getDbId(), newValue);
               }
             }
-            else if (entry.getKey() instanceof TvShowEpisode) {
+            else if (entry.getKey()instanceof TvShowEpisode episode) {
               // store episode
-              TvShowEpisode episode = (TvShowEpisode) entry.getKey();
-
               // only diffs
               String oldValue = episodeMap.get(episode.getDbId());
               String newValue = episodeObjectWriter.writeValueAsString(episode);

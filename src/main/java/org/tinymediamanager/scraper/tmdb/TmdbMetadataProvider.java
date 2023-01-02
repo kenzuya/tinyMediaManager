@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -396,7 +397,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
    *          the {@link MediaLanguages} to parse
    * @return a {@link String} containing the language and country code
    */
-  static String getRequestLanguage(MediaLanguages language) {
+  static String getRequestLanguage(@NotNull MediaLanguages language) {
     String name = language.name();
 
     Locale locale;

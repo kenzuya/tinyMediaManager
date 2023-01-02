@@ -25,6 +25,7 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.thetvdb.entities.LoginRequestRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.LoginResponse;
+import org.tinymediamanager.scraper.thetvdb.entities.SeasonType;
 import org.tinymediamanager.scraper.thetvdb.service.ConfigService;
 import org.tinymediamanager.scraper.thetvdb.service.EpisodesService;
 import org.tinymediamanager.scraper.thetvdb.service.LoginService;
@@ -118,6 +119,14 @@ public class TheTvDbController {
       }
     });
     builder.registerTypeAdapter(Date.class, new DateTypeAdapter());
+    builder.registerTypeAdapter(SeasonType.class, (JsonDeserializer<SeasonType>) (json, typeOfT, context) -> {
+      for (SeasonType type : SeasonType.values()) {
+        if (type.toString().equals(json.getAsString())) {
+          return type;
+        }
+      }
+      return null;
+    });
     return builder;
   }
 

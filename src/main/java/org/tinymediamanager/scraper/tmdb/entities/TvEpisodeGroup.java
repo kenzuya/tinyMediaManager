@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.scraper.thetvdb.entities;
+package org.tinymediamanager.scraper.tmdb.entities;
+
+import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SeasonTypeRecord {
+public class TvEpisodeGroup {
   @SerializedName("id")
-  public Integer    id   = null;
+  public String                      id;
 
   @SerializedName("name")
-  public String     name = null;
+  public String                      name;
 
-  @SerializedName("type")
-  public SeasonType type = null;
+  @SerializedName("order")
+  public int                         order;
 
-  @SerializedName("alternateName")
-  public String     alternateName;
+  @SerializedName("episodes")
+  public List<TvEpisodeGroupEpisode> episodes;
 }

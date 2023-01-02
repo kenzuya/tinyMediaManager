@@ -106,8 +106,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           removeTvShowEpisode(episode);
           break;
 
-        case Constants.EPISODE_COUNT:
-        case Constants.SEASON_COUNT:
+        case Constants.EPISODE_COUNT, Constants.SEASON_COUNT:
           // do not react on change of the episode count
           break;
 
@@ -122,8 +121,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
       switch (evt.getPropertyName()) {
         // changed the season/episode nr of an episode
-        case Constants.SEASON:
-        case Constants.EPISODE:
+        case Constants.SEASON, Constants.EPISODE, Constants.EPISODE_GROUP:
           // simply remove it from the tree and readd it
           removeTvShowEpisode(episode);
           addTvShowEpisode(episode);
@@ -134,8 +132,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           // do not react on change of the TV show itself
           break;
 
-        case Constants.WATCHED:
-        case Constants.MEDIA_FILES:
+        case Constants.WATCHED, Constants.MEDIA_FILES:
           // update the node itself, but also its parents
           nodeChanged(episode);
           nodeChanged(episode.getTvShowSeason());

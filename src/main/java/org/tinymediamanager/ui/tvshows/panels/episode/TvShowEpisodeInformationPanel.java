@@ -306,7 +306,7 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     }
     {
       JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
+      panelRight.setLayout(new MigLayout("insets 0 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
 
       scrollPane = new NoBorderScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -461,14 +461,11 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     for (Component component : components) {
       component.setVisible(visible);
 
-      if (component instanceof ImageLabel) {
-        ImageLabel imageLabel = (ImageLabel) component;
+      if (component instanceof ImageLabel imageLabel) {
         imageLabel.clearImage();
         imageLabel.setImagePath(artworkPath);
       }
-      else if (component instanceof JLabel) {
-        JLabel sizeLabel = (JLabel) component;
-
+      else if (component instanceof JLabel sizeLabel) {
         if (artworkDimension.width > 0 && artworkDimension.height > 0) {
           sizeLabel.setText(TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT)) + " - " + artworkDimension.width
               + "x" + artworkDimension.height);

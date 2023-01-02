@@ -15,12 +15,15 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+
 import java.util.Date;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 /**
  * The class TvShowEpisodeChooserModel
@@ -44,8 +47,8 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
 
     setTitle(episode.getTitle());
     setOverview(mediaMetadata.getPlot());
-    setSeason(mediaMetadata.getSeasonNumber());
-    setEpisode(mediaMetadata.getEpisodeNumber());
+    setSeason(mediaMetadata.getEpisodeNumber(AIRED));
+    setEpisode(mediaMetadata.getEpisodeNumber(AIRED));
     setFirstAired(mediaMetadata.getReleaseDate());
   }
 
@@ -65,15 +68,29 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
     firePropertyChange("overview", oldValue, overview);
   }
 
-  public void setSeason(int season) {
+  public void setSeason(MediaEpisodeNumber episodeNumber) {
     int oldValue = this.season;
-    this.season = season;
+
+    if (episodeNumber == null) {
+      this.season = -1;
+    }
+    else {
+      this.season = episodeNumber.season();
+    }
+
     firePropertyChange("season", oldValue, season);
   }
 
-  public void setEpisode(int episode) {
+  public void setEpisode(MediaEpisodeNumber episodeNumber) {
     int oldValue = this.episode;
-    this.episode = episode;
+
+    if (episodeNumber == null) {
+      this.episode = -1;
+    }
+    else {
+      this.episode = episodeNumber.episode();
+    }
+
     firePropertyChange("episode", oldValue, episode);
   }
 

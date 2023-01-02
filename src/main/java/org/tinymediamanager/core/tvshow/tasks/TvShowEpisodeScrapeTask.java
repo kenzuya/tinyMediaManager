@@ -108,12 +108,16 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
       options.setIds(episode.getIds());
+      options.setEpisodeGroup(episode.getEpisodeGroup());
 
-      if (episode.isDvdOrder()) {
-        options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
-        options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));
+      // have a look if the wanted episode order is available
+      if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+        // found -> pass it to the scraper
+        options.setId(MediaMetadata.SEASON_NR, episode.getSeason());
+        options.setId(MediaMetadata.EPISODE_NR, episode.getEpisode());
       }
       else {
+        // not found. Fall back to the default one
         options.setId(MediaMetadata.SEASON_NR, String.valueOf(episode.getAiredSeason()));
         options.setId(MediaMetadata.EPISODE_NR, String.valueOf(episode.getAiredEpisode()));
       }

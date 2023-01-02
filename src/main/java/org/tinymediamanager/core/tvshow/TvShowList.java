@@ -618,7 +618,8 @@ public final class TvShowList extends AbstractModelObject {
     // sanity check
     if (isEpisodeCorrupt(episode)) {
       // remove corrupt episode
-      LOGGER.info("episode \"S{}E{}\" without video file/path - dropping", episode.getSeason(), episode.getEpisode());
+      LOGGER.info("episode {} - \"S{}E{}\" without video file/path - dropping", episode.getTvShow().getTitle(), episode.getSeason(),
+          episode.getEpisode());
       removeEpisodeFromDb(episode);
     }
     else {

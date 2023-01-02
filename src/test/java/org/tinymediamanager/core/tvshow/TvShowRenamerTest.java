@@ -17,6 +17,8 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 public class TvShowRenamerTest extends BasicTvShowTest {
 
@@ -31,10 +33,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
 
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("singleEP");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    ep.setDvdSeason(3);
-    ep.setDvdEpisode(4);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 3, 4));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(single);
     single.addEpisode(ep);
@@ -53,20 +53,16 @@ public class TvShowRenamerTest extends BasicTvShowTest {
 
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("multiEP2");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    ep.setDvdSeason(3);
-    ep.setDvdEpisode(4);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 3, 4));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(multi);
     multi.addEpisode(ep);
 
     ep = new TvShowEpisode();
     ep.setTitle("multiEP3");
-    ep.setSeason(1);
-    ep.setEpisode(3);
-    ep.setDvdSeason(3);
-    ep.setDvdEpisode(5);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 3));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 3, 5));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(multi);
     multi.addEpisode(ep);
@@ -85,8 +81,7 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setTvShow(disc);
     ep.setDisc(true);
     ep.setTitle("discfile");
-    ep.setAiredSeason(1);
-    ep.setAiredEpisode(2);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
     ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01E07E08E09/VIDEO_TS/VTS_01_1.VOB")));
     ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01E07E08E09/VIDEO_TS-thumb.jpg")));
     disc.addEpisode(ep);
@@ -106,8 +101,7 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setTvShow(discEP);
     ep.setDisc(true);
     ep.setTitle("disc ep");
-    ep.setAiredSeason(1);
-    ep.setAiredEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
     ep.addToMediaFiles(new MediaFile(getWorkFolder().resolve(path).resolve("S01EP01 title/VTS_01_1.VOB")));
     discEP.addEpisode(ep);
 
@@ -237,10 +231,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -299,10 +291,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // classical single file episodes with extras
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
 
     mf = new MediaFile(destination.resolve("S01E01.mkv").toAbsolutePath());
@@ -326,10 +316,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
 
     ep = new TvShowEpisode();
     ep.setTitle("Pilot 2");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(2);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 2));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("Season 1/S01E02.mkv").toAbsolutePath());
     mf.gatherMediaInformation();
@@ -390,10 +378,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // multi episode file
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -412,10 +398,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
 
     ep = new TvShowEpisode();
     ep.setTitle("Pilot 2");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(2);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 2));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -471,10 +455,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -536,10 +518,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -568,10 +548,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
 
     ep = new TvShowEpisode();
     ep.setTitle("Pilot 2");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
     mf.gatherMediaInformation();
@@ -688,10 +666,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTvShow(show);
     ep.setTitle("Pilot");
-    ep.setSeason(1);
-    ep.setEpisode(1);
-    ep.setDvdSeason(1);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("S01E01.mkv").toAbsolutePath());
     mf.gatherMediaInformation();
@@ -701,10 +677,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep = new TvShowEpisode();
     ep.setTvShow(show);
     ep.setTitle("Pilot 2");
-    ep.setSeason(2);
-    ep.setEpisode(1);
-    ep.setDvdSeason(2);
-    ep.setDvdEpisode(1);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 1));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 2, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("Season 2/S02E01.mkv").toAbsolutePath());
     mf.gatherMediaInformation();

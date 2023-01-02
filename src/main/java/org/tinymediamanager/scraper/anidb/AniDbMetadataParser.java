@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -431,7 +430,7 @@ class AniDbMetadataParser {
         .filter(e -> e.tagName().equals("episode"))
         .map(AniDbMetadataParser::parseEpisode)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private static Episode parseEpisode(Element episodeElement) {
@@ -440,6 +439,7 @@ class AniDbMetadataParser {
       builder.id(Integer.parseInt(episodeElement.attr("id")));
     }
     catch (NumberFormatException ignored) {
+      // ignored
     }
 
     for (Element episodeInfo : episodeElement.children()) {
@@ -463,6 +463,7 @@ class AniDbMetadataParser {
           }
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -472,6 +473,7 @@ class AniDbMetadataParser {
           builder.runtime(Integer.parseInt(episodeInfo.text()));
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -481,6 +483,7 @@ class AniDbMetadataParser {
           builder.airdate(StrgUtils.parseDate(episodeInfo.text()));
         }
         catch (Exception ignored) {
+          // ignored
         }
         continue;
       }
@@ -491,6 +494,7 @@ class AniDbMetadataParser {
           builder.votes(Integer.parseInt(episodeInfo.attr("votes")));
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -500,6 +504,7 @@ class AniDbMetadataParser {
           builder.titles(episodeInfo.attr("xml:lang").toLowerCase(Locale.ROOT), episodeInfo.text());
         }
         catch (Exception ignored) {
+          // ignored
         }
         continue;
       }

@@ -1307,10 +1307,12 @@ public abstract class ImdbParser {
         if (!parseLocalReleaseDate) {
           // global first release
           Element column = row.getElementsByClass("release_date").first();
-          Date parsedDate = parseDate(column.text());
-          if (parsedDate != null) {
-            releaseDate = parsedDate;
-            break;
+          if (column != null) {
+            Date parsedDate = parseDate(column.text());
+            if (parsedDate != null) {
+              releaseDate = parsedDate;
+              break;
+            }
           }
         }
         else {
@@ -1390,6 +1392,24 @@ public abstract class ImdbParser {
 
         // global first release
         Element column = row.getElementsByClass("release_date").first();
+        Date parsedDate = parseDate(column.text());
+        if (parsedDate != null) {
+          releaseDate = parsedDate;
+          break;
+        }
+      }
+    }
+
+    if (releaseDate == null) {
+      Elements rows = doc.getElementsByClass("release-date-item");
+      for (Element row : rows) {
+        // check if we want premiere dates
+        if (row.text().contains("(premiere)") && !includePremiereDate) {
+          continue;
+        }
+
+        // global first release
+        Element column = row.getElementsByClass("release-date-item__date").first();
         Date parsedDate = parseDate(column.text());
         if (parsedDate != null) {
           releaseDate = parsedDate;
