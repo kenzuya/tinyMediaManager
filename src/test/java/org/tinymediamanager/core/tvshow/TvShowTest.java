@@ -122,9 +122,9 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
-    assertEqual("S:-1 E:105", detectEpisode("EP105 The Bed of Nails.avi"));
+    assertEqual("S:-1 E:105 Absolute", detectEpisode("EP105 The Bed of Nails.avi")); // absolute
     assertEqual("S:3 E:5", detectEpisode("S03 EP05 The Bed of Nails.avi"));
-    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi"));
+    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi")); // no valid absolute marker since season is here too!
     assertEqual("S:3 E:5", detectEpisode("S03.EP05.The.Bed.of.Nails.avi"));
     assertEqual("S:1 E:101", detectEpisode("Eisenbahn-Romantik.S01.E101.mp4"));
     assertEqual("S:5 E:1001", detectEpisode("S05.E1001.El.beso.de.la.mujer.veneno.mp4"));
@@ -268,12 +268,15 @@ public class TvShowTest extends BasicTvShowTest {
   private String detectEpisode(String name) {
     StringBuilder sb = new StringBuilder();
     // EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(new File(name));
-    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(name, "asdf[.*asdf");
+    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(name, "asdf[.*asdf");
     sb.append("S:");
     sb.append(result.season);
     for (int ep : result.episodes) {
       sb.append(" E:");
       sb.append(ep);
+    }
+    if (result.absolute) {
+      sb.append(" Absolute");
     }
     if (result.stackingMarkerFound) {
       sb.append(" Split");

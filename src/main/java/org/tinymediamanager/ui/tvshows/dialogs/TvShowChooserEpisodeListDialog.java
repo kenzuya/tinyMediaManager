@@ -174,7 +174,7 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
       float score = 0;
       if (StringUtils.isNotBlank(title)) {
         TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
-            .detectEpisodeFromFilenameAlternative(tvShowEpisode.getMainVideoFile().getFilename(), tvShowEpisode.getTvShow().getTitle());
+            .detectEpisodeFromFilename(tvShowEpisode.getMainVideoFile().getFilename(), tvShowEpisode.getTvShow().getTitle());
         score = MetadataUtil.calculateScore(title, result.cleanedName);
       }
 

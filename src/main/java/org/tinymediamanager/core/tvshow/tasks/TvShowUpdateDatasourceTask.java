@@ -893,7 +893,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // STEP 2.1.2 - no NFO? try to parse episode/season
           // ******************************
           String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
-          EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
+          EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(relativePath, tvShow.getTitle());
 
           // second check: is the detected episode (>-1; season >-1) already in
           // tmm and any valid stacking markers found?
@@ -934,7 +934,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // something found with the season detection?
             for (int ep : result.episodes) {
               TvShowEpisode episode = new TvShowEpisode();
-              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, result.season, ep));
+              if (result.absolute) {
+                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.ABSOLUTE, 1, ep));
+              }
+              else {
+                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, result.season, ep));
+              }
               episode.setFirstAired(result.date);
               if (result.name.isEmpty()) {
                 result.name = FilenameUtils.getBaseName(mf.getFilename());
@@ -1081,7 +1086,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
 
         String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
-        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(relativePath, tvShow.getTitle());
         if (result.season > 0 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
             // get any assigned episode
@@ -1093,7 +1098,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             else if (eps.size() > 1) {
               for (TvShowEpisode ep : eps) {
                 String episodeBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(ep.getMainVideoFile().getFilename()));
-                // okay, at least one existing episode found.. just check if there is the same base name without stacking markers
+                // okay, at least one existing episode found... just check if there is the same base name without stacking markers
                 if (FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename())).startsWith(episodeBasenameWoStackingMarker)) {
                   ep.addToMediaFiles(mf);
                   break;

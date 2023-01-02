@@ -1331,7 +1331,7 @@ public class TvShowRenamer {
         MediaFile extra = new MediaFile(mf);
         // try to detect the title of the extra file
         TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
-            .detectEpisodeFromFilenameAlternative(mf.getFilename(), tvShow.getTitle());
+            .detectEpisodeFromFilename(mf.getFilename(), tvShow.getTitle());
         extra.setFile(seasonFolder.resolve("extras/" + newFilename + "-" + result.cleanedName + "." + mf.getExtension()));
         newFiles.add(extra);
         break;
