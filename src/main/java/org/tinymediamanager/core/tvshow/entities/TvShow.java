@@ -1360,6 +1360,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     firePropertyChange(FIRST_AIRED_AS_STRING, oldValue, newValue);
   }
 
+  @Override
+  public Date getReleaseDate() {
+    return firstAired;
+  }
+
   /**
    * first aired date as yyyy-mm-dd<br>
    * https://xkcd.com/1179/ :P

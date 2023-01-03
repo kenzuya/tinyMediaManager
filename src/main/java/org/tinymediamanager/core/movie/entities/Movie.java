@@ -1940,6 +1940,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return getRuntimeFromMediaFilesInSeconds() / 60;
   }
 
+  @Override
   public Date getReleaseDate() {
     return releaseDate;
   }

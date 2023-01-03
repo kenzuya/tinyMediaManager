@@ -400,6 +400,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
   }
 
+  @Override
+  public Date getReleaseDate() {
+    return firstAired;
+  }
+
   public TvShowSeason getTvShowSeason() {
     if (tvShow == null) {
       return null;
