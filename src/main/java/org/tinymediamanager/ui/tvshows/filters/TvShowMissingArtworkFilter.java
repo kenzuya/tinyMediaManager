@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.filters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.swing.JLabel;
 
@@ -50,6 +51,11 @@ public class TvShowMissingArtworkFilter extends AbstractCheckComboBoxTvShowUIFil
     for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
       if (config.isArtwork()) {
         values.add(new MetadataField(config));
+
+        if (config == TvShowScraperMetadataConfig.THUMB) {
+          // add again as episode thumb
+          values.add(new MetadataField(config, true));
+        }
       }
     }
     setValues(values);
@@ -62,13 +68,21 @@ public class TvShowMissingArtworkFilter extends AbstractCheckComboBoxTvShowUIFil
 
   @Override
   protected String parseTypeToString(MetadataField type) throws Exception {
+    if (type.episode) {
+      return "EPISODE_" + type.config.name();
+    }
     return type.config.name();
   }
 
   @Override
   protected MetadataField parseStringToType(String string) throws Exception {
     try {
-      return new MetadataField(TvShowScraperMetadataConfig.valueOf(string));
+      if (string.startsWith("EPISODE_")) {
+        return new MetadataField(TvShowScraperMetadataConfig.valueOf(string.replace("EPISODE_", "")), true);
+      }
+      else {
+        return new MetadataField(TvShowScraperMetadataConfig.valueOf(string));
+      }
     }
     catch (Exception e) {
       return null;
@@ -80,9 +94,14 @@ public class TvShowMissingArtworkFilter extends AbstractCheckComboBoxTvShowUIFil
     List<TvShowScraperMetadataConfig> tvShowValues = new ArrayList<>();
     List<TvShowEpisodeScraperMetadataConfig> episodeValues = new ArrayList<>();
     for (MetadataField metadataField : checkComboBox.getSelectedItems()) {
-      tvShowValues.add(metadataField.config);
-      if (metadataField.config == TvShowScraperMetadataConfig.THUMB) {
-        episodeValues.add(TvShowEpisodeScraperMetadataConfig.THUMB);
+      if (!metadataField.episode) {
+        tvShowValues.add(metadataField.config);
+      }
+      else {
+        // map between TV show and episode fields
+        if (metadataField.config == TvShowScraperMetadataConfig.THUMB) {
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.THUMB);
+        }
       }
     }
 
@@ -110,14 +129,41 @@ public class TvShowMissingArtworkFilter extends AbstractCheckComboBoxTvShowUIFil
 
   public static class MetadataField {
     private final TvShowScraperMetadataConfig config;
+    private final boolean                     episode;
 
-    public MetadataField(TvShowScraperMetadataConfig config) {
+    MetadataField(TvShowScraperMetadataConfig config) {
+      this(config, false);
+    }
+
+    MetadataField(TvShowScraperMetadataConfig config, boolean episode) {
       this.config = config;
+      this.episode = episode;
     }
 
     @Override
     public String toString() {
-      return config.getDescription();
+      String description = config.getDescription();
+      if (episode) {
+        description = description + " (" + TmmResourceBundle.getString("mediafiletype.episode") + ")";
+      }
+      return description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      MetadataField that = (MetadataField) o;
+      return episode == that.episode && config == that.config;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(config, episode);
     }
   }
 }

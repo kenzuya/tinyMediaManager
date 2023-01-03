@@ -15,10 +15,8 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
-import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_MOVIE;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_SHORT;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_MOVIE;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_VIDEOGAME;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_ADULT;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_PODCAST;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.LOCAL_RELEASE_DATE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.MAX_KEYWORD_COUNT;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_KEYWORDS_PAGE;
@@ -51,10 +49,13 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
     MediaProviderInfo providerInfo = super.createMediaProviderInfo();
 
     // configure/load settings
-    providerInfo.getConfig().addBoolean(INCLUDE_TV_MOVIE, false);
-    providerInfo.getConfig().addBoolean(INCLUDE_SHORT, false);
-    providerInfo.getConfig().addBoolean(INCLUDE_MOVIE, false);
-    providerInfo.getConfig().addBoolean(INCLUDE_VIDEOGAME, false);
+    // providerInfo.getConfig().addBoolean(INCLUDE_TV_MOVIE, false); // movies cannot be parsed via TV!
+    // providerInfo.getConfig().addBoolean(INCLUDE_SHORT, false); // tvshorts are mostly ads, hence "movies"
+    // providerInfo.getConfig().addBoolean(INCLUDE_MOVIE, false); // movies cannot be parsed via TV!
+    // providerInfo.getConfig().addBoolean(INCLUDE_VIDEOGAME, false); // look like movies
+    providerInfo.getConfig().addBoolean(INCLUDE_PODCAST, false);
+    providerInfo.getConfig().addBoolean(INCLUDE_ADULT, false);
+
     providerInfo.getConfig().addBoolean(USE_TMDB_FOR_TV_SHOWS, false);
     providerInfo.getConfig().addBoolean(LOCAL_RELEASE_DATE, true);
     providerInfo.getConfig().addBoolean(SCRAPE_UNCREDITED_ACTORS, true);

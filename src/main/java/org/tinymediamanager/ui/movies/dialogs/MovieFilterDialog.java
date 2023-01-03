@@ -345,15 +345,15 @@ public class MovieFilterDialog extends TmmDialog {
             if (answer != JOptionPane.YES_OPTION) {
               return;
             }
+          }
 
-            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
-            if (movieUiFilters.remove(filterName) != null) {
-              cbPreset.removeActionListener(actionListener);
-              MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
-              MovieModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.addActionListener(actionListener);
-            }
+          Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
+          if (movieUiFilters.remove(filterName) != null) {
+            cbPreset.removeActionListener(actionListener);
+            MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
+            MovieModuleManager.getInstance().getSettings().saveSettings();
+            loadPresets();
+            cbPreset.addActionListener(actionListener);
           }
         });
         panelFilterPreset.add(btnDeletePreset, "cell 2 3");

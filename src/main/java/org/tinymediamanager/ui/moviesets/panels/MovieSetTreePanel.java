@@ -151,7 +151,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
+        MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().keySet().stream().sorted().forEach(uiFilter -> {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
@@ -195,15 +195,17 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
       public void storeFilters() {
         if (MovieModuleManager.getInstance().getSettings().isStoreMovieSetUiFilters()) {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
-          for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
-            if (filter instanceof ITmmUIFilter) {
-              ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-              if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
-                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
-                uiFilters.id = uiFilter.getId();
-                uiFilters.state = uiFilter.getFilterState();
-                uiFilters.filterValue = uiFilter.getFilterValueAsString();
-                filterValues.add(uiFilters);
+          if (isFiltersActive()) {
+            for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+              if (filter instanceof ITmmUIFilter) {
+                ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+                if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+                  AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+                  uiFilters.id = uiFilter.getId();
+                  uiFilters.state = uiFilter.getFilterState();
+                  uiFilters.filterValue = uiFilter.getFilterValueAsString();
+                  filterValues.add(uiFilters);
+                }
               }
             }
           }

@@ -7,6 +7,9 @@ public class MovieMediaSourceTest extends BasicMovieTest {
 
   @Test
   public void performTest() {
+    // folder structure - parse backwards
+    assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("/movies/-DVD-/Godzilla.BluRay.x264"));
+
     // uhd blu rays
     assertEqual(MediaSource.UHD_BLURAY, MediaSource.parseMediaSource("Godzilla.German.AC3.Dubbed.720p.UHD.BluRay.x264"));
     assertEqual(MediaSource.UHD_BLURAY, MediaSource.parseMediaSource("Godzilla.German.AC3.Dubbed.720p.UHDBluRay.x264"));

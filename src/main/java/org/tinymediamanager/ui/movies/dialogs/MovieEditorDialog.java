@@ -631,7 +631,7 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details2Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details2"), details2Panel);
 
-      details2Panel.setLayout(new MigLayout("", "[][][20lp:50lp][][50lp:100lp][20lp:n][grow][300lp:300lp,grow]",
+      details2Panel.setLayout(new MigLayout("", "[][150lp:n][20lp:50lp][][50lp:100lp][20lp:n][grow][300lp:300lp,grow]",
           "[][][][][][75lp][pref!][20lp:n][100lp:150lp,grow][][grow]"));
       {
         JLabel lblDateAdded = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
@@ -682,7 +682,7 @@ public class MovieEditorDialog extends TmmDialog {
         details2Panel.add(lblEditionT, "cell 0 2,alignx right");
 
         cbEdition = new AutocompleteComboBox(MovieEdition.values());
-        details2Panel.add(cbEdition, "cell 1 2 3 1");
+        details2Panel.add(cbEdition, "cell 1 2,growx");
       }
       {
         JLabel lblRuntime = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));

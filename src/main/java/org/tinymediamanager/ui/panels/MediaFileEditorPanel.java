@@ -71,6 +71,7 @@ import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -131,6 +132,8 @@ public class MediaFileEditorPanel extends JPanel {
     setLayout(new MigLayout("", "[300lp:450lp,grow]", "[200lp:450lp,grow]"));
     {
       JSplitPane splitPane = new JSplitPane();
+      splitPane.setName("mediafileEditor.splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       add(splitPane, "cell 0 0,grow");
       {
         JPanel panelMediaFiles = new JPanel();

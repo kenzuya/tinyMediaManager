@@ -134,7 +134,7 @@ public final class Settings extends AbstractSettings {
   private boolean                                          writeMediaInfoXml           = false;
 
   // aspect ratio detector
-  boolean                                                  ardEnabled              = false;
+  boolean                                                  ardEnabled                  = false;
   private ArdSettings.Mode                                 ardMode                     = ArdSettings.Mode.DEFAULT;
   private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings           = ArdSettings.defaultSampleSettings();
   private float                                            ardIgnoreBeginningPct       = 2f;
@@ -150,6 +150,9 @@ public final class Settings extends AbstractSettings {
   private float                                            ardSecondaryDelta           = 0.15f;
   private float                                            ardDarkLevelPct             = 7f;
   private float                                            ardDarkLevelMaxPct          = 13f;
+
+  private boolean                                          enableAutomaticUpdate       = true;
+  private int                                              automaticUpdateInterval     = 1;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -1379,5 +1382,25 @@ public final class Settings extends AbstractSettings {
     catch (Exception e) {
       LOGGER.error("could not update HTTP server configuration - '{}'", e.getMessage());
     }
+  }
+
+  public boolean isEnableAutomaticUpdate() {
+    return enableAutomaticUpdate;
+  }
+
+  public void setEnableAutomaticUpdate(boolean newValue) {
+    boolean oldValue = this.enableAutomaticUpdate;
+    this.enableAutomaticUpdate = newValue;
+    firePropertyChange("enableAutomaticUpdate", oldValue, newValue);
+  }
+
+  public int getAutomaticUpdateInterval() {
+    return automaticUpdateInterval;
+  }
+
+  public void setAutomaticUpdateInterval(int newValue) {
+    int oldValue = this.automaticUpdateInterval;
+    this.automaticUpdateInterval = newValue;
+    firePropertyChange("automaticUpdateInterval", oldValue, newValue);
   }
 }

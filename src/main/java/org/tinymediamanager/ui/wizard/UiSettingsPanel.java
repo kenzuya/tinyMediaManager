@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 
 import org.apache.commons.io.IOUtils;
@@ -52,20 +55,23 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class UiSettingsPanel extends JPanel {
-  private static final long      serialVersionUID   = -1241134514329815223L;
+  private static final long          serialVersionUID   = -1241134514329815223L;
 
-  private static final Logger    LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
+  private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
 
-  private static final Integer[] DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
+  private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
-  private Settings               settings           = Settings.getInstance();
-  private List<LocaleComboBox>   locales            = new ArrayList<>();
+  private final Settings             settings           = Settings.getInstance();
+  private final List<LocaleComboBox> locales            = new ArrayList<>();
 
-  private JComboBox              cbLanguage;
-  private JRadioButton           rdbtnLight;
-  private JRadioButton           rdbtnDark;
-  private JComboBox              cbFontSize;
-  private JComboBox              cbFontFamily;
+  private JComboBox                  cbLanguage;
+  private JRadioButton               rdbtnLight;
+  private JRadioButton               rdbtnDark;
+  private JComboBox                  cbFontSize;
+  private JComboBox                  cbFontFamily;
+  private JSpinner                   spUpdateInterval;
+  private JCheckBox                  chckbxAutomaticUpdates;
+  private JLabel                     lblUpdateHint;
 
   public UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
@@ -107,19 +113,23 @@ class UiSettingsPanel extends JPanel {
       rdbtnLight.setSelected(true);
     }
 
+    chckbxAutomaticUpdates.setSelected(settings.isEnableAutomaticUpdate());
+    spUpdateInterval.setValue(settings.getAutomaticUpdateInterval());
+
     ActionListener actionListener = e -> checkChanges();
     cbLanguage.addActionListener(actionListener);
     cbFontFamily.addActionListener(actionListener);
     cbFontSize.addActionListener(actionListener);
     rdbtnLight.addActionListener(actionListener);
     rdbtnDark.addActionListener(actionListener);
+    chckbxAutomaticUpdates.addActionListener(actionListener);
   }
 
   /*
    * init UI components
    */
   private void initComponents() {
-    setLayout(new MigLayout("", "[20lp!][200lp,grow][200lp,grow]", "[][][10lp!][][10lp!][][grow][][10lp!][][][]"));
+    setLayout(new MigLayout("", "[20lp!][200lp,grow][200lp,grow]", "[][][10lp!][][10lp!][][300lp,grow][][10lp!][][][][15lp!][][][][]"));
     {
       JLabel lblUiSettings = new JLabel(TmmResourceBundle.getString("wizard.ui"));
       TmmFontHelper.changeFont(lblUiSettings, 1.3333, Font.BOLD);
@@ -160,11 +170,11 @@ class UiSettingsPanel extends JPanel {
 
     rdbtnLight = new JRadioButton(TmmResourceBundle.getString("Settings.uitheme.light"));
     buttonGroup.add(rdbtnLight);
-    add(rdbtnLight, "cell 1 7,alignx center");
+    add(rdbtnLight, "cell 1 7,alignx left");
 
     rdbtnDark = new JRadioButton(TmmResourceBundle.getString("Settings.uitheme.dark"));
     buttonGroup.add(rdbtnDark);
-    add(rdbtnDark, "cell 2 7,alignx center");
+    add(rdbtnDark, "cell 2 7,alignx left");
 
     JLabel lblFontT = new JLabel(TmmResourceBundle.getString("Settings.font"));
     add(lblFontT, "flowx,cell 1 9 2 1");
@@ -181,6 +191,28 @@ class UiSettingsPanel extends JPanel {
 
     JTextArea taFontHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.fonts.hint"));
     add(taFontHint, "cell 1 11 2 1,grow");
+
+    JLabel lblUpdate = new JLabel(TmmResourceBundle.getString("Settings.update"));
+    TmmFontHelper.changeFont(lblUpdate, 1.3333, Font.BOLD);
+    add(lblUpdate, "cell 0 13 3 1");
+
+    {
+      chckbxAutomaticUpdates = new JCheckBox(TmmResourceBundle.getString("Settings.updatecheck"));
+      add(chckbxAutomaticUpdates, "cell 0 14 3 1");
+    }
+    {
+      JLabel lblUpdateInterval = new JLabel(TmmResourceBundle.getString("Settings.updatecheck.interval"));
+      add(lblUpdateInterval, "flowx,cell 1 15 2 1");
+
+      spUpdateInterval = new JSpinner();
+      spUpdateInterval.setModel(new SpinnerNumberModel(1, 1, 30, 1));
+      add(spUpdateInterval, "cell 1 15 2 1");
+    }
+    {
+      lblUpdateHint = new JLabel("");
+      TmmFontHelper.changeFont(lblUpdateHint, Font.BOLD);
+      add(lblUpdateHint, "cell 0 16 3 1");
+    }
   }
 
   /**
@@ -231,19 +263,31 @@ class UiSettingsPanel extends JPanel {
 
     if (fontChanged) {
       Font font = UIManager.getFont("defaultFont");
-      Font newFont = new Font(fontFamily, font.getStyle(), fontSize);
+      Font newFont = new Font(settings.getFontFamily(), font.getStyle(), settings.getFontSize());
       UIManager.put("defaultFont", newFont);
 
       TmmUIHelper.updateUI();
+    }
+
+    // update
+    settings.setEnableAutomaticUpdate(chckbxAutomaticUpdates.isSelected());
+    settings.setAutomaticUpdateInterval((int) spUpdateInterval.getValue());
+    if (chckbxAutomaticUpdates.isSelected()) {
+      spUpdateInterval.setEnabled(true);
+      lblUpdateHint.setText("");
+    }
+    else {
+      spUpdateInterval.setEnabled(false);
+      lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
     }
   }
 
   /**
    * Helper class for customized toString() method, to get the Name in localized language.
    */
-  private class LocaleComboBox {
-    private Locale       loc;
-    private List<Locale> countries;
+  private static class LocaleComboBox {
+    private final Locale       loc;
+    private final List<Locale> countries;
 
     LocaleComboBox(Locale loc) {
       this.loc = loc;

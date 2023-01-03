@@ -86,6 +86,8 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_TV_SERIES        = "includeTvSeriesResults";
   static final String                 INCLUDE_SHORT            = "includeShortResults";
   static final String                 INCLUDE_VIDEOGAME        = "includeVideogameResults";
+  static final String                 INCLUDE_PODCAST          = "includePodcastResults";
+  static final String                 INCLUDE_ADULT            = "includeAdultResults";
   static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
   static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
@@ -160,6 +162,24 @@ public abstract class ImdbParser {
   }
 
   /**
+   * should we include adult results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeAdultResults() {
+    return config.getValueAsBool(INCLUDE_ADULT, false);
+  }
+
+  /**
+   * should we include podcast series results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludePodcastResults() {
+    return config.getValueAsBool(INCLUDE_PODCAST, false);
+  }
+
+  /**
    * scrape tmdb for movies too?
    *
    * @return true/false
@@ -226,6 +246,7 @@ public abstract class ImdbParser {
     return value;
   }
 
+  @Deprecated
   protected boolean includeSearchResult(String text) {
     // strip out episodes
     if (text.contains("(TV Episode)")) {
@@ -258,6 +279,7 @@ public abstract class ImdbParser {
     }
   }
 
+  @Deprecated
   protected ResultCategory getResultCategory(String text) {
     Matcher matcher = MOVIE_PATTERN.matcher(text);
     if (matcher.matches()) {
@@ -340,8 +362,48 @@ public abstract class ImdbParser {
     Document doc = null;
 
     Url url;
+
+    boolean advancedSearch = false;
+    // always use advSearch for TV, since we need to filter out tvMovies on TV scraping :/
+    if (options.getMediaType() == MediaType.TV_SHOW) {
+      advancedSearch = true;
+    }
+    if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
+      advancedSearch = true;
+    }
+
     try {
-      url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
+      if (advancedSearch) {
+
+        // build advanced search queries per entity
+        String cats = "";
+        if (options.getMediaType() == MediaType.MOVIE) {
+          cats = "&title_type=feature,documentary";
+          if (isIncludeShortResults()) {
+            cats += ",short,tv_short"; // tv shorts are "short movies played solely on tv, mostly ads, but also dinnerForOne"
+          }
+          if (isIncludeTvMovieResults()) {
+            cats += ",tv_movie,tv_special";
+          }
+          if (isIncludeVideogameResults()) {
+            cats += ",video_game";
+          }
+        }
+        else if (options.getMediaType() == MediaType.TV_SHOW) {
+          cats = "&title_type=tv_series,tv_miniseries";
+          if (isIncludePodcastResults()) {
+            cats += ",podcast_series";
+          }
+        }
+
+        if (isIncludeAdultResults()) {
+          cats += "&adult=include";
+        }
+        url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), cats));
+      }
+      else {
+        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
+      }
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
     catch (Exception e) {
@@ -367,6 +429,7 @@ public abstract class ImdbParser {
     }
 
     // check if it was directly redirected to the site
+    // TODO: does this still happen? when? cannot reproduce anylonger with new search
     Elements elements = doc.getElementsByAttributeValue("rel", "canonical");
     for (Element element : elements) {
       MediaMetadata md = null;
@@ -436,14 +499,10 @@ public abstract class ImdbParser {
       }
     }
 
-    // parse results
-    elements = doc.getElementsByClass("findResult");
+    // parse results newer style
+    elements = doc.getElementsByClass("find-result-item");
     for (Element tr : elements) {
-      // we only want the tr's
-      if (!"tr".equalsIgnoreCase(tr.tagName())) {
-        continue;
-      }
-      MediaSearchResult sr = parseSearchResults(tr, options);
+      MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
       if (sr != null) {
         results.add(sr);
       }
@@ -453,11 +512,30 @@ public abstract class ImdbParser {
       }
     }
 
-    // parse results newer style
+    // parse results old style
     if (elements == null || elements.isEmpty()) {
-      elements = doc.getElementsByClass("find-result-item");
+      elements = doc.getElementsByClass("findResult");
       for (Element tr : elements) {
-        MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
+        // we only want the tr's
+        if (!"tr".equalsIgnoreCase(tr.tagName())) {
+          continue;
+        }
+        MediaSearchResult sr = parseSearchResults(tr, options);
+        if (sr != null) {
+          results.add(sr);
+        }
+        // only get 80 results
+        if (results.size() >= 80) {
+          break;
+        }
+      }
+    }
+
+    // parse results advanced search
+    if (elements == null || elements.isEmpty()) {
+      elements = doc.getElementsByClass("lister-item");
+      for (Element tr : elements) {
+        MediaSearchResult sr = parseAdvancedSearchResults(tr, options);
         if (sr != null) {
           results.add(sr);
         }
@@ -469,6 +547,54 @@ public abstract class ImdbParser {
     }
 
     return results;
+  }
+
+  private MediaSearchResult parseAdvancedSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
+
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+    String movieId = "";
+    Element header = null;
+    try {
+      header = tr.getElementsByClass("lister-item-header").get(0);
+      sr.setTitle(header.getElementsByTag("a").text());
+      sr.setUrl(header.getElementsByTag("a").attr("href"));
+      movieId = StrgUtils.substr(sr.getUrl(), ".*?(tt\\d+).*");
+      sr.setIMDBId(movieId);
+    }
+    catch (Exception e) {
+      // basic info error?
+      return null;
+    }
+
+    try {
+      String yr = header.getElementsByClass("lister-item-year").get(0).text();
+      String year = StrgUtils.substr(yr, ".*?(\\d{4}).*"); // first 4 nums
+      sr.setYear(MetadataUtil.parseInt(year, 0));
+    }
+    catch (Exception e) {
+      // ignore year parsing errors
+    }
+
+    try {
+      Element img = tr.getElementsByClass("lister-item-image").get(0);
+      // String imgurl = img.getElementsByAttribute("loadlate").get(0).attr("src");
+      String imgurlSmall = img.getElementsByAttribute("loadlate").get(0).attr("loadlate");
+      sr.setPosterUrl(imgurlSmall);
+    }
+    catch (Exception e) {
+      // ignore poster parsing errors
+    }
+
+    if (movieId.equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+
+    return sr;
   }
 
   private MediaSearchResult parseSearchResults(Element tr, MediaSearchAndScrapeOptions options) {

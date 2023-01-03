@@ -133,13 +133,15 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
 
     if (MovieModuleManager.getInstance().getSettings().isStoreUiFilters()) {
       List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
-      for (IMovieUIFilter filter : filters) {
-        if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
-          AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
-          uiFilters.id = filter.getId();
-          uiFilters.state = filter.getFilterState();
-          uiFilters.filterValue = filter.getFilterValueAsString();
-          filterValues.add(uiFilters);
+      if (filtersActive) {
+        for (IMovieUIFilter filter : filters) {
+          if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+            AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+            uiFilters.id = filter.getId();
+            uiFilters.state = filter.getFilterState();
+            uiFilters.filterValue = filter.getFilterValueAsString();
+            filterValues.add(uiFilters);
+          }
         }
       }
       MovieModuleManager.getInstance().getSettings().setUiFilters(filterValues);

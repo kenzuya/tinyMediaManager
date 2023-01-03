@@ -37,6 +37,7 @@ import okhttp3.Credentials;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
+import okhttp3.brotli.BrotliInterceptor;
 
 /**
  * The class HttpClient. To construct our HTTP client for internet access
@@ -59,6 +60,9 @@ public class TmmHttpClient {
    */
   private static OkHttpClient createHttpClient() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+    // enable brotli
+    builder.addInterceptor(BrotliInterceptor.INSTANCE);
 
     // add an own logging interceptor to only log text responses
     builder.addInterceptor(new TmmHttpLoggingInterceptor());
@@ -141,8 +145,10 @@ public class TmmHttpClient {
    * create a new OkHttpClient.Builder with a FORCED cache (overwriting any cache response headers of the HTTP request)
    * 
    * @param timeToLive
+   *          the time to live
    * @param timeUnit
-   * @return
+   *          the time unit for the TTL
+   * @return a new {@link OkHttpClient.Builder} with the given TTL settings
    */
   public static OkHttpClient.Builder newBuilderWithForcedCache(final int timeToLive, final TimeUnit timeUnit) {
     return newBuilder(true).addNetworkInterceptor(provideCacheInterceptor(timeToLive, timeUnit));

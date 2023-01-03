@@ -67,7 +67,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
       Headers headersRequest = request.headers();
       if (headersRequest.size() > 0) {
-        LOGGER.trace("{}", headersRequest.toMultimap());
+        LOGGER.trace("HEADERS req: {}", headersRequest.toMultimap());
       }
 
       if (!hasRequestBody || bodyHasUnknownEncoding(request.headers())) {
@@ -132,7 +132,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
       Headers headersResponse = response.headers();
       if (headersResponse.size() > 0) {
-        LOGGER.trace("{}", headersResponse.toMultimap());
+        LOGGER.trace("HEADERS resp: {}", headersResponse.toMultimap());
       }
 
       if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {

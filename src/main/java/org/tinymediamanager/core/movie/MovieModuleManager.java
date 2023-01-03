@@ -340,7 +340,7 @@ public final class MovieModuleManager implements ITmmModule {
 
     if (Settings.getInstance().isDeleteTrashOnExit()) {
       for (String ds : getSettings().getMovieDataSource()) {
-        Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
+        Path file = Paths.get(ds, Constants.DS_TRASH_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
     }

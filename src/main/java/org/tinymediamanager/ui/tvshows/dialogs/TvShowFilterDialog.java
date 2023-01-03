@@ -331,16 +331,16 @@ public class TvShowFilterDialog extends TmmDialog {
             if (answer != JOptionPane.YES_OPTION) {
               return;
             }
+          }
 
-            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
-                TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
-            if (tvShowUiFilters.remove(filterName) != null) {
-              cbPreset.removeActionListener(actionListener);
-              TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
-              TvShowModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.addActionListener(actionListener);
-            }
+          Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
+              TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
+          if (tvShowUiFilters.remove(filterName) != null) {
+            cbPreset.removeActionListener(actionListener);
+            TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
+            TvShowModuleManager.getInstance().getSettings().saveSettings();
+            loadPresets();
+            cbPreset.addActionListener(actionListener);
           }
         });
         panelFilterPreset.add(btnDeletePreset, "cell 2 3");

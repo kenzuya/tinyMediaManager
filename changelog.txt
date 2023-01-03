@@ -1,3 +1,27 @@
+Version 4.3.8
+=======================
++ added new <episodeguide> style for Kodi v19+ - https://forum.kodi.tv/showthread.php?tid=370489
++ added an option to specify update check interval/disable update check completely
++ (movie, TV show) added the ability to copy renamer token into the clipboard (CTRL C, right click)
++ upgraded libmediainfo to 22.12
+x adapt/fix IMDB scraper (check scraper settings!)
+x automatically close renamer preview if nothing needs to be renamed #1964
+x do not store filters if they are not active #1961
+x do not remove missing episodes with unset DVD S/E #1960
+x (movie) create new editions when importing NFO files #1959
+x (movie) reserve more space for the edition dropdown #1963
+x improve episode detection to find them also in optional [brackets]
+x (TV shows) fixed filtering for missing episode thumbs #1977
+x able to exchange movies with same name in case of MMD
+x fix parsing MediaSource on exchanged video files #1992
+x remember all splitter locations #1966
+x (movie) enhanced detection of movie titles when parsing the data source
+x (AniDB) inform users when they are banned #1997
+x (movie, TV show) set playcount and lastplayed along with watched state in the NFO #1983
+x fixed deletion of filter presets when the warning has been disabled #2002
+x added season name renamer token to the examples #1968
+
+
 Version 4.3.7
 =======================
 x better detect and parse movie structures #1932

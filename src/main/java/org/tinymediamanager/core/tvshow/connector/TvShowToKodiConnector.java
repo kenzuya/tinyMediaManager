@@ -62,6 +62,19 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
   protected void addRating() {
     Element ratings = document.createElement("ratings");
 
+    // get main rating via UI setting
+    MediaRating mainMediaRating = tvShow.getRating();
+    if (mainMediaRating == MediaMetadata.EMPTY_RATING) {
+      // no one found? get a main rating by preferred order
+      mainMediaRating = tvShow.getRating(MediaMetadata.TVDB);
+      if (mainMediaRating == MediaMetadata.EMPTY_RATING) {
+        mainMediaRating = tvShow.getRating(MediaMetadata.TMDB);
+      }
+      if (mainMediaRating == MediaMetadata.EMPTY_RATING) {
+        mainMediaRating = tvShow.getRating(MediaMetadata.IMDB);
+      }
+    }
+
     for (MediaRating r : tvShow.getRatings().values()) {
       // skip user ratings here
       if (MediaRating.USER.equals(r.getId())) {
@@ -78,7 +91,6 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
       }
       rating.setAttribute("max", String.valueOf(r.getMaxValue()));
 
-      MediaRating mainMediaRating = tvShow.getRating();
       rating.setAttribute("default", r == mainMediaRating ? "true" : "false");
 
       Element value = document.createElement("value");

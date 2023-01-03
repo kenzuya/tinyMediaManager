@@ -18,6 +18,7 @@ package org.tinymediamanager;
 
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
 import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
@@ -56,6 +57,7 @@ import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -87,6 +89,7 @@ import com.sun.jna.Platform;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 
@@ -260,9 +263,6 @@ public final class TinyMediaManager {
           updateProgress("loading movie module", 30);
           TmmModuleManager.getInstance().startUp();
 
-          // register the shutdown handler
-          Runtime.getRuntime().addShutdownHook(new Thread(() -> TmmModuleManager.getInstance().shutDown()));
-
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
 
@@ -336,14 +336,24 @@ public final class TinyMediaManager {
               wizard.setLocationRelativeTo(null); // center
               wizard.setVisible(true);
             }
-            else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+            else if (Settings.getInstance().isEnableAutomaticUpdate() && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
               // if the wizard is not run, check for an update
               // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is showing, the
               // wizard will no more appear
               // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
               // startup
-              checkForUpdate(5);
+
+              // only update if the last update check is more than the specified interval ago
+              if (shouldCheckForUpdate()) {
+                checkForUpdate(5);
+              }
             }
+
+            // register the shutdown handler
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+              shutdown();
+              shutdownLogger();
+            }));
 
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
@@ -393,21 +403,8 @@ public final class TinyMediaManager {
             }
 
             LOGGER.info("bye bye");
-            try {
-              // send shutdown signal
-              TmmTaskManager.getInstance().shutdown();
-              // save unsaved settings
-              TmmModuleManager.getInstance().saveSettings();
-              // hard kill
-              TmmTaskManager.getInstance().shutdownNow();
-              // close dabatbases
-              TmmModuleManager.getInstance().shutDown();
-              // shutdown the logger
-              shutdownLogger();
-            }
-            catch (Exception ex) {
-              LOGGER.warn(ex.getMessage());
-            }
+            shutdown();
+            shutdownLogger();
             System.exit(0);
           }
         }
@@ -544,6 +541,28 @@ public final class TinyMediaManager {
     }
   }
 
+  /**
+   * make a clean shutdown
+   */
+  public static void shutdown() {
+    try {
+      // persist all stored properties
+      TmmProperties.getInstance().writeProperties();
+
+      // send shutdown signal
+      TmmTaskManager.getInstance().shutdown();
+      // save unsaved settings
+      TmmModuleManager.getInstance().saveSettings();
+      // hard kill
+      TmmTaskManager.getInstance().shutdownNow();
+      // close database connection
+      TmmModuleManager.getInstance().shutDown();
+    }
+    catch (Exception ex) {
+      LOGGER.warn("Problem in shutdown", ex);
+    }
+  }
+
   public static void shutdownLogger() {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     loggerContext.stop();
@@ -585,7 +604,7 @@ public final class TinyMediaManager {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 
     // get the console appender
-    Appender consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
+    Appender<ILoggingEvent> consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
     if (consoleAppender instanceof ConsoleAppender) {
       if (level == null) {
         consoleAppender.stop();

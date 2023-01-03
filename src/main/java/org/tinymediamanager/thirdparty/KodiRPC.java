@@ -18,6 +18,7 @@ package org.tinymediamanager.thirdparty;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ import org.tinymediamanager.jsonrpc.notification.AbstractEvent;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 public class KodiRPC {
   private static final Logger         LOGGER                   = LoggerFactory.getLogger(KodiRPC.class);
@@ -506,6 +508,12 @@ public class KodiRPC {
         movie.setPlaycount(call.getResult().playcount);
         if (call.getResult().playcount > 0) {
           movie.setWatched(true);
+          try {
+            movie.setLastWatched(StrgUtils.parseDate(call.getResult().lastplayed));
+          }
+          catch (Exception e) {
+            movie.setLastWatched(new Date());
+          }
         }
       }
     }
@@ -524,6 +532,12 @@ public class KodiRPC {
         episode.setPlaycount(call.getResult().playcount);
         if (call.getResult().playcount > 0) {
           episode.setWatched(true);
+          try {
+            episode.setLastWatched(StrgUtils.parseDate(call.getResult().lastplayed));
+          }
+          catch (Exception e) {
+            episode.setLastWatched(new Date());
+          }
         }
       }
     }

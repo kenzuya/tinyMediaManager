@@ -22,6 +22,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -318,7 +319,19 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           episodesChanged = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.setWatched(chckbxWatched.isSelected());
+            if (chckbxWatched.isSelected()) {
+              // set the watched flag along with playcount = 1 and lastplayed = now
+              episode.setWatched(true);
+              if (episode.getPlaycount() == 0) {
+                episode.setPlaycount(1);
+                episode.setLastWatched(new Date());
+              }
+            }
+            else {
+              episode.setWatched(false);
+              episode.setPlaycount(0);
+              episode.setLastWatched(null);
+            }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
