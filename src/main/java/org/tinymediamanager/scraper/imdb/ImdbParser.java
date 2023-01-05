@@ -47,9 +47,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -57,6 +57,7 @@ import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -70,6 +71,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
 import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
+import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -87,8 +89,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Manuel Laggner
  */
 public abstract class ImdbParser {
-  private static final Logger         LOGGER                   = LoggerFactory.getLogger(ImdbParser.class);
-
   static final Pattern                IMDB_ID_PATTERN          = Pattern.compile("/title/(tt[0-9]{6,})/");
   static final Pattern                PERSON_ID_PATTERN        = Pattern.compile("/name/(nm[0-9]{6,})/");
   static final Pattern                MOVIE_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)$");
@@ -488,7 +488,7 @@ public abstract class ImdbParser {
       }
     }
     catch (Exception e) {
-      LOGGER.warn("Error parsing JSON:", e.getMessage());
+      getLogger().warn("Error parsing JSON:", e.getMessage());
     }
 
     // no JSON or error - also check if we have been redirected to detail page
@@ -934,10 +934,41 @@ public abstract class ImdbParser {
         }
       }
 
+      // poster
+      JsonNode primaryImage = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
+      if (!primaryImage.isMissingNode()) {
+        ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
+        MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        poster.setOriginalUrl(img.url);
+        poster.setImdbId(img.id);
+        poster.addImageSize(img.width, img.height, img.url);
+        md.addMediaArt(poster);
+      }
+      JsonNode titleMainImages = node.at("/props/pageProps/aboveTheFoldData/titleMainImages/edges");
+      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
+        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
+        // only parse landscape ones as fanarts
+        if (i.width > i.height) {
+          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          poster.setOriginalUrl(i.url);
+          poster.setImdbId(i.id);
+          poster.addImageSize(i.width, i.height, i.url);
+          md.addMediaArt(poster);
+        }
+      }
+
       // primaryVideos for all trailers
-      JsonNode imageNode = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
-      ImdbImage img = ImdbJsonHelper.parseObject(mapper, imageNode, ImdbImage.class);
-      // add poster MA
+      JsonNode primaryTrailers = node.at("/props/pageProps/aboveTheFoldData/primaryVideos/edges");
+      for (JsonNode img : ListUtils.nullSafe(primaryTrailers)) {
+        ImdbVideo vid = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbVideo.class);
+        MediaTrailer trailer = new MediaTrailer();
+        trailer.setDate(vid.creeatedDate);
+        trailer.setName(vid.name.value);
+        trailer.setProvider(ImdbMetadataProvider.ID);
+        trailer.setUrl(vid.playbackURLs.get(0).url);
+        trailer.setQuality(vid.playbackURLs.get(0).displayName.value);
+        md.addTrailer(trailer);
+      }
 
       JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
       ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
@@ -982,8 +1013,10 @@ public abstract class ImdbParser {
         md.addProductionCompany(p.at("/node/company/companyText/text").asText());
       }
     }
-    catch (Exception e) {
-      LOGGER.warn("Error parsing JSON: {}", e);
+    catch (
+
+    Exception e) {
+      getLogger().warn("Error parsing JSON: {}", e);
       throw e;
     }
   }

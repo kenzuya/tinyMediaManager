@@ -9,12 +9,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ImdbImage {
-
-  public String               id                   = "";
+public class ImdbPlaybackUrl {
+  public ImdbLocalizedString  displayName          = null;
+  public String               mimeType             = "";
   public String               url                  = "";
-  public Integer              height               = 0;
-  public Integer              width                = 0;
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
