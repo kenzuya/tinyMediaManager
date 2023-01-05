@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class SearchResultImages {
+public class ImdbSearchResultImages {
 
   public String               url                  = "";
   public Integer              maxHeight            = 0;

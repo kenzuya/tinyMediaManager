@@ -68,7 +68,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
 import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
-import org.tinymediamanager.scraper.imdb.entities.SearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -463,7 +463,7 @@ public abstract class ImdbParser {
         JsonNode node = mapper.readTree(json);
         JsonNode resultsNode = node.at("/props/pageProps/titleResults/results");
 
-        for (SearchResult result : ImdbJsonHelper.parseList(mapper, resultsNode, SearchResult.class)) {
+        for (ImdbSearchResult result : ImdbJsonHelper.parseList(mapper, resultsNode, ImdbSearchResult.class)) {
           MediaSearchResult sr = parseJsonSearchResults(result, options);
           // only add wanted ones
           if (sr != null && options.getMediaType().equals(result.getMediaType())) {
@@ -484,7 +484,7 @@ public abstract class ImdbParser {
     Elements elements = doc.getElementsByClass("ipc-metadata-list-summary-item");
     for (Element tr : elements) {
       MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
-      if (sr != null) {
+      if (sr != null && options.getMediaType() == sr.getMediaType()) {
         results.add(sr);
       }
       // only get 80 results
@@ -530,7 +530,7 @@ public abstract class ImdbParser {
     return results;
   }
 
-  private MediaSearchResult parseJsonSearchResults(SearchResult result, MediaSearchAndScrapeOptions options) {
+  private MediaSearchResult parseJsonSearchResults(ImdbSearchResult result, MediaSearchAndScrapeOptions options) {
     MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
 
     sr.setIMDBId(result.getId());
@@ -748,6 +748,10 @@ public abstract class ImdbParser {
         int year = MetadataUtil.parseInt(text.substring(0, 4));
         sr.setYear(year);
       }
+      else if (text.matches("S\\d+\\.E\\d+")) {
+        // we found some S/EE values - must be episode
+        sr.setMediaType(MediaType.TV_EPISODE);
+      }
     }
 
     if (sr.getIMDBId().equals(options.getImdbId())) {
@@ -831,103 +835,113 @@ public abstract class ImdbParser {
     return languages.toString().toLowerCase(Locale.ROOT);
   }
 
-  protected boolean parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
-    String json = doc.getElementById("__NEXT_DATA__").data();
-    if (json != null) {
-      try {
-        JsonNode node = mapper.readTree(json);
+  /**
+   * 
+   * @param doc
+   * @param options
+   * @param md
+   * @return true if JSON could be parsed, false if no JSON was found
+   * @throws Exception
+   */
+  protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      JsonNode node = mapper.readTree(json);
 
-        // ***** TOP column *****
+      // ***** TOP column *****
 
-        md.setTitle(node.at("/props/pageProps/aboveTheFoldData/titleText/text").asText());
-        md.setOriginalTitle(node.at("/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
-        md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
+      md.setTitle(node.at("/props/pageProps/aboveTheFoldData/titleText/text").asText());
+      md.setOriginalTitle(node.at("/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
+      if (md.getOriginalTitle().isEmpty()) {
+        md.setOriginalTitle(md.getTitle());
+      }
+      md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
 
-        int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
-        int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
-        int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
-        Date date = new GregorianCalendar(y, m - 1, d).getTime();
-        md.setReleaseDate(date);
+      int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
+      int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
+      int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
+      Date date = new GregorianCalendar(y, m - 1, d).getTime();
+      md.setReleaseDate(date);
 
-        md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+      md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
 
-        MediaRating rating = new MediaRating("imdb");
-        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating").floatValue());
-        rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
-        rating.setMaxValue(10);
+      MediaRating rating = new MediaRating("imdb");
+      rating.setRating(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating").floatValue());
+      rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
+      rating.setMaxValue(10);
+      if (rating.getRating() > 0) {
+        md.addRating(rating);
+      }
+      if (isScrapeMetacriticRatings()) {
+        rating = new MediaRating("metacritic");
+        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
+        rating.setMaxValue(100);
         if (rating.getRating() > 0) {
           md.addRating(rating);
         }
-        if (isScrapeMetacriticRatings()) {
-          rating = new MediaRating("metacritic");
-          rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
-          rating.setMaxValue(100);
-          if (rating.getRating() > 0) {
-            md.addRating(rating);
-          }
+      }
+
+      JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
+      for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
+        md.addGenre(genre.toTmm());
+      }
+
+      if (isScrapeKeywordsPage()) {
+        JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
+        for (ImdbKeyword kw : ImdbJsonHelper.parseList(mapper, keywordsNode, ImdbKeyword.class)) {
+          md.addTag(kw.node.text);
         }
+      }
 
-        JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
-        for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
-          md.addGenre(genre.toTmm());
-        }
+      // primaryVideos for all trailers
+      JsonNode imageNode = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
+      ImdbImage img = ImdbJsonHelper.parseObject(mapper, imageNode, ImdbImage.class);
+      // add poster MA
+      // ***** MAIN column *****
 
-        if (isScrapeKeywordsPage()) {
-          JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
-          for (ImdbKeyword kw : ImdbJsonHelper.parseList(mapper, keywordsNode, ImdbKeyword.class)) {
-            md.addTag(kw.node.text);
-          }
-        }
-
-        // primaryVideos for all trailers
-        JsonNode imageNode = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
-        ImdbImage img = ImdbJsonHelper.parseObject(mapper, imageNode, ImdbImage.class);
-        // add poster MA
-        // ***** MAIN column *****
-
-        JsonNode arr = node.at("/props/pageProps/mainColumnData/directors");
+      JsonNode arr = node.at("/props/pageProps/mainColumnData/directors");
+      if (arr.size() > 0) {
         JsonNode crew = arr.get(0).get("credits");
         for (JsonNode dir : ListUtils.nullSafe(crew)) {
           ImdbCrew c = ImdbJsonHelper.parseObject(mapper, dir, ImdbCrew.class);
           md.addCastMember(c.toTmm(Person.Type.DIRECTOR));
         }
+      }
 
-        arr = node.at("/props/pageProps/mainColumnData/writers");
-        crew = arr.get(0).get("credits");
+      arr = node.at("/props/pageProps/mainColumnData/writers");
+      if (arr.size() > 0) {
+        JsonNode crew = arr.get(0).get("credits");
         for (JsonNode dir : ListUtils.nullSafe(crew)) {
           ImdbCrew c = ImdbJsonHelper.parseObject(mapper, dir, ImdbCrew.class);
           md.addCastMember(c.toTmm(Person.Type.WRITER));
         }
+      }
 
-        arr = node.at("/props/pageProps/mainColumnData/cast/edges");
-        for (JsonNode actors : ListUtils.nullSafe(arr)) {
-          ImdbCast c = ImdbJsonHelper.parseObject(mapper, actors.get("node"), ImdbCast.class);
-          md.addCastMember(c.toTmm(Person.Type.ACTOR));
-        }
+      arr = node.at("/props/pageProps/mainColumnData/cast/edges");
+      for (JsonNode actors : ListUtils.nullSafe(arr)) {
+        ImdbCast c = ImdbJsonHelper.parseObject(mapper, actors.get("node"), ImdbCast.class);
+        md.addCastMember(c.toTmm(Person.Type.ACTOR));
+      }
 
-        JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
-        for (ImdbIdTextType lang : ImdbJsonHelper.parseList(mapper, spokenNode, ImdbIdTextType.class)) {
+      JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
+      for (ImdbIdTextType lang : ImdbJsonHelper.parseList(mapper, spokenNode, ImdbIdTextType.class)) {
+        if (isScrapeLanguageNames()) {
           md.addSpokenLanguage(lang.text);
         }
-
-        JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
-        for (JsonNode p : prods) {
-          md.addProductionCompany(p.at("/node/company/companyText/text").asText());
+        else {
+          md.addSpokenLanguage(lang.id);
         }
-
-        // is this a tvshow which has episodes?
-        boolean tvshow = node.at("/props/pageProps/mainColumnData/canHaveEpisodes").asBoolean();
-
-        // all good :)
-        return true;
       }
-      catch (Exception e) {
-        LOGGER.warn("Error parsing JSON: {}", e.getMessage());
-        return false;
+
+      JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
+      for (JsonNode p : prods) {
+        md.addProductionCompany(p.at("/node/company/companyText/text").asText());
       }
     }
-    LOGGER.debug("did not find JSON to parse...");
-    return false;
+    catch (Exception e) {
+      LOGGER.warn("Error parsing JSON: {}", e);
+      throw e;
+    }
   }
 
   protected void parseReferencePage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {

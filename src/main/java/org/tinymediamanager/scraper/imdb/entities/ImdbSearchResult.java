@@ -12,23 +12,23 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class SearchResult {
+public class ImdbSearchResult {
 
-  public String              id                    = "";
-  public String              titleNameText         = "";
-  public String              titleReleaseText      = "";
-  public String              titleTypeText         = "";
-  public SearchResultImages  titlePosterImageModel = null;
-  public List<String>        topCredits            = new ArrayList<String>();
-  public String              imageType             = "";
-  public String              seriesId              = "";
-  public String              seriesNameText        = "";
-  public String              seriesReleaseText     = "";
-  public String              seriesTypeText        = "";
-  public String              seriesSeasonText      = "";
-  public String              seriesEpisodeText     = "";
+  public String                 id                    = "";
+  public String                 titleNameText         = "";
+  public String                 titleReleaseText      = "";
+  public String                 titleTypeText         = "";
+  public ImdbSearchResultImages titlePosterImageModel = null;
+  public List<String>           topCredits            = new ArrayList<String>();
+  public ImdbTitleType          titleType             = null;
+  public String                 seriesId              = "";
+  public String                 seriesNameText        = "";
+  public String                 seriesReleaseText     = "";
+  public String                 seriesTypeText        = "";
+  public String                 seriesSeasonText      = "";
+  public String                 seriesEpisodeText     = "";
   @JsonIgnore
-  public Map<String, Object> additionalProperties  = new HashMap<String, Object>();
+  public Map<String, Object>    additionalProperties  = new HashMap<String, Object>();
 
   /**
    * maps internal groups to our mediaTypes - if it must be parsed as movie or thshow with episodes
@@ -36,7 +36,7 @@ public class SearchResult {
    * @return MediaType or NULL if we cannot identify it
    */
   public MediaType getMediaType() {
-    switch (imageType) {
+    switch (titleType.id) {
       case "movie":
       case "tvMovie":
       case "tvSpecial":

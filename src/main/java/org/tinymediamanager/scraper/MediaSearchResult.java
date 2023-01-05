@@ -42,9 +42,9 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 public class MediaSearchResult implements Comparable<MediaSearchResult> {
   private static final Logger       LOGGER           = LoggerFactory.getLogger(MediaSearchResult.class);
 
-  private final MediaType           type;
   private final Map<String, Object> ids              = new HashMap<>();
 
+  private MediaType                 type;
   private String                    providerId;
   private String                    url              = "";
   private String                    title            = "";
@@ -315,6 +315,13 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
    */
   public MediaType getMediaType() {
     return type;
+  }
+
+  /**
+   * sets the MediaType (used for filtering search results)
+   */
+  public void setMediaType(MediaType type) {
+    this.type = type;
   }
 
   /**
