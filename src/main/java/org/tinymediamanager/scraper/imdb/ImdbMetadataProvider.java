@@ -31,13 +31,10 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
  * @author Manuel Laggner
  */
 abstract class ImdbMetadataProvider implements IMediaProvider {
-  protected static final ExecutorService EXECUTOR    = new ThreadPoolExecutor(5, 10, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+  protected static final ExecutorService EXECUTOR  = new ThreadPoolExecutor(5, 10, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
-  static final String                    ID          = "imdb";
-
-  static final String                    CAT_TITLE   = "&s=tt";
-  static final String                    CAT_MOVIES  = "&ttype=ft";
-  static final String                    CAT_TVSHOWS = "&ttype=tv";
+  static final String                    ID        = "imdb";
+  static final String                    CAT_TITLE = "&s=tt&ttype=ft,tv";
 
   private final MediaProviderInfo        providerInfo;
 
