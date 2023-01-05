@@ -20,7 +20,7 @@ public class ImdbSearchResult {
   public String                 titleTypeText         = "";
   public ImdbSearchResultImages titlePosterImageModel = null;
   public List<String>           topCredits            = new ArrayList<String>();
-  public ImdbTitleType          titleType             = null;
+  public String                 imageType             = "";
   public String                 seriesId              = "";
   public String                 seriesNameText        = "";
   public String                 seriesReleaseText     = "";
@@ -36,7 +36,7 @@ public class ImdbSearchResult {
    * @return MediaType or NULL if we cannot identify it
    */
   public MediaType getMediaType() {
-    switch (titleType.id) {
+    switch (imageType) {
       case "movie":
       case "tvMovie":
       case "tvSpecial":
