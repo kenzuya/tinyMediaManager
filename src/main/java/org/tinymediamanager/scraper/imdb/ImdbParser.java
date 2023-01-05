@@ -69,6 +69,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
 import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
+import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
@@ -898,6 +899,10 @@ public abstract class ImdbParser {
       }
       md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
 
+      JsonNode plotNode = node.at("/props/pageProps/aboveTheFoldData/plot/plotText");
+      ImdbPlaintext plot = ImdbJsonHelper.parseObject(mapper, plotNode, ImdbPlaintext.class);
+      md.setPlot(plot.plainText);
+
       int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
       int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
       int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
@@ -940,6 +945,7 @@ public abstract class ImdbParser {
         ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
         poster.setOriginalUrl(img.url);
+        poster.setPreviewUrl(img.url); // well, yes
         poster.setImdbId(img.id);
         poster.addImageSize(img.width, img.height, img.url);
         md.addMediaArt(poster);
@@ -951,6 +957,7 @@ public abstract class ImdbParser {
         if (i.width > i.height) {
           MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
           poster.setOriginalUrl(i.url);
+          poster.setPreviewUrl(i.url); // well, yes
           poster.setImdbId(i.id);
           poster.addImageSize(i.width, i.height, i.url);
           md.addMediaArt(poster);
