@@ -52,8 +52,7 @@ public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMeta
   static final MediaProviderInfo providerInfo          = createMediaProviderInfo();
   static final ExecutorService   executor              = Executors.newFixedThreadPool(4);
 
-  static final String            CAT_TITLE             = "&s=tt";
-  static final String            CAT_TV                = "&s=tt&ttype=tv&ref_=fn_tv";
+  static final String            CAT_TITLE             = "&s=tt&ttype=ft,tv";
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "IMDb.com",

@@ -279,6 +279,13 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
   }
 
   /**
+   * sets the MediaType (used for filtering search results)
+   */
+  public void setMediaType(MediaType type) {
+    this.type = type;
+  }
+
+  /**
    * Get the id of this search result
    * 
    * @return the id

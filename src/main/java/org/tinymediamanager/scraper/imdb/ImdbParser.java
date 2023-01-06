@@ -65,6 +65,7 @@ import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -171,7 +172,7 @@ public abstract class ImdbParser {
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
     StringBuilder sb = new StringBuilder(IMDB_SITE);
-    sb.append("find?q=");
+    sb.append("search/title/?title=");
     try {
       // search site was everytime in UTF-8
       sb.append(URLEncoder.encode(searchTerm, UrlUtil.UTF_8));
@@ -182,8 +183,25 @@ public abstract class ImdbParser {
       sb.append(searchTerm);
     }
 
+    String cats = "";
+    if (options.getMediaType() == MediaType.MOVIE) {
+      cats = "&title_type=feature,documentary";
+      if (getUnwantedSearchResultPattern() == null) {
+        cats += ",short,tv_short"; // tv shorts are "short movies played solely on tv, mostly ads, but also dinnerForOne"
+        cats += ",tv_movie,tv_special";
+        cats += ",video_game";
+      }
+    }
+    else if (options.getMediaType() == MediaType.TV_SHOW) {
+      cats = "&title_type=tv_series,tv_miniseries";
+      if (getUnwantedSearchResultPattern() == null) {
+        cats += ",podcast_series";
+      }
+    }
+    sb.append(cats);
+
     // we need to search for all - otherwise we do not find TV movies
-    sb.append(getSearchCategory());
+    // sb.append(getSearchCategory());
 
     getLogger().debug("========= BEGIN IMDB Scraper Search for: {}", sb);
     Document doc = null;
@@ -270,6 +288,19 @@ public abstract class ImdbParser {
 
         results.add(sr);
         return results;
+      }
+    }
+
+    // parse results advanced search
+    elements = doc.getElementsByClass("lister-item");
+    for (Element tr : elements) {
+      MediaSearchResult sr = parseAdvancedSearchResults(tr, options);
+      if (sr != null) {
+        results.add(sr);
+      }
+      // only get 80 results
+      if (results.size() >= 80) {
+        break;
       }
     }
 
@@ -400,6 +431,54 @@ public abstract class ImdbParser {
     sr.setIMDBId(movieId);
     sr.setYear(year);
     sr.setPosterUrl(posterUrl);
+
+    if (movieId.equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+
+    return sr;
+  }
+
+  private MediaSearchResult parseAdvancedSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
+
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+    String movieId = "";
+    Element header = null;
+    try {
+      header = tr.getElementsByClass("lister-item-header").get(0);
+      sr.setTitle(header.getElementsByTag("a").text());
+      sr.setUrl(header.getElementsByTag("a").attr("href"));
+      movieId = StrgUtils.substr(sr.getUrl(), ".*?(tt\\d+).*");
+      sr.setIMDBId(movieId);
+    }
+    catch (Exception e) {
+      // basic info error?
+      return null;
+    }
+
+    try {
+      String yr = header.getElementsByClass("lister-item-year").get(0).text();
+      String year = StrgUtils.substr(yr, ".*?(\\d{4}).*"); // first 4 nums
+      sr.setYear(MetadataUtil.parseInt(year, 0));
+    }
+    catch (Exception e) {
+      // ignore year parsing errors
+    }
+
+    try {
+      Element img = tr.getElementsByClass("lister-item-image").get(0);
+      // String imgurl = img.getElementsByAttribute("loadlate").get(0).attr("src");
+      String imgurlSmall = img.getElementsByAttribute("loadlate").get(0).attr("loadlate");
+      sr.setPosterUrl(imgurlSmall);
+    }
+    catch (Exception e) {
+      // ignore poster parsing errors
+    }
 
     if (movieId.equals(options.getImdbId())) {
       // perfect match
