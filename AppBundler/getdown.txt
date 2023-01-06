@@ -92,3 +92,4 @@ jvmarg = [mac os x] -Dapple.eawt.quitStrategy=CLOSE_ALL_WINDOWS
 jvmarg = -Djna.nosys=true
 jvmarg = [linux] -Dawt.useSystemAAFontSettings=on 
 jvmarg = [linux] -Dswing.aatext=true
+jvmarg = -Dtmm.noupdate=true

@@ -15,19 +15,6 @@
  */
 package org.tinymediamanager.core.tasks;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.Reader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.SwingWorker;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +26,18 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import javax.swing.SwingWorker;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * UpdaterTasks checks if there's a new update for TMM
@@ -99,7 +98,7 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
         try {
           Url url;
           if (useCache) {
-            url = new OnDiskCachedUrl(urlAsString, 2, TimeUnit.DAYS);
+            url = new OnDiskCachedUrl(urlAsString, 7, TimeUnit.DAYS);
           }
           else {
             url = new Url(urlAsString);
