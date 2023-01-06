@@ -35,6 +35,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -1274,6 +1275,20 @@ public class MediaMetadata {
    */
   public Map<Integer, String> getSeasonNames() {
     return seasonNames;
+  }
+
+  /**
+   * generates a SearchResult out of a scraped detail page (when searching via ID)
+   * 
+   * @return
+   */
+  public MediaSearchResult toSearchResult(MediaType type) {
+    MediaSearchResult sr = new MediaSearchResult(providerId, type);
+    sr.setIds(getIds());
+    sr.setTitle(getTitle());
+    sr.setOriginalTitle(getOriginalTitle());
+    sr.setYear(getYear());
+    return sr;
   }
 
   /**

@@ -317,6 +317,26 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
   }
 
   /**
+   * set all given ids
+   *
+   * @param ids
+   *          the ids to set
+   */
+  public void setIds(Map<String, Object> ids) {
+    if (ids == null) {
+      return;
+    }
+
+    for (Map.Entry<String, Object> entry : ids.entrySet()) {
+      if (entry.getValue() == null) {
+        continue;
+      }
+
+      setId(entry.getKey(), entry.getValue().toString());
+    }
+  }
+
+  /**
    * Get the IMDB id
    * 
    * @return the IMDB id

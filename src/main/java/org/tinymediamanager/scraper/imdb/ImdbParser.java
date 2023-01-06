@@ -171,6 +171,19 @@ public abstract class ImdbParser {
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
+    if (MetadataUtil.isValidImdbId(searchTerm)) {
+      // get direct - do not search
+      try {
+        MediaMetadata md = getMetadata(options);
+        results.add(md.toSearchResult(options.getMediaType()));
+        return results;
+      }
+      catch (Exception e) {
+        return Collections.emptySortedSet();
+      }
+
+    }
+
     StringBuilder sb = new StringBuilder(IMDB_SITE);
     sb.append("search/title/?title=");
     try {
