@@ -1,3 +1,12 @@
+Version 3.1.18
+=======================
+***  After more than 2 years of backporting fixes to v3, this will be the last update for v3  ***
+*** v3 is now EOL (and of life) and will be discontinued. If you want further features/fixes, ***
+***                      you need to upgrade to the latest version!                           ***
+
+x backported some fixes for the IMDB scraper
+
+
 Version 3.1.17
 =======================
 + updated libmediainfo to 22.06
