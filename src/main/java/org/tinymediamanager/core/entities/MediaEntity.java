@@ -56,7 +56,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -626,7 +625,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return a map of all found artworks
    */
   public Map<MediaFileType, MediaFile> getArtworkMap() {
-    Map<MediaFileType, MediaFile> artworkMap = new HashMap<>();
+    Map<MediaFileType, MediaFile> artworkMap = new EnumMap<>(MediaFileType.class);
     List<MediaFile> mfs = getMediaFiles();
     for (MediaFile mf : mfs) {
       if (!mf.isGraphic()) {

@@ -10,4 +10,7 @@ Version 5.0
 + added subtitle format info to media files tab and filters #1709
 + fetch ratings: remember last used rating sources #1940
 + added some more movie editions per default #1987
++ writing season NFO files (mainly for Emby) #1697
++ added season plot
 x better handling of image cache upon rename
+x added an option to write season data (NFO/artwork) for unavailable seasons

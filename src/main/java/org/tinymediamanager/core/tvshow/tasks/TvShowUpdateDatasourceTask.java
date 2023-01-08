@@ -19,6 +19,7 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
+import static org.tinymediamanager.core.Utils.SEASON_NFO_PATTERN;
 import static org.tinymediamanager.core.Utils.containsSkipFile;
 
 import java.io.IOException;
@@ -75,8 +76,10 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
 import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
+import org.tinymediamanager.core.tvshow.connector.TvShowSeasonNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
@@ -486,8 +489,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     boolean dirty = false;
     if (!tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes()) {
       // check and delete all not found MediaFiles
-      List<MediaFile> mediaFiles = new ArrayList<>(tvShow.getMediaFiles());
-      for (MediaFile mf : mediaFiles) {
+      for (MediaFile mf : tvShow.getMediaFiles()) {
         fileLock.readLock().lock();
         boolean fileFound = filesFound.contains(mf.getFileAsPath());
         fileLock.readLock().unlock();
@@ -498,18 +500,34 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // and remove the image cache
           if (mf.isGraphic()) {
             ImageCache.invalidateCachedImage(mf);
-
-            // special handling for season artwork
-            tvShow.removeSeasonArtwork(mf);
           }
 
           dirty = true;
         }
       }
-      List<TvShowEpisode> episodes = new ArrayList<>(tvShow.getEpisodes());
-      for (TvShowEpisode episode : episodes) {
-        mediaFiles = new ArrayList<>(episode.getMediaFiles());
-        for (MediaFile mf : mediaFiles) {
+
+      for (TvShowSeason season : tvShow.getSeasons()) {
+        // check and delete all not found MediaFiles
+        for (MediaFile mf : season.getMediaFiles()) {
+          fileLock.readLock().lock();
+          boolean fileFound = filesFound.contains(mf.getFileAsPath());
+          fileLock.readLock().unlock();
+
+          if (!fileFound) {
+            LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
+            season.removeFromMediaFiles(mf);
+            // and remove the image cache
+            if (mf.isGraphic()) {
+              ImageCache.invalidateCachedImage(mf);
+            }
+
+            dirty = true;
+          }
+        }
+      }
+
+      for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        for (MediaFile mf : episode.getMediaFiles()) {
           fileLock.readLock().lock();
           boolean fileFound = filesFound.contains(mf.getFileAsPath());
           fileLock.readLock().unlock();
@@ -521,10 +539,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             if (mf.isGraphic()) {
               ImageCache.invalidateCachedImage(mf);
             }
+
             dirty = true;
           }
         }
-        // lets have a look if there is at least one video file for this episode
+
+        // let's have a look if there is at least one video file for this episode
         List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
         if (mfs.isEmpty()) {
           tvShow.removeEpisode(episode);
@@ -628,7 +648,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       filesFound.addAll(allFiles); // our global cache
       fileLock.writeLock().unlock();
 
-      // convert to MFs (we need it anyways at the end)
+      // convert to MFs (we need it anyway at the end)
       List<MediaFile> mfs = new ArrayList<>();
       for (Path file : allFiles) {
         if (!file.getFileName().toString().matches(SKIP_REGEX)) {
@@ -667,7 +687,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return "";
       }
 
-      // SHOW_NFO or SEASON_BANNER
+      // SHOW_NFO
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate
       if (tvShow == null) {
         // tvShow did not exist - try to parse a NFO file in parent folder
@@ -727,6 +747,22 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         tvShow.setDataSource(datasource.toString());
         tvShow.setNewlyAdded(true);
         tvShowList.addTvShow(tvShow);
+      }
+
+      // ******************************
+      // STEP 1.1 - get all season NFO files
+      // ******************************
+      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.NFO)) {
+        Matcher matcher = SEASON_NFO_PATTERN.matcher(mf.getFilename());
+        if (matcher.matches()) {
+          // season NFO found - get the season number
+          // this NFO must offer _at least_ the season number to be valid
+          TvShowSeasonNfoParser parser = TvShowSeasonNfoParser.parseNfo(mf.getFileAsPath());
+          if (parser.season > -1) {
+            TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(parser.season);
+            tvShowSeason.addToMediaFiles(mf);
+          }
+        }
       }
 
       // ******************************
@@ -1072,16 +1108,28 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // ******************************
       // STEP 3 - now we have a working show/episode object
-      // remove all used episode MFs, rest must be show MFs ;)
+      // remove all used episode/season MFs, rest must be show MFs ;)
       // ******************************
       mfs.removeAll(tvShow.getEpisodesMediaFiles()); // remove EP files
+
+      for (TvShowSeason season : tvShow.getSeasons()) {
+        mfs.removeAll(season.getMediaFiles());
+      }
 
       // tvShow.addToMediaFiles(mfs); // add remaining
       // not so fast - try to parse S/E from remaining first!
       for (MediaFile mf : mfs) {
-        // a season poster/fanart/banner/thumb does not belong to any episode
+        // a season poster/fanart/banner/thumb does not belong to any episode - they need to be added to a TvShowSeason
         if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_FANART || mf.getType() == MediaFileType.SEASON_BANNER
             || mf.getType() == MediaFileType.SEASON_THUMB) {
+
+          String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+          if (season != Integer.MIN_VALUE) {
+            TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
+            tvShowSeason.addToMediaFiles(mf);
+          }
+
           continue;
         }
 
@@ -1113,27 +1161,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       }
-      mfs.removeAll(tvShow.getEpisodesMediaFiles()); // remove EP files
-      tvShow.addToMediaFiles(mfs); // now add remaining
 
-      // fill season artwork map
-      for (MediaFile mf : getMediaFiles(mfs, MediaFileType.SEASON_POSTER, MediaFileType.SEASON_FANART, MediaFileType.SEASON_BANNER,
-          MediaFileType.SEASON_THUMB)) {
-        try {
-          String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
-          int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
-          if (season == Integer.MIN_VALUE) {
-            throw new IllegalStateException("did not find a season number");
-          }
-          else {
-            LOGGER.debug("found {} - {}", mf.getType(), mf.getFileAsPath());
-            tvShow.setSeasonArtwork(season, mf);
-          }
-        }
-        catch (Exception e) {
-          LOGGER.warn("could not parse season number: {} MF: {}", e.getMessage(), mf.getFileAsPath().toAbsolutePath());
-        }
-      }
+      // remove EP files
+      mfs.removeAll(tvShow.getEpisodesMediaFiles());
+
+      // remove season files
+      tvShow.getSeasons().forEach(tvShowSeason -> mfs.removeAll(tvShowSeason.getMediaFiles()));
+
+      // now add remaining
+      tvShow.addToMediaFiles(mfs);
 
       // re-evaluate stacking markers & disc folders
       for (TvShowEpisode episode : tvShow.getEpisodes()) {

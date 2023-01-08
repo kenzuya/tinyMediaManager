@@ -116,8 +116,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
     tvShowList.addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
-        case Constants.TV_SHOW_COUNT:
-        case Constants.EPISODE_COUNT:
+        case Constants.TV_SHOW_COUNT, Constants.EPISODE_COUNT:
           updateTotals();
           break;
 
@@ -127,18 +126,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     });
     TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
       switch (e.getPropertyName()) {
-        case "tvShowCheckMetadata":
-        case "tvShowCheckArtwork":
-        case "seasonCheckArtwork":
-        case "episodeCheckMetadata":
-        case "episodeCheckArtwork":
-        case "episodeSpecialsCheckMissingMetadata":
-        case "episodeSpecialsCheckMissingArtwork":
-          tree.invalidate();
-          break;
-
-        default:
-          break;
+        case "tvShowCheckMetadata", "tvShowCheckArtwork", "seasonCheckArtwork", "episodeCheckMetadata", "episodeCheckArtwork", "episodeSpecialsCheckMissingMetadata", "episodeSpecialsCheckMissingArtwork" -> tree
+            .invalidate();
       }
     });
   }
@@ -149,7 +138,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     final TmmTreeTextFilter<TmmTreeNode> searchField = new TvShowTreeTextFilter<>();
     add(searchField, "cell 0 0,growx");
 
-    // register global short cut for the search field
+    // register global shortcut for the search field
     getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
     getActionMap().put("search", new RequestFocusAction(searchField));
 
@@ -208,8 +197,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
           if (isFiltersActive()) {
             for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
-              if (filter instanceof ITmmUIFilter) {
-                ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+              if (filter instanceof ITmmUIFilter uiFilter) {
                 if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
                   AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
                   uiFilters.id = uiFilter.getId();
@@ -274,20 +262,17 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
       DefaultMutableTreeNode node = tree.getTreeNode(index);
       if (node != null) {
         // click on a tv show
-        if (node.getUserObject() instanceof TvShow) {
-          TvShow tvShow = (TvShow) node.getUserObject();
+        if (node.getUserObject()instanceof TvShow tvShow) {
           TvShowUIModule.getInstance().setSelectedTvShow(tvShow);
         }
 
         // click on a season
-        if (node.getUserObject() instanceof TvShowSeason) {
-          TvShowSeason tvShowSeason = (TvShowSeason) node.getUserObject();
+        if (node.getUserObject()instanceof TvShowSeason tvShowSeason) {
           TvShowUIModule.getInstance().setSelectedTvShowSeason(tvShowSeason);
         }
 
         // click on an episode
-        if (node.getUserObject() instanceof TvShowEpisode) {
-          TvShowEpisode tvShowEpisode = (TvShowEpisode) node.getUserObject();
+        if (node.getUserObject()instanceof TvShowEpisode tvShowEpisode) {
           TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
         }
       }
@@ -341,9 +326,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           TableModel model = tree.getModel();
 
           for (int i = 0; i < model.getRowCount(); i++) {
-            if (model.getValueAt(i, 0) instanceof TvShowTreeDataProvider.TvShowTreeNode) {
-              TvShowTreeDataProvider.TvShowTreeNode node = (TvShowTreeDataProvider.TvShowTreeNode) model.getValueAt(i, 0);
-
+            if (model.getValueAt(i, 0)instanceof TvShowTreeDataProvider.TvShowTreeNode node) {
               // search in the title
               String title = node.toString().toLowerCase(Locale.ROOT);
               if (title.startsWith(searchTerm)) {
@@ -399,16 +382,9 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     boolean active = false;
     if (tree.isFiltersActive()) {
       for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
-        if (filter instanceof ITmmUIFilter) {
-          ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+        if (filter instanceof ITmmUIFilter uiFilter) {
           switch (uiFilter.getFilterState()) {
-            case ACTIVE:
-            case ACTIVE_NEGATIVE:
-              active = true;
-              break;
-
-            default:
-              break;
+            case ACTIVE, ACTIVE_NEGATIVE -> active = true;
           }
 
           if (active) {

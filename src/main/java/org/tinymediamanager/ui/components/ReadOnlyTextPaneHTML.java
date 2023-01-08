@@ -25,12 +25,12 @@ import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
  * Same as the normal pane, but this one renders text as HTML.<br>
- * So you get all http/www texual links as clickable HTML &lt;a href&gt; tags, and linebreaks to &lt;br/&gt;
+ * So you get all http/www textual links as clickable HTML &lt;a href&gt; tags, and linebreaks to &lt;br/&gt;
  *
  * @author Myron Boyle
  */
 public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
-  private static final Document.OutputSettings NO_PRETTYPRINT   = new Document.OutputSettings().prettyPrint(false);
+  private static final Document.OutputSettings NO_PRETTYPRINT = new Document.OutputSettings().prettyPrint(false);
 
   public ReadOnlyTextPaneHTML() {
     super();
@@ -65,7 +65,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
           // remove all existing href tags, to not reHTMLify existing ones
           t = Jsoup.clean(t, "", Safelist.simpleText(), NO_PRETTYPRINT);
 
-          t = t.replaceAll("\\n", " <br/> ");
+          t = t.replace("\\n", " <br/> ");
 
           // with space around, so a line concatenating has a whitespace delimiter
           t = t.replaceAll("(?:https|http)://([^\\s]+)", "<a href=\"$0\">$1</a>");
@@ -76,7 +76,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         }
         else {
           // no HTML links found to upgrade
-          t = t.replaceAll("\\n", " <br/> ");
+          t = t.replace("\\n", " <br/> ");
           super.setText(t);
         }
       }

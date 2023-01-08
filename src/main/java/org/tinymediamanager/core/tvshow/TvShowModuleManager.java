@@ -45,6 +45,7 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.http.TvShowCommandHandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -82,10 +83,13 @@ public final class TvShowModuleManager implements ITmmModule {
   private MVStore                      mvStore;
   private ObjectWriter                 tvShowObjectWriter;
   private ObjectReader                 tvShowObjectReader;
+  private ObjectWriter                 seasonObjectWriter;
+  private ObjectReader                 seasonObjectReader;
   private ObjectWriter                 episodeObjectWriter;
   private ObjectReader                 episodeObjectReader;
 
   private MVMap<UUID, String>          tvShowMap;
+  private MVMap<UUID, String>          seasonMap;
   private MVMap<UUID, String>          episodeMap;
 
   private Timer                        databaseTimer;
@@ -151,6 +155,8 @@ public final class TvShowModuleManager implements ITmmModule {
 
     tvShowObjectWriter = objectMapper.writerFor(TvShow.class);
     tvShowObjectReader = objectMapper.readerFor(TvShow.class);
+    seasonObjectWriter = objectMapper.writerFor(TvShowSeason.class);
+    seasonObjectReader = objectMapper.readerFor(TvShowSeason.class);
     episodeObjectWriter = objectMapper.writerFor(TvShowEpisode.class);
     episodeObjectReader = objectMapper.readerFor(TvShowEpisode.class);
 
@@ -290,10 +296,15 @@ public final class TvShowModuleManager implements ITmmModule {
           mvStore.setCacheSize(8);
 
           tvShowMap = mvStore.openMap("tvshows");
+          seasonMap = mvStore.openMap("seasons");
           episodeMap = mvStore.openMap("episodes");
 
           for (TvShow tvShow : getTvShowList().getTvShows()) {
             persistTvShow(tvShow);
+
+            for (TvShowSeason season : tvShow.getSeasons()) {
+              persistSeason(season);
+            }
 
             for (TvShowEpisode episode : tvShow.getEpisodes()) {
               persistEpisode(episode);
@@ -316,9 +327,10 @@ public final class TvShowModuleManager implements ITmmModule {
     mvStore.setCacheSize(8);
 
     tvShowMap = mvStore.openMap("tvshows");
+    seasonMap = mvStore.openMap("seasons");
     episodeMap = mvStore.openMap("episodes");
 
-    getTvShowList().loadTvShowsFromDatabase(tvShowMap, episodeMap);
+    getTvShowList().loadTvShowsFromDatabase(tvShowMap, seasonMap, episodeMap);
     getTvShowList().initDataAfterLoading();
   }
 
@@ -379,6 +391,15 @@ public final class TvShowModuleManager implements ITmmModule {
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
               if (!StringUtils.equals(oldValue, newValue)) {
                 tvShowMap.put(tvShow.getDbId(), newValue);
+              }
+            }
+            else if (entry.getKey()instanceof TvShowSeason season) {
+              // store season
+              // only diffs
+              String oldValue = seasonMap.get(season.getDbId());
+              String newValue = seasonObjectWriter.writeValueAsString(season);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                seasonMap.put(season.getDbId(), newValue);
               }
             }
             else if (entry.getKey()instanceof TvShowEpisode episode) {
@@ -459,6 +480,27 @@ public final class TvShowModuleManager implements ITmmModule {
     }
   }
 
+  void persistSeason(TvShowSeason season) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(season, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  void removeSeasonFromDb(TvShowSeason season) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.remove(season);
+      seasonMap.remove(season.getDbId());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
+  }
+
   void persistEpisode(TvShowEpisode episode) {
     try {
       lock.writeLock().lock();
@@ -501,5 +543,9 @@ public final class TvShowModuleManager implements ITmmModule {
 
   public ObjectReader getEpisodeObjectReader() {
     return episodeObjectReader;
+  }
+
+  public ObjectReader getSeasonObjectReader() {
+    return seasonObjectReader;
   }
 }

@@ -107,6 +107,7 @@ public class MediaMetadata {
   private final Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
   private MediaAiredStatus                                              status              = MediaAiredStatus.UNKNOWN;
   private final Map<Integer, String>                                    seasonNames         = new HashMap<>();
+  private final Map<Integer, String>                                    seasonOveriew       = new HashMap<>();
 
   // extra data
   private final Map<String, Object>                                     extraData           = new HashMap<>();
@@ -191,6 +192,12 @@ public class MediaMetadata {
 
     episodeGroups.removeAll(md.getEpisodeGroups());
     episodeGroups.addAll(md.getEpisodeGroups());
+
+    seasonNames.keySet().removeAll(md.getSeasonNames().keySet());
+    seasonNames.putAll(md.seasonNames);
+
+    seasonOveriew.keySet().removeAll(md.getSeasonOveriew().keySet());
+    seasonOveriew.putAll(md.seasonOveriew);
 
     delta = md.getExtraData();
     delta.keySet().removeAll(extraData.keySet());
@@ -1201,7 +1208,7 @@ public class MediaMetadata {
    *          the season name
    */
   public void addSeasonName(int seasonNumber, String name) {
-    if (StringUtils.isNotBlank(name)) {
+    if (seasonNumber > -1 && StringUtils.isNotBlank(name)) {
       seasonNames.put(seasonNumber, name);
     }
   }
@@ -1213,6 +1220,29 @@ public class MediaMetadata {
    */
   public Map<Integer, String> getSeasonNames() {
     return seasonNames;
+  }
+
+  /**
+   * add a season overview
+   * 
+   * @param seasonNumber
+   *          the season number
+   * @param overview
+   *          the overview
+   */
+  public void addSeasonOverview(int seasonNumber, String overview) {
+    if (seasonNumber > -1 && StringUtils.isNotBlank(overview)) {
+      seasonOveriew.put(seasonNumber, overview);
+    }
+  }
+
+  /**
+   * get the season overview/plot
+   * 
+   * @return the season overview/plot
+   */
+  public Map<Integer, String> getSeasonOveriew() {
+    return seasonOveriew;
   }
 
   /**

@@ -512,7 +512,7 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public MediaFile getMainFile() {
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   @Override
@@ -698,46 +698,21 @@ public class MovieSet extends MediaEntity {
   }
 
   public Object getValueForMetadata(MovieSetScraperMetadataConfig metadataConfig) {
+    return switch (metadataConfig) {
+      case ID -> getIds();
+      case TITLE -> getTitle();
+      case PLOT -> getPlot();
+      case RATING -> getRatings();
+      case POSTER -> getMediaFiles(MediaFileType.POSTER);
+      case FANART -> getMediaFiles(MediaFileType.FANART);
+      case BANNER -> getMediaFiles(MediaFileType.BANNER);
+      case CLEARART -> getMediaFiles(MediaFileType.CLEARART);
+      case THUMB -> getMediaFiles(MediaFileType.THUMB);
+      case LOGO -> getMediaFiles(MediaFileType.LOGO);
+      case CLEARLOGO -> getMediaFiles(MediaFileType.CLEARLOGO);
+      case DISCART -> getMediaFiles(MediaFileType.DISC);
+    };
 
-    switch (metadataConfig) {
-      case ID:
-        return getIds();
-
-      case TITLE:
-        return getTitle();
-
-      case PLOT:
-        return getPlot();
-
-      case RATING:
-        return getRatings();
-
-      case POSTER:
-        return getMediaFiles(MediaFileType.POSTER);
-
-      case FANART:
-        return getMediaFiles(MediaFileType.FANART);
-
-      case BANNER:
-        return getMediaFiles(MediaFileType.BANNER);
-
-      case CLEARART:
-        return getMediaFiles(MediaFileType.CLEARART);
-
-      case THUMB:
-        return getMediaFiles(MediaFileType.THUMB);
-
-      case LOGO:
-        return getMediaFiles(MediaFileType.LOGO);
-
-      case CLEARLOGO:
-        return getMediaFiles(MediaFileType.CLEARLOGO);
-
-      case DISCART:
-        return getMediaFiles(MediaFileType.DISC);
-    }
-
-    return null;
   }
 
   /*******************************************************************************
@@ -801,7 +776,7 @@ public class MovieSet extends MediaEntity {
     @Override
     public MediaFile getMainVideoFile() {
       // per se no video file here
-      return new MediaFile();
+      return MediaFile.EMPTY_MEDIAFILE;
     }
 
     @Override

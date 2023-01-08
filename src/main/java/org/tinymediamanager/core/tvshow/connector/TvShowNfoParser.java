@@ -16,10 +16,6 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -51,6 +47,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
@@ -1473,24 +1470,30 @@ public class TvShowNfoParser {
     }
 
     for (Map.Entry<Integer, String> entry : seasonTitles.entrySet()) {
-      show.addSeasonTitle(entry.getKey(), entry.getValue());
+      if (StringUtils.isNotBlank(entry.getValue())) {
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setTitle(entry.getValue());
+      }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonPosters.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_POSTER);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_POSTER);
       }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonBanners.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_BANNER);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_BANNER);
       }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonThumbs.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_THUMB);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_THUMB);
       }
     }
 

@@ -17,9 +17,6 @@
 package org.tinymediamanager.core.tvshow.connector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +41,7 @@ import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
@@ -117,12 +115,17 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
     tvShow.setRuntime(45);
     tvShow.setArtworkUrl("http://poster", MediaFileType.POSTER);
     tvShow.setArtworkUrl("http://fanart", MediaFileType.FANART);
-    tvShow.setSeasonArtworkUrl(1, "http://season1", SEASON_POSTER);
-    tvShow.setSeasonArtworkUrl(2, "http://season2", SEASON_POSTER);
-    tvShow.setSeasonArtworkUrl(1, "http://season-banner1", SEASON_BANNER);
-    tvShow.setSeasonArtworkUrl(2, "http://season-banner2", SEASON_BANNER);
-    tvShow.setSeasonArtworkUrl(1, "http://season-thumb1", SEASON_THUMB);
-    tvShow.setSeasonArtworkUrl(2, "http://season-thumb2", SEASON_THUMB);
+
+    TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(1);
+    tvShowSeason.setArtworkUrl("http://season1", MediaFileType.SEASON_POSTER);
+    tvShowSeason.setArtworkUrl("http://season-banner1", MediaFileType.SEASON_BANNER);
+    tvShowSeason.setArtworkUrl("http://season-thumb1", MediaFileType.SEASON_THUMB);
+
+    tvShowSeason = tvShow.getOrCreateSeason(2);
+    tvShowSeason.setArtworkUrl("http://season2", MediaFileType.SEASON_POSTER);
+    tvShowSeason.setArtworkUrl("http://season-banner2", MediaFileType.SEASON_BANNER);
+    tvShowSeason.setArtworkUrl("http://season-thumb2", MediaFileType.SEASON_THUMB);
+
     tvShow.setImdbId("tt0103639");
     tvShow.setTvdbId("812");
     tvShow.setId("trakt", 655);

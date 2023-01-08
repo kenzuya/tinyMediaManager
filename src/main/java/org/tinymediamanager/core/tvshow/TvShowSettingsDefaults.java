@@ -32,6 +32,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
@@ -426,6 +427,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.keyartFilenames.clear();
     tvShowSettings.keyartFilenames.add(TvShowKeyartNaming.KEYART);
+
+    tvShowSettings.seasonNfoFilenames.clear();
+    tvShowSettings.seasonNfoFilenames.add(TvShowSeasonNfoNaming.SEASON_FOLDER);
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);

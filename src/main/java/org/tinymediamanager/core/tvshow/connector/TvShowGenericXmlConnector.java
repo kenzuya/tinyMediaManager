@@ -16,10 +16,6 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
-
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -62,6 +58,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Document;
@@ -418,11 +415,11 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the season names in multiple <namedseason number="ss">xxx</namedseason> tags
    */
   protected void addSeasonName() {
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonTitles().entrySet()) {
+    for (TvShowSeason tvShowSeason : tvShow.getSeasons()) {
       Element namedseason = document.createElement("namedseason");
-      String title = entry.getValue();
+      String title = tvShowSeason.getTitle();
       if (StringUtils.isNotBlank(title)) {
-        namedseason.setAttribute("number", entry.getKey().toString());
+        namedseason.setAttribute("number", String.valueOf(tvShowSeason.getSeason()));
         namedseason.setTextContent(title);
         root.appendChild(namedseason);
       }
@@ -433,13 +430,13 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the season posters in multiple <thumb aspect="poster" type="season" season="x">xxx</thumb> tags
    */
   protected void addSeasonPoster() {
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_POSTER).entrySet()) {
+    for (TvShowSeason tvShowSeason : tvShow.getSeasons()) {
       Element thumb = document.createElement("thumb");
-      String posterUrl = entry.getValue();
+      String posterUrl = tvShowSeason.getArtworkUrl(MediaFileType.SEASON_POSTER);
       if (StringUtils.isNotBlank(posterUrl)) {
         thumb.setAttribute("aspect", "poster");
         thumb.setAttribute("type", "season");
-        thumb.setAttribute("season", String.valueOf(entry.getKey()));
+        thumb.setAttribute("season", String.valueOf(tvShowSeason.getSeason()));
         thumb.setTextContent(posterUrl);
         root.appendChild(thumb);
       }
@@ -450,13 +447,13 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the season banners in multiple <thumb aspect="banner" type="season" season="x">xxx</thumb> tags
    */
   protected void addSeasonBanner() {
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_BANNER).entrySet()) {
+    for (TvShowSeason tvShowSeason : tvShow.getSeasons()) {
       Element thumb = document.createElement("thumb");
-      String bannerUrl = entry.getValue();
+      String bannerUrl = tvShowSeason.getArtworkUrl(MediaFileType.SEASON_BANNER);
       if (StringUtils.isNotBlank(bannerUrl)) {
         thumb.setAttribute("aspect", "banner");
         thumb.setAttribute("type", "season");
-        thumb.setAttribute("season", String.valueOf(entry.getKey()));
+        thumb.setAttribute("season", String.valueOf(tvShowSeason.getSeason()));
         thumb.setTextContent(bannerUrl);
         root.appendChild(thumb);
       }
@@ -467,13 +464,13 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the season thumbs in multiple <thumb aspect="thumb" type="season" season="x">xxx</thumb> tags
    */
   protected void addSeasonThumb() {
-    for (Map.Entry<Integer, String> entry : tvShow.getSeasonArtworkUrls(SEASON_THUMB).entrySet()) {
+    for (TvShowSeason tvShowSeason : tvShow.getSeasons()) {
       Element thumb = document.createElement("thumb");
-      String thumbUrl = entry.getValue();
+      String thumbUrl = tvShowSeason.getArtworkUrl(MediaFileType.SEASON_THUMB);
       if (StringUtils.isNotBlank(thumbUrl)) {
         thumb.setAttribute("aspect", "thumb");
         thumb.setAttribute("type", "season");
-        thumb.setAttribute("season", String.valueOf(entry.getKey()));
+        thumb.setAttribute("season", String.valueOf(tvShowSeason.getSeason()));
         thumb.setTextContent(thumbUrl);
         root.appendChild(thumb);
       }

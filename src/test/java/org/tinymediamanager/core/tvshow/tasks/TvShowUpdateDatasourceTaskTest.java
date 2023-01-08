@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,7 +98,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show.getEpisodes().size()).isEqualTo(62);
     assertThat(show.getSeasons().size()).isEqualTo(5);
 
-    List<TvShowSeason> seasons = show.getSeasons();
+    List<TvShowSeason> seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     Object[] a = seasons.toArray();
     Arrays.sort(a);
@@ -125,7 +126,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show.getEpisodes().size()).isEqualTo(14);
     assertThat(show.getSeasons().size()).isEqualTo(1);
 
-    seasons = show.getSeasons();
+    seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     a = seasons.toArray();
     Arrays.sort(a);
@@ -143,9 +144,9 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show).isNotNull();
     assertThat(show.getTitle()).isEqualTo("Futurama");
     assertThat(show.getEpisodes().size()).isEqualTo(44);
-    assertThat(show.getSeasons().size()).isEqualTo(3);
+    assertThat(show.getSeasons().size()).isEqualTo(5); // 3 with episodes, 2 more with only artwork
 
-    seasons = show.getSeasons();
+    seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     a = seasons.toArray();
     Arrays.sort(a);
@@ -153,11 +154,11 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
       seasons.set(i, (TvShowSeason) a[i]);
     }
 
-    assertThat(seasons.get(0).getSeason()).isEqualTo(1);
-    assertThat(seasons.get(0).getEpisodes().size()).isEqualTo(9);
-    assertThat(seasons.get(1).getSeason()).isEqualTo(2);
-    assertThat(seasons.get(1).getEpisodes().size()).isEqualTo(20);
-    assertThat(seasons.get(2).getSeason()).isEqualTo(3);
-    assertThat(seasons.get(2).getEpisodes().size()).isEqualTo(15);
+    assertThat(seasons.get(1).getSeason()).isEqualTo(1);
+    assertThat(seasons.get(1).getEpisodes().size()).isEqualTo(9);
+    assertThat(seasons.get(2).getSeason()).isEqualTo(2);
+    assertThat(seasons.get(2).getEpisodes().size()).isEqualTo(20);
+    assertThat(seasons.get(3).getSeason()).isEqualTo(3);
+    assertThat(seasons.get(3).getEpisodes().size()).isEqualTo(15);
   }
 }

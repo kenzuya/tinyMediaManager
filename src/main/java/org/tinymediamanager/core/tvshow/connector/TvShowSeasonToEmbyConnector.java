@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.tinymediamanager.core.tvshow;
+package org.tinymediamanager.core.tvshow.connector;
 
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
- * the interface ITvShowFileNaming is used for generating file names for tv show related files
+ * the class {@link TvShowSeasonToEmbyConnector} allows us to write Emby style TV show NFO files
+ * 
+ * @author Manuel Laggner
  */
-public interface ITvShowSeasonFileNaming {
-  /**
-   * get the file name for this enum
-   *
-   * @param tvShowSeason
-   *          the TV show season
-   * @param extension
-   *          the file extension
-   * @return the file name or an empty string
-   */
-  String getFilename(TvShowSeason tvShowSeason, String extension);
+public class TvShowSeasonToEmbyConnector extends TvShowSeasonGenericXmlConnector {
+  public TvShowSeasonToEmbyConnector(TvShowSeason tvShowSeason) {
+    super(tvShowSeason);
+  }
 
-  /**
-   * get the enum name
-   * 
-   * @return the enum name
-   */
-  String name();
+  @Override
+  protected void addOwnTags() {
+    // nothing needed yet
+  }
 }

@@ -26,25 +26,24 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
- * The Enum TvShowSeasonPosterNaming.
+ * The enum {@link TvShowSeasonNfoNaming} is used to indicate possible season NFO file namings.
  * 
  * @author Manuel Laggner
  */
-public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
-  /** seasonXX-poster.* */
-  SEASON_POSTER {
+public enum TvShowSeasonNfoNaming implements ITvShowSeasonFileNaming {
+  /** seasonXX.nfo */
+  SEASON {
     @Override
     public String getFilename(TvShowSeason tvShowSeason, String extension) {
       String filename;
-
       if (tvShowSeason.getSeason() == -1) {
-        filename = "season-all-poster." + extension;
+        filename = "";
       }
       else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename = "season-specials-poster." + extension;
+        filename = "season-specials." + extension;
       }
       else if (tvShowSeason.getSeason() > -1) {
-        filename = String.format("season%02d-poster.%s", tvShowSeason.getSeason(), extension);
+        filename = String.format("season%02d.%s", tvShowSeason.getSeason(), extension);
       }
       else {
         filename = "";
@@ -54,7 +53,7 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
     }
   },
 
-  /** season_folder/seasonXX.* */
+  /** season_folder/season.nfo */
   SEASON_FOLDER {
     @Override
     public String getFilename(TvShowSeason tvShowSeason, String extension) {
@@ -68,7 +67,7 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
         // no season folder name in the templates found - fall back to the show base filename style
-        return SEASON_POSTER.getFilename(tvShowSeason, extension);
+        return SEASON.getFilename(tvShowSeason, extension);
       }
 
       String filename = seasonFoldername + File.separator;
@@ -80,33 +79,13 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
         filename += "season-specials." + extension;
       }
       else if (tvShowSeason.getSeason() > -1) {
-        filename += String.format("season%02d.%s", tvShowSeason.getSeason(), extension);
+        filename += "season." + extension;
       }
       else {
         filename = "";
       }
 
       return filename;
-    }
-  },
-
-  /** season_folder/folder.* */
-  FOLDER {
-    public String getFilename(TvShowSeason tvShowSeason, String extension) {
-      TvShow tvShow = tvShowSeason.getTvShow();
-      if (tvShow == null) {
-        return "";
-      }
-
-      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeason.getSeason());
-
-      // check whether the season folder name exists or not; do not create it just for the artwork!
-      if (StringUtils.isBlank(seasonFoldername)) {
-        // no season folder name in the templates found - fall back to the show base filename style
-        return SEASON_POSTER.getFilename(tvShowSeason, extension);
-      }
-
-      return seasonFoldername + File.separator + "folder." + extension;
     }
   }
 }

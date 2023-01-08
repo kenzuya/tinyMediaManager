@@ -138,17 +138,14 @@ public final class TvShowList extends AbstractModelObject {
     // the tag listener: it's used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
-        TvShow tvShow = (TvShow) evt.getSource();
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShow tvShow) {
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) evt.getSource();
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShowEpisode episode) {
         updateEpisodeTags(Collections.singleton(episode));
       }
       if ((MEDIA_FILES.equals(evt.getPropertyName()) || MEDIA_INFORMATION.equals(evt.getPropertyName()))
-          && evt.getSource() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) evt.getSource();
+          && evt.getSource()instanceof TvShowEpisode episode) {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
@@ -288,7 +285,7 @@ public final class TvShowList extends AbstractModelObject {
    */
   void exchangeDatasource(String oldDatasource, String newDatasource) {
     Path oldPath = Paths.get(oldDatasource);
-    List<TvShow> tvShowsToChange = tvShows.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource()))).collect(Collectors.toList());
+    List<TvShow> tvShowsToChange = tvShows.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource()))).toList();
     List<MediaFile> imagesToCache = new ArrayList<>();
 
     for (TvShow tvShow : tvShowsToChange) {
@@ -347,10 +344,19 @@ public final class TvShowList extends AbstractModelObject {
     firePropertyChange(REMOVED_TV_SHOW, null, tvShow);
     firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
 
-    // last but not least remove all episodes
+    // last but not least - remove all episodes
     tvShow.removeAllEpisodes();
 
-    // and remove it from the DB
+    // and remove it and all seasons from the DB
+    for (TvShowSeason season : tvShow.getSeasons()) {
+      try {
+        TvShowModuleManager.getInstance().removeSeasonFromDb(season);
+      }
+      catch (Exception e) {
+        LOGGER.error("problem removing season from DB: {}", e.getMessage());
+      }
+    }
+
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
     }
@@ -380,6 +386,16 @@ public final class TvShowList extends AbstractModelObject {
 
     tvShow.deleteFilesSafely();
     tvShow.removeAllEpisodes();
+
+    // and remove it and all seasons from the DB
+    for (TvShowSeason season : tvShow.getSeasons()) {
+      try {
+        TvShowModuleManager.getInstance().removeSeasonFromDb(season);
+      }
+      catch (Exception e) {
+        LOGGER.error("problem removing season from DB: {}", e.getMessage());
+      }
+    }
 
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
@@ -463,10 +479,12 @@ public final class TvShowList extends AbstractModelObject {
   /**
    * Load tv shows from database.
    */
-  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> episodesMap) {
+  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> seasonMap, MVMap<UUID, String> episodesMap) {
     ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    //////////////////////////////////////////////////
     // load all TV shows from the database
+    //////////////////////////////////////////////////
     List<TvShow> tvShowsFromDb = new ArrayList<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
@@ -474,7 +492,7 @@ public final class TvShowList extends AbstractModelObject {
 
     long start = System.nanoTime();
 
-    new ArrayList<>(tvShowMap.keyList()).parallelStream().forEach((uuid) -> {
+    new ArrayList<>(tvShowMap.keyList()).parallelStream().forEach(uuid -> {
       String json = "";
       try {
         json = tvShowMap.get(uuid);
@@ -511,7 +529,63 @@ public final class TvShowList extends AbstractModelObject {
       tvShowUuidMap.put(tvShow.getDbId(), tvShow);
     }
 
+    //////////////////////////////////////////////////
+    // load all seasons from the database
+    //////////////////////////////////////////////////
+    toRemove.clear();
+    ObjectReader seasonObjectReader = TvShowModuleManager.getInstance().getSeasonObjectReader();
+
+    // just to get the episode count
+    List<TvShowSeason> seasonsToCount = new ArrayList<>();
+
+    start = System.nanoTime();
+
+    new ArrayList<>(seasonMap.keyList()).parallelStream().forEach(uuid -> {
+      String json = "";
+      try {
+        json = seasonMap.get(uuid);
+        TvShowSeason season = seasonObjectReader.readValue(json);
+        season.setDbId(uuid);
+
+        // assign it to the right TV show
+        TvShow tvShow = tvShowUuidMap.get(season.getTvShowDbId());
+        if (tvShow != null) {
+          season.setTvShow(tvShow);
+          tvShow.addSeason(season);
+
+          lock.writeLock().lock();
+          seasonsToCount.add(season);
+          lock.writeLock().unlock();
+        }
+        else {
+          // or remove orphans
+          lock.writeLock().lock();
+          toRemove.add(uuid);
+          lock.writeLock().unlock();
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("problem decoding episode json string: {}", e.getMessage());
+        LOGGER.info("dropping corrupt episode: {}", json);
+        lock.writeLock().lock();
+        toRemove.add(uuid);
+        lock.writeLock().unlock();
+      }
+    });
+
+    end = System.nanoTime();
+
+    // remove orphaned episodes
+    for (UUID uuid : toRemove) {
+      seasonMap.remove(uuid);
+    }
+
+    LOGGER.info("found {} seasons in database", seasonsToCount.size());
+    LOGGER.debug("took {} ms", (end - start) / 1000000);
+
+    //////////////////////////////////////////////////
     // load all episodes from the database
+    //////////////////////////////////////////////////
     toRemove.clear();
     ObjectReader episodeObjectReader = TvShowModuleManager.getInstance().getEpisodeObjectReader();
 
@@ -520,7 +594,7 @@ public final class TvShowList extends AbstractModelObject {
 
     start = System.nanoTime();
 
-    new ArrayList<>(episodesMap.keyList()).parallelStream().forEach((uuid) -> {
+    new ArrayList<>(episodesMap.keyList()).parallelStream().forEach(uuid -> {
       String json = "";
       try {
         json = episodesMap.get(uuid);
@@ -557,7 +631,9 @@ public final class TvShowList extends AbstractModelObject {
       catch (Exception e) {
         LOGGER.warn("problem decoding episode json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt episode: {}", json);
-        episodesMap.remove(uuid);
+        lock.writeLock().lock();
+        toRemove.add(uuid);
+        lock.writeLock().unlock();
       }
     });
 
@@ -585,6 +661,10 @@ public final class TvShowList extends AbstractModelObject {
     for (TvShow tvShow : tvShows) {
       tvShow.initializeAfterLoading();
 
+      for (TvShowSeason season : tvShow.getSeasons()) {
+        season.initializeAfterLoading();
+      }
+
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.initializeAfterLoading();
         episodes.add(episode);
@@ -611,6 +691,16 @@ public final class TvShowList extends AbstractModelObject {
     }
     catch (Exception e) {
       LOGGER.error("failed to persist episode: {} - {}", tvShow.getTitle(), e.getMessage());
+    }
+  }
+
+  public void persistSeason(TvShowSeason season) {
+    // update/insert this episode to the database
+    try {
+      TvShowModuleManager.getInstance().persistSeason(season);
+    }
+    catch (Exception e) {
+      LOGGER.error("failed to persist season: {} - S{} : {}", season.getTvShow().getTitle(), season.getSeason(), e.getMessage());
     }
   }
 
@@ -703,7 +793,7 @@ public final class TvShowList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
     List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.getInstance().getSettings().getArtworkScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).toList();
   }
 
   /**
@@ -1229,7 +1319,7 @@ public final class TvShowList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
     List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.getInstance().getSettings().getSubtitleScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).toList();
   }
 
   /**
@@ -1239,7 +1329,7 @@ public final class TvShowList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
     List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.getInstance().getSettings().getTrailerScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).toList();
   }
 
   /**
@@ -1327,10 +1417,10 @@ public final class TvShowList extends AbstractModelObject {
       if (value == null) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+      else if (value instanceof String string && StringUtils.isBlank(string)) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+      else if (value instanceof Number number && number.intValue() <= 0) {
         missingMetadata.add(metadataConfig);
       }
       else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
@@ -1359,10 +1449,10 @@ public final class TvShowList extends AbstractModelObject {
       if (value == null) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+      else if (value instanceof String string && StringUtils.isBlank(string)) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+      else if (value instanceof Number number && number.intValue() <= 0) {
         missingMetadata.add(metadataConfig);
       }
       else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
@@ -1401,10 +1491,10 @@ public final class TvShowList extends AbstractModelObject {
       if (value == null) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+      else if (value instanceof String string && StringUtils.isBlank(string)) {
         missingMetadata.add(metadataConfig);
       }
-      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+      else if (value instanceof Number number && number.intValue() <= 0) {
         missingMetadata.add(metadataConfig);
       }
       else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {

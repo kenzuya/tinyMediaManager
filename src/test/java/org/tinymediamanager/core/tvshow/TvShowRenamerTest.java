@@ -14,6 +14,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
@@ -625,42 +626,63 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // season artwork
     MediaFile mf = new MediaFile(destination.resolve("season01-banner.jpg").toAbsolutePath(), MediaFileType.SEASON_BANNER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(1, mf);
+    TvShowSeason tvShowSeason = show.getOrCreateSeason(1);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season01-poster.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(1, mf);
+    tvShowSeason = show.getOrCreateSeason(1);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season01-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(1, mf);
+    tvShowSeason = show.getOrCreateSeason(1);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season01-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(1, mf);
+    tvShowSeason = show.getOrCreateSeason(1);
+    tvShowSeason.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("Season 2/season02-banner.jpg").toAbsolutePath(), MediaFileType.SEASON_BANNER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(2, mf);
+    tvShowSeason = show.getOrCreateSeason(2);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("Season 2/season02.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(2, mf);
+    tvShowSeason = show.getOrCreateSeason(2);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("Season 2/season02-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(2, mf);
+    tvShowSeason = show.getOrCreateSeason(2);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("Season 2/season02-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(2, mf);
+    tvShowSeason = show.getOrCreateSeason(2);
+    tvShowSeason.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("season03-banner.jpg").toAbsolutePath(), MediaFileType.SEASON_BANNER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(3, mf);
+    tvShowSeason = show.getOrCreateSeason(3);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season03-poster.jpg").toAbsolutePath(), MediaFileType.SEASON_POSTER);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(3, mf);
+    tvShowSeason = show.getOrCreateSeason(3);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season03-fanart.jpg").toAbsolutePath(), MediaFileType.SEASON_FANART);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(3, mf);
+    tvShowSeason = show.getOrCreateSeason(3);
+    tvShowSeason.addToMediaFiles(mf);
+
     mf = new MediaFile(destination.resolve("season03-thumb.jpg").toAbsolutePath(), MediaFileType.SEASON_THUMB);
     mf.gatherMediaInformation();
-    show.setSeasonArtwork(3, mf);
+    tvShowSeason = show.getOrCreateSeason(3);
+    tvShowSeason.addToMediaFiles(mf);
 
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();

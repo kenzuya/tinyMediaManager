@@ -31,7 +31,6 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -98,11 +97,6 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
   @Override
   public String getName() {
     return "movie.mediainformation";
-  }
-
-  @Override
-  protected MediaEntity getMediaEntity() {
-    return movieSelectionModel.getSelectedMovie();
   }
 
   @Override

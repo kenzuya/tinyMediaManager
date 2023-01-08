@@ -58,6 +58,8 @@ import com.madgag.gif.fmsware.GifDecoder;
 public class MediaFile extends AbstractModelObject implements Comparable<MediaFile> {
   private static final Logger        LOGGER            = LoggerFactory.getLogger(MediaFile.class);
 
+  public static final MediaFile      EMPTY_MEDIAFILE   = new MediaFile();
+
   @JsonProperty
   private MediaFileType              type              = MediaFileType.UNKNOWN;
   @JsonProperty

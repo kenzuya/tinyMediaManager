@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.core.tvshow;
+package org.tinymediamanager.core.tvshow.connector;
 
-import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import java.util.List;
+
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 
 /**
- * the interface ITvShowFileNaming is used for generating file names for tv show related files
+ * This interface is designed for the TV show season connectors
  */
-public interface ITvShowSeasonFileNaming {
+public interface ITvShowSeasonConnector {
   /**
-   * get the file name for this enum
-   *
-   * @param tvShowSeason
-   *          the TV show season
-   * @param extension
-   *          the file extension
-   * @return the file name or an empty string
+   * write a file containing the data from the TV show season
    */
-  String getFilename(TvShowSeason tvShowSeason, String extension);
-
-  /**
-   * get the enum name
-   * 
-   * @return the enum name
-   */
-  String name();
+  void write(List<TvShowSeasonNfoNaming> nfoNames);
 }

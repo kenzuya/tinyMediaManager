@@ -21,7 +21,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.panels.MediaFilesPanel;
@@ -56,8 +55,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
       Object source = propertyChangeEvent.getSource();
       if (source instanceof TvShowSeasonSelectionModel || (source instanceof TvShowSeason && (MEDIA_FILES.equals(property)))) {
         TvShowSeason selectedSeason;
-        if (source instanceof TvShowSeasonSelectionModel) {
-          TvShowSeasonSelectionModel model = (TvShowSeasonSelectionModel) source;
+        if (source instanceof TvShowSeasonSelectionModel model) {
           selectedSeason = model.getSelectedTvShowSeason();
         }
         else {
@@ -83,12 +81,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[grow]"));
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        @Override
-        public MediaEntity getMediaEntity() {
-          return null;
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 0,grow");
     }
   }

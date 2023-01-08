@@ -38,7 +38,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -216,17 +215,10 @@ public abstract class MediaInformationPanel extends JPanel {
       add(lblMediaFilesT, "cell 0 13 2 1");
     }
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        @Override
-        public MediaEntity getMediaEntity() {
-          return MediaInformationPanel.this.getMediaEntity();
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 14 6 1,grow");
     }
   }
-
-  protected abstract MediaEntity getMediaEntity();
 
   protected abstract void fillVideoStreamDetails();
 

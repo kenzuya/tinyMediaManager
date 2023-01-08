@@ -42,7 +42,6 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -62,7 +61,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public abstract class MediaFilesPanel extends JPanel {
+public class MediaFilesPanel extends JPanel {
   private static final Logger        LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
 
   private TmmTable                   tableFiles;
@@ -104,13 +103,6 @@ public abstract class MediaFilesPanel extends JPanel {
   public void adjustColumns() {
     tableFiles.adjustColumnPreferredWidths(6);
   }
-
-  /**
-   * get the actual media entity holding this list of media files
-   *
-   * @return the media entity
-   */
-  public abstract MediaEntity getMediaEntity();
 
   private static class MediaTableFormat extends TmmTableFormat<MediaFile> {
     MediaTableFormat() {

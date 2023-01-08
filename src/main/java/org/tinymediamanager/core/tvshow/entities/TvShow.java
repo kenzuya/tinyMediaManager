@@ -43,7 +43,6 @@ import static org.tinymediamanager.core.Constants.TRAILER;
 import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
 
-import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -70,6 +69,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Constants;
@@ -95,7 +95,6 @@ import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
-import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -115,9 +114,10 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MapUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.scraper.util.TvUtils;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -153,16 +153,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @JsonProperty
   private final List<MediaGenres>               genres                     = new CopyOnWriteArrayList<>();
-  @JsonProperty
-  private final Map<Integer, String>            seasonTitleMap             = new HashMap<>(0);
-  @JsonProperty
-  private final Map<Integer, String>            seasonPosterUrlMap         = new HashMap<>(0);
-  @JsonProperty
-  private final Map<Integer, String>            seasonFanartUrlMap         = new HashMap<>(0);
-  @JsonProperty
-  private final Map<Integer, String>            seasonBannerUrlMap         = new HashMap<>(0);
-  @JsonProperty
-  private final Map<Integer, String>            seasonThumbUrlMap          = new HashMap<>(0);
+
   @JsonProperty
   private final List<Person>                    actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty
@@ -174,12 +165,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private final List<MediaEpisodeGroup>         episodeGroups              = new CopyOnWriteArrayList<>();
 
-  private final List<TvShowEpisode>             episodes                   = new CopyOnWriteArrayList<>();
-  private final Map<Integer, MediaFile>         seasonPosters              = new HashMap<>(0);
-  private final Map<Integer, MediaFile>         seasonFanarts              = new HashMap<>(0);
-  private final Map<Integer, MediaFile>         seasonBanners              = new HashMap<>(0);
-  private final Map<Integer, MediaFile>         seasonThumbs               = new HashMap<>(0);
   private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>             episodes                   = new CopyOnWriteArrayList<>();
   private String                                titleSortable              = "";
   private String                                otherIds                   = "";
   private Date                                  lastWatched                = null;
@@ -274,52 +261,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    // create season artwork maps
-    for (MediaFile mf : getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
-        MediaFileType.SEASON_FANART)) {
-      // do not process 0 byte files
-      if (mf.getFilesize() == 0) {
-        continue;
-      }
-
-      try {
-        String foldername = getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
-        int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
-
-        if (season == Integer.MIN_VALUE) {
-          throw new IllegalStateException("did not find a season number");
-        }
-        else {
-          switch (mf.getType()) {
-            case SEASON_POSTER:
-              seasonPosters.put(season, mf);
-              break;
-
-            case SEASON_FANART:
-              seasonFanarts.put(season, mf);
-              break;
-
-            case SEASON_BANNER:
-              seasonBanners.put(season, mf);
-              break;
-
-            case SEASON_THUMB:
-              seasonThumbs.put(season, mf);
-              break;
-
-            default:
-              break;
-          }
-        }
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not parse season number: {} MF: {}", e.getMessage(), mf.getFileAsPath().toAbsolutePath());
-      }
-    }
-
-    for (
-
-    TvShowEpisode episode : episodes) {
+    for (TvShowEpisode episode : episodes) {
       episode.addPropertyChangeListener(propertyChangeListener);
     }
   }
@@ -368,12 +310,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       actors.clear();
       extraFanartUrls.clear();
       episodeGroups.clear();
-
-      seasonTitleMap.clear();
-      seasonPosterUrlMap.clear();
-      seasonFanartUrlMap.clear();
-      seasonBannerUrlMap.clear();
-      seasonThumbUrlMap.clear();
     }
 
     setGenres(other.genres);
@@ -381,20 +317,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     setExtraFanartUrls(other.extraFanartUrls);
     setEpisodeGroups(other.episodeGroups);
 
-    for (Integer season : other.seasonTitleMap.keySet()) {
-      seasonTitleMap.putIfAbsent(season, other.seasonTitleMap.get(season));
-    }
-    for (Integer season : other.seasonPosterUrlMap.keySet()) {
-      seasonPosterUrlMap.putIfAbsent(season, other.seasonPosterUrlMap.get(season));
-    }
-    for (Integer season : other.seasonFanartUrlMap.keySet()) {
-      seasonFanartUrlMap.putIfAbsent(season, other.seasonFanartUrlMap.get(season));
-    }
-    for (Integer season : other.seasonBannerUrlMap.keySet()) {
-      seasonBannerUrlMap.putIfAbsent(season, other.seasonBannerUrlMap.get(season));
-    }
-    for (Integer season : other.seasonThumbUrlMap.keySet()) {
-      seasonThumbUrlMap.putIfAbsent(season, other.seasonThumbUrlMap.get(season));
+    // seasons
+    for (TvShowSeason otherSeason : other.getSeasons()) {
+      TvShowSeason ourSeason = getSeason(otherSeason.getSeason());
+      if (ourSeason == null) {
+        addSeason(new TvShowSeason(otherSeason));
+      }
+      else {
+        ourSeason.merge(otherSeason);
+      }
     }
 
     // get ours, and merge other values
@@ -721,15 +652,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // no one found - create one
     if (season == null) {
-      int oldValue = seasons.size();
       season = new TvShowSeason(episode.getSeason(), this);
-      String seasonTitle = seasonTitleMap.get(episode.getSeason());
-      if (StringUtils.isNotBlank(seasonTitle)) {
-        season.setTitle(seasonTitle);
-      }
-      seasons.add(season);
-      firePropertyChange(ADDED_SEASON, null, season);
-      firePropertyChange(SEASON_COUNT, oldValue, seasons.size());
+      addSeason(season);
     }
 
     return season;
@@ -753,12 +677,25 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the TvShowSeason object or null
    */
   public TvShowSeason getSeason(int seasonNumber) {
-    for (TvShowSeason season : seasons) {
-      if (season.getSeason() == seasonNumber) {
-        return season;
-      }
+    return seasons.parallelStream().filter(season -> season.getSeason() == seasonNumber).findFirst().orElse(null);
+  }
+
+  /**
+   * gets or creates a new season. This can be handy if you have metadata/artwork for a _new_ season
+   * 
+   * @param seasonNumber
+   *          the season number
+   * @return the {@link TvShowSeason}
+   */
+  public TvShowSeason getOrCreateSeason(int seasonNumber) {
+    TvShowSeason season = getSeason(seasonNumber);
+
+    if (season == null) {
+      season = new TvShowSeason(seasonNumber, this);
+      addSeason(season);
     }
-    return null;
+
+    return season;
   }
 
   /**
@@ -855,13 +792,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
   }
 
+  public void addSeason(TvShowSeason season) {
+    if (!seasons.contains(season)) {
+      int seasonCount = seasons.size();
+      seasons.add(season);
+
+      firePropertyChange(ADDED_SEASON, null, season);
+      firePropertyChange(SEASON_COUNT, seasonCount, seasons.size());
+    }
+  }
+
   /**
    * Gets the seasons.
    *
    * @return the seasons
    */
   public List<TvShowSeason> getSeasons() {
-    return seasons;
+    return Collections.unmodifiableList(seasons);
   }
 
   /**
@@ -870,7 +817,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the genres
    */
   public List<MediaGenres> getGenres() {
-    return genres;
+    return Collections.unmodifiableList(genres);
   }
 
   /**
@@ -1114,28 +1061,25 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.SEASON_NAMES)) {
-      for (Map.Entry<Integer, String> entry : metadata.getSeasonNames().entrySet()) {
+      for (var entry : metadata.getSeasonNames().entrySet()) {
         // "Season XX" does not match (and not needed to set)
         // "Season XX - some name" should be set, so the pattern checks the complete string!
         Matcher matcher = SEASON_ONLY_PATTERN.matcher(entry.getValue());
+        TvShowSeason season = getOrCreateSeason(entry.getKey());
+
         if (!matcher.find()) {
-          if (overwriteExistingItems) {
-            seasonTitleMap.put(entry.getKey(), entry.getValue());
-          }
-          else {
-            seasonTitleMap.putIfAbsent(entry.getKey(), entry.getValue());
+          if (overwriteExistingItems || StringUtils.isBlank(season.getTitle())) {
+            season.setTitle(entry.getValue());
           }
         }
       }
-      // now set all non-dummy season the scraped title
-      for (TvShowSeason season : getSeasons()) {
-        if (!season.isDummy()) {
-          String seasonTitle = seasonTitleMap.get(season.getSeason());
-          if (StringUtils.isNotBlank(seasonTitle)) {
-            if (StringUtils.isBlank(season.getTitle()) || overwriteExistingItems) {
-              season.setTitle(seasonTitle);
-            }
-          }
+    }
+
+    if (config.contains(TvShowScraperMetadataConfig.SEASON_OVERVIEW)) {
+      for (var entry : metadata.getSeasonOveriew().entrySet()) {
+        TvShowSeason season = getOrCreateSeason(entry.getKey());
+        if (overwriteExistingItems || StringUtils.isBlank(season.getPlot())) {
+          season.setPlot(entry.getValue());
         }
       }
     }
@@ -1147,6 +1091,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
+    // and post-process
     postProcess(config);
   }
 
@@ -1175,49 +1120,26 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * download season artwork
-   *
-   * @param season
-   *          the season to download the artwork for
-   * @param artworkType
-   *          the artwork type to download
-   */
-  public void downloadSeasonArtwork(int season, MediaArtworkType artworkType) {
-    TvShowArtworkHelper.downloadSeasonArtwork(this, season, artworkType);
-  }
-
-  /**
    * Write nfo.
    */
   public void writeNFO() {
     ITvShowConnector connector;
 
     List<TvShowNfoNaming> nfoNamings = TvShowModuleManager.getInstance().getSettings().getNfoFilenames();
-    if (nfoNamings.isEmpty()) {
-      return;
+    if (!nfoNamings.isEmpty()) {
+      connector = switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
+        case XBMC, MEDIAPORTAL -> new TvShowToXbmcConnector(this);
+        case EMBY -> new TvShowToEmbyConnector(this);
+        default -> new TvShowToKodiConnector(this);
+      };
+
+      connector.write(nfoNamings);
+
+      firePropertyChange(HAS_NFO_FILE, false, true);
     }
 
-    switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
-      case XBMC:
-      case MEDIAPORTAL:
-        connector = new TvShowToXbmcConnector(this);
-        break;
-
-      case EMBY:
-        connector = new TvShowToEmbyConnector(this);
-        break;
-
-      case KODI:
-      case JELLYFIN:
-      case PLEX:
-      default:
-        connector = new TvShowToKodiConnector(this);
-        break;
-    }
-
-    connector.write(nfoNamings);
-
-    firePropertyChange(HAS_NFO_FILE, false, true);
+    // also force to write all season NFO files
+    seasons.forEach(TvShowSeason::writeNfo);
   }
 
   private void postProcess(List<TvShowScraperMetadataConfig> config) {
@@ -1781,389 +1703,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          trailer naming enum
    * @return the associated trailer filename
    */
-  public String getTrailerFilename(TvShowTrailerNaming trailer) {
+  public String getTrailerFilename(@NotNull TvShowTrailerNaming trailer) {
     // basename is the TV show title itself
     return FilenameUtils.removeExtension(TvShowRenamer.replaceInvalidCharacters(trailer.getFilename(getTitle(), "ext")));
-  }
-
-  /**
-   * Sets the season artwork url.
-   *
-   * @param season
-   *          the season
-   * @param url
-   *          the url
-   * @param artworkType
-   *          the artwork type
-   */
-  public void setSeasonArtworkUrl(int season, String url, MediaArtworkType artworkType) {
-    switch (artworkType) {
-      case SEASON_POSTER:
-        seasonPosterUrlMap.put(season, url);
-        break;
-
-      case SEASON_FANART:
-        seasonFanartUrlMap.put(season, url);
-        break;
-
-      case SEASON_BANNER:
-        seasonBannerUrlMap.put(season, url);
-        break;
-
-      case SEASON_THUMB:
-        seasonThumbUrlMap.put(season, url);
-        break;
-
-      default:
-        return;
-    }
-  }
-
-  /**
-   * Gets the season artwork url.
-   *
-   * @param season
-   *          the season
-   * @param artworkType
-   *          the artwork type
-   * @return the season artwork url or an empty string
-   */
-  public String getSeasonArtworkUrl(int season, MediaArtworkType artworkType) {
-    String url = null;
-
-    switch (artworkType) {
-      case SEASON_POSTER:
-        url = seasonPosterUrlMap.get(season);
-        break;
-
-      case SEASON_FANART:
-        url = seasonFanartUrlMap.get(season);
-        break;
-
-      case SEASON_BANNER:
-        url = seasonBannerUrlMap.get(season);
-        break;
-
-      case SEASON_THUMB:
-        url = seasonThumbUrlMap.get(season);
-        break;
-
-      default:
-        break;
-    }
-
-    if (StringUtils.isBlank(url)) {
-      return "";
-    }
-
-    return url;
-  }
-
-  /**
-   * get all season artwork urls
-   *
-   * @param artworkType
-   *          the artwork type to get the artwork for
-   * @return a map containing all available season artworks for the given type
-   *
-   */
-  public Map<Integer, String> getSeasonArtworkUrls(MediaArtworkType artworkType) {
-    switch (artworkType) {
-      case SEASON_POSTER:
-        return MapUtils.sortByKey(seasonPosterUrlMap);
-
-      case SEASON_FANART:
-        return MapUtils.sortByKey(seasonFanartUrlMap);
-
-      case SEASON_BANNER:
-        return MapUtils.sortByKey(seasonBannerUrlMap);
-
-      case SEASON_THUMB:
-        return MapUtils.sortByKey(seasonThumbUrlMap);
-
-      default:
-        return new HashMap<>(0);
-    }
-  }
-
-  /**
-   * Gets the season artwork.
-   *
-   * @param season
-   *          the season
-   * @param artworkType
-   *          the artwork type
-   * @return the season artwork
-   *
-   */
-  public String getSeasonArtwork(int season, MediaArtworkType artworkType) {
-    MediaFile artworkFile = null;
-    switch (artworkType) {
-      case SEASON_POSTER:
-        artworkFile = seasonPosters.get(season);
-        break;
-
-      case SEASON_FANART:
-        artworkFile = seasonFanarts.get(season);
-        break;
-
-      case SEASON_BANNER:
-        artworkFile = seasonBanners.get(season);
-        break;
-
-      case SEASON_THUMB:
-        artworkFile = seasonThumbs.get(season);
-        break;
-
-      default:
-        break;
-
-    }
-
-    if (artworkFile != null) {
-      return artworkFile.getFile().toString();
-    }
-    return "";
-  }
-
-  /**
-   * get all season artwork filenames
-   *
-   * @param artworkType
-   *          the artwork type to get the artwork for
-   * @return a map containing all available season artwork filenames for the given type
-   *
-   */
-  public Map<Integer, MediaFile> getSeasonArtworks(MediaArtworkType artworkType) {
-    switch (artworkType) {
-      case SEASON_POSTER:
-        return MapUtils.sortByKey(seasonPosters);
-
-      case SEASON_FANART:
-        return MapUtils.sortByKey(seasonFanarts);
-
-      case SEASON_BANNER:
-        return MapUtils.sortByKey(seasonBanners);
-
-      case SEASON_THUMB:
-        return MapUtils.sortByKey(seasonThumbs);
-
-      default:
-        return new HashMap<>(0);
-    }
-  }
-
-  /**
-   * <b>PHYSICALLY</b> deletes all {@link MediaFile}s of the given type for the given season
-   *
-   * @param artworkType
-   *          the {@link MediaArtworkType} for all {@link MediaFile}s to delete
-   */
-  public void deleteSeasonArtworkFiles(int season, MediaArtworkType artworkType) {
-    MediaFile mf = null;
-    switch (artworkType) {
-      case SEASON_POSTER:
-        mf = seasonPosters.get(season);
-        seasonPosters.remove(season);
-        break;
-
-      case SEASON_FANART:
-        mf = seasonFanarts.get(season);
-        seasonFanarts.remove(season);
-        break;
-
-      case SEASON_BANNER:
-        mf = seasonBanners.get(season);
-        seasonBanners.remove(season);
-        break;
-
-      case SEASON_THUMB:
-        mf = seasonThumbs.get(season);
-        seasonThumbs.remove(season);
-        break;
-
-      default:
-        return;
-    }
-
-    if (mf != null) {
-      mf.deleteSafely(getDataSource());
-      removeFromMediaFiles(mf);
-    }
-  }
-
-  Dimension getSeasonArtworkSize(int season, MediaArtworkType type) {
-    MediaFile artworkFile = null;
-    switch (type) {
-      case SEASON_POSTER:
-        artworkFile = seasonPosters.get(season);
-        break;
-
-      case SEASON_FANART:
-        artworkFile = seasonFanarts.get(season);
-        break;
-
-      case SEASON_BANNER:
-        artworkFile = seasonBanners.get(season);
-        break;
-
-      case SEASON_THUMB:
-        artworkFile = seasonThumbs.get(season);
-        break;
-
-      default:
-        break;
-
-    }
-
-    if (artworkFile != null) {
-      return new Dimension(artworkFile.getVideoWidth(), artworkFile.getVideoHeight());
-    }
-
-    return new Dimension(0, 0);
-  }
-
-  /**
-   * Sets the season artwork.
-   *
-   * @param season
-   *          the season
-   * @param mf
-   *          the media file
-   */
-  public void setSeasonArtwork(int season, MediaFile mf) {
-    MediaFile oldMf = null;
-
-    MediaArtworkType artworkType = MediaFileType.getMediaArtworkType(mf.getType());
-
-    // check if that MF is already in our show
-    switch (artworkType) {
-      case SEASON_POSTER:
-        oldMf = seasonPosters.get(season);
-        break;
-
-      case SEASON_FANART:
-        oldMf = seasonFanarts.get(season);
-        break;
-
-      case SEASON_BANNER:
-        oldMf = seasonBanners.get(season);
-        break;
-
-      case SEASON_THUMB:
-        oldMf = seasonThumbs.get(season);
-        break;
-
-      default:
-        return;
-    }
-
-    if (oldMf != null && oldMf.equals(mf)) {
-      // it is there - do not add it again
-      return;
-    }
-
-    addToMediaFiles(mf);
-
-    // add it
-    switch (artworkType) {
-      case SEASON_POSTER:
-        seasonPosters.put(season, mf);
-        break;
-
-      case SEASON_FANART:
-        seasonFanarts.put(season, mf);
-        break;
-
-      case SEASON_BANNER:
-        seasonBanners.put(season, mf);
-        break;
-
-      case SEASON_THUMB:
-        seasonThumbs.put(season, mf);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  void clearSeasonArtwork(int season, MediaArtworkType artworkType) {
-    MediaFile mf = null;
-    switch (artworkType) {
-      case SEASON_POSTER:
-        mf = seasonPosters.get(season);
-        seasonPosters.remove(season);
-        break;
-
-      case SEASON_FANART:
-        mf = seasonFanarts.get(season);
-        seasonFanarts.remove(season);
-        break;
-
-      case SEASON_BANNER:
-        mf = seasonBanners.get(season);
-        seasonBanners.remove(season);
-        break;
-
-      case SEASON_THUMB:
-        mf = seasonThumbs.get(season);
-        seasonThumbs.remove(season);
-        break;
-
-      default:
-        return;
-    }
-
-    if (mf != null) {
-      removeFromMediaFiles(mf);
-    }
-  }
-
-  public void removeSeasonArtwork(MediaFile mediaFile) {
-    switch (mediaFile.getType()) {
-      case SEASON_POSTER:
-        seasonPosters.values().remove(mediaFile);
-        break;
-
-      case SEASON_FANART:
-        seasonFanarts.values().remove(mediaFile);
-        break;
-
-      case SEASON_BANNER:
-        seasonBanners.values().remove(mediaFile);
-        break;
-
-      case SEASON_THUMB:
-        seasonThumbs.values().remove(mediaFile);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  void clearSeasonArtworkUrl(int season, MediaArtworkType artworkType) {
-    switch (artworkType) {
-      case SEASON_POSTER:
-        seasonPosterUrlMap.remove(season);
-        break;
-
-      case SEASON_FANART:
-        seasonFanartUrlMap.remove(season);
-        break;
-
-      case SEASON_BANNER:
-        seasonBannerUrlMap.remove(season);
-        break;
-
-      case SEASON_THUMB:
-        seasonThumbUrlMap.remove(season);
-        break;
-
-      default:
-        return;
-    }
   }
 
   /**
@@ -2240,6 +1782,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public void saveToDb() {
     // update/insert this TV show to the database
     TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
+
+    // also save seasons (because most of the seasons metadata is set from within the TV show itself)
+    seasons.forEach(TvShowSeason::saveToDb);
   }
 
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
@@ -2290,34 +1835,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * add a season title to the internal season title map
-   *
-   * @param season
-   *          the season to set the title for
-   * @param title
-   *          the title
-   */
-  public void addSeasonTitle(int season, String title) {
-    if (StringUtils.isNotBlank(title)) {
-      seasonTitleMap.put(season, title);
-    }
-    else {
-      seasonTitleMap.remove(season);
-    }
-
-    firePropertyChange("seasonTitle", null, seasonTitleMap);
-  }
-
-  /**
-   * get a map containing all set season titles
-   *
-   * @return a map containing all season titles
-   */
-  public Map<Integer, String> getSeasonTitles() {
-    return seasonTitleMap;
-  }
-
-  /**
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
@@ -2360,7 +1877,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public MediaFile getMainVideoFile() {
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   @Override
@@ -2620,9 +2137,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
             continue;
           }
 
-          if (StringUtils.isBlank(seasonTitleMap.get(season.getSeason()))) {
-            return null;
-          }
+          // if (StringUtils.isBlank(seasonTitleMap.get(season.getSeason()))) {
+          return null;
+          // }
         }
 
         return "all seasonnames found"; // dummy non-null
@@ -2644,5 +2161,66 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     return null;
+  }
+
+  /**
+   * used to migrate values to their new location
+   *
+   * @param property
+   *          the property/value name
+   * @param value
+   *          the value itself
+   */
+  @JsonAnySetter
+  public void setUnknownFields(String property, Object value) {
+    if (value == null) {
+      return;
+    }
+
+    if ("seasonTitleMap".equals(property) && value instanceof Map<?, ?> seasonTitleMap) {
+      for (var entry : seasonTitleMap.entrySet()) {
+        int seasonNumber = TvUtils.parseInt(entry.getKey());
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonTitle) {
+          TvShowSeason season = getOrCreateSeason(seasonNumber);
+          season.setTitle(seasonTitle);
+        }
+      }
+    }
+    else if ("seasonPosterUrlMap".equals(property) && value instanceof Map<?, ?> seasonPosterUrlMap) {
+      for (var entry : seasonPosterUrlMap.entrySet()) {
+        int seasonNumber = TvUtils.parseInt(entry.getKey());
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonPosterUrl) {
+          TvShowSeason season = getOrCreateSeason(seasonNumber);
+          season.setArtworkUrl(seasonPosterUrl, MediaFileType.SEASON_POSTER);
+        }
+      }
+    }
+    else if ("seasonBannerUrlMap".equals(property) && value instanceof Map<?, ?> seasonBannerUrlMap) {
+      for (var entry : seasonBannerUrlMap.entrySet()) {
+        int seasonNumber = TvUtils.parseInt(entry.getKey());
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonBannerUrl) {
+          TvShowSeason season = getOrCreateSeason(seasonNumber);
+          season.setArtworkUrl(seasonBannerUrl, MediaFileType.SEASON_BANNER);
+        }
+      }
+    }
+    else if ("seasonThumbUrlMap".equals(property) && value instanceof Map<?, ?> seasonThumbUrlMap) {
+      for (var entry : seasonThumbUrlMap.entrySet()) {
+        int seasonNumber = TvUtils.parseInt(entry.getKey());
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonThumbUrl) {
+          TvShowSeason season = getOrCreateSeason(seasonNumber);
+          season.setArtworkUrl(seasonThumbUrl, MediaFileType.SEASON_THUMB);
+        }
+      }
+    }
+    else if ("seasonFanartUrlMap".equals(property) && value instanceof Map<?, ?> seasonFanartUrlMap) {
+      for (var entry : seasonFanartUrlMap.entrySet()) {
+        int seasonNumber = TvUtils.parseInt(entry.getKey());
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonFanartUrl) {
+          TvShowSeason season = getOrCreateSeason(seasonNumber);
+          season.setArtworkUrl(seasonFanartUrl, MediaFileType.SEASON_FANART);
+        }
+      }
+    }
   }
 }

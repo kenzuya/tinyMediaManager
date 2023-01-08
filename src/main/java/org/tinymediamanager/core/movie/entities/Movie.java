@@ -2403,11 +2403,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public MediaFile getMainVideoFile() {
-    MediaFile vid = new MediaFile();
+    MediaFile vid = null;
 
     if (stacked) {
       // search the first stacked media file (e.g. CD1)
-      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(new MediaFile());
+      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(MediaFile.EMPTY_MEDIAFILE);
     }
     else {
       // try to find correct main movie file (DVD only)
@@ -2426,13 +2426,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     LOGGER.warn("Movie without video file? {}", getPathNIO());
     // cannot happen - movie MUST always have a video file
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   public MediaFile getMainDVDVideoFile() {
     MediaFile vid = null;
 
-    // find IFO file with longest duration
+    // find IFO file with the longest duration
     for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       if (mf.getExtension().equalsIgnoreCase("ifo")) {
         if (vid == null || mf.getDuration() > vid.getDuration()) {

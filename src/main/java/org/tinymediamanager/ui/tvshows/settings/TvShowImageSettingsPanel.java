@@ -72,8 +72,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowImageSettingsPanel extends JPanel {
-  private final TvShowSettings       settings         = TvShowModuleManager.getInstance().getSettings();
-  private final List<ScraperInTable> artworkScrapers  = new ArrayList<>();
+  private final TvShowSettings       settings        = TvShowModuleManager.getInstance().getSettings();
+  private final List<ScraperInTable> artworkScrapers = new ArrayList<>();
   private final ItemListener         checkBoxListener;
 
   private TmmTable                   tableScraper;
@@ -85,7 +85,6 @@ class TvShowImageSettingsPanel extends JPanel {
   private JComboBox<MediaLanguages>  cbScraperLanguage;
   private JComboBox                  cbImagePosterSize;
   private JComboBox                  cbImageFanartSize;
-  private JCheckBox                  chckbxSpecialSeason;
   private JCheckBox                  chckbxExtraFanart1;
   private JCheckBox                  chckbxExtraFanart2;
   private JCheckBox                  chckbxPreferLanguage;
@@ -261,7 +260,8 @@ class TvShowImageSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][15lp!][][][][grow][]")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][15lp!][][][grow][]")); // 16lp ~ width
+                                                                                                                            // of the
 
       JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
@@ -292,14 +292,11 @@ class TvShowImageSettingsPanel extends JPanel {
         cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
         panelOptions.add(cbActorImages, "cell 1 5 2 1");
 
-        chckbxSpecialSeason = new JCheckBox(TmmResourceBundle.getString("tvshow.renamer.specialseason"));
-        panelOptions.add(chckbxSpecialSeason, "cell 1 6 2 1");
-
         chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
-        panelOptions.add(chckbxEnableExtrafanart, "cell 1 7 2 1");
+        panelOptions.add(chckbxEnableExtrafanart, "cell 1 6 2 1");
 
         JPanel panel = new JPanel();
-        panelOptions.add(panel, "cell 2 8,growx");
+        panelOptions.add(panel, "cell 2 7,growx");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
 
         chckbxExtraFanart1 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
@@ -309,11 +306,11 @@ class TvShowImageSettingsPanel extends JPanel {
         panel.add(chckbxExtraFanart2, "cell 2 0");
 
         JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
-        panelOptions.add(lblDownloadCount, "cell 2 9");
+        panelOptions.add(lblDownloadCount, "cell 2 8");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelOptions.add(spDownloadCountExtrafanart, "cell 2 9");
+        panelOptions.add(spDownloadCountExtrafanart, "cell 2 8");
       }
     }
   }
@@ -375,11 +372,6 @@ class TvShowImageSettingsPanel extends JPanel {
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, cbImageFanartSize,
         jComboBoxBeanProperty);
     autoBinding_7.bind();
-    //
-    Property tvShowSettingsBeanProperty_6 = BeanProperty.create("specialSeason");
-    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6, chckbxSpecialSeason,
-        jCheckBoxBeanProperty);
-    autoBinding_8.bind();
     //
     Property jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart1,

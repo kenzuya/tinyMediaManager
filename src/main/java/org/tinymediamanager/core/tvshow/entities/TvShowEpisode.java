@@ -168,6 +168,69 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     super();
   }
 
+  /**
+   * create a deep copy of this episode
+   *
+   * @param source
+   *          the source episode
+   */
+  public TvShowEpisode(@NotNull TvShowEpisode source) {
+    // the reference to the tv show and the media files are the only things we don't
+    // copy
+    tvShow = source.tvShow;
+    tvShowId = source.tvShowId;
+
+    // clone media files
+    for (MediaFile mf : source.getMediaFiles()) {
+      addToMediaFiles(new MediaFile(mf));
+    }
+
+    // clone the rest
+    path = source.path;
+    title = source.title;
+    originalTitle = source.originalTitle;
+    year = source.year;
+    plot = source.plot;
+
+    artworkUrlMap.putAll(source.artworkUrlMap);
+
+    dateAdded = new Date(source.dateAdded.getTime());
+    scraped = source.scraped;
+    ids.putAll(source.ids);
+    mediaSource = source.mediaSource;
+
+    episodeNumbers.putAll(source.episodeNumbers);
+
+    if (source.firstAired != null) {
+      firstAired = new Date(source.firstAired.getTime());
+    }
+
+    disc = source.disc;
+    stacked = source.stacked;
+    multiEpisode = source.multiEpisode;
+    titleSortable = source.titleSortable;
+    otherIds = source.otherIds;
+    lastWatched = source.lastWatched;
+    watched = source.watched;
+    playcount = source.playcount;
+
+    for (Person actor : source.getActors()) {
+      actors.add(new Person(actor));
+    }
+    for (Person director : source.getDirectors()) {
+      directors.add(new Person(director));
+    }
+    for (Person writer : source.getWriters()) {
+      writers.add(new Person(writer));
+    }
+    for (MediaRating mediaRating : source.getRatings().values()) {
+      ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
+    }
+    tags.addAll(source.tags);
+    originalFilename = source.originalFilename;
+    dummy = source.dummy;
+  }
+
   @Override
   public void setId(String key, Object value) {
     super.setId(key, value);
@@ -271,69 +334,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     String p = getPathNIO().toAbsolutePath().toString();
     p = p.replace(oldPath.toAbsolutePath().toString(), newPath.toAbsolutePath().toString());
     setPath(p);
-  }
-
-  /**
-   * create a deep copy of this episode
-   * 
-   * @param source
-   *          the source episode
-   */
-  public TvShowEpisode(@NotNull TvShowEpisode source) {
-    // the reference to the tv show and the media files are the only things we don't
-    // copy
-    tvShow = source.tvShow;
-    tvShowId = source.tvShowId;
-
-    // clone media files
-    for (MediaFile mf : source.getMediaFiles()) {
-      addToMediaFiles(new MediaFile(mf));
-    }
-
-    // clone the rest
-    path = source.path;
-    title = source.title;
-    originalTitle = source.originalTitle;
-    year = source.year;
-    plot = source.plot;
-
-    artworkUrlMap.putAll(source.artworkUrlMap);
-
-    dateAdded = new Date(source.dateAdded.getTime());
-    scraped = source.scraped;
-    ids.putAll(source.ids);
-    mediaSource = source.mediaSource;
-
-    episodeNumbers.putAll(source.episodeNumbers);
-
-    if (source.firstAired != null) {
-      firstAired = new Date(source.firstAired.getTime());
-    }
-
-    disc = source.disc;
-    stacked = source.stacked;
-    multiEpisode = source.multiEpisode;
-    titleSortable = source.titleSortable;
-    otherIds = source.otherIds;
-    lastWatched = source.lastWatched;
-    watched = source.watched;
-    playcount = source.playcount;
-
-    for (Person actor : source.getActors()) {
-      actors.add(new Person(actor));
-    }
-    for (Person director : source.getDirectors()) {
-      directors.add(new Person(director));
-    }
-    for (Person writer : source.getWriters()) {
-      writers.add(new Person(writer));
-    }
-    for (MediaRating mediaRating : source.getRatings().values()) {
-      ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
-    }
-    tags.addAll(source.tags);
-    originalFilename = source.originalFilename;
-    dummy = source.dummy;
   }
 
   /**
@@ -890,7 +890,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void writeNFO() {
     List<TvShowEpisodeNfoNaming> nfoNamings = TvShowModuleManager.getInstance().getSettings().getEpisodeNfoFilenames();
-    if (nfoNamings.isEmpty()) {
+    if (!nfoNamings.isEmpty()) {
       return;
     }
 
@@ -908,23 +908,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    ITvShowEpisodeConnector connector;
-
-    switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
-      case XBMC:
-        connector = new TvShowEpisodeToXbmcConnector(episodesInNfo);
-        break;
-
-      case EMBY:
-        connector = new TvShowEpisodeToEmbyConnector(episodesInNfo);
-        break;
-
-      case KODI, JELLYFIN, PLEX, MEDIAPORTAL:
-      default:
-        connector = new TvShowEpisodeToKodiConnector(episodesInNfo);
-        break;
-
-    }
+    ITvShowEpisodeConnector connector = switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
+      case XBMC -> new TvShowEpisodeToXbmcConnector(episodesInNfo);
+      case EMBY -> new TvShowEpisodeToEmbyConnector(episodesInNfo);
+      default -> new TvShowEpisodeToKodiConnector(episodesInNfo);
+    };
 
     connector.write(Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME));
 
@@ -1498,7 +1486,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     if (stacked) {
       // search the first stacked media file (e.g. CD1)
-      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(new MediaFile());
+      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(MediaFile.EMPTY_MEDIAFILE);
     }
     else {
       // get the biggest one
@@ -1510,7 +1498,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // cannot happen - movie MUST always have a video file
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   @Override

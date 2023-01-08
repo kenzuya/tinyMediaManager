@@ -193,7 +193,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           removeTvShowEpisode(episode);
         }
       }
-      // last but not least remove all empty seasons
+      // last but not least - remove all empty seasons
       for (TvShowSeason season : tvShow.getSeasons()) {
         if (season.isDummy()) {
           removeTvShowSeason(season);
@@ -276,8 +276,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     if (child.getUserObject() instanceof TvShow) {
       return root;
     }
-    else if (child.getUserObject() instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) child.getUserObject();
+    else if (child.getUserObject()instanceof TvShowSeason season) {
       TmmTreeNode node = getNodeFromCache(season.getTvShow());
       // parent TV show not yet added? add it
       if (node == null) {
@@ -285,8 +284,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
       return node;
     }
-    else if (child.getUserObject() instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) child.getUserObject();
+    else if (child.getUserObject()instanceof TvShowEpisode episode) {
       TmmTreeNode node = getNodeFromCache(episode.getTvShowSeason());
       if (node == null) {
         node = addTvShowSeason(episode.getTvShowSeason());
@@ -303,7 +301,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   @Override
   public List<TmmTreeNode> getChildren(TmmTreeNode parent) {
     if (parent == root) {
-      ArrayList<TmmTreeNode> nodes = new ArrayList<>();
+      List<TmmTreeNode> nodes = new ArrayList<>();
       for (TvShow tvShow : new ArrayList<>(tvShowList.getTvShows())) {
         TmmTreeNode node = new TvShowTreeNode(tvShow, this);
         putNodeToCache(tvShow, node);
@@ -314,19 +312,19 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
       return nodes;
     }
-    else if (parent.getUserObject() instanceof TvShow) {
-      TvShow tvShow = (TvShow) parent.getUserObject();
-      ArrayList<TmmTreeNode> nodes = new ArrayList<>();
+    else if (parent.getUserObject()instanceof TvShow tvShow) {
+      List<TmmTreeNode> nodes = new ArrayList<>();
       for (TvShowSeason season : tvShow.getSeasons()) {
-        TmmTreeNode node = new TvShowSeasonTreeNode(season, this);
-        putNodeToCache(season, node);
-        nodes.add(node);
+        if (!season.getEpisodesForDisplay().isEmpty()) {
+          TmmTreeNode node = new TvShowSeasonTreeNode(season, this);
+          putNodeToCache(season, node);
+          nodes.add(node);
+        }
       }
       return nodes;
     }
-    else if (parent.getUserObject() instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) parent.getUserObject();
-      ArrayList<TmmTreeNode> nodes = new ArrayList<>();
+    else if (parent.getUserObject()instanceof TvShowSeason season) {
+      List<TmmTreeNode> nodes = new ArrayList<>();
       for (TvShowEpisode episode : season.getEpisodesForDisplay()) {
         // look if a node of this episode already exist
         TmmTreeNode node = getNodeFromCache(episode);
@@ -350,11 +348,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   @Override
   public boolean isLeaf(TmmTreeNode node) {
     return node.getUserObject() instanceof TvShowEpisode;
-  }
-
-  @Override
-  public Comparator<TmmTreeNode> getTreeComparator() {
-    return super.getTreeComparator();
   }
 
   private TmmTreeNode addTvShow(TvShow tvShow) {
@@ -395,6 +388,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   }
 
   private TmmTreeNode addTvShowSeason(TvShowSeason season) {
+    if (season.getEpisodesForDisplay().isEmpty()) {
+      return null;
+    }
+
     // check if this season has already been added
     TmmTreeNode cachedNode = getNodeFromCache(season);
     if (cachedNode != null) {
@@ -408,11 +405,11 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     return node;
   }
 
-  private TmmTreeNode addTvShowEpisode(TvShowEpisode episode) {
+  private void addTvShowEpisode(TvShowEpisode episode) {
     // check if this episode has already been added
     TmmTreeNode cachedNode = getNodeFromCache(episode);
     if (cachedNode != null) {
-      return cachedNode;
+      return;
     }
 
     // add a new node
@@ -422,7 +419,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // and also add a propertychangelistener to react on changes inside the episode
     episode.addPropertyChangeListener(episodePropertyChangeListener);
-    return node;
   }
 
   private void removeTvShowEpisode(TvShowEpisode episode) {
@@ -585,8 +581,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     @Override
     public String toString() {
       // return TV show name
-      if (getUserObject() instanceof TvShow) {
-        TvShow tvShow = (TvShow) getUserObject();
+      if (getUserObject()instanceof TvShow tvShow) {
         return tvShow.getTitleSortable();
       }
 
@@ -596,8 +591,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getTitle() {
-      if (getUserObject() instanceof TvShow) {
-        TvShow tvShow = (TvShow) getUserObject();
+      if (getUserObject()instanceof TvShow tvShow) {
         return tvShow.getTitle();
       }
 
@@ -606,8 +600,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getOriginalTitle() {
-      if (getUserObject() instanceof TvShow) {
-        TvShow tvShow = (TvShow) getUserObject();
+      if (getUserObject()instanceof TvShow tvShow) {
         return tvShow.getOriginalTitle();
       }
 
@@ -636,9 +629,8 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      */
     @Override
     public String toString() {
-      // return movieSet name
-      if (getUserObject() instanceof TvShowSeason) {
-        TvShowSeason season = (TvShowSeason) getUserObject();
+      // return season name
+      if (getUserObject()instanceof TvShowSeason season) {
         if (StringUtils.isNotBlank(season.getTitle())) {
           return season.getTitle();
         }
@@ -694,8 +686,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     @Override
     public String toString() {
       // return episode name and number
-      if (getUserObject() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) getUserObject();
+      if (getUserObject()instanceof TvShowEpisode episode) {
         if (episode.getEpisode() >= 0) {
           return episode.getEpisode() + ". " + episode.getTitle();
         }
@@ -710,8 +701,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getTitle() {
-      if (getUserObject() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) getUserObject();
+      if (getUserObject()instanceof TvShowEpisode episode) {
         return episode.getTitle();
       }
 
@@ -720,8 +710,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getOriginalTitle() {
-      if (getUserObject() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) getUserObject();
+      if (getUserObject()instanceof TvShowEpisode episode) {
         return episode.getOriginalTitle();
       }
 
@@ -730,8 +719,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     String getNote() {
-      if (getUserObject() instanceof TvShowEpisode) {
-        TvShowEpisode episode = (TvShowEpisode) getUserObject();
+      if (getUserObject()instanceof TvShowEpisode episode) {
         return episode.getNote();
       }
 

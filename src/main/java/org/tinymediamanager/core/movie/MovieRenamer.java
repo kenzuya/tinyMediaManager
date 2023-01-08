@@ -535,14 +535,14 @@ public class MovieRenamer {
     // ## rename NFO (copy 1:N) - only TMM NFOs
     // ######################################################################
     // we need to find the newest, valid TMM NFO
-    MediaFile nfo = new MediaFile();
+    MediaFile nfo = MediaFile.EMPTY_MEDIAFILE;
     for (MediaFile mf : movie.getMediaFiles(MediaFileType.NFO)) {
       if (mf.getFiledate() >= nfo.getFiledate() && MovieConnectors.isValidNFO(mf.getFileAsPath())) {
         nfo = new MediaFile(mf);
       }
     }
 
-    if (nfo.getFiledate() > 0) { // one valid found? copy our NFO to all variants
+    if (nfo != MediaFile.EMPTY_MEDIAFILE) { // one valid found? copy our NFO to all variants
       List<MediaFile> newNFOs = generateFilename(movie, nfo, newVideoBasename); // 1:N
       if (!newNFOs.isEmpty()) {
         // ok, at least one has been set up

@@ -45,10 +45,12 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
+import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -502,6 +504,28 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "5.0") < 0) {
       // upgrade TV show episode layout
       for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        // migrate season artwork to the seasons
+        List<MediaFile> seasonMediaFiles = tvShow.getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
+            MediaFileType.SEASON_FANART);
+        for (MediaFile mf : seasonMediaFiles) {
+          if (mf.getFilesize() != 0) {
+            String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+            int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+
+            if (season != Integer.MIN_VALUE) {
+              TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
+              tvShowSeason.addToMediaFiles(mf);
+            }
+          }
+          tvShow.removeFromMediaFiles(mf);
+        }
+
+        // link TV shows and seasons once again
+        for (TvShowSeason season : tvShow.getSeasons()) {
+          season.setTvShow(tvShow);
+        }
+
+        // save episodes (they are migrated while loading from database)
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
           episode.saveToDb();
         }
@@ -512,24 +536,25 @@ public class UpgradeTasks {
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
     switch (mediaFile.getContainerFormat().toLowerCase()) {
-      case "video_ts", "mpeg-ps", "dvd-video":
+      case "video_ts", "mpeg-ps", "dvd-video" -> {
         mediaFile.setContainerFormat("DVD Video");
         return true;
-
-      case "bdav":
+      }
+      case "bdav" -> {
         mediaFile.setContainerFormat("Blu-ray Video");
         return true;
-
-      case "matroska":
+      }
+      case "matroska" -> {
         mediaFile.setContainerFormat("Matroska");
         return true;
-
-      case "mpeg-4":
+      }
+      case "mpeg-4" -> {
         mediaFile.setContainerFormat("MPEG-4");
         return true;
-
-      default:
+      }
+      default -> {
         return false;
+      }
     }
   }
 

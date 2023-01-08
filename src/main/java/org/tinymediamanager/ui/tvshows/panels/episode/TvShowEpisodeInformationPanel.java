@@ -61,7 +61,6 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -438,8 +437,8 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
   }
 
   private void setSeasonPoster(TvShowEpisode episode) {
-    String posterPath = episode.getTvShowSeason().getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
-    Dimension posterSize = episode.getTvShowSeason().getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
+    String posterPath = episode.getTvShowSeason().getArtworkFilename(MediaFileType.SEASON_POSTER);
+    Dimension posterSize = episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_POSTER);
 
     if (StringUtils.isBlank(posterPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show

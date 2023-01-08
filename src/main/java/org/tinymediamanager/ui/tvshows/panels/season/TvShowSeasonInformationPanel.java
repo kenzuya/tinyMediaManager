@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
+import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.THUMB;
 
 import java.awt.Color;
@@ -36,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -44,17 +46,18 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
@@ -86,7 +89,9 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
   private final TvShowSeasonSelectionModel   tvShowSeasonSelectionModel;
   private JLabel                             lblTvshowTitle;
   private JLabel                             lblSeason;
+  private JTextPane                          taOverview;
   private TmmTable                           tableEpisodes;
+  private JLabel                             lblPlotT;
 
   /**
    * Instantiates a new tv show information panel.
@@ -116,6 +121,16 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
 
       TvShowSeasonSelectionModel model = (TvShowSeasonSelectionModel) source;
       TvShowSeason selectedSeason = model.getSelectedTvShowSeason();
+
+      if ("selectedTvShowSeason".equals(property) || SEASON.equals(property)) {
+        if (StringUtils.isNotBlank(selectedSeason.getTitle())) {
+          lblSeason
+              .setText(selectedSeason.getTitle() + " (" + TmmResourceBundle.getString("metatag.season") + " " + selectedSeason.getSeason() + ")");
+        }
+        else {
+          lblSeason.setText(TmmResourceBundle.getString("metatag.season") + " " + selectedSeason.getSeason());
+        }
+      }
 
       if ("selectedTvShowSeason".equals(property) || POSTER.equals(property)) {
         setPoster(selectedSeason);
@@ -161,7 +176,7 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", LAYOUT_ARTWORK_VISIBLE, "[grow]"));
+    setLayout(new MigLayout("", LAYOUT_ARTWORK_VISIBLE, "[300lp,grow]"));
 
     {
       JPanel panelLeft = new JPanel();
@@ -186,41 +201,47 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
     {
       JPanel panelRight = new JPanel();
       add(panelRight, "cell 1 0,grow");
-      panelRight.setLayout(new MigLayout("insets 0 n n n, hidemode 2", "[][323px,grow]", "[][][shrink 0][][286px,grow]"));
+      panelRight.setLayout(new MigLayout("insets 0 n n n, hidemode 2", "[100lp,grow]", "[][][shrink 0][][75lp:n][shrink 0][][300lp,grow]"));
       {
         lblTvshowTitle = new TmmLabel("", 1.33);
-        panelRight.add(lblTvshowTitle, "cell 0 0 2 1");
+        panelRight.add(lblTvshowTitle, "cell 0 0");
       }
       {
-        JLabel lblSeasonT = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
-        panelRight.add(lblSeasonT, "cell 0 1");
-        TmmFontHelper.changeFont(lblSeasonT, 1.166, Font.BOLD);
-
         lblSeason = new JLabel("");
-        panelRight.add(lblSeason, "cell 1 1");
+        panelRight.add(lblSeason, "cell 0 1");
         TmmFontHelper.changeFont(lblSeason, 1.166, Font.BOLD);
       }
       {
-        panelRight.add(new JSeparator(), "cell 0 2 2 1,growx");
+        panelRight.add(new JSeparator(), "cell 0 2,growx");
+      }
+      {
+        lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
+        panelRight.add(lblPlotT, "cell 0 3");
+
+        taOverview = new ReadOnlyTextPane();
+        panelRight.add(taOverview, "cell 0 4,growx,wmin 0,aligny top");
+      }
+      {
+        panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
         JLabel lblEpisodelistT = new TmmLabel(TmmResourceBundle.getString("metatag.episodes"));
-        panelRight.add(lblEpisodelistT, "cell 0 3 2 1");
+        panelRight.add(lblEpisodelistT, "cell 0 6");
 
         tableEpisodes = new TmmTable(episodeTableModel);
         tableEpisodes.setName("tvshows.seaon.episodeTable");
         TmmUILayoutStore.getInstance().install(tableEpisodes);
         JScrollPane scrollPaneEpisodes = new JScrollPane();
         tableEpisodes.configureScrollPane(scrollPaneEpisodes);
-        panelRight.add(scrollPaneEpisodes, "cell 0 4 2 1,grow");
+        panelRight.add(scrollPaneEpisodes, "cell 0 7,grow");
         scrollPaneEpisodes.setViewportView(tableEpisodes);
       }
     }
   }
 
   private void setPoster(TvShowSeason season) {
-    String posterPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
-    Dimension posterSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
+    String posterPath = season.getArtworkFilename(MediaFileType.SEASON_POSTER);
+    Dimension posterSize = season.getArtworkDimension(MediaFileType.SEASON_POSTER);
 
     if (StringUtils.isBlank(posterPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
@@ -232,8 +253,8 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
   }
 
   private void setFanart(TvShowSeason season) {
-    String fanartPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_FANART);
-    Dimension fanartSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_FANART);
+    String fanartPath = season.getArtworkFilename(MediaFileType.SEASON_FANART);
+    Dimension fanartSize = season.getArtworkDimension(MediaFileType.SEASON_FANART);
 
     if (StringUtils.isBlank(fanartPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
@@ -245,8 +266,8 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
   }
 
   private void setBanner(TvShowSeason season) {
-    String bannerPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER);
-    Dimension bannerSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_BANNER);
+    String bannerPath = season.getArtworkFilename(MediaFileType.SEASON_BANNER);
+    Dimension bannerSize = season.getArtworkDimension(MediaFileType.SEASON_BANNER);
 
     if (StringUtils.isBlank(bannerPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
@@ -258,8 +279,8 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
   }
 
   private void setThumb(TvShowSeason season) {
-    String thumbPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB);
-    Dimension thumbSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_THUMB);
+    String thumbPath = season.getArtworkFilename(MediaFileType.SEASON_THUMB);
+    Dimension thumbSize = season.getArtworkDimension(MediaFileType.SEASON_THUMB);
 
     if (StringUtils.isBlank(thumbPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       thumbPath = season.getTvShow().getArtworkFilename(MediaFileType.FANART);
@@ -281,14 +302,11 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
     for (Component component : components) {
       component.setVisible(visible);
 
-      if (component instanceof ImageLabel) {
-        ImageLabel imageLabel = (ImageLabel) component;
+      if (component instanceof ImageLabel imageLabel) {
         imageLabel.clearImage();
         imageLabel.setImagePath(artworkPath);
       }
-      else if (component instanceof JLabel) {
-        JLabel sizeLabel = (JLabel) component;
-
+      else if (component instanceof JLabel sizeLabel) {
         if (artworkDimension.width > 0 && artworkDimension.height > 0) {
           sizeLabel.setText(TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT)) + " - " + artworkDimension.width
               + "x" + artworkDimension.height);
@@ -315,21 +333,6 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
     else {
       ((MigLayout) getLayout()).setColumnConstraints(LAYOUT_ARTWORK_HIDDEN);
     }
-  }
-
-  protected void initDataBindings() {
-    BeanProperty<TvShowSeasonSelectionModel, String> tvShowSeasonSelectionModelBeanProperty = BeanProperty
-        .create("selectedTvShowSeason.tvShow.title");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSeasonSelectionModel, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSeasonSelectionModel, tvShowSeasonSelectionModelBeanProperty, lblTvshowTitle, jLabelBeanProperty);
-    autoBinding.bind();
-    //
-    BeanProperty<TvShowSeasonSelectionModel, Integer> tvShowSeasonSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShowSeason.season");
-    AutoBinding<TvShowSeasonSelectionModel, Integer, JLabel, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSeasonSelectionModel, tvShowSeasonSelectionModelBeanProperty_1, lblSeason, jLabelBeanProperty);
-    autoBinding_1.bind();
-
   }
 
   private static class EpisodeTableFormat extends TmmTableFormat<TvShowEpisode> {
@@ -374,5 +377,19 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
       }
       return c;
     }
+  }
+
+  protected void initDataBindings() {
+    Property tvShowSeasonSelectionModelBeanProperty = BeanProperty.create("selectedTvShowSeason.tvShow.title");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSeasonSelectionModel, tvShowSeasonSelectionModelBeanProperty,
+        lblTvshowTitle, jLabelBeanProperty);
+    autoBinding.bind();
+    //
+    Property tvShowSeasonSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShowSeason.tvShow.plot");
+    Property readOnlyTextPaneHTMLBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSeasonSelectionModel, tvShowSeasonSelectionModelBeanProperty_1,
+        taOverview, readOnlyTextPaneHTMLBeanProperty);
+    autoBinding_1.bind();
   }
 }
