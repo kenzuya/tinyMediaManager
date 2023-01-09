@@ -656,7 +656,7 @@ public class ImdbTvShowParser extends ImdbParser {
       for (Element child : titlereference.children()) {
         if ("div".equals(child.tagName()) && child.classNames().isEmpty()) {
           String plot = child.text();
-          if (StringUtils.isNotBlank(plot)) {
+          if (StringUtils.isBlank(md.getPlot()) && StringUtils.isNotBlank(plot)) {
             md.setPlot(plot);
             break;
           }
