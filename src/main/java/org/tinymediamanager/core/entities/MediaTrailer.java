@@ -35,6 +35,8 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
   private static final Logger LOGGER   = LoggerFactory.getLogger(MediaTrailer.class);
 
   @JsonProperty
+  private String              id       = "";
+  @JsonProperty
   private String              name     = "";
   @JsonProperty
   private String              url      = "";
@@ -46,6 +48,14 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
   private Boolean             inNfo    = Boolean.FALSE;
   @JsonProperty
   private Date                date     = null;
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
 
   public String getName() {
     return name;
@@ -92,7 +102,7 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
   }
 
   public void setInNfo(Boolean newValue) {
-    if (this.url.startsWith("file")) {
+    if (!this.url.startsWith("http")) {
       // local trailers never in url
       newValue = false;
     }
@@ -138,7 +148,12 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
 
   @Override
   public int hashCode() {
-    return this.getUrl().hashCode();
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((url == null) ? 0 : url.hashCode());
+    result = prime * result + ((quality == null) ? 0 : quality.hashCode());
+    return result;
   }
 
   /**

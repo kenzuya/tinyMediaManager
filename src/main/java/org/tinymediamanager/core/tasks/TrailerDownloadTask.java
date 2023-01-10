@@ -21,6 +21,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
 
 /**
  * A task for downloading trailers
@@ -43,6 +44,23 @@ public abstract class TrailerDownloadTask extends DownloadTask {
     if (!isFeatureEnabled()) {
       return;
     }
+    String url = mediaTrailer.getUrl();
+    if (!url.startsWith("http")) {
+      // we have an ID - lets check if it is a known one:
+      String id = mediaTrailer.getId();
+      if (!id.matches("vi\\d+")) { // IMDB
+        return;
+      }
+
+      // IMD trailer ID
+      ImdbMovieTrailerProvider tp = new ImdbMovieTrailerProvider();
+      url = tp.getUrlForId(mediaTrailer);
+      if (url.isEmpty()) {
+        return;
+      }
+      mediaTrailer.setUrl(url);
+    }
+
     super.doInBackground();
   }
 

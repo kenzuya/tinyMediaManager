@@ -29,12 +29,14 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +50,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -55,16 +58,36 @@ import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCertificate;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
+import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
+import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
+import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
+import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
+import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
+import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
+import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
+import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The abstract class ImdbParser holds all relevant parsing logic which can be used either by the movie parser and TV show parser
@@ -104,6 +127,7 @@ public abstract class ImdbParser {
   protected final MediaType           type;
   protected final MediaProviderConfig config;
   protected final ExecutorService     executor;
+  private ObjectMapper                mapper                   = new ObjectMapper();;
 
   protected ImdbParser(IMediaProvider mediaProvider, MediaType type, ExecutorService executor) {
     this.metadataProvider = mediaProvider;
@@ -231,6 +255,15 @@ public abstract class ImdbParser {
    */
   protected boolean isScrapeKeywordsPage() {
     return config.getValueAsBool(SCRAPE_KEYWORDS_PAGE, false);
+  }
+
+  /**
+   * should we scrape Metacritic ratings
+   *
+   * @return true/false
+   */
+  protected boolean isScrapeMetacriticRatings() {
+    return config.getValueAsBool(INCLUDE_METACRITIC, false);
   }
 
   /**
@@ -363,14 +396,17 @@ public abstract class ImdbParser {
 
     Url url;
 
+    // ***************************************
+    // ignore for now!
+    // ***************************************
     boolean advancedSearch = false;
     // always use advSearch for TV, since we need to filter out tvMovies on TV scraping :/
-    if (options.getMediaType() == MediaType.TV_SHOW) {
-      advancedSearch = true;
-    }
-    if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
-      advancedSearch = true;
-    }
+    // if (options.getMediaType() == MediaType.TV_SHOW) {
+    // advancedSearch = true;
+    // }
+    // if (isIncludeShortResults() || isIncludeTvMovieResults() || isIncludeVideogameResults() || isIncludeAdultResults()) {
+    // advancedSearch = true;
+    // }
 
     try {
       if (advancedSearch) {
@@ -402,7 +438,7 @@ public abstract class ImdbParser {
         url = new InMemoryCachedUrl(constructUrl("search/title/?title=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), cats));
       }
       else {
-        url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
+        url = new InMemoryCachedUrl(constructUrl("find/?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
       }
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
@@ -428,82 +464,74 @@ public abstract class ImdbParser {
       return Collections.emptySortedSet();
     }
 
-    // check if it was directly redirected to the site
-    // TODO: does this still happen? when? cannot reproduce anylonger with new search
-    Elements elements = doc.getElementsByAttributeValue("rel", "canonical");
-    for (Element element : elements) {
-      MediaMetadata md = null;
-      // we have been redirected to the movie site
-      String movieName = null;
-      String movieId = null;
+    // parse regular search result page
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      if (!json.isEmpty()) {
+        JsonNode node = mapper.readTree(json);
+        JsonNode resultsNode = node.at("/props/pageProps/titleResults/results");
 
-      String href = element.attr("href");
-      Matcher matcher = IMDB_ID_PATTERN.matcher(href);
-      while (matcher.find()) {
-        if (matcher.group(1) != null) {
-          movieId = matcher.group(1);
+        // check if we were redirected to detail page directly (when searching with id)
+        if (resultsNode.isMissingNode()) {
+          MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
+          parseDetailPageJson(doc, options, md);
+          MediaSearchResult sr = md.toSearchResult(options.getMediaType());
+          sr.setScore(1);
+          results.add(sr);
         }
-      }
-
-      // get full information
-      if (!StringUtils.isEmpty(movieId)) {
-        try {
-          md = getMetadata(options);
-          if (!StringUtils.isEmpty(md.getTitle())) {
-            movieName = md.getTitle();
-          }
-        }
-        catch (Exception e) {
-          getLogger().trace("could not get (sub)metadata: {}", e.getMessage());
-        }
-      }
-
-      // if a movie name/id was found - return it
-      if (StringUtils.isNotEmpty(movieName) && StringUtils.isNotEmpty(movieId)) {
-        MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
-        sr.setTitle(movieName);
-        sr.setIMDBId(movieId);
-        sr.setYear(md.getYear());
-        sr.setMetadata(md);
-        sr.setScore(1);
-
-        // and parse out the poster
-        String posterUrl = "";
-        Elements posters = doc.getElementsByClass("ipc-poster");
-        if (posters != null && !posters.isEmpty()) {
-          Elements imgs = posters.get(0).getElementsByTag("img");
-          for (Element img : imgs) {
-            posterUrl = img.attr("src");
-            int fileStart = posterUrl.lastIndexOf('/');
-            if (fileStart > 0) {
-              int parameterStart = posterUrl.indexOf('_', fileStart);
-              if (parameterStart > 0) {
-                int startOfExtension = posterUrl.lastIndexOf('.');
-                if (startOfExtension > parameterStart) {
-                  posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
-                }
-              }
+        else {
+          for (ImdbSearchResult result : ImdbJsonHelper.parseList(mapper, resultsNode, ImdbSearchResult.class)) {
+            MediaSearchResult sr = parseJsonSearchResults(result, options);
+            // only add wanted ones
+            if (sr != null && options.getMediaType().equals(result.getMediaType())) {
+              results.add(sr);
             }
-
-            // and resize to the default preview size
-            String extension = FilenameUtils.getExtension(posterUrl);
-            posterUrl = posterUrl.replace("." + extension, "_UX342." + extension);
           }
         }
-        if (StringUtils.isNotBlank(posterUrl)) {
-          sr.setPosterUrl(posterUrl);
+        if (results.size() > 0) {
+          return results; // we found something
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing JSON:", e.getMessage());
+    }
+
+    // no JSON or error - also check if we have been redirected to detail page
+    Elements pageType = doc.getElementsByAttributeValue("property", "imdb:pageType");
+    if (!pageType.isEmpty()) {
+      String content = pageType.get(0).attr("content");
+      if (content.equalsIgnoreCase("title")) {
+        // detail page - generate a dummy searchresult
+        MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+        Elements pageConst = doc.getElementsByAttributeValue("property", "imdb:pageConst");
+        content = pageConst.get(0).attr("content");
+        if (MediaIdUtil.isValidImdbId(content)) {
+          sr.setId(ImdbMetadataProvider.ID, content);
+        }
+        else {
+          if (MediaIdUtil.isValidImdbId(searchTerm)) {
+            sr.setId(ImdbMetadataProvider.ID, searchTerm);
+          }
+        }
+        Elements titleYear = doc.getElementsByAttributeValue("property", "og:title");
+        if (!titleYear.isEmpty()) {
+          content = titleYear.get(0).attr("content");
+          String title = StrgUtils.substr(content, "(.*?)\\("); // everything before ()
+          String year = StrgUtils.substr(content, ".*?(\\d{4}).*"); // first 4 numbers as year
+          sr.setTitle(title);
+          sr.setYear(MetadataUtil.parseInt(year, 0));
         }
 
         results.add(sr);
-        return results;
       }
     }
 
     // parse results newer style
-    elements = doc.getElementsByClass("find-result-item");
+    Elements elements = doc.getElementsByClass("ipc-metadata-list-summary-item");
     for (Element tr : elements) {
       MediaSearchResult sr = parseSearchResultsNewStyle(tr, options);
-      if (sr != null) {
+      if (sr != null && options.getMediaType() == sr.getMediaType()) {
         results.add(sr);
       }
       // only get 80 results
@@ -513,7 +541,7 @@ public abstract class ImdbParser {
     }
 
     // parse results old style
-    if (elements == null || elements.isEmpty()) {
+    if (elements.isEmpty()) {
       elements = doc.getElementsByClass("findResult");
       for (Element tr : elements) {
         // we only want the tr's
@@ -532,7 +560,7 @@ public abstract class ImdbParser {
     }
 
     // parse results advanced search
-    if (elements == null || elements.isEmpty()) {
+    if (elements.isEmpty()) {
       elements = doc.getElementsByClass("lister-item");
       for (Element tr : elements) {
         MediaSearchResult sr = parseAdvancedSearchResults(tr, options);
@@ -547,6 +575,37 @@ public abstract class ImdbParser {
     }
 
     return results;
+  }
+
+  private MediaSearchResult parseJsonSearchResults(ImdbSearchResult result, MediaSearchAndScrapeOptions options) {
+    MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
+
+    sr.setIMDBId(result.getId());
+    sr.setTitle(result.titleNameText);
+    String year = result.titleReleaseText;
+    if (!year.isEmpty()) {
+      if (year.length() == 4) {
+        sr.setYear(MetadataUtil.parseInt(year, 0));
+      }
+      else {
+        if (year.matches("\\d{4}[-]?.*")) {
+          sr.setYear(MetadataUtil.parseInt(year.substring(0, 4), 0));
+        }
+      }
+    }
+    if (result.titlePosterImageModel != null) {
+      sr.setPosterUrl(result.titlePosterImageModel.url);
+    }
+
+    if (sr.getIMDBId().equals(options.getImdbId())) {
+      // perfect match
+      sr.setScore(1);
+    }
+    else {
+      // calculate the score by comparing the search result with the search options
+      sr.calculateScore(options);
+    }
+    return sr;
   }
 
   private MediaSearchResult parseAdvancedSearchResults(Element tr, MediaSearchAndScrapeOptions options) {
@@ -736,6 +795,10 @@ public abstract class ImdbParser {
         int year = MetadataUtil.parseInt(text.substring(0, 4));
         sr.setYear(year);
       }
+      else if (text.matches("S\\d+\\.E\\d+")) {
+        // we found some S/EE values - must be episode
+        sr.setMediaType(MediaType.TV_EPISODE);
+      }
     }
 
     if (sr.getIMDBId().equals(options.getImdbId())) {
@@ -817,6 +880,217 @@ public abstract class ImdbParser {
     }
 
     return languages.toString().toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * 
+   * @param doc
+   * @param options
+   * @param md
+   * @throws Exception
+   *           on JSON parsing errors
+   */
+  protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      JsonNode node = mapper.readTree(json);
+
+      // ***** REQ/RESP column *****
+      String certCountry = "";
+      String responseLangu = node.at("/props/pageProps/requestContext/sidecar/localizationResponse/languageForTranslations").asText();
+      if (responseLangu.isEmpty()) {
+        responseLangu = node.at("/props/pageProps/requestContext/sidecar/localizationResponse/userLanguage").asText();
+      }
+      if (!responseLangu.isEmpty()) {
+        Locale l = Locale.forLanguageTag(responseLangu);
+        certCountry = l.getCountry();
+      }
+
+      // ***** TOP column *****
+      md.setId(ImdbMetadataProvider.ID, node.at("/props/pageProps/aboveTheFoldData/id").asText());
+      md.setTitle(node.at("/props/pageProps/aboveTheFoldData/titleText/text").asText());
+      md.setOriginalTitle(node.at("/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
+      if (md.getOriginalTitle().isEmpty()) {
+        md.setOriginalTitle(md.getTitle());
+      }
+      md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
+
+      JsonNode plotNode = node.at("/props/pageProps/aboveTheFoldData/plot/plotText");
+      ImdbPlaintext plot = ImdbJsonHelper.parseObject(mapper, plotNode, ImdbPlaintext.class);
+      md.setPlot(plot.plainText);
+
+      int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
+      int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
+      int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
+      Date date = new GregorianCalendar(y, m - 1, d).getTime();
+      md.setReleaseDate(date);
+
+      md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+
+      MediaRating rating = new MediaRating("imdb");
+      rating.setRating(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating").floatValue());
+      rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
+      rating.setMaxValue(10);
+      if (rating.getRating() > 0) {
+        md.addRating(rating);
+      }
+      if (isScrapeMetacriticRatings()) {
+        rating = new MediaRating("metacritic");
+        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
+        rating.setMaxValue(100);
+        if (rating.getRating() > 0) {
+          md.addRating(rating);
+        }
+      }
+
+      JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
+      ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
+      if (!certCountry.isEmpty() && certificate != null) {
+        md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
+        // TODO: parse from reference page and add all?!
+      }
+
+      JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
+      for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
+        md.addGenre(genre.toTmm());
+      }
+
+      if (isScrapeKeywordsPage()) {
+        JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
+        for (ImdbKeyword kw : ImdbJsonHelper.parseList(mapper, keywordsNode, ImdbKeyword.class)) {
+          md.addTag(kw.node.text);
+        }
+      }
+
+      // poster
+      JsonNode primaryImage = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
+      if (!primaryImage.isMissingNode()) {
+        ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
+        MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        poster.setOriginalUrl(img.url);
+        poster.setPreviewUrl(img.url); // well, yes
+        poster.setImdbId(img.id);
+        poster.addImageSize(img.width, img.height, img.url);
+        md.addMediaArt(poster);
+      }
+      JsonNode titleMainImages = node.at("/props/pageProps/aboveTheFoldData/titleMainImages/edges");
+      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
+        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
+        // only parse landscape ones as fanarts
+        if (i.width > i.height) {
+          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          poster.setOriginalUrl(i.url);
+          poster.setPreviewUrl(i.url); // well, yes
+          poster.setImdbId(i.id);
+          poster.addImageSize(i.width, i.height, i.url);
+          md.addMediaArt(poster);
+        }
+      }
+
+      // primaryVideos for all trailers
+      JsonNode primaryTrailers = node.at("/props/pageProps/aboveTheFoldData/primaryVideos/edges");
+      for (JsonNode img : ListUtils.nullSafe(primaryTrailers)) {
+        ImdbVideo video = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbVideo.class);
+        for (ImdbPlaybackUrl vid : ListUtils.nullSafe(video.playbackURLs)) {
+          if (vid.displayName.value.equalsIgnoreCase("AUTO")) {
+            continue;
+          }
+          MediaTrailer trailer = new MediaTrailer();
+          trailer.setProvider(ImdbMetadataProvider.ID);
+          trailer.setId(video.id);
+          trailer.setDate(video.creeatedDate);
+          trailer.setName(video.name.value);
+          trailer.setQuality(vid.displayName.value); // SD, 480p, AUTO, ...
+          // trailer.setUrl(vid.url); // IMDB urls exipre - just set ID
+          md.addTrailer(trailer);
+        }
+      }
+
+      JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
+      ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
+
+      // ***** MAIN column *****
+      JsonNode directorsNode = node.at("/props/pageProps/mainColumnData/directors");
+      for (ImdbCredits directors : ImdbJsonHelper.parseList(mapper, directorsNode, ImdbCredits.class)) {
+        for (ImdbCrew crew : directors.credits) {
+          Person p = crew.toTmm(Person.Type.DIRECTOR);
+          p.setRole(directors.category.text);
+          md.addCastMember(p);
+        }
+      }
+
+      JsonNode writersNode = node.at("/props/pageProps/mainColumnData/writers");
+      for (ImdbCredits writers : ImdbJsonHelper.parseList(mapper, writersNode, ImdbCredits.class)) {
+        for (ImdbCrew crew : writers.credits) {
+          Person p = crew.toTmm(Person.Type.WRITER);
+          p.setRole(writers.category.text);
+          md.addCastMember(p);
+        }
+      }
+
+      JsonNode arr = node.at("/props/pageProps/mainColumnData/cast/edges");
+      for (JsonNode actors : ListUtils.nullSafe(arr)) {
+        ImdbCast c = ImdbJsonHelper.parseObject(mapper, actors.get("node"), ImdbCast.class);
+        md.addCastMember(c.toTmm(Person.Type.ACTOR));
+      }
+
+      JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
+      for (ImdbIdTextType lang : ImdbJsonHelper.parseList(mapper, spokenNode, ImdbIdTextType.class)) {
+        if (isScrapeLanguageNames()) {
+          md.addSpokenLanguage(lang.text);
+        }
+        else {
+          md.addSpokenLanguage(lang.id);
+        }
+      }
+
+      JsonNode countriesNode = node.at("/props/pageProps/mainColumnData/countriesOfOrigin/countries");
+      for (ImdbCountry country : ImdbJsonHelper.parseList(mapper, countriesNode, ImdbCountry.class)) {
+        if (isScrapeLanguageNames()) {
+          md.addCountry(country.text);
+        }
+        else {
+          md.addCountry(country.id);
+        }
+      }
+
+      JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
+      for (JsonNode p : prods) {
+        md.addProductionCompany(p.at("/node/company/companyText/text").asText());
+      }
+    }
+    catch (
+
+    Exception e) {
+      getLogger().warn("Error parsing JSON: {}", e);
+      throw e;
+    }
+  }
+
+  /**
+   * parses the video page directly, and gets fresh encoded urls (they have an expiry in them!)
+   * 
+   * @param trailer
+   * @return
+   * @throws Exception
+   */
+  protected String getFreshUrlForTrailer(MediaTrailer trailer) throws Exception {
+    Callable<Document> worker = new ImdbWorker(constructUrl("video/", trailer.getId()), "", "", true);
+    Future<Document> futureVid = executor.submit(worker);
+    Document doc = futureVid.get();
+
+    String json = doc.getElementById("__NEXT_DATA__").data();
+    JsonNode node = mapper.readTree(json);
+    JsonNode vidNode = node.at("/props/pageProps/videoPlaybackData/video");
+    if (!vidNode.isMissingNode()) {
+      ImdbVideo video = ImdbJsonHelper.parseObject(mapper, vidNode, ImdbVideo.class);
+      for (ImdbPlaybackUrl vid : ListUtils.nullSafe(video.playbackURLs)) {
+        if (vid.displayName.value.equals(trailer.getQuality())) {
+          return vid.url;
+        }
+      }
+    }
+    return "";
   }
 
   protected void parseReferencePage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
@@ -1471,6 +1745,7 @@ public abstract class ImdbParser {
 
         if (scaling > 0) {
           if ("X".equals(direction)) {
+            // https://stackoverflow.com/a/73501833
             // scale horizontally
             imageSrc = imageSrc.replace("SX" + scaling, "UY" + desiredHeight);
           }
@@ -1582,6 +1857,7 @@ public abstract class ImdbParser {
     ma.setDefaultUrl(image);
     ma.setOriginalUrl(image);
 
+    // https://stackoverflow.com/a/73501833
     // create preview url (width = 342 as in TMDB)
     String extension = FilenameUtils.getExtension(image);
     String previewUrl = image.replace("." + extension, "_SX342." + extension);
@@ -1624,6 +1900,7 @@ public abstract class ImdbParser {
     if (width > 0 && height > 0) {
       String image = artwork.getDefaultUrl();
       String extension = FilenameUtils.getExtension(image);
+      // https://stackoverflow.com/a/73501833
       String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
 
       artwork.setDefaultUrl(defaultUrl);

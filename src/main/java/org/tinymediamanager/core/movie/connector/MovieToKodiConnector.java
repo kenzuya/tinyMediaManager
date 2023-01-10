@@ -159,7 +159,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
     // https://forum.kodi.tv/showthread.php?tid=348759&pid=2900477#pid2900477
     if (movie.getMediaFiles(MediaFileType.TRAILER).isEmpty()) {
       for (MediaTrailer mediaTrailer : new ArrayList<>(movie.getTrailer())) {
-        if (mediaTrailer.getInNfo() && !mediaTrailer.getUrl().startsWith("file")) {
+        if (mediaTrailer.getInNfo() && mediaTrailer.getUrl().startsWith("http")) {
           trailer.setTextContent(prepareTrailerForKodi(mediaTrailer));
           break;
         }

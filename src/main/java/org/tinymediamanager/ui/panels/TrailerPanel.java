@@ -108,7 +108,8 @@ public abstract class TrailerPanel extends JPanel {
        * download
        */
       Column col = new Column("", "download", trailer -> {
-        if (StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http")) {
+        if ((StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http"))
+            || !trailer.getId().isEmpty()) {
           return IconManager.DOWNLOAD;
         }
         return null;
@@ -177,6 +178,8 @@ public abstract class TrailerPanel extends JPanel {
 
   protected abstract void downloadTrailer(MediaTrailer trailer);
 
+  protected abstract String refreshUrlFromId(MediaTrailer trailer);
+
   private class LinkListener implements MouseListener, MouseMotionListener {
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -188,7 +191,8 @@ public abstract class TrailerPanel extends JPanel {
         row = table.convertRowIndexToModel(row);
         MediaTrailer trailer = trailerEventList.get(row);
 
-        if (StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http")) {
+        if ((StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http"))
+            || !trailer.getId().isEmpty()) {
           downloadTrailer(trailer);
         }
       }
@@ -199,6 +203,9 @@ public abstract class TrailerPanel extends JPanel {
         row = table.convertRowIndexToModel(row);
         MediaTrailer trailer = trailerEventList.get(row);
         String url = trailer.getUrl();
+        if (url.isEmpty()) {
+          url = refreshUrlFromId(trailer);
+        }
         try {
           TmmUIHelper.browseUrl(url);
         }

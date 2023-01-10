@@ -157,7 +157,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     // https://forum.kodi.tv/showthread.php?tid=348759&pid=2900477#pid2900477
     if (tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty()) {
       for (MediaTrailer mediaTrailer : new ArrayList<>(tvShow.getTrailer())) {
-        if (mediaTrailer.getInNfo() && !mediaTrailer.getUrl().startsWith("file")) {
+        if (mediaTrailer.getInNfo() && mediaTrailer.getUrl().startsWith("http")) {
           trailer.setTextContent(prepareTrailerForKodi(mediaTrailer));
           break;
         }

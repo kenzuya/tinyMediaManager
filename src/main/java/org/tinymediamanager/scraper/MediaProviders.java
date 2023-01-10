@@ -38,8 +38,10 @@ import org.tinymediamanager.scraper.ffmpeg.FFmpegTvShowArtworkProvider;
 import org.tinymediamanager.scraper.hdtrailersnet.HdTrailersNetMovieTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
@@ -163,6 +165,7 @@ public class MediaProviders {
     loadProvider(HdTrailersNetMovieTrailerProvider.class);
     loadProvider(OfdbMovieTrailerProvider.class);
     loadProvider(DavesTrailerPageProvider.class);
+    loadProvider(ImdbMovieTrailerProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieTrailerProvider.class);
@@ -227,6 +230,7 @@ public class MediaProviders {
     // TV SHOW TRAILER
     /////////////////////////////////////////////
     loadProvider(TmdbTvShowTrailerProvider.class);
+    loadProvider(ImdbTvShowTrailerProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowTrailerProvider.class);

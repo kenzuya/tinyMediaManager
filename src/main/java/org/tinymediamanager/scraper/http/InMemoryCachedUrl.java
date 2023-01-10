@@ -90,7 +90,6 @@ public class InMemoryCachedUrl extends Url {
     responseCharset = cachedResponse.responseCharset;
     responseContentType = cachedResponse.responseContentType;
     responseContentLength = cachedResponse.responseContentLength;
-
     headersResponse = cachedResponse.headersResponse;
 
     return new GZIPInputStream(new ByteArrayInputStream(cachedResponse.content));
