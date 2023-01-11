@@ -126,110 +126,138 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
+    md.setId(ImdbMetadataProvider.ID, imdbId);
 
-    // worker for tmdb request
-    Future<MediaMetadata> futureTmdb = null;
-    if (isUseTmdbForTvShows()) {
-      Callable<MediaMetadata> worker2 = new TmdbTvShowWorker(options);
-      futureTmdb = executor.submit(worker2);
-    }
-
-    // get reference data (/reference)
-    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    Future<Document> futureReference = executor.submit(worker);
-
-    // worker for imdb request (/plotsummary)
-    Future<Document> futurePlotsummary;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = executor.submit(worker);
-
-    // worker for imdb request (/releaseinfo)
-    Future<Document> futureReleaseinfo;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futureReleaseinfo = executor.submit(worker);
-
-    // worker for imdb keywords (/keywords)
-    Future<Document> futureKeywords = null;
-    if (isScrapeKeywordsPage()) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
-          options.getCertificationCountry().getAlpha2());
-      futureKeywords = executor.submit(worker);
-    }
-
-    Document doc;
+    Document doc = null;
+    // worker for detail page
+    boolean json = false;
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2(), true);
+    Future<Document> futureDetail = executor.submit(worker);
     try {
+      doc = futureDetail.get();
+      parseDetailPageJson(doc, options, md);
+
+      // merge-in missing from other page
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      Future<Document> futureReference = executor.submit(worker);
       doc = futureReference.get();
       if (doc != null) {
-        parseReferencePage(doc, options, md);
+        MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+        parseReferencePage(doc, options, md2);
+        md.setTagline(md2.getTagline());
+        md.setCastMembers(md2.getCastMembers()); // overwrite all
+        md.setTop250(md2.getTop250());
       }
 
-      doc = futurePlotsummary.get();
-      if (doc != null) {
-        parsePlotsummaryPage(doc, options, md);
+      // return immediately when we do not want TMDB, and JSON parsing was ok
+      if (!isUseTmdbForTvShows()) {
+        return md;
+      }
+      json = true;
+    }
+    catch (Exception e1) {
+      LOGGER.warn("Could not get detailpage for id '{}' - '{}'", imdbId, e1.getMessage());
+    }
+
+    // fallback old style, when json parsing was not ok
+    if (json) {
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      Future<Document> futureReference = executor.submit(worker);
+
+      Future<Document> futurePlotsummary;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futurePlotsummary = executor.submit(worker);
+
+      Future<Document> futureReleaseinfo;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futureReleaseinfo = executor.submit(worker);
+
+      Future<Document> futureKeywords = null;
+      if (isScrapeKeywordsPage()) {
+        worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
+        futureKeywords = executor.submit(worker);
       }
 
-      // get the release info page
-      Document releaseinfoDoc = futureReleaseinfo.get();
-      if (releaseinfoDoc != null) {
-        // get the date from the releaseinfo page
-        parseReleaseinfoPage(releaseinfoDoc, options, md);
-      }
-
-      if (futureKeywords != null) {
-        doc = futureKeywords.get();
+      try {
+        doc = futureReference.get();
         if (doc != null) {
-          parseKeywordsPage(doc, options, md);
+          parseReferencePage(doc, options, md);
+        }
+
+        doc = futurePlotsummary.get();
+        if (doc != null) {
+          parsePlotsummaryPage(doc, options, md);
+        }
+
+        // get the release info page
+        Document releaseinfoDoc = futureReleaseinfo.get();
+        if (releaseinfoDoc != null) {
+          // get the date from the releaseinfo page
+          parseReleaseinfoPage(releaseinfoDoc, options, md);
+        }
+
+        if (futureKeywords != null) {
+          doc = futureKeywords.get();
+          if (doc != null) {
+            parseKeywordsPage(doc, options, md);
+          }
         }
       }
+      catch (Exception e) {
+        LOGGER.error("problem while scraping: {}", e.getMessage());
+        throw new ScrapeException(e);
+      }
 
-      // if everything worked so far, we can set the given id
-      md.setId(ImdbMetadataProvider.ID, imdbId);
-    }
-    catch (Exception e) {
-      LOGGER.error("problem while scraping: {}", e.getMessage());
-      throw new ScrapeException(e);
-    }
-
-    if (md.getIds().isEmpty()) {
-      LOGGER.warn("nothing found");
-      throw new NothingFoundException();
+      if (md.getIds().isEmpty()) {
+        LOGGER.warn("nothing found");
+        throw new NothingFoundException();
+      }
     }
 
     // populate id
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
     // get data from tmdb?
-    if (futureTmdb != null) {
-      try {
-        MediaMetadata tmdbMd = futureTmdb.get();
-        if (tmdbMd != null) {
-          // provide all IDs
-          for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
-            md.setId(entry.getKey(), entry.getValue());
-          }
-          // title
-          if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
-            md.setTitle(tmdbMd.getTitle());
-          }
-          // original title
-          if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
-            md.setOriginalTitle(tmdbMd.getOriginalTitle());
-          }
-          // tagline
-          if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
-            md.setTagline(tmdbMd.getTagline());
-          }
-          // plot
-          if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
-            md.setPlot(tmdbMd.getPlot());
+    // worker for tmdb request
+    if (isUseTmdbForTvShows()) {
+      Future<MediaMetadata> futureTmdb = null;
+      Callable<MediaMetadata> worker2 = new TmdbTvShowWorker(options);
+      futureTmdb = executor.submit(worker2);
+      if (futureTmdb != null) {
+        try {
+          MediaMetadata tmdbMd = futureTmdb.get();
+          if (tmdbMd != null) {
+            // provide all IDs
+            for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
+              md.setId(entry.getKey(), entry.getValue());
+            }
+            // title
+            if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
+              md.setTitle(tmdbMd.getTitle());
+            }
+            // original title
+            if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
+              md.setOriginalTitle(tmdbMd.getOriginalTitle());
+            }
+            // tagline
+            if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
+              md.setTagline(tmdbMd.getTagline());
+            }
+            // plot
+            if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
+              md.setPlot(tmdbMd.getPlot());
+            }
           }
         }
-      }
-      catch (Exception e) {
-        LOGGER.debug("could not fetch data from TMDB: {}", e.getMessage());
+        catch (Exception e) {
+          LOGGER.debug("could not fetch data from TMDB: {}", e.getMessage());
+        }
       }
     }
 
@@ -308,36 +336,66 @@ public class ImdbTvShowParser extends ImdbParser {
       md.setPlot(wantedEpisode.getPlot());
       md.setRatings(wantedEpisode.getRatings());
       md.setReleaseDate(wantedEpisode.getReleaseDate());
-
-      if (isUseTmdbForTvShows()) {
-        Callable<MediaMetadata> worker2 = new TmdbTvShowEpisodeWorker(options);
-        futureTmdb = compSvcTmdb.submit(worker2);
-      }
     }
 
-    // and finally the cast which needed to be fetched from the reference page
+    // and finally the cast which needed to be fetched from the reference page (or json detail page)
     if (MediaIdUtil.isValidImdbId(episodeId)) {
       md.setId(ImdbMetadataProvider.ID, episodeId);
 
-      if (MediaIdUtil.isValidImdbId(episodeId)) {
+      boolean json = false;
+      Callable<Document> worker = new ImdbWorker(constructUrl("title/", episodeId), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      Future<Document> futureDetail = executor.submit(worker);
+      Document doc = null;
+      try {
+        doc = futureDetail.get();
+        parseDetailPageJson(doc, options, md);
+
+        // merge-in missing from other page
+        worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
+        Future<Document> futureReference = executor.submit(worker);
+        doc = futureReference.get();
+        if (doc != null) {
+          MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+          parseReferencePage(doc, options, md2);
+          md.setTagline(md2.getTagline());
+          md.setCastMembers(md2.getCastMembers()); // overwrite all
+          md.setTop250(md2.getTop250());
+        }
+
+        // return immediately when we do not want TMDB, and JSON parsing was ok
+        if (!isUseTmdbForTvShows()) {
+          return md;
+        }
+        json = true;
+      }
+      catch (Exception e1) {
+        LOGGER.warn("Could not get detailpage for id '{}' - '{}'", episodeId, e1.getMessage());
+      }
+
+      // fallback old style
+      if (!json) {
         ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
-        Callable<Document> worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
-            options.getCertificationCountry().getAlpha2());
+        worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
         Future<Document> futureReference = compSvcImdb.submit(worker);
 
         // worker for imdb keywords (/keywords)
         Future<Document> futureKeywords = null;
         if (isScrapeKeywordsPage()) {
           worker = new ImdbWorker(constructUrl("title/", episodeId, "/keywords"), options.getLanguage().getLanguage(),
-              options.getCertificationCountry().getAlpha2());
+              options.getCertificationCountry().getAlpha2(), true);
           futureKeywords = compSvcImdb.submit(worker);
         }
 
         try {
-          Document doc = futureReference.get();
-          if (doc != null) {
-            parseEpisodeReference(doc, md, episodeId);
+          if (futureReference != null) {
+            Document docReference = futureReference.get();
+            if (docReference != null) {
+              parseEpisodeReference(docReference, md, episodeId);
+            }
           }
 
           if (futureKeywords != null) {
@@ -355,46 +413,49 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // get data from tmdb?
-    if (futureTmdb != null) {
-      try {
-        MediaMetadata tmdbMd = futureTmdb.get();
-        if (tmdbMd != null) {
-          // provide all IDs
-          for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
-            md.setId(entry.getKey(), entry.getValue());
-          }
-          // title
-          if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
-            md.setTitle(tmdbMd.getTitle());
-          }
-          // original title
-          if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
-            md.setOriginalTitle(tmdbMd.getOriginalTitle());
-          }
-          // tagline
-          if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
-            md.setTagline(tmdbMd.getTagline());
-          }
-          // plot
-          if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
-            md.setPlot(tmdbMd.getPlot());
-          }
-          // thumb (if nothing has been found in imdb)
-          if (md.getMediaArt(THUMB).isEmpty() && !tmdbMd.getMediaArt(THUMB).isEmpty()) {
-            MediaArtwork thumb = tmdbMd.getMediaArt(THUMB).get(0);
-            md.addMediaArt(thumb);
+    if (isUseTmdbForTvShows()) {
+      Callable<MediaMetadata> worker2 = new TmdbTvShowEpisodeWorker(options);
+      futureTmdb = compSvcTmdb.submit(worker2);
+      if (futureTmdb != null) {
+        try {
+          MediaMetadata tmdbMd = futureTmdb.get();
+          if (tmdbMd != null) {
+            // provide all IDs
+            for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
+              md.setId(entry.getKey(), entry.getValue());
+            }
+            // title
+            if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
+              md.setTitle(tmdbMd.getTitle());
+            }
+            // original title
+            if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
+              md.setOriginalTitle(tmdbMd.getOriginalTitle());
+            }
+            // tagline
+            if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
+              md.setTagline(tmdbMd.getTagline());
+            }
+            // plot
+            if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
+              md.setPlot(tmdbMd.getPlot());
+            }
+            // thumb (if nothing has been found in imdb)
+            if (md.getMediaArt(THUMB).isEmpty() && !tmdbMd.getMediaArt(THUMB).isEmpty()) {
+              MediaArtwork thumb = tmdbMd.getMediaArt(THUMB).get(0);
+              md.addMediaArt(thumb);
+            }
           }
         }
-      }
-      catch (InterruptedException e) {
-        // do not swallow these Exceptions
-        Thread.currentThread().interrupt();
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not get cast page: {}", e.getMessage());
+        catch (InterruptedException e) {
+          // do not swallow these Exceptions
+          Thread.currentThread().interrupt();
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not get cast page: {}", e.getMessage());
+        }
       }
     }
-
     return md;
   }
 
@@ -508,7 +569,7 @@ public class ImdbTvShowParser extends ImdbParser {
   private boolean parseEpisodeList(int season, List<MediaMetadata> episodes, Document doc) {
     Pattern unknownPattern = Pattern.compile("Unknown");
     Pattern seasonEpisodePattern = Pattern.compile("S([0-9]*), Ep([0-9]*)");
-    int episodeCounter = 0;
+    int specialEpisodeCounter = 0;
 
     // parse episodes
     Elements tables = doc.getElementsByClass("eplist");
@@ -529,7 +590,7 @@ public class ImdbTvShowParser extends ImdbParser {
             // parse season and ep number
             if (season <= 0) {
               ep.setSeasonNumber(0);
-              ep.setEpisodeNumber(++episodeCounter);
+              ep.setEpisodeNumber(++specialEpisodeCounter);
             }
             else {
               ep.setSeasonNumber(Integer.parseInt(matcher.group(1)));
@@ -656,7 +717,7 @@ public class ImdbTvShowParser extends ImdbParser {
       for (Element child : titlereference.children()) {
         if ("div".equals(child.tagName()) && child.classNames().isEmpty()) {
           String plot = child.text();
-          if (StringUtils.isNotBlank(plot)) {
+          if (StringUtils.isBlank(md.getPlot()) && StringUtils.isNotBlank(plot)) {
             md.setPlot(plot);
             break;
           }

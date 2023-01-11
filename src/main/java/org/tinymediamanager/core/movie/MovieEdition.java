@@ -46,8 +46,16 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   public static final MovieEdition              UNRATED            = new MovieEdition("UNRATED", 4, "Unrated", ".Unrated.(Cut|Edition|Version)?");
   public static final MovieEdition              UNCUT              = new MovieEdition("UNCUT", 5, "Uncut", ".Uncut.(Cut|Edition|Version)?");
   public static final MovieEdition              IMAX               = new MovieEdition("IMAX", 6, "IMAX", "^(IMAX|.*?.IMAX).(Cut|Edition|Version)?");
+  public static final MovieEdition              REMASTERED         = new MovieEdition("REMASTERED", 7, "Remastered",
+      ".Remastered.(Cut|Edition|Version)?");
+  public static final MovieEdition              COLLECTORS_EDITION = new MovieEdition("COLLECTORS_EDITION", 8, "Collectors Edition",
+      ".Collectors.(Cut|Edition|Version)");
+  public static final MovieEdition              ULTIMATE_EDITION   = new MovieEdition("ULTIMATE_EDITION", 9, "Ultimate Edition",
+      ".Ultimate.(Cut|Edition|Version)");
+  public static final MovieEdition              FINAL_CUT          = new MovieEdition("FINAL_CUT", 9, "Final Edition",
+      ".Final.(Cut|Edition|Version)");
   public static final MovieEdition              SPECIAL_EDITION    = new MovieEdition("SPECIAL_EDITION", 7, "Special Edition",
-      ".(Special|Remastered|Collectors|Ultimate|Final).(Cut|Edition|Version)");
+      ".Special.(Cut|Edition|Version)");
 
   private final String                          title;
   private final Pattern                         pattern;
@@ -93,18 +101,30 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   /**
    * Parse the given string for an appropriate movie edition (via name & regexp)
    *
-   * @param stringToParse
+   * @param name
    *          the string to parse out the movie edition
    * @return the found edition
    */
-  public static MovieEdition getMovieEditionFromString(String stringToParse) {
-    for (MovieEdition edition : MovieEdition.values()) {
-      if (edition.name().equalsIgnoreCase(stringToParse)) {
+  public static MovieEdition getMovieEditionFromString(String name) {
+    // split checks for performance
+    for (MovieEdition edition : values()) {
+      // check if the "enum" name matches
+      if (edition.name().equals(name)) {
         return edition;
       }
+    }
 
+    // check if the printable name matches
+    for (MovieEdition edition : values()) {
+      if (edition.title.equalsIgnoreCase(name)) {
+        return edition;
+      }
+    }
+
+    // check if any regular expression matches
+    for (MovieEdition edition : values()) {
       if (edition.pattern != null) {
-        Matcher matcher = edition.pattern.matcher(stringToParse);
+        Matcher matcher = edition.pattern.matcher(name);
         if (matcher.find()) {
           return edition;
         }
@@ -127,34 +147,42 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
       return NONE;
     }
 
-    // split checks for performance
-    for (MovieEdition edition : values()) {
+    MovieEdition edition = getMovieEditionFromString(name);
+    if (edition == NONE) {
+      // dynamically create new one
+      edition = new MovieEdition(name, values().length, name, "");
+    }
+
+    return edition;
+  }
+
+  /**
+   * Gets the right movie edition for the given string - strict version. Only check the enum name()
+   *
+   * @param name
+   *          the name
+   * @return the movie edition
+   */
+  public static MovieEdition getMovieEditionStrict(String name) {
+    if (StringUtils.isBlank(name)) {
+      return NONE;
+    }
+
+    MovieEdition edition = NONE;
+
+    for (MovieEdition movieEdition : values()) {
       // check if the "enum" name matches
-      if (edition.name().equals(name)) {
-        return edition;
+      if (movieEdition.name().equals(name)) {
+        edition = movieEdition;
       }
     }
 
-    // check if the printable name matches
-    for (MovieEdition edition : values()) {
-      if (edition.title.equalsIgnoreCase(name)) {
-        return edition;
-      }
-
+    if (edition == NONE) {
+      // dynamically create new one
+      edition = new MovieEdition(name, values().length, name, "");
     }
 
-    // check if any regular expression matches
-    for (MovieEdition edition : values()) {
-      if (edition.pattern != null) {
-        Matcher matcher = edition.pattern.matcher(name);
-        if (matcher.find()) {
-          return edition;
-        }
-      }
-    }
-
-    // dynamically create new one
-    return new MovieEdition(name, values().length, name, "");
+    return edition;
   }
 
   /**

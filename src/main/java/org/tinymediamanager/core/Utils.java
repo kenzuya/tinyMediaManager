@@ -803,7 +803,7 @@ public class Utils {
       throw new NullPointerException("Destination must not be null");
     }
     if (!srcFile.toAbsolutePath().toString().equals(destFile.toAbsolutePath().toString())) {
-      LOGGER.debug("try to move file {} to {}", srcFile, destFile);
+      LOGGER.debug("try to move file '{}' to '{}'", srcFile, destFile);
       if (!Files.exists(srcFile)) {
         // allow moving of symlinks
         // https://github.com/tinyMediaManager/tinyMediaManager/issues/410
@@ -840,11 +840,11 @@ public class Utils {
             rename = true; // no exception
           }
           catch (IOException e) {
-            LOGGER.warn("rename problem (fallback): {}", e.getMessage()); // NOSONAR
+            LOGGER.warn("rename problem (fallback): '{}' - '{}'", e.getClass().getSimpleName(), e.getMessage()); // NOSONAR
           }
         }
         catch (IOException e) {
-          LOGGER.warn("rename problem: {}", e.getMessage()); // NOSONAR
+          LOGGER.warn("rename problem: '{}' - '{}'", e.getClass().getSimpleName(), e.getMessage()); // NOSONAR
         }
         if (rename) {
           break; // ok it worked, step out
@@ -861,12 +861,12 @@ public class Utils {
       }
 
       if (!rename) {
-        LOGGER.error("Failed to rename file {} to {}", srcFile, destFile);
+        LOGGER.error("Failed to rename file '{}' to '{}'", srcFile, destFile);
         MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
       else {
-        LOGGER.debug("Successfully moved file from {} to {}", srcFile, destFile);
+        LOGGER.debug("Successfully moved file from '{}' to '{}'", srcFile, destFile);
         return true;
       }
     }

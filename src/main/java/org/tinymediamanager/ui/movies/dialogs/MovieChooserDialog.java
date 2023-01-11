@@ -512,7 +512,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           List<MovieScraperMetadataConfig> scraperConfig = cbScraperConfig.getSelectedItems();
           boolean overwrite = !chckbxDoNotOverwrite.isSelected();
           movieToScrape.setMetadata(md, scraperConfig, overwrite);
-          movieToScrape.setLastScrapeLanguage(model.getMetadataProvider().getId());
+          movieToScrape.setLastScraperId(model.getMetadataProvider().getId());
           movieToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

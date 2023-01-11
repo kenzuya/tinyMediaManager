@@ -671,6 +671,22 @@ public class MovieSet extends MediaEntity {
   }
 
   @Override
+  public Date getReleaseDate() {
+    Date firstReleaseDate = null;
+
+    for (Movie movie : getMoviesForDisplay()) {
+      if (firstReleaseDate == null) {
+        firstReleaseDate = movie.getReleaseDate();
+      }
+      else if (movie.getReleaseDate() != null && firstReleaseDate.after(movie.getReleaseDate())) {
+        firstReleaseDate = movie.getReleaseDate();
+      }
+    }
+
+    return firstReleaseDate;
+  }
+
+  @Override
   public MediaRating getRating() {
     return MediaMetadata.EMPTY_RATING;
   }

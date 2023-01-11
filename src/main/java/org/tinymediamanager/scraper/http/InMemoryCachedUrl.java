@@ -90,9 +90,7 @@ public class InMemoryCachedUrl extends Url {
     responseCharset = cachedResponse.responseCharset;
     responseContentType = cachedResponse.responseContentType;
     responseContentLength = cachedResponse.responseContentLength;
-
     headersResponse = cachedResponse.headersResponse;
-    headersRequest.addAll(cachedResponse.headersRequest);
 
     return new GZIPInputStream(new ByteArrayInputStream(cachedResponse.content));
   }
@@ -117,7 +115,7 @@ public class InMemoryCachedUrl extends Url {
 
     public CachedRequest(String url, List<Pair<String, String>> headersRequest) {
       this.url = url;
-      this.headersRequest = headersRequest;
+      this.headersRequest = new ArrayList<>(headersRequest);
     }
 
     @Override

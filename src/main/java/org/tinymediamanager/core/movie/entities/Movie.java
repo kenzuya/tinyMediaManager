@@ -720,7 +720,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @JsonSetter
   public void setExtraThumbs(List<String> extraThumbs) {
-    ListUtils.mergeLists(this.extraThumbs, extraThumbs);
+    this.extraThumbs.clear();
+    this.extraThumbs.addAll(extraThumbs);
+    firePropertyChange("extraThumbs", null, this.extraThumbs);
   }
 
   /**
@@ -740,7 +742,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @JsonSetter
   public void setExtraFanarts(List<String> extraFanarts) {
-    ListUtils.mergeLists(this.extraFanarts, extraFanarts);
+    this.extraFanarts.clear();
+    this.extraFanarts.addAll(extraFanarts);
+    firePropertyChange("extraFanarts", null, this.extraFanarts);
   }
 
   /**
@@ -1082,7 +1086,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
 
       // if still no preferred trailer has been set, then mark the first one
-      if (preferredTrailer == null && this.trailer.isEmpty() && !trailer.getUrl().startsWith("file")) {
+      if (preferredTrailer == null && this.trailer.isEmpty() && trailer.getUrl().startsWith("http")) {
         trailer.setInNfo(Boolean.TRUE);
       }
 
@@ -1940,6 +1944,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return getRuntimeFromMediaFilesInSeconds() / 60;
   }
 
+  @Override
   public Date getReleaseDate() {
     return releaseDate;
   }

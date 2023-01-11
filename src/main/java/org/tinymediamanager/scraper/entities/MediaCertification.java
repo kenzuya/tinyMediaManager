@@ -37,6 +37,8 @@ public enum MediaCertification {
     US_PG13(CountryCode.US, "PG-13", new String[] { "PG-13", "Rated PG-13" }),
     US_R(CountryCode.US, "R", new String[] { "R", "Rated R" }),
     US_NC17(CountryCode.US, "NC-17", new String[] { "NC-17", "Rated NC-17" }),
+    US_PASSED(CountryCode.US, "Passed", new String[]{"Passed"}),
+    US_APPROVED(CountryCode.US, "Approved", new String[]{"Approved"}),
 
     US_TVY(CountryCode.US, "TV-Y", new String[] { "TV-Y" }),
     US_TVY7(CountryCode.US, "TV-Y7", new String[] { "TV-Y7" }),

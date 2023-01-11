@@ -1360,6 +1360,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     firePropertyChange(FIRST_AIRED_AS_STRING, oldValue, newValue);
   }
 
+  @Override
+  public Date getReleaseDate() {
+    return firstAired;
+  }
+
   /**
    * first aired date as yyyy-mm-dd<br>
    * https://xkcd.com/1179/ :P
@@ -1714,7 +1719,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
 
       // if still no preferred trailer has been set, then mark the first one
-      if (preferredTrailer == null && this.trailer.isEmpty() && !trailer.getUrl().startsWith("file")) {
+      if (preferredTrailer == null && this.trailer.isEmpty() && trailer.getUrl().startsWith("http")) {
         trailer.setInNfo(Boolean.TRUE);
       }
 

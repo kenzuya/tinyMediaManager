@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
 
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
+import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.panels.TrailerPanel;
@@ -78,5 +79,25 @@ public class MovieTrailerPanel extends TrailerPanel {
   @Override
   protected void downloadTrailer(MediaTrailer trailer) {
     MovieHelpers.downloadTrailer(movieSelectionModel.getSelectedMovie(), trailer);
+  }
+
+  @Override
+  protected String refreshUrlFromId(MediaTrailer trailer) {
+    String url = trailer.getUrl();
+    if (!url.startsWith("http")) {
+      // we have an ID - lets check if it is a known one:
+      String id = trailer.getId();
+      if (!id.matches("vi\\d+")) { // IMDB
+        return "";
+      }
+
+      // IMD trailer ID
+      ImdbMovieTrailerProvider tp = new ImdbMovieTrailerProvider();
+      url = tp.getUrlForId(trailer);
+      if (url.isEmpty()) {
+        return "";
+      }
+    }
+    return url;
   }
 }

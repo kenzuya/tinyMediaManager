@@ -4,12 +4,15 @@ Version 4.3.8
 + added an option to specify update check interval/disable update check completely
 + (movie, TV show) added the ability to copy renamer token into the clipboard (CTRL C, right click)
 + upgraded libmediainfo to 22.12
-x adapt/fix IMDB scraper (check scraper settings!)
++ new implementation of the IMDB scraper (check scraper settings!)
++ added new IMDB trailer scraper (needs to be activated in the settings)
 x automatically close renamer preview if nothing needs to be renamed #1964
 x do not store filters if they are not active #1961
 x do not remove missing episodes with unset DVD S/E #1960
 x (movie) create new editions when importing NFO files #1959
 x (movie) reserve more space for the edition dropdown #1963
++ (movie) added some more editions per default #1987
++ (movie) enabled strict case comparison when creating new editions #1969
 x improve episode detection to find them also in optional [brackets]
 x (TV shows) fixed filtering for missing episode thumbs #1977
 x able to exchange movies with same name in case of MMD
@@ -20,6 +23,10 @@ x (AniDB) inform users when they are banned #1997
 x (movie, TV show) set playcount and lastplayed along with watched state in the NFO #1983
 x fixed deletion of filter presets when the warning has been disabled #2002
 x added season name renamer token to the examples #1968
+x provide release date as another date field for UI #1981
+x added "Passed" and "Approved" to US certifications #2001
+x fixed adding of new extrathumbs/extrafanarts #1996
+x Fanart.tv switch url back to original
 
 
 Version 4.3.7

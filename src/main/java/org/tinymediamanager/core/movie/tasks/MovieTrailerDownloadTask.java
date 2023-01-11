@@ -105,10 +105,6 @@ public class MovieTrailerDownloadTask extends TmmTask {
     LOGGER.info("downloading trailer for '{}'", movie.getTitle());
     for (MediaTrailer trailer : trailers) {
       String url = trailer.getUrl();
-      if (!url.startsWith("http")) {
-        // no valid url?! continue
-        continue;
-      }
       try {
         LOGGER.debug("try to download trailer '{}'", url);
 
