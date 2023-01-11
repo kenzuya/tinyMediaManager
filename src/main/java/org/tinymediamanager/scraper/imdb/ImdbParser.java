@@ -893,7 +893,7 @@ public abstract class ImdbParser {
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
       String json = doc.getElementById("__NEXT_DATA__").data();
-      System.out.println(json);
+      // System.out.println(json);
       JsonNode node = mapper.readTree(json);
 
       // ***** REQ/RESP column *****
