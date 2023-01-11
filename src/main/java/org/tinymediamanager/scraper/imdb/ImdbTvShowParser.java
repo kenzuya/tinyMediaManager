@@ -738,7 +738,7 @@ public class ImdbTvShowParser extends ImdbParser {
           }
         }
       }
-      processMediaArt(md, MediaArtwork.MediaArtworkType.POSTER, posterUrl);
+      processMediaArt(md, THUMB, posterUrl);
     }
 
     // rating and rating count
