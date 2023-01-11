@@ -287,7 +287,7 @@ public class ImdbTvShowParser extends ImdbParser {
     // first get the base episode metadata which can be gathered via getEpisodeList()
     // only if we get a S/E number
     MediaMetadata wantedEpisode = null;
-    if (seasonNr >= 0 && episodeNr > 0) {
+    if (episodeId.isEmpty() && seasonNr >= 0 && episodeNr > 0) {
       if (!MediaIdUtil.isValidImdbId(showId)) {
         LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
         throw new MissingIdException(MediaMetadata.IMDB);
@@ -350,19 +350,6 @@ public class ImdbTvShowParser extends ImdbParser {
       try {
         doc = futureDetail.get();
         parseDetailPageJson(doc, options, md);
-
-        // merge-in missing from other page
-        worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-            options.getCertificationCountry().getAlpha2(), true);
-        Future<Document> futureReference = executor.submit(worker);
-        doc = futureReference.get();
-        if (doc != null) {
-          MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
-          parseReferencePage(doc, options, md2);
-          md.setTagline(md2.getTagline());
-          md.setCastMembers(md2.getCastMembers()); // overwrite all
-          md.setTop250(md2.getTop250());
-        }
 
         // return immediately when we do not want TMDB, and JSON parsing was ok
         if (!isUseTmdbForTvShows()) {
@@ -873,11 +860,17 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     // just get the MediaMetadata via normal scrape and pick the poster from the result
-    TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = new TvShowSearchAndScrapeOptions();
-    tvShowSearchAndScrapeOptions.setDataFromOtherOptions(options);
+    MediaSearchAndScrapeOptions op = null;
+    if (options.getMediaType() == MediaType.TV_EPISODE) {
+      op = new TvShowEpisodeSearchAndScrapeOptions();
+    }
+    else {
+      op = new TvShowSearchAndScrapeOptions();
+    }
+    op.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
+      List<MediaArtwork> artworks = getMetadata(op).getMediaArt(options.getArtworkType());
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
