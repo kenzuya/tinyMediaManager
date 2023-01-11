@@ -69,6 +69,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbCertificate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
+import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeNumber;
 import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
@@ -892,6 +893,7 @@ public abstract class ImdbParser {
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
       String json = doc.getElementById("__NEXT_DATA__").data();
+      System.out.println(json);
       JsonNode node = mapper.readTree(json);
 
       // ***** REQ/RESP column *****
@@ -997,6 +999,13 @@ public abstract class ImdbParser {
 
       // JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
       // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
+
+      JsonNode epNode = node.at("/props/pageProps/aboveTheFoldData/series/episodeNumber");
+      ImdbEpisodeNumber ep = ImdbJsonHelper.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
+      if (ep != null) {
+        md.setEpisodeNumber(ep.episodeNumber);
+        md.setSeasonNumber(ep.seasonNumber);
+      }
 
       // ***** MAIN column *****
       JsonNode titleMainImages = node.at("/props/pageProps/mainColumnData/titleMainImages/edges");
