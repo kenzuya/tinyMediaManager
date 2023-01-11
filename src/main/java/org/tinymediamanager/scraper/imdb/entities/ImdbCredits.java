@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ImdbCredits {
 
   public ImdbIdTextType       category             = null;
-  public List<ImdbCrew>       credits              = new ArrayList<ImdbCrew>();
+  public List<ImdbCrew>       credits              = new ArrayList<>();
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

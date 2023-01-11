@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ImdbPlaintext {
   public String               plainText            = "";
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

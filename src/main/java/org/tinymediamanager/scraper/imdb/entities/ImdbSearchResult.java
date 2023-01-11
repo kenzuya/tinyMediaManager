@@ -19,7 +19,7 @@ public class ImdbSearchResult {
   public String                 titleReleaseText      = "";
   public String                 titleTypeText         = "";
   public ImdbSearchResultImages titlePosterImageModel = null;
-  public List<String>           topCredits            = new ArrayList<String>();
+  public List<String>           topCredits            = new ArrayList<>();
   public String                 imageType             = "";
   public String                 seriesId              = "";
   public String                 seriesNameText        = "";
@@ -28,7 +28,7 @@ public class ImdbSearchResult {
   public String                 seriesSeasonText      = "";
   public String                 seriesEpisodeText     = "";
   @JsonIgnore
-  public Map<String, Object>    additionalProperties  = new HashMap<String, Object>();
+  public Map<String, Object>    additionalProperties  = new HashMap<>();
 
   /**
    * maps internal groups to our mediaTypes - if it must be parsed as movie or thshow with episodes

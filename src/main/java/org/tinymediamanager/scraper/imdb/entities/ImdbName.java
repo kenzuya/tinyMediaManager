@@ -14,7 +14,7 @@ public class ImdbName {
   public ImdbNameText         nameText             = null;
   public ImdbImage            primaryImage         = null;
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

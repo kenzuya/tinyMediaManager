@@ -2,6 +2,7 @@ package org.tinymediamanager.scraper.imdb.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -11,16 +12,16 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ImdbVideo {
-  public String                     id                   = "";
-  public boolean                    isMature             = false;
-  public String                     creeatedDate         = "";
-  public ImdbImage                  thumbnail            = null;
-  public ImdbLocalizedString        description          = null;
-  public ImdbLocalizedString        name                 = null;
-  public ArrayList<ImdbPlaybackUrl> playbackURLs         = new ArrayList<ImdbPlaybackUrl>();
+  public String                id                   = "";
+  public boolean               isMature             = false;
+  public String                creeatedDate         = "";
+  public ImdbImage             thumbnail            = null;
+  public ImdbLocalizedString   description          = null;
+  public ImdbLocalizedString   name                 = null;
+  public List<ImdbPlaybackUrl> playbackURLs         = new ArrayList<>();
 
   @JsonIgnore
-  private Map<String, Object>       additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object>  additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

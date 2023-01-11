@@ -14,18 +14,21 @@ public class ImdbCrew {
 
   public ImdbName             name                 = null;
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   public Person toTmm(Person.Type type) {
-    if (name == null && name.nameText == null && name.nameText.text.isEmpty()) {
+    if (name == null || name.nameText == null || name.nameText.text.isEmpty()) {
       return null;
     }
+
     Person p = new Person(type);
     p.setId("imdb", name.id);
     p.setName(name.nameText.text);
+
     if (name.primaryImage != null) {
       p.setThumbUrl(name.primaryImage.url);
     }
+
     p.setProfileUrl("https://www.imdb.com/name/" + name.id);
     return p;
   }

@@ -76,7 +76,6 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
-import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
@@ -127,7 +126,7 @@ public abstract class ImdbParser {
   protected final MediaType           type;
   protected final MediaProviderConfig config;
   protected final ExecutorService     executor;
-  private ObjectMapper                mapper                   = new ObjectMapper();;
+  private ObjectMapper                mapper                   = new ObjectMapper();
 
   protected ImdbParser(IMediaProvider mediaProvider, MediaType type, ExecutorService executor) {
     this.metadataProvider = mediaProvider;
@@ -488,13 +487,13 @@ public abstract class ImdbParser {
             }
           }
         }
-        if (results.size() > 0) {
+        if (!results.isEmpty()) {
           return results; // we found something
         }
       }
     }
     catch (Exception e) {
-      getLogger().warn("Error parsing JSON:", e.getMessage());
+      getLogger().warn("Error parsing JSON - '{}'", e.getMessage());
     }
 
     // no JSON or error - also check if we have been redirected to detail page
@@ -588,7 +587,7 @@ public abstract class ImdbParser {
         sr.setYear(MetadataUtil.parseInt(year, 0));
       }
       else {
-        if (year.matches("\\d{4}[-]?.*")) {
+        if (year.matches("\\d{4}-?.*")) {
           sr.setYear(MetadataUtil.parseInt(year.substring(0, 4), 0));
         }
       }
@@ -1006,8 +1005,8 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
-      ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
+      // JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
+      // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
 
       // ***** MAIN column *****
       JsonNode directorsNode = node.at("/props/pageProps/mainColumnData/directors");
@@ -1062,7 +1061,7 @@ public abstract class ImdbParser {
     catch (
 
     Exception e) {
-      getLogger().warn("Error parsing JSON: {}", e);
+      getLogger().warn("Error parsing JSON: '{}'", e.getMessage());
       throw e;
     }
   }

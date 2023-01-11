@@ -14,7 +14,7 @@ public class ImdbPlaybackUrl {
   public String               mimeType             = "";
   public String               url                  = "";
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

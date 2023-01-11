@@ -13,7 +13,7 @@ public class ImdbIdTextType {
   public String               id                   = "";
   public String               text                 = "";
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

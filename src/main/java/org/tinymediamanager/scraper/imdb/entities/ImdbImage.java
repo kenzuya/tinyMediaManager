@@ -16,7 +16,7 @@ public class ImdbImage {
   public Integer              height               = 0;
   public Integer              width                = 0;
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

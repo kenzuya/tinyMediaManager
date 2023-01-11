@@ -140,7 +140,7 @@ public class ImdbMovieParser extends ImdbParser {
       json = true;
     }
     catch (Exception e1) {
-      LOGGER.warn("Could not get detailpage for id {}", imdbId, e1.getMessage());
+      LOGGER.warn("Could not get detailpage for id '{}' - '{}'", imdbId, e1.getMessage());
     }
 
     // fallback old style, when json parsing was not ok

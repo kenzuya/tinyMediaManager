@@ -2,6 +2,7 @@ package org.tinymediamanager.scraper.imdb.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -14,23 +15,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ImdbCast {
 
-  public ImdbName                 name                 = null;
-  public ArrayList<ImdbCharacter> characters           = new ArrayList<>();
+  public ImdbName             name                 = null;
+  public List<ImdbCharacter>  characters           = new ArrayList<>();
   @JsonIgnore
-  private Map<String, Object>     additionalProperties = new HashMap<String, Object>();
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
   public Person toTmm(Person.Type type) {
-    if (name == null && name.nameText == null && name.nameText.text.isEmpty()) {
+    if (name == null || name.nameText == null || name.nameText.text.isEmpty()) {
       return null;
     }
+
     Person p = new Person(type);
     p.setId("imdb", name.id);
     p.setName(name.nameText.text);
-    String chars = characters.stream().map(characters -> characters.name).collect(Collectors.joining(" / "));
+    String chars = characters.stream().map(character -> character.name).collect(Collectors.joining(" / "));
     p.setRole(chars);
+
     if (name.primaryImage != null) {
       p.setThumbUrl(name.primaryImage.url);
     }
+
     p.setProfileUrl("https://www.imdb.com/name/" + name.id);
     return p;
   }
