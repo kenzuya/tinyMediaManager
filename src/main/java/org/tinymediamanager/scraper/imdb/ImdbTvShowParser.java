@@ -877,7 +877,7 @@ public class ImdbTvShowParser extends ImdbParser {
     tvShowSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+      List<MediaArtwork> artworks = getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {

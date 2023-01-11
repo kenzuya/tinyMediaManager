@@ -972,19 +972,6 @@ public abstract class ImdbParser {
         poster.addImageSize(img.width, img.height, img.url);
         md.addMediaArt(poster);
       }
-      JsonNode titleMainImages = node.at("/props/pageProps/aboveTheFoldData/titleMainImages/edges");
-      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
-        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
-        // only parse landscape ones as fanarts
-        if (i.width > i.height) {
-          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
-          poster.setOriginalUrl(i.url);
-          poster.setPreviewUrl(i.url); // well, yes
-          poster.setImdbId(i.id);
-          poster.addImageSize(i.width, i.height, i.url);
-          md.addMediaArt(poster);
-        }
-      }
 
       // primaryVideos for all trailers
       JsonNode primaryTrailers = node.at("/props/pageProps/aboveTheFoldData/primaryVideos/edges");
@@ -1009,6 +996,20 @@ public abstract class ImdbParser {
       // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
 
       // ***** MAIN column *****
+      JsonNode titleMainImages = node.at("/props/pageProps/mainColumnData/titleMainImages/edges");
+      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
+        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
+        // only parse landscape ones as fanarts
+        if (i.width > i.height) {
+          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          poster.setOriginalUrl(i.url);
+          poster.setPreviewUrl(i.url); // well, yes
+          poster.setImdbId(i.id);
+          poster.addImageSize(i.width, i.height, i.url);
+          md.addMediaArt(poster);
+        }
+      }
+
       JsonNode directorsNode = node.at("/props/pageProps/mainColumnData/directors");
       for (ImdbCredits directors : ImdbJsonHelper.parseList(mapper, directorsNode, ImdbCredits.class)) {
         for (ImdbCrew crew : directors.credits) {
