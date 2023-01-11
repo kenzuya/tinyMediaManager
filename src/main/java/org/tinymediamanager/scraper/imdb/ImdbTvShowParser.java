@@ -283,6 +283,9 @@ public class ImdbTvShowParser extends ImdbParser {
     if ((seasonNr == -1 || episodeNr == -1) && StringUtils.isBlank(episodeId)) {
       throw new MissingIdException(MediaMetadata.EPISODE_NR, MediaMetadata.SEASON_NR);
     }
+    // we want this, we should set this (in case of json error)
+    md.setEpisodeNumber(episodeNr);
+    md.setSeasonNumber(seasonNr);
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
     // only if we get a S/E number
