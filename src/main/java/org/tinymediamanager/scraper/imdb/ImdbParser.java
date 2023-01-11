@@ -966,6 +966,9 @@ public abstract class ImdbParser {
       if (!primaryImage.isMissingNode()) {
         ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        if (options.getMediaType() == MediaType.TV_EPISODE) {
+          poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        }
         poster.setOriginalUrl(img.url);
         poster.setPreviewUrl(img.url); // well, yes
         poster.setImdbId(img.id);
