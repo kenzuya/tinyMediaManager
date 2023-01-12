@@ -361,6 +361,10 @@ public class ImdbTvShowParser extends ImdbParser {
           options.getCertificationCountry().getAlpha2(), true);
       Future<Document> futureDetail = executor.submit(worker);
 
+      worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      Future<Document> futureReference = executor.submit(worker);
+
       Future<Document> futureKeywords = null;
       if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
         worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
@@ -381,6 +385,14 @@ public class ImdbTvShowParser extends ImdbParser {
         // detail page worked, mix-in missing
         try {
           MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+          doc = futureReference.get();
+          if (doc != null) {
+            parseReferencePage(doc, options, md2);
+            md.setTagline(md2.getTagline());
+            md.setCastMembers(md2.getCastMembers()); // overwrite all
+            md.setTop250(md2.getTop250());
+          }
+
           if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
             if (futureKeywords != null) {
               doc = futureKeywords.get();
@@ -396,17 +408,6 @@ public class ImdbTvShowParser extends ImdbParser {
         }
       }
       else {
-        // fallback old style, when json parsing was not ok
-        worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
-            options.getCertificationCountry().getAlpha2(), true);
-        Future<Document> futureReference = executor.submit(worker);
-
-        if (isScrapeKeywordsPage()) {
-          worker = new ImdbWorker(constructUrl("title/", episodeId, "/keywords"), options.getLanguage().getLanguage(),
-              options.getCertificationCountry().getAlpha2(), true);
-          futureKeywords = executor.submit(worker);
-        }
-
         try {
           if (futureReference != null) {
             Document docReference = futureReference.get();
@@ -675,13 +676,14 @@ public class ImdbTvShowParser extends ImdbParser {
             Element image = row.getElementsByTag("img").first();
             if (image != null) {
               String posterUrl = image.attr("src");
+              String thumb = posterUrl; // unmodified, small
               posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
               posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
               posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
 
               if (StringUtils.isNotBlank(posterUrl)) {
                 MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
-                ma.setPreviewUrl(posterUrl);
+                ma.setPreviewUrl(thumb);
                 ma.setDefaultUrl(posterUrl);
                 ma.setOriginalUrl(posterUrl);
                 ep.addMediaArt(ma);
@@ -883,17 +885,16 @@ public class ImdbTvShowParser extends ImdbParser {
       imdbId = MediaIdUtil.getTvShowImdbIdViaTmdbId(options.getTmdbId());
     }
 
-    if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      LOGGER.warn("not possible to scrape from IMDB - imdbId missing");
-      throw new MissingIdException(MediaMetadata.IMDB);
-    }
-
     // just get the MediaMetadata via normal scrape and pick the poster from the result
     try {
       List<MediaArtwork> artworks = Collections.emptyList();
       if (options.getMediaType() == MediaType.TV_EPISODE) {
         TvShowEpisodeSearchAndScrapeOptions op = new TvShowEpisodeSearchAndScrapeOptions();
         op.setDataFromOtherOptions(options);
+        if (options.getIds().get(MediaMetadata.TVSHOW_IDS) instanceof Map) {
+          Map<String, Object> tvShowIds = (Map<String, Object>) options.getIds().get(MediaMetadata.TVSHOW_IDS);
+          op.setTvShowIds(tvShowIds);
+        }
         artworks = getMetadata(op).getMediaArt(options.getArtworkType());
       }
       else {

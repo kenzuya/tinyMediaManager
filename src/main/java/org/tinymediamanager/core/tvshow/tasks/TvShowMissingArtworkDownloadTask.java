@@ -101,6 +101,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         break;
       }
       if (TvShowArtworkHelper.hasMissingArtwork(episode, episodeScraperMetadataConfig)) {
+        scrapeOptions.setIds(episode.getIds());
         submitTask(new TvShowEpisodeWorker(episode, scrapeOptions));
       }
     }
