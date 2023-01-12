@@ -274,7 +274,7 @@ public abstract class ImdbParser {
   protected int getMaxKeywordCount() {
     Integer value = config.getValueAsInteger(MAX_KEYWORD_COUNT);
     if (value == null) {
-      return Integer.MAX_VALUE;
+      return 5; // as in scraper settings
     }
     return value;
   }

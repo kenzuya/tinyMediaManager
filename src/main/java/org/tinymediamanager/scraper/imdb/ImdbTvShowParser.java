@@ -128,45 +128,61 @@ public class ImdbTvShowParser extends ImdbParser {
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
+    // default workers which always run
     Document doc = null;
-    // worker for detail page
     boolean json = false;
     Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId), options.getLanguage().getLanguage(),
         options.getCertificationCountry().getAlpha2(), true);
     Future<Document> futureDetail = executor.submit(worker);
+
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2(), true);
+    Future<Document> futureReference = executor.submit(worker);
+
+    Future<Document> futureKeywords = null;
+    if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futureKeywords = executor.submit(worker);
+    }
+
     try {
       doc = futureDetail.get();
       parseDetailPageJson(doc, options, md);
-
-      // merge-in missing from other page
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-          options.getCertificationCountry().getAlpha2(), true);
-      Future<Document> futureReference = executor.submit(worker);
-      doc = futureReference.get();
-      if (doc != null) {
-        MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
-        parseReferencePage(doc, options, md2);
-        md.setTagline(md2.getTagline());
-        md.setCastMembers(md2.getCastMembers()); // overwrite all
-        md.setTop250(md2.getTop250());
-      }
-
-      // return immediately when we do not want TMDB, and JSON parsing was ok
-      if (!isUseTmdbForTvShows()) {
-        return md;
-      }
       json = true;
     }
-    catch (Exception e1) {
-      LOGGER.warn("Could not get detailpage for id '{}' - '{}'", imdbId, e1.getMessage());
+    catch (Exception e) {
+      LOGGER.warn("Could not get detailpage for id '{}' - '{}'", imdbId, e.getMessage());
     }
 
-    // fallback old style, when json parsing was not ok
     if (json) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-          options.getCertificationCountry().getAlpha2(), true);
-      Future<Document> futureReference = executor.submit(worker);
+      // detail page worked, mix-in missing
+      try {
+        MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+        doc = futureReference.get();
+        if (doc != null) {
+          parseReferencePage(doc, options, md2);
+          md.setTagline(md2.getTagline());
+          md.setCastMembers(md2.getCastMembers()); // overwrite all
+          md.setTop250(md2.getTop250());
+        }
 
+        if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
+          if (futureKeywords != null) {
+            doc = futureKeywords.get();
+            if (doc != null) {
+              parseKeywordsPage(doc, options, md2);
+              md.setTags(md2.getTags());// overwrite all
+            }
+          }
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not parse page: {}", e.getMessage());
+      }
+    }
+    else {
+      // fallback old style, when json parsing was not ok
       Future<Document> futurePlotsummary;
       worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2(), true);
@@ -176,13 +192,6 @@ public class ImdbTvShowParser extends ImdbParser {
       worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2(), true);
       futureReleaseinfo = executor.submit(worker);
-
-      Future<Document> futureKeywords = null;
-      if (isScrapeKeywordsPage()) {
-        worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
-            options.getCertificationCountry().getAlpha2(), true);
-        futureKeywords = executor.submit(worker);
-      }
 
       try {
         doc = futureReference.get();
@@ -345,39 +354,57 @@ public class ImdbTvShowParser extends ImdbParser {
     if (MediaIdUtil.isValidImdbId(episodeId)) {
       md.setId(ImdbMetadataProvider.ID, episodeId);
 
+      // default workers which always run
+      Document doc = null;
       boolean json = false;
       Callable<Document> worker = new ImdbWorker(constructUrl("title/", episodeId), options.getLanguage().getLanguage(),
           options.getCertificationCountry().getAlpha2(), true);
       Future<Document> futureDetail = executor.submit(worker);
-      Document doc = null;
+
+      Future<Document> futureKeywords = null;
+      if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
+        worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
+        futureKeywords = executor.submit(worker);
+      }
+
       try {
         doc = futureDetail.get();
         parseDetailPageJson(doc, options, md);
-
-        // return immediately when we do not want TMDB, and JSON parsing was ok
-        if (!isUseTmdbForTvShows()) {
-          return md;
-        }
         json = true;
       }
       catch (Exception e1) {
         LOGGER.warn("Could not get detailpage for id '{}' - '{}'", episodeId, e1.getMessage());
       }
 
-      // fallback old style
-      if (!json) {
-        ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
-
+      if (json) {
+        // detail page worked, mix-in missing
+        try {
+          MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+          if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
+            if (futureKeywords != null) {
+              doc = futureKeywords.get();
+              if (doc != null) {
+                parseKeywordsPage(doc, options, md2);
+                md.setTags(md2.getTags());// overwrite all
+              }
+            }
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse page: {}", e.getMessage());
+        }
+      }
+      else {
+        // fallback old style, when json parsing was not ok
         worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
             options.getCertificationCountry().getAlpha2(), true);
-        Future<Document> futureReference = compSvcImdb.submit(worker);
+        Future<Document> futureReference = executor.submit(worker);
 
-        // worker for imdb keywords (/keywords)
-        Future<Document> futureKeywords = null;
         if (isScrapeKeywordsPage()) {
           worker = new ImdbWorker(constructUrl("title/", episodeId, "/keywords"), options.getLanguage().getLanguage(),
               options.getCertificationCountry().getAlpha2(), true);
-          futureKeywords = compSvcImdb.submit(worker);
+          futureKeywords = executor.submit(worker);
         }
 
         try {
@@ -394,7 +421,6 @@ public class ImdbTvShowParser extends ImdbParser {
               parseKeywordsPage(docKeywords, options, md);
             }
           }
-
         }
         catch (Exception e) {
           LOGGER.trace("problem parsing: {}", e.getMessage());
@@ -475,7 +501,7 @@ public class ImdbTvShowParser extends ImdbParser {
     Url url;
     try {
       // cache this on disk because that may be called multiple times
-      url = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"), 300, TimeUnit.SECONDS);
+      url = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"), 1, TimeUnit.DAYS);
       url.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
     }
     catch (Exception e) {
@@ -858,22 +884,23 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      LOGGER.warn("not possible to scrape from IMDB - imdbId found");
+      LOGGER.warn("not possible to scrape from IMDB - imdbId missing");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
 
     // just get the MediaMetadata via normal scrape and pick the poster from the result
-    MediaSearchAndScrapeOptions op = null;
-    if (options.getMediaType() == MediaType.TV_EPISODE) {
-      op = new TvShowEpisodeSearchAndScrapeOptions();
-    }
-    else {
-      op = new TvShowSearchAndScrapeOptions();
-    }
-    op.setDataFromOtherOptions(options);
-
     try {
-      List<MediaArtwork> artworks = getMetadata(op).getMediaArt(options.getArtworkType());
+      List<MediaArtwork> artworks = Collections.emptyList();
+      if (options.getMediaType() == MediaType.TV_EPISODE) {
+        TvShowEpisodeSearchAndScrapeOptions op = new TvShowEpisodeSearchAndScrapeOptions();
+        op.setDataFromOtherOptions(options);
+        artworks = getMetadata(op).getMediaArt(options.getArtworkType());
+      }
+      else {
+        TvShowSearchAndScrapeOptions op = new TvShowSearchAndScrapeOptions();
+        op.setDataFromOtherOptions(options);
+        artworks = getMetadata(op).getMediaArt(options.getArtworkType());
+      }
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
