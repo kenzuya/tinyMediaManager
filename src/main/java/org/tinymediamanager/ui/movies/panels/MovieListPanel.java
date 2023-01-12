@@ -26,7 +26,10 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Locale;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -97,6 +100,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private JLabel            lblMovieCountTotal;
   private SplitButton       btnExtendedFilter;
   private JLabel            lblSelectedCount;
+
+  private JPopupMenu        popupMenu;
 
   public MovieListPanel() {
     initComponents();
@@ -367,6 +372,20 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
         // not needed
       }
     });
+
+    InputMap inputMap = movieTable.getInputMap(WHEN_FOCUSED);
+    ActionMap actionMap = movieTable.getActionMap();
+
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_CONTEXT_MENU, 0), "popup");
+    actionMap.put("popup", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (popupMenu != null) {
+          Rectangle rect = movieTable.getCellRect(movieTable.getSelectedRow(), 0, false);
+          popupMenu.show(movieTable, rect.x + rect.width / 2, rect.y + rect.height / 2);
+        }
+      }
+    });
   }
 
   public MovieSelectionModel getSelectionModel() {
@@ -380,6 +399,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   @Override
   public void setPopupMenu(JPopupMenu popupMenu) {
+    this.popupMenu = popupMenu;
+
     movieTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
