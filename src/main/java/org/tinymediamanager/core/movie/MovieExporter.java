@@ -54,6 +54,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * This class exports a list of movies to various formats according to templates.
@@ -97,6 +98,7 @@ public class MovieExporter extends MediaEntityExporter {
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
     // prepare export destination
     if (!Files.exists(exportDir)) {
