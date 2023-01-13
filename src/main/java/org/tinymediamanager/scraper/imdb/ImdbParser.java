@@ -58,6 +58,7 @@ import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaArtwork.ImageSizeAndUrl;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -1910,15 +1911,30 @@ public abstract class ImdbParser {
     }
 
     if (width > 0 && height > 0) {
-      String image = artwork.getDefaultUrl();
-      String extension = FilenameUtils.getExtension(image);
-      // https://stackoverflow.com/a/73501833
-      String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
-
-      artwork.setDefaultUrl(defaultUrl);
-
-      artwork.setSizeOrder(options.getPosterSize().getOrder());
-      artwork.addImageSize(width, height, defaultUrl);
+      // get highest artwork size (from scraper)
+      ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
+      if (originalSize != null) {
+        if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
+          // only downscale
+          String image = artwork.getDefaultUrl();
+          String extension = FilenameUtils.getExtension(image);
+          // https://stackoverflow.com/a/73501833
+          String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+          artwork.setDefaultUrl(defaultUrl);
+          artwork.setSizeOrder(options.getPosterSize().getOrder());
+          artwork.addImageSize(width, height, defaultUrl);
+        }
+      }
+      else {
+        // no size provided by scraper, just scale it
+        String image = artwork.getDefaultUrl();
+        String extension = FilenameUtils.getExtension(image);
+        // https://stackoverflow.com/a/73501833
+        String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+        artwork.setDefaultUrl(defaultUrl);
+        artwork.setSizeOrder(options.getPosterSize().getOrder());
+        artwork.addImageSize(width, height, defaultUrl);
+      }
     }
   }
 

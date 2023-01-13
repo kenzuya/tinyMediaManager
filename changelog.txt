@@ -29,6 +29,7 @@ x provide release date as another date field for UI #1981
 x added "Passed" and "Approved" to US certifications #2001
 x fixed adding of new extrathumbs/extrafanarts #1996
 x Fanart.tv switch url back to original
+x IMDB: artworks should only be downscaled, but never upscaled - #1988
 
 
 Version 4.3.7
