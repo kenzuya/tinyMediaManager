@@ -49,10 +49,10 @@ public class ParserUtils {
       "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8",
       "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7",
       "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264", "h265", "hd", "hddvd", "hdrip",
-      "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ld", "md", "microhd", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm",
-      "pal", "pdtv", "pso", "r3", "r5", "repack", "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd", "swedish",
-      "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264",
-      "x265", "xf", "xvid", "xvidvd", "8bit", "10bit", "12bit" };
+      "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc",
+      "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "repack", "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd",
+      "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint",
+      "ws", "x264", "x265", "xf", "xvid", "xvidvd", "8bit", "10bit", "12bit" };
 
   // soft stopwords are well known words which _may_ occur before the year token and will be cleaned conditionally
   protected static final String[] SOFT_STOPWORDS  = { "complete", "custom", "dc", "docu", "doku", "extended", "fragment", "internal", "limited",
@@ -102,6 +102,18 @@ public class ParserUtils {
 
     LOGGER.trace("--------------------");
     LOGGER.trace("IN: {} ", fname);
+
+    // try the badwords on the whole term (to apply regular expressions which apply on the whole term)
+    String savedFname = fname;
+    for (String badword : badWords) {
+      fname = fname.toLowerCase(Locale.ROOT).replaceAll(badword, "");
+    }
+
+    // do not clean the whole term!
+    if (StringUtils.isBlank(fname)) {
+      // revert using badwords
+      fname = savedFname;
+    }
 
     // Get [optionals] delimited
     List<String> opt = new ArrayList<>();

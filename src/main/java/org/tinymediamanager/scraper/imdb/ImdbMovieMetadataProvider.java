@@ -76,7 +76,7 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
     providerInfo.getConfig().addBoolean(SCRAPE_UNCREDITED_ACTORS, true);
     providerInfo.getConfig().addBoolean(SCRAPE_LANGUAGE_NAMES, true);
     providerInfo.getConfig().addBoolean(SCRAPE_KEYWORDS_PAGE, false);
-    providerInfo.getConfig().addInteger(MAX_KEYWORD_COUNT, 10);
+    providerInfo.getConfig().addInteger(MAX_KEYWORD_COUNT, 5); // 5 on detail page, more on KW page
 
     providerInfo.getConfig().load();
 

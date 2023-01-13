@@ -43,17 +43,13 @@ public class ImdbTvShowArtworkProvider extends ImdbMetadataProvider implements I
       throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    if (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.POSTER) {
-      switch (options.getMediaType()) {
-        case MOVIE:
-          return (new ImdbMovieParser(this, EXECUTOR)).getMovieArtwork(options);
+    switch (options.getMediaType()) {
+      case TV_EPISODE:
+      case TV_SHOW:
+        return (new ImdbTvShowParser(this, EXECUTOR)).getTvShowArtwork(options);
 
-        case TV_SHOW:
-          return (new ImdbTvShowParser(this, EXECUTOR)).getTvShowArtwork(options);
-
-        default:
-          break;
-      }
+      default:
+        break;
     }
     return Collections.emptyList();
   }

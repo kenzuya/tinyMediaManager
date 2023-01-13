@@ -56,6 +56,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * The class TvShowExporter. To export TV shows via templates
@@ -99,6 +100,7 @@ public class TvShowExporter extends MediaEntityExporter {
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
     // prepare export destination
     if (!Files.exists(exportDir)) {

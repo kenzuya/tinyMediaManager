@@ -221,12 +221,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       tfTitle.setText(episodeToEdit.getTitle());
       tfOriginalTitle.setText(episodeToEdit.getOriginalTitle());
       cbDvdOrder.setSelected(episodeToEdit.isDvdOrder());
-      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, Integer.MAX_VALUE, 1));
-      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, Integer.MAX_VALUE, 1));
-      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, Integer.MAX_VALUE, 1));
-      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, Integer.MAX_VALUE, 1));
-      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, Integer.MAX_VALUE, 1));
-      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, Integer.MAX_VALUE, 1));
+      spSeason.setModel(new SpinnerNumberModel(episodeToEdit.getAiredSeason(), -1, 99999999, 1));
+      spEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getAiredEpisode(), -1, 99999999, 1));
+      spDvdSeason.setModel(new SpinnerNumberModel(episodeToEdit.getDvdSeason(), -1, 99999999, 1));
+      spDvdEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDvdEpisode(), -1, 99999999, 1));
+      spDisplaySeason.setModel(new SpinnerNumberModel(episodeToEdit.getDisplaySeason(), -1, 99999999, 1));
+      spDisplayEpisode.setModel(new SpinnerNumberModel(episodeToEdit.getDisplayEpisode(), -1, 99999999, 1));
       spDateAdded.setValue(episodeToEdit.getDateAdded());
       spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 0.1));
 
@@ -265,7 +265,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     {
       JPanel detailsPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), detailsPanel);
-      detailsPanel.setLayout(new MigLayout("", "[][20lp:75lp,grow][50lp:75lp][][60lp:75lp][50lp:75lp][20lp:n][][25lp:n][200lp:250lp,grow]",
+      detailsPanel.setLayout(new MigLayout("", "[][20lp:50lp,grow][50lp:50lp][][20lp:50lp,grow][75lp:100lp][][][25lp:n][200lp:250lp,grow]",
           "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][50lp:50lp:100lp,grow 50][]"));
 
       {

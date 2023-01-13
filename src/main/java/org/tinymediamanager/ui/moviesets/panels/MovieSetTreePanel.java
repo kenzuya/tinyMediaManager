@@ -18,8 +18,11 @@ package org.tinymediamanager.ui.moviesets.panels;
 
 import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -27,9 +30,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.InputMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -40,8 +46,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -96,6 +104,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private JLabel                       lblMovieSetCountTotal;
   private SplitButton                  btnFilter;
   private JLabel                       lblSelectedMovieCount;
+
+  private JPopupMenu                   popupMenu;
 
   public MovieSetTreePanel(MovieSetSelectionModel movieSetSelectionModel) {
     initComponents();
@@ -294,6 +304,60 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     };
     tree.addMouseListener(mouseListener);
 
+    // context menu by keyboard
+    InputMap inputMap = tree.getInputMap(WHEN_FOCUSED);
+    ActionMap actionMap = tree.getActionMap();
+
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_CONTEXT_MENU, 0), "popup");
+    actionMap.put("popup", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (popupMenu != null) {
+          Rectangle rect = tree.getCellRect(tree.getSelectedRow(), 0, false);
+          popupMenu.show(tree, rect.x + rect.width / 2, rect.y + rect.height / 2);
+        }
+      }
+    });
+
+    // add key listener
+    KeyListener keyListener = new KeyAdapter() {
+      private long   lastKeypress = 0;
+      private String searchTerm   = "";
+
+      @Override
+      public void keyTyped(KeyEvent e) {
+        long now = System.currentTimeMillis();
+        if (now - lastKeypress > 500) {
+          searchTerm = "";
+        }
+        lastKeypress = now;
+
+        if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+          searchTerm += e.getKeyChar();
+          searchTerm = searchTerm.toLowerCase();
+        }
+
+        if (StringUtils.isNotBlank(searchTerm)) {
+          TableModel model = tree.getModel();
+
+          for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0) instanceof MovieSetTreeDataProvider.MovieSetTreeNode) {
+              MovieSetTreeDataProvider.MovieSetTreeNode node = (MovieSetTreeDataProvider.MovieSetTreeNode) model.getValueAt(i, 0);
+
+              // search in the title
+              String title = node.toString().toLowerCase(Locale.ROOT);
+              if (title.startsWith(searchTerm)) {
+                tree.getSelectionModel().setSelectionInterval(i, i);
+                tree.scrollRectToVisible(new Rectangle(tree.getCellRect(i, 0, true)));
+                break;
+              }
+            }
+          }
+        }
+      }
+    };
+    tree.addKeyListener(keyListener);
+
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1,growx");
     {
@@ -426,6 +490,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   public void setPopupMenu(JPopupMenu popupMenu) {
+    this.popupMenu = popupMenu;
+
     // add the tree menu entries on the bottom
     popupMenu.addSeparator();
     popupMenu.add(new MovieSetTreePanel.ExpandAllAction());

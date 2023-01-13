@@ -137,18 +137,28 @@ public class ParserUtilsTest extends BasicTest {
   }
 
   @Test
-  public void TestNameingDetectionWithBadWords() {
+  public void TestNamingDetectionWithBadWords() {
 
     ArrayList<String> badwords = new ArrayList<>();
     badwords.add("tvs");
     assertEqual("Castle", detectTYWithBadWords("tvs-castle-dl-ituneshd-xvid-101.avi", badwords));
     badwords.add("top\\d{3}");
     assertEqual("Castle", detectTYWithBadWords("tvs-castle-top100-dl-ituneshd-xvid-101.avi", badwords));
+
     badwords.clear();
     badwords.add("tvs");
     badwords.add("top\\d+");
     assertEqual("Castle", detectTYWithBadWords("tvs-castle-top5-dl-ituneshd-xvid-101.avi", badwords));
 
+    badwords.clear();
+    badwords.add("\\(\\d*-\\d*\\)");
+    // no year detectable since we strip off the whole year part via badwords
+    assertEqual("The Simpsons", detectTYWithBadWords("The Simpsons (1989-2022)", badwords));
+    assertEqual("The Simpsons | 1989", detectTYWithBadWords("The Simpsons (1989)", badwords));
+    assertEqual("4400", detectTYWithBadWords("4400", badwords));
+    assertEqual("4400 | 2009", detectTYWithBadWords("4400 (2009)", badwords));
+    // no year detectable since we strip off the whole year part via badwords
+    assertEqual("4400", detectTYWithBadWords("4400 (2009-2012)", badwords));
   }
 
   private String detectTY(String filename) {

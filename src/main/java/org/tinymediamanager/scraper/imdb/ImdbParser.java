@@ -58,6 +58,7 @@ import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaArtwork.ImageSizeAndUrl;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -69,6 +70,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbCertificate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
+import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeNumber;
 import org.tinymediamanager.scraper.imdb.entities.ImdbGenre;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdTextType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
@@ -273,7 +275,7 @@ public abstract class ImdbParser {
   protected int getMaxKeywordCount() {
     Integer value = config.getValueAsInteger(MAX_KEYWORD_COUNT);
     if (value == null) {
-      return Integer.MAX_VALUE;
+      return 5; // as in scraper settings
     }
     return value;
   }
@@ -892,6 +894,7 @@ public abstract class ImdbParser {
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
       String json = doc.getElementById("__NEXT_DATA__").data();
+      // System.out.println(json);
       JsonNode node = mapper.readTree(json);
 
       // ***** REQ/RESP column *****
@@ -966,24 +969,14 @@ public abstract class ImdbParser {
       if (!primaryImage.isMissingNode()) {
         ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        if (options.getMediaType() == MediaType.TV_EPISODE) {
+          poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        }
         poster.setOriginalUrl(img.url);
         poster.setPreviewUrl(img.url); // well, yes
         poster.setImdbId(img.id);
         poster.addImageSize(img.width, img.height, img.url);
         md.addMediaArt(poster);
-      }
-      JsonNode titleMainImages = node.at("/props/pageProps/aboveTheFoldData/titleMainImages/edges");
-      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
-        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
-        // only parse landscape ones as fanarts
-        if (i.width > i.height) {
-          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
-          poster.setOriginalUrl(i.url);
-          poster.setPreviewUrl(i.url); // well, yes
-          poster.setImdbId(i.id);
-          poster.addImageSize(i.width, i.height, i.url);
-          md.addMediaArt(poster);
-        }
       }
 
       // primaryVideos for all trailers
@@ -1008,7 +1001,28 @@ public abstract class ImdbParser {
       // JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
       // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
 
+      JsonNode epNode = node.at("/props/pageProps/aboveTheFoldData/series/episodeNumber");
+      ImdbEpisodeNumber ep = ImdbJsonHelper.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
+      if (ep != null) {
+        md.setEpisodeNumber(ep.episodeNumber);
+        md.setSeasonNumber(ep.seasonNumber);
+      }
+
       // ***** MAIN column *****
+      JsonNode titleMainImages = node.at("/props/pageProps/mainColumnData/titleMainImages/edges");
+      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
+        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
+        // only parse landscape ones as fanarts
+        if (i.width > i.height) {
+          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          poster.setOriginalUrl(i.url);
+          poster.setPreviewUrl(i.url); // well, yes
+          poster.setImdbId(i.id);
+          poster.addImageSize(i.width, i.height, i.url);
+          md.addMediaArt(poster);
+        }
+      }
+
       JsonNode directorsNode = node.at("/props/pageProps/mainColumnData/directors");
       for (ImdbCredits directors : ImdbJsonHelper.parseList(mapper, directorsNode, ImdbCredits.class)) {
         for (ImdbCrew crew : directors.credits) {
@@ -1897,15 +1911,30 @@ public abstract class ImdbParser {
     }
 
     if (width > 0 && height > 0) {
-      String image = artwork.getDefaultUrl();
-      String extension = FilenameUtils.getExtension(image);
-      // https://stackoverflow.com/a/73501833
-      String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
-
-      artwork.setDefaultUrl(defaultUrl);
-
-      artwork.setSizeOrder(options.getPosterSize().getOrder());
-      artwork.addImageSize(width, height, defaultUrl);
+      // get highest artwork size (from scraper)
+      ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
+      if (originalSize != null) {
+        if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
+          // only downscale
+          String image = artwork.getDefaultUrl();
+          String extension = FilenameUtils.getExtension(image);
+          // https://stackoverflow.com/a/73501833
+          String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+          artwork.setDefaultUrl(defaultUrl);
+          artwork.setSizeOrder(options.getPosterSize().getOrder());
+          artwork.addImageSize(width, height, defaultUrl);
+        }
+      }
+      else {
+        // no size provided by scraper, just scale it
+        String image = artwork.getDefaultUrl();
+        String extension = FilenameUtils.getExtension(image);
+        // https://stackoverflow.com/a/73501833
+        String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+        artwork.setDefaultUrl(defaultUrl);
+        artwork.setSizeOrder(options.getPosterSize().getOrder());
+        artwork.addImageSize(width, height, defaultUrl);
+      }
     }
   }
 

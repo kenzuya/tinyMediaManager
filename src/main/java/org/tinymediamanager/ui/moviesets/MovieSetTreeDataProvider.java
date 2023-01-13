@@ -391,7 +391,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     }
   }
 
-  static class MovieSetTreeNode extends TmmTreeNode {
+  public static class MovieSetTreeNode extends TmmTreeNode {
     private static final long serialVersionUID = -1316609340104597133L;
 
     public MovieSetTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
