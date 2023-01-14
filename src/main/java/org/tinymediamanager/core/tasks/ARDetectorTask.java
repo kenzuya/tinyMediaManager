@@ -103,7 +103,7 @@ public abstract class ARDetectorTask extends TmmTask {
 
     this.ignoreBeginningPct = settings.getArdIgnoreBeginningPct();
     this.ignoreEndPct = settings.getArdIgnoreEndPct();
-    this.arCustomList.addAll(settings.getCustomAspectRatios().stream().map(ar -> Float.valueOf(ar)).sorted().collect(Collectors.toList()));
+    this.arCustomList.addAll(settings.getCustomAspectRatios().stream().map(Float::valueOf).sorted().collect(Collectors.toList()));
     this.roundUp = settings.isArdRoundUp();
     this.roundUpThresholdPct = settings.getArdRoundUpThresholdPct();
     this.multiFormatMode = settings.getArdMFMode();
@@ -130,6 +130,7 @@ public abstract class ARDetectorTask extends TmmTask {
     if (!canRun()) {
       return;
     }
+
     if (mediaFile.getExtension().equalsIgnoreCase("iso")) {
       LOGGER.warn("Can not execute FFMPEG on ISO files (yet)");
       return;
@@ -176,6 +177,11 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.duration = totalDuration;
       }
 
+      if (videoInfo.duration <= 30) {
+        LOGGER.warn("video is not long enough to be analyzed '{}' - detected length: '{}' secs", mediaFile.getFilename(), totalDuration);
+        return;
+      }
+
       int start = (int) (videoInfo.duration * this.ignoreBeginningPct / 100f);
       int end = (int) (videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));
 
@@ -196,7 +202,14 @@ public abstract class ARDetectorTask extends TmmTask {
         seconds = start;
       }
 
+      int sampleCounter = 0;
+
       while (seconds < (end - 2)) {
+        if (sampleCounter > this.sampleMinNumber * 2) {
+          LOGGER.debug("we could not detect a valid result with '{}' samples", sampleCounter);
+          break;
+        }
+
         try {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
@@ -212,6 +225,7 @@ public abstract class ARDetectorTask extends TmmTask {
           }
           else {
             LOGGER.trace("Could not get postition {} in relevant file - maybe XML only?", iSec);
+            break;
           }
         }
         catch (Exception ex) {
@@ -219,8 +233,10 @@ public abstract class ARDetectorTask extends TmmTask {
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
-        if (seconds < start)
+        sampleCounter++;
+        if (seconds <= start) {
           seconds = Math.round(start + 0.5f * videoInfo.sampleSkipAdjustement);
+        }
 
         if (this.cancel) {
           return;
@@ -679,16 +695,10 @@ public abstract class ARDetectorTask extends TmmTask {
   }
 
   private void getNewHeight(VideoInfo videoInfo) {
-    int widthPrimary = videoInfo.widthMap.entrySet()
-        .stream()
-        .sorted(Map.Entry.<Integer, Integer> comparingByValue().reversed())
-        .findFirst()
-        .map(Map.Entry::getKey)
-        .orElse(videoInfo.width);
+    int widthPrimary = videoInfo.widthMap.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(videoInfo.width);
     videoInfo.heightPrimary = videoInfo.heightMap.entrySet()
         .stream()
-        .sorted(Map.Entry.<Integer, Integer> comparingByValue().reversed())
-        .findFirst()
+        .max(Map.Entry.comparingByValue())
         .map(Map.Entry::getKey)
         .orElse(videoInfo.height);
 
@@ -696,8 +706,7 @@ public abstract class ARDetectorTask extends TmmTask {
         .stream()
         .filter(entry -> (entry.getKey() >= widthPrimary / (videoInfo.arPrimaryRaw + this.arSecondaryDelta)
             && entry.getKey() <= widthPrimary / (videoInfo.arPrimaryRaw - this.arSecondaryDelta)))
-        .sorted(Map.Entry.<Integer, Integer> comparingByValue().reversed())
-        .findFirst()
+        .max(Map.Entry.comparingByValue())
         .map(Map.Entry::getKey)
         .orElse(videoInfo.heightPrimary);
   }
@@ -708,6 +717,13 @@ public abstract class ARDetectorTask extends TmmTask {
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.ffmpegmissing"));
       return false;
     }
+
+    // also check ARD settings
+    if (this.sampleMinNumber == 0 || this.ignoreBeginningPct + this.ignoreEndPct > 90) {
+      LOGGER.warn("Could not start aspect ratio detection - invalid parameters");
+      return false;
+    }
+
     return true;
   }
 
