@@ -5,6 +5,7 @@ Version 3.1.18
 ***                      you need to upgrade to the latest version!                           ***
 
 + upgraded libmediainfo to 22.12
++ upgraded JMTE to 7.0.2
 x backported some fixes for the IMDB scraper
 
 
