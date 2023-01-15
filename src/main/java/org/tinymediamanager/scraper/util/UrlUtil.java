@@ -15,6 +15,17 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
+import org.tinymediamanager.scraper.http.Url;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,17 +37,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
-import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
-import org.tinymediamanager.scraper.http.Url;
 
 /**
  * The class UrlUtil. This class is used for Url related tasks
@@ -329,8 +329,8 @@ public class UrlUtil {
     Locale l = getLocaleFromLanguage(language);
 
     // @formatter:off
-    return String.format("Mozilla/5.0 (%1$s; %2$s %3$s; U; %4$s; %5$s-%6$s; rv:71.0) Gecko/20100101 Firefox/71.0", hardcodeOS,
-        System.getProperty("os.name", ""), System.getProperty("os.version", ""), System.getProperty("os.arch", ""), l.getLanguage(), l.getCountry());
+    return String.format("Mozilla/5.0 (%1$s; %2$s %3$s; U; %4$s; %5$s-%6$s; rv:108.0) Gecko/20100101 Firefox/108.0", hardcodeOS,
+            System.getProperty("os.name", ""), System.getProperty("os.version", ""), System.getProperty("os.arch", ""), l.getLanguage(), l.getCountry());
     // @formatter:on
   }
 
