@@ -15,6 +15,12 @@
  */
 package org.tinymediamanager.scraper.http;
 
+import okhttp3.Headers;
+import org.apache.commons.io.IOUtils;
+import org.tinymediamanager.scraper.util.CacheMap;
+import org.tinymediamanager.scraper.util.Pair;
+import org.tinymediamanager.scraper.util.UrlUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,12 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.tinymediamanager.scraper.util.CacheMap;
-import org.tinymediamanager.scraper.util.Pair;
-
-import okhttp3.Headers;
 
 /**
  * The class InMemoryCachedUrl is used to cache some sort of Urls (e.g. when they are accessed several times in a short period)<br />
@@ -51,10 +51,11 @@ public class InMemoryCachedUrl extends Url {
     // morph to URI to check syntax of the url
     try {
       this.uri = morphStringToUri(url);
-    }
-    catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       throw new MalformedURLException(url);
     }
+
+    addHeader(USER_AGENT, UrlUtil.generateUA());
   }
 
   @Override
