@@ -4,6 +4,7 @@ Version 3.1.18
 *** v3 is now EOL (and of life) and will be discontinued. If you want further features/fixes, ***
 ***                      you need to upgrade to the latest version!                           ***
 
++ upgraded libmediainfo to 22.12
 x backported some fixes for the IMDB scraper
 
 
