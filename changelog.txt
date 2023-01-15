@@ -7,6 +7,7 @@ Version 3.1.18
 + upgraded libmediainfo to 22.12
 + upgraded JMTE to 7.0.2
 x backported some fixes for the IMDB scraper
+x fixed escaping in JMTE templates
 
 
 Version 3.1.17
