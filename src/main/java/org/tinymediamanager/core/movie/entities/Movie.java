@@ -1333,7 +1333,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return;
     }
 
-    IMovieConnector connector = null;
+    IMovieConnector connector;
 
     switch (MovieModuleManager.getInstance().getSettings().getMovieConnector()) {
       case MP:
@@ -1365,17 +1365,21 @@ public class Movie extends MediaEntity implements IMediaInformation {
         break;
     }
 
-    if (connector != null) {
-      List<MovieNfoNaming> nfonames = new ArrayList<>();
-      if (isMultiMovieDir() || isDisc) {
-        // Fixate the name regardless of setting
-        nfonames.add(MovieNfoNaming.FILENAME_NFO);
-      }
-      else {
-        nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();
-      }
+    List<MovieNfoNaming> nfonames = new ArrayList<>();
+    if (isMultiMovieDir() || isDisc) {
+      // Fixate the name regardless of setting
+      nfonames.add(MovieNfoNaming.FILENAME_NFO);
+    }
+    else {
+      nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();
+    }
+
+    try {
       connector.write(nfonames);
       firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
     }
   }
 

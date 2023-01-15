@@ -31,6 +31,8 @@ x fixed adding of new extrathumbs/extrafanarts #1996
 x Fanart.tv switch url back to original
 x IMDB: artworks should only be downscaled, but never upscaled - #1988
 x added some validation to the aspect ratio detection #2016
+x prevent UI lockups when writing NFO files is not possible
+
 
 Version 4.3.7
 =======================
