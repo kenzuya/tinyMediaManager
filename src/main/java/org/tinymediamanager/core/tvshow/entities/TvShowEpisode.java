@@ -891,7 +891,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    ITvShowEpisodeConnector connector = null;
+    ITvShowEpisodeConnector connector;
 
     switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
       case XBMC:
@@ -912,11 +912,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     }
 
-    if (connector != null) {
+    try {
       connector.write(Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME));
+      firePropertyChange(HAS_NFO_FILE, false, true);
     }
-
-    firePropertyChange(HAS_NFO_FILE, false, true);
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
+    }
   }
 
   /**

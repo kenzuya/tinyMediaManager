@@ -1168,9 +1168,13 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         break;
     }
 
-    connector.write(nfoNamings);
-
-    firePropertyChange(HAS_NFO_FILE, false, true);
+    try {
+      connector.write(nfoNamings);
+      firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
+    }
   }
 
   private void postProcess(List<TvShowScraperMetadataConfig> config) {

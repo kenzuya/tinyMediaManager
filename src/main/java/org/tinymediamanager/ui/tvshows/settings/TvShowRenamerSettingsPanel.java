@@ -286,11 +286,12 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
     // make tokens copyable
     JPopupMenu popupMenu = new JPopupMenu();
-    popupMenu.add(new CopyRenamerTokenAction());
+    popupMenu.add(new CopyShortRenamerTokenAction());
+    popupMenu.add(new CopyLongRenamerTokenAction());
     tableExamples.addMouseListener(new TablePopupListener(popupMenu, tableExamples));
 
     final KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx(), false);
-    tableExamples.registerKeyboardAction(new CopyRenamerTokenAction(), "Copy", copy, JComponent.WHEN_FOCUSED);
+    tableExamples.registerKeyboardAction(new CopyShortRenamerTokenAction(), "Copy", copy, JComponent.WHEN_FOCUSED);
   }
 
   private void initComponents() {
@@ -639,6 +640,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     private static final Pattern TOKEN_PATTERN = Pattern.compile("^\\$\\{(.*?)([\\}\\[;\\.]+.*)");
     private final String         token;
     private final String         completeToken;
+    private String               longToken     = "";
     private String               description;
     private String               example       = "";
 
@@ -663,6 +665,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
         if (StringUtils.isNotBlank(sourceToken)) {
           result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";
+          longToken = "${" + sourceToken + matcher.group(2);
         }
       }
       return result;
@@ -777,8 +780,8 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     autoBinding_9.bind();
   }
 
-  private class CopyRenamerTokenAction extends AbstractAction {
-    CopyRenamerTokenAction() {
+  private class CopyShortRenamerTokenAction extends AbstractAction {
+    CopyShortRenamerTokenAction() {
       putValue(LARGE_ICON_KEY, IconManager.COPY);
       putValue(SMALL_ICON, IconManager.COPY);
       putValue(NAME, TmmResourceBundle.getString("renamer.copytoken"));
@@ -792,6 +795,28 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         row = tableExamples.convertRowIndexToModel(row);
         TvShowRenamerExample example = exampleEventList.get(row);
         StringSelection stringSelection = new StringSelection(example.token);
+
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, stringSelection);
+      }
+    }
+  }
+
+  private class CopyLongRenamerTokenAction extends AbstractAction {
+    CopyLongRenamerTokenAction() {
+      putValue(LARGE_ICON_KEY, IconManager.COPY);
+      putValue(SMALL_ICON, IconManager.COPY);
+      putValue(NAME, TmmResourceBundle.getString("renamer.copytoken.long"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("renamer.copytoken.long"));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableExamples.getSelectedRow();
+      if (row > -1) {
+        row = tableExamples.convertRowIndexToModel(row);
+        TvShowRenamerExample example = exampleEventList.get(row);
+        StringSelection stringSelection = new StringSelection(example.longToken);
 
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, stringSelection);
