@@ -8,6 +8,7 @@ Version 3.1.18
 + upgraded JMTE to 7.0.2
 x backported some fixes for the IMDB scraper
 x fixed escaping in JMTE templates
+x fixed adding of new extrathumbs/extrafanarts
 
 
 Version 3.1.17
