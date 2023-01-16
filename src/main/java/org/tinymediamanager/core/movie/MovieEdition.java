@@ -143,7 +143,8 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    */
   @JsonCreator
   public static MovieEdition getMovieEdition(String name) {
-    if (StringUtils.isBlank(name)) {
+    // empty or strict loading of NONE
+    if (StringUtils.isBlank(name) || "NONE".equals(name)) {
       return NONE;
     }
 
@@ -164,7 +165,8 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * @return the movie edition
    */
   public static MovieEdition getMovieEditionStrict(String name) {
-    if (StringUtils.isBlank(name)) {
+    // empty or strict loading of NONE
+    if (StringUtils.isBlank(name) || "NONE".equals(name)) {
       return NONE;
     }
 
