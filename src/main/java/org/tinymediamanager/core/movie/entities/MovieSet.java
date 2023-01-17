@@ -623,7 +623,7 @@ public class MovieSet extends MediaEntity {
       return;
     }
 
-    IMovieSetConnector connector = null;
+    IMovieSetConnector connector;
 
     switch (MovieModuleManager.getInstance().getSettings().getMovieSetConnector()) {
       case EMBY:
@@ -631,9 +631,12 @@ public class MovieSet extends MediaEntity {
         connector = new MovieSetToEmbyConnector(this);
     }
 
-    if (connector != null) {
+    try {
       connector.write(MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames());
       firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
     }
   }
 
@@ -668,6 +671,22 @@ public class MovieSet extends MediaEntity {
 
   public List<MovieSetMovie> getDummyMovies() {
     return dummyMovies;
+  }
+
+  @Override
+  public Date getReleaseDate() {
+    Date firstReleaseDate = null;
+
+    for (Movie movie : getMoviesForDisplay()) {
+      if (firstReleaseDate == null) {
+        firstReleaseDate = movie.getReleaseDate();
+      }
+      else if (movie.getReleaseDate() != null && firstReleaseDate.after(movie.getReleaseDate())) {
+        firstReleaseDate = movie.getReleaseDate();
+      }
+    }
+
+    return firstReleaseDate;
   }
 
   @Override

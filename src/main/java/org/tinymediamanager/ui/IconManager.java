@@ -91,6 +91,7 @@ public class IconManager {
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
   public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");
   public static final ImageIcon              CONNECT                      = createMenuIcon("link.svg");
+  public static final ImageIcon              COPY                         = createMenuIcon("clone.svg");
   public static final ImageIcon              DELETE                       = createMenuIcon("xmark.svg");
   public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
   public static final ImageIcon              DISCONNECT                   = createMenuIcon("unlink.svg");

@@ -34,7 +34,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.InputMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -102,6 +104,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private JLabel                     lblTvShowCountTotal;
   private SplitButton                btnFilter;
   private JLabel                     lblSelectedEpisodeCount;
+
+  private JPopupMenu                 popupMenu;
 
   private Timer                      totalCalculationTimer = null;
 
@@ -304,6 +308,21 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     };
     tree.addMouseListener(mouseListener);
 
+    // context menu by keyboard
+    InputMap inputMap = tree.getInputMap(WHEN_FOCUSED);
+    ActionMap actionMap = tree.getActionMap();
+
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_CONTEXT_MENU, 0), "popup");
+    actionMap.put("popup", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (popupMenu != null) {
+          Rectangle rect = tree.getCellRect(tree.getSelectedRow(), 0, false);
+          popupMenu.show(tree, rect.x + rect.width / 2, rect.y + rect.height / 2);
+        }
+      }
+    });
+
     // add key listener
     KeyListener keyListener = new KeyAdapter() {
       private long   lastKeypress = 0;
@@ -497,6 +516,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
   @Override
   public void setPopupMenu(JPopupMenu popupMenu) {
+    this.popupMenu = popupMenu;
+
     // add the tree menu entries on the bottom
     popupMenu.addSeparator();
     popupMenu.add(new ExpandAllAction());

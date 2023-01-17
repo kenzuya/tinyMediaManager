@@ -668,6 +668,7 @@ public class MovieEditorDialog extends TmmDialog {
         details2Panel.add(lblEditionT, "cell 0 2,alignx right");
 
         cbEdition = new AutocompleteComboBox(MovieEdition.values());
+        cbEdition.getAutoCompleteSupport().setCorrectsCase(false);
         details2Panel.add(cbEdition, "cell 1 2,growx");
       }
       {
@@ -1342,7 +1343,7 @@ public class MovieEditorDialog extends TmmDialog {
         movieToEdit.setEdition(edition);
       }
       else if (movieEdition instanceof String str) {
-        movieToEdit.setEdition(MovieEdition.getMovieEdition(str));
+        movieToEdit.setEdition(MovieEdition.getMovieEditionStrict(str));
       }
       else {
         movieToEdit.setEdition(MovieEdition.NONE);

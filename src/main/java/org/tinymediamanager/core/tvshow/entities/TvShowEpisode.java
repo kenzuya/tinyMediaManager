@@ -102,7 +102,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
@@ -372,6 +371,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
   }
 
+  @Override
+  public Date getReleaseDate() {
+    return firstAired;
+  }
+
   public TvShowSeason getTvShowSeason() {
     if (tvShow == null) {
       return null;
@@ -527,7 +531,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the episode number in the default {@link MediaEpisodeGroup.EpisodeGroup}
-   * 
+   *
    * @return the episode number in the default {@link MediaEpisodeGroup.EpisodeGroup} or -1
    */
   public int getEpisode() {
@@ -536,7 +540,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the season number in the default {@link MediaEpisodeGroup.EpisodeGroup}
-   * 
+   *
    * @return the season number in the default {@link MediaEpisodeGroup.EpisodeGroup} or -1
    */
   public int getSeason() {
@@ -562,7 +566,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * convenience method to get the episode number in AIRED order
-   * 
+   *
    * @return the episode number (if found) or -1
    */
   public int getAiredEpisode() {
@@ -635,7 +639,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * convenience method to get the season number in AIRED order
-   * 
+   *
    * @return the season number (if found) or -1
    */
   public int getAiredSeason() {
@@ -675,15 +679,27 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * download the specified type of artwork for this episode
+   * download the specified type of artwork for this episode - async per default
    *
    * @param type
    *          the chosen artwork type to be downloaded
    */
   public void downloadArtwork(MediaFileType type) {
+    downloadArtwork(type, true);
+  }
+
+  /**
+   * download the specified type of artwork for this episode
+   *
+   * @param type
+   *          the chosen artwork type to be downloaded
+   * @param async
+   *          download the artwork sync or async
+   */
+  public void downloadArtwork(MediaFileType type, boolean async) {
     switch (type) {
       case THUMB:
-        writeThumbImage();
+        writeThumbImage(async);
         break;
 
       default:
@@ -694,7 +710,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   /**
    * Write thumb image.
    */
-  private void writeThumbImage() {
+  private void writeThumbImage(boolean async) {
     String thumbUrl = getArtworkUrl(MediaFileType.THUMB);
     if (StringUtils.isNotBlank(thumbUrl)) {
       // create correct filename
@@ -717,7 +733,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       if (!filenames.isEmpty()) {
         // get images in thread
         MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(this, thumbUrl, MediaArtworkType.THUMB, filenames);
-        TmmTaskManager.getInstance().addImageDownloadTask(task);
+        if (async) {
+          TmmTaskManager.getInstance().addImageDownloadTask(task);
+        }
+        else {
+          task.run();
+        }
       }
     }
 
@@ -745,8 +766,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       LOGGER.error("metadata was null");
       return;
     }
-
-    boolean writeNewThumb = false;
 
     // populate ids
 
@@ -866,15 +885,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
-        && (overwriteExistingItems || StringUtils.isBlank(getArtworkFilename(MediaFileType.THUMB)))) {
-      List<MediaArtwork> mas = metadata.getMediaArt(MediaArtworkType.THUMB);
-      if (!mas.isEmpty()) {
-        setArtworkUrl(mas.get(0).getDefaultUrl(), MediaFileType.THUMB);
-        writeNewThumb = true;
-      }
-    }
-
     // set scraped
     setScraped(true);
 
@@ -882,7 +892,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    postProcess(config, writeNewThumb);
+    postProcess(config);
   }
 
   /**
@@ -914,9 +924,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       default -> new TvShowEpisodeToKodiConnector(episodesInNfo);
     };
 
+    }
+
+    try {
     connector.write(Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME));
 
-    firePropertyChange(HAS_NFO_FILE, false, true);
+      firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
+    }
   }
 
   /**
@@ -1866,26 +1883,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return null;
   }
 
-  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean writeNewThumb) {
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
     }
 
-    // should we write a new thumb?
-    if (writeNewThumb) {
-      // need to queue a task here which triggers a new download task... otherwise the download task would
-      // be triggered, before the renamer has finished
-      taskChain.add(new TmmTask("writeThumbTask", 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
-        @Override
-        protected void doInBackground() {
-          writeThumbImage();
-        }
-      });
-    }
-
-    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape() || writeNewThumb) {
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       List<MediaFile> imageFiles = getImagesToCache();
       if (!imageFiles.isEmpty()) {
         taskChain.add(new ImageCacheTask(imageFiles));

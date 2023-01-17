@@ -73,7 +73,7 @@ public class JmteUtils {
     }
 
     // last but not least escape single backslashes
-    morphedTemplate = morphedTemplate.replace("\\", "\\\\");
+    morphedTemplate = morphedTemplate.replaceAll("\\\\(?![{}])", "\\\\\\\\");
 
     return morphedTemplate;
   }

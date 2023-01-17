@@ -29,6 +29,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.Pair;
 
@@ -41,7 +43,8 @@ import okhttp3.Headers;
  * @author Manuel Laggner
  */
 public class InMemoryCachedUrl extends Url {
-  public static final CacheMap<CachedRequest, CachedResponse> CACHE = new CacheMap<>(60, 10);
+  public static final CacheMap<CachedRequest, CachedResponse> CACHE  = new CacheMap<>(60, 10);
+  private static final Logger                                 LOGGER = LoggerFactory.getLogger(InMemoryCachedUrl.class);
 
   public InMemoryCachedUrl(String url) throws MalformedURLException {
     this.url = url;
@@ -84,15 +87,19 @@ public class InMemoryCachedUrl extends Url {
         }
       }
     }
+    else {
+      String redacted = this.url.replaceAll("api_key=\\w+", "api_key=<API_KEY>")
+          .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
+          .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
+      LOGGER.trace("Got cached response for {}", redacted);
+    }
 
     responseCode = cachedResponse.responseCode;
     responseMessage = cachedResponse.responseMessage;
     responseCharset = cachedResponse.responseCharset;
     responseContentType = cachedResponse.responseContentType;
     responseContentLength = cachedResponse.responseContentLength;
-
     headersResponse = cachedResponse.headersResponse;
-    headersRequest.addAll(cachedResponse.headersRequest);
 
     return new GZIPInputStream(new ByteArrayInputStream(cachedResponse.content));
   }
@@ -117,7 +124,7 @@ public class InMemoryCachedUrl extends Url {
 
     public CachedRequest(String url, List<Pair<String, String>> headersRequest) {
       this.url = url;
-      this.headersRequest = headersRequest;
+      this.headersRequest = new ArrayList<>(headersRequest);
     }
 
     @Override

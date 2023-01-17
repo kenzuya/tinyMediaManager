@@ -41,6 +41,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -1027,7 +1028,7 @@ public class MediaMetadata {
 
   /**
    * set all given {@link MediaEpisodeNumber}s
-   * 
+   *
    * @param eps
    *          a {@link Map} containing all {@link MediaEpisodeNumber}s
    */
@@ -1224,7 +1225,7 @@ public class MediaMetadata {
 
   /**
    * add a season overview
-   * 
+   *
    * @param seasonNumber
    *          the season number
    * @param overview
@@ -1238,7 +1239,7 @@ public class MediaMetadata {
 
   /**
    * get the season overview/plot
-   * 
+   *
    * @return the season overview/plot
    */
   public Map<Integer, String> getSeasonOveriew() {
@@ -1247,7 +1248,7 @@ public class MediaMetadata {
 
   /**
    * add the given {@link MediaEpisodeGroup} to the available episode groups
-   * 
+   *
    * @param episodeGroup
    *          the {@link MediaEpisodeGroup} to add
    */
@@ -1257,7 +1258,7 @@ public class MediaMetadata {
 
   /**
    * get all available {@link MediaEpisodeGroup}s
-   * 
+   *
    * @return a {@link Set} with all available {@link MediaEpisodeGroup}s
    */
   public Set<MediaEpisodeGroup> getEpisodeGroups() {
@@ -1281,6 +1282,20 @@ public class MediaMetadata {
    */
   public void setScrapeOptions(MediaSearchAndScrapeOptions scrapeOptions) {
     this.scrapeOptions = scrapeOptions;
+  }
+
+  /**
+   * generates a SearchResult out of a scraped detail page (when searching via ID)
+   *
+   * @return
+   */
+  public MediaSearchResult toSearchResult(MediaType type) {
+    MediaSearchResult sr = new MediaSearchResult(providerId, type);
+    sr.setIds(getIds());
+    sr.setTitle(getTitle());
+    sr.setOriginalTitle(getOriginalTitle());
+    sr.setYear(getYear());
+    return sr;
   }
 
   /**

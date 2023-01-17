@@ -1454,6 +1454,7 @@ public class TvShowEpisodeNfoParser {
           }
         }
         catch (ParseException ignored) {
+          // ignored
         }
       }
 
@@ -1620,6 +1621,7 @@ public class TvShowEpisodeNfoParser {
 
       episode.setWatched(watched);
       episode.setPlaycount(playcount);
+      episode.setLastWatched(lastplayed);
       episode.setMediaSource(source);
 
       List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();

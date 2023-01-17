@@ -110,94 +110,130 @@ public class ImdbMovieParser extends ImdbParser {
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
-    // workers for imdb requests
-    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
+    // default workers which always run
+    Document doc = null;
+    boolean json = false;
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2(), true);
+    Future<Document> futureDetail = executor.submit(worker);
+
+    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlZmVyZW5jZQ==")), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2(), true);
     Future<Document> futureReference = executor.submit(worker);
 
-    Future<Document> futurePlotsummary;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = executor.submit(worker);
-
-    Future<Document> futureReleaseinfo;
-    worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
-        options.getCertificationCountry().getAlpha2());
-    futureReleaseinfo = executor.submit(worker);
-
-    Future<Document> futureCritics = null;
-    if (Boolean.TRUE.equals(config.getValueAsBool("includeMetacritic"))) {
-      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
-          options.getCertificationCountry().getAlpha2());
-      futureCritics = executor.submit(worker);
-    }
-
     Future<Document> futureKeywords = null;
-    if (isScrapeKeywordsPage()) {
+    if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
       worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2tleXdvcmRz")), options.getLanguage().getLanguage(),
-          options.getCertificationCountry().getAlpha2());
+          options.getCertificationCountry().getAlpha2(), true);
       futureKeywords = executor.submit(worker);
     }
 
-    // worker for tmdb request
+    try {
+      doc = futureDetail.get();
+      parseDetailPageJson(doc, options, md);
+      json = true;
+    }
+    catch (Exception e) {
+      LOGGER.warn("Could not get detailpage for id '{}' - '{}'", imdbId, e.getMessage());
+    }
+
+    if (json) {
+      // detail page worked, mix-in missing
+      try {
+        MediaMetadata md2 = new MediaMetadata(ImdbMetadataProvider.ID);
+        doc = futureReference.get();
+        if (doc != null) {
+          parseReferencePage(doc, options, md2);
+          md.setTagline(md2.getTagline());
+          md.setCastMembers(md2.getCastMembers()); // overwrite all
+          md.setTop250(md2.getTop250());
+        }
+
+        if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
+          if (futureKeywords != null) {
+            doc = futureKeywords.get();
+            if (doc != null) {
+              parseKeywordsPage(doc, options, md2);
+              md.setTags(md2.getTags());// overwrite all
+            }
+          }
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not parse page: {}", e.getMessage());
+      }
+    }
+    else {
+      // fallback old style, when json parsing was not ok
+      Future<Document> futurePlotsummary;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3Bsb3RzdW1tYXJ5")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futurePlotsummary = executor.submit(worker);
+
+      Future<Document> futureReleaseinfo;
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futureReleaseinfo = executor.submit(worker);
+
+      Future<Document> futureCritics = null;
+      if (Boolean.TRUE.equals(config.getValueAsBool("includeMetacritic"))) {
+        worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
+        futureCritics = executor.submit(worker);
+      }
+
+      try {
+        doc = futureReference.get();
+        if (doc != null) {
+          parseReferencePage(doc, options, md);
+        }
+
+        doc = futurePlotsummary.get();
+        if (doc != null) {
+          parsePlotsummaryPage(doc, options, md);
+        }
+
+        if (futureKeywords != null) {
+          doc = futureKeywords.get();
+          if (doc != null) {
+            parseKeywordsPage(doc, options, md);
+          }
+        }
+
+        // get the release info page
+        Document releaseinfoDoc = futureReleaseinfo.get();
+        // parse original title here!!
+        if (releaseinfoDoc != null) {
+          parseReleaseinfoPageAKAs(releaseinfoDoc, md);
+
+          // get the date from the releaseinfo page
+          parseReleaseinfoPage(releaseinfoDoc, options, md);
+        }
+
+        // get critics
+        if (futureCritics != null) {
+          Document criticsDoc = futureCritics.get();
+          if (criticsDoc != null) {
+            parseCritics(criticsDoc, md);
+          }
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("problem while scraping: {}", e.getMessage());
+        throw new ScrapeException(e);
+      }
+
+      if (md.getIds().isEmpty()) {
+        LOGGER.warn("nothing found");
+        throw new NothingFoundException();
+      }
+    }
+
+    // get data from tmdb?
     Future<MediaMetadata> futureTmdb = null;
     if (isUseTmdbForMovies() || isScrapeCollectionInfo()) {
       Callable<MediaMetadata> worker2 = new TmdbMovieWorker(options);
       futureTmdb = executor.submit(worker2);
-    }
-
-    Document doc;
-    try {
-      doc = futureReference.get();
-      if (doc != null) {
-        parseReferencePage(doc, options, md);
-      }
-
-      doc = futurePlotsummary.get();
-      if (doc != null) {
-        parsePlotsummaryPage(doc, options, md);
-      }
-
-      if (futureKeywords != null) {
-        doc = futureKeywords.get();
-        if (doc != null) {
-          parseKeywordsPage(doc, options, md);
-        }
-      }
-
-      // get the release info page
-      Document releaseinfoDoc = futureReleaseinfo.get();
-      // parse original title here!!
-      if (releaseinfoDoc != null) {
-        parseReleaseinfoPageAKAs(releaseinfoDoc, md);
-
-        // get the date from the releaseinfo page
-        parseReleaseinfoPage(releaseinfoDoc, options, md);
-      }
-
-      // get critics
-      if (futureCritics != null) {
-        Document criticsDoc = futureCritics.get();
-        if (criticsDoc != null) {
-          parseCritics(criticsDoc, md);
-        }
-      }
-
-      // if everything worked so far, we can set the given id
-      md.setId(ImdbMetadataProvider.ID, imdbId);
-    }
-    catch (Exception e) {
-      LOGGER.error("problem while scraping: {}", e.getMessage());
-      throw new ScrapeException(e);
-    }
-
-    if (md.getIds().isEmpty()) {
-      LOGGER.warn("nothing found");
-      throw new NothingFoundException();
-    }
-
-    // get data from tmdb?
-    if (futureTmdb != null && (isUseTmdbForMovies() || isScrapeCollectionInfo())) {
       try {
         MediaMetadata tmdbMd = futureTmdb.get();
         if (tmdbMd != null) {
@@ -261,7 +297,7 @@ public class ImdbMovieParser extends ImdbParser {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
 
     // get critics
-    Callable<Document> worker = new ImdbParser.ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), "en", "US");
+    Callable<Document> worker = new ImdbParser.ImdbWorker(constructUrl("title/", imdbId, decode("L2NyaXRpY3Jldmlld3M=")), "en", "US", true);
     Future<Document> futureCritics = executor.submit(worker);
 
     try {
@@ -376,7 +412,7 @@ public class ImdbMovieParser extends ImdbParser {
     movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {

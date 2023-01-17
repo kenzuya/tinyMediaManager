@@ -1133,10 +1133,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         default -> new TvShowToKodiConnector(this);
       };
 
+    try {
       connector.write(nfoNamings);
-
       firePropertyChange(HAS_NFO_FILE, false, true);
     }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
+    }
+  }
 
     // also force to write all season NFO files
     seasons.forEach(TvShowSeason::writeNfo);
@@ -1327,6 +1331,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     this.firstAired = newValue;
     firePropertyChange(FIRST_AIRED, oldValue, newValue);
     firePropertyChange(FIRST_AIRED_AS_STRING, oldValue, newValue);
+  }
+
+  @Override
+  public Date getReleaseDate() {
+    return firstAired;
   }
 
   /**
@@ -1683,7 +1692,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
 
       // if still no preferred trailer has been set, then mark the first one
-      if (preferredTrailer == null && this.trailer.isEmpty() && !trailer.getUrl().startsWith("file")) {
+      if (preferredTrailer == null && this.trailer.isEmpty() && trailer.getUrl().startsWith("http")) {
         trailer.setInNfo(Boolean.TRUE);
       }
 

@@ -21,9 +21,14 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -34,14 +39,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -70,6 +79,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.ScrollingEventDelegator;
 import org.tinymediamanager.ui.TableColumnResizer;
+import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -80,6 +90,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.renderer.MultilineTableCellRenderer;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -275,6 +286,15 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
     // force the size of the table
     tableExamples.setPreferredScrollableViewportSize(tableExamples.getPreferredSize());
+
+    // make tokens copyable
+    JPopupMenu popupMenu = new JPopupMenu();
+    popupMenu.add(new CopyShortRenamerTokenAction());
+    popupMenu.add(new CopyLongRenamerTokenAction());
+    tableExamples.addMouseListener(new TablePopupListener(popupMenu, tableExamples));
+
+    final KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx(), false);
+    tableExamples.registerKeyboardAction(new CopyShortRenamerTokenAction(), "Copy", copy, JComponent.WHEN_FOCUSED);
   }
 
   private void initComponents() {
@@ -621,8 +641,11 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   @SuppressWarnings("unused")
   private static class TvShowRenamerExample extends AbstractModelObject {
     private static final Pattern TOKEN_PATTERN = Pattern.compile("^\\$\\{(.*?)([\\}\\[;\\.]+.*)");
-    private String               token;
-    private String               completeToken;
+
+    private final String         token;
+    private final String         completeToken;
+
+    private String               longToken     = "";
     private String               description;
     private String               example       = "";
 
@@ -647,6 +670,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
         if (StringUtils.isNotBlank(sourceToken)) {
           result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";
+          longToken = "${" + sourceToken + matcher.group(2);
         }
       }
       return result;
@@ -692,12 +716,14 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
        * token description
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.token"), "description", token -> token.description, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
 
       /*
        * token value
        */
       col = new Column(TmmResourceBundle.getString("Settings.renamer.value"), "value", token -> token.example, String.class);
+      col.setCellRenderer(new MultilineTableCellRenderer());
       addColumn(col);
     }
   }
@@ -757,5 +783,49 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6, chckbxCleanupUnwanted,
         jCheckBoxBeanProperty);
     autoBinding_9.bind();
+  }
+
+  private class CopyShortRenamerTokenAction extends AbstractAction {
+    CopyShortRenamerTokenAction() {
+      putValue(LARGE_ICON_KEY, IconManager.COPY);
+      putValue(SMALL_ICON, IconManager.COPY);
+      putValue(NAME, TmmResourceBundle.getString("renamer.copytoken"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("renamer.copytoken"));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableExamples.getSelectedRow();
+      if (row > -1) {
+        row = tableExamples.convertRowIndexToModel(row);
+        TvShowRenamerExample example = exampleEventList.get(row);
+        StringSelection stringSelection = new StringSelection(example.token);
+
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, stringSelection);
+      }
+    }
+  }
+
+  private class CopyLongRenamerTokenAction extends AbstractAction {
+    CopyLongRenamerTokenAction() {
+      putValue(LARGE_ICON_KEY, IconManager.COPY);
+      putValue(SMALL_ICON, IconManager.COPY);
+      putValue(NAME, TmmResourceBundle.getString("renamer.copytoken.long"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("renamer.copytoken.long"));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableExamples.getSelectedRow();
+      if (row > -1) {
+        row = tableExamples.convertRowIndexToModel(row);
+        TvShowRenamerExample example = exampleEventList.get(row);
+        StringSelection stringSelection = new StringSelection(example.longToken);
+
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, stringSelection);
+      }
+    }
   }
 }

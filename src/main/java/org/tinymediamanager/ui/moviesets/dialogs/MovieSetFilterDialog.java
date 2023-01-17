@@ -209,16 +209,16 @@ public class MovieSetFilterDialog extends TmmDialog {
           if (answer != JOptionPane.YES_OPTION) {
             return;
           }
+        }
 
-          Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(
-              MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets());
-          if (uiFilters.remove(filterName) != null) {
-            cbPreset.removeActionListener(actionListener);
-            MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
-            MovieModuleManager.getInstance().getSettings().saveSettings();
-            loadPresets();
-            cbPreset.addActionListener(actionListener);
-          }
+        Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(
+            MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets());
+        if (uiFilters.remove(filterName) != null) {
+          cbPreset.removeActionListener(actionListener);
+          MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
+          MovieModuleManager.getInstance().getSettings().saveSettings();
+          loadPresets();
+          cbPreset.addActionListener(actionListener);
         }
       });
       panelFilterPreset.add(btnDeletePreset, "cell 2 3");

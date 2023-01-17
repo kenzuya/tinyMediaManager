@@ -39,6 +39,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 import com.floreysoft.jmte.Engine;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * the class {@link MoviePostProcessExecutor} executes post process steps for movies
@@ -84,6 +85,7 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieRenamer.MovieNamedIndexOfMovieSetRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
     engine.registerAnnotationProcessor(new RegexpProcessor());
 

@@ -1825,6 +1825,7 @@ public class MovieNfoParser {
 
     movie.setWatched(watched);
     movie.setPlaycount(playcount);
+    movie.setLastWatched(lastplayed);
     movie.setSpokenLanguages(languages);
     movie.setMediaSource(source);
     movie.setEdition(edition);
@@ -1900,7 +1901,7 @@ public class MovieNfoParser {
     movie.addToGenres(genres);
 
     for (String trailerUrl : trailers) {
-      if (!trailerUrl.startsWith("file")) {
+      if (trailerUrl.startsWith("http")) {
         // only add new MT when not a local file
         MediaTrailer trailer = new MediaTrailer();
         trailer.setName("fromNFO");

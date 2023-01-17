@@ -28,16 +28,12 @@ import javax.swing.JTable;
  * @author Manuel Laggner
  */
 public class TablePopupListener extends MouseAdapter {
-  private JPopupMenu popup;
-  private JTable     table;
+  private final JPopupMenu popup;
+  private final JTable     table;
 
   public TablePopupListener(JPopupMenu popupMenu, JTable table) {
     this.popup = popupMenu;
     this.table = table;
-  }
-
-  @Override
-  public void mouseClicked(MouseEvent e) {
   }
 
   @Override

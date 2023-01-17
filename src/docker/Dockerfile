@@ -13,8 +13,8 @@ LABEL "org.opencontainers.image.source "="${project.scm.url}"
 ENV APP=tinyMediaManager
 ENV ALLOW_DIRECT_VNC=true
 
-ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.39/libzen0v5_0.4.39-1_amd64.Debian_10.deb
-ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/22.09/libmediainfo0v5_22.09-1_amd64.Debian_10.deb
+ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.40/libzen0v5_0.4.40-1_amd64.Debian_10.deb
+ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/22.12/libmediainfo0v5_22.12-1_amd64.Debian_10.deb
 
 # Install tmm & requirements
 ADD tinyMediaManager /app

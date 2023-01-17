@@ -161,6 +161,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
           }
         }
 
+        if (cancel) {
+          return;
+        }
+
         // get metadata and artwork
         if ((tvShowScrapeParams.doSearch && result1 != null) || !tvShowScrapeParams.doSearch) {
           try {
@@ -244,22 +248,17 @@ public class TvShowScrapeTask extends TmmThreadPool {
             tvShow.setDummyEpisodes(episodes);
             tvShow.saveToDb();
 
-            // scrape episodes
-            if (!tvShowScrapeParams.episodeScraperMetadataConfig.isEmpty()) {
-              List<TvShowEpisode> episodesToScrape = tvShow.getEpisodesToScrape();
-              // scrape episodes in a task
-              if (!episodesToScrape.isEmpty()) {
-                TvShowEpisodeSearchAndScrapeOptions options1 = new TvShowEpisodeSearchAndScrapeOptions();
-                options1.setDataFromOtherOptions(options);
-                TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, options1,
-                    tvShowScrapeParams.episodeScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
-                TmmTaskManager.getInstance().addUnnamedTask(task);
-              }
+            if (cancel) {
+              return;
             }
 
             // scrape artwork if wanted
             if (ScraperMetadataConfig.containsAnyArtwork(tvShowScrapeParams.tvShowScraperMetadataConfig)) {
               tvShow.setArtwork(getArtwork(tvShow, md), tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
+            }
+
+            if (cancel) {
+              return;
             }
 
             // scrape trailer if wanted
@@ -272,10 +271,37 @@ public class TvShowScrapeTask extends TmmThreadPool {
               TvShowHelpers.startAutomaticTrailerDownload(tvShow);
             }
 
+            if (cancel) {
+              return;
+            }
+
             // download theme
             if (tvShowScrapeParams.tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
               TmmTaskManager.getInstance()
                   .addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), tvShowScrapeParams.overwriteExistingItems));
+            }
+
+            if (cancel) {
+              return;
+            }
+
+            // scrape episodes
+            if (!tvShowScrapeParams.episodeScraperMetadataConfig.isEmpty()) {
+              List<TvShowEpisode> episodesToScrape = tvShow.getEpisodesToScrape();
+              // scrape episodes
+              TvShowEpisodeSearchAndScrapeOptions options1 = new TvShowEpisodeSearchAndScrapeOptions();
+              options1.setDataFromOtherOptions(options);
+
+              for (TvShowEpisode episode : episodesToScrape) {
+                if (cancel) {
+                  break;
+                }
+
+                TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(Collections.singletonList(episode), options1,
+                    tvShowScrapeParams.episodeScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
+                // start this task embedded (to the abortable)
+                task.run();
+              }
             }
           }
           catch (MissingIdException e) {

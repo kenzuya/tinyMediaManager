@@ -204,11 +204,14 @@ public class MediaArtwork {
   }
 
   /**
-   * Get the default url for this artwork
+   * Get the default url for this artwork - or the original if default is empty
    * 
    * @return the default url
    */
   public String getDefaultUrl() {
+    if (defaultUrl.isEmpty()) {
+      return originalUrl;
+    }
     return defaultUrl;
   }
 

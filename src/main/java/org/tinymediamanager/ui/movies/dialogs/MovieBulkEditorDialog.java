@@ -26,6 +26,7 @@ import java.beans.PropertyDescriptor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -367,7 +368,19 @@ public class MovieBulkEditorDialog extends TmmDialog {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (Movie movie : moviesToEdit) {
-            movie.setWatched(chckbxWatched.isSelected());
+            if (chckbxWatched.isSelected()) {
+              // set the watched flag along with playcount = 1 and lastplayed = now
+              movie.setWatched(true);
+              if (movie.getPlaycount() == 0) {
+                movie.setPlaycount(1);
+                movie.setLastWatched(new Date());
+              }
+            }
+            else {
+              movie.setWatched(false);
+              movie.setPlaycount(0);
+              movie.setLastWatched(null);
+            }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });

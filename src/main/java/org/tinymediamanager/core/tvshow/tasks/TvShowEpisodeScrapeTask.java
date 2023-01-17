@@ -88,13 +88,18 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
 
   @Override
   public void doInBackground() {
+    setWorkUnits(episodes.size());
+
     MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
 
     if (!mediaScraper.isEnabled()) {
       return;
     }
 
+    int count = 0;
     for (TvShowEpisode episode : episodes) {
+      publishState(count++);
+
       // only scrape if at least one ID is available
       if (episode.getTvShow().getIds().isEmpty()) {
         LOGGER.info("we cannot scrape (no ID): {} - {}", episode.getTvShow().getTitle(), episode.getTitle());
@@ -150,11 +155,19 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
           episode.setMetadata(metadata, config, overwrite);
           episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
           episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
+          episode.saveToDb();
+        }
+
+        if (cancel) {
+          return;
         }
 
         // scrape artwork if wanted
         if (ScraperMetadataConfig.containsAnyArtwork(config)) {
           List<MediaArtwork> artworks = getArtwork(episode, metadata, options);
+
+          // also add the thumb url from the metadata provider to the end (in case, the artwork provider does not fetch anything)
+          artworks.addAll(metadata.getMediaArt(MediaArtwork.MediaArtworkType.THUMB));
 
           // thumb
           if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
@@ -162,11 +175,15 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
             for (MediaArtwork art : artworks) {
               if (art.getType() == THUMB && StringUtils.isNotBlank(art.getDefaultUrl())) {
                 episode.setArtworkUrl(art.getDefaultUrl(), MediaFileType.THUMB);
-                episode.downloadArtwork(MediaFileType.THUMB);
+                episode.downloadArtwork(MediaFileType.THUMB, false);
                 break;
               }
             }
           }
+        }
+
+        if (cancel) {
+          return;
         }
       }
       catch (MissingIdException e) {
@@ -184,6 +201,10 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       catch (Exception e) {
         LOGGER.warn("could not scrape episode - unknown error", e);
       }
+    }
+
+    if (cancel) {
+      return;
     }
 
     if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
@@ -218,10 +239,8 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
     options.setDataFromOtherOptions(scrapeOptions);
     options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
     options.setMetadata(metadata);
-
-    for (Map.Entry<String, Object> entry : episode.getIds().entrySet()) {
-      options.setId(entry.getKey(), entry.getValue().toString());
-    }
+    options.setIds(episode.getIds());
+    options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
     options.setId("mediaFile", episode.getMainFile());
 
     // scrape providers till one artwork has been found

@@ -228,7 +228,9 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       ma.setOriginalUrl(image.url);
 
       // replace the url to get the preview AND switch to assetcache.fanart.tv (as suggested in discord)
-      ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/").replace("assets.fanart.tv", "assetcache.fanart.tv"));
+      // ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/").replace("assets.fanart.tv", "assetcache.fanart.tv"));
+      // not anymore - keep url, and just exchange the fanart to /preview/ (Discord Feb 2022)
+      ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/"));
 
       ma.setLanguage(image.lang);
       ma.setLikes(image.likes);

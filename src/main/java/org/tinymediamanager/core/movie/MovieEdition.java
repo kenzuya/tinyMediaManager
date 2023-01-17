@@ -119,7 +119,6 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
       if (edition.title.equalsIgnoreCase(name)) {
         return edition;
       }
-
     }
 
     // check if any regular expression matches
@@ -144,11 +143,42 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    */
   @JsonCreator
   public static MovieEdition getMovieEdition(String name) {
-    if (StringUtils.isBlank(name)) {
+    // empty or strict loading of NONE
+    if (StringUtils.isBlank(name) || "NONE".equals(name)) {
       return NONE;
     }
 
     MovieEdition edition = getMovieEditionFromString(name);
+    if (edition == NONE) {
+      // dynamically create new one
+      edition = new MovieEdition(name, values().length, name, "");
+    }
+
+    return edition;
+  }
+
+  /**
+   * Gets the right movie edition for the given string - strict version. Only check the enum name()
+   *
+   * @param name
+   *          the name
+   * @return the movie edition
+   */
+  public static MovieEdition getMovieEditionStrict(String name) {
+    // empty or strict loading of NONE
+    if (StringUtils.isBlank(name) || "NONE".equals(name)) {
+      return NONE;
+    }
+
+    MovieEdition edition = NONE;
+
+    for (MovieEdition movieEdition : values()) {
+      // check if the "enum" name matches
+      if (movieEdition.name().equals(name)) {
+        edition = movieEdition;
+      }
+    }
+
     if (edition == NONE) {
       // dynamically create new one
       edition = new MovieEdition(name, values().length, name, "");

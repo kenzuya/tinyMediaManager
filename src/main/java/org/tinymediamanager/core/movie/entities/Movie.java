@@ -720,7 +720,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @JsonSetter
   public void setExtraThumbs(List<String> extraThumbs) {
-    ListUtils.mergeLists(this.extraThumbs, extraThumbs);
+    this.extraThumbs.clear();
+    this.extraThumbs.addAll(extraThumbs);
+    firePropertyChange("extraThumbs", null, this.extraThumbs);
   }
 
   /**
@@ -740,7 +742,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @JsonSetter
   public void setExtraFanarts(List<String> extraFanarts) {
-    ListUtils.mergeLists(this.extraFanarts, extraFanarts);
+    this.extraFanarts.clear();
+    this.extraFanarts.addAll(extraFanarts);
+    firePropertyChange("extraFanarts", null, this.extraFanarts);
   }
 
   /**
@@ -1082,7 +1086,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
 
       // if still no preferred trailer has been set, then mark the first one
-      if (preferredTrailer == null && this.trailer.isEmpty() && !trailer.getUrl().startsWith("file")) {
+      if (preferredTrailer == null && this.trailer.isEmpty() && trailer.getUrl().startsWith("http")) {
         trailer.setInNfo(Boolean.TRUE);
       }
 
@@ -1329,7 +1333,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return;
     }
 
-    IMovieConnector connector = null;
+    IMovieConnector connector;
 
     switch (MovieModuleManager.getInstance().getSettings().getMovieConnector()) {
       case MP:
@@ -1361,17 +1365,21 @@ public class Movie extends MediaEntity implements IMediaInformation {
         break;
     }
 
-    if (connector != null) {
-      List<MovieNfoNaming> nfonames = new ArrayList<>();
-      if (isMultiMovieDir() || isDisc) {
-        // Fixate the name regardless of setting
-        nfonames.add(MovieNfoNaming.FILENAME_NFO);
-      }
-      else {
-        nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();
-      }
+    List<MovieNfoNaming> nfonames = new ArrayList<>();
+    if (isMultiMovieDir() || isDisc) {
+      // Fixate the name regardless of setting
+      nfonames.add(MovieNfoNaming.FILENAME_NFO);
+    }
+    else {
+      nfonames = MovieModuleManager.getInstance().getSettings().getNfoFilenames();
+    }
+
+    try {
       connector.write(nfonames);
       firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
     }
   }
 
@@ -1940,6 +1948,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return getRuntimeFromMediaFilesInSeconds() / 60;
   }
 
+  @Override
   public Date getReleaseDate() {
     return releaseDate;
   }

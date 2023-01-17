@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -43,6 +44,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
@@ -229,6 +231,25 @@ public class TvShowHelpers {
    *          the trailer to download
    */
   public static void downloadTrailer(TvShow tvshow, MediaTrailer trailer) {
+    if (StringUtils.isBlank(trailer.getUrl()) || !trailer.getUrl().startsWith("http")) {
+      if (StringUtils.isBlank(trailer.getId())) {
+        return;
+      }
+      // we have an ID - lets check if it is a known one:
+      String id = trailer.getId();
+      if (!id.matches("vi\\d+")) { // IMDB
+        return;
+      }
+
+      // IMD trailer ID
+      ImdbTvShowTrailerProvider tp = new ImdbTvShowTrailerProvider();
+      String url = tp.getUrlForId(trailer);
+      if (url.isEmpty()) {
+        return;
+      }
+      trailer.setUrl(url);
+    }
+
     // get the right file name
     List<TvShowTrailerNaming> trailernames = TvShowModuleManager.getInstance().getSettings().getTrailerFilenames();
 

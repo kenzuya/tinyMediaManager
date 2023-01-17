@@ -158,6 +158,13 @@ public abstract class MediaEntity extends AbstractModelObject {
   public abstract MediaFile getMainFile();
 
   /**
+   * get the release date for this entity
+   *
+   * @return the release/first aired date
+   */
+  public abstract Date getReleaseDate();
+
+  /**
    * Overwrites all null/empty elements with "other" value (but might be empty also)<br>
    * For lists, check with 'contains' and add.<br>
    * Do NOT merge path, dateAdded, scraped, mediaFiles and other crucial properties!
@@ -660,13 +667,17 @@ public abstract class MediaEntity extends AbstractModelObject {
         }
         break;
 
+      case RELEASE_DATE:
+        date = getReleaseDate();
+        break;
+
       default:
         date = dateAdded;
         break;
 
     }
 
-    // sanity check - must not be null
+    // sanity check - must not be null - fall back to date added otherwise
     if (date == null) {
       date = dateAdded;
     }
@@ -807,7 +818,6 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   /**
    * remove all IDs
-   *
    */
   public void removeAllIds() {
     new ArrayList<>(ids.keySet()).forEach(this::removeId);
@@ -1273,7 +1283,7 @@ public abstract class MediaEntity extends AbstractModelObject {
             Files.move(oldCache, newCache);
           }
           catch (IOException e) {
-            LOGGER.warn("Error moving cached file", e.getMessage());
+            LOGGER.warn("Error moving cached file - '{}'", e.getMessage());
           }
         }
       }

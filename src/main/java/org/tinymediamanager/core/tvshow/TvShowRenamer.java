@@ -89,6 +89,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * The TvShowRenamer Works on per MediaFile basis
@@ -1561,6 +1562,7 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new NamedFilesizeRenderer());
       engine.registerNamedRenderer(new NamedBitrateRenderer());
       engine.registerNamedRenderer(new NamedReplacementRenderer());
+      engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
       engine.setModelAdaptor(new TmmModelAdaptor());
       engine.setOutputAppender(new TmmOutputAppender() {

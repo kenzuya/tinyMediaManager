@@ -40,6 +40,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import com.floreysoft.jmte.Engine;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * the class {@link TvShowEpisodePostProcessExecutor} executes post process steps for movies
@@ -92,6 +93,7 @@ public class TvShowEpisodePostProcessExecutor extends PostProcessExecutor {
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
     engine.registerAnnotationProcessor(new RegexpProcessor());
 

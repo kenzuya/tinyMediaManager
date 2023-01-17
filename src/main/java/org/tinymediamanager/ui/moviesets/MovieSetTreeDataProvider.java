@@ -391,7 +391,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     }
   }
 
-  static class MovieSetTreeNode extends TmmTreeNode {
+  public static class MovieSetTreeNode extends TmmTreeNode {
     public MovieSetTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
       super(userObject, dataProvider);
     }

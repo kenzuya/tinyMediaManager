@@ -88,6 +88,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * The Class MovieRenamer.
@@ -1316,6 +1317,7 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetWithDummyRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 
     engine.registerAnnotationProcessor(new RegexpProcessor());
 

@@ -19,11 +19,21 @@ package org.tinymediamanager.ui.renderer;
 import java.awt.Component;
 
 import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BoxView;
+import javax.swing.text.ComponentView;
+import javax.swing.text.Element;
+import javax.swing.text.IconView;
+import javax.swing.text.LabelView;
+import javax.swing.text.ParagraphView;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledEditorKit;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 /**
  * the class {@link MultilineTableCellRenderer} is used to render table cells with multiple lines; ATTENTION multiple lines will always be rendered on
@@ -31,39 +41,13 @@ import javax.swing.table.TableCellRenderer;
  * 
  * @author Manuel Laggner
  */
-public class MultilineTableCellRenderer extends JTextArea implements TableCellRenderer {
-
-  private static final Border SAFE_NO_FOCUS_BORDER    = new EmptyBorder(1, 1, 1, 1);
-  private static final Border DEFAULT_NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
-  protected static Border     noFocusBorder           = DEFAULT_NO_FOCUS_BORDER;
-
+public class MultilineTableCellRenderer extends JTextPane implements TableCellRenderer {
   public MultilineTableCellRenderer() {
-    this(false);
-  }
-
-  public MultilineTableCellRenderer(boolean withWordWrap) {
     setForeground(null);
     setBackground(null);
     setOpaque(false);
-    setBorder(getNoFocusBorder());
     setAlignmentY(CENTER_ALIGNMENT);
-    if (withWordWrap) {
-      setLineWrap(true);
-      setWrapStyleWord(true);
-    }
-  }
-
-  private Border getNoFocusBorder() {
-    Border border = UIManager.getBorder("Table.cellNoFocusBorder");
-    if (System.getSecurityManager() != null) {
-      if (border != null)
-        return border;
-      return SAFE_NO_FOCUS_BORDER;
-    }
-    else if (border != null && (noFocusBorder == null || noFocusBorder == DEFAULT_NO_FOCUS_BORDER)) {
-      return border;
-    }
-    return noFocusBorder;
+    setEditorKit(new CenteredEditorKit());
   }
 
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -89,5 +73,60 @@ public class MultilineTableCellRenderer extends JTextArea implements TableCellRe
     setText((value == null) ? "" : value.toString());
 
     return this;
+  }
+
+  private static class CenteredEditorKit extends StyledEditorKit {
+
+    @Override
+    public ViewFactory getViewFactory() {
+      return new StyledViewFactory();
+    }
+
+    static class StyledViewFactory implements ViewFactory {
+
+      public View create(Element elem) {
+        String kind = elem.getName();
+        if (kind != null) {
+          if (kind.equals(AbstractDocument.ContentElementName)) {
+            return new LabelView(elem);
+          }
+          else if (kind.equals(AbstractDocument.ParagraphElementName)) {
+            return new ParagraphView(elem);
+          }
+          else if (kind.equals(AbstractDocument.SectionElementName)) {
+            return new CenteredBoxView(elem, View.Y_AXIS);
+          }
+          else if (kind.equals(StyleConstants.ComponentElementName)) {
+            return new ComponentView(elem);
+          }
+          else if (kind.equals(StyleConstants.IconElementName)) {
+            return new IconView(elem);
+          }
+        }
+
+        return new LabelView(elem);
+      }
+    }
+  }
+
+  private static class CenteredBoxView extends BoxView {
+    public CenteredBoxView(Element elem, int axis) {
+      super(elem, axis);
+    }
+
+    @Override
+    protected void layoutMajorAxis(int targetSpan, int axis, int[] offsets, int[] spans) {
+      super.layoutMajorAxis(targetSpan, axis, offsets, spans);
+      int textBlockHeight = 0;
+      int offset = 0;
+
+      for (int i = 0; i < spans.length; i++) {
+        textBlockHeight += spans[i];
+      }
+      offset = (targetSpan - textBlockHeight) / 2;
+      for (int i = 0; i < offsets.length; i++) {
+        offsets[i] += offset;
+      }
+    }
   }
 }
