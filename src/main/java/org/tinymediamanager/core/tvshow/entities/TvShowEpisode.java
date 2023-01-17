@@ -924,10 +924,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       default -> new TvShowEpisodeToKodiConnector(episodesInNfo);
     };
 
-    }
-
     try {
-    connector.write(Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME));
+      connector.write(Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME));
 
       firePropertyChange(HAS_NFO_FILE, false, true);
     }

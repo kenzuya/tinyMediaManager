@@ -89,10 +89,21 @@ public class MediaTrailerTable extends TmmEditorTable {
     // callback
   }
 
+  protected String refreshUrlFromId(MediaTrailer trailer) {
+    // callback
+    return trailer.getUrl();
+  }
+
   protected void playTrailer(MediaTrailer trailer) {
-    if (StringUtils.isNotBlank(trailer.getUrl())) {
+    String url = trailer.getUrl();
+
+    if (url.isEmpty()) {
+      url = refreshUrlFromId(trailer);
+    }
+
+    if (StringUtils.isNotBlank(url)) {
       try {
-        TmmUIHelper.browseUrl(trailer.getUrl());
+        TmmUIHelper.browseUrl(url);
       }
       catch (Exception ex) {
         LOGGER.error(ex.getMessage());

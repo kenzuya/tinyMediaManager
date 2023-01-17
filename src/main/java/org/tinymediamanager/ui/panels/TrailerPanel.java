@@ -47,6 +47,11 @@ public abstract class TrailerPanel extends JPanel {
       protected void downloadTrailer(MediaTrailer mediaTrailer) {
         TrailerPanel.this.downloadTrailer(mediaTrailer);
       }
+
+      @Override
+      protected String refreshUrlFromId(MediaTrailer trailer) {
+        return TrailerPanel.this.refreshUrlFromId(trailer);
+      }
     };
     table.setSelectionModel(new NullSelectionModel());
     table.installComparatorChooser(trailerEventList);
@@ -60,84 +65,4 @@ public abstract class TrailerPanel extends JPanel {
   protected abstract void downloadTrailer(MediaTrailer trailer);
 
   protected abstract String refreshUrlFromId(MediaTrailer trailer);
-
-  private class LinkListener implements MouseListener, MouseMotionListener {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-      int row = table.rowAtPoint(new Point(e.getX(), e.getY()));
-      int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-      // click on the download button
-      if (col == 0 && License.getInstance().isValidLicense()) {
-        row = table.convertRowIndexToModel(row);
-        MediaTrailer trailer = trailerEventList.get(row);
-
-        if ((StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http"))
-            || !trailer.getId().isEmpty()) {
-          downloadTrailer(trailer);
-        }
-      }
-
-      // click on the play button
-      if (col == 1) {
-        // try to open the browser
-        row = table.convertRowIndexToModel(row);
-        MediaTrailer trailer = trailerEventList.get(row);
-        String url = trailer.getUrl();
-        if (url.isEmpty()) {
-          url = refreshUrlFromId(trailer);
-        }
-        try {
-          TmmUIHelper.browseUrl(url);
-        }
-        catch (Exception ex) {
-          LOGGER.error(ex.getMessage());
-          MessageManager.instance
-              .pushMessage(new Message(MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", ex.getLocalizedMessage() }));
-        }
-      }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-      int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-      if (col == 0 || col == 1) {
-        table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      }
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-      int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-      if (col != 0 && col != 1) {
-        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-      }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-      int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-      if (col != 0 && col != 1 && table.getCursor().getType() == Cursor.HAND_CURSOR) {
-        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-      }
-      if ((col == 0 || col == 1) && table.getCursor().getType() == Cursor.DEFAULT_CURSOR) {
-        table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-      // do nothing
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-      // do nothing
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent arg0) {
-      // do nothing
-    }
-  }
 }

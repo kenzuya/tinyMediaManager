@@ -56,7 +56,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Manuel Laggner
  */
 public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason> {
-
   @JsonProperty
   private UUID                      tvShowDbId = null;
 
@@ -127,6 +126,11 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   @Override
   public MediaFile getMainFile() {
     return MediaFile.EMPTY_MEDIAFILE;
+  }
+
+  @Override
+  public Date getReleaseDate() {
+    return null;
   }
 
   /**

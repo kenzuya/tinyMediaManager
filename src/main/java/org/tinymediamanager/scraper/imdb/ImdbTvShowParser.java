@@ -51,6 +51,8 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -293,8 +295,7 @@ public class ImdbTvShowParser extends ImdbParser {
       throw new MissingIdException(MediaMetadata.EPISODE_NR, MediaMetadata.SEASON_NR);
     }
     // we want this, we should set this (in case of json error)
-    md.setEpisodeNumber(episodeNr);
-    md.setSeasonNumber(seasonNr);
+    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, seasonNr, episodeNr));
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
     // only if we get a S/E number
@@ -320,7 +321,9 @@ public class ImdbTvShowParser extends ImdbParser {
       // search by S/E
       if (wantedEpisode == null) {
         for (MediaMetadata episode : episodes) {
-          if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED);
+
+          if (episodeNumber != null && episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
             // search via season/episode number
             wantedEpisode = episode;
             break;
@@ -342,8 +345,7 @@ public class ImdbTvShowParser extends ImdbParser {
     // match via episodelist found
     if (wantedEpisode != null && wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
       episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
-      md.setEpisodeNumber(wantedEpisode.getEpisodeNumber());
-      md.setSeasonNumber(wantedEpisode.getSeasonNumber());
+      md.setEpisodeNumbers(wantedEpisode.getEpisodeNumbers());
       md.setTitle(wantedEpisode.getTitle());
       md.setPlot(wantedEpisode.getPlot());
       md.setRatings(wantedEpisode.getRatings());
@@ -606,17 +608,18 @@ public class ImdbTvShowParser extends ImdbParser {
 
             // parse season and ep number
             if (season <= 0) {
-              ep.setSeasonNumber(0);
-              ep.setEpisodeNumber(++specialEpisodeCounter);
+              ep.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 0, ++specialEpisodeCounter));
             }
             else {
-              ep.setSeasonNumber(Integer.parseInt(matcher.group(1)));
-              ep.setEpisodeNumber(Integer.parseInt(matcher.group(2)));
-            }
+              int s = Integer.parseInt(matcher.group(1));
+              int e = Integer.parseInt(matcher.group(2));
 
-            // check if we have still valid data
-            if (season > 0 && season != ep.getSeasonNumber()) {
-              return false;
+              // check if we have still valid data
+              if (season != s) {
+                return false;
+              }
+
+              ep.setEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, s, e);
             }
 
             // get ep title and id

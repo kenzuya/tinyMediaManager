@@ -61,6 +61,8 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.ImageSizeAndUrl;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
@@ -1004,8 +1006,7 @@ public abstract class ImdbParser {
       JsonNode epNode = node.at("/props/pageProps/aboveTheFoldData/series/episodeNumber");
       ImdbEpisodeNumber ep = ImdbJsonHelper.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
       if (ep != null) {
-        md.setEpisodeNumber(ep.episodeNumber);
-        md.setSeasonNumber(ep.seasonNumber);
+        md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, ep.seasonNumber, ep.episodeNumber));
       }
 
       // ***** MAIN column *****
