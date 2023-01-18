@@ -19,8 +19,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.thetvdb.entities.LoginRequestRecord;
@@ -39,25 +37,17 @@ import com.google.gson.internal.bind.DateTypeAdapter;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TheTvDbController {
-  private static final Logger LOGGER       = LoggerFactory.getLogger(TheTvDbController.class);
   private static final String API_BASE_URL = "https://api4.thetvdb.com/v4/";
-
-  private final boolean       debug;
 
   private Retrofit            restAdapter;
   private String              userApiKey;
   private String              userPin;
   private String              authToken;
-
-  public TheTvDbController() {
-    this(false);
-  }
 
   /**
    * setting up the retrofit object with further debugging options if needed
@@ -65,8 +55,7 @@ public class TheTvDbController {
    * @param debug
    *          true or false
    */
-  public TheTvDbController(boolean debug) {
-    this.debug = debug;
+  public TheTvDbController() {
   }
 
   public String getUserApiKey() {
@@ -88,9 +77,6 @@ public class TheTvDbController {
   private Retrofit getRestAdapter() {
     if (restAdapter == null) {
       OkHttpClient.Builder builder = TmmHttpClient.newBuilderWithForcedCache(15, TimeUnit.MINUTES);
-      if (debug) {
-        builder.addInterceptor(new HttpLoggingInterceptor(LOGGER::debug).setLevel(HttpLoggingInterceptor.Level.BODY));
-      }
       builder.addInterceptor(chain -> {
         Request original = chain.request();
         Request.Builder request = original.newBuilder().method(original.method(), original.body());

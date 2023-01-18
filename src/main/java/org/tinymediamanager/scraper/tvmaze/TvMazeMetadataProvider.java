@@ -68,7 +68,7 @@ abstract class TvMazeMetadataProvider implements IMediaProvider {
       }
 
       try {
-        controller = new Controller(getApiKey(), false);
+        controller = new Controller(getApiKey());
       }
       catch (Exception e) {
         getLogger().error("could not initialize the API: {}", e.getMessage());
