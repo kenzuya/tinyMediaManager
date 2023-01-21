@@ -12,5 +12,6 @@ Version 5.0
 + added some more movie editions per default #1987
 + writing season NFO files (mainly for Emby) #1697
 + added season plot
++ added a movie set export engine #1928
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons

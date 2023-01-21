@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.movie.MovieSettings.DEFAULT_RENAMER_FILE
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -37,39 +38,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.MediaEntityExporter;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 
 /**
- * This class exports a list of movies to various formats according to templates.
+ * This class exports a list of movie sets to various formats according to templates.
  * 
  * @author Myron Boyle / Manuel Laggner
  */
-public class MovieExporter extends MediaEntityExporter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieExporter.class);
+public class MovieSetExporter extends MediaEntityExporter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieSetExporter.class);
 
-  public MovieExporter(Path pathToTemplate) throws Exception {
-    super(pathToTemplate, TemplateType.MOVIE);
+  public MovieSetExporter(Path pathToTemplate) throws Exception {
+    super(pathToTemplate, TemplateType.MOVIE_SET);
   }
 
   /**
    * exports movie list according to template file.
    * 
-   * @param moviesToExport
-   *          list of movies
+   * @param movieSetsToExport
+   *          list of movie sets
    * @param exportDir
    *          the path to export
    * @throws Exception
    *           the exception
    */
   @Override
-  public <T extends MediaEntity> void export(List<T> moviesToExport, Path exportDir) throws Exception {
-    LOGGER.info("preparing movie export; using {}", properties.getProperty("name"));
+  public <T extends MediaEntity> void export(List<T> movieSetsToExport, Path exportDir) throws Exception {
+    LOGGER.info("preparing movie set export; using {}", properties.getProperty("name"));
 
     if (cancel) {
       return;
@@ -88,53 +91,70 @@ public class MovieExporter extends MediaEntityExporter {
     }
 
     // prepare listfile
-    Path listExportFile = exportDir.resolve("movielist." + fileExtension);
+    Path listExportFile = exportDir.resolve("moviesets." + fileExtension);
 
-    // create list
-    LOGGER.info("generating movie list");
+    // load movie template
+    String movieTemplateFile = properties.getProperty("movie");
+    String movieTemplate = "";
+    if (StringUtils.isNotBlank(movieTemplateFile)) {
+      movieTemplate = Utils.readFileToString(templateDir.resolve(movieTemplateFile));
+    }
+
+    // create the list
+    LOGGER.info("generating movie set list");
     Utils.deleteFileSafely(listExportFile);
 
     Map<String, Object> root = new HashMap<>();
-    root.put("movies", new ArrayList<>(moviesToExport));
+    root.put("movieSets", new ArrayList<>(movieSetsToExport));
 
     String output = engine.transform(listTemplate, root);
-
     Utils.writeStringToFile(listExportFile, output);
-    LOGGER.info("movie list generated: {}", listExportFile);
+    LOGGER.info("movie set list generated: {}", listExportFile);
 
-    // create details for
     if (StringUtils.isNotBlank(detailTemplate)) {
-      Path detailsDir = exportDir.resolve("movies");
-      try {
-        Files.createDirectory(detailsDir);
-      }
-      catch (FileAlreadyExistsException e) {
-        LOGGER.debug("Folder already exists...");
-      }
-
-      for (T me : moviesToExport) {
+      for (T me : movieSetsToExport) {
         if (cancel) {
           return;
         }
 
-        Movie movie = (Movie) me;
-        LOGGER.debug("processing movie {}", movie.getTitle());
-        // get preferred movie name like set up in movie renamer
-        String detailFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
-        if (StringUtils.isBlank(detailFilename)) {
-          detailFilename = movie.getVideoBasenameWithoutStacking();
-        }
-        Path detailsExportFile = detailsDir.resolve(detailFilename + "." + fileExtension);
+        MovieSet movieSet = (MovieSet) me;
 
+        // create a movie set
+        Path movieSetDir = exportDir.resolve(getFilename(movieSet));
+        try {
+          Files.createDirectory(movieSetDir);
+        }
+        catch (FileAlreadyExistsException e) {
+          LOGGER.debug("Folder already exists...");
+        }
+
+        Path detailsExportFile = movieSetDir.resolve("movieset." + fileExtension);
         root = new HashMap<>();
-        root.put("movie", movie);
+        root.put("movieSet", movieSet);
 
         output = engine.transform(detailTemplate, root);
         Utils.writeStringToFile(detailsExportFile, output);
 
-      }
+        if (StringUtils.isNotBlank(movieTemplate)) {
+          for (Movie movie : movieSet.getMovies()) {
+            if (cancel) {
+              return;
+            }
 
-      LOGGER.info("movie detail pages generated: {}", exportDir);
+            List<MediaFile> mfs = movie.getMediaFiles(MediaFileType.VIDEO);
+            if (!mfs.isEmpty()) {
+              String movieFileName = getFilename(movie) + "." + fileExtension;
+              Path episodeExportFile = movieSetDir.resolve(movieFileName);
+
+              root = new HashMap<>();
+              root.put("movie", movie);
+
+              output = engine.transform(movieTemplate, root);
+              Utils.writeStringToFile(episodeExportFile, output);
+            }
+          }
+        }
+      }
     }
 
     if (cancel) {
@@ -160,6 +180,16 @@ public class MovieExporter extends MediaEntityExporter {
     }
   }
 
+  private static String getFilename(MediaEntity entity) {
+    if (entity instanceof MovieSet movieSet) {
+      return movieSet.getTitle();
+    }
+    if (entity instanceof Movie movie) {
+      return getMovieFilename(movie);
+    }
+    return "";
+  }
+
   private static String getMovieFilename(Movie movie) {
     String filename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
     if (StringUtils.isNotBlank(filename)) {
@@ -172,7 +202,7 @@ public class MovieExporter extends MediaEntityExporter {
       return filename;
     }
 
-    // fallback (should no happen, but could)
+    // fallback (should not happen, but could)
     return movie.getDbId().toString();
   }
 
@@ -197,9 +227,7 @@ public class MovieExporter extends MediaEntityExporter {
 
     @Override
     public String render(Object o, String pattern, Locale locale, Map<String, Object> model) {
-      if (o instanceof Movie) {
-        Movie movie = (Movie) o;
-
+      if (o instanceof Movie movie) {
         Map<String, Object> parameters = new HashMap<>();
         if (pattern != null) {
           parameters = parseParameters(pattern);
@@ -208,7 +236,7 @@ public class MovieExporter extends MediaEntityExporter {
         String filename = getMovieFilename(movie);
         if (parameters.get("escape") == Boolean.TRUE) {
           try {
-            filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+            filename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
           }
           catch (Exception ignored) {
           }
@@ -279,8 +307,7 @@ public class MovieExporter extends MediaEntityExporter {
 
     @Override
     public String render(Object o, String pattern, Locale locale, Map<String, Object> model) {
-      if (o instanceof Movie) {
-        Movie movie = (Movie) o;
+      if (o instanceof Movie movie) {
         Map<String, Object> parameters = parseParameters(pattern);
 
         MediaFile mf = movie.getArtworkMap().get(parameters.get("type"));
@@ -331,7 +358,7 @@ public class MovieExporter extends MediaEntityExporter {
 
         if (parameters.get("escape") == Boolean.TRUE) {
           try {
-            filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+            filename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
           }
           catch (Exception ignored) {
           }
@@ -339,7 +366,7 @@ public class MovieExporter extends MediaEntityExporter {
 
         return filename;
       }
-      return ""; // pass an emtpy string to prevent obj.toString() gets triggered by jmte
+      return ""; // pass an empty string to prevent obj.toString() gets triggered by jmte
     }
   }
 }

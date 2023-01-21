@@ -17,7 +17,6 @@ package org.tinymediamanager.core.tvshow;
 
 import static org.tinymediamanager.core.tvshow.TvShowSettings.DEFAULT_RENAMER_FILE_PATTERN;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -42,21 +41,11 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
-import org.tinymediamanager.core.jmte.NamedDateRenderer;
-import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
-import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
-import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedNumberRenderer;
-import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
-import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
-import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * The class TvShowExporter. To export TV shows via templates
@@ -88,19 +77,12 @@ public class TvShowExporter extends MediaEntityExporter {
       return;
     }
 
-    // register own renderers
-    engine.registerNamedRenderer(new NamedDateRenderer());
-    engine.registerNamedRenderer(new NamedNumberRenderer());
-    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-    engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
+    // register specific renderers
     engine.registerNamedRenderer(new TvShowFilenameRenderer());
     engine.registerNamedRenderer(new TvShowArtworkCopyRenderer(exportDir));
-    engine.registerNamedRenderer(new NamedFilesizeRenderer());
-    engine.registerNamedRenderer(new NamedBitrateRenderer());
-    engine.registerNamedRenderer(new NamedReplacementRenderer());
-    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+
+    // register default renderers
+    registerDefaultRenderers();
 
     // prepare export destination
     if (!Files.exists(exportDir)) {
@@ -109,9 +91,6 @@ public class TvShowExporter extends MediaEntityExporter {
 
     // prepare listfile
     Path listExportFile = exportDir.resolve("tvshows." + fileExtension);
-    if (listExportFile == null) {
-      throw new FileNotFoundException("error creating tv show list file");
-    }
 
     // load episode template
     String episodeTemplateFile = properties.getProperty("episode");
@@ -202,11 +181,10 @@ public class TvShowExporter extends MediaEntityExporter {
   }
 
   private static String getFilename(MediaEntity entity) {
-    if (entity instanceof TvShow) {
-      return TvShowRenamer.createDestination("${showTitle} (${showYear})", (TvShow) entity);
+    if (entity instanceof TvShow tvShow) {
+      return TvShowRenamer.createDestination("${showTitle} (${showYear})", tvShow);
     }
-    if (entity instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) entity;
+    if (entity instanceof TvShowEpisode episode) {
       MediaFile mainVideoFile = episode.getMainVideoFile();
       return FilenameUtils
           .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile)

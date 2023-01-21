@@ -17,6 +17,7 @@ package org.tinymediamanager.core;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -35,12 +36,22 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
+import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
+import org.tinymediamanager.core.jmte.NamedDateRenderer;
+import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
+import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
+import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedNumberRenderer;
+import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
+import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.RegexpProcessor;
 
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 import com.floreysoft.jmte.encoder.XMLEncoder;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 public abstract class MediaEntityExporter {
   private static final Logger   LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
@@ -56,6 +67,7 @@ public abstract class MediaEntityExporter {
 
   public enum TemplateType {
     MOVIE,
+    MOVIE_SET,
     TV_SHOW
   }
 
@@ -64,12 +76,12 @@ public abstract class MediaEntityExporter {
 
     // check if template exists and is valid
     if (!Files.isDirectory(templateDir)) {
-      throw new Exception("illegal template path");
+      throw new FileNotFoundException("illegal template path");
     }
 
     Path configFile = templateDir.resolve("template.conf");
     if (!Files.exists(configFile)) {
-      throw new Exception("illegal template config");
+      throw new FileNotFoundException("no template config found");
     }
 
     // load settings from template
@@ -112,6 +124,21 @@ public abstract class MediaEntityExporter {
     if (StringUtils.isNotBlank(detailTemplateFile)) {
       detailTemplate = Utils.readFileToString(templateDir.resolve(detailTemplateFile));
     }
+  }
+
+  protected void registerDefaultRenderers() {
+    engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedNumberRenderer());
+    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
+    engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedReplacementRenderer());
+
+    // NEEDS TO BE THE LAST !
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
   }
 
   public abstract <T extends MediaEntity> void export(List<T> entitiesToExport, Path pathToExport) throws Exception;
@@ -246,7 +273,7 @@ public abstract class MediaEntityExporter {
         }
 
         switch (key.toLowerCase(Locale.ROOT)) {
-          case "type":
+          case "type" -> {
             try {
               MediaFileType type = MediaFileType.valueOf(value.toUpperCase(Locale.ROOT));
               parameterMap.put(key, type);
@@ -254,29 +281,19 @@ public abstract class MediaEntityExporter {
             catch (Exception e) {
               // do not let the exporter crash
             }
-            break;
-
-          case "destination":
-          case "default":
-            parameterMap.put(key, value);
-            break;
-
-          case "thumb":
-          case "escape":
-            parameterMap.put(key, Boolean.parseBoolean(value));
-            break;
-
-          case "width":
+          }
+          case "destination", "default" -> parameterMap.put(key, value);
+          case "thumb", "escape" -> parameterMap.put(key, Boolean.parseBoolean(value));
+          case "width" -> {
             try {
               parameterMap.put(key, Integer.parseInt(value));
             }
             catch (Exception ignored) {
               // do not let the exporter crash
             }
-            break;
-
-          default:
-            break;
+          }
+          default -> {
+          }
         }
       }
 

@@ -45,6 +45,7 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetBatchEditMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetCleanupArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditMovieAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetExportAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetExportMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetReadMovieNfoAction;
@@ -212,6 +213,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetRewriteNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetExportAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
 
     // movie actions
