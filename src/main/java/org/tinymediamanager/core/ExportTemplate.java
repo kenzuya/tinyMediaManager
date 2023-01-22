@@ -18,7 +18,7 @@ package org.tinymediamanager.core;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 
 /**
- * The Class MediaExporter.
+ * The class {@link ExportTemplate} is used to hold all information about an export template.
  * 
  * @author Manuel Laggner
  */
@@ -88,5 +88,10 @@ public class ExportTemplate extends AbstractModelObject {
     String oldValue = this.url;
     this.url = newValue;
     firePropertyChange("url", oldValue, newValue);
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 }

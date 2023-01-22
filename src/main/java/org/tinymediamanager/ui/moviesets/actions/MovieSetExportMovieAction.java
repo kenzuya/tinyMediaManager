@@ -18,19 +18,31 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.ExportTemplate;
+import org.tinymediamanager.core.MediaEntityExporter;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieExporter;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tasks.ExportTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
-import org.tinymediamanager.ui.movies.dialogs.MovieExporterDialog;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
+import org.tinymediamanager.ui.panels.ExporterPanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 /**
  * The {@link MovieSetExportMovieAction} - to export all selected movies via a template
@@ -38,6 +50,8 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetExportMovieAction extends TmmAction {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieSetExportMovieAction.class);
+
   public MovieSetExportMovieAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);
     putValue(SMALL_ICON, IconManager.EXPORT);
@@ -54,9 +68,43 @@ public class MovieSetExportMovieAction extends TmmAction {
       return;
     }
 
-    // export selected movies
-    MovieExporterDialog dialog = new MovieExporterDialog(movies);
-    dialog.setLocationRelativeTo(MainWindow.getInstance());
-    dialog.setVisible(true);
+    ModalPopupPanel popupPanel = MainWindow.getInstance().createModalPopupPanel();
+    popupPanel.setTitle(TmmResourceBundle.getString("movie.export"));
+
+    ExporterPanel exporterPanel = new ExporterPanel(MediaEntityExporter.TemplateType.MOVIE) {
+      @Override
+      protected void onClose() {
+        if (StringUtils.isBlank(tfExportDir.getText())) {
+          return;
+        }
+        // check selected template
+        ExportTemplate template = list.getSelectedValue();
+        if (template == null) {
+          return;
+        }
+
+        Path exportPath;
+        try {
+          exportPath = getExportPath();
+        }
+        catch (Exception e) {
+          LOGGER.debug("Aborted export - '{}'", e.getMessage());
+          return;
+        }
+
+        try {
+          TmmProperties.getInstance().putProperty(panelId + ".template", template.getName());
+          MovieExporter exporter = new MovieExporter(Paths.get(template.getPath()));
+          TmmTaskManager.getInstance().addMainTask(new ExportTask(TmmResourceBundle.getString("movie.export"), exporter, movies, exportPath));
+        }
+        catch (Exception e) {
+          LOGGER.error("Error exporting movies: ", e);
+        }
+        setVisible(false);
+      }
+    };
+
+    popupPanel.setContent(exporterPanel);
+    MainWindow.getInstance().showModalPopupPanel(popupPanel);
   }
 }

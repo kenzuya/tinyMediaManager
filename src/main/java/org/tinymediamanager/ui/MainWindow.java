@@ -188,8 +188,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
     ChangeListener changeListener = changeEvent -> {
       JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-      if (sourceTabbedPane.getSelectedComponent() instanceof ITmmTabItem) {
-        ITmmTabItem activeTab = (ITmmTabItem) sourceTabbedPane.getSelectedComponent();
+      if (sourceTabbedPane.getSelectedComponent()instanceof ITmmTabItem activeTab) {
         toolbarPanel.setUIModule(activeTab.getUIModule());
         CardLayout cl = (CardLayout) detailPanel.getLayout();
         cl.show(detailPanel, activeTab.getUIModule().getModuleId());
@@ -209,11 +208,9 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
     // mouse event listener for context menu
     Toolkit.getDefaultToolkit().addAWTEventListener(arg0 -> {
-      if (arg0 instanceof MouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource() instanceof JTextComponent) {
-        MouseEvent me = (MouseEvent) arg0;
-        JTextComponent tc = (JTextComponent) arg0.getSource();
-        if (me.isPopupTrigger() && tc.getComponentPopupMenu() == null) {
-          TextFieldPopupMenu.buildCutCopyPaste().show(tc, me.getX(), me.getY());
+      if (arg0 instanceof MouseEvent mouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource()instanceof JTextComponent textComponent) {
+        if (mouseEvent.isPopupTrigger() && textComponent.getComponentPopupMenu() == null) {
+          TextFieldPopupMenu.buildCutCopyPaste().show(textComponent, mouseEvent.getX(), mouseEvent.getY());
         }
       }
     }, AWTEvent.MOUSE_EVENT_MASK);
