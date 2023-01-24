@@ -491,11 +491,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       CountryCode countryCode = options.getCertificationCountry();
 
       for (ContentRating country : ListUtils.nullSafe(complete.content_ratings.results)) {
-        if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(country.iso_3166_1) == 0) {
-          // do not use any empty certifications
-          if (StringUtils.isEmpty(country.rating)) {
-            continue;
-          }
+        // do not use any empty certifications
+        if (StringUtils.isEmpty(country.rating) && countryCode != null && country.iso_3166_1.equalsIgnoreCase(countryCode.getAlpha2())) {
           md.addCertification(MediaCertification.getCertification(country.iso_3166_1, country.rating));
         }
       }
