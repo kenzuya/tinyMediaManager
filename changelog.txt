@@ -13,5 +13,6 @@ Version 5.0
 + writing season NFO files (mainly for Emby) #1697
 + added season plot
 + added a movie set export engine #1928
++ added a bulk editor for TV shows and episodes #1866
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons

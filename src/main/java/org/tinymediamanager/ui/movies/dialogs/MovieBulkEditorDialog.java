@@ -90,10 +90,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieBulkEditorDialog extends TmmDialog {
-  private final MovieList                movieList        = MovieModuleManager.getInstance().getMovieList();
-  private final List<Movie>              moviesToEdit     = new ArrayList<>();
+  private final MovieList                movieList    = MovieModuleManager.getInstance().getMovieList();
+  private final List<Movie>              moviesToEdit = new ArrayList<>();
 
-  private boolean                        changed          = false;
+  private boolean                        changed      = false;
 
   private final JComboBox                cbMovieSet;
   private final JComboBox<MovieProperty> cbProperty;
@@ -179,13 +179,12 @@ public class MovieBulkEditorDialog extends TmmDialog {
           Object item = cbGenres.getSelectedItem();
 
           // genre
-          if (item instanceof MediaGenres) {
-            genre = (MediaGenres) item;
+          if (item instanceof MediaGenres mediaGenres) {
+            genre = mediaGenres;
           }
-
-          // newly created genre?
-          if (item instanceof String) {
-            genre = MediaGenres.getGenre((String) item);
+          else if (item instanceof String string) {
+            // newly created genre?
+            genre = MediaGenres.getGenre(string);
           }
 
           if (genre != null) {
@@ -274,13 +273,12 @@ public class MovieBulkEditorDialog extends TmmDialog {
           Object item = cbEdition.getSelectedItem();
 
           // edition
-          if (item instanceof MovieEdition) {
-            edition = (MovieEdition) item;
+          if (item instanceof MovieEdition movieEdition) {
+            edition = movieEdition;
           }
-
-          // newly created edition?
-          if (item instanceof String) {
-            edition = MovieEdition.getMovieEdition((String) item);
+          else if (item instanceof String string) {
+            // newly created edition?
+            edition = MovieEdition.getMovieEdition(string);
           }
 
           if (edition != null) {
@@ -333,9 +331,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
             if (obj instanceof String) {
               movie.removeFromMovieSet();
             }
-            if (obj instanceof MovieSet) {
-              MovieSet movieSet = (MovieSet) obj;
-
+            else if (obj instanceof MovieSet movieSet) {
               if (movie.getMovieSet() != movieSet) {
                 movie.removeFromMovieSet();
                 movie.setMovieSet(movieSet);
@@ -344,8 +340,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
             }
           }
 
-          if (obj instanceof MovieSet) {
-            MovieSet movieSet = (MovieSet) obj;
+          if (obj instanceof MovieSet movieSet) {
             movieSet.saveToDb();
           }
 
