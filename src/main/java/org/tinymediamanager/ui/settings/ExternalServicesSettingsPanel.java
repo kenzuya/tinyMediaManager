@@ -92,6 +92,11 @@ class ExternalServicesSettingsPanel extends JPanel {
     // let the user insert the pin
     String pin = JOptionPane.showInputDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.entercode"));
 
+    // user clicked abort
+    if (pin == null || pin.isEmpty()) {
+      return;
+    }
+
     // try to get the tokens
     String accessToken = "";
     String refreshToken = "";
