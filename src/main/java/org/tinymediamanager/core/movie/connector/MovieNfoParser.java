@@ -1846,13 +1846,13 @@ public class MovieNfoParser {
       if (set.tmdbId > 0) {
         tmdbSetId = set.tmdbId;
       }
-      else if (ids.get("tmdbSet") != null) {
-        try {
-          tmdbSetId = Integer.parseInt(ids.get("tmdbSet").toString());
-        }
-        catch (Exception ignored) {
-          // just ignore
-        }
+      if (tmdbSetId == 0) {
+        Object id = ids.get("tmdbSet");
+        tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
+      }
+      if (tmdbSetId == 0) {
+        Object id = ids.get("tmdbset");
+        tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
       }
 
       MovieSet movieSet = movieList.getMovieSet(set.name, tmdbSetId);
