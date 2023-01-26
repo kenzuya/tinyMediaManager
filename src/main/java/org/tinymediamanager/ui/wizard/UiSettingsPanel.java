@@ -69,6 +69,8 @@ class UiSettingsPanel extends JPanel {
   private JRadioButton               rdbtnDark;
   private JComboBox                  cbFontSize;
   private JComboBox                  cbFontFamily;
+  private JLabel                     lblUpdate;
+  private JLabel                     lblUpdateInterval;
   private JSpinner                   spUpdateInterval;
   private JCheckBox                  chckbxAutomaticUpdates;
   private JLabel                     lblUpdateHint;
@@ -123,6 +125,16 @@ class UiSettingsPanel extends JPanel {
     rdbtnLight.addActionListener(actionListener);
     rdbtnDark.addActionListener(actionListener);
     chckbxAutomaticUpdates.addActionListener(actionListener);
+
+    // hide update related settings if we tmm.noupdate has been set
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      lblUpdate.setVisible(false);
+      chckbxAutomaticUpdates.setSelected(false);
+      chckbxAutomaticUpdates.setVisible(false);
+      lblUpdateInterval.setVisible(false);
+      spUpdateInterval.setVisible(false);
+      lblUpdateHint.setVisible(false);
+    }
   }
 
   /*
@@ -192,16 +204,17 @@ class UiSettingsPanel extends JPanel {
     JTextArea taFontHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.fonts.hint"));
     add(taFontHint, "cell 1 11 2 1,grow");
 
-    JLabel lblUpdate = new JLabel(TmmResourceBundle.getString("Settings.update"));
-    TmmFontHelper.changeFont(lblUpdate, 1.3333, Font.BOLD);
-    add(lblUpdate, "cell 0 13 3 1");
-
+    {
+      lblUpdate = new JLabel(TmmResourceBundle.getString("Settings.update"));
+      TmmFontHelper.changeFont(lblUpdate, 1.3333, Font.BOLD);
+      add(lblUpdate, "cell 0 13 3 1");
+    }
     {
       chckbxAutomaticUpdates = new JCheckBox(TmmResourceBundle.getString("Settings.updatecheck"));
       add(chckbxAutomaticUpdates, "cell 0 14 3 1");
     }
     {
-      JLabel lblUpdateInterval = new JLabel(TmmResourceBundle.getString("Settings.updatecheck.interval"));
+      lblUpdateInterval = new JLabel(TmmResourceBundle.getString("Settings.updatecheck.interval"));
       add(lblUpdateInterval, "flowx,cell 1 15 2 1");
 
       spUpdateInterval = new JSpinner();
