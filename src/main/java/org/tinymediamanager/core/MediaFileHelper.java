@@ -1907,7 +1907,7 @@ public class MediaFileHelper {
 
     String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
     stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-    String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+    String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language", "Language/String");
     stream.setLanguage(parseLanguageFromString(lang));
 
     String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
@@ -2137,7 +2137,7 @@ public class MediaFileHelper {
       String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitDepth");
       stream.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
-      String language = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+      String language = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
           // try to parse from filename
@@ -2818,7 +2818,7 @@ public class MediaFileHelper {
         continue;
       }
 
-      String language = getMediaInfo(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+      String language = getMediaInfo(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
           // try to parse from filename
@@ -2882,7 +2882,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename
@@ -2913,7 +2913,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename
