@@ -5,6 +5,7 @@ x fix duplicate filter with movie sets scraped from TMDB #2024
 x fixed parsing language from libmediainfo #2036
 x (movie) fixed loading of custom editions #2043
 x (TMDB) fixed classification of artwork (logos) #2044
+x (TV show) fixed fetching of missing episode thumbs #2045
 
 
 Version 4.3.8
