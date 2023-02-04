@@ -586,6 +586,7 @@ public class TmmTreeTable extends TmmTable {
         if (uiFilters != null) {
           tmmUIFilter.setFilterState(uiFilters.state);
           tmmUIFilter.setFilterValue(uiFilters.filterValue);
+          tmmUIFilter.setFilterOption(uiFilters.option);
         }
         else {
           tmmUIFilter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);

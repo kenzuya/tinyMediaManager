@@ -34,6 +34,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.text.JTextComponent;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.components.TriStateCheckBox;
 
@@ -45,31 +46,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Manuel Laggner
  */
 public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
-  protected static final ResourceBundle BUNDLE                = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle   BUNDLE                = ResourceBundle.getBundle("messages");
   /**
    * an object mapper which can be used to transform filters via/to JSON
    */
-  protected static ObjectMapper         objectMapper          = new ObjectMapper();
+  protected static ObjectMapper           objectMapper          = new ObjectMapper();
 
-  protected final TriStateCheckBox      checkBox;
-  protected final JLabel                label;
-  protected final JComponent            filterComponent;
-  protected final ActionListener        checkBoxActionListener;
-  protected final ActionListener        filterComponentActionListener;
-  protected final ChangeListener        changeListener;
+  protected final TriStateCheckBox        checkBox;
+  protected final JLabel                  label;
+  protected final JComboBox<FilterOption> cbOption;
+  protected final JComponent              filterComponent;
+  protected final ActionListener          checkBoxActionListener;
+  protected final ActionListener          filterComponentActionListener;
+  protected final ChangeListener          changeListener;
 
-  protected final PropertyChangeSupport propertyChangeSupport = new SwingPropertyChangeSupport(this, true);
+  protected final PropertyChangeSupport   propertyChangeSupport = new SwingPropertyChangeSupport(this, true);
 
   public AbstractTmmUIFilter() {
-    this.checkBox = new TriStateCheckBox();
-    this.checkBox.setToolTipText(TmmResourceBundle.getString("filter.hint"));
-    this.label = createLabel();
-    this.filterComponent = createFilterComponent();
-
     // always fire the change event if the checkbox has been changed
     checkBoxActionListener = e -> filterChanged();
-    this.checkBox.addActionListener(checkBoxActionListener);
-
     // the filter components only need to fire the change listener if the checkbox is active
     filterComponentActionListener = e -> {
       if (getFilterState() != FilterState.INACTIVE) {
@@ -82,8 +77,18 @@ public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
       }
     };
 
-    if (this.filterComponent instanceof JTextComponent) {
-      ((JTextComponent) this.filterComponent).getDocument().addDocumentListener(new DocumentListener() {
+    this.checkBox = new TriStateCheckBox();
+    this.checkBox.setToolTipText(TmmResourceBundle.getString("filter.hint"));
+    this.label = createLabel();
+    this.filterComponent = createFilterComponent();
+    this.cbOption = createOptionComboBox();
+    if (this.cbOption != null) {
+      this.cbOption.addActionListener(filterComponentActionListener);
+    }
+    this.checkBox.addActionListener(checkBoxActionListener);
+
+    if (this.filterComponent instanceof JTextComponent textComponent) {
+      textComponent.getDocument().addDocumentListener(new DocumentListener() {
         @Override
         public void removeUpdate(DocumentEvent e) {
           if (getFilterState() != FilterState.INACTIVE) {
@@ -106,14 +111,14 @@ public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
         }
       });
     }
-    else if (this.filterComponent instanceof AbstractButton) {
-      ((AbstractButton) this.filterComponent).addActionListener(filterComponentActionListener);
+    else if (this.filterComponent instanceof AbstractButton abstractButton) {
+      abstractButton.addActionListener(filterComponentActionListener);
     }
     else if (this.filterComponent instanceof JComboBox) {
       ((JComboBox<?>) this.filterComponent).addActionListener(filterComponentActionListener);
     }
-    else if (this.filterComponent instanceof JSpinner) {
-      ((JSpinner) this.filterComponent).addChangeListener(changeListener);
+    else if (this.filterComponent instanceof JSpinner jSpinner) {
+      jSpinner.addChangeListener(changeListener);
     }
   }
 
@@ -133,6 +138,21 @@ public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
   }
 
   protected abstract JLabel createLabel();
+
+  /**
+   * create the combobox for the option - per default only EQ is offered. Subclasses may override this to offer other options
+   * 
+   * @return the created {@link JComboBox}
+   */
+  protected JComboBox<FilterOption> createOptionComboBox() {
+    // when there is _no_ filter component or only EQ, we don't need a combo box
+    return null;
+  }
+
+  @Override
+  public JComboBox<FilterOption> getFilterOptionComboBox() {
+    return cbOption;
+  }
 
   protected abstract JComponent createFilterComponent();
 
@@ -161,18 +181,28 @@ public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
   @Override
   public void setFilterState(FilterState state) {
     switch (state) {
-      case ACTIVE:
-        checkBox.setSelected(true);
-        break;
+      case ACTIVE -> checkBox.setSelected(true);
+      case ACTIVE_NEGATIVE -> checkBox.setMixed(true);
+      case INACTIVE -> checkBox.setSelected(false);
+    }
+  }
 
-      case ACTIVE_NEGATIVE:
-        checkBox.setMixed(true);
-        break;
+  @Override
+  public @NotNull FilterOption getFilterOption() {
+    if (cbOption != null) {
+      Object selectedItem = cbOption.getSelectedItem();
+      if (selectedItem instanceof FilterOption filterOption) {
+        return filterOption;
+      }
+    }
 
-      case INACTIVE:
-      default:
-        checkBox.setSelected(false);
-        break;
+    return FilterOption.EQ;
+  }
+
+  @Override
+  public void setFilterOption(@NotNull FilterOption filterOption) {
+    if (cbOption != null) {
+      cbOption.setSelectedItem(filterOption);
     }
   }
 

@@ -40,8 +40,8 @@ public abstract class AbstractTextMovieUIFilter extends AbstractMovieUIFilter {
 
   @Override
   public void setFilterValue(Object value) {
-    if (value instanceof String) {
-      textField.setText((String) value);
+    if (value instanceof String string) {
+      textField.setText(string);
     }
   }
 

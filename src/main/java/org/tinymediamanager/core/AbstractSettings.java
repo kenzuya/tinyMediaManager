@@ -273,9 +273,10 @@ public abstract class AbstractSettings extends AbstractModelObject {
   }
 
   public static class UIFilters {
-    public String                   id          = "";
-    public ITmmUIFilter.FilterState state       = ITmmUIFilter.FilterState.INACTIVE;
-    public String                   filterValue = "";
+    public String                    id          = "";
+    public ITmmUIFilter.FilterState  state       = ITmmUIFilter.FilterState.INACTIVE;
+    public ITmmUIFilter.FilterOption option      = ITmmUIFilter.FilterOption.EQ;
+    public String                    filterValue = "";
   }
 
   public enum UniversalFilterFields {

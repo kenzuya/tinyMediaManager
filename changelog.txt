@@ -14,5 +14,7 @@ Version 5.0
 + added season plot
 + added a movie set export engine #1928
 + added a bulk editor for TV shows and episodes #1866
++ filter enhancements: numerical values can now be filtered with various other comparison methods #1952
++ many new filters #1052 #1952 #1949
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons

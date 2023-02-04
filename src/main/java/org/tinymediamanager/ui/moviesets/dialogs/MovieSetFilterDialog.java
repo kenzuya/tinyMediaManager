@@ -19,13 +19,11 @@ package org.tinymediamanager.ui.moviesets.dialogs;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -36,10 +34,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,9 +46,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.FlatButton;
-import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -69,7 +63,7 @@ import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetFilterDialog extends TmmDialog {
-  protected static final ResourceBundle                BUNDLE = ResourceBundle.getBundle("messages");
+  private static final String                          PANEL_COL_CONSTRAINTS = "[][][][200lp:250lp,grow]";
 
   private final TmmTreeTable                           treeTable;
 
@@ -84,7 +78,6 @@ public class MovieSetFilterDialog extends TmmDialog {
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
     super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.moviesets"), "movieSetFilter");
     setModalityType(ModalityType.MODELESS);
-    setMinimumSize(new Dimension(400, 300));
 
     this.treeTable = treeTable;
 
@@ -111,10 +104,8 @@ public class MovieSetFilterDialog extends TmmDialog {
 
       {
         // panel Main
-        JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
-        JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
-        scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
+        JPanel panelMain = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelMain);
 
         panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
@@ -315,13 +306,15 @@ public class MovieSetFilterDialog extends TmmDialog {
   }
 
   @Override
-  protected void initBottomPanel() {
-    // no bottom line needed
+  public void pack() {
+    super.pack();
+
+    // avoid shrinking the dialog below the preferred size
+    setMinimumSize(getPreferredSize());
   }
 
   @Override
-  public void dispose() {
-    // do not dispose (singleton), but save the size/position
-    TmmUILayoutStore.getInstance().saveSettings(this);
+  protected void initBottomPanel() {
+    // no bottom line needed
   }
 }

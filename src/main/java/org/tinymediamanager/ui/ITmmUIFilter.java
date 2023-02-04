@@ -18,6 +18,7 @@ package org.tinymediamanager.ui;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
@@ -36,6 +37,57 @@ public interface ITmmUIFilter<E> {
     ACTIVE,
     ACTIVE_NEGATIVE,
     INACTIVE
+  }
+
+  /**
+   * the filter option
+   */
+  enum FilterOption {
+    /**
+     * LT - lower than
+     */
+    LT,
+
+    /**
+     * LE - lower equals
+     */
+    LE,
+
+    /**
+     * EQ - equals
+     */
+    EQ,
+
+    /**
+     * GE - greater equals
+     */
+    GE,
+
+    /**
+     * GT - greater than
+     */
+    GT,
+
+    /**
+     * BT - between
+     */
+    BT;
+
+    @Override
+    public String toString() {
+      String string = "";
+
+      switch (this) {
+        case LT -> string = "<";
+        case LE -> string = "≤";
+        case EQ -> string = "=";
+        case GE -> string = "≥";
+        case GT -> string = ">";
+        case BT -> string = "[]";
+      }
+
+      return string;
+    }
   }
 
   /**
@@ -58,6 +110,13 @@ public interface ITmmUIFilter<E> {
    * @return the JLabel with the filter name
    */
   JLabel getLabel();
+
+  /**
+   * get the filter option {@link JComboBox}
+   * 
+   * @return the filter option {@link JComboBox} - only created if there getFilterComponent is not null!
+   */
+  JComboBox<FilterOption> getFilterOptionComboBox();
 
   /**
    * Get the filter component for extended filtering or null if it is not needed
@@ -97,6 +156,21 @@ public interface ITmmUIFilter<E> {
    *          the state
    */
   void setFilterState(FilterState state);
+
+  /**
+   * get the filter option
+   *
+   * @return the filter option (LT, LE, EQ, GE, GT)
+   */
+  FilterOption getFilterOption();
+
+  /**
+   * set the filter option
+   * 
+   * @param filterOption
+   *          the filter option (LT, LE, EQ, GE, GT)
+   */
+  void setFilterOption(FilterOption filterOption);
 
   /**
    * Returns whether the specified object is accepted by this filter or not.

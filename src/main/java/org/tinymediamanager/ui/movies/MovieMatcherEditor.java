@@ -75,6 +75,7 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
       if (uiFilters != null) {
         filter.setFilterState(uiFilters.state);
         filter.setFilterValue(uiFilters.filterValue);
+        filter.setFilterOption(uiFilters.option);
       }
       else {
         filter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);

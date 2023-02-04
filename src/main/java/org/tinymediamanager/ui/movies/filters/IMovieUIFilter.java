@@ -56,6 +56,7 @@ public interface IMovieUIFilter extends ITmmUIFilter<Movie> {
         UIFilters uiFilter = new AbstractSettings.UIFilters();
         uiFilter.id = filter.getId();
         uiFilter.state = filter.getFilterState();
+        uiFilter.option = filter.getFilterOption();
         uiFilter.filterValue = filter.getFilterValueAsString();
         uiFilters.add(uiFilter);
       }
