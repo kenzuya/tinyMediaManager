@@ -11,9 +11,20 @@
 * Windows - Windows x64 - https://sourceforge.net/projects/tinyfiledialogs/files/
 * Linux - self compiled - https://sourceforge.net/projects/tinyfiledialogs/files/
 
+Linux x64:
+
 ```
 gcc -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c ./tinyfiledialogs.c
 gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so
+```
+
+Linux arm32:
+
+```
+sudo apt-get install gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+
+/usr/bin/arm-linux-gnueabi-gcc -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c ./tinyfiledialogs.c
+/usr/bin/arm-linux-gnueabi-gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so
 ```
 
 ## FFmpeg
