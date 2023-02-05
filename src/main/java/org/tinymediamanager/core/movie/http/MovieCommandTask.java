@@ -189,13 +189,13 @@ class MovieCommandTask extends TmmThreadPool {
           activeTask = task;
           activeTask.run(); // blocking
 
-          // wait for all image downloads!
-          while (TmmTaskManager.getInstance().imageDownloadsRunning()) {
+          // wait for other tmm threads (artwork download et all)
+          while (TmmTaskManager.getInstance().poolRunning()) {
             try {
               Thread.sleep(2000);
             }
-            catch (Exception e) {
-              break;
+            catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
             }
           }
 
