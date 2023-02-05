@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.core.jmte;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,7 +34,13 @@ public class NamedArrayRenderer implements NamedRenderer {
   public String render(Object o, String s, Locale locale, Map<String, Object> map) {
     String delimiter = s != null ? s : ", ";
     if (o instanceof List<?>) {
-      return String.join(delimiter, (List) o);
+      List<String> values = new ArrayList<>();
+      for (Object obj : (List<?>) o) {
+        if (obj != null) {
+          values.add(obj.toString());
+        }
+      }
+      return String.join(delimiter, values);
     }
     if (o instanceof String) {
       return (String) o;

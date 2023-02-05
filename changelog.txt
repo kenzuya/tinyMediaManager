@@ -7,6 +7,7 @@ x (movie) fixed loading of custom editions #2043
 x (TMDB) fixed classification of artwork (logos) #2044
 x (TV show) fixed fetching of missing episode thumbs #2045
 x (HTTP API) wait for all image downloads before renaming
+x enhanced the array renderer (also render lists with other types than strings)
 
 
 Version 4.3.8
