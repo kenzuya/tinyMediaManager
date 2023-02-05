@@ -50,6 +50,7 @@ import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
@@ -187,6 +188,16 @@ class MovieCommandTask extends TmmThreadPool {
 
           activeTask = task;
           activeTask.run(); // blocking
+
+          // wait for all image downloads!
+          while (TmmTaskManager.getInstance().imageDownloadsRunning()) {
+            try {
+              Thread.sleep(2000);
+            }
+            catch (Exception e) {
+              break;
+            }
+          }
 
           // done
           activeTask = null;

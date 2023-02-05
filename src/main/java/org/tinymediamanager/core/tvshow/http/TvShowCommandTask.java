@@ -41,6 +41,7 @@ import org.tinymediamanager.core.http.AbstractCommandHandler;
 import org.tinymediamanager.core.http.AbstractCommandHandler.CommandScope;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -211,6 +212,16 @@ class TvShowCommandTask extends TmmThreadPool {
       activeTask = new TvShowScrapeTask(tvShowScrapeParams);
       activeTask.run(); // blocking
 
+      // wait for all image downloads!
+      while (TmmTaskManager.getInstance().imageDownloadsRunning()) {
+        try {
+          Thread.sleep(2000);
+        }
+        catch (Exception e) {
+          break;
+        }
+      }
+
       // done
       activeTask = null;
     }
@@ -246,6 +257,16 @@ class TvShowCommandTask extends TmmThreadPool {
         activeTask = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig,
             !TvShowModuleManager.getInstance().getSettings().isDoNotOverwriteExistingData());
         activeTask.run(); // blocking
+
+        // wait for all image downloads!
+        while (TmmTaskManager.getInstance().imageDownloadsRunning()) {
+          try {
+            Thread.sleep(2000);
+          }
+          catch (Exception e) {
+            break;
+          }
+        }
 
         // done
         activeTask = null;
