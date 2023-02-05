@@ -20,7 +20,6 @@ import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
-import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -29,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
-import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -208,8 +206,7 @@ public final class TinyMediaManager {
             Thread.currentThread().setName("headless");
             LOGGER.debug("starting without GUI...");
           }
-          Toolkit tk = Toolkit.getDefaultToolkit();
-          tk.addAWTEventListener(TmmUILayoutStore.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
+
           if (!GraphicsEnvironment.isHeadless()) {
             setLookAndFeel();
           }
