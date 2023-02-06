@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.core;
+package org.tinymediamanager.core.entities;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The enum MovieMediaSource - to represent all possible media sources for movies
+ * The enum {@link MediaSource} - to represent all possible media sources
  * 
  * @author Manuel Laggner
  */

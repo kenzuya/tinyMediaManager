@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.tinymediamanager.core.IPrintable;
+
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 
@@ -36,7 +38,10 @@ public class NamedArrayRenderer implements NamedRenderer {
     if (o instanceof List<?>) {
       List<String> values = new ArrayList<>();
       for (Object obj : (List<?>) o) {
-        if (obj != null) {
+        if (obj instanceof IPrintable) {
+          values.add(((IPrintable) obj).toPrintable());
+        }
+        else if (obj != null) {
           values.add(obj.toString());
         }
       }
