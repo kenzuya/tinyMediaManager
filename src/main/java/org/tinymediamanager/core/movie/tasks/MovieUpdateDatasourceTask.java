@@ -739,7 +739,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          is the movie in a disc folder?
    */
   private void createSingleMovieFromDir(Path dataSource, Path movieDir, boolean isDiscFolder) {
-    LOGGER.info("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
+    LOGGER.debug("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
 
     Path relative = dataSource.relativize(movieDir);
     // STACKED FOLDERS - go up ONE level (only when the stacked folder ==
@@ -1047,7 +1047,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          just use this files, do not list again
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir, List<Path> allFiles) {
-    LOGGER.info("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
+    LOGGER.debug("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 

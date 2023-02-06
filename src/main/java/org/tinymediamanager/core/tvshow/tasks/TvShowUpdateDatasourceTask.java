@@ -619,7 +619,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return null;
       }
 
-      LOGGER.info("start parsing {}", showDir);
+      LOGGER.debug("start parsing {}", showDir);
 
       fileLock.writeLock().lock();
       filesFound.add(showDir.toAbsolutePath()); // our global cache
