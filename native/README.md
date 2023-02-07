@@ -14,17 +14,13 @@
 Linux x64:
 
 ```
-gcc -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c ./tinyfiledialogs.c
-gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so
+docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp gcc:9-buster bash -c 'gcc  -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c tinyfiledialogs.c && gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so'
 ```
 
 Linux arm32:
 
 ```
-sudo apt-get install gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
-
-/usr/bin/arm-linux-gnueabi-gcc -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c ./tinyfiledialogs.c
-/usr/bin/arm-linux-gnueabi-gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so
+docker run --rm -v "$PWD":/work dockcross/linux-armv7-lts bash -c '$CC  -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c tinyfiledialogs.c && $CC tinyfiledialogs.o -shared -o libtinyfiledialogs.so'
 ```
 
 ## FFmpeg
