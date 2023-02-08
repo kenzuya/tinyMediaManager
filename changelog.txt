@@ -10,6 +10,7 @@ x (HTTP API) wait for all image downloads before renaming
 x enhanced the array renderer (also render lists with other types than strings)
 x (TV shows) hanging when scraping for episodes #1411
 x (TV shows) also allow to choose season artwork when scraping TV shows
+x (movie) fix character escaping of path separators #2049
 
 
 Version 4.3.8
