@@ -39,6 +39,7 @@ public class TvShowSettingsNode extends TmmSettingsNode {
     addChild(scraperSettingsNode);
 
     TmmSettingsNode imageSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.images"), new TvShowImageSettingsPanel());
+    imageSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new TvShowImageOptionsSettingsPanel()));
     imageSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.artwork.naming"), new TvShowImageTypeSettingsPanel()));
     addChild(imageSettingsNode);
 

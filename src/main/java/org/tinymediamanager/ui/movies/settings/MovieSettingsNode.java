@@ -39,6 +39,7 @@ public class MovieSettingsNode extends TmmSettingsNode {
     addChild(scraperSettingsNode);
 
     TmmSettingsNode imageSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.images"), new MovieImageSettingsPanel());
+    imageSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new MovieImageOptionsSettingsPanel()));
     imageSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.artwork.naming"), new MovieImageTypeSettingsPanel()));
     imageSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.extraartwork"), new MovieImageExtraPanel()));
     addChild(imageSettingsNode);
