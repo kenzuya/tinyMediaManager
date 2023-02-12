@@ -352,7 +352,7 @@ public class TraktTv implements TmmFeature {
     if ("hdr10+".equalsIgnoreCase(hdr)) {
       return Hdr.HDR10_PLUS;
     }
-    if ("hdr".equalsIgnoreCase(hdr)) {
+    if ("hdr10".equalsIgnoreCase(hdr) || "hdr".equalsIgnoreCase(hdr)) {
       return Hdr.HDR10;
     }
     if ("dolby vision".equalsIgnoreCase(hdr)) {
@@ -374,7 +374,7 @@ public class TraktTv implements TmmFeature {
     if ("DTS-X".equalsIgnoreCase(audioCodec)) {
       return Audio.DTS_X;
     }
-    if ("Atmos".equalsIgnoreCase(audioCodec)) {
+    if ("TrueHD/Atmos".equalsIgnoreCase(audioCodec) || "Atmos".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_ATMOS;
     }
     if ("DTS".equalsIgnoreCase(audioCodec)) {
@@ -389,6 +389,9 @@ public class TraktTv implements TmmFeature {
     }
     if ("EAC3".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_DIGITAL_PLUS;
+    }
+    if ("EAC3/Atmos".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_DIGITAL_PLUS_ATMOS;
     }
     if ("AC3".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_DIGITAL;
