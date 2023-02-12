@@ -15,33 +15,6 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
-import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
-import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
-import static org.tinymediamanager.core.entities.Person.Type.WRITER;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_MOVIES;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.getTmmGenre;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.processMediaArt;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
-
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -67,6 +40,33 @@ import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
+import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_MOVIES;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.getTmmGenre;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.processMediaArt;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
 
 /**
  * The abstract class ImdbParser holds all relevant parsing logic which can be used either by the movie parser and TV show parser
@@ -290,8 +290,8 @@ public abstract class ImdbParser {
           Elements imgs = posters.get(0).getElementsByTag("img");
           for (Element img : imgs) {
             posterUrl = img.attr("src");
-            posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-            posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
+            posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "UX342_");
+            posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "UY513_");
             posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
           }
         }
@@ -428,8 +428,8 @@ public abstract class ImdbParser {
       Elements imgs = element.getElementsByTag("img");
       for (Element img : imgs) {
         posterUrl = img.attr("src");
-        posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-        posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
+        posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "UX342_");
+        posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "UY513_");
         posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
       }
     }
@@ -487,6 +487,9 @@ public abstract class ImdbParser {
       Element img = tr.getElementsByClass("lister-item-image").get(0);
       // String imgurl = img.getElementsByAttribute("loadlate").get(0).attr("src");
       String imgurlSmall = img.getElementsByAttribute("loadlate").get(0).attr("loadlate");
+      imgurlSmall = imgurlSmall.replaceAll("UX[0-9]{2,4}_", "UX342_");
+      imgurlSmall = imgurlSmall.replaceAll("UY[0-9]{2,4}_", "UY513_");
+      imgurlSmall = imgurlSmall.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
       sr.setPosterUrl(imgurlSmall);
     }
     catch (Exception e) {
@@ -525,8 +528,8 @@ public abstract class ImdbParser {
     Element img = element.getElementsByClass("ipc-image").first();
     if (img != null) {
       String posterUrl = img.attr("src");
-      posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-      posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
+      posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "UX342_");
+      posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "UY513_");
       posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
       sr.setPosterUrl(posterUrl);
     }
