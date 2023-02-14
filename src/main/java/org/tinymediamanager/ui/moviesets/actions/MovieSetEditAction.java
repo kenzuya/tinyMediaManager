@@ -78,14 +78,21 @@ public class MovieSetEditAction extends TmmAction {
 
       if (object instanceof Movie) {
         Movie movie = (Movie) object;
-        MovieEditorDialog editor = new MovieEditorDialog(movie, index, selectedCount);
-        editor.setVisible(true);
-        if (!editor.isContinueQueue()) {
-          break;
-        }
+        MovieSet mset = movie.getMovieSet();
+        // do not allow editing for dummy movies
+        if (mset != null && !mset.getDummyMovies().contains(movie)) {
+          MovieEditorDialog editor = new MovieEditorDialog(movie, index, selectedCount);
+          editor.setVisible(true);
+          if (!editor.isContinueQueue()) {
+            break;
+          }
 
-        if (editor.isNavigateBack()) {
-          index -= 1;
+          if (editor.isNavigateBack()) {
+            index -= 1;
+          }
+          else {
+            index += 1;
+          }
         }
         else {
           index += 1;
