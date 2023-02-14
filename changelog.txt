@@ -12,6 +12,7 @@ x (TV shows) hanging when scraping for episodes #1411
 x (TV shows) also allow to choose season artwork when scraping TV shows
 x (movie) fix character escaping of path separators #2049
 x (moviesets) do not allow editing of 'dummy' movies #2064
+x (TV show) re-evaluate filter state after changes #2047
 
 
 Version 4.3.8

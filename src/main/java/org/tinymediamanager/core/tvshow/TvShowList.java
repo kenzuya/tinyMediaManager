@@ -148,7 +148,7 @@ public final class TvShowList extends AbstractModelObject {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
-        firePropertyChange(EPISODE_COUNT, 0, 1);
+        firePropertyChange(EPISODE_COUNT, evt.getOldValue(), evt.getNewValue());
       }
     };
 
