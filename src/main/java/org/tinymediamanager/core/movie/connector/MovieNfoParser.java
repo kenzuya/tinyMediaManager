@@ -45,6 +45,7 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -1839,7 +1840,7 @@ public class MovieNfoParser {
         tmdbSetId = set.tmdbId;
       }
       if (tmdbSetId == 0) {
-        Object id = ids.get("tmdbSet");
+        Object id = ids.get(Constants.TMDB_SET);
         tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
       }
       if (tmdbSetId == 0) {

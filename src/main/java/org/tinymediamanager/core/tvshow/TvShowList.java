@@ -1255,7 +1255,7 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, Object> ids = tvShow.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
-        if (entry.getKey().equals(Constants.TMDB_SET)) {
+        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
         String id = entry.getKey() + String.valueOf(entry.getValue());
