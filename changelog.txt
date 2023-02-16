@@ -14,6 +14,7 @@ x (movie) fix character escaping of path separators #2049
 x (moviesets) do not allow editing of 'dummy' movies #2064
 x (TV show) re-evaluate filter state after changes #2047
 x (JMTE) replacement renderer can also be called for a single char
+x (API) scope "unscraped" has been added to our HTTP API
 
 
 Version 4.3.8

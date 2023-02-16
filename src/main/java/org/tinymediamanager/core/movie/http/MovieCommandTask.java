@@ -421,6 +421,10 @@ class MovieCommandTask extends TmmThreadPool {
         moviesToProcess.addAll(newMovies);
         break;
 
+      case "unscraped":
+        moviesToProcess.addAll(movieList.getUnscrapedMovies());
+        break;
+
       case "all":
       default:
         moviesToProcess.addAll(movieList.getMovies());

@@ -480,6 +480,10 @@ class TvShowCommandTask extends TmmThreadPool {
         tvShowsToProcess.addAll(tvShowList.getTvShows());
         break;
 
+      case "unscraped":
+        tvShowsToProcess.addAll(tvShowList.getUnscrapedTvShows());
+        break;
+
       case "new":
       default:
         tvShowsToProcess.addAll(newTvShows);
@@ -523,6 +527,10 @@ class TvShowCommandTask extends TmmThreadPool {
             episodesToProcess.addAll(tvShow.getEpisodes());
           }
         }
+        break;
+
+      case "unscraped":
+        episodesToProcess.addAll(tvShowList.getUnscrapedEpisodes());
         break;
 
       case "all":
