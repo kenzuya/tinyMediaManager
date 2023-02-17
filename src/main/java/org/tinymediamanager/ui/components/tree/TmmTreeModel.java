@@ -566,6 +566,11 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     cacheNodes(children);
 
     // force re-calculate of the whole subtree
+    for (Object obj : parent.getPath()) {
+      if (obj instanceof TmmTreeNode) {
+        filteredNodeChildrenCache.remove(((TmmTreeNode) obj).getId());
+      }
+    }
     filteredNodeChildrenCache.remove(getRoot().getId());
 
     readWriteLock.writeLock().unlock();
@@ -612,6 +617,11 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     }
 
     // force re-calculate of the whole subtree
+    for (Object obj : parent.getPath()) {
+      if (obj instanceof TmmTreeNode) {
+        filteredNodeChildrenCache.remove(((TmmTreeNode) obj).getId());
+      }
+    }
     filteredNodeChildrenCache.remove(getRoot().getId());
 
     readWriteLock.writeLock().unlock();
