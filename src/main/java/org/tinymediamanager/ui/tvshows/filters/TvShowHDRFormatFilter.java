@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -51,7 +52,7 @@ public class TvShowHDRFormatFilter extends AbstractCheckComboBoxTvShowUIFilter<S
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.hdrformat"));
   }
 
   @Override

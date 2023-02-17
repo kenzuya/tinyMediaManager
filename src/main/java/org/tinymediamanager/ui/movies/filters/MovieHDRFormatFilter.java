@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -48,7 +49,7 @@ public class MovieHDRFormatFilter extends AbstractCheckComboBoxMovieUIFilter<Str
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.hdrformat"));
   }
 
   @Override

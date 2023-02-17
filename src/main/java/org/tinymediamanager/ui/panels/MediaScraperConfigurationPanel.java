@@ -238,12 +238,22 @@ public class MediaScraperConfigurationPanel extends JPanel {
    * @return the desired String or an empty String
    */
   private String getStringFromBundle(String key) {
+    if (mediaProvider.getProviderInfo().getResourceBundle() != null) {
+      try {
+        return mediaProvider.getProviderInfo().getResourceBundle().getString(key);
+      }
+      catch (Exception ignored) {
+        // an exception is thrown here if no string in the resources has been found -> silently ignore
+      }
+    }
+
     try {
       return BUNDLE.getString(key);
     }
     catch (Exception ignored) {
-      // an exception if thrown here if no string in the resources has been found -> silently ignore
+      // an exception if thrown here is no string in the resources has been found -> silently ignore
     }
+
     return "";
   }
 
