@@ -69,7 +69,7 @@ deploy-docker:
   needs:
     - build
   tags:
-    - tmm-mac # force running on own macOS runners
+    - tmm # force running on own runners
   script:
     # create login credentials
     - echo -e "${KANIKO_CONFIG_JSON}" > /kaniko/.docker/config.json
