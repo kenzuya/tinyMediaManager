@@ -61,23 +61,29 @@ deploy-docker:
   image:
     name: gcr.io/kaniko-project/executor:v1.9.1
     entrypoint: [ "" ]
-  needs:
-    - build
   variables:
     DOCKER_IMAGE_NAME_BASE: tinymediamanager/tinymediamanager
-  after_script:
+  environment:
+    name: test
+    url: https://test.tinymediamanager.org
+  needs:
+    - build
+  tags:
+    - tmm-mac # force running on own macOS runners
+  script:
     # create login credentials
-    - echo -e $KANIKO_CONFIG_JSON > /kaniko/.docker/config.json
+    - echo -e "${KANIKO_CONFIG_JSON}" > /kaniko/.docker/config.json
 
     # build
     - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
     - cd target/docker
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
-    - /kaniko/executor
-      --context "${CI_PROJECT_DIR}/target/docker"
-      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile"
-      #--destination "${IMAGE_NAME}:${$VERSION}"
-      --destination "${IMAGE_NAME}:5-test"
+    - |
+      /kaniko/executor \
+      --context "${CI_PROJECT_DIR}/target/docker" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      #--destination "${IMAGE_NAME}:${$VERSION}" \
+      --destination "${IMAGE_NAME}:5-test" \
       --destination "${IMAGE_NAME}:latest-test"
 
 deploy:
