@@ -47,7 +47,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -751,15 +750,6 @@ public class TmmUIHelper {
     }
     else {
       TmmTaskManager.getInstance().addUnnamedTask(runnable);
-    }
-  }
-
-  public static void restartWarningAfterV4Upgrade() {
-    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"),
-        TmmResourceBundle.getString("tmm.upgrade.finished"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-    if (confirm == JOptionPane.YES_OPTION) {
-      MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
     }
   }
 }

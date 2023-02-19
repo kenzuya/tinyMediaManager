@@ -17,7 +17,6 @@
 package org.tinymediamanager;
 
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
-import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
 
 import java.awt.AWTEvent;
@@ -195,11 +194,6 @@ public final class TinyMediaManager {
                 if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
                   // special case nightly/git: if same snapshot version, do not display changelog
                   SwingUtilities.invokeLater(WhatsNewDialog::showChangelog);
-                }
-
-                // did we just upgrade to v4?
-                if (newVersion && UpgradeTasks.getOldVersion().startsWith("3")) {
-                  restartWarningAfterV4Upgrade();
                 }
 
                 // is the license about to running out?

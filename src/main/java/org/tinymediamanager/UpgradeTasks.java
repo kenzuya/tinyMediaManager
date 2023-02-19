@@ -95,11 +95,6 @@ public class UpgradeTasks {
     // ****************************************************
 
     // upgrade to v4 (OR DO THIS IF WE ARE INSIDE IDE)
-    if (v.startsWith("3")) {
-      // create a backup from v3 data
-      createV3Backup();
-    }
-
     if (StrgUtils.compareVersion(v, "4.0") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.0");
 
@@ -654,24 +649,5 @@ public class UpgradeTasks {
         }
       }
     }
-  }
-
-  private static void createV3Backup() {
-    Path backup = Paths.get(Globals.BACKUP_FOLDER);
-    Path dataFolder = Paths.get(Settings.getInstance().getSettingsFolder());
-    try {
-      if (!Files.exists(backup)) {
-        Files.createDirectory(backup);
-      }
-
-      backup = backup.resolve("v3-backup.zip");
-      if (!Files.exists(backup)) {
-        Utils.createZip(backup, dataFolder); // just put in main dir
-      }
-    }
-    catch (IOException e) {
-      LOGGER.error("Could not backup file {}: {}", dataFolder, e.getMessage());
-    }
-
   }
 }
