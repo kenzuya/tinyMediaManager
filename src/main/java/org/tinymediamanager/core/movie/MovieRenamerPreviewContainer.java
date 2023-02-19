@@ -31,6 +31,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 public class MovieRenamerPreviewContainer {
   final Movie           movie;
   final Path            oldPath;
+  final List<MediaFile> oldMediaFiles;
   final List<MediaFile> newMediaFiles;
 
   Path                  newPath;
@@ -38,6 +39,7 @@ public class MovieRenamerPreviewContainer {
 
   public MovieRenamerPreviewContainer(Movie movie) {
     this.movie = movie;
+    this.oldMediaFiles = new ArrayList<>();
     this.newMediaFiles = new ArrayList<>();
 
     if (movie != null && !movie.getDataSource().isEmpty()) {
@@ -56,12 +58,20 @@ public class MovieRenamerPreviewContainer {
     return oldPath;
   }
 
+  public Path getOldPathRelative() {
+    return Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());
+  }
+
   public Path getNewPath() {
     return newPath;
   }
 
+  public Path getNewPathRelative() {
+    return Paths.get(movie.getDataSource()).relativize(newPath);
+  }
+
   public List<MediaFile> getOldMediaFiles() {
-    return movie.getMediaFiles();
+    return oldMediaFiles;
   }
 
   public List<MediaFile> getNewMediaFiles() {

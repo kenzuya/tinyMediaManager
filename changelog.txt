@@ -18,3 +18,4 @@ Version 5.0
 + many new filters #1052 #1952 #1949
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons
+x (movie) renamer preview now shows subfolders too #2010

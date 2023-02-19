@@ -81,24 +81,23 @@ public class MovieRenamerPreview {
     String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
     if (pattern.isEmpty()) {
       // same
-      container.newPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());
+      container.newPath = movie.getPathNIO();
     }
     else {
       try {
-        container.newPath = Paths.get(MovieRenamer.createDestinationForFoldername(pattern, movie));
+        container.newPath = Paths.get(movie.getDataSource(), MovieRenamer.createDestinationForFoldername(pattern, movie));
       }
       catch (Exception e) {
         // new folder name is invalid
         container.newPath = movie.getPathNIO();
       }
     }
-    Path newMovieFolder = Paths.get(movie.getDataSource()).resolve(container.newPath);
 
-    if (!oldMovieFolder.equals(newMovieFolder)) {
+    if (!oldMovieFolder.equals(container.newPath)) {
       container.needsRename = true;
       // update already the "old" files with new path, so we can simply do a contains check ;)
       for (MediaFile omf : oldFiles.values()) {
-        omf.replacePathForRenamedFolder(oldMovieFolder, newMovieFolder);
+        omf.replacePathForRenamedFolder(oldMovieFolder, container.newPath);
       }
     }
 
@@ -117,6 +116,7 @@ public class MovieRenamerPreview {
       }
     }
 
+    container.oldMediaFiles.addAll(oldFiles.values());
     container.newMediaFiles.addAll(newFiles);
     return container;
   }

@@ -321,7 +321,15 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
           }
           oldMediaFileEventList.add(container);
         }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
+      finally {
+        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
+      }
 
+      try {
         newMediaFileEventList.getReadWriteLock().writeLock().lock();
         newMediaFileEventList.clear();
         for (MediaFile mf : selectedResult.getNewMediaFiles()) {
@@ -340,10 +348,9 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
         }
       }
       catch (Exception ignored) {
-        // ignored.printStackTrace();
+        // ignored
       }
       finally {
-        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
         newMediaFileEventList.getReadWriteLock().writeLock().unlock();
       }
     }
