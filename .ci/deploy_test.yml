@@ -59,7 +59,7 @@ build-mac:
 deploy-docker:
   stage: deploy
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.1
+    name: gcr.io/kaniko-project/executor:v1.9.1-debug
     entrypoint: [ "" ]
   variables:
     DOCKER_IMAGE_NAME_BASE: tinymediamanager/tinymediamanager
@@ -70,12 +70,15 @@ deploy-docker:
     - build
   tags:
     - tmm # force running on own runners
-  before_script:
+  script:
     # create login credentials
     - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$(printf "%s:%s" "${DOCKERHUB_USERNAME}" "${DOCKERHUB_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-  script:
+
+    # copy data
     - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
     - cd target/docker
+
+    # build image
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
     - |
       /kaniko/executor \
