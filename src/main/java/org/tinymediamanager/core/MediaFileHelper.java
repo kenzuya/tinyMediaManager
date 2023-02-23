@@ -129,9 +129,6 @@ public class MediaFileHelper {
   public static final String       VIDEO_FORMAT_2160P = "2160p";
   public static final String       VIDEO_FORMAT_4320P = "4320p";
 
-  public static final List<String> VIDEO_FORMATS      = List.of(VIDEO_FORMAT_480P, VIDEO_FORMAT_540P, VIDEO_FORMAT_576P, VIDEO_FORMAT_720P,
-      VIDEO_FORMAT_1080P, VIDEO_FORMAT_2160P, VIDEO_FORMAT_4320P);
-
   // meta formats
   public static final String       VIDEO_FORMAT_LD    = "LD";
   public static final String       VIDEO_FORMAT_SD    = "SD";

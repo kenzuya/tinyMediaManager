@@ -17,6 +17,7 @@ x (TV show) re-evaluate filter state after changes #2047
 x (JMTE) replacement renderer can also be called for a single char
 x (API) scope "unscraped" has been added to our HTTP API
 x improved performance of "update data sources" when Kodi sync is activated
+x sorting of video formats #2077
 
 
 Version 4.3.8
