@@ -360,7 +360,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // map Kodi entries
       if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-        KodiRPC.getInstance().updateTvShowMappings();
+        // call async to avoid slowdown of UDS
+        TmmTaskManager.getInstance().addUnnamedTask(() -> KodiRPC.getInstance().updateTvShowMappings());
       }
 
       LOGGER.info("getting Mediainfo...");
