@@ -66,7 +66,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
-import org.tinymediamanager.scraper.imdb.entities.ImdbCertificate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
@@ -950,12 +949,13 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
-      ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
-      if (!certCountry.isEmpty() && certificate != null) {
-        md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
-        // TODO: parse from reference page and add all?!
-      }
+      // skip certification for now because this probably returns the wrong certification
+      // JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
+      // ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
+      // if (!certCountry.isEmpty() && certificate != null) {
+      // md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
+      // // TODO: parse from reference page and add all?!
+      // }
 
       JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
       for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
