@@ -66,22 +66,21 @@ public class TmmTaskManager implements TmmTaskListener {
   private TmmTaskManager() {
     imageQueueHandle = new ImageQueueTaskHandle();
 
-    Settings.getInstance()
-        .addPropertyChangeListener("maximumDownloadThreads", e -> {
-          // only need to set this if there is already an executor. otherwise the executor will be created with the right amount
-          if (downloadExecutor != null) {
-            // we have to make sure the maximum pool size is always larger then the core pool size
-            if (downloadExecutor.getMaximumPoolSize() < Settings.getInstance().getMaximumDownloadThreads()) {
-              downloadExecutor.setMaximumPoolSize(Settings.getInstance().getMaximumDownloadThreads());
-              downloadExecutor.setCorePoolSize(Settings.getInstance().getMaximumDownloadThreads());
-            }
-            else {
-              downloadExecutor.setCorePoolSize(Settings.getInstance().getMaximumDownloadThreads());
-              downloadExecutor.setMaximumPoolSize(Settings.getInstance().getMaximumDownloadThreads());
-            }
-            downloadExecutor.prestartAllCoreThreads(); // force new threads to be started if we've increased the thread count
-          }
-        });
+    Settings.getInstance().addPropertyChangeListener("maximumDownloadThreads", e -> {
+      // only need to set this if there is already an executor. otherwise the executor will be created with the right amount
+      if (downloadExecutor != null) {
+        // we have to make sure the maximum pool size is always larger then the core pool size
+        if (downloadExecutor.getMaximumPoolSize() < Settings.getInstance().getMaximumDownloadThreads()) {
+          downloadExecutor.setMaximumPoolSize(Settings.getInstance().getMaximumDownloadThreads());
+          downloadExecutor.setCorePoolSize(Settings.getInstance().getMaximumDownloadThreads());
+        }
+        else {
+          downloadExecutor.setCorePoolSize(Settings.getInstance().getMaximumDownloadThreads());
+          downloadExecutor.setMaximumPoolSize(Settings.getInstance().getMaximumDownloadThreads());
+        }
+        downloadExecutor.prestartAllCoreThreads(); // force new threads to be started if we've increased the thread count
+      }
+    });
   }
 
   public static TmmTaskManager getInstance() {
@@ -319,6 +318,15 @@ public class TmmTaskManager implements TmmTaskListener {
    */
   public boolean poolRunning() {
     return checkForThreadAlive("tmmpool");
+  }
+
+  /**
+   * check if there are any image downloads running
+   * 
+   * @return true/false
+   */
+  public boolean imageDownloadsRunning() {
+    return imageDownloadExecutor.getActiveCount() > 0 || !imageDownloadExecutor.getQueue().isEmpty();
   }
 
   /**

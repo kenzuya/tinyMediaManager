@@ -38,7 +38,7 @@ public class ITTheTvDbApiTest extends BasicITest {
     super.setup();
     TheTvDbMetadataProvider md = new TheTvDbTvShowMetadataProvider();
 
-    theTvDbController = new TheTvDbController(true);
+    theTvDbController = new TheTvDbController();
     theTvDbController.setAuthToken(md.getAuthToken());
   }
 

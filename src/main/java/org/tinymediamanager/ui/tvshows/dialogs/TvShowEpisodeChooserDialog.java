@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,6 +54,7 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -267,6 +269,10 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
+    private final List<TvShowEpisodeChooserModel> searchResults = new ArrayList<>();
+    private Throwable                             error         = null;
+    boolean                                       cancel        = false;
+
     @Override
     public Void doInBackground() {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
@@ -277,15 +283,16 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       try {
         for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          episodeEventList.add(new TvShowEpisodeChooserModel(md));
+          searchResults.add(new TvShowEpisodeChooserModel(md));
         }
-        table.adjustColumnPreferredWidths(5);
       }
       catch (MissingIdException e) {
+        error = e;
         LOGGER.warn("missing id for scrape");
         MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
       }
       catch (ScrapeException e) {
+        error = e;
         LOGGER.error("searchMovieFallback", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
@@ -295,6 +302,23 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
     @Override
     protected void done() {
+      episodeEventList.clear();
+
+      if (error != null) {
+        // display empty result
+        episodeEventList.add(TvShowEpisodeChooserModel.emptyResult);
+      }
+      else if (!cancel) {
+        if (ListUtils.isEmpty(searchResults)) {
+          // display empty result
+          episodeEventList.add(TvShowEpisodeChooserModel.emptyResult);
+        }
+        else {
+          episodeEventList.addAll(searchResults);
+        }
+      }
+      table.adjustColumnPreferredWidths(5);
+
       if (textField.getText().isEmpty()) {
         int index = -1;
         // search for a match and preselect it

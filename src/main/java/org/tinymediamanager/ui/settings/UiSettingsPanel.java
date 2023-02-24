@@ -91,6 +91,7 @@ class UiSettingsPanel extends JPanel {
   private JSpinner                   spUpdateInterval;
   private JCheckBox                  chckbxAutomaticUpdates;
   private JLabel                     lblUpdateHint;
+  private CollapsiblePanel           collapsiblePanelUpdate;
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
@@ -186,6 +187,11 @@ class UiSettingsPanel extends JPanel {
 
     if (!chckbxAutomaticUpdates.isSelected()) {
       lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
+    }
+
+    // hide update related settings if we tmm.noupdate has been set
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      collapsiblePanelUpdate.setVisible(false);
     }
   }
 
@@ -311,9 +317,9 @@ class UiSettingsPanel extends JPanel {
       panelUpdate.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblUpdateT = new TmmLabel(TmmResourceBundle.getString("Settings.update"), H3);
-      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUpdate, lblUpdateT, true);
-      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#update"));
-      add(collapsiblePanel, "cell 0 8,growx,wmin 0");
+      collapsiblePanelUpdate = new CollapsiblePanel(panelUpdate, lblUpdateT, true);
+      collapsiblePanelUpdate.addExtraTitleComponent(new DocsButton("/settings#update"));
+      add(collapsiblePanelUpdate, "cell 0 8,growx,wmin 0");
 
       {
         chckbxAutomaticUpdates = new JCheckBox(TmmResourceBundle.getString("Settings.updatecheck"));

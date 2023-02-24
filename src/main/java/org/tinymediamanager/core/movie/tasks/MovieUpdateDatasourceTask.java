@@ -71,7 +71,6 @@ import org.tinymediamanager.core.AbstractFileVisitor;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -80,6 +79,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
@@ -337,7 +337,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       // map Kodi entries
       if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-        KodiRPC.getInstance().updateMovieMappings();
+        // call async to avoid slowdown of UDS
+        TmmTaskManager.getInstance().addUnnamedTask(() -> KodiRPC.getInstance().updateMovieMappings());
       }
 
       // mediainfo
@@ -739,7 +740,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          is the movie in a disc folder?
    */
   private void createSingleMovieFromDir(Path dataSource, Path movieDir, boolean isDiscFolder) {
-    LOGGER.info("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
+    LOGGER.debug("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
 
     Path relative = dataSource.relativize(movieDir);
     // STACKED FOLDERS - go up ONE level (only when the stacked folder ==
@@ -1047,7 +1048,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          just use this files, do not list again
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir, List<Path> allFiles) {
-    LOGGER.info("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
+    LOGGER.debug("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 

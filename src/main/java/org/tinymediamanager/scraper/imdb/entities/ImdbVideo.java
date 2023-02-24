@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ImdbVideo {
   public String                id                   = "";
   public boolean               isMature             = false;
-  public String                creeatedDate         = "";
+  public String                createdDate          = "";
   public ImdbImage             thumbnail            = null;
   public ImdbLocalizedString   description          = null;
   public ImdbLocalizedString   name                 = null;

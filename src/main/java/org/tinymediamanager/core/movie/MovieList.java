@@ -56,7 +56,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -66,6 +65,7 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -1237,7 +1237,7 @@ public final class MovieList extends AbstractModelObject {
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs" (tmdbcol is from Ember)
-        if (Constants.TMDB_SET.equals(entry.getKey()) || "tmdbcol".equals(entry.getKey())) {
+        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
 

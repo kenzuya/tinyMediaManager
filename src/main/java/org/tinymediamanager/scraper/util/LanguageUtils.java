@@ -130,8 +130,11 @@ public class LanguageUtils {
       }
     }
 
-    // also add "special" languages
-    langArray.put("zxx", new Locale("zxx"));
+    // also add "special" languages https://de.wikipedia.org/wiki/Liste_der_ISO-639-2-Codes#FN_Anm._1
+    langArray.put("mis", new Locale("mis")); // no ISO code yet (missing)
+    langArray.put("mul", new Locale("mul")); // multiple languages in audio
+    langArray.put("und", new Locale("und")); // undefined
+    langArray.put("zxx", new Locale("zxx")); // documents w/o text
 
     // inoffical pt-BR codes
     langArray.put("pb", new Locale("pt", "BR"));

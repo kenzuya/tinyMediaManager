@@ -41,7 +41,6 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -60,8 +59,6 @@ import com.uwetrottmann.trakt5.entities.Movie;
 import com.uwetrottmann.trakt5.entities.MovieTranslation;
 import com.uwetrottmann.trakt5.entities.SearchResult;
 import com.uwetrottmann.trakt5.enums.Extended;
-
-import retrofit2.Response;
 
 /**
  * The class TraktMovieMetadataProvider is used to provide metadata for movies from trakt.tv
@@ -101,13 +98,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     // pass NO language here since trakt.tv returns less results when passing a language :(
 
     try {
-      Response<List<SearchResult>> response;
-      response = api.search().textQueryMovie(searchString, null, null, null, null, null, null, null, Extended.FULL, 1, 25).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      searchResults = response.body();
+      searchResults = executeCall(api.search().textQueryMovie(searchString, null, null, null, null, null, null, null, Extended.FULL, 1, 25));
     }
     catch (Exception e) {
       LOGGER.error("Problem scraping for {} - {}", searchString, e.getMessage());
@@ -176,12 +167,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     Movie movie = null;
     Credits credits = null;
     try {
-      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      movie = response.body();
+      movie = executeCall(api.movies().summary(id, Extended.FULL));
       if (!"en".equals(lang)) {
         // only call translation when we're not already EN ;)
         translations = api.movies().translation(id, lang).execute().body();
@@ -293,12 +279,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     Movie movie;
     try {
-      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      movie = response.body();
+      movie = executeCall(api.movies().summary(id, Extended.FULL));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
@@ -352,12 +333,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     Movie movie = null;
     try {
-      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      movie = response.body();
+      movie = executeCall(api.movies().summary(id, Extended.FULL));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());

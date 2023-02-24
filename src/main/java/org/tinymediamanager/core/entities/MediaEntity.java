@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
@@ -92,7 +93,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * 
  * @author Manuel Laggner
  */
-public abstract class MediaEntity extends AbstractModelObject {
+public abstract class MediaEntity extends AbstractModelObject implements IPrintable {
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -1460,5 +1461,10 @@ public abstract class MediaEntity extends AbstractModelObject {
         }
       }
     }
+  }
+
+  @Override
+  public String toPrintable() {
+    return getTitle();
   }
 }

@@ -19,7 +19,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
@@ -45,7 +44,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Manuel Laggner
  */
 public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
-  protected static final ResourceBundle BUNDLE                = ResourceBundle.getBundle("messages");
   /**
    * an object mapper which can be used to transform filters via/to JSON
    */

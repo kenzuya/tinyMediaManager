@@ -18,6 +18,7 @@ package org.tinymediamanager.core;
 import java.util.List;
 
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**

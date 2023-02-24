@@ -56,7 +56,6 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -64,6 +63,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -360,7 +360,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // map Kodi entries
       if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-        KodiRPC.getInstance().updateTvShowMappings();
+        // call async to avoid slowdown of UDS
+        TmmTaskManager.getInstance().addUnnamedTask(() -> KodiRPC.getInstance().updateTvShowMappings());
       }
 
       LOGGER.info("getting Mediainfo...");
@@ -619,7 +620,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return null;
       }
 
-      LOGGER.info("start parsing {}", showDir);
+      LOGGER.debug("start parsing {}", showDir);
 
       fileLock.writeLock().lock();
       filesFound.add(showDir.toAbsolutePath()); // our global cache

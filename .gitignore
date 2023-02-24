@@ -35,6 +35,7 @@ pom.xml.*
 .directory
 
 #tinyMediaManager
+addons
 cache
 jspf.cache
 logs

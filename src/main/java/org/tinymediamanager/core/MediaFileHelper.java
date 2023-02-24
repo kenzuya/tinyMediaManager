@@ -129,9 +129,6 @@ public class MediaFileHelper {
   public static final String       VIDEO_FORMAT_2160P = "2160p";
   public static final String       VIDEO_FORMAT_4320P = "4320p";
 
-  public static final List<String> VIDEO_FORMATS      = List.of(VIDEO_FORMAT_480P, VIDEO_FORMAT_540P, VIDEO_FORMAT_576P, VIDEO_FORMAT_720P,
-      VIDEO_FORMAT_1080P, VIDEO_FORMAT_2160P, VIDEO_FORMAT_4320P);
-
   // meta formats
   public static final String       VIDEO_FORMAT_LD    = "LD";
   public static final String       VIDEO_FORMAT_SD    = "SD";
@@ -1684,7 +1681,55 @@ public class MediaFileHelper {
   }
 
   /**
-   * Gets the real mediainfo values.
+   * Gets the real mediainfo values as {@link List}. If you pass multiple keys, every found value will be added (in the same order) into the
+   * {@link List}
+   *
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
+   * @param streamKind
+   *          MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
+   * @param streamNumber
+   *          the stream number (0 for first)
+   * @param keys
+   *          the information you want to fetch
+   * @return a {@link List} of the media information you asked<br>
+   *         <b>OR AN EMPTY LIST IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
+   */
+  public static List<String> getMediaInfoValues(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
+      int streamNumber, String... keys) {
+    // prevent NPE
+    if (miSnapshot == null) {
+      return Collections.emptyList();
+    }
+
+    List<Map<String, String>> stream = miSnapshot.get(streamKind);
+    if (stream == null) {
+      return Collections.emptyList();
+    }
+
+    Map<String, String> info = stream.get(streamNumber);
+    if (info == null) {
+      return Collections.emptyList();
+    }
+
+    List<String> values = new ArrayList<>();
+
+    // normalize keys
+    Map<String, String> normalizedMap = normalizeKeys(info);
+    List<String> normalizedKeys = normalizeKeys(keys);
+
+    for (String key : normalizedKeys) {
+      String value = normalizedMap.get(key);
+      if (StringUtils.isNotBlank(value)) {
+        values.add(value);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * Gets the real mediainfo value
    *
    * @param miSnapshot
    *          the mediainfo snapshot to load the data from
@@ -1697,35 +1742,9 @@ public class MediaFileHelper {
    * @return the media information you asked<br>
    *         <b>OR AN EMPTY STRING IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
    */
-  public static String getMediaInfo(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
+  public static String getMediaInfoValue(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
       int streamNumber, String... keys) {
-    // prevent NPE
-    if (miSnapshot == null) {
-      return "";
-    }
-
-    List<Map<String, String>> stream = miSnapshot.get(streamKind);
-    if (stream == null) {
-      return "";
-    }
-
-    Map<String, String> info = stream.get(streamNumber);
-    if (info == null) {
-      return "";
-    }
-
-    // normalize keys
-    Map<String, String> normalizedMap = normalizeKeys(info);
-    List<String> normalizedKeys = normalizeKeys(keys);
-
-    for (String key : normalizedKeys) {
-      String value = normalizedMap.get(key);
-      if (StringUtils.isNotBlank(value)) {
-        return value;
-      }
-    }
-
-    return "";
+    return getMediaInfoValues(miSnapshot, streamKind, streamNumber, keys).stream().findFirst().orElse("");
   }
 
   /**
@@ -1835,7 +1854,7 @@ public class MediaFileHelper {
   public static String getMediaInfoDirect(MediaFile mediaFile, MediaInfo.StreamKind streamKind, int streamNumber, String... keys) {
     List<MediaInfoFile> mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile);
     if (!mediaInfoFiles.isEmpty()) {
-      return getMediaInfo(mediaInfoFiles.get(0).getSnapshot(), streamKind, streamNumber, keys);
+      return getMediaInfoValue(mediaInfoFiles.get(0).getSnapshot(), streamKind, streamNumber, keys);
     }
     return "";
   }
@@ -1903,24 +1922,24 @@ public class MediaFileHelper {
   private static MediaFileSubtitle gatherSubtitleInformationFromMediainfo(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, int i) {
 
     MediaFileSubtitle stream = new MediaFileSubtitle();
-    stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
+    stream.id = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
 
-    String codec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
+    String codec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "CodecID/Hint", "Format");
     stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-    String lang = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+    String lang = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "Language", "Language/String");
     stream.setLanguage(parseLanguageFromString(lang));
 
-    String forced = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
+    String forced = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "Forced");
     boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
     stream.setForced(b);
 
-    String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
+    String title = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "Title");
     if (StringUtils.isNotBlank(title)) {
       stream.setTitle(title);
     }
 
     // "default" subtitle stream?
-    String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
+    String def = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "Default");
     if (def.equalsIgnoreCase("true") || def.equalsIgnoreCase("yes")) {
       stream.setDefaultStream(true);
     }
@@ -1997,20 +2016,20 @@ public class MediaFileHelper {
 
       // else just take format
       if (StringUtils.isBlank(audioCodec)) {
-        audioCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format");
+        audioCodec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format");
         audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
       }
 
       // E-AC-3 in Format_String
       if ("ac3".equalsIgnoreCase(audioCodec)) {
-        String formatString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_String");
+        String formatString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_String");
         if ("e-ac-3".equalsIgnoreCase(formatString)) {
           audioCodec = "EAC3";
         }
       }
 
       // https://github.com/Radarr/Radarr/blob/develop/src/NzbDrone.Core/MediaFiles/MediaInfo/MediaInfoFormatter.cs#L35
-      String addFeature = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_AdditionalFeatures");
+      String addFeature = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_AdditionalFeatures");
       if (!addFeature.isEmpty()) {
         if ("dts".equalsIgnoreCase(audioCodec)) {
           if (addFeature.startsWith("XLL")) {
@@ -2037,7 +2056,7 @@ public class MediaFileHelper {
       }
 
       // old 18.05 style
-      String audioProfile = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Profile");
+      String audioProfile = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Profile");
       if (!audioProfile.isEmpty()) {
         if ("dts".equalsIgnoreCase(audioCodec)) {
           // <Format_Profile>X / MA / Core</Format_Profile>
@@ -2060,7 +2079,7 @@ public class MediaFileHelper {
           }
         }
         if ("MPEG Audio".equalsIgnoreCase(audioCodec)) {
-          String codecId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "CodecID");
+          String codecId = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "CodecID");
           if ("55".equals(codecId) || "A_MPEG/L3".equalsIgnoreCase(codecId) || "Layer 3".equalsIgnoreCase(audioProfile)) {
             audioCodec = "MP3";
           }
@@ -2073,7 +2092,7 @@ public class MediaFileHelper {
       // newer 18.12 style
       if ("ac3".equalsIgnoreCase(audioCodec) || "eac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec)
           || "TrueHD".equalsIgnoreCase(audioCodec)) {
-        String commName = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial", "Format_Commercial_IfAny")
+        String commName = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial", "Format_Commercial_IfAny")
             .toLowerCase(Locale.ROOT);
 
         if (!commName.isEmpty()) {
@@ -2100,22 +2119,22 @@ public class MediaFileHelper {
       }
 
       MediaFileAudioStream stream = new MediaFileAudioStream();
-      stream.id = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "StreamKindPos");
+      stream.id = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "StreamKindPos");
       stream.setCodec(audioCodec);
 
       // AAC sometimes codes channels into Channel(s)_Original
       // and DTS-ES has an additional core channel
-      int ch = parseChannelsAsInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Channel(s)"));
-      int ch2 = parseChannelsAsInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Channel(s)_Original"));
+      int ch = parseChannelsAsInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Channel(s)"));
+      int ch2 = parseChannelsAsInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Channel(s)_Original"));
       if (ch2 > ch) {
         ch = ch2;
       }
       stream.setAudioChannels(ch);
 
-      String br = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate", "BitRate_Maximum", "BitRate_Minimum", "BitRate_Nominal");
+      String br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate", "BitRate_Maximum", "BitRate_Minimum", "BitRate_Nominal");
       if (StringUtils.isNotBlank(br)) {
         try {
-          String[] brMode = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate_Mode").split("/");
+          String[] brMode = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate_Mode").split("/");
           if (brMode.length > 1) {
             String[] brChunks = br.split("/");
             int brMult = 0;
@@ -2134,10 +2153,10 @@ public class MediaFileHelper {
         }
       }
 
-      String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitDepth");
+      String bd = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitDepth");
       stream.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
-      String language = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+      String language = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
           // try to parse from filename
@@ -2150,13 +2169,13 @@ public class MediaFileHelper {
       }
 
       // "default" audio stream?
-      String def = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Default");
+      String def = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Default");
       if (def.equalsIgnoreCase("yes")) {
         stream.setDefaultStream(true);
       }
 
       // Title of audiostream
-      String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Title");
+      String title = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Title");
       stream.setAudioTitle(title);
 
       audioStreams.add(stream);
@@ -2192,7 +2211,7 @@ public class MediaFileHelper {
   private static int getAudioStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     int streamCount = 0;
     try {
-      streamCount = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "AudioCount"));
+      streamCount = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "AudioCount"));
     }
     catch (Exception ignored) {
       // ignore
@@ -2212,8 +2231,8 @@ public class MediaFileHelper {
    * @return the stream count
    */
   private static int getSubtitleStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    int streamsTextCount = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "TextCount"), 0);
-    int streamsStreamCount = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Text, 0, "StreamCount"), 0);
+    int streamsTextCount = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "TextCount"), 0);
+    int streamsStreamCount = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, 0, "StreamCount"), 0);
 
     return streamsTextCount > 0 ? streamsTextCount : streamsStreamCount;
   }
@@ -2255,32 +2274,32 @@ public class MediaFileHelper {
   }
 
   private static void gatherExtraData(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    String imdbId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "id");
+    String imdbId = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "id");
     if (MediaIdUtil.isValidImdbId(imdbId)) {
       mediaFile.addExtraData("imdbId", imdbId);
     }
 
-    String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Title", "Movie");
+    String title = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Title", "Movie");
     if (StringUtils.isNotBlank(title)) {
       mediaFile.addExtraData("title", title);
     }
 
-    String originalTitle = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Original");
+    String originalTitle = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Original");
     if (StringUtils.isNotBlank(originalTitle)) {
       mediaFile.addExtraData("originalTitle", originalTitle);
     }
 
-    String plot = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
+    String plot = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
     if (StringUtils.isNotBlank(plot)) {
       mediaFile.addExtraData("plot", plot);
     }
 
-    String genre = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Genre");
+    String genre = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Genre");
     if (StringUtils.isNotBlank(genre)) {
       mediaFile.addExtraData("genre", genre);
     }
 
-    String dateAsString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
+    String dateAsString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
     if (StringUtils.isNotBlank(dateAsString)) {
       try {
         Date date = StrgUtils.parseDate(dateAsString);
@@ -2298,12 +2317,12 @@ public class MediaFileHelper {
       }
     }
 
-    String season = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Season");
+    String season = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Season");
     if (StringUtils.isNotBlank(season)) {
       mediaFile.addExtraData("season", season);
     }
 
-    String episode = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Recorded_Date", "Date");
+    String episode = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Recorded_Date", "Date");
     if (StringUtils.isNotBlank(episode)) {
       mediaFile.addExtraData("episode", episode);
     }
@@ -2324,15 +2343,15 @@ public class MediaFileHelper {
     int width = 0;
 
     try {
-      height = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "Height"));
-      width = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "Width"));
+      height = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Height"));
+      width = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Width"));
     }
     catch (Exception e) {
       LOGGER.trace("could not parse width/height: {}", e.getMessage());
     }
 
     // calculate the "aspect" ratio. If it is too high, that might be a SBS video
-    String mvc = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
+    String mvc = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
     if ("2".equals(mvc) && width > 0 && height > 0) {
       float calculatedAspect = width / (float) height;
       if (calculatedAspect > 3) {
@@ -2347,7 +2366,7 @@ public class MediaFileHelper {
     mediaFile.setVideoHeight(height);
 
     // video bitrate (BitRate)
-    String br = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "BitRate");
+    String br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "BitRate");
     if (StringUtils.isNotBlank(br)) {
       try {
         mediaFile.setVideoBitRate(Integer.parseInt(br) / 1000); // in kbps
@@ -2357,15 +2376,15 @@ public class MediaFileHelper {
       }
     }
 
-    String scanType = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "ScanType");
+    String scanType = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "ScanType");
 
-    String codecId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "CodecID");
+    String codecId = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "CodecID");
 
-    String videoCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "CodecID/Hint", "Format");
+    String videoCodec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "CodecID/Hint", "Format");
 
     // fix for Microsoft VC-1
     if (StringUtils.containsIgnoreCase(videoCodec, "Microsoft")) {
-      videoCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format");
+      videoCodec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format");
     }
 
     // workaround for XVID
@@ -2379,7 +2398,7 @@ public class MediaFileHelper {
       // search for the version
       try {
         // Version 2
-        int version = Integer.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format_Version").replaceAll("\\D*", ""));
+        int version = Integer.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format_Version").replaceAll("\\D*", ""));
         videoCodec = "MPEG-" + version;
       }
       catch (Exception e) {
@@ -2388,11 +2407,11 @@ public class MediaFileHelper {
     }
     mediaFile.setVideoCodec(getFirstEntryViaScanner(videoCodec));
 
-    String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "BitDepth");
+    String bd = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "BitDepth");
     mediaFile.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
     try {
-      String fr = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "FrameRate");
+      String fr = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "FrameRate");
       mediaFile.setFrameRate(Double.parseDouble(fr));
     }
     catch (Exception e) {
@@ -2406,9 +2425,9 @@ public class MediaFileHelper {
       mediaFile.setExactVideoFormat(height + "" + Character.toLowerCase(scanType.charAt(0)));
     }
 
-    String containerFormat = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List", "Format");
+    String containerFormat = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List", "Format");
     if (StringUtils.isBlank(containerFormat)) {
-      containerFormat = getFirstEntryViaScanner(getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
+      containerFormat = getFirstEntryViaScanner(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
     }
     if (StringUtils.isNotBlank(containerFormat)) {
       if ("BDAV".equalsIgnoreCase(containerFormat)) {
@@ -2428,7 +2447,7 @@ public class MediaFileHelper {
 
     // we use the storage ratio (width / heigth) and multiply by PAR
     // we do not care about the DAR
-    String parString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio", "Pixel_aspect_ratio");
+    String parString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio", "Pixel_aspect_ratio");
     if (parString.isEmpty()) {
       parString = "1.0";
     }
@@ -2444,26 +2463,26 @@ public class MediaFileHelper {
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));
 
     // prefer official HDR namings (see https://de.wikipedia.org/wiki/High_Dynamic_Range_Video) over technical
-    String hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
+    String hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
-      hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
+      hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
     }
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
-      hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
+      hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
 
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check color space
-      String col = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
+      String col = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
       if (col.contains("2020") || col.contains("2100")) {
         hdrFormat = "HDR";
       }
     }
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check known HDR transfer protocols
-      String trans = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics");
+      String trans = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics");
       if (trans.contains("2020") || trans.contains("2100") || trans.equals("PQ") || trans.equals("HLG")) {
         hdrFormat = "HDR";
       }
@@ -2504,9 +2523,9 @@ public class MediaFileHelper {
    *          the mediainfo snapshot to load the data from
    */
   public static void gatherImageInformation(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    int height = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Image, 0, "Height"), 0);
-    int width = MetadataUtil.parseInt(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Image, 0, "Width"), 0);
-    String videoCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Image, 0, "CodecID/Hint", "Format");
+    int height = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "Height"), 0);
+    int width = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "Width"), 0);
+    String videoCodec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "CodecID/Hint", "Format");
     mediaFile.clearVideoInformation();
 
     mediaFile.checkForAnimation();
@@ -2515,11 +2534,11 @@ public class MediaFileHelper {
     mediaFile.setVideoWidth(width);
     mediaFile.setVideoCodec(getFirstEntryViaScanner(videoCodec));
 
-    String extensions = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
+    String extensions = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
     // get first extension
     mediaFile.setContainerFormat(getFirstEntryViaScanner(extensions).toLowerCase(Locale.ROOT));
 
-    String bd = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Image, 0, "BitDepth");
+    String bd = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "BitDepth");
     mediaFile.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
     // if container format is still empty -> insert the extension
@@ -2629,7 +2648,7 @@ public class MediaFileHelper {
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
     else {
-      String extensions = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
+      String extensions = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
       // get first extension
       mediaFile.setContainerFormat(getFirstEntryViaScanner(extensions).toLowerCase(Locale.ROOT));
 
@@ -2646,10 +2665,10 @@ public class MediaFileHelper {
       case TRAILER:
       case AUDIO:
         // overall bitrate (OverallBitRate/String)
-        String br = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "OverallBitRate");
+        String br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "OverallBitRate");
         // if no OverallBitRate is available, parse the maximum bitrate
         if (StringUtils.isBlank(br)) {
-          br = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "OverallBitRate_Maximum");
+          br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "OverallBitRate_Maximum");
         }
         if (StringUtils.isNotBlank(br)) {
           try {
@@ -2661,7 +2680,7 @@ public class MediaFileHelper {
         }
 
         // get embedded title from general info
-        String miTitle = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Title");
+        String miTitle = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Title");
         if (!miTitle.isEmpty()) {
           mediaFile.setTitle(miTitle);
         }
@@ -2707,7 +2726,7 @@ public class MediaFileHelper {
   }
 
   public static int parseDuration(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    String dur = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
+    String dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
     if (StringUtils.isNoneBlank(dur)) {
       try {
         double ddur = Double.parseDouble(dur);
@@ -2729,11 +2748,11 @@ public class MediaFileHelper {
     int height = mediaFile.getVideoHeight();
     int width = mediaFile.getVideoWidth();
 
-    String mvc = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
+    String mvc = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
     String video3DFormat = "";
     if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
       video3DFormat = MediaFileHelper.VIDEO_3D;
-      String mvl = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
+      String mvl = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
       LOGGER.trace("3D detected :) - {}", mvl);
       if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
         video3DFormat = MediaFileHelper.VIDEO_3D_HTAB; // assume HalfTAB as default
@@ -2777,7 +2796,7 @@ public class MediaFileHelper {
         gatherAudioInformation(mediaFile, mif.getSnapshot());
 
         // there is no exact overall bitrate for the whole DVD, so we just take the one from the biggest VOB
-        String br = getMediaInfo(mif.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");
+        String br = getMediaInfoValue(mif.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");
         if (!br.isEmpty()) {
           try {
             mediaFile.setOverallBitRate(Integer.parseInt(br) / 1000); // in kbps
@@ -2802,7 +2821,7 @@ public class MediaFileHelper {
     gatherSubtitleInformation(mediaFile, ifo.getSnapshot());
     // mix in language information
     for (int i = 0; i < getAudioStreamCount(ifo.getSnapshot()); i++) {
-      String id = getMediaInfo(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "StreamKindPos");
+      String id = getMediaInfoValue(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "StreamKindPos");
 
       // look for the corresponding audio stream in the media file
       MediaFileAudioStream audioStream = null;
@@ -2818,7 +2837,7 @@ public class MediaFileHelper {
         continue;
       }
 
-      String language = getMediaInfo(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+      String language = getMediaInfoValue(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
           // try to parse from filename
@@ -2866,7 +2885,7 @@ public class MediaFileHelper {
 
       // mix in language information (audio)
       for (int i = 0; i < getAudioStreamCount(clpi.getSnapshot()); i++) {
-        String id = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "StreamKindPos");
+        String id = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "StreamKindPos");
 
         // look for the corresponding audio stream in the media file
         MediaFileAudioStream audioStream = null;
@@ -2882,7 +2901,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language/String", "Language");
+        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename
@@ -2897,7 +2916,7 @@ public class MediaFileHelper {
 
       // mix in language information (subtitle)
       for (int i = 0; i < getSubtitleStreamCount(clpi.getSnapshot()); i++) {
-        String id = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "StreamKindPos");
+        String id = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "StreamKindPos");
 
         // look for the corresponding subtitle stream in the media file
         MediaFileSubtitle subtitle = null;
@@ -2913,7 +2932,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfo(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language/String", "Language");
+        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename

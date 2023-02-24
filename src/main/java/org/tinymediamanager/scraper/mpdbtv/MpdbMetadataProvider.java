@@ -69,7 +69,7 @@ abstract class MpdbMetadataProvider implements IMediaProvider {
         throw new ScrapeException(new FeatureNotEnabledException(this));
       }
 
-      controller = new Controller(false);
+      controller = new Controller();
     }
 
     try {

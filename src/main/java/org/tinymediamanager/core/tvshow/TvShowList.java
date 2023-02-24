@@ -148,7 +148,7 @@ public final class TvShowList extends AbstractModelObject {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
-        firePropertyChange(EPISODE_COUNT, 0, 1);
+        firePropertyChange(EPISODE_COUNT, evt.getOldValue(), evt.getNewValue());
       }
     };
 
@@ -1255,7 +1255,7 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, Object> ids = tvShow.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
-        if (entry.getKey().equals(Constants.TMDB_SET)) {
+        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
         String id = entry.getKey() + String.valueOf(entry.getValue());

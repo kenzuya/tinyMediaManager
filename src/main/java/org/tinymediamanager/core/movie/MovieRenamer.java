@@ -1535,8 +1535,8 @@ public class MovieRenamer {
    * @return the cleaned {@link String}
    */
   public static String replacePathSeparators(String source) {
-    String result = source.replace("\\/", " ");
-    return result.replace("\\\\", " ");
+    String result = source.replaceAll("\\/", " "); // NOSONAR
+    return result.replaceAll("\\\\", " "); // NOSONAR
   }
 
   public static class MovieNamedFirstCharacterRenderer implements NamedRenderer {

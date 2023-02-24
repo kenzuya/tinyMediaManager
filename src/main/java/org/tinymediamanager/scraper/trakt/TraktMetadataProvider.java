@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.trakt;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -36,11 +38,13 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
 import com.uwetrottmann.trakt5.entities.SearchResult;
+import com.uwetrottmann.trakt5.entities.TraktError;
 import com.uwetrottmann.trakt5.enums.Extended;
 import com.uwetrottmann.trakt5.enums.IdType;
 import com.uwetrottmann.trakt5.enums.Type;
 
 import okhttp3.OkHttpClient;
+import retrofit2.Call;
 import retrofit2.Response;
 
 abstract class TraktMetadataProvider implements IMediaProvider {
@@ -120,6 +124,30 @@ abstract class TraktMetadataProvider implements IMediaProvider {
     // check if the API should change from current key to tmm key
     if (StringUtils.isBlank(userApiKey)) {
       api.apiKey(getApiKey());
+    }
+  }
+
+  protected <T> T executeCall(Call<T> call) throws IOException {
+    Response<T> response = call.execute();
+    if (!response.isSuccessful() && response.code() == 401) {
+      api.refreshToken();
+      response = call.execute(); // retry
+    }
+    if (!response.isSuccessful()) {
+      String message = "Request failed: " + response.code() + " " + response.message();
+      TraktError error = api.checkForTraktError(response);
+      if (error != null && error.message != null) {
+        message += " message: " + error.message;
+      }
+      throw new HttpException(response.code(), message);
+    }
+
+    T body = response.body();
+    if (body != null) {
+      return body;
+    }
+    else {
+      throw new IOException("Body should not be null for successful response");
     }
   }
 

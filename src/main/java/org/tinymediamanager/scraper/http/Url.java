@@ -71,7 +71,7 @@ public class Url {
   // where is such a list in std java?
   // https://github.com/xbmc/xbmc/blob/master/xbmc/addons/kodi-addon-dev-kit/include/kodi/Filesystem.h#L195
   protected static final List<String>  KNOWN_HEADERS         = Arrays.asList("accept", "accept-charset", "accept-encoding", "accept-language",
-      "authorization", "cookie", "customrequest", "noshout", "postdata", "referer", "user-agent", "seekable", "sslcipherlist", "Via");
+      "authorization", "cookie", "customrequest", "noshout", "postdata", "referer", "user-agent", "seekable", "sslcipherlist", "via");
   protected int                        responseCode          = 0;
   protected String                     responseMessage       = "";
   protected Charset                    responseCharset       = null;

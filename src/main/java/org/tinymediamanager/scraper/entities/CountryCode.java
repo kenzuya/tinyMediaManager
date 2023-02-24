@@ -173,8 +173,8 @@ public enum CountryCode {
   // */
   // BQ("Bonaire, Sint Eustatius and Saba", "BES", 535),
   //
-  // /** <a href="http://en.wikipedia.org/wiki/Brazil">Brazil</a> */
-  // BR("Brazil", "BRA", 76),
+  /** <a href="http://en.wikipedia.org/wiki/Brazil">Brazil</a> */
+  BR("Brazil", "BRA", 76),
   //
   // /** <a href="http://en.wikipedia.org/wiki/The_Bahamas">Bahamas</a> */
   // BS("Bahamas", "BHS", 44),

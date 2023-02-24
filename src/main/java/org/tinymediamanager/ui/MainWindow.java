@@ -202,6 +202,7 @@ public class MainWindow extends JFrame {
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
+        TmmUILayoutStore.getInstance().saveSettings(MainWindow.getInstance());
         closeTmm();
       }
     });

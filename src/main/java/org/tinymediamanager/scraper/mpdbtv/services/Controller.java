@@ -20,8 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.mpdbtv.entities.MovieEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
@@ -33,29 +31,16 @@ import com.google.gson.internal.bind.DateTypeAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Controller {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
-
-  private final Retrofit      retrofit;
-
-  private String              apiKey;
+  private final Retrofit retrofit;
+  private String         apiKey;
 
   public Controller() {
-    this(false);
-  }
-
-  public Controller(boolean debug) {
     OkHttpClient.Builder builder = TmmHttpClient.newBuilder();
-    if (debug) {
-      HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LOGGER::debug);
-      logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-      builder.addInterceptor(logging);
-    }
     builder.addInterceptor(chain -> {
       Request request = chain.request();
       Response response = chain.proceed(request);
