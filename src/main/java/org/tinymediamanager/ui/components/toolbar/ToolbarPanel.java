@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.components.toolbar;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,10 +33,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -55,6 +52,7 @@ import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
@@ -86,7 +84,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ToolbarPanel extends JPanel {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
+  private static final Logger LOGGER = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private final ToolbarButton btnSearch;
   private final ToolbarButton btnEdit;
@@ -99,6 +97,8 @@ public class ToolbarPanel extends JPanel {
   private final ToolbarMenu   menuSearch;
   private final ToolbarMenu   menuEdit;
   private final ToolbarMenu   menuRename;
+  private final ToolbarMenu   menuTools;
+  private final ToolbarMenu   menuInfo;
 
   private final ToolbarLabel  lblUnlock;
   private final ToolbarLabel  lblRenewLicense;
@@ -164,11 +164,11 @@ public class ToolbarPanel extends JPanel {
     JLabel lblSettings = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.settings"), settingsAction);
     panelCenter.add(lblSettings, "cell 8 1,alignx center, wmin 0");
 
-    ToolbarMenu lblTools = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.tools"), toolsPopupMenu);
-    panelCenter.add(lblTools, "cell 9 1,alignx center, wmin 0");
+    menuTools = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.tools"), toolsPopupMenu);
+    panelCenter.add(menuTools, "cell 9 1,alignx center, wmin 0");
 
-    ToolbarMenu menuHelp = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
-    panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
+    menuInfo = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
+    panelCenter.add(menuInfo, "cell 10 1,alignx center, wmin 0");
 
     lblUnlock = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.upgrade"), unlockAction);
     lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.upgrade.desc"));
@@ -276,24 +276,14 @@ public class ToolbarPanel extends JPanel {
 
     final JMenu menuWakeOnLan = new JMenu(TmmResourceBundle.getString("tmm.wakeonlan"));
     menuWakeOnLan.setMnemonic(KeyEvent.VK_W);
-    menuWakeOnLan.addMenuListener(new MenuListener() {
+    menuWakeOnLan.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuCanceled(MenuEvent arg0) {
-        // nothing to do
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent arg0) {
-        // nothing to do
-      }
-
-      @Override
-      public void menuSelected(MenuEvent arg0) {
-        menuWakeOnLan.removeAll();
+      protected void menuWillBecomeVisible(JMenu menu) {
+        menu.removeAll();
         for (final WolDevice device : Settings.getInstance().getWolDevices()) {
           JMenuItem item = new JMenuItem(device.getName());
           item.addActionListener(arg01 -> Utils.sendWakeOnLanPacket(device.getMacAddress()));
-          menuWakeOnLan.add(item);
+          menu.add(item);
         }
       }
     });
@@ -303,34 +293,34 @@ public class ToolbarPanel extends JPanel {
     menu.add(kodiRPCMenu);
 
     // activate/deactivate menu items based on some status
-    menu.addPopupMenuListener(new PopupMenuListener() {
+    menu.addPopupMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+      protected void menuWillBecomeVisible(JMenu menu) {
         if (!Settings.getInstance().getWolDevices().isEmpty()) {
-          menuWakeOnLan.setEnabled(true);
+          menu.setEnabled(true);
         }
         else {
-          menuWakeOnLan.setEnabled(false);
+          menu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-          kodiRPCMenu.setEnabled(true);
+        JMenu kodiRPCMenu = null;
+        for (Component comp : menu.getMenuComponents()) {
+          if (comp instanceof JMenu subMenu && subMenu.getIcon() == IconManager.KODI) {
+            kodiRPCMenu = subMenu;
+            break;
+          }
         }
-        else {
-          kodiRPCMenu.setText("Kodi");
-          kodiRPCMenu.setEnabled(false);
+
+        if (kodiRPCMenu != null) {
+          if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
+            kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
+            kodiRPCMenu.setEnabled(true);
+          }
+          else {
+            kodiRPCMenu.setText("Kodi");
+            kodiRPCMenu.setEnabled(false);
+          }
         }
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // nothing to do
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
-        // nothing to do
       }
     });
 
@@ -413,5 +403,13 @@ public class ToolbarPanel extends JPanel {
     menu.add(new AboutAction());
 
     return menu;
+  }
+
+  public JPopupMenu getToolsMenu() {
+    return menuTools.getPopupMenu();
+  }
+
+  public JPopupMenu getInfoMenu() {
+    return menuInfo.getPopupMenu();
   }
 }

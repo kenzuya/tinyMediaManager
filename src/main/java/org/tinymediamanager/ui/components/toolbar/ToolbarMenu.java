@@ -97,4 +97,8 @@ public class ToolbarMenu extends ToolbarLabel {
       setIcon(null);
     }
   }
+
+  public JPopupMenu getPopupMenu() {
+    return popupMenu;
+  }
 }
