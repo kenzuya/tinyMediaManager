@@ -20,6 +20,7 @@ x improved performance of "update data sources" when Kodi sync is activated
 x sorting of video formats #2077
 x added certifications for BR #2074
 x (movie set) added an action to remove selected movies from the movie set #2064
+x some performance enhancements for the Kodi sync
 
 
 Version 4.3.8
