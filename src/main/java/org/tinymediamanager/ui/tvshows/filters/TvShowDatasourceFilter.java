@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.tvshows.filters;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -70,10 +69,7 @@ public class TvShowDatasourceFilter extends AbstractCheckComboBoxTvShowUIFilter<
   }
 
   private void buildAndInstallDatasourceArray() {
-    List<String> datasources = new ArrayList<>(tvShowSettings.getTvShowDataSource());
-    Collections.sort(datasources);
-
-    setValues(datasources);
+    setValues(new ArrayList<>(tvShowSettings.getTvShowDataSource()));
   }
 
   @Override

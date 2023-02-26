@@ -22,6 +22,7 @@ x added certifications for BR #2074
 x (movie set) added an action to remove selected movies from the movie set #2064
 x some performance enhancements for the Kodi sync
 x fixed saving of filter dialog location #2081 #2032
+x display data sources in filter in the same order as in the settings #2079
 
 
 Version 4.3.8
