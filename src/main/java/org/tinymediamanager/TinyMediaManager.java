@@ -348,6 +348,7 @@ public final class TinyMediaManager {
 
             // register the shutdown handler
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+              LOGGER.info("received shutdown signal");
               shutdown();
               shutdownLogger();
             }));
