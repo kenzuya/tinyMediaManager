@@ -50,7 +50,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -454,11 +453,5 @@ public class MovieFilterDialog extends TmmDialog {
   @Override
   protected void initBottomPanel() {
     // no bottom line needed
-  }
-
-  @Override
-  public void dispose() {
-    // do not dispose (singleton), but save the size/position
-    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 }
