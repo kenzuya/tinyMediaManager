@@ -240,15 +240,11 @@ class TraktTvTvShow {
                 dirty = true;
               }
 
-              if (epDirty) {
-                tmmEp.writeNFO();
-                tmmEp.saveToDb();
-              }
-
               if (be.last_watched_at != null) {
                 Date lastWatchedAt = DateTimeUtils.toDate(be.last_watched_at.toInstant());
                 if (!lastWatchedAt.equals(tmmEp.getLastWatched())) {
                   tmmEp.setLastWatched(lastWatchedAt);
+                  dirty = true;
                 }
               }
             }

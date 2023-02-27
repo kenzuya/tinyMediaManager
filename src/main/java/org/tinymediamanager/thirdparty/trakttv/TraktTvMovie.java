@@ -246,11 +246,6 @@ class TraktTvMovie {
           dirty = true;
         }
 
-        if (dirty) {
-          tmmMovie.writeNFO();
-          tmmMovie.saveToDb();
-        }
-
         if (traktWatched.last_watched_at != null) {
           Date lastWatchedAt = DateTimeUtils.toDate(traktWatched.last_watched_at.toInstant());
           if (!lastWatchedAt.equals(tmmMovie.getLastWatched())) {
@@ -258,7 +253,14 @@ class TraktTvMovie {
             LOGGER.trace("Marking movie '{}' as watched on {} (was {})", tmmMovie.getTitle(), lastWatchedAt, tmmMovie.getLastWatched());
             tmmMovie.setLastWatched(lastWatchedAt);
             // dirty = true; // we do not write date to NFO. But just mark for syncing back...
+            // we DO!
+            dirty = true;
           }
+        }
+
+        if (dirty) {
+          tmmMovie.writeNFO();
+          tmmMovie.saveToDb();
         }
       }
     }
