@@ -521,6 +521,10 @@ public class KodiRPC {
             movie.setLastWatched(new Date());
           }
         }
+        else {
+          movie.setWatched(false);
+          movie.setLastWatched(null);
+        }
       }
     }
     else {
@@ -544,6 +548,10 @@ public class KodiRPC {
           catch (Exception e) {
             episode.setLastWatched(new Date());
           }
+        }
+        else {
+          episode.setWatched(false);
+          episode.setLastWatched(null);
         }
       }
     }

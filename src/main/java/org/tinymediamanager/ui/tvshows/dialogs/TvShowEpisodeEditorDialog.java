@@ -876,7 +876,19 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setDateAdded((Date) spDateAdded.getValue());
       episodeToEdit.setFirstAired(dpFirstAired.getDate());
 
-      episodeToEdit.setWatched(chckbxWatched.isSelected());
+      if (chckbxWatched.isSelected()) {
+        episodeToEdit.setWatched(true);
+        if (episodeToEdit.getPlaycount() <= 0) {
+          // initial set, but keep already existing values
+          episodeToEdit.setPlaycount(1);
+          episodeToEdit.setLastWatched(new Date());
+        }
+      }
+      else {
+        episodeToEdit.setWatched(false);
+        episodeToEdit.setPlaycount(0);
+        episodeToEdit.setLastWatched(null);
+      }
 
       // remove cast to avoid merging
       episodeToEdit.removeActors();

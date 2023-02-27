@@ -1340,7 +1340,22 @@ public class MovieEditorDialog extends TmmDialog {
       movieToEdit.setReleaseDate(dpReleaseDate.getDate());
       movieToEdit.setRuntime((Integer) spRuntime.getValue());
       movieToEdit.setTop250((Integer) spTop250.getValue());
-      movieToEdit.setWatched(cbWatched.isSelected());
+
+      if (cbWatched.isSelected()) {
+        movieToEdit.setWatched(true);
+        if (movieToEdit.getPlaycount() <= 0) {
+          // initial set, but keep already existing values
+          movieToEdit.setPlaycount(1);
+          movieToEdit.setLastWatched(new Date());
+        }
+      }
+      else {
+        // reset playcount/date if watched = false
+        movieToEdit.setWatched(false);
+        movieToEdit.setPlaycount(0);
+        movieToEdit.setLastWatched(null);
+      }
+
       movieToEdit.setSpokenLanguages(tfSpokenLanguages.getText());
       movieToEdit.setCountry(tfCountry.getText());
       movieToEdit.setVideoIn3D(chckbxVideo3D.isSelected());
