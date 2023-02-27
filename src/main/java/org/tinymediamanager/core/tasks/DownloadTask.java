@@ -38,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 import okhttp3.Headers;
@@ -147,8 +148,10 @@ public abstract class DownloadTask extends TmmTask {
         // trace server headers
         LOGGER.trace("Server returned: {}", u.getStatusLine());
         Headers headers = u.getHeadersResponse();
-        for (String name : headers.names()) {
-          LOGGER.trace(" < {} : {}", name, headers.get(name));
+        if (headers != null) {
+          for (String name : ListUtils.nullSafe(headers.names())) {
+            LOGGER.trace(" < {} : {}", name, headers.get(name));
+          }
         }
 
         if (u.isFault()) {
