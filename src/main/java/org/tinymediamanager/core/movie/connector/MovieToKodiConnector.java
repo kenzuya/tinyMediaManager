@@ -270,8 +270,8 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
     Element lastplayed = document.createElement("lastplayed");
 
     Element genre = getSingleElementByTag("genre");
-    if (movie.getLastWatched() != null) {
-      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getLastWatched()));
+    if (parser != null && parser.lastplayed != null) {
+      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.lastplayed));
     }
     root.insertBefore(lastplayed, genre);
   }

@@ -508,8 +508,7 @@ public class KodiRPC {
     Integer kodiID = moviemappings.get(movie.getDbId());
 
     if (kodiID != null) {
-      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.MovieDetail.PLAYCOUNT,
-          VideoModel.MovieDetail.LASTPLAYED);
+      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         movie.setPlaycount(call.getResult().playcount);
@@ -522,12 +521,6 @@ public class KodiRPC {
             movie.setLastWatched(new Date());
           }
         }
-        else {
-          movie.setWatched(false);
-          movie.setLastWatched(null);
-        }
-        movie.saveToDb();
-        movie.writeNFO();
       }
     }
     else {
@@ -539,8 +532,7 @@ public class KodiRPC {
     Integer kodiID = getEpisodeId(episode);
 
     if (kodiID != null) {
-      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.EpisodeDetail.PLAYCOUNT,
-          VideoModel.EpisodeDetail.LASTPLAYED);
+      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         episode.setPlaycount(call.getResult().playcount);
@@ -553,12 +545,6 @@ public class KodiRPC {
             episode.setLastWatched(new Date());
           }
         }
-        else {
-          episode.setWatched(false);
-          episode.setLastWatched(null);
-        }
-        episode.saveToDb();
-        episode.writeNFO();
       }
     }
     else {

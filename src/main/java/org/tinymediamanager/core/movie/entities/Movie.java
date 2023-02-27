@@ -201,13 +201,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private final List<MediaTrailer>              trailer                    = new CopyOnWriteArrayList<>();
   @JsonProperty
   private final List<String>                    showlinks                  = new CopyOnWriteArrayList<>();
-  @JsonProperty
-  private Date                                  lastWatched                = null;
 
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
   private String                                originalTitleSortable      = "";
   private String                                otherIds                   = "";
+  private Date                                  lastWatched                = null;
   private String                                localizedSpokenLanguages   = "";
 
   /**
