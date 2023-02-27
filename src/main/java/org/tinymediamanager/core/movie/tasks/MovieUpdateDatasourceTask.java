@@ -1677,6 +1677,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           LOGGER.debug("Skipping: {}", path);
         }
         else {
+          if (fileNames.contains(path.toAbsolutePath())) {
+            throw new IOException("duplicate found: '" + path.getFileName() + "' - fall back to the alternate method");
+          }
           fileNames.add(path.toAbsolutePath());
         }
       }
