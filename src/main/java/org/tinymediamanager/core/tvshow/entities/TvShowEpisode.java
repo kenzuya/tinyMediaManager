@@ -167,11 +167,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private final List<Person>                 directors             = new CopyOnWriteArrayList<>();
   @JsonProperty
   private final List<Person>                 writers               = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private Date                               lastWatched           = null;
 
   private TvShow                             tvShow                = null;
   private String                             titleSortable         = "";
   private String                             otherIds              = "";
-  private Date                               lastWatched           = null;
   private boolean                            dummy                 = false;
 
   /**

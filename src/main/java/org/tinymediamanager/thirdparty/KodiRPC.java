@@ -526,6 +526,8 @@ public class KodiRPC {
           movie.setWatched(false);
           movie.setLastWatched(null);
         }
+        movie.saveToDb();
+        movie.writeNFO();
       }
     }
     else {
@@ -555,6 +557,8 @@ public class KodiRPC {
           episode.setWatched(false);
           episode.setLastWatched(null);
         }
+        episode.saveToDb();
+        episode.writeNFO();
       }
     }
     else {
