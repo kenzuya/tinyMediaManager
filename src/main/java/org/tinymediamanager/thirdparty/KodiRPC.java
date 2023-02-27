@@ -508,7 +508,8 @@ public class KodiRPC {
     Integer kodiID = moviemappings.get(movie.getDbId());
 
     if (kodiID != null) {
-      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.MovieDetail.PLAYCOUNT,
+          VideoModel.MovieDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         movie.setPlaycount(call.getResult().playcount);
@@ -536,7 +537,8 @@ public class KodiRPC {
     Integer kodiID = getEpisodeId(episode);
 
     if (kodiID != null) {
-      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.EpisodeDetail.PLAYCOUNT,
+          VideoModel.EpisodeDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         episode.setPlaycount(call.getResult().playcount);
