@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -92,6 +93,7 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
   @Override
   protected void addOwnTags(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     addEpbookmark(episode, parser);
+    addLastplayed(episode, parser);
     addCode(episode, parser);
     addFileinfo(episode, parser);
   }
@@ -105,6 +107,19 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
       epbookmark.setTextContent(parser.epbookmark);
     }
     root.appendChild(epbookmark);
+  }
+
+  /**
+   * add the <lastplayed>xxx</lastplayed> just before the <genre>xxx</genre>
+   */
+  protected void addLastplayed(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element lastplayed = document.createElement("lastplayed");
+
+    Element genre = getSingleElementByTag("genre");
+    if (episode.getLastWatched() != null) {
+      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getLastWatched()));
+    }
+    root.insertBefore(lastplayed, genre);
   }
 
   /**
