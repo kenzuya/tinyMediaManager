@@ -138,7 +138,7 @@ class TraktTvTvShow {
 
       for (TvShow tmmShow : matchingTmmTvShows) {
         // update show IDs from trakt
-        boolean dirty = updateIDs(tmmShow, traktShow.show);
+        boolean showDirty = updateIDs(tmmShow, traktShow.show);
 
         // update collection date from trakt (show)
         if (traktShow.last_collected_at != null) {
@@ -147,7 +147,7 @@ class TraktTvTvShow {
             // always set from trakt, if not matched (Trakt = master)
             LOGGER.trace("Marking TvShow '{}' as collected on {} (was {})", tmmShow.getTitle(), collectedAt, tmmShow.getDateAddedAsString());
             tmmShow.setDateAdded(collectedAt);
-            dirty = true;
+            showDirty = true;
           }
         }
 
@@ -169,7 +169,7 @@ class TraktTvTvShow {
           }
         }
 
-        if (dirty) {
+        if (showDirty) {
           tmmShow.writeNFO();
           tmmShow.saveToDb();
         }
@@ -221,7 +221,7 @@ class TraktTvTvShow {
 
       for (TvShow tmmShow : matchingTmmTvShows) {
         // update show IDs from trakt
-        boolean dirty = updateIDs(tmmShow, traktShow.show);
+        boolean showDirty = updateIDs(tmmShow, traktShow.show);
 
         // update collection date from trakt (episodes)
         for (BaseSeason bs : ListUtils.nullSafe(traktShow.seasons)) {
@@ -237,25 +237,27 @@ class TraktTvTvShow {
               }
               if (tmmEp.getPlaycount() != MetadataUtil.unboxInteger(be.plays)) {
                 tmmEp.setPlaycount(MetadataUtil.unboxInteger(be.plays));
-                dirty = true;
-              }
-
-              if (epDirty) {
-                tmmEp.writeNFO();
-                tmmEp.saveToDb();
+                epDirty = true;
               }
 
               if (be.last_watched_at != null) {
                 Date lastWatchedAt = DateTimeUtils.toDate(be.last_watched_at.toInstant());
                 if (!lastWatchedAt.equals(tmmEp.getLastWatched())) {
                   tmmEp.setLastWatched(lastWatchedAt);
+                  epDirty = true;
                 }
+              }
+
+              if (epDirty) {
+                tmmEp.writeNFO();
+                tmmEp.setLastWatched(null); // write date to NFO, but do not save it!
+                tmmEp.saveToDb();
               }
             }
           }
         }
 
-        if (dirty) {
+        if (showDirty) {
           tmmShow.writeNFO();
           tmmShow.saveToDb();
         }
