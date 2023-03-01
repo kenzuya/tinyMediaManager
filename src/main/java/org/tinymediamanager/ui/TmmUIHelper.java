@@ -588,7 +588,7 @@ public class TmmUIHelper {
     if (me instanceof Movie) {
       switch (id) {
         case Constants.TRAKT:
-          url = "https://trakt.tv/movies/" + value;
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=movie";
           break;
 
         case Constants.TMDB:
@@ -603,10 +603,28 @@ public class TmmUIHelper {
           break;
       }
     }
-    else if (me instanceof TvShow || me instanceof TvShowEpisode) {
+    else if (me instanceof TvShow) {
       switch (id) {
         case Constants.TRAKT:
-          url = "https://trakt.tv/shows/" + value;
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=show";
+          break;
+
+        case Constants.TMDB:
+          url = "https://www.themoviedb.org/tv/" + value;
+          break;
+
+        case Constants.TVDB:
+          url = "https://thetvdb.com/dereferrer/series/" + value;
+          break;
+
+        default:
+          break;
+      }
+    }
+    else if (me instanceof TvShowEpisode) {
+      switch (id) {
+        case Constants.TRAKT:
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=episode";
           break;
 
         case Constants.TMDB:
