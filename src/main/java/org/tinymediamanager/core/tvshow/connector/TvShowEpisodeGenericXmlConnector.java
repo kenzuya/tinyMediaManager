@@ -561,12 +561,12 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     // IF we have a (temp) date, write it
     if (episode.getLastWatched() != null) {
-      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getLastWatched()));
+      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(episode.getLastWatched()));
       root.appendChild(lastplayed);
     }
     else {
       if (parser != null && parser.lastplayed != null) {
-        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.lastplayed));
+        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(parser.lastplayed));
         root.appendChild(lastplayed);
       }
     }

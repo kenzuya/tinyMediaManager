@@ -272,12 +272,12 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
 
     // IF we have a (temp) date, write it
     if (movie.getLastWatched() != null) {
-      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getLastWatched()));
+      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(movie.getLastWatched()));
       root.insertBefore(lastplayed, genre);
     }
     else {
       if (parser != null && parser.lastplayed != null) {
-        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.lastplayed));
+        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(parser.lastplayed));
         root.insertBefore(lastplayed, genre);
       }
     }

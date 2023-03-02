@@ -123,12 +123,10 @@ public class MovieToXbmcConnector extends MovieGenericXmlConnector {
    */
   private void addLastplayed() {
     Element lastplayed = document.createElement("lastplayed");
-
     Element genre = getSingleElementByTag("genre");
-    if (genre != null) {
-      if (parser != null && parser.lastplayed != null) {
-        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(parser.lastplayed));
-      }
+
+    if (parser != null && parser.lastplayed != null) {
+      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(parser.lastplayed));
       root.insertBefore(lastplayed, genre);
     }
   }
