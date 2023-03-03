@@ -495,6 +495,10 @@ public class UpgradeTasks {
         TmmUILayoutStore.getInstance().hideNewColumn("movies.movieTable", "top250");
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.3.9") < 0) {
+      movieList.reevaluateMMD();
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {

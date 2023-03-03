@@ -29,6 +29,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 
@@ -58,6 +59,8 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
       submitTask(new Worker(movie));
     }
     waitForCompletionOrCancel();
+    MovieModuleManager.getInstance().getMovieList().reevaluateMMD(moviesToChange);
+
     LOGGER.info("Done changing data sources");
   }
 
@@ -82,18 +85,26 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
         return;
       }
 
-      // if we are in a MMD, we will create the same parent dir in the new datasource and move all files
+      Path destDir = Paths.get(datasource, Paths.get(movie.getDataSource()).relativize(movie.getPathNIO()).toString());
+
+      // if we are a MMD, we will create the same parent dir in the new datasource and move all files
       if (movie.isMultiMovieDir()) {
+        // if (!Files.exists(destDir)) {
+        // although we COULD upgrade the movie here,
+        // we need to evaluate ALL the movies afterwards, since a possible second movie got in here
+        // better safe than sorry - keep it as MMD, and let the renamer decide...
+        // movie.setMultiMovieDir(false);
+        // }
         moveMovieFromMMD();
       }
       else {
-        // if we are a "normal" movie, but all our MFs have a MMD style, we can rename them accordingly :)
-        if (movie.hasMultiMovieNaming()) {
-          // we override it here - TBD if we need to save it?!
-          movie.setMultiMovieDir(true);
+        // dest folder exists, we have to movie this as MMD (and set accordingly!)
+        if (Files.exists(destDir)) {
+          movie.setMultiMovieDir(true); // downgrade :(
           moveMovieFromMMD();
         }
         else {
+          // movie it as single movie and folder is not there :)
           moveMovie();
         }
       }

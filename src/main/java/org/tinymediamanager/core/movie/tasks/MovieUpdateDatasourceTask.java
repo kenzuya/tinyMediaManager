@@ -124,7 +124,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
   // MMD detected as single movie in a structured folder such as /A/, /2010/ or decade
-  private final static String          FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
+  public final static String           FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
   private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>           dataSources;
@@ -842,6 +842,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // BUT: when having such file in some structure like /A/, /2010/, decade or genre folder
       // it is better to take the filename. And it has to be threaten as MMD
       // Known issues: movies folders like "2012" are now also being imported with filename
+      // CAUTION: also check MovieList.reevaluateMMD(), IF the logic changes here!
       if (movieDir.getFileName().toString().matches(FOLDER_STRUCTURE) || MediaGenres.containsGenre(movieDir.getFileName().toString())) {
         createMultiMovieFromDir(dataSource, movieDir, new ArrayList<>(allFiles));
         return;

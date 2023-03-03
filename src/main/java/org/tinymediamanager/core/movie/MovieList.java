@@ -68,6 +68,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -602,6 +603,73 @@ public final class MovieList extends AbstractModelObject {
    */
   public synchronized List<Movie> getMoviesByPath(Path path) {
     return movieList.parallelStream().filter(movie -> movie.getPathNIO().compareTo(path) == 0).collect(Collectors.toList());
+  }
+
+  /**
+   * Gets a list of movies starting with path (to find sub folder movies!)<br>
+   * (Excluding those movies which are in same path)
+   * 
+   * @param path
+   *          the path
+   * @return the movie list
+   */
+  public synchronized List<Movie> getSubMoviesByPath(Path path) {
+    return movieList.parallelStream()
+        .filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * for ALL movies, re-evaluate all the paths against others, and set MMD correctly
+   */
+  public void reevaluateMMD() {
+    reevaluateMMD(movieList);
+  }
+
+  /**
+   * for each movie, re-evaluate all the paths against others, and set MMD correctly
+   */
+  public void reevaluateMMD(List<Movie> movies) {
+    for (Movie movie : movies) {
+      boolean old = movie.isMultiMovieDir();
+
+      // imagine a structure like
+      // movies/bla/bla.mkv
+      // movies/bla/blubb/blubb.mkv
+      // both would be single (not MMD) file, although the parent MUST be a MMD!
+      // so get all sub movies within path (some levels deeper)
+      List<Movie> subMovies = MovieModuleManager.getInstance().getMovieList().getSubMoviesByPath(movie.getPathNIO());
+      if (subMovies.size() > 0) {
+        // there are some movies down the path - it MUST be treated as MMD
+        movie.setMultiMovieDir(true);
+      }
+      else {
+        // no sub movies, but some in exact same folder? (including myself)
+        List<Movie> samePath = MovieModuleManager.getInstance().getMovieList().getMoviesByPath(movie.getPathNIO());
+        if (samePath.size() > 1) {
+          movie.setMultiMovieDir(true);
+        }
+        else {
+          // so just me; check another variant - see UDS L840
+          if (movie.getPathNIO().getFileName().toString().matches(MovieUpdateDatasourceTask.FOLDER_STRUCTURE)
+              || MediaGenres.containsGenre(movie.getPathNIO().getFileName().toString())) {
+            movie.setMultiMovieDir(true);
+          }
+          else {
+            // - no submovie
+            // - noone in same path
+            // - no genres/decade/alphanum folder
+            // -> we can now safely assume a single movie - phew :)
+            movie.setMultiMovieDir(false);
+          }
+        }
+      }
+
+      if (old != movie.isMultiMovieDir()) {
+        LOGGER.debug("Movie '{}' changed MMD {} -> {}", movie.getTitle(), old, movie.isMultiMovieDir());
+        movie.saveToDb();
+      }
+    }
   }
 
   /**
