@@ -638,14 +638,14 @@ public final class MovieList extends AbstractModelObject {
       // movies/bla/blubb/blubb.mkv
       // both would be single (not MMD) file, although the parent MUST be a MMD!
       // so get all sub movies within path (some levels deeper)
-      List<Movie> subMovies = MovieModuleManager.getInstance().getMovieList().getSubMoviesByPath(movie.getPathNIO());
+      List<Movie> subMovies = getSubMoviesByPath(movie.getPathNIO());
       if (subMovies.size() > 0) {
         // there are some movies down the path - it MUST be treated as MMD
         movie.setMultiMovieDir(true);
       }
       else {
         // no sub movies, but some in exact same folder? (including myself)
-        List<Movie> samePath = MovieModuleManager.getInstance().getMovieList().getMoviesByPath(movie.getPathNIO());
+        List<Movie> samePath = getMoviesByPath(movie.getPathNIO());
         if (samePath.size() > 1) {
           movie.setMultiMovieDir(true);
         }
