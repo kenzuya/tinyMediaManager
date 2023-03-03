@@ -620,17 +620,14 @@ public final class MovieList extends AbstractModelObject {
   }
 
   /**
-   * for ALL movies, re-evaluate all the paths against others, and set MMD correctly
-   */
-  public void reevaluateMMD() {
-    reevaluateMMD(movieList);
-  }
-
-  /**
    * for each movie, re-evaluate all the paths against others, and set MMD correctly
    */
-  public void reevaluateMMD(List<Movie> movies) {
-    for (Movie movie : movies) {
+  public void reevaluateMMD() {
+    if (movieList == null || movieList.size() == 0) {
+      return;
+    }
+    LOGGER.info("re-evaluating MMD for {} movies...", movieList.size());
+    for (Movie movie : movieList) {
       boolean old = movie.isMultiMovieDir();
 
       // imagine a structure like

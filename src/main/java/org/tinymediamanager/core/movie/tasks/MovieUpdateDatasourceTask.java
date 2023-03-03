@@ -233,6 +233,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 
+      movieList.reevaluateMMD();
       stopWatch.stop();
       LOGGER.info("Done updating datasource :) - took {}", stopWatch);
     }

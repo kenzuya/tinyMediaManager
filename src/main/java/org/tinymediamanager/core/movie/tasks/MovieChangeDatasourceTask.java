@@ -29,7 +29,6 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 
@@ -59,7 +58,6 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
       submitTask(new Worker(movie));
     }
     waitForCompletionOrCancel();
-    MovieModuleManager.getInstance().getMovieList().reevaluateMMD(moviesToChange);
 
     LOGGER.info("Done changing data sources");
   }
