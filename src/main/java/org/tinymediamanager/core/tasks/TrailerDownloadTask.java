@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
@@ -30,7 +32,8 @@ import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
  */
 public abstract class TrailerDownloadTask extends DownloadTask {
 
-  private final MediaTrailer mediaTrailer;
+  private static final Logger LOGGER = LoggerFactory.getLogger(TrailerDownloadTask.class);
+  private final MediaTrailer  mediaTrailer;
 
   protected TrailerDownloadTask(MediaTrailer trailer) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
@@ -49,6 +52,7 @@ public abstract class TrailerDownloadTask extends DownloadTask {
       // we have an ID - lets check if it is a known one:
       String id = mediaTrailer.getId();
       if (!id.matches("vi\\d+")) { // IMDB
+        LOGGER.debug("Could not download trailer: id not known {}", mediaTrailer);
         return;
       }
 
@@ -56,6 +60,7 @@ public abstract class TrailerDownloadTask extends DownloadTask {
       ImdbMovieTrailerProvider tp = new ImdbMovieTrailerProvider();
       url = tp.getUrlForId(mediaTrailer);
       if (url.isEmpty()) {
+        LOGGER.debug("Could not download trailer: could not construct url from id {}", mediaTrailer);
         return;
       }
       mediaTrailer.setUrl(url);

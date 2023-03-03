@@ -121,12 +121,14 @@ public abstract class YTDownloadTask extends TmmTask {
       }
 
       if (StringUtils.isBlank(id)) {
+        LOGGER.debug("Could not download trailer: no id {}", mediaTrailer);
         return;
       }
 
       YTDownloader downloader = new YTDownloader();
       Response<VideoInfo> videoInfo = downloader.getVideoInfo(new RequestVideoInfo(id));
       if (!videoInfo.ok()) {
+        LOGGER.debug("Could not download trailer: response NOK");
         return;
       }
 

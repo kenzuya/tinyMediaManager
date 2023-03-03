@@ -163,11 +163,13 @@ public class MovieHelpers {
   public static void downloadTrailer(Movie movie, MediaTrailer trailer) {
     if (StringUtils.isBlank(trailer.getUrl()) || !trailer.getUrl().startsWith("http")) {
       if (StringUtils.isBlank(trailer.getId())) {
+        LOGGER.debug("Could not download trailer: no url/id {}", trailer);
         return;
       }
       // we have an ID - lets check if it is a known one:
       String id = trailer.getId();
       if (!id.matches("vi\\d+")) { // IMDB
+        LOGGER.debug("Could not download trailer: id not known {}", trailer);
         return;
       }
 
@@ -175,6 +177,7 @@ public class MovieHelpers {
       ImdbMovieTrailerProvider tp = new ImdbMovieTrailerProvider();
       String url = tp.getUrlForId(trailer);
       if (url.isEmpty()) {
+        LOGGER.debug("Could not download trailer: could not construct url from id {}", trailer);
         return;
       }
       trailer.setUrl(url);
