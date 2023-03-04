@@ -39,6 +39,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -127,7 +128,7 @@ class UiSettingsPanel extends JPanel {
     chckbxAutomaticUpdates.addActionListener(actionListener);
 
     // hide update related settings if we tmm.noupdate has been set
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || ReleaseInfo.isNightly()) {
       lblUpdate.setVisible(false);
       chckbxAutomaticUpdates.setSelected(false);
       chckbxAutomaticUpdates.setVisible(false);

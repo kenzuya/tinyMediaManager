@@ -44,6 +44,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
@@ -670,7 +671,16 @@ public class TmmUIHelper {
     }
   }
 
+  /**
+   * checks for our automatic update setting interval <br>
+   * Nightly users are always true!
+   * 
+   * @return
+   */
   public static boolean shouldCheckForUpdate() {
+    if (ReleaseInfo.isNightly()) {
+      return true;
+    }
     try {
       // get the property for the last update check
       String lastUpdateCheck = TmmProperties.getInstance().getProperty("lastUpdateCheck");
