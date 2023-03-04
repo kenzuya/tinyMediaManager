@@ -122,6 +122,7 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:1 E:1", detectEpisode("showname S01E01\\ijfi38jsoid88939859283j.mkv"));
     assertEqual("S:-1 E:105", detectEpisode("EP105 The Bed of Nails.avi"));
     assertEqual("S:3 E:5", detectEpisode("S03 EP05 The Bed of Nails.avi"));
     assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi"));

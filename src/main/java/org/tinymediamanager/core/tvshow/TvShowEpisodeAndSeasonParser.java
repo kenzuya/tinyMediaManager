@@ -249,7 +249,7 @@ public class TvShowEpisodeAndSeasonParser {
 
     // multiple numbers: get consecutive ones (removed optionals [] first)
     String delimitedNumbers = woOptionals.replaceAll("\\|", "_"); // replace our delimiter
-    delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
+    delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-]", "$1|"); // add delimiter after numbers
     delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
     String[] numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
     // now we have something like "8|804|2020"
@@ -257,7 +257,7 @@ public class TvShowEpisodeAndSeasonParser {
     // nothing found removing []? try with optionals... wuah
     if (numbersOnly.length == 0 || (numbersOnly.length == 1 && numbersOnly[0].isBlank())) {
       delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
-      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)", "$1|"); // add delimiter after numbers
+      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-]", "$1|"); // add delimiter after numbers
       delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
       numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
     }
