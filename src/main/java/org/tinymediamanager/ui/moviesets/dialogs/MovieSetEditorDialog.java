@@ -81,6 +81,7 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
@@ -110,7 +111,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private boolean                  navigateBack        = false;
 
   /** UI components */
-  private JTextField               tfName;
+  private JTextArea                tfName;
   private TmmTable                 tableMovies;
   private ImageLabel               lblPoster;
   private ImageLabel               lblFanart;
@@ -165,8 +166,8 @@ public class MovieSetEditorDialog extends TmmDialog {
       JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
 
-      tfName = new JTextField();
-      panelContent.add(tfName, "cell 1 0,growx,aligny top");
+      tfName = new TmmRoundTextArea();
+      panelContent.add(tfName, "cell 1 0,growx,aligny top, wmin 0");
       tfName.setColumns(10);
 
       lblPoster = new ImageLabel();

@@ -109,6 +109,7 @@ import org.tinymediamanager.ui.components.MediaTrailerTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -159,22 +160,22 @@ public class MovieEditorDialog extends TmmDialog {
   private boolean                                  continueQueue       = true;
   private boolean                                  navigateBack        = false;
 
-  private JTextField                               tfTitle;
-  private JTextField                               tfOriginalTitle;
+  private JTextArea                                tfTitle;
+  private JTextArea                                tfOriginalTitle;
   private YearSpinner                              spYear;
   private JTextArea                                taPlot;
 
   private ImageLabel                               lblPoster;
   private ImageLabel                               lblFanart;
   private JSpinner                                 spRuntime;
-  private JTextField                               tfProductionCompanies;
+  private JTextArea                                tfProductionCompanies;
   private JList<MediaGenres>                       listGenres;
   private AutocompleteComboBox                     cbGenres;
   private AutoCompleteSupport                      cbGenresAutoCompleteSupport;
   private JSpinner                                 spRating;
   private JComboBox<MediaCertification>            cbCertification;
   private JCheckBox                                cbWatched;
-  private JTextField                               tfTagline;
+  private JTextArea                                tfTagline;
   private JTextArea                                taNote;
 
   private JCheckBox                                chckbxVideo3D;
@@ -185,9 +186,9 @@ public class MovieEditorDialog extends TmmDialog {
   private JList<String>                            listShowlink;
   private JSpinner                                 spDateAdded;
   private JComboBox                                cbMovieSet;
-  private JTextField                               tfSorttitle;
-  private JTextField                               tfSpokenLanguages;
-  private JTextField                               tfCountry;
+  private JTextArea                                tfSorttitle;
+  private JTextArea                                tfSpokenLanguages;
+  private JTextArea                                tfCountry;
   private DatePicker                               dpReleaseDate;
   private JSpinner                                 spTop250;
   private AutocompleteComboBox                     cbSource;
@@ -390,7 +391,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         details1Panel.add(lblTitle, "cell 0 0,alignx right");
 
-        tfTitle = new JTextField();
+        tfTitle = new TmmRoundTextArea();
         details1Panel.add(tfTitle, "flowx,cell 1 0 6 1,growx,wmin 0");
       }
       {
@@ -432,21 +433,21 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblOriginalTitle = new TmmLabel(TmmResourceBundle.getString("metatag.originaltitle"));
         details1Panel.add(lblOriginalTitle, "cell 0 1,alignx right");
 
-        tfOriginalTitle = new JTextField();
+        tfOriginalTitle = new TmmRoundTextArea();
         details1Panel.add(tfOriginalTitle, "cell 1 1 6 1,growx,wmin 0");
       }
       {
         JLabel lblSorttitle = new TmmLabel(TmmResourceBundle.getString("metatag.sorttitle"));
         details1Panel.add(lblSorttitle, "cell 0 2,alignx right");
 
-        tfSorttitle = new JTextField();
+        tfSorttitle = new TmmRoundTextArea();
         details1Panel.add(tfSorttitle, "cell 1 2 6 1,growx,wmin 0");
       }
       {
         JLabel lblTagline = new TmmLabel(TmmResourceBundle.getString("metatag.tagline"));
-        details1Panel.add(lblTagline, "cell 0 3,alignx right,aligny top");
+        details1Panel.add(lblTagline, "cell 0 3,alignx right");
 
-        tfTagline = new JTextField();
+        tfTagline = new TmmRoundTextArea();
         details1Panel.add(tfTagline, "cell 1 3 6 1,growx,wmin 0");
       }
       {
@@ -481,21 +482,21 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblCompany = new TmmLabel(TmmResourceBundle.getString("metatag.production"));
         details1Panel.add(lblCompany, "cell 0 6,alignx right");
 
-        tfProductionCompanies = new JTextField();
+        tfProductionCompanies = new TmmRoundTextArea();
         details1Panel.add(tfProductionCompanies, "cell 1 6 6 1,growx,wmin 0");
       }
       {
         JLabel lblCountry = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
         details1Panel.add(lblCountry, "cell 0 7,alignx right");
 
-        tfCountry = new JTextField();
+        tfCountry = new TmmRoundTextArea();
         details1Panel.add(tfCountry, "cell 1 7 6 1,growx,wmin 0");
       }
       {
         JLabel lblSpokenLanguages = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
         details1Panel.add(lblSpokenLanguages, "cell 0 8,alignx right");
 
-        tfSpokenLanguages = new JTextField();
+        tfSpokenLanguages = new TmmRoundTextArea();
         details1Panel.add(tfSpokenLanguages, "cell 1 8 6 1,growx,wmin 0");
       }
 

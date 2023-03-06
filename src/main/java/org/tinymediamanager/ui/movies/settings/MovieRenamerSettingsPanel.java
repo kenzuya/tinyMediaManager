@@ -29,8 +29,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,10 +81,11 @@ import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
-import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -114,8 +113,8 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   /**
    * UI components
    */
-  private EnhancedTextField                    tfMoviePath;
-  private EnhancedTextField                    tfMovieFilename;
+  private JTextArea                            tfMoviePath;
+  private JTextArea                            tfMovieFilename;
   private JLabel                               lblExample;
   private JCheckBox                            chckbxAsciiReplacement;
 
@@ -290,15 +289,13 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         JLabel lblMoviePath = new JLabel(TmmResourceBundle.getString("Settings.renamer.folder"));
         panelPatterns.add(lblMoviePath, "cell 1 0 2 1,alignx right");
 
-        tfMoviePath = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfMoviePath.setIconToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
-        tfMoviePath.addIconMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            tfMoviePath.setText(MovieSettings.DEFAULT_RENAMER_FOLDER_PATTERN);
-          }
-        });
+        tfMoviePath = new TmmRoundTextArea();
         panelPatterns.add(tfMoviePath, "cell 3 0,growx");
+
+        JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
+        btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
+        btnReset.addActionListener(l -> tfMoviePath.setText(MovieSettings.DEFAULT_RENAMER_FOLDER_PATTERN));
+        panelPatterns.add(btnReset, "cell 3 0, aligny top");
 
         JLabel lblDefault = new JLabel(TmmResourceBundle.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 1 2 1,alignx right");
@@ -312,15 +309,13 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         JLabel lblMovieFilename = new JLabel(TmmResourceBundle.getString("Settings.renamer.file"));
         panelPatterns.add(lblMovieFilename, "cell 1 2 2 1,alignx right");
 
-        tfMovieFilename = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfMovieFilename.setIconToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
-        tfMovieFilename.addIconMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            tfMovieFilename.setText(MovieSettings.DEFAULT_RENAMER_FILE_PATTERN);
-          }
-        });
+        tfMovieFilename = new TmmRoundTextArea();
         panelPatterns.add(tfMovieFilename, "cell 3 2,growx");
+
+        JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
+        btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
+        btnReset.addActionListener(l -> tfMovieFilename.setText(MovieSettings.DEFAULT_RENAMER_FILE_PATTERN));
+        panelPatterns.add(btnReset, "cell 3 2, aligny top");
 
         JLabel lblDefault = new JLabel(TmmResourceBundle.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 3 2 1,alignx right");

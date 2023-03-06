@@ -108,6 +108,7 @@ import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -157,7 +158,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private boolean                                  continueQueue       = true;
   private boolean                                  navigateBack        = false;
 
-  private JTextField                               tfTitle;
+  private JTextArea                                tfTitle;
   private JSpinner                                 spRating;
   private DatePicker                               dpFirstAired;
   private JSpinner                                 spDateAdded;
@@ -176,7 +177,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private PersonTable                              tableGuests;
   private PersonTable                              tableDirectors;
   private PersonTable                              tableWriters;
-  private JTextField                               tfOriginalTitle;
+  private JTextArea                                tfOriginalTitle;
   private JTextField                               tfThumb;
   private JTextArea                                taNote;
   private TmmTable                                 tableEpisodeNumbers;
@@ -261,13 +262,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       JPanel detailsPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), detailsPanel);
       detailsPanel.setLayout(new MigLayout("", "[][20lp:100lp:175lp][50lp:100lp:175lp][200lp:250lp,grow][][25lp:n][200lp:250lp,grow]",
-          "[][][100lp:15%:20%][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][50lp:50lp:100lp,grow 50][]"));
+          "[][][100lp:15%:20%][][100lp:125lp:30%,grow][][][][][50lp:50lp:100lp,grow 50][50lp:50lp:100lp,grow 50]"));
 
       {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         detailsPanel.add(lblTitle, "cell 0 0,alignx right");
 
-        tfTitle = new JTextField();
+        tfTitle = new TmmRoundTextArea();
         detailsPanel.add(tfTitle, "flowx,cell 1 0 4 1,growx");
 
         final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
@@ -289,7 +290,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblOriginalTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.originaltitle"));
         detailsPanel.add(lblOriginalTitleT, "cell 0 1,alignx trailing");
 
-        tfOriginalTitle = new JTextField();
+        tfOriginalTitle = new TmmRoundTextArea();
         detailsPanel.add(tfOriginalTitle, "cell 1 1 4 1,growx");
       }
       {

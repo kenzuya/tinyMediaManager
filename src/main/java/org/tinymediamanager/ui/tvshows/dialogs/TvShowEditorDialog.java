@@ -111,6 +111,7 @@ import org.tinymediamanager.ui.components.MediaTrailerTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -162,7 +163,7 @@ public class TvShowEditorDialog extends TmmDialog {
   /**
    * UI elements
    */
-  private JTextField                               tfTitle;
+  private JTextArea                                tfTitle;
   private YearSpinner                              spYear;
   private JTextArea                                taPlot;
   private PersonTable                              tableActors;
@@ -170,7 +171,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private ImageLabel                               lblFanart;
   private ImageLabel                               lblBanner;
   private JSpinner                                 spRuntime;
-  private JTextField                               tfStudio;
+  private JTextArea                                tfStudio;
   private JList<MediaGenres>                       listGenres;
   private AutocompleteComboBox<MediaGenres>        cbGenres;
   private AutoCompleteSupport<MediaGenres>         cbGenresAutoCompleteSupport;
@@ -185,7 +186,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private DatePicker                               dpPremiered;
   private JComboBox<EpisodeGroupContainer>         cbEpisodeOrder;
   private TmmTable                                 tableEpisodes;
-  private JTextField                               tfSorttitle;
+  private JTextArea                                tfSorttitle;
   private JTextArea                                taNote;
 
   private JTextField                               tfPoster;
@@ -205,8 +206,8 @@ public class TvShowEditorDialog extends TmmDialog {
 
   private TmmTable                                 tableIds;
   private TmmTable                                 tableRatings;
-  private JTextField                               tfOriginalTitle;
-  private JTextField                               tfCountry;
+  private JTextArea                                tfOriginalTitle;
+  private JTextArea                                tfCountry;
   private JTextField                               tfCharacterart;
   private JTextField                               tfKeyart;
 
@@ -398,7 +399,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         details1Panel.add(lblTitle, "cell 0 0,alignx right");
 
-        tfTitle = new JTextField();
+        tfTitle = new TmmRoundTextArea();
         details1Panel.add(tfTitle, "cell 1 0 6 1,growx");
       }
       {
@@ -439,14 +440,14 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblOriginalTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.originaltitle"));
         details1Panel.add(lblOriginalTitleT, "cell 0 1,alignx right");
 
-        tfOriginalTitle = new JTextField();
+        tfOriginalTitle = new TmmRoundTextArea();
         details1Panel.add(tfOriginalTitle, "cell 1 1 6 1,growx");
       }
       {
         JLabel lblSortTitle = new TmmLabel(TmmResourceBundle.getString("metatag.sorttitle"));
         details1Panel.add(lblSortTitle, "cell 0 2,alignx right");
 
-        tfSorttitle = new JTextField();
+        tfSorttitle = new TmmRoundTextArea();
         details1Panel.add(tfSorttitle, "cell 1 2 6 1,growx");
       }
       {
@@ -480,14 +481,14 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblStudio = new TmmLabel(TmmResourceBundle.getString("metatag.studio"));
         details1Panel.add(lblStudio, "cell 0 5,alignx right");
 
-        tfStudio = new JTextField();
+        tfStudio = new TmmRoundTextArea();
         details1Panel.add(tfStudio, "cell 1 5 6 1,growx");
       }
       {
         JLabel lblCountryT = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
         details1Panel.add(lblCountryT, "cell 0 6,alignx trailing");
 
-        tfCountry = new JTextField();
+        tfCountry = new TmmRoundTextArea();
         details1Panel.add(tfCountry, "cell 1 6 6 1,growx");
       }
       {
