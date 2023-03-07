@@ -251,7 +251,7 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.CD1.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.a.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.part1.ext"));
-    assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.pt.1.ext"));
+    assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.pt1.ext"));
     assertEqual("S:-1 E:1", detectEpisode("name.ep01.1.ext")); // do not detect that one
     // assertEqual("S:1 E:1", detectEpisode("name.101.1.ext"));
     assertEqual("S:-1 E:1 Split", detectEpisode("name.ep01a_01.discb.ext"));

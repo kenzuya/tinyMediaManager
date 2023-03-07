@@ -115,12 +115,12 @@ public class Utils {
   private static final Logger  LOGGER                      = LoggerFactory.getLogger(Utils.class);
   private static final Pattern localePattern               = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties", Pattern.CASE_INSENSITIVE);
 
-  // <cd/dvd/part/pt/disk/disc> <0-N>
-  private static final Pattern stackingPattern1            = Pattern
-      .compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
+  // <cd/dvd/part/pt/disk/disc><0-N>
+  private static final Pattern stackingPattern1            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)(\\.[^.]+)$",
+      Pattern.CASE_INSENSITIVE);
 
-  // <cd/dvd/part/pt/disk/disc> <a-d>
-  private static final Pattern stackingPattern2            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[a-d])(\\.[^.]+)$",
+  // <cd/dvd/part/pt/disk/disc><a-d>
+  private static final Pattern stackingPattern2            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])(\\.[^.]+)$",
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
@@ -130,8 +130,8 @@ public class Utils {
   private static final Pattern stackingPattern4            = Pattern
       .compile("(.*?)[ \\(_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ \\)_-]?(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
-  // folder stacking marker <cd/dvd/part/pt/disk/disc> <0-N> - must be last part
-  private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
+  // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
+  private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
   // illegal file name characters
