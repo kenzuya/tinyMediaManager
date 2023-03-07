@@ -1672,11 +1672,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * @return list of files&folders
    */
   private List<Path> listFilesAndDirs(Path directory) {
-    LOGGER.info("REMOVEME: start parsing directory " + directory.toAbsolutePath());
     List<Path> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
-        LOGGER.info("REMOVEME: found path " + path.toAbsolutePath());
         if (isInSkipFolder(path)) {
           LOGGER.debug("Skipping: {}", path);
         }
@@ -1705,13 +1703,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * @return list of files&folders
    */
   private List<Path> listFilesAndDirs2(Path directory) {
-    LOGGER.info("REMOVEME2: start parsing directory " + directory.toAbsolutePath());
     List<Path> fileNames = new ArrayList<>();
 
     try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
       List<Path> allElements = directoryStream.collect(Collectors.toList());
       for (Path path : allElements) {
-        LOGGER.info("REMOVEME2: found path " + path.toAbsolutePath());
         if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
           continue;
         }
