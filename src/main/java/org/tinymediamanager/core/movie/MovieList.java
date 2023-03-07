@@ -443,7 +443,14 @@ public final class MovieList extends AbstractModelObject {
 
         // for performance reasons we add movies directly
         lock.writeLock().lock();
-        movieList.add(movie);
+        if (movieList.contains(movie)) {
+          // already in there?! remove dupe
+          LOGGER.info("removed duplicate '{}'", movie.getTitle());
+          toRemove.add(uuid);
+        }
+        else {
+          movieList.add(movie);
+        }
         lock.writeLock().unlock();
       }
       catch (Exception e) {
@@ -530,7 +537,17 @@ public final class MovieList extends AbstractModelObject {
   }
 
   public void persistMovie(Movie movie) {
-    // sanity check
+    // sanity checks
+    try {
+      if (!movieList.contains(movie)) {
+        throw new IllegalArgumentException(movie.getPathNIO().toString());
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("not persisting movie - not in movielist", e);
+      return;
+    }
+
     if (isMovieCorrupt(movie)) {
       // not valid -> remove
       LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
