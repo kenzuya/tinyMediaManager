@@ -129,6 +129,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
           trailer.setUrl(tr0url);
           trailer.setQuality(tr0qual);
           trailer.setProvider(getProviderFromUrl(tr0url));
+          trailer.setScrapedBy(providerInfo.getId());
           LOGGER.trace("found trailer: {}", trailer);
           trailers.add(trailer);
 
@@ -140,6 +141,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
           trailer.setUrl(tr1url);
           trailer.setQuality(tr1qual);
           trailer.setProvider(getProviderFromUrl(tr1url));
+          trailer.setScrapedBy(providerInfo.getId());
           LOGGER.debug("found trailer: {}", trailer);
           trailers.add(trailer);
 
@@ -151,6 +153,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
           trailer.setUrl(tr2url);
           trailer.setQuality(tr2qual);
           trailer.setProvider(getProviderFromUrl(tr2url));
+          trailer.setScrapedBy(providerInfo.getId());
           LOGGER.debug("found trailer: {}", trailer);
           trailers.add(trailer);
         }

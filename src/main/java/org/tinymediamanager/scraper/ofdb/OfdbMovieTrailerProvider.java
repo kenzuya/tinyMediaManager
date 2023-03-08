@@ -133,6 +133,7 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
           // trailer.setQuality(tpix + " (" + tformat + ")");
           trailer.setQuality(tpix);
           trailer.setProvider("filmtrailer");
+          trailer.setScrapedBy(getProviderInfo().getId());
           trailer.setUrl(turl);
           LOGGER.debug(trailer.toString());
           trailers.add(trailer);
@@ -224,6 +225,7 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
           trailer.setQuality(tpix);
           trailer.setProvider("filmtrailer");
           trailer.setUrl(turl);
+          trailer.setScrapedBy(getProviderInfo().getId());
           LOGGER.debug(trailer.toString());
           trailers.add(trailer);
         }

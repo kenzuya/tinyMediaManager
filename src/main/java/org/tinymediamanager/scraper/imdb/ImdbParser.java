@@ -994,6 +994,7 @@ public abstract class ImdbParser {
           }
           MediaTrailer trailer = new MediaTrailer();
           trailer.setProvider(ImdbMetadataProvider.ID);
+          trailer.setScrapedBy(ImdbMetadataProvider.ID);
           trailer.setId(video.id);
           trailer.setDate(video.createdDate);
           trailer.setName(video.name.value);
