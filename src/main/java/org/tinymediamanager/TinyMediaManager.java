@@ -166,6 +166,9 @@ public final class TinyMediaManager {
     if (!ReleaseInfo.isGitBuild()) {
       LOGGER.info("tmm.build        : {}", ReleaseInfo.getRealBuildDate());
     }
+    if (Globals.isDocker()) {
+      LOGGER.info("tmm.docker       : true");
+    }
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
     LOGGER.info("os.version       : {}", System.getProperty("os.version"));
     LOGGER.info("os.arch          : {}", System.getProperty("os.arch"));
