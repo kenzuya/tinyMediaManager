@@ -508,7 +508,8 @@ public class KodiRPC {
     Integer kodiID = moviemappings.get(movie.getDbId());
 
     if (kodiID != null) {
-      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.MovieDetail.PLAYCOUNT,
+          VideoModel.MovieDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         movie.setPlaycount(call.getResult().playcount);
@@ -521,6 +522,15 @@ public class KodiRPC {
             movie.setLastWatched(new Date());
           }
         }
+        else {
+          // Kodi saids so
+          movie.setWatched(false);
+          movie.setLastWatched(null);
+        }
+
+        movie.writeNFO();
+        movie.setLastWatched(null); // write date to NFO, but do not save it, not even in session!
+        movie.saveToDb();
       }
     }
     else {
@@ -532,7 +542,8 @@ public class KodiRPC {
     Integer kodiID = getEpisodeId(episode);
 
     if (kodiID != null) {
-      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.EpisodeDetail.PLAYCOUNT,
+          VideoModel.EpisodeDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         episode.setPlaycount(call.getResult().playcount);
@@ -545,6 +556,15 @@ public class KodiRPC {
             episode.setLastWatched(new Date());
           }
         }
+        else {
+          // Kodi saids so
+          episode.setWatched(false);
+          episode.setLastWatched(null);
+        }
+
+        episode.writeNFO();
+        episode.setLastWatched(null); // write date to NFO, but do not save it, not even in session!
+        episode.saveToDb();
       }
     }
     else {

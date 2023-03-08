@@ -166,15 +166,18 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.getStackingMarker("Movie Name (2013).disk3.mkv"), "disk3");
     assertEqual(Utils.getStackingMarker("Movie Name (2013).disk30.mkv"), "disk30");
     assertEqual(Utils.getStackingMarker("Movie Name (2013).disk31.mkv"), "disk31");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd 1.mkv"), "cd 1");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd 10.mkv"), "cd 10");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd 12.mkv"), "cd 12");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013)-PaRt 1.mkv"), "PaRt 1");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013)-PaRt 12.mkv"), "PaRt 12");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013) DvD 1.mkv"), "DvD 1");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013) DvD 12.mkv"), "DvD 12");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013).disk 3.mkv"), "disk 3");
-    assertEqual(Utils.getStackingMarker("Movie Name (2013).disk 31.mkv"), "disk 31");
+
+    // there should be no space between - https://forum.kodi.tv/showthread.php?tid=342111
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013)-cd 1.mkv"), "cd 1");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013)-cd 10.mkv"), "cd 10");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013)-cd 12.mkv"), "cd 12");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013)-PaRt 1.mkv"), "PaRt 1");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013)-PaRt 12.mkv"), "PaRt 12");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013) DvD 1.mkv"), "DvD 1");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013) DvD 12.mkv"), "DvD 12");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013).disk 3.mkv"), "disk 3");
+    assertNotEqual(Utils.getStackingMarker("Movie Name (2013).disk 31.mkv"), "disk 31");
+
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd1.mkv"), "cd1");
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd12.mkv"), "cd12");
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-1of2.mkv"), "1of2");
@@ -195,7 +198,7 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.getStackingMarker("Movie Name Part 4 (2013).mkv"), ""); // no inbetween matching
     assertEqual(Utils.getStackingMarker("Movie Name CD 1 (2013).mkv"), ""); // no inbetween matching
     assertEqual(Utils.getStackingMarker("Movie Name 3of4 (2013).mkv"), ""); // no inbetween matching
-    assertEqual(Utils.getStackingMarker("Movie Name Part 4 (2013)-Part 1.mkv"), "Part 1"); // no inbetween matching, but ending matching
+    assertEqual(Utils.getStackingMarker("Movie Name Part4 (2013)-Part1.mkv"), "Part1"); // no inbetween matching, but ending matching
 
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd1.mkv"), 1);
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd12.mkv"), 12);
@@ -205,10 +208,13 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.getStackingNumber("Movie Name (2013) DvD12.mkv"), 12);
     assertEqual(Utils.getStackingNumber("Movie Name (2013).disk3.mkv"), 3);
     assertEqual(Utils.getStackingNumber("Movie Name (2013).disk31.mkv"), 31);
-    assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd 1.mkv"), 1);
-    assertEqual(Utils.getStackingNumber("Movie Name (2013)-PaRt 1.mkv"), 1);
-    assertEqual(Utils.getStackingNumber("Movie Name (2013) DvD 1.mkv"), 1);
-    assertEqual(Utils.getStackingNumber("Movie Name (2013).disk 3.mkv"), 3);
+
+    // there should be no space between - https://forum.kodi.tv/showthread.php?tid=342111
+    assertNotEqual(Utils.getStackingNumber("Movie Name (2013)-cd 1.mkv"), 1);
+    assertNotEqual(Utils.getStackingNumber("Movie Name (2013)-PaRt 1.mkv"), 1);
+    assertNotEqual(Utils.getStackingNumber("Movie Name (2013) DvD 1.mkv"), 1);
+    assertNotEqual(Utils.getStackingNumber("Movie Name (2013).disk 3.mkv"), 3);
+
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd1.mkv"), 1);
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-1of2.mkv"), 1);
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-1 of 2.mkv"), 1);
@@ -227,11 +233,14 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013) DvD12.mkv"), "Movie Name (2013).mkv");
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013).disk3.mkv"), "Movie Name (2013).mkv");
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013).disk31.mkv"), "Movie Name (2013).mkv");
-    assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-cd 1.mkv"), "Movie Name (2013).mkv");
-    assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-PaRt 1.mkv"), "Movie Name (2013).mkv");
-    assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-part a.mkv"), "Movie Name (2013).mkv");
-    assertEqual(Utils.cleanStackingMarkers("Movie Name (2013) DvD 1.mkv"), "Movie Name (2013).mkv");
-    assertEqual(Utils.cleanStackingMarkers("Movie Name (2013).disk 3.mkv"), "Movie Name (2013).mkv");
+
+    // there should be no space between - https://forum.kodi.tv/showthread.php?tid=342111
+    assertNotEqual(Utils.cleanStackingMarkers("Movie Name (2013)-cd 1.mkv"), "Movie Name (2013).mkv");
+    assertNotEqual(Utils.cleanStackingMarkers("Movie Name (2013)-PaRt 1.mkv"), "Movie Name (2013).mkv");
+    assertNotEqual(Utils.cleanStackingMarkers("Movie Name (2013)-part a.mkv"), "Movie Name (2013).mkv");
+    assertNotEqual(Utils.cleanStackingMarkers("Movie Name (2013) DvD 1.mkv"), "Movie Name (2013).mkv");
+    assertNotEqual(Utils.cleanStackingMarkers("Movie Name (2013).disk 3.mkv"), "Movie Name (2013).mkv");
+
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-cd1.mkv"), "Movie Name (2013).mkv");
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-1of2.mkv"), "Movie Name (2013).mkv");
     assertEqual(Utils.cleanStackingMarkers("Movie Name (2013)-1 of 2.mkv"), "Movie Name (2013).mkv");

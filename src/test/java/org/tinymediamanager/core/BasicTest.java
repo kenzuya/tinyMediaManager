@@ -128,6 +128,17 @@ public abstract class BasicTest {
     }
   }
 
+  protected void assertNotEqual(Object expected, Object actual) {
+    try {
+      Assert.assertNotEquals(expected, actual);
+      // System.out.println(actual + " - passed");
+    }
+    catch (AssertionError e) {
+      System.err.println(actual + " - FAILED: " + e.getMessage());
+      throw e;
+    }
+  }
+
   protected void assertEqual(String message, Object expected, Object actual) {
     try {
       Assert.assertEquals(message, expected, actual);

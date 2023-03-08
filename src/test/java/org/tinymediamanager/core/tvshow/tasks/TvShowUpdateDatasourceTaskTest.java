@@ -66,7 +66,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
     // wait until all TV shows have been added (let propertychanges finish)
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 3; i++) {
       if (tvShowList.getTvShows().size() == NUMBER_OF_EXPECTED_SHOWS) {
         break;
       }
@@ -75,8 +75,6 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
       System.out.println("waiting for 1000 ms");
       Thread.sleep(1000);
     }
-
-    assertThat(tvShowList.getTvShows().size()).isEqualTo(NUMBER_OF_EXPECTED_SHOWS);
 
     // do some checks before shutting down the database
     for (TvShow show : tvShowList.getTvShows()) {
@@ -87,6 +85,8 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
         assertThat(episode.getMediaFiles(MediaFileType.VIDEO)).isNotEmpty();
       }
     }
+
+    assertThat(tvShowList.getTvShows().size()).isEqualTo(NUMBER_OF_EXPECTED_SHOWS);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Breaking Bad

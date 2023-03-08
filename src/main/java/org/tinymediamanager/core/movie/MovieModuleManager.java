@@ -333,6 +333,7 @@ public final class MovieModuleManager implements ITmmModule {
     // write pending changes
     if (mvStore != null && !mvStore.isClosed()) {
       writePendingChanges(true);
+      mvStore.commit();
 
       mvStore.compactMoveChunks();
       mvStore.close();
@@ -407,6 +408,7 @@ public final class MovieModuleManager implements ITmmModule {
       }
     }
     finally {
+      mvStore.commit();
       lock.writeLock().unlock();
     }
   }

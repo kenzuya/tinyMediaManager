@@ -3,6 +3,9 @@ FROM max06net/base-gui:0.3.0-bullseye-slim
 
 ENV APP=tinyMediaManager
 ENV ALLOW_DIRECT_VNC=true
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LC_TIME=C.UTF-8
 
 # Install tmm & requirements
 ADD tinyMediaManager /app

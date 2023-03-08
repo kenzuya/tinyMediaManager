@@ -115,6 +115,7 @@ class TmdbTrailerProvider {
       trailer.setName(video.name);
       trailer.setQuality(video.size + "p");
       trailer.setProvider(video.site);
+      trailer.setScrapedBy(TmdbMetadataProvider.ID);
       trailer.setUrl(video.key);
 
       // youtube support

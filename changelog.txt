@@ -23,6 +23,12 @@ x (movie set) added an action to remove selected movies from the movie set #2064
 x some performance enhancements for the Kodi sync
 x fixed saving of filter dialog location #2081 #2032
 x display data sources in filter in the same order as in the settings #2079
+x (trakt) fixed linking to detail pages with ID #2085
+x fixed (re)setting watched date from Trakt and Kodi to NFO #2083
+x slightly tweak the split files pattern
+x fix actor display #2073
+x (OFDB) rework scraper, fix trailers
+
 
 
 Version 4.3.8

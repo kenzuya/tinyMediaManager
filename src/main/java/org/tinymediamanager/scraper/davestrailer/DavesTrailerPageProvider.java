@@ -119,6 +119,7 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
                   trailer.setUrl(trailerAnchor.attr("href"));
                   trailer.setQuality(trailerAnchor.childNode(0).toString());
                   trailer.setProvider(getProviderFromUrl(trailerAnchor.attr("href")));
+                  trailer.setScrapedBy(providerInfo.getId());
                   trailers.add(trailer);
                 }
                 li = nextLi;

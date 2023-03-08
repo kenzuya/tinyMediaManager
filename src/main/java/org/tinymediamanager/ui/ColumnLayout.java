@@ -91,6 +91,11 @@ public class ColumnLayout implements LayoutManager2 {
 
       for (Component component : components) {
         Dimension preferredSize = component.getPreferredSize();
+
+        if (!component.isVisible()) {
+          continue;
+        }
+
         if (component instanceof ImageLabel) {
           int proportionalHeight = (int) (preferredSize.getHeight() * width * 1.0 / preferredSize.getWidth());
           height += proportionalHeight;
@@ -104,7 +109,7 @@ public class ColumnLayout implements LayoutManager2 {
         break;
       }
 
-      width = (int) (width * 0.95);
+      width = (int) (width * 0.98);
     }
 
     return new Dimension(width, height);

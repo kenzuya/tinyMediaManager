@@ -558,9 +558,19 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   private void addLastplayed(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element lastplayed = document.createElement("lastplayed");
-    if (parser != null && parser.lastplayed != null) {
-      lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.lastplayed));
-      root.appendChild(lastplayed);
+
+    // IF we have a (temp) date, write it
+    if (episode.isWatched()) {
+      if (episode.getLastWatched() != null) {
+        lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getLastWatched()));
+        root.appendChild(lastplayed);
+      }
+      else {
+        if (parser != null && parser.lastplayed != null) {
+          lastplayed.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.lastplayed));
+          root.appendChild(lastplayed);
+        }
+      }
     }
   }
 

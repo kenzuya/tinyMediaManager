@@ -19,13 +19,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmProperties;
@@ -57,7 +54,6 @@ public class TvShowRebuildMediainfoXmlAction extends TmmAction {
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rebuildmediainfoxml"));
     putValue(SMALL_ICON, IconManager.MEDIAINFO);
     putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override

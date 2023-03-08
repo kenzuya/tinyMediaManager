@@ -45,6 +45,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -190,7 +191,7 @@ class UiSettingsPanel extends JPanel {
     }
 
     // hide update related settings if we tmm.noupdate has been set
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || ReleaseInfo.isNightly()) {
       collapsiblePanelUpdate.setVisible(false);
     }
   }

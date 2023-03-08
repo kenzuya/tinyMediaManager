@@ -93,7 +93,7 @@ public class ExportLogAction extends TmmAction {
 
       // attach config files, but not DB
       File[] data = new File(Globals.DATA_FOLDER).listFiles((directory, filename) -> {
-        return !filename.matches(".*\\.db$") && !filename.contains("tmm.lic"); // not DB and license
+        return !filename.matches(".*\\.db$") && !filename.matches(".*\\.lic$"); // not DB and license
       });
       if (data != null) {
         for (File dataFile : data) {

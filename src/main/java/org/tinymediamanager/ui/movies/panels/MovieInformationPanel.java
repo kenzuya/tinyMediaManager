@@ -164,7 +164,7 @@ public class MovieInformationPanel extends InformationPanel {
     });
 
     lblTraktTvId.addActionListener(arg0 -> {
-      String url = "https://trakt.tv/movies/" + lblTraktTvId.getText();
+      String url = "https://trakt.tv/search/trakt/" + lblTraktTvId.getText() + "?id_type=movie";
       try {
         TmmUIHelper.browseUrl(url);
       }
