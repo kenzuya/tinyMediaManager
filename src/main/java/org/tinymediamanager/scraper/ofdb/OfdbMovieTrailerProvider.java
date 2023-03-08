@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +224,23 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
           trailers.add(trailer);
         }
       }
+
+      // try to find YT trailers (and skip the reviews and other YT links)
+      // <a href="https://www.youtube.com/watch?v=CFO0nojq-4A">Offizieller Trailer deutsch</a>
+      // <a href="https://youtu.be/xAO-G1haGDc" target="_blank">YouTube: Deutscher Trailer</a>
+      Elements yt = doc.getElementsByAttributeValueContaining("href", "youtu");
+      for (Element el : yt) {
+        if (el.text().contains("Offizieller Trailer") || el.text().contains("Deutscher Trailer")) {
+          MediaTrailer trailer = new MediaTrailer();
+          trailer.setName(el.text());
+          trailer.setProvider("youtube");
+          trailer.setUrl(el.attr("href"));
+          trailer.setScrapedBy(getId());
+          LOGGER.debug(trailer.toString());
+          trailers.add(trailer);
+        }
+      }
+
     }
     catch (Exception e) {
       throw new ScrapeException(e);
