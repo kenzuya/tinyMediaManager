@@ -81,11 +81,11 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     String detailUrl = "";
 
     // case a)
-    String id = options.getIdAsString(getId());
+    String ofdbId = options.getIdAsString(getId());
 
-    if (StringUtils.isNotBlank(id)) {
+    if (StringUtils.isNotBlank(ofdbId)) {
       try {
-        detailUrl = getApiKey() + "/view.php?page=film&fid=" + id;
+        detailUrl = getApiKey() + "/view.php?page=film&fid=" + ofdbId;
       }
       catch (Exception e) {
         throw new ScrapeException(e);
@@ -122,10 +122,13 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
 
     // generic Elements used all over
     Elements el = null;
-    String ofdbId = StrgUtils.substr(detailUrl, "film\\/(\\d+),");
     if (StringUtils.isBlank(ofdbId)) {
-      ofdbId = StrgUtils.substr(detailUrl, "fid=(\\d+)");
+      ofdbId = StrgUtils.substr(detailUrl, "film\\/(\\d+),");
+      if (StringUtils.isBlank(ofdbId)) {
+        ofdbId = StrgUtils.substr(detailUrl, "fid=(\\d+)");
+      }
     }
+    md.setId(getId(), ofdbId);
 
     Document doc = null;
     LOGGER.trace("get details page: {}", detailUrl);
