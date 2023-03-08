@@ -258,10 +258,6 @@ public class Person extends AbstractModelObject implements IPrintable {
    * @return the <i>cleaned</i> name for storing
    */
   public String getNameForStorage() {
-    if (StringUtils.isBlank(this.thumbUrl)) {
-      return "";
-    }
-
     String n = name.replace(" ", "_");
     n = n.replaceAll("([\"\\\\:<>|/?*])", "");
     String ext = Utils.getArtworkExtensionFromUrl(this.thumbUrl);

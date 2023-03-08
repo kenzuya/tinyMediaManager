@@ -208,6 +208,9 @@ public class UrlUtil {
    */
   public static String[] getFileNameArray(String url) {
     String[] ret = new String[] { "", "", "" };
+    if (url == null) {
+      return ret;
+    }
 
     // URL:
     // "http://photosaaaaa.net/photos-ak-snc1/v315/224/13/659629384/s659629384_752969_4472.jpg?asdf=jklo"
