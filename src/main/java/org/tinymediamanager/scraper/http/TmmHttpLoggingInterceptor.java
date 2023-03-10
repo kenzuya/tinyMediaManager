@@ -39,7 +39,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
-import okio.GzipSource;
 
 /**
  * This class is used to provide a logging interceptor for tinyMediaManager which is able to log request headers/responses and the body of text
@@ -67,11 +66,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           + (connection != null ? " " + connection.protocol() : "");
 
       LOGGER.trace(requestStartMessage);
-
-      Headers headersRequest = request.headers();
-      if (headersRequest.size() > 0) {
-        LOGGER.trace("HEADERS req: {}", headersRequest.toMultimap());
-      }
 
       if (!hasRequestBody || bodyHasUnknownEncoding(request.headers())) {
         LOGGER.trace("--> END {}", request.method());
@@ -128,11 +122,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
           + ", " + bodySize + " body" + ')');
 
-      Headers headersResponse = response.headers();
-      if (headersResponse.size() > 0) {
-        LOGGER.trace("HEADERS resp: {}", headersResponse.toMultimap());
-      }
-
       if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
         LOGGER.trace("<-- END HTTP");
       }
@@ -140,22 +129,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         BufferedSource source = responseBody.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
         buffer = source.getBuffer();
-
-        Long gzippedLength = null;
-        if ("gzip".equalsIgnoreCase(headersResponse.get("Content-Encoding"))) {
-          gzippedLength = buffer.size();
-          GzipSource gzippedResponseBody = null;
-          try {
-            gzippedResponseBody = new GzipSource(buffer.clone());
-            buffer = new Buffer();
-            buffer.writeAll(gzippedResponseBody);
-          }
-          finally {
-            if (gzippedResponseBody != null) {
-              gzippedResponseBody.close();
-            }
-          }
-        }
+        contentLength = buffer.size();
 
         Charset charset = UTF8;
         MediaType contentType = responseBody.contentType();
@@ -181,12 +155,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           }
         }
 
-        if (gzippedLength != null) {
-          LOGGER.trace("<-- END HTTP ({}-byte, {}-gzipped-byte body)", buffer.size(), gzippedLength);
-        }
-        else {
-          LOGGER.trace("<-- END HTTP ({}-byte body)", buffer.size());
-        }
+        LOGGER.trace("<-- END HTTP ({}-byte body)", contentLength);
       }
     }
     catch (Exception e) {
@@ -203,7 +172,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
   private static boolean bodyHasUnknownEncoding(Headers headers) {
     String contentEncoding = headers.get("Content-Encoding");
-    return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity") && !contentEncoding.equalsIgnoreCase("gzip");
+    return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity") && !contentEncoding.equalsIgnoreCase("gzip")
+        && !contentEncoding.equalsIgnoreCase("br");
   }
 
   private static boolean isTextResponse(Response response) {

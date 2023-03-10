@@ -49,7 +49,6 @@ public class FanartTv {
   public static final String PARAM_CLIENT_KEY = "client-key";
 
   private Retrofit           restAdapter;
-  private boolean            isDebug;
   private String             apiKey;
   private String             clientKey;
 
@@ -97,21 +96,6 @@ public class FanartTv {
    */
   public String getClientKey() {
     return this.clientKey;
-  }
-
-  /**
-   * Set the {@link retrofit.RestAdapter} log level.
-   *
-   * @param isDebug
-   *          If true, the log level is set to {@link retrofit.RestAdapter.LogLevel#FULL}. Otherwise {@link retrofit.RestAdapter.LogLevel#NONE}.
-   */
-  public FanartTv setIsDebug(boolean isDebug) {
-    this.isDebug = isDebug;
-    // FIXME: no logging anymore, plain okhttp
-    // if (restAdapter != null) {
-    // restAdapter.setLogLevel(isDebug ? Retrofit.LogLevel.FULL : Retrofit.LogLevel.NONE);
-    // }
-    return this;
   }
 
   /**

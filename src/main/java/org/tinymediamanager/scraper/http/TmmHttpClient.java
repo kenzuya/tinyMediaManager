@@ -61,11 +61,12 @@ public class TmmHttpClient {
   private static OkHttpClient createHttpClient() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-    // enable brotli
-    builder.addInterceptor(BrotliInterceptor.INSTANCE);
-
     // add an own logging interceptor to only log text responses
     builder.addInterceptor(new TmmHttpLoggingInterceptor());
+    // NEEDS TO BE SECOND LAST, TO AUTO DECODE BROTLI & GZIP
+    builder.addInterceptor(BrotliInterceptor.INSTANCE);
+    // NEEDS TO BE LAST, TO CATCH ALL THE HEADERS ADDED BY BROTLI
+    builder.addInterceptor(new TmmHttpHeaderLoggerInterceptor());
 
     // enable brotli compression
     builder.addInterceptor(BrotliInterceptor.INSTANCE);

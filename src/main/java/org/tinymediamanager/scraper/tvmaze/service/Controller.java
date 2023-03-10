@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.tvmaze.entities.Cast;
 import org.tinymediamanager.scraper.tvmaze.entities.Episode;
@@ -34,15 +32,13 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.internal.bind.DateTypeAdapter;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Controller {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
-  Retrofit                    retrofit;
-  private String              apiKey;
+  Retrofit       retrofit;
+  private String apiKey;
 
   /**
    * setting up the retrofit object with further debugging options if needed
@@ -50,14 +46,9 @@ public class Controller {
    * @param debug
    *          true or false
    */
-  public Controller(String apiKey, boolean debug) {
+  public Controller(String apiKey) {
     this.apiKey = apiKey;
     OkHttpClient.Builder builder = TmmHttpClient.newBuilder();
-    if (debug) {
-      HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LOGGER::debug);
-      logging.setLevel(HttpLoggingInterceptor.Level.BODY); // BASIC?!
-      builder.addInterceptor(logging);
-    }
     retrofit = buildRetrofitInstance(builder.build());
   }
 

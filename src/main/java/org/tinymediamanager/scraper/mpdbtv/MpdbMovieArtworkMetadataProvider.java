@@ -54,7 +54,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
 
   public MpdbMovieArtworkMetadataProvider() {
     this.providerInfo = createMediaProviderInfo();
-    controller = new Controller(false);
+    controller = new Controller();
   }
 
   @Override
