@@ -18,12 +18,11 @@ package org.tinymediamanager;
 
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
-import java.awt.AWTEvent;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -140,8 +139,6 @@ public final class TinyMediaManager {
               Thread.currentThread().setName("main");
               TmmTaskbar.setImage(new LogoCircle(512).getImage());
 
-              Toolkit tk = Toolkit.getDefaultToolkit();
-              tk.addAWTEventListener(TmmUILayoutStore.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
               setLookAndFeel();
 
               // init ui logger
@@ -173,19 +170,24 @@ public final class TinyMediaManager {
                   wizard.setLocationRelativeTo(null); // center
                   wizard.setVisible(true);
                 }
-                else if (Globals.isSelfUpdateable()) {
+                else if (Globals.isSelfUpdateable() && Settings.getInstance().isEnableAutomaticUpdate()
+                    && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
                   // if the wizard is not run, check for an update
                   // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is
                   // showing, the
                   // wizard will no more appear
                   // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
-                  // next
-                  // startup
-                  checkForUpdate(5);
+                  // next startup
+
+                  // only update if the last update check is more than the specified interval ago
+                  if (shouldCheckForUpdate()) {
+                    checkForUpdate(5);
+                  }
                 }
 
                 // register the shutdown handler
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                  LOGGER.info("received shutdown signal");
                   shutdown();
                   shutdownLogger();
                 }));
@@ -318,6 +320,9 @@ public final class TinyMediaManager {
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     if (!ReleaseInfo.isGitBuild()) {
       LOGGER.info("tmm.build        : {}", ReleaseInfo.getRealBuildDate());
+    }
+    if (Globals.isDocker()) {
+      LOGGER.info("tmm.docker       : true");
     }
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
     LOGGER.info("os.version       : {}", System.getProperty("os.version"));

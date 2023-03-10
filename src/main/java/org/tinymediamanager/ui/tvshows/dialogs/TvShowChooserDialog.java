@@ -76,6 +76,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -632,16 +633,16 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                 // continue;
                 // }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_POSTER)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_POSTER);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_POSTER)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_POSTER);
                 }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_BANNER)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_BANNER);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_BANNER)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_BANNER);
                 }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_THUMB)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_THUMB);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_THUMB)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_THUMB);
                 }
               }
             }
@@ -801,7 +802,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
   }
 
-  private void chooseSeasonArtwork(int season, MediaArtwork.MediaArtworkType imageType) {
+  private void chooseSeasonArtwork(TvShowSeason season, MediaArtwork.MediaArtworkType imageType) {
     switch (imageType) {
       case SEASON_POSTER:
         if (TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames().isEmpty()) {
@@ -831,9 +832,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     String imageUrl = ImageChooserDialog.chooseImage(this, ids, imageType, artworkScrapers, null, null, MediaType.TV_SHOW,
         tvShowToScrape.getPathNIO().toAbsolutePath().toString());
 
-    tvShowToScrape.setSeasonArtworkUrl(season, imageUrl, imageType);
+    season.setArtworkUrl(imageUrl, MediaFileType.getMediaFileType(imageType));
     if (StringUtils.isNotBlank(imageUrl)) {
-      tvShowToScrape.downloadSeasonArtwork(season, imageType);
+      TvShowArtworkHelper.downloadSeasonArtwork(season, MediaFileType.getMediaFileType(imageType));
     }
   }
 
