@@ -38,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieEdition;
@@ -129,6 +130,17 @@ public abstract class BasicTest {
     }
   }
 
+  protected void assertNotEqual(Object expected, Object actual) {
+    try {
+      Assert.assertNotEquals(expected, actual);
+      // System.out.println(actual + " - passed");
+    }
+    catch (AssertionError e) {
+      System.err.println(actual + " - FAILED: " + e.getMessage());
+      throw e;
+    }
+  }
+
   protected void assertEqual(String message, Object expected, Object actual) {
     try {
       Assert.assertEquals(message, expected, actual);
@@ -162,6 +174,7 @@ public abstract class BasicTest {
 
     Path path = workFolder.resolve(title);
 
+    movie.setDataSource(workFolder.toString());
     movie.setTitle(title);
     movie.setPath(path.toString());
     movie.setOriginalTitle("Original " + title);

@@ -45,10 +45,11 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -1549,15 +1550,7 @@ public class MovieNfoParser {
 
     Element element = getSingleElement(root, "edition");
     if (element != null && StringUtils.isNotBlank(element.ownText())) {
-      try {
-        edition = MovieEdition.getMovieEdition(element.ownText());
-        if (edition == null) {
-
-        }
-      }
-      catch (Exception ignored) {
-        // just ignore
-      }
+      edition = MovieEdition.getMovieEditionStrict(element.ownText());
     }
 
     return null;
@@ -1846,13 +1839,13 @@ public class MovieNfoParser {
       if (set.tmdbId > 0) {
         tmdbSetId = set.tmdbId;
       }
-      else if (ids.get("tmdbSet") != null) {
-        try {
-          tmdbSetId = Integer.parseInt(ids.get("tmdbSet").toString());
-        }
-        catch (Exception ignored) {
-          // just ignore
-        }
+      if (tmdbSetId == 0) {
+        Object id = ids.get(Constants.TMDB_SET);
+        tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
+      }
+      if (tmdbSetId == 0) {
+        Object id = ids.get("tmdbset");
+        tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
       }
 
       MovieSet movieSet = movieList.getMovieSet(set.name, tmdbSetId);

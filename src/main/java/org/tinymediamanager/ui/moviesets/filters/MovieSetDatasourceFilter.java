@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.moviesets.filters;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -68,10 +67,7 @@ public class MovieSetDatasourceFilter extends AbstractCheckComboBoxMovieSetUIFil
   }
 
   private void buildAndInstallDatasourceArray() {
-    List<String> datasources = new ArrayList<>(movieSettings.getMovieDataSource());
-    Collections.sort(datasources);
-
-    setValues(datasources);
+    setValues(new ArrayList<>(movieSettings.getMovieDataSource()));
   }
 
   @Override

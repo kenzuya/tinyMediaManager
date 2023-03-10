@@ -235,6 +235,13 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    * Updates nodes sorting and filtering for all nodes.
    */
   public void updateSortingAndFiltering() {
+    updateSortingAndFiltering(getRoot());
+  }
+
+  /**
+   * Updates nodes sorting and filtering for the given subtree.
+   */
+  public void updateSortingAndFiltering(E parent) {
     long now = System.currentTimeMillis();
 
     if (now > nextUpdateSortAndFilter) {
@@ -246,7 +253,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
       // Updating root node children
       setAdjusting(true);
-      performFilteringAndSortingRecursively(getRoot());
+      performFilteringAndSortingRecursively(parent);
 
       setAdjusting(false);
       nodeStructureChanged(treeState);
@@ -556,11 +563,19 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     }
     cachedChildren.addAll(children);
     cacheNodes(children);
-    filteredNodeChildrenCache.remove(parent.getId()); // to force re-calculate the entire subtree
+
+    // force re-calculate of the whole subtree
+    for (Object obj : parent.getPath()) {
+      if (obj instanceof TmmTreeNode) {
+        filteredNodeChildrenCache.remove(((TmmTreeNode) obj).getId());
+      }
+    }
+    filteredNodeChildrenCache.remove(getRoot().getId());
+
     readWriteLock.writeLock().unlock();
 
     // Clearing nodes cache
-    // That might be required in case nodes were moved inside of the tree
+    // That might be required in case nodes were moved inside the tree
     clearNodeChildrenCache(children, false);
 
     // Inserting nodes
@@ -599,7 +614,15 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     if (children != null) {
       children.remove(node);
     }
-    filteredNodeChildrenCache.remove(parent.getId());
+
+    // force re-calculate of the whole subtree
+    for (Object obj : parent.getPath()) {
+      if (obj instanceof TmmTreeNode) {
+        filteredNodeChildrenCache.remove(((TmmTreeNode) obj).getId());
+      }
+    }
+    filteredNodeChildrenCache.remove(getRoot().getId());
+
     readWriteLock.writeLock().unlock();
 
     // Clearing node cache
@@ -613,6 +636,9 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     super.removeNodeFromParent(node);
 
     setAdjusting(false);
+
+    // Updating parent node sorting and filtering
+    updateSortingAndFiltering();
   }
 
   /**

@@ -297,6 +297,9 @@ public class MovieSetArtworkHelper {
           // also remove illegal separators
           movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
 
+          // replace multiple spaces with a single one
+          movieSetName = movieSetName.replaceAll(" +", " ").trim();
+
           if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
             return mediaFile;
           }
@@ -363,6 +366,9 @@ public class MovieSetArtworkHelper {
         // also remove illegal separators
         movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
 
+        // replace multiple spaces with a single one
+        movieSetName = movieSetName.replaceAll(" +", " ").trim();
+
         String artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         Path artworkFile = Paths.get(artworkFolder, artworkFileName);
         if (Files.exists(artworkFile)) {
@@ -394,6 +400,9 @@ public class MovieSetArtworkHelper {
 
         // also remove illegal separators
         movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
+        // replace multiple spaces with a single one
+        movieSetName = movieSetName.replaceAll(" +", " ").trim();
 
         String artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         Path artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);

@@ -1,7 +1,7 @@
 package org.tinymediamanager.core.movie;
 
 import org.junit.Test;
-import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.entities.MediaSource;
 
 public class MovieMediaSourceTest extends BasicMovieTest {
 

@@ -11,9 +11,16 @@
 * Windows - Windows x64 - https://sourceforge.net/projects/tinyfiledialogs/files/
 * Linux - self compiled - https://sourceforge.net/projects/tinyfiledialogs/files/
 
+Linux x64:
+
 ```
-gcc -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c ./tinyfiledialogs.c
-gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so
+docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp gcc:9-buster bash -c 'gcc  -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c tinyfiledialogs.c && gcc tinyfiledialogs.o -shared -o libtinyfiledialogs.so'
+```
+
+Linux arm32:
+
+```
+docker run --rm -v "$PWD":/work dockcross/linux-armv7-lts bash -c '$CC  -ansi -std=gnu89 -pedantic -Wstrict-prototypes -Wall -fPIC -c tinyfiledialogs.c && $CC tinyfiledialogs.o -shared -o libtinyfiledialogs.so'
 ```
 
 ## FFmpeg

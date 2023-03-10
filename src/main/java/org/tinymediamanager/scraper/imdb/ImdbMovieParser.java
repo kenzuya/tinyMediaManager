@@ -147,6 +147,7 @@ public class ImdbMovieParser extends ImdbParser {
           md.setTagline(md2.getTagline());
           md.setCastMembers(md2.getCastMembers()); // overwrite all
           md.setTop250(md2.getTop250());
+          md2.getCertifications().forEach(md::addCertification); // reference page has more certifications
         }
 
         if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {

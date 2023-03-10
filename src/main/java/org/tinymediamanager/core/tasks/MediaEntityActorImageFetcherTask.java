@@ -118,7 +118,7 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
 
   private void downloadPersonImage(Person person) throws Exception {
     String actorImageFilename = person.getNameForStorage();
-    if (StringUtils.isBlank(actorImageFilename)) {
+    if (StringUtils.isBlank(actorImageFilename) && StringUtils.isBlank(person.getThumbUrl())) {
       return;
     }
 

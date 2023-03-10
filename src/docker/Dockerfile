@@ -1,5 +1,5 @@
 # Building application container
-FROM max06net/base-gui:0.2.1-buster-slim
+FROM max06net/base-gui:0.3.0-bullseye-slim
 
 LABEL "org.opencontainers.image.version"="${human.version}"
 LABEL "org.opencontainers.image.title"="${project.artifactId}"
@@ -12,9 +12,9 @@ LABEL "org.opencontainers.image.source "="${project.scm.url}"
 
 ENV APP=tinyMediaManager
 ENV ALLOW_DIRECT_VNC=true
-
-ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.40/libzen0v5_0.4.40-1_amd64.Debian_10.deb
-ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/22.12/libmediainfo0v5_22.12-1_amd64.Debian_10.deb
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LC_TIME=C.UTF-8
 
 # Install tmm & requirements
 ADD tinyMediaManager /app
@@ -25,16 +25,14 @@ RUN \
         ca-certificates \
         libcurl3-gnutls \
         libmms0 \
-        ffmpeg \
         yad \
-        fonts-wqy-zenhei && \
-    wget -q ${LIBZEN} && \
-    wget -q ${LIBMEDIAINFO} && \
-    dpkg -i *.deb && \
+        fonts-wqy-zenhei \
+        libxtst6 && \
     mkdir -p /data/data && \
     # Remove some unneeded stuff.
-    rm *.deb && \
     rm -rf /var/lib/apt/lists/*
 
+ADD start.sh /app/
+
 WORKDIR /app
-CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]
+CMD ["/app/start.sh", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]

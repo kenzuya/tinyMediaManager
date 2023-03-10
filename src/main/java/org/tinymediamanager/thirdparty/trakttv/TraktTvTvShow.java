@@ -22,6 +22,7 @@ import static org.tinymediamanager.thirdparty.trakttv.TraktTv.getMediaType;
 import static org.tinymediamanager.thirdparty.trakttv.TraktTv.getResolution;
 import static org.tinymediamanager.thirdparty.trakttv.TraktTv.printStatus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -60,10 +62,12 @@ import com.uwetrottmann.trakt5.entities.SyncItems;
 import com.uwetrottmann.trakt5.entities.SyncResponse;
 import com.uwetrottmann.trakt5.entities.SyncSeason;
 import com.uwetrottmann.trakt5.entities.SyncShow;
+import com.uwetrottmann.trakt5.entities.TraktError;
 import com.uwetrottmann.trakt5.enums.Extended;
 import com.uwetrottmann.trakt5.enums.Rating;
 import com.uwetrottmann.trakt5.enums.RatingsFilter;
 
+import retrofit2.Call;
 import retrofit2.Response;
 
 /**
@@ -74,12 +78,34 @@ import retrofit2.Response;
 class TraktTvTvShow {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktTvTvShow.class);
 
-  private final TraktTv       traktTv;
   private final TraktV2       api;
 
   public TraktTvTvShow(TraktTv traktTv) {
-    this.traktTv = traktTv;
     this.api = traktTv.getApi();
+  }
+
+  private <T> T executeCall(Call<T> call) throws IOException {
+    Response<T> response = call.execute();
+    if (!response.isSuccessful() && response.code() == 401) {
+      api.refreshToken();
+      response = call.execute(); // retry
+    }
+    if (!response.isSuccessful()) {
+      String message = "Request failed: " + response.code() + " " + response.message();
+      TraktError error = api.checkForTraktError(response);
+      if (error != null && error.message != null) {
+        message += " message: " + error.message;
+      }
+      throw new HttpException(response.code(), message);
+    }
+
+    T body = response.body();
+    if (body != null) {
+      return body;
+    }
+    else {
+      throw new IOException("Body should not be null for successful response");
+    }
   }
 
   /**
@@ -98,17 +124,7 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<BaseShow>> response = api.sync().collectionShows(Extended.METADATA).execute();
-      if (!response.isSuccessful() && response.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        response = api.sync().collectionShows(Extended.METADATA).execute();
-      }
-      if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-        return;
-      }
-      traktShows = response.body();
+      traktShows = executeCall(api.sync().collectionShows(Extended.METADATA));
     }
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -122,7 +138,7 @@ class TraktTvTvShow {
 
       for (TvShow tmmShow : matchingTmmTvShows) {
         // update show IDs from trakt
-        boolean dirty = updateIDs(tmmShow, traktShow.show);
+        boolean showDirty = updateIDs(tmmShow, traktShow.show);
 
         // update collection date from trakt (show)
         if (traktShow.last_collected_at != null) {
@@ -131,7 +147,7 @@ class TraktTvTvShow {
             // always set from trakt, if not matched (Trakt = master)
             LOGGER.trace("Marking TvShow '{}' as collected on {} (was {})", tmmShow.getTitle(), collectedAt, tmmShow.getDateAddedAsString());
             tmmShow.setDateAdded(collectedAt);
-            dirty = true;
+            showDirty = true;
           }
         }
 
@@ -153,7 +169,7 @@ class TraktTvTvShow {
           }
         }
 
-        if (dirty) {
+        if (showDirty) {
           tmmShow.writeNFO();
           tmmShow.saveToDb();
         }
@@ -173,13 +189,9 @@ class TraktTvTvShow {
 
       try {
         SyncItems items = prepareSyncItems(syncShow);
-        Response<SyncResponse> response = api.sync().addItemsToCollection(items).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-          return;
-        }
+        SyncResponse response = executeCall(api.sync().addItemsToCollection(items));
         LOGGER.debug("Trakt add-to-library status: {}", tmmShow.getTitle());
-        printStatus(response.body());
+        printStatus(response);
       }
       catch (Exception e) {
         LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -196,17 +208,7 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<BaseShow>> response = api.sync().watchedShows(null).execute();
-      if (!response.isSuccessful() && response.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        response = api.sync().watchedShows(null).execute();
-      }
-      if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-        return;
-      }
-      traktShows = response.body();
+      traktShows = executeCall(api.sync().watchedShows(null));
     }
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -219,7 +221,7 @@ class TraktTvTvShow {
 
       for (TvShow tmmShow : matchingTmmTvShows) {
         // update show IDs from trakt
-        boolean dirty = updateIDs(tmmShow, traktShow.show);
+        boolean showDirty = updateIDs(tmmShow, traktShow.show);
 
         // update collection date from trakt (episodes)
         for (BaseSeason bs : ListUtils.nullSafe(traktShow.seasons)) {
@@ -235,25 +237,27 @@ class TraktTvTvShow {
               }
               if (tmmEp.getPlaycount() != MetadataUtil.unboxInteger(be.plays)) {
                 tmmEp.setPlaycount(MetadataUtil.unboxInteger(be.plays));
-                dirty = true;
-              }
-
-              if (epDirty) {
-                tmmEp.writeNFO();
-                tmmEp.saveToDb();
+                epDirty = true;
               }
 
               if (be.last_watched_at != null) {
                 Date lastWatchedAt = DateTimeUtils.toDate(be.last_watched_at.toInstant());
                 if (!lastWatchedAt.equals(tmmEp.getLastWatched())) {
                   tmmEp.setLastWatched(lastWatchedAt);
+                  epDirty = true;
                 }
+              }
+
+              if (epDirty) {
+                tmmEp.writeNFO();
+                tmmEp.setLastWatched(null); // write date to NFO, but do not save it!
+                tmmEp.saveToDb();
               }
             }
           }
         }
 
-        if (dirty) {
+        if (showDirty) {
           tmmShow.writeNFO();
           tmmShow.saveToDb();
         }
@@ -275,13 +279,9 @@ class TraktTvTvShow {
       try {
         SyncItems items = prepareSyncItems(syncShow);
 
-        Response<SyncResponse> response = api.sync().addItemsToWatchedHistory(items).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-          return;
-        }
+        SyncResponse response = executeCall(api.sync().addItemsToWatchedHistory(items));
         LOGGER.debug("Trakt add-to-watched status: {}", tmmShow.getTitle());
-        printStatus(response.body());
+        printStatus(response);
       }
       catch (Exception e) {
         LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -339,17 +339,7 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
-      if (!response.isSuccessful() && response.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        response = api.sync().ratingsShows(RatingsFilter.ALL, null, null, null).execute();
-      }
-      if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-        return;
-      }
-      traktShows = response.body();
+      traktShows = executeCall(api.sync().ratingsShows(RatingsFilter.ALL, null, null, null));
     }
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -360,17 +350,7 @@ class TraktTvTvShow {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
-      if (!response.isSuccessful() && response.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null).execute();
-      }
-      if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-        return;
-      }
-      traktEpisodes = response.body();
+      traktEpisodes = executeCall(api.sync().ratingsEpisodes(RatingsFilter.ALL, null, null, null));
     }
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -448,13 +428,9 @@ class TraktTvTvShow {
 
       try {
         SyncItems items = prepareSyncItems(syncShow);
-        Response<SyncResponse> response = api.sync().addRatings(items).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-          return;
-        }
+        SyncResponse response = executeCall(api.sync().addRatings(items));
         LOGGER.debug("Trakt add-ratings status: {}", tmmShow.getTitle());
-        printStatus(response.body());
+        printStatus(response);
       }
       catch (Exception e) {
         LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -474,37 +450,13 @@ class TraktTvTvShow {
     List<BaseShow> traktCollection;
     List<BaseShow> traktWatched;
     try {
-      // collection
-      Response<List<BaseShow>> traktCollectionResponse = api.sync().collectionShows(null).execute();
-      if (!traktCollectionResponse.isSuccessful() && traktCollectionResponse.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        traktCollectionResponse = api.sync().collectionShows(null).execute();
-      }
-      if (!traktCollectionResponse.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktCollectionResponse.code(), traktCollectionResponse.message());
-        return;
-      }
-      traktCollection = traktCollectionResponse.body();
-
-      // watched
-      Response<List<BaseShow>> traktWatchedResponse = api.sync().watchedShows(null).execute();
-      if (!traktWatchedResponse.isSuccessful() && traktWatchedResponse.code() == 401) {
-        // try to re-auth
-        traktTv.refreshAccessToken();
-        traktWatchedResponse = api.sync().watchedShows(null).execute();
-      }
-      if (!traktWatchedResponse.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktWatchedResponse.code(), traktWatchedResponse.message());
-        return;
-      }
-      traktWatched = traktWatchedResponse.body();
+      traktCollection = executeCall(api.sync().collectionShows(null));
+      traktWatched = executeCall(api.sync().watchedShows(null));
     }
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
       return;
     }
-
     LOGGER.info("You have {} shows in your Trakt.tv collection", traktCollection.size());
     LOGGER.info("You have {} shows watched", traktWatched.size());
 
@@ -518,12 +470,9 @@ class TraktTvTvShow {
     if (!showToRemove.isEmpty()) {
       try {
         SyncItems items = new SyncItems().shows(showToRemove);
-        Response<SyncResponse> response = api.sync().deleteItemsFromCollection(items).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-          return;
-        }
-        LOGGER.debug("removed {} shows from your trakt.tv collection", showToRemove.size());
+        SyncResponse response = executeCall(api.sync().deleteItemsFromCollection(items));
+        LOGGER.debug("Trakt delete-items-from-collection status:");
+        printStatus(response);
       }
       catch (Exception e) {
         LOGGER.error("failed syncing trakt: {}", e.getMessage());
@@ -541,12 +490,9 @@ class TraktTvTvShow {
     if (!showToRemove.isEmpty()) {
       try {
         SyncItems items = new SyncItems().shows(showToRemove);
-        Response<SyncResponse> response = api.sync().deleteItemsFromWatchedHistory(items).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
-          return;
-        }
-        LOGGER.debug("removed {} shows from your trakt.tv watched", showToRemove.size());
+        SyncResponse response = executeCall(api.sync().deleteItemsFromWatchedHistory(items));
+        LOGGER.debug("Trakt delete-items-from-watched-history status:");
+        printStatus(response);
       }
       catch (Exception e) {
         LOGGER.error("failed syncing trakt: {}", e.getMessage());

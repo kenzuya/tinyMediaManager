@@ -32,22 +32,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Manuel Laggner
  */
 public class MediaTrailer extends AbstractModelObject implements Comparable<MediaTrailer> {
-  private static final Logger LOGGER   = LoggerFactory.getLogger(MediaTrailer.class);
+  private static final Logger LOGGER    = LoggerFactory.getLogger(MediaTrailer.class);
 
   @JsonProperty
-  private String              id       = "";
+  private String              id        = "";
   @JsonProperty
-  private String              name     = "";
+  private String              name      = "";
   @JsonProperty
-  private String              url      = "";
+  private String              url       = "";
   @JsonProperty
-  private String              quality  = "";
+  private String              quality   = "";
   @JsonProperty
-  private String              provider = "";
+  private String              provider  = "";
   @JsonProperty
-  private Boolean             inNfo    = Boolean.FALSE;
+  private Boolean             inNfo     = Boolean.FALSE;
   @JsonProperty
-  private Date                date     = null;
+  private Date                date      = null;
+  @JsonProperty
+  private String              scrapedBy = "";
 
   public String getId() {
     return id;
@@ -85,6 +87,16 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
     String oldValue = this.quality;
     this.quality = StrgUtils.getNonNullString(newValue);
     firePropertyChange("quality", oldValue, newValue);
+  }
+
+  public String getScrapedBy() {
+    return scrapedBy;
+  }
+
+  public void setScrapedBy(String newValue) {
+    String oldValue = this.scrapedBy;
+    this.scrapedBy = StrgUtils.getNonNullString(newValue);
+    firePropertyChange("scrapedBy", oldValue, newValue);
   }
 
   public String getProvider() {

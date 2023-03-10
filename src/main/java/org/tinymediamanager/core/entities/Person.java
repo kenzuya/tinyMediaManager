@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -40,7 +41,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * @author Manuel Laggner
  */
-public class Person extends AbstractModelObject {
+public class Person extends AbstractModelObject implements IPrintable {
   public static final String ACTOR_DIR = ".actors";
 
   public enum Type {
@@ -257,10 +258,6 @@ public class Person extends AbstractModelObject {
    * @return the <i>cleaned</i> name for storing
    */
   public String getNameForStorage() {
-    if (StringUtils.isBlank(this.thumbUrl)) {
-      return "";
-    }
-
     String n = name.replace(" ", "_");
     n = n.replaceAll("([\"\\\\:<>|/?*])", "");
     String ext = Utils.getArtworkExtensionFromUrl(this.thumbUrl);
@@ -361,5 +358,10 @@ public class Person extends AbstractModelObject {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE, false, Person.class);
+  }
+
+  @Override
+  public String toPrintable() {
+    return getName();
   }
 }

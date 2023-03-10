@@ -149,7 +149,7 @@ public final class TvShowList extends AbstractModelObject {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
-        firePropertyChange(EPISODE_COUNT, 0, 1);
+        firePropertyChange(EPISODE_COUNT, evt.getOldValue(), evt.getNewValue());
       }
     };
 
@@ -501,7 +501,14 @@ public final class TvShowList extends AbstractModelObject {
 
         // for performance reasons we add tv shows after loading the episodes
         lock.writeLock().lock();
-        tvShowsFromDb.add(tvShow);
+        if (tvShowsFromDb.contains(tvShow)) {
+          // already in there?! remove dupe
+          LOGGER.info("removed duplicate '{}'", tvShow.getTitle());
+          toRemove.add(uuid);
+        }
+        else {
+          tvShowsFromDb.add(tvShow);
+        }
         lock.writeLock().unlock();
       }
       catch (Exception e) {
@@ -685,6 +692,17 @@ public final class TvShowList extends AbstractModelObject {
   }
 
   public void persistTvShow(TvShow tvShow) {
+    // sanity checks
+    try {
+      if (!tvShows.contains(tvShow)) {
+        throw new IllegalArgumentException(tvShow.getPathNIO().toString());
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("not persisting TV show - not in tvShowList", e);
+      return;
+    }
+
     // update/insert this TV show to the database
     try {
       TvShowModuleManager.getInstance().persistTvShow(tvShow);
@@ -1364,7 +1382,7 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, Object> ids = tvShow.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
-        if (entry.getKey().equals(Constants.TMDB_SET)) {
+        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
         String id = entry.getKey() + String.valueOf(entry.getValue());

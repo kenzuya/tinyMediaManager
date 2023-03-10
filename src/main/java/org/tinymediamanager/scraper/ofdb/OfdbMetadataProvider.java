@@ -60,7 +60,8 @@ abstract class OfdbMetadataProvider implements IMediaProvider {
    */
   protected String cleanSearch(String q) {
     q = " " + MetadataUtil.removeNonSearchCharacters(q) + " "; // easier regex
-    q = q.replaceAll("(?i)( a | the | der | die | das |\\(\\d+\\))", " ");
+    // nope - removing "the" would not find 'dawn of the dead'
+    // q = q.replaceAll("(?i)( a | the | der | die | das |\\(\\d+\\))", " ");
     q = q.replaceAll("[^A-Za-z0-9äöüÄÖÜ ]", " ");
     q = q.replace("  ", "");
     return q.trim();

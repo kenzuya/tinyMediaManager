@@ -50,6 +50,7 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetExportMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetReadMovieNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveMovieFromSetAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRewriteNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetScrapeMissingMoviesAction;
@@ -226,7 +227,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetReadMovieNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetRenameAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetExportMovieAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetRemoveMovieFromSetAction.class));
 
+    popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedTraktTvAction.class));

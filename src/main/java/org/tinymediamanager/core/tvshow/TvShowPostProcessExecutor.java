@@ -92,7 +92,7 @@ public class TvShowPostProcessExecutor extends PostProcessExecutor {
 
     engine.setModelAdaptor(new TmmModelAdaptor());
 
-    if (postProcess.getPath() == null) {
+    if (postProcess.getPath() == null || postProcess.getPath().isEmpty()) {
       // scripting mode - transform as single string
       String transformed = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), TvShowRenamer.getTokenMap()), mappings);
       return new String[] { transformed };

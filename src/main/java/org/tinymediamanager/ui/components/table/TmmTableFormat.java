@@ -38,9 +38,9 @@ import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 
@@ -355,18 +355,21 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     public int compare(String arg0, String arg1) {
       int value1;
       int value2;
+
       if (StringUtils.isBlank(arg0)) {
         value1 = -1;
       }
       else {
-        value1 = MediaFileHelper.VIDEO_FORMATS.indexOf(arg0);
+        value1 = MetadataUtil.parseInt(arg0.replace("p", ""), -1);
       }
+
       if (StringUtils.isBlank(arg1)) {
         value2 = -1;
       }
       else {
-        value2 = MediaFileHelper.VIDEO_FORMATS.indexOf(arg1);
+        value2 = MetadataUtil.parseInt(arg1.replace("p", ""), -1);
       }
+
       return Integer.compare(value1, value2);
     }
   }

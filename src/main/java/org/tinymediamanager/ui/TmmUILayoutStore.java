@@ -17,7 +17,6 @@ package org.tinymediamanager.ui;
 
 import static java.awt.Frame.MAXIMIZED_BOTH;
 
-import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -27,9 +26,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,7 +47,7 @@ import org.tinymediamanager.ui.components.table.TmmTable;
  * 
  * @author Manuel Laggner
  */
-public class TmmUILayoutStore implements AWTEventListener {
+public class TmmUILayoutStore {
   private static TmmUILayoutStore instance;
 
   private final TmmProperties     properties;
@@ -420,20 +416,5 @@ public class TmmUILayoutStore implements AWTEventListener {
       bounds.add(gd.getDefaultConfiguration().getBounds());
     }
     return bounds;
-  }
-
-  @Override
-  public void eventDispatched(AWTEvent evt) {
-    ComponentEvent cev = (ComponentEvent) evt;
-    // frame = mainWindow
-    if (evt.getID() == WindowEvent.WINDOW_CLOSING && cev.getComponent() instanceof JFrame) {
-      JFrame frame = (JFrame) cev.getComponent();
-      saveSettings(frame);
-    }
-    // popup dialogs
-    if (evt.getID() == WindowEvent.WINDOW_CLOSED && cev.getComponent() instanceof JDialog) {
-      JDialog dialog = (JDialog) cev.getComponent();
-      saveSettings(dialog);
-    }
   }
 }

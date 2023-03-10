@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -47,11 +48,18 @@ public class MovieSetEditAction extends TmmAction {
   protected void processAction(ActionEvent e) {
     List<Object> selectedObjects = MovieSetUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
+    if (selectedObjects.isEmpty()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+      return;
+    }
+
+    // filter out dummy movies
+    selectedObjects = selectedObjects.stream().filter(obj -> !(obj instanceof MovieSet.MovieSetMovie)).collect(Collectors.toList());
+
     int selectedCount = selectedObjects.size();
     int index = 0;
 
-    if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+    if (selectedCount == 0) {
       return;
     }
 
@@ -73,8 +81,7 @@ public class MovieSetEditAction extends TmmAction {
           index += 1;
         }
       }
-
-      if (object instanceof Movie) {
+      else if (object instanceof Movie) {
         Movie movie = (Movie) object;
         MovieEditorDialog editor = new MovieEditorDialog(movie, index, selectedCount);
         editor.setVisible(true);

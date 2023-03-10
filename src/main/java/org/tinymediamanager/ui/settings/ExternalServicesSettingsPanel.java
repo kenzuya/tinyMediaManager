@@ -90,6 +90,11 @@ class ExternalServicesSettingsPanel extends JPanel {
     // let the user insert the pin
     String pin = JOptionPane.showInputDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.entercode"));
 
+    // user clicked abort
+    if (pin == null || pin.isEmpty()) {
+      return;
+    }
+
     // try to get the tokens
     String accessToken = "";
     String refreshToken = "";
@@ -102,16 +107,22 @@ class ExternalServicesSettingsPanel extends JPanel {
       // ignored
     }
 
-    Settings.getInstance().setTraktAccessToken(accessToken);
-    Settings.getInstance().setTraktRefreshToken(refreshToken);
-
-    if (StringUtils.isNoneBlank(Settings.getInstance().getTraktAccessToken(), Settings.getInstance().getTraktRefreshToken())) {
+    if (StringUtils.isNoneBlank(accessToken, refreshToken)) {
+      Settings.getInstance().setTraktAccessToken(accessToken);
+      Settings.getInstance().setTraktRefreshToken(refreshToken);
       lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {
       JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.problem"),
           TmmResourceBundle.getString("Settings.trakt.getpin"), JOptionPane.ERROR_MESSAGE);
-      lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.bad"));
+
+      if (StringUtils.isNoneBlank(Settings.getInstance().getTraktAccessToken(), Settings.getInstance().getTraktRefreshToken())) {
+        // we got an error, but we already have old setted-up tokens, so display msg accordingly
+        lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
+      }
+      else {
+        lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.bad"));
+      }
     }
   }
 

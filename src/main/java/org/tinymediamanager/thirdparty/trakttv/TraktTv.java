@@ -24,28 +24,35 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.license.TmmFeature;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
 import com.uwetrottmann.trakt5.entities.AccessToken;
+import com.uwetrottmann.trakt5.entities.ListEntry;
 import com.uwetrottmann.trakt5.entities.SyncErrors;
 import com.uwetrottmann.trakt5.entities.SyncResponse;
 import com.uwetrottmann.trakt5.entities.SyncStats;
+import com.uwetrottmann.trakt5.entities.TraktError;
+import com.uwetrottmann.trakt5.entities.TraktList;
+import com.uwetrottmann.trakt5.entities.UserSlug;
 import com.uwetrottmann.trakt5.enums.Audio;
 import com.uwetrottmann.trakt5.enums.AudioChannels;
+import com.uwetrottmann.trakt5.enums.Extended;
 import com.uwetrottmann.trakt5.enums.Hdr;
 import com.uwetrottmann.trakt5.enums.MediaType;
 import com.uwetrottmann.trakt5.enums.Resolution;
 
 import okhttp3.OkHttpClient;
+import retrofit2.Call;
 import retrofit2.Response;
 
 /**
@@ -156,6 +163,7 @@ public class TraktTv implements TmmFeature {
    */
   private boolean isEnabled() {
     if (!isFeatureEnabled()) {
+      LOGGER.warn("Trakt.tv feature not enabled!");
       return false;
     }
 
@@ -165,11 +173,63 @@ public class TraktTv implements TmmFeature {
       return true;
     }
 
+    LOGGER.warn("Trakt.tv connection tokens empty - try reauthenticate in settings!");
     return false;
   }
 
   TraktV2 getApi() {
     return api;
+  }
+
+  private <T> T executeCall(Call<T> call) throws IOException {
+    Response<T> response = call.execute();
+    if (!response.isSuccessful() && response.code() == 401) {
+      api.refreshToken();
+      response = call.execute(); // retry
+    }
+    if (!response.isSuccessful()) {
+      String message = "Request failed: " + response.code() + " " + response.message();
+      TraktError error = api.checkForTraktError(response);
+      if (error != null && error.message != null) {
+        message += " message: " + error.message;
+      }
+      throw new HttpException(response.code(), message);
+    }
+
+    T body = response.body();
+    if (body != null) {
+      return body;
+    }
+    else {
+      throw new IOException("Body should not be null for successful response");
+    }
+  }
+
+  public void getPersonalLists() throws ScrapeException {
+    initAPI();
+
+    if (!isEnabled()) {
+      return;
+    }
+
+    try {
+      // get all users lists
+      List<TraktList> lists = executeCall(api.users().lists(UserSlug.ME));
+
+      // get detail info for each list
+      for (TraktList list : lists) {
+        System.out.println(list.name);
+
+        List<ListEntry> details = executeCall(api.users().listItems(UserSlug.ME, Integer.toString(list.ids.trakt), Extended.METADATA));
+        for (ListEntry detail : details) {
+          System.out.println(detail.id);
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("failed gettinguser lists: {}", e.getMessage());
+      return;
+    }
   }
 
   // @formatter:off
@@ -303,6 +363,7 @@ public class TraktTv implements TmmFeature {
   // ╚██████╔╝   ██║   ██║███████╗███████║
   //  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝
   // @formatter:on
+
   static MediaType getMediaType(MediaSource mediaSource) {
     if (mediaSource == MediaSource.BLURAY || mediaSource == MediaSource.UHD_BLURAY) {
       return MediaType.BLURAY;
@@ -352,7 +413,7 @@ public class TraktTv implements TmmFeature {
     if ("hdr10+".equalsIgnoreCase(hdr)) {
       return Hdr.HDR10_PLUS;
     }
-    if ("hdr".equalsIgnoreCase(hdr)) {
+    if ("hdr10".equalsIgnoreCase(hdr) || "hdr".equalsIgnoreCase(hdr)) {
       return Hdr.HDR10;
     }
     if ("dolby vision".equalsIgnoreCase(hdr)) {
@@ -374,7 +435,7 @@ public class TraktTv implements TmmFeature {
     if ("DTS-X".equalsIgnoreCase(audioCodec)) {
       return Audio.DTS_X;
     }
-    if ("Atmos".equalsIgnoreCase(audioCodec)) {
+    if ("TrueHD/Atmos".equalsIgnoreCase(audioCodec) || "Atmos".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_ATMOS;
     }
     if ("DTS".equalsIgnoreCase(audioCodec)) {
@@ -389,6 +450,9 @@ public class TraktTv implements TmmFeature {
     }
     if ("EAC3".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_DIGITAL_PLUS;
+    }
+    if ("EAC3/Atmos".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_DIGITAL_PLUS_ATMOS;
     }
     if ("AC3".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_DIGITAL;

@@ -38,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieEdition;
@@ -153,6 +154,7 @@ public abstract class BasicITest {
 
     Path path = workFolder.resolve(title);
 
+    movie.setDataSource(workFolder.toString());
     movie.setTitle(title);
     movie.setPath(path.toString());
     movie.setOriginalTitle("Original " + title);

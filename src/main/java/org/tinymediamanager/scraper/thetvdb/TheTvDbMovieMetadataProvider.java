@@ -461,9 +461,11 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     // certifications
     for (ContentRating contentRating : ListUtils.nullSafe(movie.contentRatings)) {
-      MediaCertification certification = MediaCertification.findCertification(contentRating.name);
-      if (certification != null && certification != MediaCertification.UNKNOWN) {
-        md.addCertification(certification);
+      if (options.getCertificationCountry().getAlpha3().equalsIgnoreCase(contentRating.country)) {
+        MediaCertification certification = MediaCertification.findCertification(contentRating.name);
+        if (certification != null && certification != MediaCertification.UNKNOWN) {
+          md.addCertification(certification);
+        }
       }
     }
 

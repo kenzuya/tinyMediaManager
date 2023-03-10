@@ -198,12 +198,19 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
 
     // Trakt.tv
     lblTraktTvId.addActionListener(arg0 -> {
-
-      int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTraktId();
-      int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
-      int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
-
-      String url = "https://trakt.tv/shows/" + tvShowId + "/seasons/" + seasonId + "/episodes/" + episodeId;
+      String url = "";
+      // use EP id
+      String epId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTraktTvId();
+      if (!epId.isEmpty()) {
+        url = "https://trakt.tv//search/trakt/" + epId + "?id_type=episode";
+      }
+      else {
+        // via show ID + S/EE
+        int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTraktId();
+        int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
+        int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
+        url = "https://trakt.tv/shows/" + tvShowId + "/seasons/" + seasonId + "/episodes/" + episodeId;
+      }
       try {
         TmmUIHelper.browseUrl(url);
       }

@@ -284,7 +284,7 @@ class TmdbArtworkProvider {
     // logos
     if (artworkType == MediaArtworkType.LOGO || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.logos)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.THUMB);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.LOGO);
         ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         ma.setLanguage(image.iso_639_1);

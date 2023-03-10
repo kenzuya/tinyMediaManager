@@ -60,7 +60,6 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkActio
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowFetchIdsAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowFetchRatingsAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowLockAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
@@ -311,7 +310,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowLockAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowFetchIdsAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
@@ -411,7 +409,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowLockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowFetchIdsAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));

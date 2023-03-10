@@ -43,8 +43,11 @@ import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -80,6 +83,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -617,6 +621,29 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.KEYART)))) {
                 chooseArtwork(MediaFileType.KEYART);
               }
+
+              // season artwork
+              for (TvShowSeason season : tvShowToScrape.getSeasons()
+                  .stream()
+                  .sorted(Comparator.comparingInt(TvShowSeason::getSeason))
+                  .collect(Collectors.toList())) {
+                // relevant for v5
+                // if (season.isDummy()) {
+                // continue;
+                // }
+                if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_POSTER)
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER)))) {
+                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_POSTER);
+                }
+                if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_BANNER)
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER)))) {
+                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_BANNER);
+                }
+                if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_THUMB)
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB)))) {
+                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_THUMB);
+                }
+              }
             }
             else {
               // get artwork asynchronous
@@ -771,6 +798,42 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       if (!extrafanarts.isEmpty()) {
         tvShowToScrape.downloadArtwork(MediaFileType.EXTRAFANART);
       }
+    }
+  }
+
+  private void chooseSeasonArtwork(int season, MediaArtwork.MediaArtworkType imageType) {
+    switch (imageType) {
+      case SEASON_POSTER:
+        if (TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames().isEmpty()) {
+          return;
+        }
+        break;
+
+      case SEASON_BANNER:
+        if (TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames().isEmpty()) {
+          return;
+        }
+        break;
+
+      case SEASON_THUMB:
+        if (TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames().isEmpty()) {
+          return;
+        }
+        break;
+
+      default:
+        return;
+    }
+
+    Map<String, Object> ids = new HashMap<>(tvShowToScrape.getIds());
+    ids.put("tvShowSeason", season);
+
+    String imageUrl = ImageChooserDialog.chooseImage(this, ids, imageType, artworkScrapers, null, null, MediaType.TV_SHOW,
+        tvShowToScrape.getPathNIO().toAbsolutePath().toString());
+
+    tvShowToScrape.setSeasonArtworkUrl(season, imageUrl, imageType);
+    if (StringUtils.isNotBlank(imageUrl)) {
+      tvShowToScrape.downloadSeasonArtwork(season, imageType);
     }
   }
 

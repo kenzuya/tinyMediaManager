@@ -23,8 +23,8 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.IMediaInformation;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
 import org.tinymediamanager.ui.images.AudioChannelsIcon;
 import org.tinymediamanager.ui.images.GenericVideoCodecIcon;

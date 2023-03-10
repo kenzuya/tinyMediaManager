@@ -71,7 +71,6 @@ import org.tinymediamanager.core.AbstractFileVisitor;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -80,6 +79,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
@@ -124,7 +124,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
   // MMD detected as single movie in a structured folder such as /A/, /2010/ or decade
-  private final static String          FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
+  public final static String           FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
   private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>           dataSources;
@@ -233,6 +233,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 
+      movieList.reevaluateMMD();
       stopWatch.stop();
       LOGGER.info("Done updating datasource :) - took {}", stopWatch);
     }
@@ -337,7 +338,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       // map Kodi entries
       if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-        KodiRPC.getInstance().updateMovieMappings();
+        // call async to avoid slowdown of UDS
+        TmmTaskManager.getInstance().addUnnamedTask(() -> KodiRPC.getInstance().updateMovieMappings());
       }
 
       // mediainfo
@@ -739,7 +741,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          is the movie in a disc folder?
    */
   private void createSingleMovieFromDir(Path dataSource, Path movieDir, boolean isDiscFolder) {
-    LOGGER.info("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
+    LOGGER.debug("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
 
     Path relative = dataSource.relativize(movieDir);
     // STACKED FOLDERS - go up ONE level (only when the stacked folder ==
@@ -841,6 +843,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // BUT: when having such file in some structure like /A/, /2010/, decade or genre folder
       // it is better to take the filename. And it has to be threaten as MMD
       // Known issues: movies folders like "2012" are now also being imported with filename
+      // CAUTION: also check MovieList.reevaluateMMD(), IF the logic changes here!
       if (movieDir.getFileName().toString().matches(FOLDER_STRUCTURE) || MediaGenres.containsGenre(movieDir.getFileName().toString())) {
         createMultiMovieFromDir(dataSource, movieDir, new ArrayList<>(allFiles));
         return;
@@ -1047,7 +1050,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          just use this files, do not list again
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir, List<Path> allFiles) {
-    LOGGER.info("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
+    LOGGER.debug("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 
@@ -1676,6 +1679,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           LOGGER.debug("Skipping: {}", path);
         }
         else {
+          if (fileNames.contains(path.toAbsolutePath())) {
+            throw new IOException("duplicate found: '" + path.getFileName() + "' - fall back to the alternate method");
+          }
           fileNames.add(path.toAbsolutePath());
         }
       }
@@ -1823,8 +1829,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private class SearchAndParseVisitor extends AbstractFileVisitor {
     private final Path         datasource;
-    private final List<String> unstackedRoot = new ArrayList<>(); // only for folderstacking
-    private final Set<Path>    videofolders  = new HashSet<>();   // all found video folders
+    private final List<String> unstackedRoot  = new ArrayList<>(); // only for folderstacking
+    private final Set<Path>    videofolders   = new HashSet<>();   // all found video folders
+    private final Set<Path>    visitedFolders = new HashSet<>();
 
     SearchAndParseVisitor(Path datasource) {
       this.datasource = datasource;
@@ -1860,6 +1867,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         return TERMINATE;
       }
 
+      if (visitedFolders.contains(dir)) {
+        // already visited? must be some sort of endless-loop - maybe from recursive symlinks
+        // --> ABORT
+        LOGGER.debug("visting already visited folder '{}'", dir.toAbsolutePath());
+        return SKIP_SUBTREE;
+      }
+
       incPreDir();
 
       String parent = "";
@@ -1867,10 +1881,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
+      visitedFolders.add(dir);
+
       if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 

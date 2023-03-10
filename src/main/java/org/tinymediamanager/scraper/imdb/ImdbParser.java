@@ -68,7 +68,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
-import org.tinymediamanager.scraper.imdb.entities.ImdbCertificate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
@@ -921,7 +920,9 @@ public abstract class ImdbParser {
 
       JsonNode plotNode = node.at("/props/pageProps/aboveTheFoldData/plot/plotText");
       ImdbPlaintext plot = ImdbJsonHelper.parseObject(mapper, plotNode, ImdbPlaintext.class);
-      md.setPlot(plot.plainText);
+      if (plot != null) {
+        md.setPlot(plot.plainText);
+      }
 
       int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
       int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
@@ -931,15 +932,18 @@ public abstract class ImdbParser {
 
       md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
 
-      MediaRating rating = new MediaRating("imdb");
-      rating.setRating(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating").floatValue());
-      rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
-      rating.setMaxValue(10);
-      if (rating.getRating() > 0) {
-        md.addRating(rating);
+      JsonNode agg = node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
+      if (!agg.isMissingNode()) {
+        MediaRating rating = new MediaRating("imdb");
+        rating.setRating(agg.floatValue());
+        rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
+        rating.setMaxValue(10);
+        if (rating.getRating() > 0) {
+          md.addRating(rating);
+        }
       }
       if (isScrapeMetacriticRatings()) {
-        rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating("metacritic");
         rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
         rating.setMaxValue(100);
         if (rating.getRating() > 0) {
@@ -947,12 +951,13 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
-      ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
-      if (!certCountry.isEmpty() && certificate != null) {
-        md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
-        // TODO: parse from reference page and add all?!
-      }
+      // skip certification for now because this probably returns the wrong certification
+      // JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
+      // ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
+      // if (!certCountry.isEmpty() && certificate != null) {
+      // md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
+      // // TODO: parse from reference page and add all?!
+      // }
 
       JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
       for (ImdbGenre genre : ImdbJsonHelper.parseList(mapper, genreNode, ImdbGenre.class)) {
@@ -968,8 +973,8 @@ public abstract class ImdbParser {
 
       // poster
       JsonNode primaryImage = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
-      if (!primaryImage.isMissingNode()) {
-        ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
+      ImdbImage img = ImdbJsonHelper.parseObject(mapper, primaryImage, ImdbImage.class);
+      if (img != null) {
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
         if (options.getMediaType() == MediaType.TV_EPISODE) {
           poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.THUMB);
@@ -983,18 +988,19 @@ public abstract class ImdbParser {
 
       // primaryVideos for all trailers
       JsonNode primaryTrailers = node.at("/props/pageProps/aboveTheFoldData/primaryVideos/edges");
-      for (JsonNode img : ListUtils.nullSafe(primaryTrailers)) {
-        ImdbVideo video = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbVideo.class);
-        for (ImdbPlaybackUrl vid : ListUtils.nullSafe(video.playbackURLs)) {
-          if (vid.displayName.value.equalsIgnoreCase("AUTO")) {
+      for (JsonNode vid : ListUtils.nullSafe(primaryTrailers)) {
+        ImdbVideo video = ImdbJsonHelper.parseObject(mapper, vid.get("node"), ImdbVideo.class);
+        for (ImdbPlaybackUrl vidurl : ListUtils.nullSafe(video.playbackURLs)) {
+          if (vidurl.displayName.value.equalsIgnoreCase("AUTO")) {
             continue;
           }
           MediaTrailer trailer = new MediaTrailer();
           trailer.setProvider(ImdbMetadataProvider.ID);
+          trailer.setScrapedBy(ImdbMetadataProvider.ID);
           trailer.setId(video.id);
-          trailer.setDate(video.creeatedDate);
+          trailer.setDate(video.createdDate);
           trailer.setName(video.name.value);
-          trailer.setQuality(vid.displayName.value); // SD, 480p, AUTO, ...
+          trailer.setQuality(vidurl.displayName.value); // SD, 480p, AUTO, ...
           // trailer.setUrl(vid.url); // IMDB urls exipre - just set ID
           md.addTrailer(trailer);
         }
@@ -1011,10 +1017,10 @@ public abstract class ImdbParser {
 
       // ***** MAIN column *****
       JsonNode titleMainImages = node.at("/props/pageProps/mainColumnData/titleMainImages/edges");
-      for (JsonNode img : ListUtils.nullSafe(titleMainImages)) {
-        ImdbImage i = ImdbJsonHelper.parseObject(mapper, img.get("node"), ImdbImage.class);
+      for (JsonNode fanart : ListUtils.nullSafe(titleMainImages)) {
+        ImdbImage i = ImdbJsonHelper.parseObject(mapper, fanart.get("node"), ImdbImage.class);
         // only parse landscape ones as fanarts
-        if (i.width > i.height) {
+        if (i != null && i.width > i.height) {
           MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
           poster.setOriginalUrl(i.url);
           poster.setPreviewUrl(i.url); // well, yes
@@ -1069,14 +1075,12 @@ public abstract class ImdbParser {
       }
 
       JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
-      for (JsonNode p : prods) {
+      for (JsonNode p : ListUtils.nullSafe(prods)) {
         md.addProductionCompany(p.at("/node/company/companyText/text").asText());
       }
     }
-    catch (
-
-    Exception e) {
-      getLogger().warn("Error parsing JSON: '{}'", e.getMessage());
+    catch (Exception e) {
+      getLogger().warn("Error parsing JSON: '{}'", e);
       throw e;
     }
   }

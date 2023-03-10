@@ -70,7 +70,6 @@ public final class Settings extends AbstractSettings {
    * statics
    */
   private static final String                              CONFIG_FILE                 = "tmm.json";
-  private static final int                                 DEFAULT_KODI_HTTP_PORT;
 
   private static Settings                                  instance;
 
@@ -94,7 +93,7 @@ public final class Settings extends AbstractSettings {
   private String                                           traktRefreshToken           = "";
 
   private String                                           kodiHost                    = "";
-  private int                                              kodiHttpPort                = DEFAULT_KODI_HTTP_PORT;
+  private int                                              kodiHttpPort                = 8080;
   private int                                              kodiTcpPort                 = 9090;
   private String                                           kodiUsername                = "";
   private String                                           kodiPassword                = "";
@@ -153,15 +152,6 @@ public final class Settings extends AbstractSettings {
 
   private boolean                                          enableAutomaticUpdate       = true;
   private int                                              automaticUpdateInterval     = 1;
-
-  static {
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-      DEFAULT_KODI_HTTP_PORT = 80;
-    }
-    else {
-      DEFAULT_KODI_HTTP_PORT = 8080;
-    }
-  }
 
   /**
    * Instantiates a new settings.
@@ -906,7 +896,7 @@ public final class Settings extends AbstractSettings {
    * @return the Kodi HTTP port
    */
   public int getKodiHttpPort() {
-    return kodiHttpPort == 0 ? DEFAULT_KODI_HTTP_PORT : kodiHttpPort;
+    return kodiHttpPort == 0 ? 8080 : kodiHttpPort;
   }
 
   public void setKodiHttpPort(int kodiHttpPort) {

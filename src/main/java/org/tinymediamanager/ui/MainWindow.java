@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLayer;
 import javax.swing.JLayeredPane;
@@ -270,6 +272,22 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     }
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
+
+      for (Window window : Window.getWindows()) {
+        if (window instanceof JDialog) {
+          JDialog dialog = (JDialog) window;
+          if (dialog.isVisible()) {
+            TmmUILayoutStore.getInstance().saveSettings(dialog);
+          }
+        }
+        else if (window instanceof JFrame) {
+          JFrame frame = (JFrame) window;
+          if (frame.isVisible()) {
+            TmmUILayoutStore.getInstance().saveSettings(frame);
+          }
+        }
+      }
+
       TinyMediaManager.shutdown();
       dispose();
 

@@ -58,6 +58,7 @@ import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
@@ -1312,6 +1313,7 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedTitleCaseRenderer());
     engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedNumberRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
@@ -1549,8 +1551,8 @@ public class MovieRenamer {
    * @return the cleaned {@link String}
    */
   public static String replacePathSeparators(String source) {
-    String result = source.replace("\\/", " ");
-    return result.replace("\\\\", " ");
+    String result = source.replaceAll("\\/", " "); // NOSONAR
+    return result.replaceAll("\\\\", " "); // NOSONAR
   }
 
   public static class MovieNamedFirstCharacterRenderer implements NamedRenderer {

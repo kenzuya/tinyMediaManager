@@ -55,10 +55,10 @@ public class NamedReplacementRenderer implements NamedRenderer {
 
     String result = object.toString();
 
-    List<String[]> csvContents = CACHE.get(filename);
+    List<String[]> csvContents = CACHE.get(filename.trim());
     if (csvContents == null) {
       // try to load the csv with the replacements
-      Path csv = Paths.get(Globals.DATA_FOLDER, filename);
+      Path csv = Paths.get(Globals.DATA_FOLDER, filename.trim());
       if (Files.exists(csv)) {
         // try to parse the csv
         List<String[]> tokens = new ArrayList<>();
@@ -69,7 +69,7 @@ public class NamedReplacementRenderer implements NamedRenderer {
               tokens.add(new String[] { record.get(0), record.get(1) });
             }
           }
-          CACHE.put(filename, tokens);
+          CACHE.put(filename.trim(), tokens);
           csvContents = tokens;
         }
         catch (Exception e) {
@@ -85,6 +85,25 @@ public class NamedReplacementRenderer implements NamedRenderer {
         }
 
         result = result.replace(csvLine[0], csvLine[1]);
+      }
+    }
+    else {
+      // might be an inline string replacement ;)
+      String[] rep = filename.split(",", -1);
+      if (rep.length < 2) {
+        return result;
+      }
+      if (rep.length == 2) {
+        result = result.replace(rep[0], rep[1]);
+      }
+      else {
+        // more than 2? weird stuff, like comma-to-dot ",,." replacement ^^
+        if (rep[0].isEmpty()) {
+          // first char was a comma - treat as a wanted replacement char, not as delim!
+          // second must then also be empty, since this IS the delimiter
+          // so use third...
+          result = result.replace(",", rep[2]);
+        }
       }
     }
 

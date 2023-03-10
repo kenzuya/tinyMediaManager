@@ -50,6 +50,7 @@ import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
@@ -187,6 +188,16 @@ class MovieCommandTask extends TmmThreadPool {
 
           activeTask = task;
           activeTask.run(); // blocking
+
+          // wait for other tmm threads (artwork download et all)
+          while (TmmTaskManager.getInstance().poolRunning()) {
+            try {
+              Thread.sleep(2000);
+            }
+            catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+          }
 
           // done
           activeTask = null;
@@ -408,6 +419,10 @@ class MovieCommandTask extends TmmThreadPool {
 
       case "new":
         moviesToProcess.addAll(newMovies);
+        break;
+
+      case "unscraped":
+        moviesToProcess.addAll(movieList.getUnscrapedMovies());
         break;
 
       case "all":

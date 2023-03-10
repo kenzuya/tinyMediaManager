@@ -19,6 +19,9 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -114,6 +117,19 @@ public final class Globals {
    */
   public static boolean isDebug() {
     return DEBUG;
+  }
+
+  /**
+   * checks, if we are within a dockerized environment<br>
+   * not 100% accurate!
+   *
+   * @return true/false
+   */
+  public static boolean isDocker() {
+    if (Files.exists(Paths.get("/.dockerenv"))) {
+      return true;
+    }
+    return false;
   }
 
   /**

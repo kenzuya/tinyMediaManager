@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper;
 
 import java.net.URL;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -28,7 +29,7 @@ import org.tinymediamanager.scraper.config.MediaProviderConfig;
  * @since 1.0
  */
 public class MediaProviderInfo {
-  private static final URL          EMPTY_LOGO = MediaProviderInfo.class.getResource("emtpyLogo.png");
+  private static final URL          EMPTY_LOGO     = MediaProviderInfo.class.getResource("emtpyLogo.png");
 
   private final String              id;
   private final String              subId;
@@ -36,8 +37,9 @@ public class MediaProviderInfo {
   private final String              description;
   private final URL                 providerLogo;
   private final MediaProviderConfig config;
-  private int                       priority   = 0;
-  private String                    version    = "";
+  private int                       priority       = 0;
+  private String                    version        = "";
+  private ResourceBundle            resourceBundle = null;
 
   /**
    * Instantiates a new provider info for a private scraper.
@@ -135,6 +137,14 @@ public class MediaProviderInfo {
 
   public String getVersion() {
     return version;
+  }
+
+  public ResourceBundle getResourceBundle() {
+    return resourceBundle;
+  }
+
+  public void setResourceBundle(ResourceBundle resourceBundle) {
+    this.resourceBundle = resourceBundle;
   }
 
   /**

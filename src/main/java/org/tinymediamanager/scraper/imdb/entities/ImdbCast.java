@@ -28,8 +28,10 @@ public class ImdbCast {
     Person p = new Person(type);
     p.setId("imdb", name.id);
     p.setName(name.nameText.text);
-    String chars = characters.stream().map(character -> character.name).collect(Collectors.joining(" / "));
-    p.setRole(chars);
+    if (characters != null) {
+      String chars = characters.stream().map(character -> character.name).collect(Collectors.joining(" / "));
+      p.setRole(chars);
+    }
 
     if (name.primaryImage != null) {
       p.setThumbUrl(name.primaryImage.url);

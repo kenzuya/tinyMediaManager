@@ -47,7 +47,6 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -69,8 +68,6 @@ import com.uwetrottmann.trakt5.entities.Season;
 import com.uwetrottmann.trakt5.entities.Show;
 import com.uwetrottmann.trakt5.entities.Translation;
 import com.uwetrottmann.trakt5.enums.Extended;
-
-import retrofit2.Response;
 
 /**
  * The class TraktTvShowMetadataProvider is used to provide metadata for movies from trakt.tv
@@ -107,15 +104,8 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     // pass NO language here since trakt.tv returns less results when passing a language :(
     try {
-      Response<List<SearchResult>> response = api.search()
-          .textQueryShow(searchString, null, null, null, null, null, null, null, null, null, Extended.FULL, 1, 25)
-          .execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      searchResults = response.body();
-
+      searchResults = executeCall(
+          api.search().textQueryShow(searchString, null, null, null, null, null, null, null, null, null, Extended.FULL, 1, 25));
     }
     catch (Exception e) {
       LOGGER.debug("failed to search: {}", e.getMessage());
@@ -158,12 +148,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     // fetch the show summary first and every season afterwards..
     List<Season> seasons;
     try {
-      Response<List<Season>> response = api.seasons().summary(id, Extended.FULLEPISODES).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      seasons = response.body();
+      seasons = executeCall(api.seasons().summary(id, Extended.FULLEPISODES));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get episode list: {}", e.getMessage());
@@ -239,12 +224,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     Show show;
     Credits credits;
     try {
-      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      show = response.body();
+      show = executeCall(api.shows().summary(id, Extended.FULL));
       if (!"en".equals(lang)) {
         // only call translation when we're not already EN ;)
         translations = api.shows().translation(id, lang).execute().body();
@@ -387,12 +367,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     Episode episode = null;
     List<Season> seasons;
     try {
-      Response<List<Season>> response = api.seasons().summary(showId, Extended.FULLEPISODES).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      seasons = response.body();
+      seasons = executeCall(api.seasons().summary(showId, Extended.FULLEPISODES));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
@@ -526,12 +501,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     Episode episode = null;
     List<Season> seasons;
     try {
-      Response<List<Season>> response = api.seasons().summary(showId, Extended.FULLEPISODES).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      seasons = response.body();
+      seasons = executeCall(api.seasons().summary(showId, Extended.FULLEPISODES));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
@@ -603,12 +573,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     Show show;
     try {
-      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      show = response.body();
+      show = executeCall(api.shows().summary(id, Extended.FULL));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());
@@ -688,12 +653,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     Show show;
     try {
-      Response<Show> response = api.shows().summary(id, Extended.FULL).execute();
-      if (!response.isSuccessful()) {
-        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-        throw new HttpException(response.code(), response.message());
-      }
-      show = response.body();
+      show = executeCall(api.shows().summary(id, Extended.FULL));
     }
     catch (Exception e) {
       LOGGER.debug("failed to get meta data: {}", e.getMessage());

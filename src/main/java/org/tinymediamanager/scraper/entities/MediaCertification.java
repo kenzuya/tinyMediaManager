@@ -251,6 +251,13 @@ public enum MediaCertification {
     MX_C(CountryCode.MX, "C", new String[] { "MX:C" }),
     MX_D(CountryCode.MX, "D", new String[] { "MX:D" }),
 
+    BR_L(CountryCode.BR, "L", new String[] { "L", "BR-L" } ),
+    BR_10(CountryCode.BR, "10", new String[] { "10", "BR-10" } ),
+    BR_12(CountryCode.BR, "12", new String[] { "12", "BR-12" } ),
+    BR_14(CountryCode.BR, "14", new String[] { "14", "BR-14" } ),
+    BR_16(CountryCode.BR, "16", new String[] { "16", "BR-16" } ),
+    BR_18(CountryCode.BR, "18", new String[] { "18", "BR-18" } ),
+
     NOT_RATED(CountryCode.US, "not rated", new String[] { "not rated", "NR" }),
     UNKNOWN(null, "unknown", new String[] { "unknown" });
   // @formatter:on

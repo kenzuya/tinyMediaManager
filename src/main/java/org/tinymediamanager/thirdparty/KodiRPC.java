@@ -281,7 +281,20 @@ public class KodiRPC {
 
   private Movie findMatchingMovie(MovieDetail movieDetail, Map<SplitUri, Movie> tmmFiles, Map<String, Movie> imdbIdMap,
       Map<String, List<Movie>> titleMap) {
-    // first -> try to match the split uri
+    // try to match by imdb id
+    if (MediaIdUtil.isValidImdbId(movieDetail.imdbnumber) || MetadataUtil.parseInt(movieDetail.imdbnumber, 0) > 0) {
+      String imdbId = movieDetail.imdbnumber;
+      if (!imdbId.startsWith("tt")) {
+        // kodi may return the imdbnumber w/o tt
+        imdbId = "tt" + imdbId;
+      }
+      Movie foundMovie = imdbIdMap.get(imdbId);
+      if (foundMovie != null) {
+        return foundMovie;
+      }
+    }
+
+    // try to match the split uri
     if (movieDetail.file.startsWith("stack")) {
       String[] files = movieDetail.file.split(" , ");
       for (String s : files) {
@@ -301,19 +314,9 @@ public class KodiRPC {
       String ds = detectDatasource(movieDetail.file);
       SplitUri kodi = new SplitUri(ds, movieDetail.file, movieDetail.label, connectionManager.getHostConfig().getAddress()); // generate clean object
 
-      for (Map.Entry<SplitUri, Movie> entry : tmmFiles.entrySet()) {
-        SplitUri tmm = entry.getKey();
-        if (kodi.equals(tmm)) {
-          return entry.getValue();
-        }
-      }
-    }
-
-    // try to match by imdb id
-    if (MediaIdUtil.isValidImdbId(movieDetail.imdbnumber)) {
-      Movie foundMovie = imdbIdMap.get(movieDetail.imdbnumber);
-      if (foundMovie != null) {
-        return foundMovie;
+      Movie movie = tmmFiles.get(kodi);
+      if (movie != null) {
+        return movie;
       }
     }
 
@@ -395,7 +398,20 @@ public class KodiRPC {
   }
 
   private TvShow findMatchingTvShow(TVShowDetail tvShowDetail, Map<SplitUri, TvShow> tmmFiles, Map<String, TvShow> idMap) {
-    // first -> try to match the split uri
+    // try to match by imdb id
+    if (MediaIdUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
+      String imdbId = tvShowDetail.imdbnumber;
+      if (!imdbId.startsWith("tt")) {
+        // kodi may return the imdbnumber w/o tt
+        imdbId = "tt" + imdbId;
+      }
+      TvShow tvShow = idMap.get(imdbId);
+      if (tvShow != null) {
+        return tvShow;
+      }
+    }
+
+    // try to match the split uri
     if (tvShowDetail.file.startsWith("stack")) {
       String[] files = tvShowDetail.file.split(" , ");
       for (String s : files) {
@@ -416,17 +432,7 @@ public class KodiRPC {
       SplitUri kodi = new SplitUri(ds, tvShowDetail.file, tvShowDetail.label, connectionManager.getHostConfig().getAddress()); // generate clean
                                                                                                                                // object
 
-      for (Map.Entry<SplitUri, TvShow> entry : tmmFiles.entrySet()) {
-        SplitUri tmm = entry.getKey();
-        if (kodi.equals(tmm)) {
-          return entry.getValue();
-        }
-      }
-    }
-
-    // try to match by imdb id
-    if (MediaIdUtil.isValidImdbId(tvShowDetail.imdbnumber) || MetadataUtil.parseInt(tvShowDetail.imdbnumber, 0) > 0) {
-      TvShow tvShow = idMap.get(tvShowDetail.imdbnumber);
+      TvShow tvShow = tmmFiles.get(kodi);
       if (tvShow != null) {
         return tvShow;
       }
@@ -502,7 +508,8 @@ public class KodiRPC {
     Integer kodiID = moviemappings.get(movie.getDbId());
 
     if (kodiID != null) {
-      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.MovieDetail.PLAYCOUNT,
+          VideoModel.MovieDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         movie.setPlaycount(call.getResult().playcount);
@@ -515,6 +522,15 @@ public class KodiRPC {
             movie.setLastWatched(new Date());
           }
         }
+        else {
+          // Kodi saids so
+          movie.setWatched(false);
+          movie.setLastWatched(null);
+        }
+
+        movie.writeNFO();
+        movie.setLastWatched(null); // write date to NFO, but do not save it, not even in session!
+        movie.saveToDb();
       }
     }
     else {
@@ -526,7 +542,8 @@ public class KodiRPC {
     Integer kodiID = getEpisodeId(episode);
 
     if (kodiID != null) {
-      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.EpisodeDetail.PLAYCOUNT,
+          VideoModel.EpisodeDetail.LASTPLAYED);
       send(call);
       if (call.getResult() != null && call.getResult().playcount != null) {
         episode.setPlaycount(call.getResult().playcount);
@@ -539,6 +556,15 @@ public class KodiRPC {
             episode.setLastWatched(new Date());
           }
         }
+        else {
+          // Kodi saids so
+          episode.setWatched(false);
+          episode.setLastWatched(null);
+        }
+
+        episode.writeNFO();
+        episode.setLastWatched(null); // write date to NFO, but do not save it, not even in session!
+        episode.saveToDb();
       }
     }
     else {

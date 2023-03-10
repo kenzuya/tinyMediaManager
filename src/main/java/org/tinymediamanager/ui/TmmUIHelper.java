@@ -47,6 +47,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -615,7 +617,7 @@ public class TmmUIHelper {
     if (me instanceof Movie) {
       switch (id) {
         case Constants.TRAKT:
-          url = "https://trakt.tv/movies/" + value;
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=movie";
           break;
 
         case Constants.TMDB:
@@ -630,10 +632,28 @@ public class TmmUIHelper {
           break;
       }
     }
-    else if (me instanceof TvShow || me instanceof TvShowEpisode) {
+    else if (me instanceof TvShow) {
       switch (id) {
         case Constants.TRAKT:
-          url = "https://trakt.tv/shows/" + value;
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=show";
+          break;
+
+        case Constants.TMDB:
+          url = "https://www.themoviedb.org/tv/" + value;
+          break;
+
+        case Constants.TVDB:
+          url = "https://thetvdb.com/dereferrer/series/" + value;
+          break;
+
+        default:
+          break;
+      }
+    }
+    else if (me instanceof TvShowEpisode) {
+      switch (id) {
+        case Constants.TRAKT:
+          url = "https://trakt.tv/search/trakt/" + value + "?id_type=episode";
           break;
 
         case Constants.TMDB:
@@ -679,7 +699,16 @@ public class TmmUIHelper {
     }
   }
 
+  /**
+   * checks for our automatic update setting interval <br>
+   * Nightly users are always true!
+   *
+   * @return
+   */
   public static boolean shouldCheckForUpdate() {
+    if (ReleaseInfo.isNightly()) {
+      return true;
+    }
     try {
       // get the property for the last update check
       String lastUpdateCheck = TmmProperties.getInstance().getProperty("lastUpdateCheck");

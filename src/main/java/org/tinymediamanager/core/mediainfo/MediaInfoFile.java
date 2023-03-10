@@ -121,7 +121,7 @@ public class MediaInfoFile implements Comparable<MediaInfoFile> {
     setDuration(MediaFileHelper.parseDuration(snapshot));
 
     if (this.filesize == 0) {
-      String siz = MediaFileHelper.getMediaInfo(snapshot, MediaInfo.StreamKind.General, 0, "FileSize");
+      String siz = MediaFileHelper.getMediaInfoValue(snapshot, MediaInfo.StreamKind.General, 0, "FileSize");
       if (!siz.isEmpty()) {
         try {
           this.filesize = Long.parseLong(siz);

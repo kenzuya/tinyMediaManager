@@ -122,6 +122,9 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:1 E:1", detectEpisode("showname S01E01\\ijfi38jsoid88939859283j.mkv"));
+    assertEqual("S:8 E:4", detectEpisode("Homeland - Temporada 8 [HDTV][Cap.804][Castellano][www.descargas2020.org].avi"));
+    assertEqual("S:10 E:4", detectEpisode("Homeland - Temporada 10 [HDTV][Cap.1004][Castellano][www.descargas2020.org].avi"));
     assertEqual("S:-1 E:105 Absolute", detectEpisode("EP105 The Bed of Nails.avi")); // absolute
     assertEqual("S:3 E:5", detectEpisode("S03 EP05 The Bed of Nails.avi"));
     assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi")); // no valid absolute marker since season is here too!
@@ -171,11 +174,7 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:5", detectEpisode("S 01/05 Gray Matter.avi"));
     assertEqual("S:4 E:101", detectEpisode("Season 4 Episode 101.avi"));
     assertEqual("S:4 E:204", detectEpisode("4x204.avi"));
-
-    // FIXME: TV test pattern which currently do not work...
-    // assertEqual("S:1 E:13 E:14 E:15", detectEpisode("Peter Pan S01E13_1x14_1x15 - El Hookato.ts")); // finds 1&13
-    // since we strip [optionals], there would be only 8 left
-    // assertEqual("S:8 E:4", detectEpisode("Homeland - Temporada 8 [HDTV][Cap.804][Castellano][www.descargas2020.org].avi"));
+    assertEqual("S:1 E:13 E:14 E:15", detectEpisode("Peter Pan S01E13_1x14_1x15 - El Hookato.ts"));
 
     // ************************************************************************
     // 1-3 chars, if they are the ONLY numbers in file
@@ -250,9 +249,9 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.CD1.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.a.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.part1.ext"));
-    assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.pt.1.ext"));
+    assertEqual("S:1 E:1 Split", detectEpisode("name.1x01.pt1.ext"));
     assertEqual("S:-1 E:1", detectEpisode("name.ep01.1.ext")); // do not detect that one
-    // assertEqual("S:1 E:1", detectEpisode("name.101.1.ext"));
+    assertEqual("S:1 E:1", detectEpisode("name.101.1.ext"));
     assertEqual("S:-1 E:1 Split", detectEpisode("name.ep01a_01.discb.ext"));
     assertEqual("S:1 E:1 Split", detectEpisode("name.s01e01.1.s01e01.2.of.2.ext"));
     assertEqual("S:1 E:1", detectEpisode("name.1x01.1x01.2.ext")); // do not detect that one

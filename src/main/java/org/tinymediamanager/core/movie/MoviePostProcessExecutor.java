@@ -94,7 +94,7 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     Map<String, Object> root = new HashMap<>();
     root.put("movie", movie);
 
-    if (postProcess.getPath() == null) {
+    if (postProcess.getPath() == null || postProcess.getPath().isEmpty()) {
       // scripting mode - transform as single string
       String transformed = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), MovieRenamer.getTokenMap()), root);
       return new String[] { transformed };

@@ -74,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
@@ -95,9 +96,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * 
  * @author Manuel Laggner
  */
-public abstract class MediaEntity extends AbstractModelObject {
+public abstract class MediaEntity extends AbstractModelObject implements IPrintable {
   private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
-
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -1474,5 +1474,10 @@ public abstract class MediaEntity extends AbstractModelObject {
         }
       }
     }
+  }
+
+  @Override
+  public String toPrintable() {
+    return getTitle();
   }
 }

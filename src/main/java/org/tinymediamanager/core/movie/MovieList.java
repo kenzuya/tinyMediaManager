@@ -56,7 +56,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -67,8 +66,10 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -445,7 +446,14 @@ public final class MovieList extends AbstractModelObject {
 
         // for performance reasons we add movies directly
         lock.writeLock().lock();
-        movieList.add(movie);
+        if (movieList.contains(movie)) {
+          // already in there?! remove dupe
+          LOGGER.info("removed duplicate '{}'", movie.getTitle());
+          toRemove.add(uuid);
+        }
+        else {
+          movieList.add(movie);
+        }
         lock.writeLock().unlock();
       }
       catch (Exception e) {
@@ -532,7 +540,17 @@ public final class MovieList extends AbstractModelObject {
   }
 
   public void persistMovie(Movie movie) {
-    // sanity check
+    // sanity checks
+    try {
+      if (!movieList.contains(movie)) {
+        throw new IllegalArgumentException(movie.getPathNIO().toString());
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("not persisting movie - not in movielist", e);
+      return;
+    }
+
     if (isMovieCorrupt(movie)) {
       // not valid -> remove
       LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
@@ -605,6 +623,70 @@ public final class MovieList extends AbstractModelObject {
    */
   public synchronized List<Movie> getMoviesByPath(Path path) {
     return movieList.parallelStream().filter(movie -> movie.getPathNIO().compareTo(path) == 0).collect(Collectors.toList());
+  }
+
+  /**
+   * Gets a list of movies starting with path (to find sub folder movies!)<br>
+   * (Excluding those movies which are in same path)
+   * 
+   * @param path
+   *          the path
+   * @return the movie list
+   */
+  public synchronized List<Movie> getSubMoviesByPath(Path path) {
+    return movieList.parallelStream()
+        .filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * for each movie, re-evaluate all the paths against others, and set MMD correctly
+   */
+  public void reevaluateMMD() {
+    if (movieList == null || movieList.size() == 0) {
+      return;
+    }
+    LOGGER.info("re-evaluating MMD for {} movies...", movieList.size());
+    for (Movie movie : movieList) {
+      boolean old = movie.isMultiMovieDir();
+
+      // imagine a structure like
+      // movies/bla/bla.mkv
+      // movies/bla/blubb/blubb.mkv
+      // both would be single (not MMD) file, although the parent MUST be a MMD!
+      // so get all sub movies within path (some levels deeper)
+      List<Movie> subMovies = getSubMoviesByPath(movie.getPathNIO());
+      if (subMovies.size() > 0) {
+        // there are some movies down the path - it MUST be treated as MMD
+        movie.setMultiMovieDir(true);
+      }
+      else {
+        // no sub movies, but some in exact same folder? (including myself)
+        List<Movie> samePath = getMoviesByPath(movie.getPathNIO());
+        if (samePath.size() > 1) {
+          movie.setMultiMovieDir(true);
+        }
+        else {
+          // so just me; check another variant - see UDS L840
+          if (movie.getPathNIO().getFileName().toString().matches(MovieUpdateDatasourceTask.FOLDER_STRUCTURE)
+              || MediaGenres.containsGenre(movie.getPathNIO().getFileName().toString())) {
+            movie.setMultiMovieDir(true);
+          }
+          else {
+            // - no submovie
+            // - noone in same path
+            // - no genres/decade/alphanum folder
+            // -> we can now safely assume a single movie - phew :)
+            movie.setMultiMovieDir(false);
+          }
+        }
+      }
+
+      if (old != movie.isMultiMovieDir()) {
+        LOGGER.debug("Movie '{}' changed MMD {} -> {}", movie.getTitle(), old, movie.isMultiMovieDir());
+        movie.saveToDb();
+      }
+    }
   }
 
   /**
@@ -1254,7 +1336,7 @@ public final class MovieList extends AbstractModelObject {
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs" (tmdbcol is from Ember)
-        if (Constants.TMDB_SET.equals(entry.getKey()) || "tmdbcol".equals(entry.getKey())) {
+        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
 
