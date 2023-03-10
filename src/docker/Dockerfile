@@ -35,4 +35,4 @@ RUN \
 ADD start.sh /app/
 
 WORKDIR /app
-CMD ["/app/start.sh", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]
+CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]
