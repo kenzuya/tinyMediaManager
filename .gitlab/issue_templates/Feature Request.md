@@ -1,7 +1,9 @@
-__What TMM version are you using?__
+## What TMM version are you using?
+Version 4.xxx  release (or nightly/prerelease)
 
 
-__What is the actual behavior?__
+## What is the actual behavior?
 
 
-__What is the expected behavior?__
+## What is the expected behavior?
+
