@@ -530,6 +530,20 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           dirty = true;
         }
       }
+
+      // check, if some episode MFs are assigned also to tvshows...!
+      List<MediaFile> episodeFiles = tvShow.getEpisodesMediaFiles();
+      List<MediaFile> cleanup = new ArrayList<MediaFile>();
+      for (MediaFile showFile : tvShow.getMediaFiles()) {
+        if (episodeFiles.contains(showFile)) {
+          cleanup.add(showFile);
+          dirty = true;
+        }
+      }
+      for (MediaFile mf : cleanup) {
+        tvShow.removeFromMediaFiles(mf);
+        LOGGER.debug("Removed duplicate show file {}", mf);
+      }
     }
 
     if (dirty) {

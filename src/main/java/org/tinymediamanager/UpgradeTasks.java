@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -498,7 +499,30 @@ public class UpgradeTasks {
 
     if (StrgUtils.compareVersion(v, "4.3.9") < 0) {
       movieList.reevaluateMMD();
+
+      // fix structures of invalid, mostly multi-episode files
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        Set<TvShowEpisode> cleanup = new HashSet<TvShowEpisode>();
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
+          if (mfs.size() > 1 && !episode.isDisc()) {
+            // we have multiple videos on SAME episode
+            // check if they have a stacking marker, else it would be invalid!
+            for (MediaFile mf : mfs) {
+              if (Utils.getStackingNumber(mf.getFilename()) == 0) {
+                cleanup.add(episode);
+              }
+            }
+          }
+        }
+        for (TvShowEpisode ep : cleanup) {
+          tvShow.removeEpisode(ep);
+          LOGGER.info("Removed invalid episode '{}' (S{} E{}) from show /{}", ep.getTitle(), ep.getSeason(), ep.getEpisode(),
+              tvShow.getPathNIO().getFileName());
+        }
+      }
     }
+
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
