@@ -28,7 +28,7 @@ x fixed (re)setting watched date from Trakt and Kodi to NFO #2083
 x slightly tweak the split files pattern
 x fix actor display #2073
 x (OFDB) rework scraper, fix trailers
-
+x removed some unneeded actions
 
 
 Version 4.3.8
