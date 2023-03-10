@@ -1881,7 +1881,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
-      videofolders.add(dir);
+      visitedFolders.add(dir);
 
       if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
         LOGGER.debug("Skipping dir: {}", dir);
