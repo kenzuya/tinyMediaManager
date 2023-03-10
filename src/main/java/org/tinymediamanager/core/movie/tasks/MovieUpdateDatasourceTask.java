@@ -1829,8 +1829,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private class SearchAndParseVisitor extends AbstractFileVisitor {
     private final Path         datasource;
-    private final List<String> unstackedRoot = new ArrayList<>(); // only for folderstacking
-    private final Set<Path>    videofolders  = new HashSet<>();   // all found video folders
+    private final List<String> unstackedRoot  = new ArrayList<>(); // only for folderstacking
+    private final Set<Path>    videofolders   = new HashSet<>();   // all found video folders
+    private final Set<Path>    visitedFolders = new HashSet<>();
 
     SearchAndParseVisitor(Path datasource) {
       this.datasource = datasource;
@@ -1866,6 +1867,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         return TERMINATE;
       }
 
+      if (visitedFolders.contains(dir)) {
+        // already visited? must be some sort of endless-loop - maybe from recursive symlinks
+        // --> ABORT
+        LOGGER.debug("visting already visited folder '{}'", dir.toAbsolutePath());
+        return SKIP_SUBTREE;
+      }
+
       incPreDir();
 
       String parent = "";
@@ -1873,10 +1881,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
+      videofolders.add(dir);
+
       if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 
