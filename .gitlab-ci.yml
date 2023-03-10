@@ -19,7 +19,10 @@ test:jdk17:
   stage: test
   image: tinymediamanager/testing:jdk17-20220926090140
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
@@ -32,7 +35,10 @@ test:jdk18:
   stage: test
   image: tinymediamanager/testing:jdk18-20221002133514
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
@@ -45,7 +51,10 @@ test:jdk19:
   stage: test
   image: tinymediamanager/testing:jdk19-20221002133519
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5@tinyMediaManager/tinyMediaManager"
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
