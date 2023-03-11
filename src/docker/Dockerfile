@@ -32,7 +32,5 @@ RUN \
     # Remove some unneeded stuff.
     rm -rf /var/lib/apt/lists/*
 
-ADD start.sh /app/
-
 WORKDIR /app
 CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data", "-Dtmm.noupdate=true"]
