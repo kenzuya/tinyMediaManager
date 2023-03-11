@@ -170,7 +170,7 @@ public final class TinyMediaManager {
                   wizard.setLocationRelativeTo(null); // center
                   wizard.setVisible(true);
                 }
-                else if (Globals.isSelfUpdateable() && Settings.getInstance().isEnableAutomaticUpdate()
+                else if (Globals.isSelfUpdatable() && Settings.getInstance().isEnableAutomaticUpdate()
                     && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
                   // if the wizard is not run, check for an update
                   // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is

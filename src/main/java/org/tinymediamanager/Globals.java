@@ -19,9 +19,6 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -30,9 +27,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Manuel Laggner
  */
 public final class Globals {
-  private static final boolean DEBUG           = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
-  private static final boolean SELF_UPDATEABLE = (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) && !Files.exists(Paths.get(".managed"))
-      && isTmmDirWritable()) ? true : false;
+  private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
@@ -158,7 +153,22 @@ public final class Globals {
     return System.getProperty("webswing.classPath") != null;
   }
 
-  public static boolean isSelfUpdateable() {
-    return SELF_UPDATEABLE;
+  public static boolean isSelfUpdatable() {
+    // env param -Dtmm.noupdate=true has been set
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      return false;
+    }
+
+    // special files exist (e.g. in docker env)
+    if (isDocker() || Files.exists(Paths.get(".managed"))) {
+      return false;
+    }
+
+    // tmm folder is not even writable
+    if (!isTmmDirWritable()) {
+      return false;
+    }
+
+    return true;
   }
 }
