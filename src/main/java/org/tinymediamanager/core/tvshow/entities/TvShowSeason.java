@@ -327,8 +327,12 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     return filesize;
   }
 
-  @Override
-  public List<MediaFile> getMediaFiles() {
+  /**
+   * gets all {@link MediaFile}s recursively (season + episodes)
+   * 
+   * @return a {@link List} of all {@link MediaFile}s
+   */
+  public List<MediaFile> getMediaFilesRecursive() {
     Set<MediaFile> unique = new LinkedHashSet<>(super.getMediaFiles());
 
     for (TvShowEpisode episode : episodes) {
@@ -338,7 +342,12 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     return new ArrayList<>(unique);
   }
 
-  public List<MediaFile> getMediaFiles(MediaFileType type) {
+  /**
+   * gets all {@link MediaFile}s recursively for the given type (season + episodes)
+   *
+   * @return a {@link List} of all {@link MediaFile}s
+   */
+  public List<MediaFile> getMediaFilesRecursive(MediaFileType type) {
     Set<MediaFile> unique = new LinkedHashSet<>(super.getMediaFiles(type));
 
     for (TvShowEpisode episode : episodes) {

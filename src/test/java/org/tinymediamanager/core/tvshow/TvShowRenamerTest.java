@@ -229,6 +229,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
 
+    TvShowList.getInstance().addTvShow(show);
+
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
@@ -285,6 +287,9 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setYear(2008);
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
+
+    TvShowList.getInstance().addTvShow(show);
+
     MediaFile mf = new MediaFile(destination.resolve("extras/Show extra.avi").toAbsolutePath());
     mf.gatherMediaInformation();
     show.addToMediaFiles(mf);
@@ -376,6 +381,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
 
+    TvShowList.getInstance().addTvShow(show);
+
     // multi episode file
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
@@ -453,6 +460,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
 
+    TvShowList.getInstance().addTvShow(show);
+
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("Pilot");
@@ -515,6 +524,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setYear(2008);
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
+
+    TvShowList.getInstance().addTvShow(show);
 
     // classical single file episode
     TvShowEpisode ep = new TvShowEpisode();
@@ -622,6 +633,8 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     show.setYear(2008);
     show.setDataSource(destination.getParent().toAbsolutePath().toString());
     show.setPath(destination.toAbsolutePath().toString());
+
+    TvShowList.getInstance().addTvShow(show);
 
     // season artwork
     MediaFile mf = new MediaFile(destination.resolve("season01-banner.jpg").toAbsolutePath(), MediaFileType.SEASON_BANNER);
@@ -747,16 +760,16 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     artwork = showDir.resolve("season02-thumb.jpg");
     assertThat(artwork).exists();
 
-    // season 3 artwork in TV show folder (won't create an own subfolder only for artwork)
+    // season 3 artwork will not be written because not activated in the settings
     // AND since the banner is not in a season folder, it will have the default name style applied
     artwork = showDir.resolve("season03-poster.jpg");
-    assertThat(artwork).exists();
+    assertThat(artwork).doesNotExist();
     artwork = showDir.resolve("season03-fanart.jpg");
-    assertThat(artwork).exists();
+    assertThat(artwork).doesNotExist();
     artwork = showDir.resolve("season03-banner.jpg");
-    assertThat(artwork).exists();
+    assertThat(artwork).doesNotExist();
     artwork = showDir.resolve("season03-thumb.jpg");
-    assertThat(artwork).exists();
+    assertThat(artwork).doesNotExist();
 
     // check episode dirs/files
     Path video = season1Dir.resolve("Breaking Bad - S01E01 - Pilot.mkv");

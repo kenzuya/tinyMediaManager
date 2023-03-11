@@ -64,7 +64,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
         try {
           mediaFileEventList.getReadWriteLock().writeLock().lock();
           mediaFileEventList.clear();
-          mediaFileEventList.addAll(selectedSeason.getMediaFiles());
+          mediaFileEventList.addAll(selectedSeason.getMediaFilesRecursive());
         }
         catch (Exception ignored) {
           // ignored
