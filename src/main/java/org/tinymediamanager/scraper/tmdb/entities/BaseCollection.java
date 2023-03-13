@@ -6,6 +6,5 @@ public class BaseCollection {
   public String  backdrop_path;
   public String  name;
   public String  poster_path;
-  public String  overview;
 
 }

@@ -280,7 +280,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
           MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.MOVIE_SET);
           searchResult.setId(Integer.toString(collection.id));
           searchResult.setTitle(collection.name);
-          searchResult.setOverview(collection.overview);
           searchResult.setPosterUrl(artworkBaseUrl + "w342" + collection.poster_path);
           searchResult.setScore(MetadataUtil.calculateScore(searchString, collection.name));
           if (searchResult.getScore() < 0.5 && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
@@ -402,14 +401,6 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
 
     try {
       collection = api.collectionService().summary(tmdbId, language).execute().body();
-
-      // for some reasons, TMDB sends collection overview only on search results,
-      // but NOT on detail calls! so we take it from the former if it is empty...
-      if (collection != null && StringUtils.isBlank(collection.overview) && options.getSearchResult() != null
-          && StringUtils.isNotBlank(options.getSearchResult().getOverview())) {
-        collection.overview = options.getSearchResult().getOverview();
-      }
-
       // if collection title/overview is not availbale, rescrape in the fallback language
       if (collection != null && (StringUtils.isBlank(collection.overview) || StringUtils.isBlank(collection.name))
           && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
