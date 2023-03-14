@@ -172,6 +172,7 @@ public abstract class BasicTest {
 
     Path path = workFolder.resolve(title);
 
+    movie.setDataSource(workFolder.toString());
     movie.setTitle(title);
     movie.setPath(path.toString());
     movie.setOriginalTitle("Original " + title);

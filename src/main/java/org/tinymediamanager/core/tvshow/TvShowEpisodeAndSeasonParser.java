@@ -51,7 +51,9 @@ public class TvShowEpisodeAndSeasonParser {
   private static final Pattern date2           = Pattern.compile("([0-9]{2})[.-]([0-9]{2})[.-]([0-9]{4})", Pattern.CASE_INSENSITIVE);
 
   // new parsing logic
-  public static final Pattern  SEASON_PATTERN  = Pattern.compile("(s|staffel|season|series)[\\s_.-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  public static final Pattern  SEASON_LONG     = Pattern.compile("(staffel|season|saison|series|temporada)[\\s_.-]?(\\d{1,4})",
+      Pattern.CASE_INSENSITIVE);
+  public static final Pattern  SEASON_ONLY     = Pattern.compile("s[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern episodePattern  = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern episodePattern2 = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern romanPattern    = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);
@@ -207,7 +209,12 @@ public class TvShowEpisodeAndSeasonParser {
     result.stackingMarkerFound = !Utils.getStackingMarker(filename).isEmpty();
     result.name = basename.trim();
 
-    result = parseSeason(result, basename + foldername);
+    // first parse all long named season names, and remove
+    result = parseSeasonLong(result, basename + foldername);
+    if (result.season != -1) {
+      basename = basename.replaceAll("(?i)" + SEASON_LONG.toString(), "");
+      foldername = foldername.replaceAll("(?i)" + SEASON_LONG.toString(), "");
+    }
     result = parseSeasonMultiEP(result, basename + foldername);
     result = parseSeasonMultiEP2(result, basename + foldername);
     result = parseEpisodePattern(result, basename);
@@ -244,10 +251,19 @@ public class TvShowEpisodeAndSeasonParser {
       return postClean(result);
     }
 
-    // strip all [optionals]!
-    String woOptionals = basename.replaceAll("\\[(.*?)\\]", "");
+    // parse season short (S 01), but only if we do not have already one!
+    if (result.season == -1) {
+      result = parseSeasonOnly(result, basename + foldername);
+      if (result.season != -1) {
+        basename = basename.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
+        foldername = foldername.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
+      }
+    }
 
-    // multiple numbers: get consecutive ones (removed optionals [] first)
+    // strip all [optionals]!
+    String woOptionals = basename.replaceAll("[\\[\\{](.*?)[\\]\\}]", "");
+
+    // multiple numbers: get consecutive ones (removed optionals []{} first)
     String delimitedNumbers = woOptionals.replaceAll("\\|", "_"); // replace our delimiter
     delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-]", "$1|"); // add delimiter after numbers
     delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
@@ -257,11 +273,15 @@ public class TvShowEpisodeAndSeasonParser {
     // nothing found removing []? try with optionals... wuah
     if (numbersOnly.length == 0 || (numbersOnly.length == 1 && numbersOnly[0].isBlank())) {
       delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
-      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-]", "$1|"); // add delimiter after numbers
+      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-\\]\\}]", "$1|"); // add delimiter after numbers
       delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
       numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
     }
 
+    result = parseNumbers4(result, numbersOnly);
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
     result = parseNumbers3(result, numbersOnly);
     if (!result.episodes.isEmpty()) {
       return postClean(result);
@@ -309,13 +329,35 @@ public class TvShowEpisodeAndSeasonParser {
         // Filename contains only 3 subsequent numbers; parse this as SEE
         int s = Integer.parseInt(num.substring(0, 1));
         int ep = Integer.parseInt(num.substring(1));
-        if (ep > 0 && !result.episodes.contains(ep)) {
-          result.episodes.add(ep);
-          LOGGER.trace("add found EP '{}'", ep);
+        if (result.season == -1 || result.season == s) {
+          if (ep > 0 && !result.episodes.contains(ep)) {
+            result.episodes.add(ep);
+            LOGGER.trace("add found EP '{}'", ep);
+          }
+          LOGGER.trace("add found season '{}'", s);
+          result.season = s;
         }
-        LOGGER.trace("add found season '{}'", s);
-        result.season = s;
-        // for 3 character numbers, we iterate multiple times!
+        // for 3 character numbers, we iterate multiple times (with same season)!
+        // do not stop on first one"
+        // return result;
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseNumbers4(EpisodeMatchingResult result, String[] numbersOnly) {
+    for (String num : numbersOnly) {
+      if (num.length() == 4) {
+        // Filename contains only 4 subsequent numbers; parse this as SSEE
+        int s = Integer.parseInt(num.substring(0, 2));
+        int ep = Integer.parseInt(num.substring(2));
+        if (result.season == s) { // we NEED to have a season set, else every year would be a valid SSEE number!!
+          if (ep > 0 && !result.episodes.contains(ep)) {
+            result.episodes.add(ep);
+            LOGGER.trace("add found EP '{}'", ep);
+          }
+        }
+        // for 4 character numbers, we iterate multiple times (with same season)!
         // do not stop on first one"
         // return result;
       }
@@ -491,13 +533,11 @@ public class TvShowEpisodeAndSeasonParser {
     return result;
   }
 
-  private static EpisodeMatchingResult parseSeason(EpisodeMatchingResult result, String name) {
-    Pattern regex;
+  private static EpisodeMatchingResult parseSeasonLong(EpisodeMatchingResult result, String name) {
     Matcher m;
     // season detection
     if (result.season == -1) {
-      regex = SEASON_PATTERN;
-      m = regex.matcher(name);
+      m = SEASON_LONG.matcher(name);
       if (m.find()) {
         int s = result.season;
         try {
@@ -513,10 +553,30 @@ public class TvShowEpisodeAndSeasonParser {
     return result;
   }
 
+  private static EpisodeMatchingResult parseSeasonOnly(EpisodeMatchingResult result, String name) {
+    Matcher m;
+    // season detection
+    if (result.season == -1) {
+      m = SEASON_ONLY.matcher(name);
+      if (m.find()) {
+        int s = result.season;
+        try {
+          s = Integer.parseInt(m.group(1));
+        }
+        catch (NumberFormatException nfe) {
+          // can not happen from regex since we only come here with max 2 numeric chars
+        }
+        result.season = s;
+        LOGGER.trace("add found season '{}'", s);
+      }
+    }
+    return result;
+  }
+
   private static EpisodeMatchingResult postClean(EpisodeMatchingResult emr) {
     // try to clean the filename
-    emr.cleanedName = cleanFilename(emr.name, new Pattern[] { SEASON_PATTERN, seasonMultiEP, seasonMultiEP2, episodePattern, episodePattern2,
-        numbers3Pattern, numbers2Pattern, romanPattern, date1, date2 });
+    emr.cleanedName = cleanFilename(emr.name, new Pattern[] { SEASON_LONG, seasonMultiEP, seasonMultiEP2, episodePattern, episodePattern2,
+        numbers3Pattern, numbers2Pattern, romanPattern, date1, date2, SEASON_ONLY });
     Collections.sort(emr.episodes);
     LOGGER.trace("returning result '{}'", emr);
     return emr;

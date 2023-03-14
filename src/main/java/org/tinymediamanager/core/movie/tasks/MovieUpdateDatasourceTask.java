@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.movie.tasks;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SIBLINGS;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.tinymediamanager.core.MediaFileHelper.BDMV;
@@ -1831,6 +1832,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     private final Path         datasource;
     private final List<String> unstackedRoot = new ArrayList<>(); // only for folderstacking
     private final Set<Path>    videofolders  = new HashSet<>();   // all found video folders
+    private final Set<Path>    visited       = new HashSet<>();
 
     SearchAndParseVisitor(Path datasource) {
       this.datasource = datasource;
@@ -1842,7 +1844,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         return TERMINATE;
       }
 
+      if (visited.contains(file)) {
+        // already visited? must be some sort of endless-loop - maybe from recursive symlinks
+        // --> ABORT
+        LOGGER.debug("visiting already visited file '{}'", file.toAbsolutePath());
+        return SKIP_SIBLINGS;
+      }
+
       incVisFile();
+
+      visited.add(file);
 
       if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         // check for video?
@@ -1866,6 +1877,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         return TERMINATE;
       }
 
+      if (visited.contains(dir)) {
+        // already visited? must be some sort of endless-loop - maybe from recursive symlinks
+        // --> ABORT
+        LOGGER.debug("visiting already visited folder '{}'", dir.toAbsolutePath());
+        return SKIP_SUBTREE;
+      }
+
       incPreDir();
 
       String parent = "";
@@ -1873,10 +1891,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
+      visited.add(dir);
+
       if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 
