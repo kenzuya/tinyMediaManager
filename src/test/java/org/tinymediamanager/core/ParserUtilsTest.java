@@ -24,7 +24,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Safety Not Guaranteed | 2012", detectTY("Safety Not Guaranteed [2012, HEVC-1080p].mkv"));
     assertEqual("Safety Not Guaranteed | 2012", detectTY("Safety.Not_Guaranteed [2012] [HEVC-1080p].mkv"));
     assertEqual("Not Guaranteed | 2012", detectTY("[Safety] Not Guaranteed [HEVC-1080p] [2012].mkv"));
-    assertEqual("Safety Not Guaranteed | 2012", detectTY("[Safety not [guaranteed] , , , [HEVC-, , ,,,1080p] [2012].mkv"));
+    assertEqual("Safety not guaranteed | 2012", detectTY("[Safety not [guaranteed] , , , [HEVC-, , ,,,1080p] [2012].mkv"));
     assertEqual("Safety Not Guaranteed", detectTY("[Safety Not Guaranteed].mkv"));
     assertEqual("Por Fin Se Casa Zamora | 1926", detectTY("Por fin se casa Zamora (1926)"));
 
@@ -141,7 +141,7 @@ public class ParserUtilsTest extends BasicTest {
 
     ArrayList<String> badwords = new ArrayList<>();
     badwords.add("tvs");
-    assertEqual("Castle", detectTYWithBadWords("tvs-castle-dl-ituneshd-xvid-101.avi", badwords));
+    assertEqual("castle", detectTYWithBadWords("tvs-castle-dl-ituneshd-xvid-101.avi", badwords));
     badwords.add("top\\d{3}");
     assertEqual("Castle", detectTYWithBadWords("tvs-castle-top100-dl-ituneshd-xvid-101.avi", badwords));
 
