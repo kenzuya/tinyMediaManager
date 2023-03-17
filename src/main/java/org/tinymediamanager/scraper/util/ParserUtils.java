@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -244,7 +243,9 @@ public class ParserUtils {
               break;
 
             default:
-              name.append(WordUtils.capitalizeFully(word)).append(" "); // make CamelCase
+              // name.append(WordUtils.capitalizeFully(word)).append(" "); // make CamelCase
+              // NOPE - import it 1:1
+              name.append(word).append(" ");
               break;
           }
         }
