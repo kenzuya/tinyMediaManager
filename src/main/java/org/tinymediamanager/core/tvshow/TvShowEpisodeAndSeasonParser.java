@@ -153,10 +153,6 @@ public class TvShowEpisodeAndSeasonParser {
       result = detect(name, showname);
     }
 
-    // we might not detect any episode out of the name
-    if (result.episodes.isEmpty()) {
-      result.episodes.add(-1);
-    }
     return result;
   }
 
