@@ -98,10 +98,10 @@ public class ITJmtePatternTest extends BasicITest {
             }
           }
           typeAsString += "\\>";
-          System.out.println("|" + typeAsString + "|" + fullToken + "|" + shortToken);
+          System.out.println("| " + typeAsString + " | " + fullToken + " | " + shortToken);
         }
         else {
-          System.out.println("|" + getTypeName(descriptor.getReadMethod().getReturnType()) + "|" + fullToken + "|" + shortToken);
+          System.out.println("| " + getTypeName(descriptor.getReadMethod().getReturnType()) + " | " + fullToken + " | " + shortToken);
         }
       }
     }
@@ -121,10 +121,10 @@ public class ITJmtePatternTest extends BasicITest {
       shortToken = TvShowRenamer.getTokenMapReversed().get(prefix + name);
     }
     if (shortToken != null && prefix.length() > 3) {
-      shortToken = "${" + shortToken + "}|";
+      shortToken = "${" + shortToken + "} |";
     }
     else {
-      shortToken = "|";
+      shortToken = " | ";
     }
     return shortToken;
   }

@@ -816,7 +816,8 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
    * remove all IDs
    */
   public void removeAllIds() {
-    for (var entry : ids.entrySet()) {
+    Map<String, Object> oldIds = new HashMap<>(ids); // create a copy for a stable iterator
+    for (var entry : oldIds.entrySet()) {
       removeId(entry.getKey());
     }
   }

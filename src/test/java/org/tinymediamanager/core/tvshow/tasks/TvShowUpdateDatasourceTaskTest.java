@@ -34,7 +34,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
-  private static final int NUMBER_OF_EXPECTED_SHOWS = 15;
+  private static final int NUMBER_OF_EXPECTED_SHOWS = 16;
 
   @Before
   public void setup() throws Exception {
@@ -159,5 +159,15 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(seasons.get(1).getEpisodes().size()).isEqualTo(20);
     assertThat(seasons.get(2).getSeason()).isEqualTo(3);
     assertThat(seasons.get(2).getEpisodes().size()).isEqualTo(15);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // unknown -1/-1 detection
+    ///////////////////////////////////////////////////////////////////////////////////////
+    show = tvShowList.getTvShowByPath(getWorkFolder().resolve("testtvshows/unknown"));
+    assertThat(show).isNotNull();
+    assertThat(show.getTitle()).isEqualTo("unknown");
+    assertThat(show.getEpisodes().size()).isEqualTo(1);
+    assertThat(show.getEpisodes().get(0).getSeason() == -1);
+    assertThat(show.getEpisodes().get(0).getEpisode() == -1);
   }
 }
