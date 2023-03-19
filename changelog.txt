@@ -1,3 +1,7 @@
+Version 4.3.10
+=======================
+
+
 Version 4.3.9
 =======================
 x (TVDB) only scrape the requested certification code
