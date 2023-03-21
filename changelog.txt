@@ -1,5 +1,6 @@
 Version 4.3.10
 =======================
+x (update) fix adding/removing posters for movies and tv on update
 
 
 Version 4.3.9
