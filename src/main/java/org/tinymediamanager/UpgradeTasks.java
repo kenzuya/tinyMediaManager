@@ -522,6 +522,21 @@ public class UpgradeTasks {
         }
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.3.9.1") < 0) {
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          boolean dirty = false;
+          for (MediaFile mf : episode.getMediaFiles(MediaFileType.GRAPHIC)) {
+            mf.setType(MediaFileType.THUMB);
+            dirty = true;
+          }
+          if (dirty) {
+            episode.saveToDb();
+          }
+        }
+      }
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
