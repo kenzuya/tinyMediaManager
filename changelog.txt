@@ -1,6 +1,7 @@
 Version 4.3.9.1
 =======================
-x (update) fix adding/removing posters for movies and tv on update
+x (tvshows) fix displaying posters for episodes
+x (movies) improve performance of update, do not always reevaluate MMD
 
 
 Version 4.3.9
