@@ -1,3 +1,7 @@
+Version 4.3.10
+=======================
+
+
 Version 4.3.9.1
 =======================
 x (TV shows) fix displaying posters for episodes
