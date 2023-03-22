@@ -774,7 +774,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
-              if (img.getType() == MediaFileType.POSTER) {
+              if (img.getType() == MediaFileType.POSTER || img.getType() == MediaFileType.GRAPHIC) {
                 // re-type posters to EP "posters" (=thumb)
                 img.setType(MediaFileType.THUMB);
               }

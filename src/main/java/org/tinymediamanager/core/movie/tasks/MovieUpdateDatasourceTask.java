@@ -234,7 +234,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 
-      movieList.reevaluateMMD();
       stopWatch.stop();
       LOGGER.info("Done updating datasource :) - took {}", stopWatch);
     }
@@ -914,21 +913,19 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // fourth round - try to match unknown graphics like title.ext or
     // filename.ext as poster
     // ***************************************************************
-    if (movie.getArtworkFilename(POSTER).isEmpty()) {
-      for (MediaFile mf : mfs) {
-        if (mf.getType().equals(MediaFileType.GRAPHIC)) {
-          LOGGER.debug("| parsing unknown graphic: {}", mf.getFilename());
-          List<MediaFile> vid = movie.getMediaFiles(MediaFileType.VIDEO);
-          if (vid != null && !vid.isEmpty()) {
-            String vfilename = vid.get(0).getFilename();
-            if (FilenameUtils.getBaseName(vfilename).equals(FilenameUtils.getBaseName(mf.getFilename())) // basename match
-                || FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vfilename)).trim().equals(FilenameUtils.getBaseName(mf.getFilename())) // basename
-                                                                                                                                               // w/o
-                                                                                                                                               // stacking
-                || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title match
-              mf.setType(POSTER);
-              movie.addToMediaFiles(mf);
-            }
+    for (MediaFile mf : mfs) {
+      if (mf.getType().equals(MediaFileType.GRAPHIC)) {
+        LOGGER.debug("| parsing unknown graphic: {}", mf.getFilename());
+        List<MediaFile> vid = movie.getMediaFiles(MediaFileType.VIDEO);
+        if (vid != null && !vid.isEmpty()) {
+          String vfilename = vid.get(0).getFilename();
+          if (FilenameUtils.getBaseName(vfilename).equals(FilenameUtils.getBaseName(mf.getFilename())) // basename match
+              || FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vfilename)).trim().equals(FilenameUtils.getBaseName(mf.getFilename())) // basename
+                                                                                                                                             // w/o
+                                                                                                                                             // stacking
+              || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title match
+            mf.setType(POSTER);
+            movie.addToMediaFiles(mf);
           }
         }
       }
