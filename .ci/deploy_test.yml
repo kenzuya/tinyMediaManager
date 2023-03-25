@@ -39,7 +39,7 @@ build:
     paths:
       - dist/tinyMediaManager*linux-amd64.tar.xz # upload for docker build
       - target/docker # compiled Dockerfile
-      - target/tinyMediaManager*macos*.zip
+      - target/tinyMediaManager*macos*.zip # for macOS build
 
 build-mac:
   stage: build
@@ -51,6 +51,10 @@ build-mac:
   tags:
     - tmm-mac # force running on own macOS runners
   script:
+    # remove linux build (no need to upload this twice)
+    - rm dist/tinyMediaManager*linux-amd64.tar.xz
+
+    # create macOS bundles
     - sh AppBundler/create_mac_image.sh
 
     # push the build to the webserver
