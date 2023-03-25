@@ -117,7 +117,7 @@ public class MediaEntityImageFetcherTask implements Runnable {
 
         LOGGER.debug("writing {} - {}", type, filename);
         Path destFile2 = entity.getPathNIO().resolve(filename);
-        Utils.copyFileSafe(destFile, destFile2);
+        Utils.copyFileSafe(destFile, destFile2, true);
 
         newMediaFiles.add(new MediaFile(destFile2, MediaFileType.getMediaFileType(type)));
       }
