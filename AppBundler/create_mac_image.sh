@@ -35,8 +35,8 @@ tinyMediaManager
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
-xcrun notarytool submit tinyMediaManager.dmg --keychain-profile "tmm" --wait
-xcrun stapler staple tinyMediaManager.dmg
+xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
+#xcrun stapler staple tinyMediaManager.dmg
 
 # copy to dist
 cp tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-x86_64.dmg
@@ -79,8 +79,8 @@ tinyMediaManager
 codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
-xcrun notarytool submit tinyMediaManager.dmg --keychain-profile "tmm" --wait
-xcrun stapler staple tinyMediaManager.dmg
+xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
+#xcrun stapler staple tinyMediaManager.dmg
 
 # copy to dist
 cp tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-aarch64.dmg
