@@ -1,5 +1,6 @@
 Version 4.3.10
 =======================
+x improved loading speed of movie and TV show module
 
 
 Version 4.3.9.1
