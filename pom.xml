@@ -1028,7 +1028,8 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.4.2</version>
+                        <!-- do not upgrade due to https://issues.apache.org/jira/browse/MASSEMBLY-965 -->
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <!-- first assemble a base folder to copy -->
