@@ -418,8 +418,6 @@ public final class MovieList extends AbstractModelObject {
    * Load movies from database.
    */
   void loadMoviesFromDatabase(MVMap<UUID, String> movieMap) {
-    ReadWriteLock lock = new ReentrantReadWriteLock();
-
     // load movies
     ObjectReader movieObjectReader = MovieModuleManager.getInstance().getMovieObjectReader();
 
@@ -427,7 +425,9 @@ public final class MovieList extends AbstractModelObject {
 
     long start = System.nanoTime();
 
-    new ArrayList<>(movieMap.keyList()).parallelStream().forEach((uuid) -> {
+    Set<Movie> loadedMoviesWithoutDuplicates = new HashSet<>();
+
+    new ArrayList<>(movieMap.keyList()).forEach((uuid) -> {
       String json = "";
       try {
         json = movieMap.get(uuid);
@@ -438,32 +438,25 @@ public final class MovieList extends AbstractModelObject {
         if (isMovieCorrupt(movie)) {
           // no video file or path or datasource? drop it
           LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
-          lock.writeLock().lock();
           toRemove.add(uuid);
-          lock.writeLock().unlock();
           return;
         }
 
         // for performance reasons we add movies directly
-        lock.writeLock().lock();
-        if (movieList.contains(movie)) {
+        if (!loadedMoviesWithoutDuplicates.add(movie)) {
           // already in there?! remove dupe
           LOGGER.info("removed duplicate '{}'", movie.getTitle());
           toRemove.add(uuid);
         }
-        else {
-          movieList.add(movie);
-        }
-        lock.writeLock().unlock();
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie: {}", json);
-        lock.writeLock().lock();
         toRemove.add(uuid);
-        lock.writeLock().unlock();
       }
     });
+
+    movieList.addAll(loadedMoviesWithoutDuplicates);
 
     long end = System.nanoTime();
 

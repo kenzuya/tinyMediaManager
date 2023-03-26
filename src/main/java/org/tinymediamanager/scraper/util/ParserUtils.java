@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -106,7 +105,7 @@ public class ParserUtils {
     // try the badwords on the whole term (to apply regular expressions which apply on the whole term)
     String savedFname = fname;
     for (String badword : badWords) {
-      fname = fname.toLowerCase(Locale.ROOT).replaceAll(badword, "");
+      fname = fname.replaceAll("(?i)" + badword, ""); // keep case, but replace insensitive
     }
 
     // do not clean the whole term!
@@ -244,7 +243,9 @@ public class ParserUtils {
               break;
 
             default:
-              name.append(WordUtils.capitalizeFully(word)).append(" "); // make CamelCase
+              // name.append(WordUtils.capitalizeFully(word)).append(" "); // make CamelCase
+              // NOPE - import it 1:1
+              name.append(word).append(" ");
               break;
           }
         }

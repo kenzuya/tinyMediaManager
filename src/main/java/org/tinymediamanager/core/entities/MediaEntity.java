@@ -98,6 +98,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  */
 public abstract class MediaEntity extends AbstractModelObject implements IPrintable {
   private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
+
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 

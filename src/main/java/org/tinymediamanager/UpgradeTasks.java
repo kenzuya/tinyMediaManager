@@ -506,7 +506,7 @@ public class UpgradeTasks {
             // we have multiple videos on SAME episode
             // check if they have a stacking marker, else it would be invalid!
             for (MediaFile mf : mfs) {
-              if (Utils.getStackingNumber(mf.getFilename()) == 0) {
+              if (mf.getStacking() == 0) {
                 cleanup.add(episode);
               }
             }
@@ -516,6 +516,21 @@ public class UpgradeTasks {
           tvShow.removeEpisode(ep);
           LOGGER.info("Removed invalid episode '{}' (S{} E{}) from show /{}", ep.getTitle(), ep.getSeason(), ep.getEpisode(),
                   tvShow.getPathNIO().getFileName());
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.3.9.1") < 0) {
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          boolean dirty = false;
+          for (MediaFile mf : episode.getMediaFiles(MediaFileType.GRAPHIC)) {
+            mf.setType(MediaFileType.THUMB);
+            dirty = true;
+          }
+          if (dirty) {
+            episode.saveToDb();
+          }
         }
       }
     }

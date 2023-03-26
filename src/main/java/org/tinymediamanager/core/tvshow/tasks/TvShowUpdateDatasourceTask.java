@@ -811,11 +811,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         else {
+          epFiles.add(vid); // add ourself
+
           // normal episode file - get all same named files (in same directory!)
           String vidBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vid.getFilename()));
           vidBasename = showDir.relativize(vid.getFileAsPath().getParent()) + "/" + vidBasename;
           LOGGER.trace("UDS: video basename {} - {}", vidBasename, vid.getFile());
-
           for (MediaFile img : getMediaFilesExceptType(mfs, MediaFileType.VIDEO)) {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
             String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
@@ -823,7 +824,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
-              if (img.getType() == MediaFileType.POSTER) {
+              if (img.getType() == MediaFileType.POSTER || img.getType() == MediaFileType.GRAPHIC) {
                 // re-type posters to EP "posters" (=thumb)
                 img.setType(MediaFileType.THUMB);
               }
