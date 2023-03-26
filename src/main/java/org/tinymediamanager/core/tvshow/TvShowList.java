@@ -538,7 +538,7 @@ public final class TvShowList extends AbstractModelObject {
 
     start = System.nanoTime();
 
-    new ArrayList<>(seasonMap.keyList()).parallelStream().forEach(uuid -> {
+    new ArrayList<>(seasonMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
         json = seasonMap.get(uuid);
@@ -551,23 +551,17 @@ public final class TvShowList extends AbstractModelObject {
           season.setTvShow(tvShow);
           tvShow.addSeason(season);
 
-          lock.writeLock().lock();
           seasonsToCount.add(season);
-          lock.writeLock().unlock();
         }
         else {
           // or remove orphans
-          lock.writeLock().lock();
           toRemove.add(uuid);
-          lock.writeLock().unlock();
         }
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding episode json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt episode: {}", json);
-        lock.writeLock().lock();
         toRemove.add(uuid);
-        lock.writeLock().unlock();
       }
     });
 
