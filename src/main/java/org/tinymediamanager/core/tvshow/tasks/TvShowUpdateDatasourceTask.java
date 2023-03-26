@@ -220,10 +220,23 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // - per datasource -> update ds / remove orphaned / update MFs
       // - per TV show -> udpate TV show / update MFs
       if (tvShowFolders.isEmpty()) {
+        // should we re-set all new flags?
+        if (TvShowModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
+          for (TvShow tvShow : tvShowList.getTvShows()) {
+            tvShow.setNewlyAdded(false);
+
+            for (TvShowEpisode episode : tvShow.getEpisodes()) {
+              episode.setNewlyAdded(false);
+            }
+          }
+        }
+
         // update selected data sources
         for (String ds : dataSources) {
+          Path dsAsPath = Paths.get(ds);
+
           // check the special case, that the data source is also an ignore folder
-          if (skipFolders.contains(ds)) {
+          if (isInSkipFolder(dsAsPath)) {
             LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
             continue;
           }
@@ -232,8 +245,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           initThreadPool(3, "update");
           setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
           publishState();
-
-          Path dsAsPath = Paths.get(ds);
 
           // first of all check if the DS is available; we can take the
           // Files.exist here:

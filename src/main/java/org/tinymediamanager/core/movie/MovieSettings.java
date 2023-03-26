@@ -245,6 +245,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   storeUiFilters                         = false;
   final List<UIFilters>                     uiFilters                              = new ArrayList<>();
   final List<UniversalFilterFields>         universalFilterFields                  = new ArrayList<>();
+  boolean                                   resetNewFlagOnUds                      = true;
 
   // movie sets
   MovieSetConnectors                        movieSetConnector                      = MovieSetConnectors.EMBY;
@@ -1961,5 +1962,15 @@ public final class MovieSettings extends AbstractSettings {
     postProcess.clear();
     postProcess.addAll(newValues);
     firePropertyChange(POST_PROCESS, null, postProcess);
+  }
+
+  public boolean isResetNewFlagOnUds() {
+    return resetNewFlagOnUds;
+  }
+
+  public void setResetNewFlagOnUds(boolean newValue) {
+    boolean oldValue = this.resetNewFlagOnUds;
+    this.resetNewFlagOnUds = newValue;
+    firePropertyChange("resetNewFlagOnUds", oldValue, newValue);
   }
 }

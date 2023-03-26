@@ -54,9 +54,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSettingsPanel extends JPanel {
-  private static final int    COL_COUNT        = 7;
+  private static final int    COL_COUNT = 7;
 
-  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings settings  = MovieModuleManager.getInstance().getSettings();
 
   private JButton             btnClearTraktData;
   private JCheckBox           chckbxTraktSync;
@@ -78,6 +78,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox           chckbxTraktSyncCollection;
   private JButton             btnPresetJellyfin;
   private JButton             btnPresetEmby;
+  private JCheckBox           chckbxResetNewFlag;
 
   public MovieSettingsPanel() {
     // UI initializations
@@ -185,31 +186,34 @@ public class MovieSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
 
+      chckbxResetNewFlag = new JCheckBox(TmmResourceBundle.getString("Settings.resetnewflag"));
+      panelMisc.add(chckbxResetNewFlag, "cell 1 0 2 1");
+
       chckbxUseMediainfoMetadata = new JCheckBox(TmmResourceBundle.getString("Settings.usemediainfometadata"));
-      panelMisc.add(chckbxUseMediainfoMetadata, "cell 1 0 2 1");
+      panelMisc.add(chckbxUseMediainfoMetadata, "cell 1 1 2 1");
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(TmmResourceBundle.getString("Settings.extractartworkfromvsmeta"));
-        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 1 2 1");
+        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 2 2 1");
 
         chckbxBuildImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecacheimport"));
-        panelMisc.add(chckbxBuildImageCache, "cell 1 2 2 1");
+        panelMisc.add(chckbxBuildImageCache, "cell 1 3 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
         lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
-        panelMisc.add(lblBuildImageCacheHint, "cell 1 2 2 1");
+        panelMisc.add(lblBuildImageCacheHint, "cell 1 3 2 1");
 
         chckbxRuntimeFromMi = new JCheckBox(TmmResourceBundle.getString("Settings.runtimefrommediafile"));
-        panelMisc.add(chckbxRuntimeFromMi, "cell 1 3 2 1");
+        panelMisc.add(chckbxRuntimeFromMi, "cell 1 4 2 1");
 
         chckbxIncludeExternalAudioStreams = new JCheckBox(TmmResourceBundle.getString("Settings.includeexternalstreamsinnfo"));
-        panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 4 2 1");
+        panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 5 2 1");
       }
     }
   }
@@ -305,5 +309,10 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_18,
         chckbxTraktSyncCollection, jCheckBoxBeanProperty);
     autoBinding_20.bind();
+    //
+    Property movieSettingsBeanProperty = BeanProperty.create("resetNewFlagOnUds");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxResetNewFlag,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }

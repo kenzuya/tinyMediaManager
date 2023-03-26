@@ -78,6 +78,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox            chckbxTraktRating;
   private JCheckBox            chckbxSpecialSeason;
   private JCheckBox            chckbxCreateMissingSeasonItems;
+  private JCheckBox            chckbxResetNewFlag;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -189,40 +190,43 @@ class TvShowSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][15lp!][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][15lp!][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
 
+      chckbxResetNewFlag = new JCheckBox(TmmResourceBundle.getString("Settings.resetnewflag"));
+      panelMisc.add(chckbxResetNewFlag, "cell 1 0 2 1");
+
       {
         chckbxMetadataFromMediainfo = new JCheckBox(TmmResourceBundle.getString("Settings.usemediainfometadata"));
-        panelMisc.add(chckbxMetadataFromMediainfo, "cell 1 0 2 1");
+        panelMisc.add(chckbxMetadataFromMediainfo, "cell 1 1 2 1");
       }
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(TmmResourceBundle.getString("Settings.extractartworkfromvsmeta"));
-        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 1 2 1");
+        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 2 2 1");
       }
       {
         chckbxImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecacheimport"));
-        panelMisc.add(chckbxImageCache, "cell 1 2 2 1");
+        panelMisc.add(chckbxImageCache, "cell 1 3 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
         lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
-        panelMisc.add(lblBuildImageCacheHint, "cell 1 2 2 1");
+        panelMisc.add(lblBuildImageCacheHint, "cell 1 3 2 1");
       }
       {
         chckbxSpecialSeason = new JCheckBox(TmmResourceBundle.getString("tvshow.renamer.specialseason"));
-        panelMisc.add(chckbxSpecialSeason, "cell 1 4 2 1");
+        panelMisc.add(chckbxSpecialSeason, "cell 1 5 2 1");
       }
       {
         chckbxCreateMissingSeasonItems = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.writemissingitems"));
-        panelMisc.add(chckbxCreateMissingSeasonItems, "cell 1 5 2 1");
+        panelMisc.add(chckbxCreateMissingSeasonItems, "cell 1 6 2 1");
 
         JLabel lblCreateMissingSeasonItemsHint = new JLabel(IconManager.HINT);
         lblCreateMissingSeasonItemsHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.writemissingitems.hint"));
-        panelMisc.add(lblCreateMissingSeasonItemsHint, "cell 1 5 2 1");
+        panelMisc.add(lblCreateMissingSeasonItemsHint, "cell 1 6 2 1");
       }
     }
   }
@@ -317,5 +321,10 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2,
         chckbxCreateMissingSeasonItems, jCheckBoxBeanProperty);
     autoBinding_3.bind();
+    //
+    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("resetNewFlagOnUds");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, chckbxResetNewFlag,
+        jCheckBoxBeanProperty);
+    autoBinding_4.bind();
   }
 }

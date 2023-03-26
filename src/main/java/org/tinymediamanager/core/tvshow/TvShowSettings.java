@@ -243,9 +243,10 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        showTvShowTableTooltips                = true;
   boolean                                        seasonArtworkFallback                  = false;
   boolean                                        storeUiFilters                         = false;
+  boolean                                        resetNewFlagOnUds                      = true;
+
   final List<UIFilters>                          uiFilters                              = new ArrayList<>();
   final List<UniversalFilterFields>              universalFilterFields                  = new ArrayList<>();
-
   final List<TvShowScraperMetadataConfig>        tvShowCheckMetadata                    = new ArrayList<>();
   boolean                                        tvShowDisplayAllMissingMetadata        = false;
   final List<TvShowScraperMetadataConfig>        tvShowCheckArtwork                     = new ArrayList<>();
@@ -1927,5 +1928,15 @@ public final class TvShowSettings extends AbstractSettings {
 
   public List<MediaFileType> getShowEpisodeArtworkTypes() {
     return Collections.unmodifiableList(showEpisodeArtworkTypes);
+  }
+
+  public boolean isResetNewFlagOnUds() {
+    return resetNewFlagOnUds;
+  }
+
+  public void setResetNewFlagOnUds(boolean newValue) {
+    boolean oldValue = this.resetNewFlagOnUds;
+    this.resetNewFlagOnUds = newValue;
+    firePropertyChange("resetNewFlagOnUds", oldValue, newValue);
   }
 }

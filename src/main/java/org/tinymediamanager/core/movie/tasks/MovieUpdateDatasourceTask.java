@@ -244,9 +244,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void updateDatasource() {
+    // should we re-set all new flags?
+    if (MovieModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
+      movieList.getMovies().forEach(movie -> movie.setNewlyAdded(false));
+    }
+
     for (String ds : dataSources) {
+      Path dsAsPath = Paths.get(ds);
+
       // check the special case, that the data source is also an ignore folder
-      if (isInSkipFolder(Paths.get(ds))) {
+      if (isInSkipFolder(dsAsPath)) {
         LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
         continue;
       }
@@ -257,7 +264,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
       publishState();
 
-      Path dsAsPath = Paths.get(ds);
       // first of all check if the DS is available; we can take the
       // Files.exist here:
       // if the DS exists (and we have access to read it): Files.exist = true
