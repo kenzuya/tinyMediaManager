@@ -1731,6 +1731,10 @@ public class Utils {
    * @return the detected artwork type or jpg as fallback
    */
   public static String getArtworkExtensionFromUrl(String url) {
+    if (StringUtils.isBlank(url)) {
+      return "jpg";
+    }
+
     String ext = UrlUtil.getExtension(url).toLowerCase(Locale.ROOT);
     if (StringUtils.isBlank(ext)) {
       // no extension from the url? try a head request to detect the artwork type
