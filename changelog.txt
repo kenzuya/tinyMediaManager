@@ -1,5 +1,6 @@
 Version 4.3.10
 =======================
++ added new "unique" array renderer
 x improved loading speed of movie and TV show module
 x fixed overwriting existing artwork on download #2109
 

@@ -60,6 +60,7 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
+import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -1489,6 +1490,7 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new NamedTitleCaseRenderer());
       engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
+      engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
       engine.registerNamedRenderer(new NamedFilesizeRenderer());
       engine.registerNamedRenderer(new NamedBitrateRenderer());
       engine.registerNamedRenderer(new NamedReplacementRenderer());
