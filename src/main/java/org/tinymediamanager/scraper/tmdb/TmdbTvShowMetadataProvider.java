@@ -489,11 +489,12 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (complete.content_ratings != null) {
       // only use the certification of the desired country (if any country has been chosen)
       CountryCode countryCode = options.getCertificationCountry();
-
-      for (ContentRating country : ListUtils.nullSafe(complete.content_ratings.results)) {
-        // do not use any empty certifications
-        if (StringUtils.isEmpty(country.rating) && countryCode != null && country.iso_3166_1.equalsIgnoreCase(countryCode.getAlpha2())) {
-          md.addCertification(MediaCertification.getCertification(country.iso_3166_1, country.rating));
+      if (countryCode != null) {
+        for (ContentRating country : ListUtils.nullSafe(complete.content_ratings.results)) {
+          // do not use any empty certifications
+          if (StringUtils.isNotBlank(country.rating) && country.iso_3166_1.equalsIgnoreCase(countryCode.getAlpha2())) {
+            md.addCertification(MediaCertification.getCertification(country.iso_3166_1, country.rating));
+          }
         }
       }
     }
