@@ -1693,6 +1693,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       LOGGER.debug("falling back to the alternate coding");
       fileNames = listFilesAndDirs2(directory);
     }
+    if (fileNames.isEmpty()) {
+      LOGGER.warn("Tried to list {}, but it was empty?!", directory);
+    }
     return fileNames;
   }
 
