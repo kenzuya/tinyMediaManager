@@ -376,6 +376,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         try {
           MovieSetNfoParser nfoParser = MovieSetNfoParser.parseNfo(path);
           MovieSet movieSet = nfoParser.toMovieSet();
+          if (StringUtils.isBlank(movieSet.getTitle())) {
+            // a movie set needs a title!
+            movieSet.setTitle(FilenameUtils.getBaseName(path.getFileName().toString()));
+          }
 
           // look if that movie set is already in our database
           MovieSet movieSetInDb = matchMovieSetInDb(path, movieSet);
