@@ -108,6 +108,7 @@ import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmObligatoryTextArea;
 import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
@@ -268,7 +269,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         detailsPanel.add(lblTitle, "cell 0 0,alignx right");
 
-        tfTitle = new TmmRoundTextArea();
+        tfTitle = new TmmObligatoryTextArea();
         detailsPanel.add(tfTitle, "flowx,cell 1 0 4 1,growx");
 
         final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
@@ -761,6 +762,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (StringUtils.isBlank(tfTitle.getText())) {
+        tfTitle.requestFocusInWindow();
+        return;
+      }
+
       cancelScrapeTask();
 
       episodeToEdit.setTitle(tfTitle.getText());

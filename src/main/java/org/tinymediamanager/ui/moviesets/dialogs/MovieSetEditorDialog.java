@@ -81,7 +81,7 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmRoundTextArea;
+import org.tinymediamanager.ui.components.TmmObligatoryTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
@@ -166,7 +166,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
 
-      tfName = new TmmRoundTextArea();
+      tfName = new TmmObligatoryTextArea();
       panelContent.add(tfName, "cell 1 0,growx,aligny top, wmin 0");
       tfName.setColumns(10);
 
@@ -663,6 +663,11 @@ public class MovieSetEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (StringUtils.isBlank(tfName.getText())) {
+        tfName.requestFocusInWindow();
+        return;
+      }
+
       movieSetToEdit.setTitle(tfName.getText());
       movieSetToEdit.setPlot(taPlot.getText());
       movieSetToEdit.setNote(taNote.getText());

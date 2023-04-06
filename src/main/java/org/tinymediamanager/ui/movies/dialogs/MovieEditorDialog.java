@@ -109,6 +109,7 @@ import org.tinymediamanager.ui.components.MediaTrailerTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmObligatoryTextArea;
 import org.tinymediamanager.ui.components.TmmRoundTextArea;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
@@ -391,7 +392,7 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         details1Panel.add(lblTitle, "cell 0 0,alignx right");
 
-        tfTitle = new TmmRoundTextArea();
+        tfTitle = new TmmObligatoryTextArea();
         details1Panel.add(tfTitle, "flowx,cell 1 0 6 1,growx,wmin 0");
       }
       {
@@ -1325,6 +1326,11 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (StringUtils.isBlank(tfTitle.getText())) {
+        tfTitle.requestFocusInWindow();
+        return;
+      }
+
       movieToEdit.setTitle(tfTitle.getText());
       movieToEdit.setOriginalTitle(tfOriginalTitle.getText());
       movieToEdit.setTagline(tfTagline.getText());
@@ -1827,8 +1833,7 @@ public class MovieEditorDialog extends TmmDialog {
       // check, if text is selected (from auto completion), in this case we just
       // remove the selection
       Component editorComponent = cbTags.getEditor().getEditorComponent();
-      if (editorComponent instanceof JTextField) {
-        JTextField tf = (JTextField) editorComponent;
+      if (editorComponent instanceof JTextField tf) {
         String selectedText = tf.getSelectedText();
         if (selectedText != null) {
           tf.setSelectionStart(0);
@@ -1839,7 +1844,7 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       // add genre if it is not already in the list
-      if (newTag != null && !tags.contains(newTag)) {
+      if (!tags.contains(newTag)) {
         tags.add(newTag);
 
         // set text combobox text input to ""
