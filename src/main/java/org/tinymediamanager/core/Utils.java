@@ -1246,8 +1246,9 @@ public class Utils {
     Locale l = null;
     List<Locale> countries = LocaleUtils.countriesByLanguage(language.toLowerCase(Locale.ROOT));
     for (Locale locale : countries) {
-      if (locale.getCountry().equalsIgnoreCase(language)) {
+      if (locale.getCountry().equalsIgnoreCase(language) && locale.getScript().isEmpty()) {
         // map to main countries; de->de_DE (and not de_CH)
+        // only take empty script ones, else we get mostly some #Latn variants
         l = locale;
         break;
       }
