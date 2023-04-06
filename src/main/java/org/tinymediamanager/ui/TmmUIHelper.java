@@ -48,7 +48,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
-import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -71,7 +70,6 @@ import org.tinymediamanager.updater.UpdateCheck;
 import org.tinymediamanager.updater.UpdaterTask;
 
 import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 
 /**
  * The Class TmmUIHelper.
@@ -89,8 +87,6 @@ public class TmmUIHelper {
   public static void setLookAndFeel() {
     // load font settings
     try {
-      FlatInterFont.install();
-
       // sanity check
       Font font = Font.decode(Settings.getInstance().getFontFamily());
       Font savedFont = new Font(font.getFamily(), font.getStyle(), Settings.getInstance().getFontSize());
