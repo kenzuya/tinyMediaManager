@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        viewBox="0 0 512 576"
+        version="1.1"
+        id="svg68"
+        sodipodi:docname="icn_download.svg"
+        width="22"
+        height="22"
+        inkscape:version="1.2.1 (9c6d41e, 2022-07-14)"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg"
+>
+  <sodipodi:namedview
+          id="namedview70"
+          pagecolor="#505050"
+          bordercolor="#eeeeee"
+          borderopacity="1"
+          inkscape:showpageshadow="0"
+          inkscape:pageopacity="0"
+          inkscape:pagecheckerboard="0"
+          inkscape:deskcolor="#505050"
+          showgrid="false"
+          inkscape:zoom="0.4609375"
+          inkscape:cx="228.88136"
+          inkscape:cy="270.10169"
+          inkscape:window-width="1558"
+          inkscape:window-height="787"
+          inkscape:window-x="23"
+          inkscape:window-y="45"
+          inkscape:window-maximized="0"
+          inkscape:current-layer="svg68"/>
+  <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+  <defs
+          id="defs8">
+    <linearGradient
+            id="linearGradient839">
+      <stop
+              style="stop-color:#17ca25;stop-opacity:1"
+              offset="0"
+              id="stop835"/>
+      <stop
+              style="stop-color:#24d401;stop-opacity:1"
+              offset="1"
+              id="stop837"/>
+    </linearGradient>
+    <linearGradient
+            xlink:href="#linearGradient839"
+            id="linearGradient843"
+            gradientUnits="userSpaceOnUse"
+            x1="248.35483"
+            y1="498.64578"
+            x2="249.52516"
+            y2="51.542229"
+            gradientTransform="translate(32,32)"/>
+  </defs>
+  <path
+          d="M 406.09995,249.9 283.29996,372.7 C 276.10003,379.9 266.20004,384 256,384 c -10.20004,0 -20.10003,-4.1 -27.29996,-11.3 L 105.9,249.9 c -6.4,-6.4 -9.899997,-15 -9.899997,-24 C 96.000003,207.2 111.2,192 129.9,192 h 62.09996 V 64 c 0,-17.7 14.30008,-32 32.00007,-32 h 63.99994 c 17.69999,0 32.00007,14.3 32.00007,32 v 128 h 62.09999 c 18.69995,0 33.89993,15.2 33.89993,33.9 0,9 -3.59997,17.6 -9.90001,24 z M 96.000003,384 v 64 c 0,17.7 14.299997,32 32.000007,32 h 255.99997 c 17.7,0 31.99998,-14.3 31.99998,-32 v -64 c 0,-17.7 14.30008,-32 32.00007,-32 C 465.70002,352 480,366.3 480,384 v 64 c 0,53 -43.00002,96 -96.00002,96 H 128.00001 C 74.999998,544 32,501 32,448 v -64 c 0,-17.7 14.3,-32 32.000002,-32 17.700001,0 32.000001,14.3 32.000001,32 z"
+          style="fill:url(#linearGradient843);fill-opacity:1;stroke-width:0.999982"
+          id="path66"/>
+</svg>

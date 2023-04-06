@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.components.toolbar;
 
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -32,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +50,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
@@ -75,6 +79,7 @@ import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
+import org.tinymediamanager.updater.UpdateCheck;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -92,6 +97,7 @@ public class ToolbarPanel extends JPanel {
   private final ToolbarButton btnRename;
   private final ToolbarButton btnUnlock;
   private final ToolbarButton btnRenewLicense;
+  private final ToolbarButton btnDownloadUpdate;
 
   private final ToolbarMenu   menuUpdate;
   private final ToolbarMenu   menuSearch;
@@ -110,7 +116,7 @@ public class ToolbarPanel extends JPanel {
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
     panelCenter.setLayout(
-        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
+        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
 
@@ -149,6 +155,11 @@ public class ToolbarPanel extends JPanel {
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(btnRenewLicense, "cell 12 0, alignx center,aligny bottom, gap 10lp");
 
+    btnDownloadUpdate = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
+    btnDownloadUpdate.setAction(new CheckForUpdateAction());
+    btnDownloadUpdate.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
+    panelCenter.add(btnDownloadUpdate, "cell 13 0, alignx center,aligny bottom, gap 10lp");
+
     menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
@@ -181,6 +192,8 @@ public class ToolbarPanel extends JPanel {
     License.getInstance().addEventListener(this::showHideUnlock);
 
     showHideUnlock();
+
+    initUpgradeCheck();
   }
 
   private void showHideUnlock() {
@@ -203,6 +216,42 @@ public class ToolbarPanel extends JPanel {
       lblUnlock.setVisible(true);
       btnRenewLicense.setVisible(false);
       lblRenewLicense.setVisible(false);
+    }
+  }
+
+  private void initUpgradeCheck() {
+    btnDownloadUpdate.setVisible(false);
+
+    if (!Settings.getInstance().isNewConfig()) {
+      // if the wizard is not run, check for an update
+      // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is
+      // showing, the
+      // wizard will no more appear
+      // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
+      // next startup
+      if (Globals.isSelfUpdatable() && Settings.getInstance().isEnableAutomaticUpdate()
+          && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+        // only update if the last update check is more than the specified interval ago
+        if (shouldCheckForUpdate()) {
+          Runnable runnable = () -> {
+            try {
+              UpdateCheck updateCheck = new UpdateCheck();
+              if (updateCheck.isUpdateAvailable()) {
+                btnDownloadUpdate.setVisible(true);
+                LOGGER.info("update available");
+              }
+            }
+            catch (Exception e) {
+              LOGGER.warn("Update check failed - {}", e.getMessage());
+            }
+          };
+
+          // update task start a few secs after GUI...
+          Timer timer = new Timer(10 * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
+          timer.setRepeats(false);
+          timer.start();
+        }
+      }
     }
   }
 

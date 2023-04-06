@@ -52,6 +52,7 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_ABOUT_HOVER          = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET        = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER  = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_DOWNLOAD             = createSVGIcon("icn_download.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_EDIT                 = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_EDIT_HOVER           = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_LOGO                 = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
