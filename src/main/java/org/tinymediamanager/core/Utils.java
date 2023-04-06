@@ -1249,6 +1249,7 @@ public class Utils {
       if (locale.getCountry().equalsIgnoreCase(language)) {
         // map to main countries; de->de_DE (and not de_CH)
         l = locale;
+        break;
       }
     }
 
