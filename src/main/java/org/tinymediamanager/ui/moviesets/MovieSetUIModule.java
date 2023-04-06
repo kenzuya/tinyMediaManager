@@ -199,6 +199,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     updateAction = createAndRegisterAction(MovieSetAddAction.class);
     searchAction = createAndRegisterAction(MovieSetSearchAction.class);
     editAction = createAndRegisterAction(MovieSetEditAction.class);
+    renameAction = createAndRegisterAction(MovieSetRenameAction.class);
   }
 
   private void createPopupMenu() {
