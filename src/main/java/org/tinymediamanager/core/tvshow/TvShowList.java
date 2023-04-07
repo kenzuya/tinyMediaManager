@@ -344,7 +344,16 @@ public final class TvShowList extends AbstractModelObject {
     firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
 
     // last but not least remove all episodes
-    tvShow.removeAllEpisodes();
+    for (TvShowEpisode episode : tvShow.getEpisodes()) {
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+    }
 
     // and remove it from the DB
     try {
@@ -375,7 +384,17 @@ public final class TvShowList extends AbstractModelObject {
     readWriteLock.writeLock().unlock();
 
     tvShow.deleteFilesSafely();
-    tvShow.removeAllEpisodes();
+
+    for (TvShowEpisode episode : tvShow.getEpisodes()) {
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+    }
 
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
