@@ -1246,9 +1246,11 @@ public class Utils {
     Locale l = null;
     List<Locale> countries = LocaleUtils.countriesByLanguage(language.toLowerCase(Locale.ROOT));
     for (Locale locale : countries) {
-      if (locale.getCountry().equalsIgnoreCase(language)) {
+      if (locale.getCountry().equalsIgnoreCase(language) && locale.getScript().isEmpty()) {
         // map to main countries; de->de_DE (and not de_CH)
+        // only take empty script ones, else we get mostly some #Latn variants
         l = locale;
+        break;
       }
     }
 
@@ -1731,6 +1733,10 @@ public class Utils {
    * @return the detected artwork type or jpg as fallback
    */
   public static String getArtworkExtensionFromUrl(String url) {
+    if (StringUtils.isBlank(url)) {
+      return "jpg";
+    }
+
     String ext = UrlUtil.getExtension(url).toLowerCase(Locale.ROOT);
     if (StringUtils.isBlank(ext)) {
       // no extension from the url? try a head request to detect the artwork type

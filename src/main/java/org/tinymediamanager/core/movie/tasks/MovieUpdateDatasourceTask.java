@@ -376,6 +376,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         try {
           MovieSetNfoParser nfoParser = MovieSetNfoParser.parseNfo(path);
           MovieSet movieSet = nfoParser.toMovieSet();
+          if (StringUtils.isBlank(movieSet.getTitle())) {
+            // a movie set needs a title!
+            movieSet.setTitle(FilenameUtils.getBaseName(path.getFileName().toString()));
+          }
 
           // look if that movie set is already in our database
           MovieSet movieSetInDb = matchMovieSetInDb(path, movieSet);
@@ -1688,6 +1692,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       LOGGER.error("error on listFilesAndDirs", e);
       LOGGER.debug("falling back to the alternate coding");
       fileNames = listFilesAndDirs2(directory);
+    }
+    if (fileNames.isEmpty()) {
+      LOGGER.warn("Tried to list {}, but it was empty?!", directory);
     }
     return fileNames;
   }

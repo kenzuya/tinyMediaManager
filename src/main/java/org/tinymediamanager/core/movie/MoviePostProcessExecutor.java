@@ -25,6 +25,7 @@ import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.PostProcessExecutor;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
+import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -81,6 +82,7 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
     engine.registerNamedRenderer(new NamedTitleCaseRenderer());
     engine.registerNamedRenderer(new MovieRenamer.MovieNamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());

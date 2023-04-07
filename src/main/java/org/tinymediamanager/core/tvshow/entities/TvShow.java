@@ -715,21 +715,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove all episodes from this tv show.
-   */
-  public void removeAllEpisodes() {
-    int oldValue = episodes.size();
-    if (!episodes.isEmpty()) {
-      for (int i = episodes.size() - 1; i >= 0; i--) {
-        TvShowEpisode episode = episodes.get(i);
-        removeEpisode(episode);
-      }
-    }
-
-    firePropertyChange(EPISODE_COUNT, oldValue, episodes.size());
-  }
-
-  /**
    * Removes the episode.
    *
    * @param episode

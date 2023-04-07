@@ -344,7 +344,16 @@ public final class TvShowList extends AbstractModelObject {
     firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
 
     // last but not least remove all episodes
-    tvShow.removeAllEpisodes();
+    for (TvShowEpisode episode : tvShow.getEpisodes()) {
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+    }
 
     // and remove it from the DB
     try {
@@ -375,7 +384,17 @@ public final class TvShowList extends AbstractModelObject {
     readWriteLock.writeLock().unlock();
 
     tvShow.deleteFilesSafely();
-    tvShow.removeAllEpisodes();
+
+    for (TvShowEpisode episode : tvShow.getEpisodes()) {
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+    }
 
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
@@ -460,17 +479,15 @@ public final class TvShowList extends AbstractModelObject {
    * Load tv shows from database.
    */
   void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> episodesMap) {
-    ReadWriteLock lock = new ReentrantReadWriteLock();
-
     // load all TV shows from the database
-    List<TvShow> tvShowsFromDb = new ArrayList<>();
+    Set<TvShow> tvShowsFromDb = new HashSet<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
     List<UUID> toRemove = new ArrayList<>();
 
     long start = System.nanoTime();
 
-    new ArrayList<>(tvShowMap.keyList()).parallelStream().forEach((uuid) -> {
+    new ArrayList<>(tvShowMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
         json = tvShowMap.get(uuid);
@@ -478,23 +495,16 @@ public final class TvShowList extends AbstractModelObject {
         tvShow.setDbId(uuid);
 
         // for performance reasons we add tv shows after loading the episodes
-        lock.writeLock().lock();
-        if (tvShowsFromDb.contains(tvShow)) {
+        if (!tvShowsFromDb.add(tvShow)) {
           // already in there?! remove dupe
           LOGGER.info("removed duplicate '{}'", tvShow.getTitle());
           toRemove.add(uuid);
         }
-        else {
-          tvShowsFromDb.add(tvShow);
-        }
-        lock.writeLock().unlock();
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt TV show: {}", json);
-        lock.writeLock().lock();
         toRemove.add(uuid);
-        lock.writeLock().unlock();
       }
     });
 
@@ -523,7 +533,7 @@ public final class TvShowList extends AbstractModelObject {
 
     start = System.nanoTime();
 
-    new ArrayList<>(episodesMap.keyList()).parallelStream().forEach((uuid) -> {
+    new ArrayList<>(episodesMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
         json = episodesMap.get(uuid);
@@ -534,9 +544,7 @@ public final class TvShowList extends AbstractModelObject {
         if (isEpisodeCorrupt(episode)) {
           // no video file? drop it
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
-          lock.writeLock().lock();
           toRemove.add(uuid);
-          lock.writeLock().unlock();
           return;
         }
 
@@ -546,21 +554,17 @@ public final class TvShowList extends AbstractModelObject {
           episode.setTvShow(tvShow);
           tvShow.addEpisode(episode);
 
-          lock.writeLock().lock();
           episodesToCount.add(episode);
-          lock.writeLock().unlock();
         }
         else {
           // or remove orphans
-          lock.writeLock().lock();
           toRemove.add(uuid);
-          lock.writeLock().unlock();
         }
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding episode json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt episode: {}", json);
-        episodesMap.remove(uuid);
+        toRemove.add(uuid);
       }
     });
 
