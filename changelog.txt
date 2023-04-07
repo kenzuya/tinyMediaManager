@@ -6,6 +6,7 @@ x fixed overwriting existing artwork on download #2109
 x (IMDB/TMDB) scrape certifications for TV shows #2116
 x do not create a movie set without title from a damaged NFO
 x fix language selector #2133
+x fix TvShow update not finding/reading episode NFO files #2126
 
 
 Version 4.3.9.1

@@ -1205,7 +1205,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     private String getMediaFileNameWithoutType(MediaFile mf) {
       String ret = mf.getFilename();
       // does not work for extrafanarts/landscape - but thats mostly not used on episode level
-      ret = ret.replaceFirst("(?i)[_.-]" + mf.getType(), "");
+      ret = ret.replaceFirst("(?i)[_.-]" + mf.getType() + "[.]" + mf.getExtension(), "." + mf.getExtension());
       return ret;
     }
 
@@ -1304,6 +1304,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
       return visitor.fFound;
     }
+
   }
 
   @Override
