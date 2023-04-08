@@ -24,23 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.PostProcessExecutor;
 import org.tinymediamanager.core.jmte.JmteUtils;
-import org.tinymediamanager.core.jmte.NamedArrayRenderer;
-import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
-import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
-import org.tinymediamanager.core.jmte.NamedDateRenderer;
-import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
-import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
-import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
-import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 import com.floreysoft.jmte.Engine;
-import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * the class {@link MoviePostProcessExecutor} executes post process steps for movies
@@ -74,20 +63,7 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
   }
 
   private String[] substituteMovieTokens(Movie movie) {
-    Engine engine = Engine.createEngine();
-    engine.registerRenderer(Number.class, new ZeroNumberRenderer());
-    engine.registerNamedRenderer(new NamedDateRenderer());
-    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-    engine.registerNamedRenderer(new MovieRenamer.MovieNamedFirstCharacterRenderer());
-    engine.registerNamedRenderer(new NamedArrayRenderer());
-    engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
-    engine.registerNamedRenderer(new NamedFilesizeRenderer());
-    engine.registerNamedRenderer(new NamedBitrateRenderer());
-    engine.registerNamedRenderer(new NamedReplacementRenderer());
-    engine.registerNamedRenderer(new MovieRenamer.MovieNamedIndexOfMovieSetRenderer());
-    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+    Engine engine = MovieRenamer.createEngine();
 
     engine.registerAnnotationProcessor(new RegexpProcessor());
 

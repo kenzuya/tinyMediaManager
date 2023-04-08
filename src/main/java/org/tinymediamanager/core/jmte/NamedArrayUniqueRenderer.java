@@ -16,10 +16,11 @@
 
 package org.tinymediamanager.core.jmte;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.tinymediamanager.core.IPrintable;
 
@@ -36,15 +37,13 @@ public class NamedArrayUniqueRenderer implements NamedRenderer {
   public String render(Object o, String s, Locale locale, Map<String, Object> map) {
     String delimiter = s != null ? s : ", ";
     if (o instanceof List<?>) {
-      List<String> values = new ArrayList<>();
+      Set<String> values = new LinkedHashSet<>();
       for (Object obj : (List<?>) o) {
-        if (!values.contains(obj)) {
-          if (obj instanceof IPrintable) {
-            values.add(((IPrintable) obj).toPrintable());
-          }
-          else if (obj != null) {
-            values.add(obj.toString());
-          }
+        if (obj instanceof IPrintable) {
+          values.add(((IPrintable) obj).toPrintable());
+        }
+        else if (obj != null) {
+          values.add(obj.toString());
         }
       }
       return String.join(delimiter, values);
@@ -57,7 +56,7 @@ public class NamedArrayUniqueRenderer implements NamedRenderer {
 
   @Override
   public String getName() {
-    return "unique";
+    return "uniqueArray";
   }
 
   @Override
