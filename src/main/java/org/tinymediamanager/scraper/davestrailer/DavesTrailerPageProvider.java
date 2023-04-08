@@ -81,7 +81,10 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
     }
 
     // 1. search with title
-    String title = md.getTitle();
+    String title = md.getOriginalTitle();
+    if (title.isEmpty()) {
+      title = md.getTitle();
+    }
     String firstChar = title.substring(0, 1).toLowerCase(Locale.ROOT);
     String url;
 
