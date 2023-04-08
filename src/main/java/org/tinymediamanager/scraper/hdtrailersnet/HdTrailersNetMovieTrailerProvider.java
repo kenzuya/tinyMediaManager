@@ -34,8 +34,17 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.hdtrailersnet.entities.YahooMediaObject;
+import org.tinymediamanager.scraper.hdtrailersnet.entities.YahooStream;
+import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.util.JsonUtils;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The Class HDTrailersNet. A trailer provider for the site hd-trailers.net
@@ -43,10 +52,12 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Myron Boyle
  */
 public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider {
-  private static final String     ID     = "hd-trailers";
-  private static final Logger     LOGGER = LoggerFactory.getLogger(HdTrailersNetMovieTrailerProvider.class);
+  private static final String     ID        = "hd-trailers";
+  private static final Logger     LOGGER    = LoggerFactory.getLogger(HdTrailersNetMovieTrailerProvider.class);
+  public static final String      YAHOO_API = "https://video.media.yql.yahoo.com/v1/video/sapi";
 
   private final MediaProviderInfo providerInfo;
+  private ObjectMapper            mapper    = new ObjectMapper();
 
   public HdTrailersNetMovieTrailerProvider() {
     providerInfo = createMediaProviderInfo();
@@ -95,71 +106,41 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
 
       Document doc = UrlUtil.parseDocumentFromUrl(search);
       Elements tr = doc.getElementsByAttributeValue("itemprop", "trailer");
-      /*
-       * <tr style="" itemprop="trailer" itemscope itemtype="http://schema.org/VideoObject"> <td class="bottomTableDate" rowspan="2">2012-03-30</td>
-       * <td class="bottomTableName" rowspan="2"><span class="standardTrailerName" itemprop="name">Trailer 2</span> <a href=
-       * "http://blog.hd-trailers.net/how-to-download-hd-trailers-from-apple/#workarounds" ><img src="http://static.hd-trailers.net/images/error.png"
-       * width="16" height="16" style="border:0px;vertical-align:middle" alt="Apple Direct Download Unavailable" title=
-       * "Apple Direct Download Unavailable" /></a></td>
-       *
-       * <td class="bottomTableResolution"><a href= "http://trailers.apple.com/movies/sony_pictures/meninblack3/meninblack3-tlr2_h480p.mov" rel=
-       * "lightbox[res480p 852 480]" title="Men in Black 3 - Trailer 2 - 480p">480p</a></td> <td class="bottomTableResolution"><a href=
-       * "http://trailers.apple.com/movies/sony_pictures/meninblack3/meninblack3-tlr2_h720p.mov" rel="lightbox[res720p 1280 720]" title=
-       * "Men in Black 3 - Trailer 2 - 720p">720p</a></td> <td class="bottomTableResolution"><a href=
-       * "http://trailers.apple.com/movies/sony_pictures/meninblack3/meninblack3-tlr2_h1080p.mov" rel="lightbox[res1080p 1920 1080]" title=
-       * "Men in Black 3 - Trailer 2 - 1080p">1080p</a></td> <td class="bottomTableIcon"> <a
-       * href="http://trailers.apple.com/trailers/sony_pictures/meninblack3/" target="_blank"> <img
-       * src="http://static.hd-trailers.net/images/apple.ico" alt="Apple" height="16px" width="16px"/></a></td> </tr> <tr> <td
-       * class="bottomTableFileSize">36 MB</td> <td class="bottomTableFileSize">111 MB</td> <td class="bottomTableFileSize">181 MB</td> <td
-       * class="bottomTableEmbed"><a href=
-       * "/embed-code.php?movieId=men-in-black-3&amp;source=1&amp;trailerName=Trailer 2&amp;resolutions=480;720;1080" rel="lightbox[embed 600 600]"
-       * title="Embed this video on your website">embed</a></td> </tr>
-       */
+      // loop over every row, to get date & title
       for (Element t : tr) {
         try {
           String date = t.select("td.bottomTableDate").first().text();
           String title = t.select("td.bottomTableName > span").first().text();
 
-          // apple.com urls currently not working (according to hd-trailers)
-          String tr0qual = t.select("td.bottomTableResolution > a").get(0).text();
-          String tr0url = t.select("td.bottomTableResolution > a").get(0).attr("href");
-          MediaTrailer trailer = new MediaTrailer();
-          trailer.setName(title + " (" + date + ")");
-          trailer.setDate(date);
-          trailer.setUrl(tr0url);
-          trailer.setQuality(tr0qual);
-          trailer.setProvider(getProviderFromUrl(tr0url));
-          trailer.setScrapedBy(providerInfo.getId());
-          LOGGER.trace("found trailer: {}", trailer);
-          trailers.add(trailer);
+          Elements links = t.getElementsByClass("bottomTableResolution");
+          for (Element link : links) {
+            if (link.html().isEmpty()) {
+              continue;
+            }
 
-          String tr1qual = t.select("td.bottomTableResolution > a").get(1).text();
-          String tr1url = t.select("td.bottomTableResolution > a").get(1).attr("href");
-          trailer = new MediaTrailer();
-          trailer.setName(title + " (" + date + ")");
-          trailer.setDate(date);
-          trailer.setUrl(tr1url);
-          trailer.setQuality(tr1qual);
-          trailer.setProvider(getProviderFromUrl(tr1url));
-          trailer.setScrapedBy(providerInfo.getId());
-          LOGGER.debug("found trailer: {}", trailer);
-          trailers.add(trailer);
+            MediaTrailer trailer = new MediaTrailer();
+            trailer.setName(title + " (" + date + ")");
+            trailer.setDate(date);
+            trailer.setQuality(link.text()); // eg 480p
 
-          String tr2qual = t.select("td.bottomTableResolution > a").get(2).text();
-          String tr2url = t.select("td.bottomTableResolution > a").get(2).attr("href");
-          trailer = new MediaTrailer();
-          trailer.setName(title + " (" + date + ")");
-          trailer.setDate(date);
-          trailer.setUrl(tr2url);
-          trailer.setQuality(tr2qual);
-          trailer.setProvider(getProviderFromUrl(tr2url));
-          trailer.setScrapedBy(providerInfo.getId());
-          LOGGER.debug("found trailer: {}", trailer);
-          trailers.add(trailer);
+            String url = link.selectFirst("a").attr("href");
+            if (url.contains("yahoo-redir")) {
+              String id = StrgUtils.substr(url, "id=(.*?)&");
+              url = parseYahooUrl(id, link.text());
+            }
+            trailer.setUrl(url);
+
+            trailer.setProvider(getProviderFromUrl(url));
+            trailer.setScrapedBy(providerInfo.getId());
+            if (!trailer.getUrl().isEmpty() && !trailer.getName().isEmpty()) {
+              LOGGER.trace("found trailer: {}", trailer);
+              trailers.add(trailer);
+            }
+          }
         }
-        catch (IndexOutOfBoundsException i) {
+        catch (Exception e) {
           // ignore parse errors per line
-          LOGGER.debug("Error parsing HD-Trailers line. Possible missing quality.");
+          LOGGER.debug("Error parsing HD-Trailers line. {}", e.getMessage());
         }
       }
     }
@@ -188,7 +169,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
   private static String getProviderFromUrl(String url) {
     url = url.toLowerCase(Locale.ROOT);
     String source = "unknown";
-    if (url.contains("youtube.com")) {
+    if (url.contains("youtube.com") || url.contains("youtu.be")) {
       source = "youtube";
     }
     else if (url.contains("apple.com")) {
@@ -197,7 +178,7 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
     else if (url.contains("aol.com")) {
       source = "aol";
     }
-    else if (url.contains("yahoo.com")) {
+    else if (url.contains("yahoo.com") || url.contains("yahoo.net")) {
       source = "yahoo";
     }
     else if (url.contains("hd-trailers.net")) {
@@ -212,6 +193,34 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
     else if (url.contains("ign.com")) {
       source = "ign";
     }
+    else if (url.contains("5min.com")) {
+      source = "5min";
+    }
     return source;
+  }
+
+  // https://www.hd-trailers.net/yahoo-redir.php?id=86fa2bcd-be32-3443-acbc-e3eab50d908c&resolution=480
+  // see https://static.hd-trailers.net/yahoo-redir.js
+  // https://video.media.yql.yahoo.com/v1/video/sapi/streams/86fa2bcd-be32-3443-acbc-e3eab50d908c?cprotocol=http&format=mp4
+  private String parseYahooUrl(String id, String quality) {
+    final String q = quality.replace("p", "").replace("480", "540"); // 480p -> 480 -> 540
+
+    try {
+      String url = YAHOO_API + "/streams/" + id + "?cprotocol=http&format=mp4";
+      Url u = new InMemoryCachedUrl(url);
+      JsonNode node = mapper.readTree(u.getInputStream());
+      JsonNode mediaObj = node.at("/query/results/mediaObj");
+      YahooMediaObject media = JsonUtils.parseObject(mapper, mediaObj.get(0), YahooMediaObject.class);
+      YahooStream strm = media.streams.stream().filter(stream -> q.equals(Integer.toString(stream.height))).findAny().orElse(null);
+      if (strm != null) {
+        return strm.host + strm.path;
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("could not fetch trailer url: {}", e.getMessage());
+    }
+
+    return "";
+
   }
 }

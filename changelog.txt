@@ -9,6 +9,7 @@ x do not create a movie set without title from a damaged NFO
 x fix language selector #2133
 x fix TvShow update not finding/reading episode NFO files #2126
 x (FFmpeg) added some mitigations for wrong settings #2112
+x (HD-trailers) fix scraping
 
 
 Version 4.3.9.1
