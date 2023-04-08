@@ -1481,20 +1481,7 @@ public class TvShowRenamer {
    */
   public static String getTokenValue(TvShow show, TvShowEpisode episode, String token) {
     try {
-      Engine engine = Engine.createEngine();
-      engine.registerRenderer(Number.class, new ZeroNumberRenderer());
-      engine.registerNamedRenderer(new NamedDateRenderer());
-      engine.registerNamedRenderer(new NamedNumberRenderer());
-      engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-      engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-      engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-      engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
-      engine.registerNamedRenderer(new NamedArrayRenderer());
-      engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
-      engine.registerNamedRenderer(new NamedFilesizeRenderer());
-      engine.registerNamedRenderer(new NamedBitrateRenderer());
-      engine.registerNamedRenderer(new NamedReplacementRenderer());
-      engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+      Engine engine = createEngine();
 
       engine.setModelAdaptor(new TmmModelAdaptor());
       engine.setOutputAppender(new TmmOutputAppender() {
@@ -1517,6 +1504,30 @@ public class TvShowRenamer {
       LOGGER.warn("unable to process token: {}", token);
       return token;
     }
+  }
+
+  /**
+   * create the {@link Engine} to be used with JMTE
+   *
+   * @return the pre-created Engine
+   */
+  public static Engine createEngine() {
+    Engine engine = Engine.createEngine();
+    engine.registerRenderer(Number.class, new ZeroNumberRenderer());
+    engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedNumberRenderer());
+    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
+    engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+
+    return engine;
   }
 
   /**
