@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -142,12 +143,20 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
     List<MediaArtwork> artworks = new ArrayList<>();
 
+    Random random = new Random(System.nanoTime());
+
     for (int i = 0; i < count; i++) {
       int second = (int) (duration * (start / 100f + i * increment));
 
+      // add some variance to produce different stills every time (-0.5 * increment ... +0.5 * increment)
+      int variance = (int) (duration * increment * (-0.5 + random.nextDouble())); // NOSONAR
+      if (second + variance <= 0 || second + variance > duration) {
+        variance = 0;
+      }
+
       try {
         Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
-        FFmpeg.createStill(mediaFile.getFile(), tempFile, second);
+        FFmpeg.createStill(mediaFile.getFile(), tempFile, second + variance);
 
         // set the artwork type depending on the configured type
         if (isFanartEnabled()) {
