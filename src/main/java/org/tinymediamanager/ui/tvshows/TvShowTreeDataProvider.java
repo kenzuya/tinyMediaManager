@@ -231,7 +231,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   private void addDummySpecials() {
     for (TvShow tvShow : tvShowList.getTvShows()) {
       for (TvShowEpisode episode : tvShow.getEpisodesForDisplay()) {
-        if (episode.isDummy() && episode.getSeason() == 0) {
+        if (episode.isDummy() && episode.getSeason() <= 0) {
           addTvShowEpisode(episode);
         }
       }
@@ -244,13 +244,13 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   private void removeDummySpecials() {
     for (TvShow tvShow : tvShowList.getTvShows()) {
       for (TvShowEpisode episode : tvShow.getDummyEpisodes()) {
-        if (episode.isDummy() && episode.getSeason() == 0) {
+        if (episode.isDummy() && episode.getSeason() <= 0) {
           removeTvShowEpisode(episode);
         }
       }
       // last but not least remove all empty seasons
       for (TvShowSeason season : tvShow.getSeasons()) {
-        if (season.getSeason() == 0 && season.isDummy()) {
+        if (season.getSeason() <= 0 && season.isDummy()) {
           removeTvShowSeason(season);
         }
       }
