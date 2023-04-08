@@ -331,15 +331,18 @@ public final class MovieList extends AbstractModelObject {
     // remove in inverse order => performance
     for (int i = movies.size() - 1; i >= 0; i--) {
       Movie movie = movies.get(i);
-      readWriteLock.writeLock().lock();
-      movieList.remove(movie);
-      readWriteLock.writeLock().unlock();
+
       if (movie.getMovieSet() != null) {
         MovieSet movieSet = movie.getMovieSet();
 
         movieSet.removeMovie(movie, false);
         movie.setMovieSet(null);
       }
+
+      readWriteLock.writeLock().lock();
+      movieList.remove(movie);
+      readWriteLock.writeLock().unlock();
+
       try {
         MovieModuleManager.getInstance().removeMovieFromDb(movie);
       }
