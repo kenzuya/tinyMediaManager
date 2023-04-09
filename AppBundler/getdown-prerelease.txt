@@ -26,13 +26,8 @@ resource = [windows-amd64] tinyMediaManagerCMD.exe
 xresource = [linux-amd64] tinyMediaManager
 xresource = [linux-arm] tinyMediaManager-arm
 xresource = [linux-aarch64] tinyMediaManager-arm
-xresource = [mac os x] macOS/MacOS/tinyMediaManager
-# legacy v3 launcher - needed since macOS caches old Info.plist where this launcher is listed
-xresource = [mac os x] macOS/MacOS/JavaApplicationStub
 # legacy v3 launcher which is linked in existing .desktop files
 xresource = [linux] tinyMediaManager.sh
-resource = [mac os x] macOS/Info.plist
-resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
 resource = tmm.png
 resource = changelog.txt
@@ -44,22 +39,17 @@ resource = restart.jar
 resource = [windows-amd64] jre/jre-windows_x64.tar.br
 resource = [linux-amd64] jre/jre-linux_x64.tar.br
 resource = [linux-arm] jre/jre-linux_arm32.tar.br
-# for legacy installs
-resource = [mac os x] jre/jre-macos_x64.tar.br
 
 ## FFmpeg addon - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
 resource = [windows-amd64] native/windows/addons/ffmpeg-windows_x64.tar.br
 resource = [linux-amd64] native/linux/addons/ffmpeg-linux_x64.tar.br
 resource = [linux-arm] native/arm/addons/ffmpeg-linux_arm32.tar.br
-# for legacy installs
-resource = [mac os x] native/macos/addons/ffmpeg-macos_x64.tar.bz2
 
 # translations
 %LOCALES%
 
 # mediainfo native libs
-resource = [mac os x] native/mac/libmediainfo.dylib
 resource = [windows-amd64] native/windows/MediaInfo.dll
 resource = [linux-amd64] native/linux/libmediainfo.so
 resource = [linux-amd64] native/linux/libzen.so

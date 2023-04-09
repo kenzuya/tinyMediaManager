@@ -18,6 +18,10 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>AppBundler/dist-mac</directory>
+            <outputDirectory>/macOS</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>native</directory>
             <outputDirectory>/native</outputDirectory>
             <excludes>
