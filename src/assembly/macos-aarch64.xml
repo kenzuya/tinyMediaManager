@@ -26,12 +26,16 @@
                 <include>digest*</include>
                 <include>getdown.txt</include>
                 <include>version</include>
-                <include>native/mac/*</include>
             </includes>
             <excludes>
                 <exclude>macOS/*</exclude>
                 <exclude>templates/*</exclude>
             </excludes>
+        </fileSet>
+        <fileSet>
+            <!-- libmediainfo -->
+            <directory>native/mac</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac</outputDirectory>
         </fileSet>
         <fileSet>
             <!-- extracted templates -->

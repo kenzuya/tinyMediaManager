@@ -89,6 +89,8 @@ deploy:
   environment:
     name: test
     url: https://nightly.tinymediamanager.org
+  tags:
+    - tmm # force running on own runners
   script:
     # and publish the files on the webserver
     - curl https://nightly.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}

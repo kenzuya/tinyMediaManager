@@ -77,6 +77,8 @@ deploy:
   environment:
     name: test
     url: https://prerelease.tinymediamanager.org
+  tags:
+    - tmm # force running on own runners
   script:
     # and publish the files on the webserver
     - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
