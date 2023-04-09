@@ -23,7 +23,6 @@
                 <include>digest*</include>
                 <include>getdown.txt</include>
                 <include>version</include>
-
                 <include>native/mac/*</include>
             </includes>
             <excludes>
@@ -47,4 +46,11 @@
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/launcher/macos_x64/tinyMediaManager</source>
+            <outputDirectory>tinyMediaManager.app/Contents/MacOS</outputDirectory>
+            <destName>tinyMediaManager</destName>
+        </file>
+    </files>
 </assembly>

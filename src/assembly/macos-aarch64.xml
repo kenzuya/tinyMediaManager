@@ -26,7 +26,6 @@
                 <include>digest*</include>
                 <include>getdown.txt</include>
                 <include>version</include>
-
                 <include>native/mac/*</include>
             </includes>
             <excludes>

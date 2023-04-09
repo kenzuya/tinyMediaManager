@@ -18,16 +18,14 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>AppBundler/dist-mac</directory>
-            <outputDirectory>/macOS</outputDirectory>
-        </fileSet>
-        <fileSet>
             <directory>native</directory>
             <outputDirectory>/native</outputDirectory>
             <excludes>
                 <exclude>**/addons/*</exclude>
                 <exclude>**/compile.txt</exclude>
                 <exclude>**/*.sha256</exclude>
+                <exclude>**/mac/*</exclude>
+                <exclude>README.md</exclude>
             </excludes>
         </fileSet>
         <fileSet>
@@ -49,10 +47,6 @@
             <outputDirectory>/native/linux/addons</outputDirectory>
         </file>
         <file>
-            <source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.bz2</source>
-            <outputDirectory>/native/macos/addons</outputDirectory>
-        </file>
-        <file>
             <source>${project.build.directory}/addons/ffmpeg-windows_x64.tar.br</source>
             <outputDirectory>/native/windows/addons</outputDirectory>
         </file>
@@ -66,11 +60,6 @@
         <file>
             <source>${project.build.directory}/launcher/linux_x64/tinyMediaManager</source>
             <outputDirectory>/</outputDirectory>
-        </file>
-        <file>
-            <source>${project.build.directory}/launcher/macos_x64/tinyMediaManager</source>
-            <outputDirectory>/macOS/MacOS/</outputDirectory>
-            <destName>tinyMediaManager</destName>
         </file>
         <file>
             <source>${project.build.directory}/launcher/windows_x64/tinyMediaManager.exe</source>
