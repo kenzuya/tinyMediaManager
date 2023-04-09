@@ -128,7 +128,12 @@ public abstract class YTDownloadTask extends TmmTask {
       YTDownloader downloader = new YTDownloader();
       Response<VideoInfo> videoInfo = downloader.getVideoInfo(new RequestVideoInfo(id));
       if (!videoInfo.ok()) {
-        LOGGER.debug("Could not download trailer: response NOK");
+        if (videoInfo.error() != null) {
+          LOGGER.debug("Could not download trailer: '{}'", videoInfo.error().toString());
+        }
+        else {
+          LOGGER.debug("Could not download trailer: response NOK");
+        }
         return;
       }
 

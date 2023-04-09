@@ -15,11 +15,14 @@
  */
 package org.tinymediamanager.scraper.davestrailer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -31,8 +34,8 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
-import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
  * The Class DavesTrailerPage. A trailer provider for the site davestrailerpage.co.uk
@@ -81,7 +84,10 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
     }
 
     // 1. search with title
-    String title = md.getTitle();
+    String title = md.getOriginalTitle();
+    if (title.isEmpty()) {
+      title = md.getTitle();
+    }
     String firstChar = title.substring(0, 1).toLowerCase(Locale.ROOT);
     String url;
 
@@ -96,7 +102,8 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
     }
 
     try {
-      Document doc = UrlUtil.parseDocumentFromUrl(url);
+      OnDiskCachedUrl disk = new OnDiskCachedUrl(url, 7, TimeUnit.DAYS);
+      Document doc = Jsoup.parse(disk.getInputStream(), StandardCharsets.UTF_8.toString(), "");
       Element table = doc.select("table").last();
       Elements rows = table.select("tr");
 

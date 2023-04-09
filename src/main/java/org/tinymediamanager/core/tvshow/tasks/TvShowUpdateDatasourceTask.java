@@ -811,13 +811,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         else {
-          epFiles.add(vid); // add ourself
+          // epFiles.add(vid); // add ourself
 
           // normal episode file - get all same named files (in same directory!)
           String vidBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vid.getFilename()));
           vidBasename = showDir.relativize(vid.getFileAsPath().getParent()) + "/" + vidBasename;
           LOGGER.trace("UDS: video basename {} - {}", vidBasename, vid.getFile());
-          for (MediaFile img : getMediaFilesExceptType(mfs, MediaFileType.VIDEO)) {
+          for (MediaFile img : mfs) {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
             String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
             imgBasename = showDir.relativize(img.getFileAsPath().getParent()) + "/" + imgBasename;
@@ -1240,7 +1240,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     private String getMediaFileNameWithoutType(MediaFile mf) {
       String ret = mf.getFilename();
       // does not work for extrafanarts/landscape - but thats mostly not used on episode level
-      ret = ret.replaceFirst("(?i)[_.-]" + mf.getType(), "");
+      ret = ret.replaceFirst("(?i)[_.-]" + mf.getType() + "[.]" + mf.getExtension(), "." + mf.getExtension());
       return ret;
     }
 
@@ -1339,6 +1339,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
       return visitor.fFound;
     }
+
   }
 
   @Override

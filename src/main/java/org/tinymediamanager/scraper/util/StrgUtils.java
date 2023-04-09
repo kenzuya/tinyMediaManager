@@ -69,6 +69,7 @@ public class StrgUtils {
     DATE_FORMAT_REGEXPS.put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$", "yyyy-MM-dd HH:mm:ss.S");
     DATE_FORMAT_REGEXPS.put("(?i)^\\d{4}-\\d{1,2}-\\d{1,2}T\\s\\d{1,2}:\\d{2}:\\d{2}\\.\\d+$", "yyyy-MM-dd'T' HH:mm:ss.S"); // nextpvr
     DATE_FORMAT_REGEXPS.put("(?i)^\\d{4}-\\d{1,2}-\\d{1,2}T\\d{1,2}:\\d{2}:\\d{2}\\.\\d+$", "yyyy-MM-dd'T'HH:mm:ss.S"); // nextpvr
+    DATE_FORMAT_REGEXPS.put("(?i)^\\d{4}-\\d{1,2}-\\d{1,2}T\\d{1,2}:\\d{2}:\\d{2}Z$", "yyyy-MM-dd'T'HH:mm:ss'Z'"); // parsed trailer
     DATE_FORMAT_REGEXPS.put("(?i)^\\d{4}-\\d{1,2}-\\d{1,2}T\\d{1,2}:\\d{2}:\\d{2}\\.\\d+Z$", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"); // parsed trailer
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$", "MM/dd/yyyy HH:mm:ss.S");
     DATE_FORMAT_REGEXPS.put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$", "yyyy/MM/dd HH:mm:ss.S");

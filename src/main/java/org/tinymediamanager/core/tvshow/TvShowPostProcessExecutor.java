@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.PostProcessExecutor;
 import org.tinymediamanager.core.jmte.JmteUtils;
+import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -67,6 +68,8 @@ public class TvShowPostProcessExecutor extends PostProcessExecutor {
 
   private String[] substituteTokens(Map<String, Object> mappings) {
     Engine engine = TvShowRenamer.createEngine();
+
+    engine.setModelAdaptor(new TmmModelAdaptor());
 
     if (postProcess.getPath() == null || postProcess.getPath().isEmpty()) {
       // scripting mode - transform as single string

@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -104,7 +105,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
   }
 
-  private List<MediaArtwork> createStillsFromPlainFile(MediaFile mediaFile) throws ScrapeException {
+  private List<MediaArtwork> createStillsFromPlainFile(MediaFile mediaFile) {
     // take the runtime
     int duration = mediaFile.getDuration();
 
@@ -113,20 +114,49 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     int start = providerInfo.getConfig().getValueAsInteger("start");
     int end = providerInfo.getConfig().getValueAsInteger("end");
 
-    if (count <= 0 || start < 0 || end > 100 || start > end) {
-      throw new ScrapeException(new IllegalArgumentException());
+    // add some mitigations for wrong values (since the UI cannot handle this better)
+    if (start <= 0) {
+      start = 1;
+    }
+    else if (start >= 100) {
+      start = 99;
+    }
+
+    if (end <= 0) {
+      end = 1;
+    }
+    else if (end >= 100) {
+      end = 99;
+    }
+
+    if (start > end) {
+      int temp = start;
+      start = end;
+      end = temp;
+    }
+
+    if (count <= 0) {
+      count = 1;
     }
 
     float increment = (end - start) / (100f * count);
 
     List<MediaArtwork> artworks = new ArrayList<>();
 
+    Random random = new Random(System.nanoTime());
+
     for (int i = 0; i < count; i++) {
       int second = (int) (duration * (start / 100f + i * increment));
 
+      // add some variance to produce different stills every time (-0.5 * increment ... +0.5 * increment)
+      int variance = (int) (duration * increment * (-0.5 + random.nextDouble())); // NOSONAR
+      if (second + variance <= 0 || second + variance > duration) {
+        variance = 0;
+      }
+
       try {
         Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
-        FFmpeg.createStill(mediaFile.getFile(), tempFile, second);
+        FFmpeg.createStill(mediaFile.getFile(), tempFile, second + variance);
 
         // set the artwork type depending on the configured type
         if (isFanartEnabled()) {

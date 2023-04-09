@@ -54,6 +54,7 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaStreamInfo.Flags;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
+import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -1313,6 +1314,7 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedTitleCaseRenderer());
     engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedArrayUniqueRenderer());
     engine.registerNamedRenderer(new NamedNumberRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());

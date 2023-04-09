@@ -253,7 +253,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // load dummy episodes
     for (TvShowEpisode episode : dummyEpisodes) {
       episode.setTvShow(this);
-      if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
+      if (episode.getSeason() <= 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
         continue;
       }
       if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
@@ -501,7 +501,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // also mix in the episodes if activated
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       for (TvShowEpisode episode : dummyEpisodes) {
-        if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
+        if (episode.getSeason() <= 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
           continue;
         }
 
@@ -563,7 +563,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       // and now mix in unavailable ones
       for (TvShowEpisode episode : getDummyEpisodes()) {
-        if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
+        if (episode.getSeason() <= 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
           continue;
         }
         if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
@@ -606,7 +606,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     for (TvShowSeason season : seasons) {
       for (TvShowEpisode episode : season.getEpisodesForDisplay()) {
         if (episode.isDummy()) {
-          if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
+          if (episode.getSeason() <= 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             continue;
           }
           count++;
@@ -699,21 +699,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * remove all episodes from this tv show.
-   */
-  public void removeAllEpisodes() {
-    int oldValue = episodes.size();
-    if (!episodes.isEmpty()) {
-      for (int i = episodes.size() - 1; i >= 0; i--) {
-        TvShowEpisode episode = episodes.get(i);
-        removeEpisode(episode);
-      }
-    }
-
-    firePropertyChange(EPISODE_COUNT, oldValue, episodes.size());
-  }
-
-  /**
    * Removes the episode.
    *
    * @param episode
@@ -744,7 +729,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()
           && ListUtils.isEmpty(getEpisode(episode.getSeason(), episode.getEpisode()))) {
         for (TvShowEpisode dummy : dummyEpisodes) {
-          if (dummy.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
+          if (dummy.getSeason() <= 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             continue;
           }
           if (dummy.getSeason() == episode.getSeason() && dummy.getEpisode() == episode.getEpisode()) {
