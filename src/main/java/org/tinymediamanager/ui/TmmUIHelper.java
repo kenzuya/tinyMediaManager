@@ -47,6 +47,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
@@ -705,6 +706,7 @@ public class TmmUIHelper {
     if (ReleaseInfo.isNightly()) {
       return true;
     }
+
     try {
       // get the property for the last update check
       String lastUpdateCheck = TmmProperties.getInstance().getProperty("lastUpdateCheck");
@@ -727,7 +729,7 @@ public class TmmUIHelper {
           LOGGER.info("update available");
 
           // we might need this somewhen...
-          if (updateCheck.isForcedUpdate()) {
+          if (Globals.isSelfUpdatable() && updateCheck.isForcedUpdate()) {
             LOGGER.info("Updating (forced)...");
             // start the updater task
             TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());

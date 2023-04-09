@@ -32,6 +32,7 @@ import javax.swing.event.HyperlinkEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -98,6 +99,7 @@ public class UpdateDialog extends TmmDialog {
 
         TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
       });
+      btnUpdate.setEnabled(Globals.isSelfUpdatable());
       addButton(btnUpdate);
     }
   }
