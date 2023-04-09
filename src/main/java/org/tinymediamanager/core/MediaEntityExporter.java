@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
+import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -136,6 +137,7 @@ public abstract class MediaEntityExporter {
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new NamedArrayRenderer());
 
     // NEEDS TO BE THE LAST !
     engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));

@@ -1323,6 +1323,8 @@ public class MovieRenamer {
 
     engine.registerAnnotationProcessor(new RegexpProcessor());
 
+    engine.setModelAdaptor(new TmmModelAdaptor());
+
     return engine;
   }
 

@@ -951,7 +951,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
     private String getPatternValue(String pattern) {
       try {
-        Engine engine = MovieRenamer.createEngine();
+        Engine engine = TvShowRenamer.createEngine();
         Map<String, Object> root = new HashMap<>();
         root.put("tvShow", tvShow);
         return engine.transform(JmteUtils.morphTemplate(pattern, TvShowRenamer.getTokenMap()), root);
