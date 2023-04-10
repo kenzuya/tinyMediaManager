@@ -7,13 +7,14 @@ mkdir -p dist
 ###############################
 mkdir macos_dmg_x64
 cd macos_dmg_x64
-unzip -X ../target/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
+unzip -q -X ../target/tinyMediaManager-*macos-x86_64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
 
 touch tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/.userdir
 
 # sign
-codesign --force --options runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
+echo "signing app"
+codesign --force --options=runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
 
 # prepare dmg
 cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
@@ -32,9 +33,11 @@ tinyMediaManager.dmg \
 tinyMediaManager
 
 # sign dmg
-codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
+echo "signing dmg"
+codesign --force --options=runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
+echo "notarizing"
 xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
 #xcrun stapler staple tinyMediaManager.dmg
 
@@ -51,13 +54,14 @@ rm -rf macos_dmg_x64
 ###############################
 mkdir macos_dmg_aarch64
 cd macos_dmg_aarch64
-unzip -X ../target/tinyMediaManager-*macos-aarch64.zip -d tinyMediaManager
+unzip -q -X ../target/tinyMediaManager-*macos-aarch64.zip -d tinyMediaManager
 VERSION=$(grep 'human.version' tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/version | cut -d'=' -f2)
 
 touch tinyMediaManager/tinyMediaManager.app/Contents/Resources/Java/.userdir
 
 # sign
-codesign --force --options runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
+echo "signing app"
+codesign --force --options=runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager/tinyMediaManager.app
 
 # prepare dmg
 cp ../AppBundler/macos/DS_Store tinyMediaManager/.DS_Store
@@ -76,9 +80,11 @@ tinyMediaManager.dmg \
 tinyMediaManager
 
 # sign dmg
-codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
+echo "signing dmg"
+codesign --force --options=runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
+echo "notarizing"
 xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
 #xcrun stapler staple tinyMediaManager.dmg
 
