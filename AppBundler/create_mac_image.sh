@@ -32,7 +32,7 @@ tinyMediaManager.dmg \
 tinyMediaManager
 
 # sign dmg
-codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
+codesign --force --options runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
 xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
@@ -76,7 +76,7 @@ tinyMediaManager.dmg \
 tinyMediaManager
 
 # sign dmg
-codesign --force --options runtime --deep --timestamp --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
+codesign --force --options runtime --deep --timestamp --entitlements ../AppBundler/macos/hardened_runtime_entitlements.plist --sign "${MAC_SIGN_CERT}" tinyMediaManager.dmg
 
 # notarize dmg
 xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team-id "${MAC_TEAM_ID}" --password "${MAC_NOTARIZE_PASSWORD}"
