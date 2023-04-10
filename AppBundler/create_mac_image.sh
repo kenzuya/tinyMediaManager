@@ -39,7 +39,7 @@ xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team
 #xcrun stapler staple tinyMediaManager.dmg
 
 # copy to dist
-cp tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-x86_64.dmg
+ditto tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-x86_64.dmg
 
 # cleanup
 cd ..
@@ -83,7 +83,7 @@ xcrun notarytool submit tinyMediaManager.dmg --apple-id "${MAC_APPLE_ID}" --team
 #xcrun stapler staple tinyMediaManager.dmg
 
 # copy to dist
-cp tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-aarch64.dmg
+ditto tinyMediaManager.dmg ../dist/tinyMediaManager-$VERSION-macos-aarch64.dmg
 
 # cleanup
 cd ..
