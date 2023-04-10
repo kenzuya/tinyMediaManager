@@ -43,9 +43,6 @@
             <!-- JRE -->
             <directory>${project.build.directory}/jre/macos-x64/</directory>
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/jre</outputDirectory>
-            <excludes>
-                <exclude>**/_CodeSignature/*</exclude>
-            </excludes>
         </fileSet>
         <fileSet>
             <!-- FFmpeg -->
