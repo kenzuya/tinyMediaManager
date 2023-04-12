@@ -352,6 +352,10 @@ public final class TinyMediaManager {
             // register the shutdown handler
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
               LOGGER.info("received shutdown signal");
+              // save window layout
+              if (!GraphicsEnvironment.isHeadless()) {
+                MainWindow.getInstance().saveWindowLayout();
+              }
               shutdown();
               shutdownLogger();
             }));

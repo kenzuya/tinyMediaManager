@@ -1,6 +1,7 @@
 Version 4.3.11
 =======================
 + added Chinese (Singapore) to the scraper languages #2142
+x (Docker) force writing of window sizes/locations on shutdown #2091
 
 
 Version 4.3.10
