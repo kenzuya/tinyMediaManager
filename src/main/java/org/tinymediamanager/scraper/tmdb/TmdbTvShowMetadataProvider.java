@@ -1205,6 +1205,11 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         show.overview = val[1];
       }
     }
+
+    if (StringUtils.isBlank(show.name)) {
+      // we did not get a name and no fallback is desired - but we must offer a title!
+      show.name = show.original_name;
+    }
   }
 
   /**
@@ -1254,6 +1259,11 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         }
       }
     }
+
+    if (StringUtils.isBlank(show.name)) {
+      // we did not get a name and no fallback is desired - but we must offer a title!
+      show.name = show.original_name;
+    }
   }
 
   /**
@@ -1294,6 +1304,12 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         episode.originalName = val[0];
       }
     }
+
+    if (StringUtils.isBlank(episode.name)
+        || (isEpisodesNameDefault(episode, episode.episode_number) && StringUtils.isNotBlank(episode.originalName))) {
+      // we did not get a name and no fallback is desired - but we must offer a title!
+      episode.name = episode.originalName;
+    }
   }
 
   private Integer toInteger(String str) {
@@ -1307,9 +1323,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
   private Boolean isEpisodesNameDefault(BaseTvEpisode episode, Integer episodeNr) {
     Integer potentialEpisodeNumber;
-    String[] originalEpisodeName;
-    return (originalEpisodeName = episode.name.split(" ")).length == 2 && (potentialEpisodeNumber = toInteger(originalEpisodeName[1])) != null
-        && (potentialEpisodeNumber.equals(episode.episode_number) || potentialEpisodeNumber.equals(episodeNr));
+    String[] originalEpisodeName = episode.name.split(" ");
+    return (originalEpisodeName.length == 2 && (potentialEpisodeNumber = toInteger(originalEpisodeName[1])) != null
+        && (potentialEpisodeNumber.equals(episode.episode_number) || potentialEpisodeNumber.equals(episodeNr)));
   }
 
   private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode, MediaSearchAndScrapeOptions options) {
