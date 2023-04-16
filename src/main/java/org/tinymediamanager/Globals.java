@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * The Class Globals. used to hold global information/fields for the whole application
@@ -153,6 +154,11 @@ public final class Globals {
     return System.getProperty("webswing.classPath") != null;
   }
 
+  /**
+   * check if the installation is self-udpatable
+   * 
+   * @return true if the installation is self-updatable
+   */
   public static boolean isSelfUpdatable() {
     // env param -Dtmm.noupdate=true has been set
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
@@ -170,5 +176,27 @@ public final class Globals {
     }
 
     return true;
+  }
+
+  /**
+   * can we check if an update is available
+   * 
+   * @return true if we should check for an update
+   */
+  public static boolean canCheckForUpdates() {
+    if (ReleaseInfo.isGitBuild()) {
+      return false;
+    }
+
+    if (isSelfUpdatable()) {
+      return true;
+    }
+
+    if (SystemUtils.IS_OS_MAC || isDocker()) {
+      // macOS/docker is not self-updatable, but we should check for updates
+      return true;
+    }
+
+    return false;
   }
 }
