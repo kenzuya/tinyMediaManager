@@ -739,7 +739,7 @@ public class TmmUIHelper {
           // show whatsnewdialog with the option to update
           SwingUtilities.invokeLater(() -> {
             if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
-              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog());
+              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog(), updateCheck.getBaseUrl());
               dialog.setVisible(true);
             }
             else {

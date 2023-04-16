@@ -18,11 +18,13 @@ package org.tinymediamanager.updater;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +45,7 @@ public class UpdateCheck {
   private static final Logger LOGGER      = LoggerFactory.getLogger(UpdateCheck.class);
 
   private String              changelog   = "";
+  private String              baseUrl     = "";
   private boolean             forceUpdate = false;
 
   public boolean isUpdateAvailable() {
@@ -55,7 +58,7 @@ public class UpdateCheck {
     Path digestFile = getFile("digest.txt");
     LOGGER.info("Checking for updates...");
 
-    ArrayList<String> updateUrls = new ArrayList<>();
+    List<String> updateUrls = new ArrayList<>();
     try (Scanner scanner = new Scanner(getdownFile.toFile())) {
       while (scanner.hasNextLine()) {
         String[] kv = scanner.nextLine().split("=");
@@ -71,6 +74,17 @@ public class UpdateCheck {
       for (String uu : updateUrls) {
         if (!uu.endsWith("/")) {
           uu += '/';
+        }
+
+        // extract the base url from the remote
+        try {
+          URL url = new URL(uu);
+          String protocol = url.getProtocol();
+          String authority = url.getAuthority();
+          baseUrl = String.format("%s://%s", protocol, authority);
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not parse appbase - '{}'", e.getMessage());
         }
 
         String urlAsString = uu + "digest.txt";
@@ -174,6 +188,15 @@ public class UpdateCheck {
    */
   public String getChangelog() {
     return changelog;
+  }
+
+  /**
+   * get the base url where the update can be found
+   * 
+   * @return the base url
+   */
+  public String getBaseUrl() {
+    return baseUrl;
   }
 
   /**

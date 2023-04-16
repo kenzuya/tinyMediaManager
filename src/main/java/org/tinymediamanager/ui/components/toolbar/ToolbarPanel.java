@@ -97,7 +97,7 @@ public class ToolbarPanel extends JPanel {
   private final ToolbarButton btnRename;
   private final ToolbarButton btnUnlock;
   private final ToolbarButton btnRenewLicense;
-  private final ToolbarButton btnDownloadUpdate;
+  private final ToolbarButton btnUpdateFound;
 
   private final ToolbarMenu   menuUpdate;
   private final ToolbarMenu   menuSearch;
@@ -108,6 +108,7 @@ public class ToolbarPanel extends JPanel {
 
   private final ToolbarLabel  lblUnlock;
   private final ToolbarLabel  lblRenewLicense;
+  private final ToolbarLabel  lblUpdateFound;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -155,10 +156,10 @@ public class ToolbarPanel extends JPanel {
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(btnRenewLicense, "cell 12 0, alignx center,aligny bottom, gap 10lp");
 
-    btnDownloadUpdate = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
-    btnDownloadUpdate.setAction(new CheckForUpdateAction());
-    btnDownloadUpdate.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
-    panelCenter.add(btnDownloadUpdate, "cell 13 0, alignx center,aligny bottom, gap 10lp");
+    btnUpdateFound = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
+    btnUpdateFound.setAction(new CheckForUpdateAction());
+    btnUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
+    panelCenter.add(btnUpdateFound, "cell 13 0, alignx center,aligny bottom, gap 10lp");
 
     menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
@@ -188,6 +189,10 @@ public class ToolbarPanel extends JPanel {
     lblRenewLicense = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.renewlicense"), unlockAction);
     lblRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(lblRenewLicense, "cell 12 1,alignx center, gap 10lp, wmin 0");
+
+    lblUpdateFound = new ToolbarLabel(TmmResourceBundle.getString("tmm.update.message.toolbar"));
+    lblUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message"));
+    panelCenter.add(lblUpdateFound, "cell 13 1,alignx center, gap 10lp, wmin 0");
 
     License.getInstance().addEventListener(this::showHideUnlock);
 
@@ -220,7 +225,8 @@ public class ToolbarPanel extends JPanel {
   }
 
   private void initUpgradeCheck() {
-    btnDownloadUpdate.setVisible(false);
+    btnUpdateFound.setVisible(false);
+    lblUpdateFound.setVisible(false);
 
     if (!Settings.getInstance().isNewConfig()) {
       // if the wizard is not run, check for an update
@@ -229,15 +235,15 @@ public class ToolbarPanel extends JPanel {
       // wizard will no more appear
       // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
       // next startup
-      if (Settings.getInstance().isEnableAutomaticUpdate()
-          && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      if (Settings.getInstance().isEnableAutomaticUpdate() && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
         // only update if the last update check is more than the specified interval ago
         if (shouldCheckForUpdate()) {
           Runnable runnable = () -> {
             try {
               UpdateCheck updateCheck = new UpdateCheck();
               if (updateCheck.isUpdateAvailable()) {
-                btnDownloadUpdate.setVisible(true);
+                btnUpdateFound.setVisible(true);
+                lblUpdateFound.setVisible(true);
                 LOGGER.info("update available");
               }
             }

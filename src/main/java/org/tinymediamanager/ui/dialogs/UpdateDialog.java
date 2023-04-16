@@ -30,6 +30,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -49,9 +50,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class UpdateDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(UpdateDialog.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateDialog.class);
 
-  public UpdateDialog(String changelog) {
+  public UpdateDialog(String changelog, String baseurl) {
     super(TmmResourceBundle.getString("tmm.update.title"), "update");
 
     {
@@ -94,12 +95,29 @@ public class UpdateDialog extends TmmDialog {
 
       JButton btnUpdate = new JButton(TmmResourceBundle.getString("Button.update"));
       btnUpdate.addActionListener(arg0 -> {
-        setVisible(false);
-        LOGGER.info("Updating...");
+        if (Globals.isSelfUpdatable()) {
+          // the installation is self updatable
+          setVisible(false);
+          LOGGER.info("Updating...");
 
-        TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+          TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+        }
+        else {
+          // redirect to the downloads page for the download of the new version
+          try {
+            TmmUIHelper.browseUrl(baseurl);
+          }
+          catch (Exception e) {
+            LOGGER.warn("could not open '{}' - '{}'", baseurl, e.getMessage());
+          }
+        }
       });
-      btnUpdate.setEnabled(Globals.isSelfUpdatable());
+
+      // deactivate the update button if we cannot self update and we do have a base url
+      if (!Globals.isSelfUpdatable() && StringUtils.isBlank(baseurl)) {
+        btnUpdate.setEnabled(false);
+      }
+
       addButton(btnUpdate);
     }
   }
