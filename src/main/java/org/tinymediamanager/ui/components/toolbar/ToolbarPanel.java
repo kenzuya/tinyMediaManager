@@ -235,7 +235,7 @@ public class ToolbarPanel extends JPanel {
       // wizard will no more appear
       // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
       // next startup
-      if (Settings.getInstance().isEnableAutomaticUpdate() && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      if (Settings.getInstance().isEnableAutomaticUpdate()) {
         // only update if the last update check is more than the specified interval ago
         if (shouldCheckForUpdate()) {
           Runnable runnable = () -> {
