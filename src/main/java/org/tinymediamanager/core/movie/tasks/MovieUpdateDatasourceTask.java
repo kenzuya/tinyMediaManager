@@ -303,6 +303,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       rootList.clear();
       publishState();
 
+      LOGGER.debug("Processing '{}' existing, '{}' new movies and '{}' root files", existingMovieDirs.size(), newMovieDirs.size(), rootFiles.size());
+
       for (Path path : newMovieDirs) {
         searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
       }
@@ -567,6 +569,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void parseMovieDirectory(Path movieDir, Path dataSource) {
+    LOGGER.trace("Parsing '{}'", movieDir);
     List<Path> movieDirList = listFilesAndDirs(movieDir);
     List<Path> files = new ArrayList<>();
     Set<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
@@ -613,6 +616,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     if (!videoFileFound) {
       // hmm... we never found a video file (but maybe others, trailers) so NO need to parse THIS folder
+      LOGGER.trace("hmm - we found no video file in this folder: '{}'", movieDir);
       return;
     }
 
@@ -642,6 +646,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     if (cancel) {
       return;
     }
+
     // ok, we're ready to parse :)
     if (isMultiMovieDir) {
       createMultiMovieFromDir(dataSource, movieRoot, files);
@@ -1945,6 +1950,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
           submitTask(new FindMovieTask(dir, datasource));
         }
+      }
+      else {
+        LOGGER.trace("not containing any video files - '{}'", dir);
       }
       return CONTINUE;
     }
