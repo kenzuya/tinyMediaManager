@@ -390,6 +390,10 @@ public class TvShowRenamer {
         if (Files.exists(cl.getFileAsPath())) { // unneeded, but for not displaying wrong deletes in logger...
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
+          // also cleanup the cache for deleted mfs
+          if (cl.isGraphic()) {
+            ImageCache.invalidateCachedImage(cl);
+          }
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
@@ -573,7 +577,7 @@ public class TvShowRenamer {
   private static void renameSeasonArtwork(TvShow tvShow) {
     // all the good & needed mediafiles
     Set<MediaFile> needed = new LinkedHashSet<>();
-    ArrayList<MediaFile> cleanup = new ArrayList<>();
+    List<MediaFile> cleanup = new ArrayList<>();
 
     List<MediaArtworkType> types = Arrays.asList(SEASON_POSTER, SEASON_FANART, SEASON_BANNER, SEASON_THUMB);
 
@@ -668,7 +672,12 @@ public class TvShowRenamer {
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           tvShow.removeFromMediaFiles(cl);
+          tvShow.removeSeasonArtwork(cl);
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
+          // also cleanup the cache for deleted mfs
+          if (cl.isGraphic()) {
+            ImageCache.invalidateCachedImage(cl);
+          }
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
@@ -692,6 +701,20 @@ public class TvShowRenamer {
       LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
     }
 
+    // and rebuild the whole artwork maps
+    for (MediaFile mf : needed) {
+      String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+      int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+
+      if (season != Integer.MIN_VALUE) {
+        tvShow.setSeasonArtwork(season, mf);
+      }
+      else {
+        tvShow.removeFromMediaFiles(mf);
+        tvShow.removeSeasonArtwork(mf);
+      }
+    }
+
     // ######################################################################
     // ## build up image cache
     // ######################################################################
@@ -700,8 +723,6 @@ public class TvShowRenamer {
         ImageCache.cacheImageSilently(gfx);
       }
     }
-
-    tvShow.addToMediaFiles(new ArrayList<>(needed));
   }
 
   /**
