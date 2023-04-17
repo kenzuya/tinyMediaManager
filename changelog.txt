@@ -3,6 +3,7 @@ Version 4.3.11
 + added Chinese (Singapore) to the scraper languages #2142
 x (Docker) force writing of window sizes/locations on shutdown #2091
 x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
+x (movie set) downloading of artwork with different extensions #2154
 
 
 Version 4.3.10
