@@ -353,19 +353,19 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     Path video1 = seasonDir.resolve("Breaking Bad - S01E01 - Pilot.mkv");
     assertThat(video1).exists();
 
-    Path extra1 = seasonDir.resolve("extras/Breaking Bad - S01E01 - Pilot-cut scenes.mkv");
+    Path extra1 = seasonDir.resolve("Breaking Bad - S01E01 - Pilot - cut scenes.mkv");
     assertThat(extra1).exists();
 
     Path sample1 = seasonDir.resolve("Breaking Bad - S01E01 - Pilot-sample.avi");
     assertThat(sample1).exists();
 
-    Path extra12 = seasonDir.resolve("extras/Breaking Bad - S01E01 - Pilot-something else.mkv");
+    Path extra12 = seasonDir.resolve("Breaking Bad - S01E01 - Pilot - something else.mkv");
     assertThat(extra12).exists();
 
     Path video2 = seasonDir.resolve("Breaking Bad - S01E02 - Pilot 2.mkv");
     assertThat(video2).exists();
 
-    Path extra2 = seasonDir.resolve("extras/Breaking Bad - S01E02 - Pilot 2-takeouts.mkv");
+    Path extra2 = seasonDir.resolve("Breaking Bad - S01E02 - Pilot 2 - takeouts.mkv");
     assertThat(extra2).exists();
   }
 
