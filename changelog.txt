@@ -4,6 +4,7 @@ Version 4.3.11
 x (Docker) force writing of window sizes/locations on shutdown #2091
 x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
 x (movie set) downloading of artwork with different extensions #2154
+x (TV shows) fixed renaming of video extras #2145
 
 
 Version 4.3.10

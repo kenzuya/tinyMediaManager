@@ -1340,9 +1340,8 @@ public class TvShowRenamer {
         // this extra is for an episode -> move it at least to the season folder and try to replace the episode tokens
         MediaFile extra = new MediaFile(mf);
         // try to detect the title of the extra file
-        TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
-            .detectEpisodeFromFilenameAlternative(mf.getFilename(), tvShow.getTitle());
-        extra.setFile(seasonFolder.resolve("extras/" + newFilename + "-" + result.cleanedName + "." + mf.getExtension()));
+        String extraTitle = mf.getBasename().replace(originalVideoFile.getBasename(), "");
+        extra.setFile(seasonFolder.resolve(newFilename + extraTitle + "." + mf.getExtension()));
         newFiles.add(extra);
         break;
 
