@@ -156,6 +156,8 @@ public class UtilsTest extends BasicTest {
     assertEqual("Easy A", FilenameUtils.getBaseName(Utils.cleanStackingMarkers("Easy A.avi"))); // not a stacking format!
     assertEqual("", Utils.getStackingMarker("2 Guns (2013) x264-720p DTS-6ch.mkv"));
 
+    assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd1.eng.sub"), "cd1");
+
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd0.mkv"), "");
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd1.mkv"), "cd1");
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-cd12.mkv"), "cd12");
@@ -195,9 +197,9 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-2.mkv"), ""); // do not detect - could be sequel in MMD
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-a.mkv"), "a");
     assertEqual(Utils.getStackingMarker("Movie Name (2013)-b.mkv"), "b");
-    assertEqual(Utils.getStackingMarker("Movie Name Part 4 (2013).mkv"), ""); // no inbetween matching
-    assertEqual(Utils.getStackingMarker("Movie Name CD 1 (2013).mkv"), ""); // no inbetween matching
-    assertEqual(Utils.getStackingMarker("Movie Name 3of4 (2013).mkv"), ""); // no inbetween matching
+    assertEqual(Utils.getStackingMarker("Movie Name Part4 (2013).mkv"), "Part4"); // inbetween matching
+    assertEqual(Utils.getStackingMarker("Movie Name CD1 (2013).mkv"), "CD1"); // inbetween matching
+    assertEqual(Utils.getStackingMarker("Movie Name 3of4 (2013).mkv"), "3of4"); // inbetween matching
     assertEqual(Utils.getStackingMarker("Movie Name Part4 (2013)-Part1.mkv"), "Part1"); // no inbetween matching, but ending matching
 
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd1.mkv"), 1);

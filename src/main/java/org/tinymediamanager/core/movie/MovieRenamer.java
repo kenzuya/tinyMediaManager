@@ -213,8 +213,8 @@ public class MovieRenamer {
         }
       }
       else {
-        /** SHOULD NOT BE NEEDED ANY MORE?! **/
         // detect from filename, if we don't have a MediaFileSubtitle entry!
+        // happens if subtitle file is empty, and gatherMI() does not create an entry...
         // remove the filename of movie from subtitle, to ease parsing
         String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
         if (ListUtils.isNotEmpty(m.getMediaFiles(MediaFileType.VIDEO))) {
