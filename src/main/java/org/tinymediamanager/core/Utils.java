@@ -124,7 +124,7 @@ public class Utils {
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
-  private static final Pattern stackingPattern3            = Pattern.compile("(.*)[_.-]+([a-d])([ _.-].+)$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
   private static final Pattern stackingPattern4            = Pattern.compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$",
