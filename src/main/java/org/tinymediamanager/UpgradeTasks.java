@@ -541,17 +541,19 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3.11") < 0) {
       // upgrade stacking information for subtitles
       for (Movie movie : movieList.getMovies()) {
-        boolean dirty = false;
-        for (MediaFile mf : movie.getMediaFiles(MediaFileType.SUBTITLE)) {
-          String old = mf.getStackingMarker();
-          mf.detectStackingInformation();
-          if (!old.equals(mf.getStackingMarker())) {
-            dirty = true;
+        if (movie.isStacked()) {
+          boolean dirty = false;
+          for (MediaFile mf : movie.getMediaFiles(MediaFileType.SUBTITLE)) {
+            String old = mf.getStackingMarker();
+            mf.detectStackingInformation();
+            if (!old.equals(mf.getStackingMarker())) {
+              dirty = true;
+            }
           }
-        }
-        if (dirty) {
-          movie.saveToDb();
-          movie.firePropertyChange(MEDIA_INFORMATION, false, true);
+          if (dirty) {
+            movie.saveToDb();
+            movie.firePropertyChange(MEDIA_INFORMATION, false, true);
+          }
         }
       }
     }
