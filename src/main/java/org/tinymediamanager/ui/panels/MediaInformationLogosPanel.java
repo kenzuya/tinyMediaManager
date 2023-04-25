@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
@@ -209,23 +210,7 @@ public class MediaInformationLogosPanel extends JPanel {
       return null;
     }
 
-    String text;
-
-    // // mono?
-    // if (audioChannelsInt == 1) {
-    // text = "1.0";
-    // }
-    // else if (audioChannelsInt == 2) {
-    // // stereo?
-    // text = "2.0";
-    // }
-    if (audioChannelsInt < 6) {
-      text = audioChannelsInt + ".0";
-    }
-    else {
-      text = audioChannelsInt - 1 + ".1";
-    }
-
+    String text = MediaFileHelper.audioChannelInDotNotation(audioChannelsInt);
     try {
       return new AudioChannelsIcon(text);
     }

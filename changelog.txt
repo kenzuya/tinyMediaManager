@@ -1,7 +1,7 @@
 Version 4.3.11
 =======================
 + added Chinese (Singapore) to the scraper languages #2142
-+ (renamer) audioChannels in "dot" notation (6 -> 5.1)
++ (renamer) audioChannels in "dot" notation (6ch -> 5.1)
 x (Docker) force writing of window sizes/locations on shutdown #2091
 x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
 x (movie set) downloading of artwork with different extensions #2154

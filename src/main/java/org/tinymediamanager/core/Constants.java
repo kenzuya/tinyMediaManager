@@ -21,7 +21,7 @@ package org.tinymediamanager.core;
  * @author Manuel Laggner
  */
 public final class Constants {
-  public static final String DS_TRASH_FOLDER          = ".deletedByTMM";
+  public static final String DS_TRASH_FOLDER        = ".deletedByTMM";
 
   public static final String ACTORS                 = "actors";
   public static final String ADDED_EPISODE          = "addedEpisode";
@@ -32,6 +32,7 @@ public final class Constants {
   public static final String AIRED_EPISODE          = "airedEpisode";
   public static final String AIRED_SEASON           = "airedSeason";
   public static final String AUDIO_CODEC            = "audioCodec";
+  public static final String AUDIO_CHANNEL          = "audioChannel";
   public static final String AUDIOSTREAMS_COUNT     = "audioStreams";
   public static final String BANNER                 = "banner";
   public static final String BANNER_URL             = "bannerUrl";

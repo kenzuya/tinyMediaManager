@@ -977,16 +977,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     // get audio stream with highest channel count
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
-
     if (highestStream != null) {
-      // identify something like 5.1.2 is not possible...
-      // simple approach, which should cover the most needs of 5.1/7.1
-      if (highestStream.getAudioChannels() < 6) {
-        channels = highestStream.getAudioChannels() + ".0";
-      }
-      else {
-        channels = highestStream.getAudioChannels() - 1 + ".1";
-      }
+      channels = MediaFileHelper.audioChannelInDotNotation(highestStream.getAudioChannels());
     }
 
     return channels;
@@ -1014,14 +1006,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     List<String> audioChannels = new ArrayList<>();
 
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
-      String channels = "";
-      if (stream.getAudioChannels() < 6) {
-        channels = stream.getAudioChannels() + ".0";
-      }
-      else {
-        channels = stream.getAudioChannels() - 1 + ".1";
-      }
-      audioChannels.add(channels);
+      audioChannels.add(MediaFileHelper.audioChannelInDotNotation(stream.getAudioChannels()));
     }
     return audioChannels;
   }

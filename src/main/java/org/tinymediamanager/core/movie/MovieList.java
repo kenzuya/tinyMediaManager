@@ -106,6 +106,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             videoCodecsInMovies;
   private final CopyOnWriteArrayList<String>             videoContainersInMovies;
   private final CopyOnWriteArrayList<String>             audioCodecsInMovies;
+  private final CopyOnWriteArrayList<Integer>            audioChannelsInMovies;
   private final CopyOnWriteArrayList<MediaCertification> certificationsInMovies;
   private final CopyOnWriteArrayList<Double>             frameRatesInMovies;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInMovies;
@@ -135,6 +136,7 @@ public final class MovieList extends AbstractModelObject {
     videoCodecsInMovies = new CopyOnWriteArrayList<>();
     videoContainersInMovies = new CopyOnWriteArrayList<>();
     audioCodecsInMovies = new CopyOnWriteArrayList<>();
+    audioChannelsInMovies = new CopyOnWriteArrayList<>();
     certificationsInMovies = new CopyOnWriteArrayList<>();
     frameRatesInMovies = new CopyOnWriteArrayList<>();
     audioStreamsInMovies = new CopyOnWriteArrayList<>();
@@ -1099,6 +1101,7 @@ public final class MovieList extends AbstractModelObject {
     Set<Double> frameRates = new HashSet<>();
     Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioChannels = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<Integer> subtitleCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
@@ -1133,11 +1136,12 @@ public final class MovieList extends AbstractModelObject {
           videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
-        // audio codec
+        // audio codec+channels
         for (MediaFileAudioStream audio : mf.getAudioStreams()) {
           if (StringUtils.isNotBlank(audio.getCodec())) {
             audioCodecs.add(audio.getCodec());
           }
+          audioChannels.add(audio.getAudioChannels());
         }
         // audio streams
         if (!mf.getAudioStreams().isEmpty()) {
@@ -1184,6 +1188,11 @@ public final class MovieList extends AbstractModelObject {
     // audio codec
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioCodecsInMovies, audioCodecs)) {
       firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
+    }
+
+    // audio channels
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioChannelsInMovies, audioChannels)) {
+      firePropertyChange(Constants.AUDIO_CHANNEL, null, audioChannelsInMovies);
     }
 
     // audio streams
@@ -1269,6 +1278,10 @@ public final class MovieList extends AbstractModelObject {
 
   public Collection<String> getAudioCodecsInMovies() {
     return Collections.unmodifiableList(audioCodecsInMovies);
+  }
+
+  public Collection<Integer> getAudioChannelsInMovies() {
+    return Collections.unmodifiableList(audioChannelsInMovies);
   }
 
   public Collection<MediaCertification> getCertificationsInMovies() {

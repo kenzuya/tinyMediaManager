@@ -215,6 +215,21 @@ public class MediaFileHelper {
     return videoFormats;
   }
 
+  /**
+   * converts audion channels to "dot" notation (6 -> 5.1)
+   * 
+   * @param channels
+   * @return
+   */
+  public static String audioChannelInDotNotation(int channels) {
+    if (channels < 6) {
+      return channels + ".0";
+    }
+    else {
+      return channels - 1 + ".1";
+    }
+  }
+
   private static Path detectDatasource(Path file) {
     for (String ds : Utils.getAllDatasources()) {
       if (file.toAbsolutePath().startsWith(ds)) {
