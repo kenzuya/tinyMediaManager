@@ -252,6 +252,9 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${audioChannels}"));
     exampleEventList.add(new TvShowRenamerExample("${audioChannelList}"));
     exampleEventList.add(new TvShowRenamerExample("${audioChannelsAsString}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelsDot}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelDotList}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelsDotAsString}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguage}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguageList}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguagesAsString}"));

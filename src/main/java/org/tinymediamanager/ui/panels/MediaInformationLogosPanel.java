@@ -211,13 +211,16 @@ public class MediaInformationLogosPanel extends JPanel {
 
     String text;
 
-    // mono?
-    if (audioChannelsInt == 1) {
-      text = "1.0";
-    }
-    else if (audioChannelsInt == 2) {
-      // stereo?
-      text = "2.0";
+    // // mono?
+    // if (audioChannelsInt == 1) {
+    // text = "1.0";
+    // }
+    // else if (audioChannelsInt == 2) {
+    // // stereo?
+    // text = "2.0";
+    // }
+    if (audioChannelsInt < 6) {
+      text = audioChannelsInt + ".0";
     }
     else {
       text = audioChannelsInt - 1 + ".1";

@@ -154,6 +154,7 @@ public class TvShowJmteTests extends BasicTvShowTest {
       compare("${audioCodecList[1]}", "MP3");
       compare("${audioCodecList[2]}", "");
       compare("${audioChannels}", "6ch");
+      compare("${audioChannelsDot}", "5.1");
       compare("${audioChannelList[1]}", "2ch");
       compare("${audioChannelList[2]}", "");
       compare("${audioLanguage}", "en");

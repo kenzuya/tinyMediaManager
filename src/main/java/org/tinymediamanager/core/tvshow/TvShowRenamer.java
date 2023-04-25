@@ -172,15 +172,20 @@ public class TvShowRenamer {
     tokenMap.put("aspectRatio2", "episode.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
+
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "episode.mediaInfoAudioCodecList");
     tokenMap.put("audioCodecsAsString", "episode.mediaInfoAudioCodecList;array");
     tokenMap.put("audioChannels", "episode.mediaInfoAudioChannels");
     tokenMap.put("audioChannelList", "episode.mediaInfoAudioChannelList");
     tokenMap.put("audioChannelsAsString", "episode.mediaInfoAudioChannelList;array");
+    tokenMap.put("audioChannelsDot", "episode.mediaInfoAudioChannelsDot");
+    tokenMap.put("audioChannelDotList", "episode.mediaInfoAudioChannelDotList");
+    tokenMap.put("audioChannelsDotAsString", "episode.mediaInfoAudioChannelDotList;array");
     tokenMap.put("audioLanguage", "episode.mediaInfoAudioLanguage");
     tokenMap.put("audioLanguageList", "episode.mediaInfoAudioLanguageList");
     tokenMap.put("audioLanguagesAsString", "episode.mediaInfoAudioLanguageList;array");
+
     tokenMap.put("subtitleLanguageList", "episode.mediaInfoSubtitleLanguageList");
     tokenMap.put("subtitleLanguagesAsString", "episode.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "episode.video3DFormat");

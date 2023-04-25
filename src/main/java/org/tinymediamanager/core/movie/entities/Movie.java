@@ -2572,6 +2572,22 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public String getMediaInfoAudioChannelsDot() {
+    return getMainVideoFile().getAudioChannelsDot();
+  }
+
+  @Override
+  public List<String> getMediaInfoAudioChannelDotList() {
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsDotList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsDotList());
+    }
+    return lang;
+  }
+
+  @Override
   public String getMediaInfoAudioLanguage() {
     return getMainVideoFile().getAudioLanguage();
   }
