@@ -295,7 +295,7 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)$") // Plex (w/o trailer)
+        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)\\d?$") // Plex (w/o trailer)
         || EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;

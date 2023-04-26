@@ -77,6 +77,8 @@ public class MovieMediaFileTest extends BasicMovieTest {
 
     // video_extra
     mft = MediaFileType.EXTRA;
+    checkExtra("/somefile-behindthescenes", mft);
+    checkExtra("/somefile-behindthescenes2", mft); // Plex: multiple same types
     checkExtra("Red.Shoe.Diaries.S01.EXTRAS.DVDRip.X264", mft);
     checkExtra("Extra/extras/some-trailer", mft);
     checkExtra("extras/someExtForSomeMovie-trailer", mft);
