@@ -51,6 +51,7 @@ public class MovieSetEditMovieAction extends TmmAction {
 
     int selectedCount = selectedMovies.size();
     int index = 0;
+    int selectedTab = 0;
 
     if (selectedCount == 0) {
       return;
@@ -58,8 +59,9 @@ public class MovieSetEditMovieAction extends TmmAction {
 
     do {
       Movie movie = selectedMovies.get(index);
-      MovieEditorDialog dialogMovieEditor = new MovieEditorDialog(movie, index, selectedCount);
+      MovieEditorDialog dialogMovieEditor = new MovieEditorDialog(movie, index, selectedCount, selectedTab);
       dialogMovieEditor.setVisible(true);
+      selectedTab = dialogMovieEditor.getSelectedTab();
 
       if (!dialogMovieEditor.isContinueQueue()) {
         break;

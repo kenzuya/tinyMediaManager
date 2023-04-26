@@ -62,11 +62,13 @@ public class TvShowChangeSeasonArtworkAction extends TmmAction {
 
     int selectedCount = selectedTvShowSeasons.size();
     int index = 0;
+    int selectedSeasonTab = 0;
 
     do {
       TvShowSeason season = selectedTvShowSeasons.get(index);
-      TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount);
+      TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount, selectedSeasonTab);
       editor.setVisible(true);
+      selectedSeasonTab = editor.getSelectedTab();
       if (!editor.isContinueQueue()) {
         break;
       }
