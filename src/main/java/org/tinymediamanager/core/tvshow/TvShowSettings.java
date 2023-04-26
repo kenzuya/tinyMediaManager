@@ -608,6 +608,12 @@ public final class TvShowSettings extends AbstractSettings {
     return artworkScrapers;
   }
 
+  /**
+   * Automatic image download without choosing?
+   * 
+   * @return true = download w/o image chooser<br>
+   *         false = display image chooser and let the user decide
+   */
   public boolean isScrapeBestImage() {
     return scrapeBestImage;
   }

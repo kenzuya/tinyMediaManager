@@ -1069,6 +1069,12 @@ public final class MovieSettings extends AbstractSettings {
     return artworkScrapers;
   }
 
+  /**
+   * Automatic image download without choosing?
+   * 
+   * @return true = download w/o image chooser<br>
+   *         false = display image chooser and let the user decide
+   */
   public boolean isScrapeBestImage() {
     return scrapeBestImage;
   }
@@ -1079,6 +1085,12 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("scrapeBestImage", oldValue, newValue);
   }
 
+  /**
+   * Automatic image download without choosing?
+   * 
+   * @return true = download w/o image chooser<br>
+   *         false = display image chooser and let the user decide
+   */
   public boolean isScrapeBestImageMovieSet() {
     return scrapeBestImageMovieSet;
   }
