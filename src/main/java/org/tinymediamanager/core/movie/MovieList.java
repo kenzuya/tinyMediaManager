@@ -629,18 +629,38 @@ public final class MovieList extends AbstractModelObject {
    * @return the movie list
    */
   public synchronized List<Movie> getSubMoviesByPath(Path path) {
-    return movieList.parallelStream()
-        .filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path))
-        .collect(Collectors.toList());
+    return movieList.stream().filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path)).collect(Collectors.toList());
   }
 
   /**
    * for each movie, re-evaluate all the paths against others, and set MMD correctly
    */
   public void reevaluateMMD() {
-    if (movieList == null || movieList.size() == 0) {
+    if (ListUtils.isEmpty(movieList)) {
       return;
     }
+
+    // build up lookup maps for a faster MMD comparison
+    Map<String, List<Movie>> moviePathMap = new HashMap<>();
+    for (Movie movie : movieList) {
+      String path = movie.getPathNIO().toAbsolutePath().toString();
+      List<Movie> moviesForPath = moviePathMap.computeIfAbsent(path, k -> new ArrayList<>());
+      moviesForPath.add(movie);
+    }
+
+    Map<String, List<Movie>> subMoviePathMap = new HashMap<>();
+    for (Movie movie : movieList) {
+      Path datasource = Paths.get(movie.getDataSource());
+
+      Path path = movie.getPathNIO().toAbsolutePath();
+      do {
+        List<Movie> moviesForPath = subMoviePathMap.computeIfAbsent(path.toString(), k -> new ArrayList<>());
+        moviesForPath.add(movie);
+
+        path = path.getParent();
+      } while (!path.equals(datasource));
+    }
+
     LOGGER.info("re-evaluating MMD for {} movies...", movieList.size());
     for (Movie movie : movieList) {
       boolean old = movie.isMultiMovieDir();
@@ -650,14 +670,14 @@ public final class MovieList extends AbstractModelObject {
       // movies/bla/blubb/blubb.mkv
       // both would be single (not MMD) file, although the parent MUST be a MMD!
       // so get all sub movies within path (some levels deeper)
-      List<Movie> subMovies = getSubMoviesByPath(movie.getPathNIO());
-      if (subMovies.size() > 0) {
+      List<Movie> subMovies = subMoviePathMap.get(movie.getPathNIO().toAbsolutePath().toString());
+      if (!subMovies.isEmpty()) {
         // there are some movies down the path - it MUST be treated as MMD
         movie.setMultiMovieDir(true);
       }
       else {
         // no sub movies, but some in exact same folder? (including myself)
-        List<Movie> samePath = getMoviesByPath(movie.getPathNIO());
+        List<Movie> samePath = moviePathMap.get(movie.getPathNIO().toAbsolutePath().toString());
         if (samePath.size() > 1) {
           movie.setMultiMovieDir(true);
         }

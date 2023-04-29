@@ -10,6 +10,7 @@ x (TV shows) fixed renaming of video extras #2145
 x fix extras detection for tvshows/episodes
 x (movie) fix renaming of stacked subtitles
 x fix renamer preview for extras
+x added a faster way to re-evaluate MMD on each update
 
 
 Version 4.3.10
