@@ -359,7 +359,7 @@
 		<dependency>
 			<groupId>org.tinymediamanager</groupId>
 			<artifactId>yt</artifactId>
-			<version>3.0.2-tmm3</version>
+			<version>3.0.2-tmm4</version>
 		</dependency>
 
 		<dependency>
