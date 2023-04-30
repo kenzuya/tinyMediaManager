@@ -88,7 +88,7 @@
         <animal-sniffer.version>1.17</animal-sniffer.version>
         <wagon-webdav-jackrabbit.version>3.0.0</wagon-webdav-jackrabbit.version>
         <okhttp.version>4.10.0</okhttp.version>
-        <slf4j.version>2.0.2</slf4j.version>
+        <slf4j.version>2.0.4</slf4j.version>
         <release.version>2.5.3</release.version>
         <jre.version>17.0.5</jre.version>
         <ffmpeg.version>5.1.1</ffmpeg.version>
