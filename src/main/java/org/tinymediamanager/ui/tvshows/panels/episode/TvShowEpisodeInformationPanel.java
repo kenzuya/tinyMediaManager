@@ -74,6 +74,7 @@ import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
@@ -200,8 +201,8 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     lblTraktTvId.addActionListener(arg0 -> {
       String url = "";
       // use EP id
-      String epId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTraktTvId();
-      if (!epId.isEmpty()) {
+      int epId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTraktTvId();
+      if (epId > 0) {
         url = "https://trakt.tv//search/trakt/" + epId + "?id_type=episode";
       }
       else {
@@ -582,10 +583,11 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, taNote, JTextPaneBeanProperty);
     autoBinding_14.bind();
     //
-    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");
+    BeanProperty<TvShowEpisodeSelectionModel, Integer> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");
     BeanProperty<LinkLabel, String> linkLabelBeanProperty_2 = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
+    AutoBinding<TvShowEpisodeSelectionModel, Integer, LinkLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_13, lblTraktTvId, linkLabelBeanProperty_2);
+    autoBinding_15.setConverter(new ZeroIdConverter());
     autoBinding_15.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShowEpisode.imdbId");

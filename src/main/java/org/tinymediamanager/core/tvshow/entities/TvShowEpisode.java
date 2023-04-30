@@ -615,8 +615,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    *
    * @return the Trakt ID
    */
-  public String getTraktTvId() {
-    return this.getIdAsString(TRAKT);
+  public int getTraktTvId() {
+    return this.getIdAsInt(TRAKT);
   }
 
   /**
