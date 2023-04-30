@@ -56,7 +56,7 @@ public class MediaRatingTable extends TmmEditorTable {
 
     setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat()));
 
-    setTableHeader(null);
+    // setTableHeader(null);
     adjustColumnPreferredWidths(3);
   }
 

@@ -270,7 +270,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(lblTitle, "cell 0 0,alignx right");
 
         tfTitle = new TmmObligatoryTextArea();
-        detailsPanel.add(tfTitle, "flowx,cell 1 0 4 1,growx");
+        detailsPanel.add(tfTitle, "flowx,cell 1 0 4 1,growx, wmin 0");
 
         final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
@@ -292,7 +292,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(lblOriginalTitleT, "cell 0 1,alignx trailing");
 
         tfOriginalTitle = new TmmRoundTextArea();
-        detailsPanel.add(tfOriginalTitle, "cell 1 1 4 1,growx");
+        detailsPanel.add(tfOriginalTitle, "cell 1 1 4 1,growx, wmin 0");
       }
       {
         JLabel lblEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
@@ -324,7 +324,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
           }
         };
         tableEpisodeNumbers.configureScrollPane(scrollPaneEpisodeNumbers);
-        detailsPanel.add(scrollPaneEpisodeNumbers, "cell 1 2 2 1,grow");
+        detailsPanel.add(scrollPaneEpisodeNumbers, "cell 1 2 3 1,grow");
 
         JButton btnAddEpisodeNumber = new SquareIconButton(new AddEpisodeNumberAction());
         detailsPanel.add(btnAddEpisodeNumber, "cell 0 2,alignx right");
@@ -408,7 +408,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(lblRatingsT, "flowy,cell 0 8,alignx right,aligny top");
 
         JScrollPane scrollPaneRatings = new JScrollPane();
-        detailsPanel.add(scrollPaneRatings, "cell 1 8 2 2,grow");
+        detailsPanel.add(scrollPaneRatings, "cell 1 8 3 2,grow");
 
         tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
@@ -1014,7 +1014,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         episodeNumbers.clear();
         for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
           MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
-          if (episodeNumber.isValid()) {
+          if (episodeNumber != null && episodeNumber.isValid()) {
             episodeNumbers.add(episodeNumber);
           }
         }
