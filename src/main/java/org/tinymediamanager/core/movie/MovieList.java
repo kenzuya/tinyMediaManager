@@ -657,8 +657,12 @@ public final class MovieList extends AbstractModelObject {
         List<Movie> moviesForPath = subMoviePathMap.computeIfAbsent(path.toString(), k -> new ArrayList<>());
         moviesForPath.add(movie);
 
+        if (path.equals(datasource)) {
+          break;
+        }
+
         path = path.getParent();
-      } while (!path.equals(datasource));
+      } while (path != null);
     }
 
     LOGGER.info("re-evaluating MMD for {} movies...", movieList.size());
@@ -671,8 +675,8 @@ public final class MovieList extends AbstractModelObject {
       // both would be single (not MMD) file, although the parent MUST be a MMD!
       // so get all sub movies within path (some levels deeper)
       List<Movie> subMovies = subMoviePathMap.get(movie.getPathNIO().toAbsolutePath().toString());
-      if (!subMovies.isEmpty()) {
-        // there are some movies down the path - it MUST be treated as MMD
+      if (subMovies.size() > 1) {
+        // there are some other movies down the path - it MUST be treated as MMD
         movie.setMultiMovieDir(true);
       }
       else {
