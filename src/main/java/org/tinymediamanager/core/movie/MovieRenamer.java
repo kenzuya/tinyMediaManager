@@ -1142,7 +1142,7 @@ public class MovieRenamer {
           if (!extraFanartNamings.isEmpty()) {
             MovieExtraFanartNaming fileNaming = extraFanartNamings.get(0);
 
-            String newExtraFanartFilename = MovieArtworkHelper.getArtworkFilename(movie, fileNaming, getArtworkExtension(mf));
+            String newExtraFanartFilename = fileNaming.getFilename(newFilename, getArtworkExtension(mf));
             if (StringUtils.isNotBlank(newExtraFanartFilename)) {
               // split the filename again and attach the counter
               String basename = FilenameUtils.getBaseName(newExtraFanartFilename);
