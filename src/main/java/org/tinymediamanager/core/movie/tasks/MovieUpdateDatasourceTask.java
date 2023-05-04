@@ -290,6 +290,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       List<Path> rootFiles = new ArrayList<>();
       for (Path path : rootList) {
         if (Files.isDirectory(path)) {
+          String name = path.getFileName().toString();
+          if (name.equalsIgnoreCase(MediaFileHelper.BDMV) || name.equalsIgnoreCase(MediaFileHelper.VIDEO_TS)
+              || name.equalsIgnoreCase(MediaFileHelper.HVDVD_TS)) {
+            // there cannot be a disc folder in root! Everything breaks...
+            MessageManager.instance.pushMessage(
+                new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.discfolderinroot", new String[] { path.toString() }));
+            continue;
+          }
           if (existingMovies.contains(path)) {
             existingMovieDirs.add(path);
           }
