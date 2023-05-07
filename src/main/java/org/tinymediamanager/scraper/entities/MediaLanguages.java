@@ -80,6 +80,7 @@ public enum MediaLanguages {
   la("Latin"),
   lv("Latviešu"),
   lt("Lietuvių"),
+  mk("македонски јазик"),
   ms("Bahasa melayu"),
   mt("Malti"),
   nb("Bokmål"),

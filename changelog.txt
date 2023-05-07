@@ -4,6 +4,7 @@ Version 4.3.11
 + (renamer) audioChannels in "dot" notation (6ch -> 5.1)
 + (bulk edit) remember last used tab when bulk editing
 + upgraded libmediainfo to 23.04
++ added Macedonian to the scraper languages #2170
 x (TMDB) enhanced loading of localized episode content (title, original title, plot) #2165
 x fixed trailer downloading
 x (Docker) force writing of window sizes/locations on shutdown #2091
