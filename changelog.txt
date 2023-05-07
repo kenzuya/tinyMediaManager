@@ -6,6 +6,7 @@ Version 4.3.11
 + upgraded libmediainfo to 23.04
 + added Macedonian to the scraper languages #2170
 x (TMDB) enhanced loading of localized episode content (title, original title, plot) #2165
+x fixed Kodi RPC mappings
 x fixed trailer downloading
 x (Docker) force writing of window sizes/locations on shutdown #2091
 x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
