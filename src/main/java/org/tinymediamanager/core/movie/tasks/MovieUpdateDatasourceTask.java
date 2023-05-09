@@ -1766,35 +1766,44 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     private final Set<Path> fFound = new HashSet<>();
 
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incVisFile();
 
       if (file.getFileName() == null) {
         return CONTINUE;
       }
 
-      String filename = file.getFileName().toString();
-      String path = "";
-      if (file.getParent() != null && file.getParent().getFileName() != null) {
-        path = file.getParent().getFileName().toString();
-      }
-
-      // in a disc folder we only accept NFO files
-      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
-        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
-          fFound.add(file.toAbsolutePath());
+      try {
+        String filename = file.getFileName().toString();
+        String path = "";
+        if (file.getParent() != null && file.getParent().getFileName() != null) {
+          path = file.getParent().getFileName().toString();
         }
-        return CONTINUE;
-      }
 
-      // check if we're in dirty disc folder
-      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
-      }
+        // in a disc folder we only accept NFO files
+        if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+          if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+            fFound.add(file.toAbsolutePath());
+          }
+          return CONTINUE;
+        }
 
-      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
+        // check if we're in dirty disc folder
+        if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+
+        if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze file '{}' - '{}'", file.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;
@@ -1802,22 +1811,32 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPreDir();
-      // getFilename returns null on DS root!
-      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
-        LOGGER.debug("Skipping dir: {}", dir);
-        return SKIP_SUBTREE;
-      }
 
-      // add the disc folder itself (clean disc folder)
-      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        fFound.add(dir.toAbsolutePath());
-        return CONTINUE;
-      }
+      try {
+        // getFilename returns null on DS root!
+        if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
+          LOGGER.debug("Skipping dir: {}", dir);
+          return SKIP_SUBTREE;
+        }
 
-      // don't go below a disc folder
-      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        return SKIP_SUBTREE;
+        // add the disc folder itself (clean disc folder)
+        if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          fFound.add(dir.toAbsolutePath());
+          return CONTINUE;
+        }
+
+        // don't go below a disc folder
+        if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          return SKIP_SUBTREE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze folder '{}' - '{}'", dir.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;
@@ -1825,7 +1844,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+      if (cancel) {
+        return TERMINATE;
+      }
+
       incPostDir();
+
       return CONTINUE;
     }
   }
@@ -1873,19 +1897,25 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       visited.add(file);
 
-      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
-        // check for video?
-        if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
-          // check if file is a VIDEO type - only scan those folders (and not extras/trailer folders)!
-          MediaFile mf = new MediaFile(file);
-          if (mf.getType() == MediaFileType.VIDEO) {
-            videofolders.add(file.getParent());
-          }
-          else {
-            LOGGER.debug("no VIDEO (is {}) - do not parse {}", mf.getType(), file);
+      try {
+        if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
+          // check for video?
+          if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
+            // check if file is a VIDEO type - only scan those folders (and not extras/trailer folders)!
+            MediaFile mf = new MediaFile(file);
+            if (mf.getType() == MediaFileType.VIDEO) {
+              videofolders.add(file.getParent());
+            }
+            else {
+              LOGGER.debug("no VIDEO (is {}) - do not parse {}", mf.getType(), file);
+            }
           }
         }
       }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze file '{}' - '{}'", file.toAbsolutePath(), e.getMessage());
+      }
+
       return CONTINUE;
     }
 
@@ -1911,9 +1941,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       visited.add(dir);
 
-      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
-        LOGGER.debug("Skipping dir: {}", dir);
-        return SKIP_SUBTREE;
+      try {
+        if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
+          LOGGER.debug("Skipping dir: {}", dir);
+          return SKIP_SUBTREE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze folder '{}' - '{}'", dir.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;
