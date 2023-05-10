@@ -44,6 +44,7 @@ import static org.tinymediamanager.core.Constants.TV_SHOW;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -323,7 +324,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     artworkUrlMap.putAll(source.artworkUrlMap);
 
     dateAdded = new Date(source.dateAdded.getTime());
-    scraped = source.scraped;
     ids.putAll(source.ids);
     mediaSource = source.mediaSource;
 
@@ -857,9 +857,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
-
-    // set scraped
-    setScraped(true);
 
     // update DB
     writeNFO();
@@ -1404,21 +1401,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
   }
 
-  /**
-   * checks if this TV show has been scraped.<br>
-   * On a fresh DB, just reading local files, everything is again "unscraped". <br>
-   * detect minimum of filled values as "scraped"
-   * 
-   * @return isScraped
-   */
   @Override
-  public boolean isScraped() {
-    if (!scraped) {
-      if (StringUtils.isNotBlank(plot) && firstAired != null && getSeason() > -1 && getEpisode() > -1) {
-        return true;
-      }
-    }
-    return scraped;
+  protected float calculateScrapeScore() {
+    float score = super.calculateScrapeScore();
+
+    // some fields count multiple times to reach the threshold
+    score = score + returnOneWhenFilled(plot);
+    score = score + returnOneWhenFilled(originalTitle);
+    score = score + returnOneWhenFilled(ratings);
+
+    score = score + 2 * returnOneWhenFilled(firstAired);
+    score = score + 2 * returnOneWhenFilled(actors);
+    score = score + returnOneWhenFilled(directors);
+    score = score + returnOneWhenFilled(writers);
+    score = score + returnOneWhenFilled(artworkUrlMap);
+
+    return score;
   }
 
   /**

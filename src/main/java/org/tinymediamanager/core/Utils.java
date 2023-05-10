@@ -2212,4 +2212,79 @@ public class Utils {
     }
     return filename;
   }
+
+  /**
+   * handy method to return 1 when the value is filled
+   * 
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   * 
+   */
+  public static int returnOneWhenFilled(String value) {
+    if (StringUtils.isNotBlank(value)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   * 
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(int value) {
+    if (value > 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Date value) {
+    if (value != null && value.getTime() > 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Collection<?> value) {
+    if (value != null && !value.isEmpty()) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Map<?, ?> value) {
+    if (value != null && !value.isEmpty()) {
+      return 1;
+    }
+    return 0;
+  }
 }

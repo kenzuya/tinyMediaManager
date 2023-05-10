@@ -604,9 +604,6 @@ public class MovieSet extends MediaEntity {
     // setRatings(newRatings);
     // }
 
-    // set scraped
-    setScraped(true);
-
     // update DB
     writeNFO();
     saveToDb();

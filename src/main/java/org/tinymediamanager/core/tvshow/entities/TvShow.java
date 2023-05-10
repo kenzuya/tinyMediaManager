@@ -42,6 +42,7 @@ import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TRAILER;
 import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
@@ -1077,9 +1078,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         }
       }
     }
-
-    // set scraped
-    setScraped(true);
 
     // update DB
     writeNFO();
@@ -2211,21 +2209,28 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return false;
   }
 
-  /**
-   * checks if this TV show has been scraped.<br>
-   * On a fresh DB, just reading local files, everything is again "unscraped". <br>
-   * detect minimum of filled values as "scraped"
-   *
-   * @return isScraped
-   */
   @Override
-  public boolean isScraped() {
-    if (!scraped) {
-      if (StringUtils.isNotBlank(plot) && year > 0 && ListUtils.isNotEmpty(genres) && ListUtils.isNotEmpty(actors)) {
-        return true;
-      }
+  protected float calculateScrapeScore() {
+    float score = super.calculateScrapeScore();
+
+    score = score + returnOneWhenFilled(runtime);
+    score = score + returnOneWhenFilled(firstAired);
+    if (status != MediaAiredStatus.UNKNOWN) {
+      score = score + 1;
     }
-    return scraped;
+    if (certification != MediaCertification.UNKNOWN) {
+      score = score + 1;
+    }
+    score = score + returnOneWhenFilled(country);
+    score = score + returnOneWhenFilled(seasonPosterUrlMap);
+    score = score + returnOneWhenFilled(seasonBannerUrlMap);
+    score = score + returnOneWhenFilled(seasonThumbUrlMap);
+    score = score + returnOneWhenFilled(seasonTitleMap);
+    score = score + returnOneWhenFilled(extraFanartUrls);
+    score = score + returnOneWhenFilled(actors);
+    score = score + returnOneWhenFilled(trailer);
+
+    return score;
   }
 
   /**
