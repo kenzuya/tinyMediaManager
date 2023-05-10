@@ -889,8 +889,17 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
   }
 
   private void injectEpisodeTranslations(TvShowSearchAndScrapeOptions options, int showId, int counter, SeriesEpisodesRecord seriesEpisodesRecord) {
-    // remove all texts
+
+    Map<EpisodeBaseRecord, String> titleMap = new HashMap<>();
+    Map<EpisodeBaseRecord, String> originalTitleMap = new HashMap<>();
+
+    // store original titles & remove all texts
     for (EpisodeBaseRecord toInject : ListUtils.nullSafe(seriesEpisodesRecord.episodes)) {
+      // store for fallback
+      titleMap.put(toInject, toInject.name);
+      originalTitleMap.put(toInject, toInject.originalName);
+
+      // remove
       toInject.originalName = null;
       toInject.name = null;
       toInject.overview = null;
@@ -967,6 +976,25 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       }
       catch (Exception e) {
         LOGGER.debug("Could not get episode translations - '{}'  ", e.getMessage());
+      }
+    }
+
+    // last but not least - make sure that no empty title is offered. We just re-insert the original value from the scraper
+    for (EpisodeBaseRecord toInject : ListUtils.nullSafe(seriesEpisodesRecord.episodes)) {
+      if (StringUtils.isBlank(toInject.name)) {
+        toInject.name = titleMap.get(toInject);
+      }
+      if (StringUtils.isBlank(toInject.name)) {
+        // still empty? we never got anything from TVDB, so add the same fallback as in TMDB
+        toInject.name = "Episode " + toInject.episodeNumber;
+      }
+
+      if (StringUtils.isBlank(toInject.originalName)) {
+        toInject.originalName = originalTitleMap.get(toInject);
+      }
+      if (StringUtils.isBlank(toInject.originalName)) {
+        // still empty? we never got anything from TVDB, so add the same fallback as in TMDB
+        toInject.originalName = "Episode " + toInject.episodeNumber;
       }
     }
   }

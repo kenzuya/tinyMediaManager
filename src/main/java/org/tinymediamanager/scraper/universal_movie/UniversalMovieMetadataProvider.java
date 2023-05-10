@@ -336,7 +336,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         }
       }
       catch (Exception e) {
-        LOGGER.warn("Could not get a result from scraper: {}", e.getMessage());
+        LOGGER.debug("Could not get a result from scraper: {}", e.getMessage());
       }
     }
     return metadataMap;

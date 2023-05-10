@@ -134,11 +134,25 @@ public interface IMediaInformation {
   String getMediaInfoAudioChannels();
 
   /**
+   * gets the audio channels (e.g, 5.1 for 6 channels) from the main audio stream
+   * 
+   * @return audio channels in dot notation
+   */
+  String getMediaInfoAudioChannelsDot();
+
+  /**
    * gets the audio channels (e.g, 6 at 5.1 sound) from all audio streams as List
    *
    * @return the audio channels from all streams with a trailing ch as List
    */
   List<String> getMediaInfoAudioChannelList();
+
+  /**
+   * gets the audio channels (e.g, 5.1 for 6 channels) from all audio streams as List
+   *
+   * @return the audio channels from all streams in dot notation as List
+   */
+  List<String> getMediaInfoAudioChannelDotList();
 
   /**
    * gets the audio language (e.g, de) from the main audio stream

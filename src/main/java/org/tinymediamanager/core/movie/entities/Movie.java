@@ -77,6 +77,7 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
@@ -1799,7 +1800,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     // image files
     List<MediaFile> filesToCache = new ArrayList<>();
     for (MediaFile mf : getMediaFiles()) {
-      if (mf.isGraphic()) {
+      if (mf.isGraphic() && !ImageCache.isImageCached(mf.getFileAsPath())) {
         filesToCache.add(mf);
       }
     }
@@ -1810,7 +1811,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
     // Better get a listing of existent actor images directly!
     if (MovieModuleManager.getInstance().getSettings().isWriteActorImages() && !isMultiMovieDir()) {
       // and only for normal movies - MMD should not have .actors folder!
-      filesToCache.addAll(listActorFiles());
+      for (MediaFile mf : listActorFiles()) {
+        if (mf.isGraphic() && !ImageCache.isImageCached(mf.getFileAsPath())) {
+          filesToCache.add(mf);
+        }
+      }
     } // check against actors and trigger a download? - NO, only via scrape/missingImagesTask
 
     return filesToCache;
@@ -2562,6 +2567,22 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
       lang.addAll(mf.getAudioChannelsList());
+    }
+    return lang;
+  }
+
+  @Override
+  public String getMediaInfoAudioChannelsDot() {
+    return getMainVideoFile().getAudioChannelsDot();
+  }
+
+  @Override
+  public List<String> getMediaInfoAudioChannelDotList() {
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsDotList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsDotList());
     }
     return lang;
   }

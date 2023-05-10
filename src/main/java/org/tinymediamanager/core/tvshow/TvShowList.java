@@ -99,6 +99,7 @@ public final class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             videoCodecsInEpisodes;
   private final CopyOnWriteArrayList<String>             videoContainersInEpisodes;
   private final CopyOnWriteArrayList<String>             audioCodecsInEpisodes;
+  private final CopyOnWriteArrayList<Integer>            audioChannelsInEpisodes;
   private final CopyOnWriteArrayList<Double>             frameRatesInEpisodes;
   private final CopyOnWriteArrayList<MediaCertification> certificationsInTvShows;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInEpisodes;
@@ -122,6 +123,7 @@ public final class TvShowList extends AbstractModelObject {
     videoCodecsInEpisodes = new CopyOnWriteArrayList<>();
     videoContainersInEpisodes = new CopyOnWriteArrayList<>();
     audioCodecsInEpisodes = new CopyOnWriteArrayList<>();
+    audioChannelsInEpisodes = new CopyOnWriteArrayList<>();
     frameRatesInEpisodes = new CopyOnWriteArrayList<>();
     certificationsInTvShows = new CopyOnWriteArrayList<>();
     audioStreamsInEpisodes = new CopyOnWriteArrayList<>();
@@ -903,6 +905,7 @@ public final class TvShowList extends AbstractModelObject {
     Set<Double> frameRates = new HashSet<>();
     Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioChannels = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
     Set<Integer> subtitleStreamCount = new HashSet<>();
@@ -932,11 +935,12 @@ public final class TvShowList extends AbstractModelObject {
           videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
-        // audio codec
+        // audio codec+channels
         for (MediaFileAudioStream audio : mf.getAudioStreams()) {
           if (StringUtils.isNotBlank(audio.getCodec())) {
             audioCodecs.add(audio.getCodec());
           }
+          audioChannels.add(audio.getAudioChannels());
         }
 
         if (first) {
@@ -1000,6 +1004,11 @@ public final class TvShowList extends AbstractModelObject {
       firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInEpisodes);
     }
 
+    // audio channels
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioChannelsInEpisodes, audioChannels)) {
+      firePropertyChange(Constants.AUDIO_CHANNEL, null, audioChannelsInEpisodes);
+    }
+
     // audio streams
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioStreamsInEpisodes, audioStreamCount)) {
       firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInEpisodes);
@@ -1045,6 +1054,10 @@ public final class TvShowList extends AbstractModelObject {
 
   public Collection<String> getAudioCodecsInEpisodes() {
     return Collections.unmodifiableList(audioCodecsInEpisodes);
+  }
+
+  public Collection<Integer> getAudioChannelsInEpisodes() {
+    return Collections.unmodifiableList(audioChannelsInEpisodes);
   }
 
   public Collection<MediaCertification> getCertification() {

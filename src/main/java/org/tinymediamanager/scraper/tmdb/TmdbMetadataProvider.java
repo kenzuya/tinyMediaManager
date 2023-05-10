@@ -44,10 +44,12 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   // Use primary translations, not just our internal MediaLanguages (we need the country!)
   // https://api.themoviedb.org/3/configuration/primary_translations?api_key=XXXX
   // And keep on duplicate languages the main country on first position!
-  protected static final String[] PT = new String[] { "ar-AE", "ar-SA", "be-BY", "bg-BG", "bn-BD", "ca-ES", "ch-GU", "cs-CZ", "da-DK", "de-DE",
-      "el-GR", "en-US", "en-AU", "en-CA", "en-GB", "eo-EO", "es-ES", "es-MX", "eu-ES", "fr-FR", "fa-IR", "fi-FI", "fr-CA", "gl-ES", "he-IL", "hi-IN",
-      "hu-HU", "id-ID", "it-IT", "ja-JP", "ka-GE", "kn-IN", "ko-KR", "lt-LT", "ml-IN", "nb-NO", "nl-NL", "no-NO", "pl-PL", "pt-BR", "pt-PT", "ro-RO",
-      "ru-RU", "si-LK", "sk-SK", "sl-SI", "sr-RS", "sv-SE", "ta-IN", "te-IN", "th-TH", "tr-TR", "uk-UA", "vi-VN", "zh-CN", "zh-HK", "zh-TW" };
+  protected static final String[] PT = new String[] { "af-ZA", "ar-AE", "ar-SA", "be-BY", "bg-BG", "bn-BD", "ca-ES", "ch-GU", "cn-CN", "cs-CZ",
+      "cy-GB", "da-DK", "de-AT", "de-CH", "de-DE", "el-GR", "en-AU", "en-CA", "en-GB", "en-IE", "en-NZ", "en-US", "eo-EO", "es-ES", "es-MX", "et-EE",
+      "eu-ES", "fa-IR", "fi-FI", "fr-CA", "fr-FR", "ga-IE", "gd-GB", "gl-ES", "he-IL", "hi-IN", "hr-HR", "hu-HU", "id-ID", "it-IT", "ja-JP", "ka-GE",
+      "kk-KZ", "kn-IN", "ko-KR", "ky-KG", "lt-LT", "lv-LV", "ml-IN", "mr-IN", "ms-MY", "ms-SG", "nb-NO", "nl-BE", "nl-NL", "no-NO", "pa-IN", "pl-PL",
+      "pt-BR", "pt-PT", "ro-RO", "ru-RU", "si-LK", "sk-SK", "sl-SI", "sq-AL", "sr-RS", "sv-SE", "ta-IN", "te-IN", "th-TH", "tl-PH", "tr-TR", "uk-UA",
+      "vi-VN", "zh-CN", "zh-HK", "zh-SG", "zh-TW", "zu-ZA" };
 
   private final MediaProviderInfo providerInfo;
 

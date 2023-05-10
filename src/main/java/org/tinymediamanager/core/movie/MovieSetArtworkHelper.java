@@ -914,7 +914,14 @@ public class MovieSetArtworkHelper {
           }
 
           // and then write it to the desired files
+          List<MediaFile> oldMediaFiles = movieSet.getMediaFiles(type);
           movieSet.removeAllMediaFiles(type);
+
+          // downloading worked (no exception) - so let's remove all old artworks
+          for (MediaFile mediaFile : oldMediaFiles) {
+            ImageCache.invalidateCachedImage(mediaFile.getFile());
+            Utils.deleteFileSafely(mediaFile.getFile());
+          }
 
           if (!fileNamings.isEmpty()) {
             writeImageToArtworkFolder(bytes, extension);

@@ -29,6 +29,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
+import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
@@ -121,6 +122,9 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbArtworkProvider impleme
       catch (MissingIdException e) {
         // no valid ID given - just do nothing
         return Collections.emptyList();
+      }
+      catch (NothingFoundException e) {
+        throw e;
       }
       catch (Exception e) {
         throw new ScrapeException(e);

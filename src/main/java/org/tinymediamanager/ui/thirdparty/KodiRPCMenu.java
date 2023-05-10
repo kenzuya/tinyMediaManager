@@ -19,6 +19,7 @@ package org.tinymediamanager.ui.thirdparty;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.swing.JMenu;
@@ -29,7 +30,6 @@ import javax.swing.event.MenuListener;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.thirdparty.KodiRPC;
-import org.tinymediamanager.thirdparty.SplitUri;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.movies.actions.MovieKodiGetWatchedAction;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
@@ -395,15 +395,12 @@ public class KodiRPCMenu {
     m.add(i);
     if (!KodiRPC.getInstance().getVideoDataSources().isEmpty()) {
       i.setEnabled(true);
-      for (SplitUri ds : KodiRPC.getInstance().getVideoDataSources()) {
-        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")", IconManager.REFRESH);
-        if ("UPNP".equals(ds.type)) {
-          // cannot "scan" UPNP - always directly fetched and not in library
+      for (Map.Entry<String, String> ds : KodiRPC.getInstance().getVideoDataSources().entrySet()) {
+        if (ds.getKey().startsWith("upnp") || ds.getKey().startsWith("addons")) {
           continue;
         }
-        else {
-          i.addActionListener(event -> KodiRPC.getInstance().scanVideoLibrary(ds.file));
-        }
+        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " (" + ds.getValue() + ")", IconManager.REFRESH);
+        i.addActionListener(event -> KodiRPC.getInstance().scanVideoLibrary(ds.getKey()));
         m.add(i);
       }
     }
@@ -429,15 +426,12 @@ public class KodiRPCMenu {
 
     if (!KodiRPC.getInstance().getAudioDataSources().isEmpty()) {
       i.setEnabled(true);
-      for (SplitUri ds : KodiRPC.getInstance().getAudioDataSources()) {
-        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")", IconManager.REFRESH);
-        if ("UPNP".equals(ds.type)) {
-          // cannot "scan" UPNP - always directly fetched and not in library
+      for (String ds : KodiRPC.getInstance().getAudioDataSources()) {
+        if (ds.startsWith("upnp") || ds.startsWith("addons")) {
           continue;
         }
-        else {
-          i.addActionListener(event -> KodiRPC.getInstance().scanAudioLibrary(ds.file));
-        }
+        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds, IconManager.REFRESH);
+        i.addActionListener(event -> KodiRPC.getInstance().scanAudioLibrary(ds));
         m.add(i);
       }
     }

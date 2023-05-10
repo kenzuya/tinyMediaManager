@@ -144,24 +144,33 @@ public class TmmOsUtils {
     String nativepath = getNativeFolderName();
     Path tmmNativeDir = Paths.get(nativepath).toAbsolutePath();
 
-    try {
-      // copy and load the native libs to the temp dir to avoid unforseeable issues
-      Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
-      Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
-      Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
+    boolean loaded = false;
 
-      if (Files.exists(nativeDir) && !Utils.isFolderEmpty(nativeDir)) {
-        System.setProperty("jna.library.path", nativeDir.toString());
-        LOGGER.debug("Loading native libs from: {}", nativeDir);
+    // copy and load the native libs to the temp dir to avoid unforseeable issues - Windows only
+    if (SystemUtils.IS_OS_WINDOWS) {
+      try {
+        Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
+        Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
+        Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
+
+        if (Files.exists(nativeDir) && !Utils.isFolderEmpty(nativeDir)) {
+          System.setProperty("jna.library.path", nativeDir.toString());
+          LOGGER.debug("Loading native libs from: {}", nativeDir);
+        }
+        else {
+          // to enter the fallback
+          throw new FileNotFoundException(nativeDir.toString());
+        }
+
+        loaded = true;
       }
-      else {
-        // to enter the fallback
-        throw new FileNotFoundException(nativeDir.toString());
+      catch (Exception e) {
+        // not possible somehow -> load directly from tmm folder
+        LOGGER.info("could not copy native libs to the temp folder -> try to load from install dir");
       }
     }
-    catch (Exception e) {
-      // not possible somehow -> load directly from tmm folder
-      LOGGER.info("could not copy native libs to the temp folder -> try to load from install dir");
+
+    if (!loaded) {
       System.setProperty("jna.library.path", tmmNativeDir.toString());
       LOGGER.debug("Loading native libs from: {}", tmmNativeDir);
     }

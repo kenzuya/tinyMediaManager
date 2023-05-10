@@ -215,6 +215,21 @@ public class MediaFileHelper {
     return videoFormats;
   }
 
+  /**
+   * converts audion channels to "dot" notation (6 -> 5.1)
+   * 
+   * @param channels
+   * @return
+   */
+  public static String audioChannelInDotNotation(int channels) {
+    if (channels < 6) {
+      return channels + ".0";
+    }
+    else {
+      return channels - 1 + ".1";
+    }
+  }
+
   private static Path detectDatasource(Path file) {
     for (String ds : Utils.getAllDatasources()) {
       if (file.toAbsolutePath().startsWith(ds)) {
@@ -280,7 +295,7 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)$") // Plex (w/o trailer)
+        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)\\d?$") // Plex (w/o trailer)
         || EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;

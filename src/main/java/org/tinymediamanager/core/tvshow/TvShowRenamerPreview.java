@@ -143,15 +143,12 @@ public class TvShowRenamerPreview {
         }
       }
       else {
-        // video (is the new base)
-        MediaFile newVideoFile = TvShowRenamer.generateEpisodeFilenames(tvShow, mainVideoFile, mainVideoFile).get(0);
-
         for (MediaFile mf : episode.getMediaFiles()) {
           MediaFile oldMf = new MediaFile(mf);
           oldMf.replacePathForRenamedFolder(container.oldPath, container.newPath); // already replace the path for an easy .contains() check
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
 
-          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(tvShow, mf, newVideoFile));
+          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(tvShow, mf, mainVideoFile));
         }
       }
     }

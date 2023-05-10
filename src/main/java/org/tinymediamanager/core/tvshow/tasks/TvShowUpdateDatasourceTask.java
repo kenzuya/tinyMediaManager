@@ -97,7 +97,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String>    SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
-      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
   private static final String          SKIP_REGEX    = "^[.][\\w@]+.*";
@@ -533,7 +533,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // check, if some episode MFs are assigned also to tvshows...!
       List<MediaFile> episodeFiles = tvShow.getEpisodesMediaFiles();
-      List<MediaFile> cleanup = new ArrayList<MediaFile>();
+      List<MediaFile> cleanup = new ArrayList<>();
       for (MediaFile showFile : tvShow.getMediaFiles()) {
         if (episodeFiles.contains(showFile)) {
           cleanup.add(showFile);
@@ -1425,29 +1425,35 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return CONTINUE;
       }
 
-      String filename = file.getFileName().toString();
-      String path = "";
-      if (file.getParent() != null && file.getParent().getFileName() != null) {
-        path = file.getParent().getFileName().toString();
-      }
+      try {
 
-      // in a disc folder we only accept NFO files
-      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
-        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
-          fFound.add(file.toAbsolutePath());
+        String filename = file.getFileName().toString();
+        String path = "";
+        if (file.getParent() != null && file.getParent().getFileName() != null) {
+          path = file.getParent().getFileName().toString();
         }
-        return CONTINUE;
-      }
 
-      // check if we're in dirty disc folder
-      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
-      }
+        // in a disc folder we only accept NFO files
+        if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+          if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+            fFound.add(file.toAbsolutePath());
+          }
+          return CONTINUE;
+        }
 
-      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
+        // check if we're in dirty disc folder
+        if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+
+        if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze file '{}' - '{}'", file.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;
@@ -1461,21 +1467,26 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       incPreDir();
 
-      // getFilename returns null on DS root!
-      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
-        LOGGER.debug("Skipping dir: {}", dir);
-        return SKIP_SUBTREE;
-      }
+      try {
+        // getFilename returns null on DS root!
+        if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
+          LOGGER.debug("Skipping dir: {}", dir);
+          return SKIP_SUBTREE;
+        }
 
-      // add the disc folder itself (clean disc folder)
-      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        fFound.add(dir.toAbsolutePath());
-        return CONTINUE;
-      }
+        // add the disc folder itself (clean disc folder)
+        if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          fFound.add(dir.toAbsolutePath());
+          return CONTINUE;
+        }
 
-      // don't go below a disc folder
-      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        return SKIP_SUBTREE;
+        // don't go below a disc folder
+        if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          return SKIP_SUBTREE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze folder '{}' - '{}'", dir.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;

@@ -80,6 +80,7 @@ public enum MediaLanguages {
   la("Latin"),
   lv("Latviešu"),
   lt("Lietuvių"),
+  mk("македонски јазик"),
   ms("Bahasa melayu"),
   mt("Malti"),
   nb("Bokmål"),
@@ -115,6 +116,7 @@ public enum MediaLanguages {
   zh("中文"),
   zh_CN("大陆简体"),
   zh_HK("香港繁體"),
+  zh_SG("新加坡简体"),
   zh_TW("臺灣繁體"),
   zu("isiZulu"),
   none("-");

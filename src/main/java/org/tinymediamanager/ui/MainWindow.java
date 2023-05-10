@@ -259,20 +259,7 @@ public class MainWindow extends JFrame {
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
 
-      for (Window window : Window.getWindows()) {
-        if (window instanceof JDialog) {
-          JDialog dialog = (JDialog) window;
-          if (dialog.isVisible()) {
-            TmmUILayoutStore.getInstance().saveSettings(dialog);
-          }
-        }
-        else if (window instanceof JFrame) {
-          JFrame frame = (JFrame) window;
-          if (frame.isVisible()) {
-            TmmUILayoutStore.getInstance().saveSettings(frame);
-          }
-        }
-      }
+      saveWindowLayout();
 
       TinyMediaManager.shutdown();
       dispose();
@@ -303,5 +290,22 @@ public class MainWindow extends JFrame {
 
   public void createLightbox(String pathToFile, String urlToFile) {
     LightBox.showLightBox(instance, pathToFile, urlToFile);
+  }
+
+  public void saveWindowLayout() {
+    for (Window window : Window.getWindows()) {
+      if (window instanceof JDialog) {
+        JDialog dialog = (JDialog) window;
+        if (dialog.isVisible()) {
+          TmmUILayoutStore.getInstance().saveSettings(dialog);
+        }
+      }
+      else if (window instanceof JFrame) {
+        JFrame frame = (JFrame) window;
+        if (frame.isVisible()) {
+          TmmUILayoutStore.getInstance().saveSettings(frame);
+        }
+      }
+    }
   }
 }

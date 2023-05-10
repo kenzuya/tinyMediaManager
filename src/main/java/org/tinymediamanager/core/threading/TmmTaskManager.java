@@ -337,8 +337,10 @@ public class TmmTaskManager implements TmmTaskListener {
    * @return true if a running thread's name contains given String
    */
   private boolean checkForThreadAlive(String contains) {
+    // ignore local thread
+    Thread local = Thread.currentThread();
     for (Thread t : getAllThreads()) {
-      if (t.isAlive() && getThreadName(t).contains(contains)) {
+      if (t != local && t.isAlive() && getThreadName(t).contains(contains)) {
         return true;
       }
     }

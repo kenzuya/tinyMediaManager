@@ -967,6 +967,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return channels;
   }
 
+  /**
+   * gets the audio channels in dot notation
+   *
+   * @return the audio channels x.y
+   */
+  public String getAudioChannelsDot() {
+    String channels = "";
+
+    // get audio stream with highest channel count
+    MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+    if (highestStream != null) {
+      channels = MediaFileHelper.audioChannelInDotNotation(highestStream.getAudioChannels());
+    }
+
+    return channels;
+  }
+
   public int getAudioChannelCount() {
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
 
@@ -981,6 +998,15 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
       audioChannels.add(stream.getAudioChannels() + "ch");
+    }
+    return audioChannels;
+  }
+
+  public List<String> getAudioChannelsDotList() {
+    List<String> audioChannels = new ArrayList<>();
+
+    for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
+      audioChannels.add(MediaFileHelper.audioChannelInDotNotation(stream.getAudioChannels()));
     }
     return audioChannels;
   }

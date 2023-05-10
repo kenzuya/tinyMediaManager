@@ -36,10 +36,11 @@ import org.tinymediamanager.core.movie.entities.Movie;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES = 90;
-  private static final int NUMBER_OF_STACKED_MOVIES  = 14;
-  private static final int NUMBER_OF_DISC_MOVIES     = 8;
-  private static final int NUMBER_OF_MOVIES_IN_MMD   = 45;
+  private static final int NUMBER_OF_EXPECTED_MOVIES     = 89;
+  private static final int NUMBER_OF_STACKED_MOVIES      = 14;
+  private static final int NUMBER_OF_DISC_MOVIES         = 7;
+  private static final int NUMBER_OF_MOVIES_IN_MMD       = 45;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 208;
 
   @Before
   public void setup() throws Exception {
@@ -82,6 +83,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
     int stack = 0;
     int disc = 0;
     int mmd = 0;
+    int mfCnt = 0;
     List<Movie> movies = MovieModuleManager.getInstance().getMovieList().getMovies();
     movies.sort(new MovieComparator());
     for (Movie m : movies) {
@@ -96,12 +98,14 @@ public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
       if (m.isMultiMovieDir()) {
         mmd++;
       }
+      mfCnt += m.getMediaFiles().size();
     }
 
     assertEqual("Amount of movies does not match!", NUMBER_OF_EXPECTED_MOVIES, MovieModuleManager.getInstance().getMovieList().getMovieCount());
     assertEqual("Amount of stacked movies does not match!", NUMBER_OF_STACKED_MOVIES, stack);
     assertEqual("Amount of disc folders does not match!", NUMBER_OF_DISC_MOVIES, disc);
     assertEqual("Amount of movies in multimoviedirs does not match!", NUMBER_OF_MOVIES_IN_MMD, mmd);
+    assertEqual("Amount of mediafiles does not match!", NUMBER_OF_EXPECTED_MEDIAFILES, mfCnt);
   }
 
   public static String rpad(Object s, int n) {

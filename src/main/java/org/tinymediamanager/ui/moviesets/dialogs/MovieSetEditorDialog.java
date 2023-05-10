@@ -100,6 +100,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private static final String      SPACER              = "        ";
 
   private final MovieList          movieList           = MovieModuleManager.getInstance().getMovieList();
+  private final JTabbedPane        tabbedPane          = new TmmTabbedPane();
   private final MovieSet           movieSetToEdit;
   private final List<Movie>        moviesInSet         = ObservableCollections.observableList(new ArrayList<>());
   private final List<Movie>        removedMovies       = new ArrayList<>();
@@ -145,7 +146,7 @@ public class MovieSetEditorDialog extends TmmDialog {
    * @param queueSize
    *          the queue size
    */
-  public MovieSetEditorDialog(MovieSet movieSet, int queueIndex, int queueSize) {
+  public MovieSetEditorDialog(MovieSet movieSet, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("movieset.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieSetEditor");
 
     movieSetToEdit = movieSet;
@@ -154,14 +155,12 @@ public class MovieSetEditorDialog extends TmmDialog {
     this.queueSize = queueSize;
 
     {
-      JTabbedPane tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       JPanel panelContent = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelContent);
-      panelContent
-          .setLayout(new MigLayout("", "[][400lp,grow][150lp:200lp,grow 50]",
-              "[][][100lp:25%:25%,grow][50lp:50lp:100lp,grow 50][20lp:n][pref!][][50lp:20%:30%,grow]"));
+      panelContent.setLayout(new MigLayout("", "[][400lp,grow][150lp:200lp,grow 50]",
+          "[][][100lp:25%:25%,grow][50lp:50lp:100lp,grow 50][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
       JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
@@ -601,6 +600,17 @@ public class MovieSetEditorDialog extends TmmDialog {
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(85);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setResizable(false);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setHeaderValue(TmmResourceBundle.getString("metatag.watched"));
+
+    tabbedPane.setSelectedIndex(selectedTab);
+  }
+
+  /**
+   * Returns the tab number
+   * 
+   * @return 0-X
+   */
+  public int getSelectedTab() {
+    return tabbedPane.getSelectedIndex();
   }
 
   private Map<String, Object> extractIds() {

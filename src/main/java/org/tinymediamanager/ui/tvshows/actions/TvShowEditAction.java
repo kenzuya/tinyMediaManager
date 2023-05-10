@@ -78,6 +78,9 @@ public class TvShowEditAction extends TmmAction {
 
     int selectedCount = selectedObjectWoLocked.size();
     int index = 0;
+    int selectedShowTab = 0;
+    int selectedSeasonTab = 0;
+    int selectedEpisodeTab = 0;
 
     do {
       Object obj = selectedObjectWoLocked.get(index);
@@ -85,8 +88,9 @@ public class TvShowEditAction extends TmmAction {
       // display tv show editor
       if (obj instanceof TvShow) {
         TvShow tvShow = (TvShow) obj;
-        TvShowEditorDialog editor = new TvShowEditorDialog(tvShow, index, selectedCount);
+        TvShowEditorDialog editor = new TvShowEditorDialog(tvShow, index, selectedCount, selectedShowTab);
         editor.setVisible(true);
+        selectedShowTab = editor.getSelectedTab();
         if (!editor.isContinueQueue()) {
           break;
         }
@@ -102,8 +106,9 @@ public class TvShowEditAction extends TmmAction {
       // change season poster
       if (obj instanceof TvShowSeason) {
         TvShowSeason season = (TvShowSeason) obj;
-        TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount);
+        TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount, selectedSeasonTab);
         editor.setVisible(true);
+        selectedSeasonTab = editor.getSelectedTab();
         if (!editor.isContinueQueue()) {
           break;
         }
@@ -119,8 +124,9 @@ public class TvShowEditAction extends TmmAction {
       // display tv episode editor
       if (obj instanceof TvShowEpisode) {
         TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
-        TvShowEpisodeEditorDialog editor = new TvShowEpisodeEditorDialog(tvShowEpisode, index, selectedCount);
+        TvShowEpisodeEditorDialog editor = new TvShowEpisodeEditorDialog(tvShowEpisode, index, selectedCount, selectedEpisodeTab);
         editor.setVisible(true);
+        selectedEpisodeTab = editor.getSelectedTab();
         if (!editor.isContinueQueue()) {
           break;
         }
