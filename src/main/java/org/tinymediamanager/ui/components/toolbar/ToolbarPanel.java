@@ -42,6 +42,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -55,6 +56,7 @@ import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
@@ -114,7 +116,10 @@ public class ToolbarPanel extends JPanel {
     panelCenter.setLayout(
         new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
 
-    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
+    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx center, aligny bottom");
+    JLabel lblVersion = new JLabel(ReleaseInfo.getRealVersion());
+    TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L3);
+    panelCenter.add(lblVersion, "cell 1 1, alignx center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
     panelCenter.add(btnUpdate, "cell 2 0,grow, center");

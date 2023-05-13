@@ -21,6 +21,7 @@ x enhanced logic to detect scraped status #2156
 x enhanced extra(s) handling for epsiodes
 x enhanced multi movie detection
 x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
+x moved version info into the toolbar #2161
 
 
 Version 4.3.10
