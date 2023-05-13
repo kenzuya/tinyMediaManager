@@ -43,6 +43,16 @@ public class MovieRenamerPreview {
     LinkedHashMap<String, MediaFile> oldFiles = new LinkedHashMap<>();
     Set<MediaFile> newFiles = new LinkedHashSet<>();
 
+    boolean newDestIsMultiMovieDir = movie.isMultiMovieDir();
+    String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
+    // keep MMD setting unless renamer pattern is not empty
+    if (!pattern.isEmpty()) {
+      // re-evaluate multiMovieDir based on renamer settings
+      // folder MUST BE UNIQUE, so we need at least a T/E-Y combo or IMDBid
+      // If renaming just to a fixed pattern (eg "$S"), movie will downgrade to a MMD
+      newDestIsMultiMovieDir = !MovieRenamer.isFolderPatternUnique(pattern);
+    }
+
     // do not rename disc FILES - add them 1:1 without renaming
     if (movie.isDisc()) {
       for (MediaFile mf : movie.getMediaFiles()) {
@@ -69,16 +79,21 @@ public class MovieRenamerPreview {
         newFiles.add(ftr);
       }
 
+      // temporary for generating preview!
+      // would need to change ALL the filenaming classes just for that...
+      boolean old = movie.isMultiMovieDir();
+      movie.setMultiMovieDir(newDestIsMultiMovieDir);
       // all the other MFs...
       for (MediaFile mf : movie.getMediaFilesExceptType(MediaFileType.VIDEO)) {
         oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
         newFiles.addAll(MovieRenamer.generateFilename(movie, mf, newVideoBasename)); // N:M
       }
+      movie.setMultiMovieDir(old); // set back
     }
 
     // movie folder needs a rename?
     Path oldMovieFolder = movie.getPathNIO();
-    String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
+    // String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
     if (pattern.isEmpty()) {
       // same
       container.newPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());

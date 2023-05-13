@@ -120,7 +120,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String>    SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
-      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "PLEX VERSIONS");
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "PLEX VERSIONS", "LOST.DIR");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
