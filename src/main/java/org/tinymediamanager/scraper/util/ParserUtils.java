@@ -44,14 +44,14 @@ public class ParserUtils {
 
   // hard stopwords are words which will always be cleaned
   protected static final String[] HARD_STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "360p",
-      "360i", "720", "720i", "720p", "ac3", "ac3ld", "ac3d", "ac3md", "aoe", "atmos", "avc", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip",
-      "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8",
-      "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7",
-      "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264", "h265", "hd", "hddvd", "hdrip",
-      "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd", "multisubs", "mp3", "nfo", "nfofix", "ntg", "ntsc",
-      "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "repack", "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd",
-      "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint",
-      "ws", "x264", "x265", "xf", "xvid", "xvidvd", "8bit", "10bit", "12bit" };
+      "360i", "720", "720i", "720p", "ac3", "ac3ld", "ac3d", "ac3md", "amzn", "aoe", "atmos", "avc", "bd5", "bdrip", "bdrip", "blueray", "bluray",
+      "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "dd20", "dd51", "disc1", "disc2", "disc3", "disc4", "disc5",
+      "disc6", "disc7", "disc8", "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3",
+      "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264",
+      "h265", "hd", "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd", "multisubs", "mp3",
+      "netflixhd", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "repack", "rerip", "remux", "roor", "rs", "rsvcd",
+      "screener", "sd", "subbed", "subs", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs",
+      "vhsrip", "webdl", "webrip", "workprint", "ws", "x264", "x265", "xf", "xvid", "xvidvd", "8bit", "10bit", "12bit" };
 
   // soft stopwords are well known words which _may_ occur before the year token and will be cleaned conditionally
   protected static final String[] SOFT_STOPWORDS  = { "complete", "custom", "dc", "docu", "doku", "extended", "fragment", "internal", "limited",

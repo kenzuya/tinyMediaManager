@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -53,7 +54,9 @@ public class TvShowEpisodeAndSeasonParser {
   // new parsing logic
   public static final Pattern  SEASON_LONG     = Pattern.compile("(staffel|season|saison|series|temporada)[\\s_.-]?(\\d{1,4})",
       Pattern.CASE_INSENSITIVE);
-  public static final Pattern  SEASON_ONLY     = Pattern.compile("s[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  // must start with a delimiter!
+  public static final Pattern  SEASON_ONLY     = Pattern.compile("[\\s_.-]s[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  public static final Pattern  EPISODE_ONLY    = Pattern.compile("[\\s_.-]ep?[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern episodePattern  = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern episodePattern2 = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern romanPattern    = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);
@@ -68,6 +71,7 @@ public class TvShowEpisodeAndSeasonParser {
 
   public static String cleanEpisodeTitle(String titleToClean, String tvShowName) {
     String basename = ParserUtils.removeStopwordsAndBadwordsFromTvEpisodeName(titleToClean.replaceAll("([\":<>|?*])", ""));
+    basename = Utils.cleanFolderStackingMarkers(basename);// i know, but this needs no extension ;)
 
     // parse foldername
     Pattern regex = Pattern.compile("(.*[\\/\\\\])");
@@ -103,7 +107,7 @@ public class TvShowEpisodeAndSeasonParser {
     title = title.replaceAll("[epx_-]+(\\d{1,3})", "");
     title = title.replaceAll("episode[\\. _-]*(\\d{1,3})", "");
     title = title.replaceAll("(part|pt)[\\._\\s]+([MDCLXVI]+)", "");
-    title = title.replaceAll("(staffel|season|series)[\\s_.-]*(\\d{1,4})", "");
+    title = title.replaceAll("(staffel|season|saison|series|temporada)[\\s_.-]*(\\d{1,4})", "");
     title = title.replaceAll("s(\\d{1,4})[ ]?((?:([epx_.-]+\\d{1,3})+))", "");
     title = title.replaceAll("(\\d{1,4})(?=x)((?:([epx]+\\d{1,3})+))", "");
 
@@ -198,13 +202,25 @@ public class TvShowEpisodeAndSeasonParser {
 
     if (showname != null && !showname.isEmpty()) {
       // remove string like tvshow name (440, 24, ...)
-      basename = basename.replaceAll("(?i)^" + Pattern.quote(showname) + "", "");
+      basename = basename.replaceAll("(?i)" + Pattern.quote(showname), "");
+      foldername = foldername.replaceAll("(?i)" + Pattern.quote(showname), "");
+      try {
+        // Since this is the title, change all spaces to delimiter pattern!
+        // "some fine show" would match with "some.fine-show"
+        // since we generate a dynamic pattern, guard that with try/catch - the quote() from above would not work
+        showname = showname.replaceAll("[ _.-]", "[ _.-]"); // replace all delimiters, with delimiters pattern ;)
+        foldername = foldername.replaceAll("(?i)" + showname, "");
+      }
+      catch (Exception e) {
+        // ignore
+      }
     }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year
     basename = basename.replaceFirst("[\\(\\[][A-Fa-f0-9]{8}[\\)\\]]", ""); // remove (xxxxxxxx) or [xxxxxxxx] as 8 byte crc
 
-    basename = basename + " ";
+    basename = " " + basename + " "; // ease regex parsing w/o ^$
+    foldername = " " + foldername + " "; // ease regex parsing w/o ^$
 
     result.stackingMarkerFound = !Utils.getStackingMarker(filename).isEmpty();
     result.name = basename.trim();
@@ -252,31 +268,52 @@ public class TvShowEpisodeAndSeasonParser {
     }
 
     // parse season short (S 01), but only if we do not have already one!
+    // and ONLY from foldername, since a filename only with season is less likely ;)
     if (result.season == -1) {
-      result = parseSeasonOnly(result, basename + foldername);
+      result = parseSeasonOnly(result, foldername);
       if (result.season != -1) {
-        basename = basename.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
         foldername = foldername.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
       }
     }
-
-    // strip all [optionals]!
-    String woOptionals = basename.replaceAll("[\\[\\{](.*?)[\\]\\}]", "");
-
-    // multiple numbers: get consecutive ones (removed optionals []{} first)
-    String delimitedNumbers = woOptionals.replaceAll("\\|", "_"); // replace our delimiter
-    delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-]", "$1|"); // add delimiter after numbers
-    delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
-    String[] numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
-    // now we have something like "8|804|2020"
-
-    // nothing found removing []? try with optionals... wuah
-    if (numbersOnly.length == 0 || (numbersOnly.length == 1 && numbersOnly[0].isBlank())) {
-      delimitedNumbers = basename.replaceAll("\\|", "_"); // replace our delimiter
-      delimitedNumbers = delimitedNumbers.replaceAll("(\\d+)[ _.-\\]\\}]", "$1|"); // add delimiter after numbers
-      delimitedNumbers = delimitedNumbers.replaceAll("[^0-9\\|]", ""); // replace everything but numbers
-      numbersOnly = delimitedNumbers.split("\\|"); // split on our delimiters
+    // parse episode short (EP 01), but only if we do not have already one!
+    if (result.episodes.isEmpty()) {
+      result = parseEpisodeOnly(result, basename);
     }
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+
+    List<String> numbersOnly = new ArrayList<>();
+    // strip all [optionals]!
+    String optionals = "[\\[\\{](.*?)[\\]\\}]";
+    String woOptionals = basename.replaceAll(optionals, "");
+    numbersOnly.addAll(Arrays.asList(woOptionals.split("[\\s\\|_.-]"))); // split on our delimiters
+    // now we should have numbers only in there - if we find something different - remove
+    for (int i = numbersOnly.size() - 1; i >= 0; i--) {
+      if (numbersOnly.get(i).isEmpty() || numbersOnly.get(i).matches(".*?\\D.*?")) {
+        numbersOnly.remove(i);
+      }
+    }
+
+    // nothing found removing []? try with optionals...
+    if (numbersOnly.size() == 0) {
+      regex = Pattern.compile(optionals); // only optionals
+      m = regex.matcher(basename);
+      while (m.find()) {
+        String delimitedNumbers = " " + m.group(1) + " "; // ease regex
+        numbersOnly.addAll(Arrays.asList(delimitedNumbers.split("[\\s\\|_.-]"))); // split on our delimiters
+      }
+    }
+    // now we should have numbers only in there - if we find something different - remove
+    for (int i = numbersOnly.size() - 1; i >= 0; i--) {
+      if (numbersOnly.get(i).isEmpty() || numbersOnly.get(i).matches(".*?\\D.*?")) {
+        numbersOnly.remove(i);
+      }
+    }
+
+    // reverse array, so that the latter number is more significant (episode numbers are mostly at end)
+    // (when having 2 or more equal length numbers)
+    Collections.reverse(numbersOnly);
 
     result = parseNumbers4(result, numbersOnly);
     if (!result.episodes.isEmpty()) {
@@ -294,7 +331,7 @@ public class TvShowEpisodeAndSeasonParser {
     return postClean(result);
   }
 
-  private static EpisodeMatchingResult parseNumbers1(EpisodeMatchingResult result, String[] numbersOnly) {
+  private static EpisodeMatchingResult parseNumbers1(EpisodeMatchingResult result, List<String> numbersOnly) {
     for (String num : numbersOnly) {
       if (num.length() == 1) {
         int ep = Integer.parseInt(num); // just one :P
@@ -308,7 +345,7 @@ public class TvShowEpisodeAndSeasonParser {
     return result;
   }
 
-  private static EpisodeMatchingResult parseNumbers2(EpisodeMatchingResult result, String[] numbersOnly) {
+  private static EpisodeMatchingResult parseNumbers2(EpisodeMatchingResult result, List<String> numbersOnly) {
     for (String num : numbersOnly) {
       if (num.length() == 2) {
         // Filename contains only 2 subsequent numbers; parse this as EE
@@ -323,7 +360,7 @@ public class TvShowEpisodeAndSeasonParser {
     return result;
   }
 
-  private static EpisodeMatchingResult parseNumbers3(EpisodeMatchingResult result, String[] numbersOnly) {
+  private static EpisodeMatchingResult parseNumbers3(EpisodeMatchingResult result, List<String> numbersOnly) {
     for (String num : numbersOnly) {
       if (num.length() == 3) {
         // Filename contains only 3 subsequent numbers; parse this as SEE
@@ -345,7 +382,7 @@ public class TvShowEpisodeAndSeasonParser {
     return result;
   }
 
-  private static EpisodeMatchingResult parseNumbers4(EpisodeMatchingResult result, String[] numbersOnly) {
+  private static EpisodeMatchingResult parseNumbers4(EpisodeMatchingResult result, List<String> numbersOnly) {
     for (String num : numbersOnly) {
       if (num.length() == 4) {
         // Filename contains only 4 subsequent numbers; parse this as SSEE
@@ -506,16 +543,16 @@ public class TvShowEpisodeAndSeasonParser {
         Pattern regex2 = episodePattern; // episode fixed to 1-2 chars
         Matcher m2 = regex2.matcher(eps);
         while (m2.find()) {
-          int ep = 0;
+          int ep = -1;
           try {
             ep = Integer.parseInt(m2.group(1));
           }
           catch (NumberFormatException nfe) {
             // can not happen from regex since we only come here with max 2 numeric chars
           }
-          // check if the found episode is greater zero, not already in the list and if multi episode
+          // check if the found episode is not -1 (0 allowed!), not already in the list and if multi episode
           // it has to be the next number than the previous found one
-          if (ep > 0 && !result.episodes.contains(ep) && (lastFoundEpisode == 0 || lastFoundEpisode + 1 == ep)) {
+          if (ep > -1 && !result.episodes.contains(ep) && (lastFoundEpisode == 0 || lastFoundEpisode + 1 == ep)) {
             lastFoundEpisode = ep;
             result.episodes.add(ep);
             LOGGER.trace("add found EP '{}'", ep);
@@ -528,6 +565,22 @@ public class TvShowEpisodeAndSeasonParser {
       if (s >= 0) {
         result.season = s;
         LOGGER.trace("add found season '{}", s);
+      }
+    }
+    return result;
+  }
+
+  private static EpisodeMatchingResult parseEpisodeOnly(EpisodeMatchingResult result, String name) {
+    Matcher m;
+    m = EPISODE_ONLY.matcher(name);
+    if (m.find()) {
+      try {
+        int e = Integer.parseInt(m.group(1));
+        result.episodes.add(e);
+        LOGGER.trace("add found episode '{}'", e);
+      }
+      catch (NumberFormatException nfe) {
+        // ignore
       }
     }
     return result;

@@ -208,8 +208,10 @@ public class TvShowExporter extends MediaEntityExporter {
     if (entity instanceof TvShowEpisode) {
       TvShowEpisode episode = (TvShowEpisode) entity;
       MediaFile mainVideoFile = episode.getMainVideoFile();
-      return FilenameUtils
-          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile)
+      return FilenameUtils.getBaseName(
+          TvShowRenamer
+              .generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile,
+                  FilenameUtils.getBaseName(mainVideoFile.getFilename()))
               .get(0)
               .getFilename());
     }

@@ -204,9 +204,7 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     Assert.assertEquals(recommended, TvShowRenamer.isRecommended(seasonPattern, filePattern));
     String sh = TvShowRenamer.getTvShowFoldername(showPattern, show);
     String se = TvShowRenamer.getSeasonFoldername(seasonPattern, show, show.getEpisodes().get(0));
-    String ep = TvShowRenamer.generateEpisodeFilenames(filePattern, show, show.getEpisodesMediaFiles().get(0), show.getEpisodesMediaFiles().get(0))
-        .get(0)
-        .getFilename();
+    String ep = TvShowRenamer.generateEpisodeFilenames(filePattern, show, show.getEpisodesMediaFiles().get(0), "").get(0).getFilename();
     System.out.println(new File(sh, se + File.separator + ep).toString());
     // return new File(sh, se + File.separator + ep).toString();
     return Paths.get(sh, se, ep);

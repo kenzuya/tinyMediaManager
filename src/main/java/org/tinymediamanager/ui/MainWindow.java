@@ -48,7 +48,6 @@ import javax.swing.text.JTextComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
@@ -94,7 +93,7 @@ public class MainWindow extends JFrame {
    */
   public static synchronized MainWindow getInstance() {
     if (instance == null) {
-      new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
+      new MainWindow("tinyMediaManager");
     }
     return instance;
   }

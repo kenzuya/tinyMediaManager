@@ -841,6 +841,13 @@ public class MovieRenamer {
       newFilename = FilenameUtils.getBaseName(newFilename);
     }
 
+    // happens, when renaming pattern returns nothing (empty field like originalTitle)
+    // just return same file
+    if (newFilename.isEmpty()) {
+      newFiles.add(mf);
+      return newFiles;
+    }
+
     // extra clone, just for easy adding the "default" ones ;)
     MediaFile defaultMF = new MediaFile(mf);
     defaultMF.replacePathForRenamedFolder(movie.getPathNIO(), newMovieDir);

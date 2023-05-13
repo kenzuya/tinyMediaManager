@@ -109,6 +109,9 @@ public class TvShowRenamerPreview {
     for (TvShowEpisode episode : episodes) {
       MediaFile mainVideoFile = episode.getMainVideoFile();
 
+      // BASENAME
+      String oldVideoBasename = episode.getVideoBasenameWithoutStacking();
+
       // test for valid season/episode number
       if (episode.getSeason() < 0 || episode.getEpisode() < 0) {
         // nothing to rename if S/E < 0
@@ -148,7 +151,7 @@ public class TvShowRenamerPreview {
           oldMf.replacePathForRenamedFolder(container.oldPath, container.newPath); // already replace the path for an easy .contains() check
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
 
-          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(tvShow, mf, mainVideoFile));
+          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(tvShow, mf, oldVideoBasename));
         }
       }
     }

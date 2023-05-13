@@ -46,6 +46,7 @@ import static org.tinymediamanager.core.Constants.VIDEO_IN_3D;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.io.File;
 import java.io.IOException;
@@ -344,16 +345,27 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
   }
 
-  /**
-   * checks if this movie has been scraped.<br>
-   * On a fresh DB, just reading local files, everything is again "unscraped". <br>
-   * detect minimum of filled values as "scraped"
-   * 
-   * @return isScraped
-   */
   @Override
-  public boolean isScraped() {
-    return scraped || (!plot.isEmpty() && year != 0);
+  protected float calculateScrapeScore() {
+    float score = super.calculateScrapeScore();
+
+    score = score + returnOneWhenFilled(tagline);
+    score = score + returnOneWhenFilled(spokenLanguages);
+    score = score + returnOneWhenFilled(country);
+    score = score + returnOneWhenFilled(top250);
+    score = score + returnOneWhenFilled(runtime);
+    score = score + returnOneWhenFilled(releaseDate);
+    if (certification != MediaCertification.UNKNOWN) {
+      score = score + 1;
+    }
+
+    score = score + returnOneWhenFilled(actors);
+    score = score + returnOneWhenFilled(directors);
+    score = score + returnOneWhenFilled(writers);
+    score = score + returnOneWhenFilled(producers);
+    score = score + returnOneWhenFilled(trailer);
+
+    return score;
   }
 
   /**
@@ -948,9 +960,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
       addToTags(metadata.getTags());
     }
 
-    // set scraped
-    setScraped(true);
-
     // create MovieSet
     if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(TMDB_SET) == 0)) {
       int col = 0;
@@ -1506,7 +1515,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the checks for rating
    */
   public boolean getHasRating() {
-    return !ratings.isEmpty() || scraped;
+    return !ratings.isEmpty();
   }
 
   /**
