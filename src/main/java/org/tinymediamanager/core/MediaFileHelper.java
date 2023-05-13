@@ -291,7 +291,7 @@ public class MediaFileHelper {
 
     // check EXTRAS first
     if (filename.contains(".EXTRAS.") // scene file naming (need to check first! upper case!)
-        || basename.matches("(?i).*[_.-]+extra[s]?$") // end with "-extra[s]"
+        || basename.matches("(?i).*[_.-]+extra[s]?\\d?$") // end with "-extra[s]"
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name

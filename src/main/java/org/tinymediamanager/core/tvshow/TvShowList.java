@@ -28,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,6 +63,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -201,6 +203,46 @@ public final class TvShowList extends AbstractModelObject {
       newEp.addAll(show.getEpisodes());
     }
     return newEp;
+  }
+
+  public void debugListDuplicateEpisode() {
+    int cnt = 0;
+    for (TvShow show : tvShows) {
+      List<int[]> dupes = show.getDuplicateEpisodes();
+      cnt += dupes.size();
+      if (!dupes.isEmpty()) {
+        System.out.println("---------------------");
+        System.out.println("Dupes found! - " + show.getTitle());
+        for (int[] se : dupes) {
+          List<TvShowEpisode> eps = show.getEpisode(se[0], se[1]);
+          for (TvShowEpisode ep : eps) {
+            System.out.println(Arrays.toString(se) + ((eps.size() > 2) ? " MULTI" + eps.size() : "") + " - "
+                + Utils.relPath(show.getPathNIO(), ep.getMainFile().getFileAsPath()));
+          }
+        }
+      }
+    }
+    System.out.println("Found " + cnt + " episodes with same number!");
+  }
+
+  public void debugFindWronglyMatchedEpisodes() {
+    for (TvShow show : tvShows) {
+      boolean first = true;
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        MediaFile mf = ep.getMainFile();
+        String rel = show.getPathNIO().relativize(mf.getFileAsPath()).toString();
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(rel, show.getTitle());
+        if (!result.episodes.contains(ep.getEpisode()) || result.season != ep.getSeason()) {
+          if (first) {
+            System.out.println("---------------------");
+            System.out.println("Episode matching found some differences! - " + show.getTitle());
+            first = false;
+          }
+          System.out.println(
+              "S:" + ep.getSeason() + " E:" + ep.getEpisode() + " - " + rel + "   now detected as S:" + result.season + " E:" + result.episodes);
+        }
+      }
+    }
   }
 
   /**

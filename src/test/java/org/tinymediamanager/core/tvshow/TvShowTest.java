@@ -107,7 +107,7 @@ public class TvShowTest extends BasicTvShowTest {
 
     // display renamed EP name :)
     System.out.println(TvShowRenamer.createDestination(TvShowModuleManager.getInstance().getSettings().getRenamerFilename(), show.getEpisodes()));
-    System.out.println(TvShowRenamer.generateEpisodeFilenames(show, dmf, dmf).get(0).getFilename());
+    System.out.println(TvShowRenamer.generateEpisodeFilenames(show, dmf, "").get(0).getFilename());
 
     TvShowModuleManager.getInstance().shutDown();
     TmmModuleManager.getInstance().shutDown();
@@ -122,6 +122,18 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:5 E:22", detectEpisode("Quincy.S05E22.Gefaehrlicher.Krankentransport.GERMAN.FS.dTV.X264-SQUiZZiEs\\s-quincy-s0522.mkv"));
+    assertEqual("S:-1", detectEpisode("Specials\\Bye.Bye.Big.Bang.Theory.Das.Special.GERMAN.1080p.HDTV.x264-VoDTv.mkv"));
+    assertEqual("S:1 E:11 E:12", detectEpisode(
+        "Zoo.S01.German.DD51.Dubbed.DL.1080p.BD.x264-TVS\\Zoo.S01E11E12.Angriff.der.Leoparden.Das.Heilmittel.German.DD51.Dubbed.DL.1080p.BD.x264-TVS\\tvs-zoo-dd51-ded-dl-18p-bd-x264-11112.mkv"));
+    assertEqual("S:17 E:0", detectEpisode("S17\\Die.Rosenheim.Cops.S17E00.German.1080p.WebHD.h264-FKKTV\\fkktv-die.rosenheim.cops.s17e00-1080p.mkv"));
+    assertEqual("S:1 E:1",
+        detectEpisode("S01\\9-1-1.S01E01.Echte.Helden.German.DD51.Dubbed.DL.1080p.AmazonHD.x264-TVS\\tvs-911-dd51-ded-dl-18p-azhd-x264-101.mkv"));
+    assertEqual("S:2 E:3", detectEpisode("S02\\Scooby.Doo.S02E03.DL.FS.WEBRiP.h264-BET\\bet_snsd203_we48h2.mkv"));
+    assertEqual("S:1 E:3", detectEpisode(
+        "Escape.at.Dannemora.S01.German.DD51.Synced.DL.1080p.AmazonHD.x264-TVS\\Escape.at.Dannemora.S01E03.German.DD51.Synced.DL.1080p.AmazonHD.x264-TVS\\tvs-escape-at-dannemora-dd51-sed-dl-18p-azhd-x264-103.mkv"));
+    assertEqual("S:2 E:8", detectEpisode(
+        "The.Affair.S02.German.DD+51.DL.720p.AmazonHD.x264-TVS\\The.Affair.S02E08.German.DD+51.DL.720p.AmazonHD.x264-TVS\\tvs-affair-dd51-dl-7p-azhd-x264-208.mkv"));
     assertEqual("S:1 E:1", detectEpisode("showname S01E01\\ijfi38jsoid88939859283j.mkv"));
     assertEqual("S:8 E:4", detectEpisode("Homeland - Temporada 8 [HDTV][Cap.804][Castellano][www.descargas2020.org].avi"));
     assertEqual("S:10 E:4", detectEpisode("Homeland - Temporada 10 [HDTV][Cap.1004][Castellano][www.descargas2020.org].avi"));
@@ -197,10 +209,10 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:-1 E:1", detectEpisode("[01].ext")); // just optionals!
     assertEqual("S:-1 E:2", detectEpisode("[01] 02.ext")); // ignore optionals
 
-    // TODO: currently we take the FIRST number and treat it as episode
+    // TODO: currently we take the LAST number and treat it as episode
     // NO multi matching for just numbers!!
-    assertEqual("S:-1 E:2", detectEpisode("2 3 6.mkv"));
-    assertEqual("S:-1 E:2", detectEpisode("02 03 04 name.mkv"));
+    assertEqual("S:-1 E:6", detectEpisode("2 3 6.mkv"));
+    assertEqual("S:-1 E:4", detectEpisode("02 03 04 name.mkv"));
     // except for 3 char ones ;)
     assertEqual("S:1 E:1 E:2 E:3", detectEpisode("101 102 103.mkv"));
     assertEqual("S:1 E:3", detectEpisode("1 12 103 25 7.mkv")); // start with highest number
@@ -267,7 +279,7 @@ public class TvShowTest extends BasicTvShowTest {
   private String detectEpisode(String name) {
     StringBuilder sb = new StringBuilder();
     // EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(new File(name));
-    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(name, "asdf[.*asdf");
+    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(name, "asdf[.*]asdf");
     sb.append("S:");
     sb.append(result.season);
     for (int ep : result.episodes) {

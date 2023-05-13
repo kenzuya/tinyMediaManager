@@ -1197,7 +1197,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
     /**
      * gets the filename of the MF, reduced by type<br>
-     * episode1-poster.jpg -> episode1.jpg
+     * episode1-poster.jpg -> episode1.jpg<br>
+     * also remove named extra files like '*-behinthescenes'
      * 
      * @param mf
      * @return
@@ -1206,6 +1207,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       String ret = mf.getFilename();
       // does not work for extrafanarts/landscape - but thats mostly not used on episode level
       ret = ret.replaceFirst("(?i)[_.-]" + mf.getType() + "[.]" + mf.getExtension(), "." + mf.getExtension());
+
+      for (String extr : MediaFileHelper.EXTRA_FOLDERS) {
+        ret = ret.replaceFirst("(?i)[_.-]" + extr + "\\d?[.]" + mf.getExtension(), "." + mf.getExtension());
+      }
       return ret;
     }
 

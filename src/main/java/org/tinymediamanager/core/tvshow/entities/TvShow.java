@@ -53,6 +53,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2185,6 +2186,35 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public void saveToDb() {
     // update/insert this TV show to the database
     TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
+  }
+
+  /**
+   * Returns a list of [season, episode] array of duplicate episodes with same S/EE number
+   * 
+   * @return list of duplicated episodes [season, episode] - use {@link TvShow#getEpisode(int, int)} for getting them<br>
+   *         or an empty list
+   */
+  public List<int[]> getDuplicateEpisodes() {
+    List<Integer> see = new ArrayList<>();
+    List<int[]> dupes = new ArrayList<>();
+    for (TvShowEpisode ep : episodes) {
+      if (ep.getSeason() == -1 || ep.getEpisode() == -1) {
+        continue;
+      }
+      int num = ep.getSeason() * 10000 + ep.getEpisode();
+      if (!see.contains(num)) {
+        see.add(num);
+      }
+      else {
+        // already in there? we have a dupe!
+        int[] dupe = { ep.getSeason(), ep.getEpisode() };
+        // deep array equals check - contains does not work
+        if (!dupes.stream().anyMatch(c -> Arrays.equals(c, dupe))) {
+          dupes.add(dupe);
+        }
+      }
+    }
+    return dupes;
   }
 
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
