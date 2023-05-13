@@ -18,6 +18,9 @@ x fix renamer preview for extras
 x added a faster way to re-evaluate MMD on each update
 x made update data sources more crash resistant #2169
 x enhanced logic to detect scraped status #2156
+x enhanced extra(s) handling for epsiodes
+x enhanced multi movie detection
+x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
 
 
 Version 4.3.10
