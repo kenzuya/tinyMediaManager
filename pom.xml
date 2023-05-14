@@ -90,7 +90,7 @@
         <okhttp.version>4.10.0</okhttp.version>
         <slf4j.version>2.0.4</slf4j.version>
         <release.version>2.5.3</release.version>
-        <jre.version>17.0.5</jre.version>
+        <jre.version>17.0.7</jre.version>
         <ffmpeg.version>5.1.1</ffmpeg.version>
         <launcher.version>5.0.0-SNAPSHOT</launcher.version>
         <jackson.version>2.13.4</jackson.version>
@@ -855,26 +855,19 @@
                                             <groupId>org.tinymediamanager</groupId>
                                             <artifactId>jre-windows_x64</artifactId>
                                             <version>${jre.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.tinymediamanager</groupId>
                                             <artifactId>jre-linux_x64</artifactId>
                                             <version>${jre.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-linux_arm32</artifactId>
+                                            <artifactId>jre-linux_aarch64</artifactId>
                                             <version>${jre.version}</version>
-                                            <type>tar.br</type>
-                                        </artifactItem>
-                                        <!-- for legacy macOS installs -->
-                                        <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-macos_x64</artifactId>
-                                            <version>${jre.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}/jre</outputDirectory>
@@ -894,8 +887,8 @@
                                         <artifactItem>
                                             <groupId>org.tinymediamanager</groupId>
                                             <artifactId>jre-macos_x64</artifactId>
-                                            <version>${jre.version}-bz2</version>
-                                            <type>tar.bz2</type>
+                                            <version>${jre.version}</version>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}/jre/macos-x64</outputDirectory>
@@ -914,8 +907,8 @@
                                         <artifactItem>
                                             <groupId>org.tinymediamanager</groupId>
                                             <artifactId>jre-macos_aarch64</artifactId>
-                                            <version>${jre.version}-bz2</version>
-                                            <type>tar.bz2</type>
+                                            <version>${jre.version}</version>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}/jre/macos-aarch64</outputDirectory>
@@ -949,13 +942,6 @@
                                             <artifactId>ffmpeg-linux_arm32</artifactId>
                                             <version>${ffmpeg.version}</version>
                                             <type>tar.br</type>
-                                        </artifactItem>
-                                        <!-- for legacy macOS installs -->
-                                        <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
-                                            <artifactId>ffmpeg-macos_x64</artifactId>
-                                            <version>${ffmpeg.version}</version>
-                                            <type>tar.bz2</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}/addons</outputDirectory>
@@ -1079,7 +1065,7 @@
                                     <descriptors>
                                         <descriptor>src/assembly/windows-x64.xml</descriptor>
                                         <descriptor>src/assembly/linux-x64.xml</descriptor>
-                                        <descriptor>src/assembly/linux-arm.xml</descriptor>
+                                        <descriptor>src/assembly/linux-aarch64.xml</descriptor>
                                     </descriptors>
                                     <tarLongFileMode>gnu</tarLongFileMode>
                                 </configuration>

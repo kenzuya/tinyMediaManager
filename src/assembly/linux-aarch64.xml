@@ -20,7 +20,7 @@
                 <include>version</include>
 
                 <include>tinyMediaManager-arm</include>
-                <include>jre/*linux_arm*</include>
+                <include>jre/*linux_aarch64*</include>
                 <include>native/arm/*</include>
                 <include>native/arm/addons/*linux_arm*</include>
             </includes>
