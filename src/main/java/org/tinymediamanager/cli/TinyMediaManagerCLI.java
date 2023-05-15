@@ -108,7 +108,7 @@ public class TinyMediaManagerCLI implements Runnable {
         UpdaterTask updaterTask = new UpdaterTask();
         updaterTask.doInBackground();
 
-        if (updaterTask.isDownloadSucessful()) {
+        if (updaterTask.isDownloadSuccessful()) {
           LOGGER.info("Update downloaded successful - restart to apply");
         }
       }

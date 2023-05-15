@@ -15,24 +15,8 @@
  */
 package org.tinymediamanager.updater;
 
-import com.threerings.getdown.data.Application;
-import com.threerings.getdown.data.EnvConfig;
-import com.threerings.getdown.data.Resource;
-import com.threerings.getdown.net.Downloader;
-import com.threerings.getdown.util.ProgressObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
-import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
+import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,7 +28,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.tinymediamanager.TmmOsUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
+import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
+
+import com.threerings.getdown.data.Application;
+import com.threerings.getdown.data.EnvConfig;
+import com.threerings.getdown.data.Resource;
+import com.threerings.getdown.net.Downloader;
+import com.threerings.getdown.util.ProgressObserver;
 
 /**
  * UpdaterTasks checks if there's a new update for TMM
@@ -52,10 +54,9 @@ import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_
  * @author Myron Boyle
  */
 public class UpdaterTask extends TmmTask {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
-  
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
 
-  boolean                             downloadSucessful;
+  boolean                     downloadSuccessful;
 
   public UpdaterTask() {
     super(TmmResourceBundle.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
@@ -63,7 +64,7 @@ public class UpdaterTask extends TmmTask {
 
   @Override
   public void doInBackground() {
-    downloadSucessful = false;
+    downloadSuccessful = false;
 
     try {
       List<EnvConfig.Note> notes = new ArrayList<>();
@@ -92,8 +93,8 @@ public class UpdaterTask extends TmmTask {
       ProgressObserver progobs = this::publishState;
 
       // we will clean the checksum update folder at startup (this will force to re-download partially downloaded files)
-      Utils.deleteDirectoryRecursive(Paths.get(UPDATE_FOLDER));
       Path updateFolder = Paths.get(UPDATE_FOLDER);
+      Utils.deleteDirectoryRecursive(updateFolder);
       updateFolder.toFile().mkdirs();
 
       // we create this tracking counter here so that we properly note the first time through
@@ -118,44 +119,55 @@ public class UpdaterTask extends TmmTask {
         // we have resources to download, also note them as to-be-installed
         toInstallResources.addAll(toDownload);
 
-        // redownload any that are corrupt or invalid...
+        // re-download any that are corrupt or invalid...
         LOGGER.info("{} of {} files require update.", toDownload.size(), app.getAllActiveResources().size());
 
-        download(toDownload, app);
+        downloadSuccessful = download(toDownload, app);
 
-        // and prepare for installation
-        for (Resource resource : toInstallResources) {
-          LOGGER.trace("Installing resource {}", resource);
-          resource.install(true);
+        if (downloadSuccessful) {
+          // and prepare for installation
+          for (Resource resource : toInstallResources) {
+            LOGGER.trace("Installing resource {}", resource);
+            resource.install(true);
+          }
+
+          // all files downloaded -> popup to inform the user (if we're in a UI environment)
+          if (!GraphicsEnvironment.isHeadless()) {
+            SwingUtilities.invokeLater(() -> {
+              int decision = JOptionPane.showConfirmDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.updater.restart.desc"),
+                  TmmResourceBundle.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
+              if (decision == JOptionPane.YES_OPTION) {
+                MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+              }
+            });
+          }
         }
-
-        downloadSucessful = true;
-
-        // all files downloaded -> popup to inform the user (if we're in a UI environment)
-        if (!GraphicsEnvironment.isHeadless()) {
-          SwingUtilities.invokeLater(() -> {
-            int decision = JOptionPane.showConfirmDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.updater.restart.desc"),
-                TmmResourceBundle.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
-            if (decision == JOptionPane.YES_OPTION) {
-              MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
-            }
-          });
+        else {
+          LOGGER.error("Downloading update failed!");
         }
       }
     }
     catch (Exception e) {
       LOGGER.error("could not download update: {}", e.getMessage());
+      downloadSuccessful = false;
+    }
+
+    if (!downloadSuccessful) {
+      // download failed/aborted
+      // remove digest file(s) to force re-download the next time
+      Utils.deleteFileSafely(Paths.get("digest.txt"));
+      Utils.deleteFileSafely(Paths.get("digest2.txt"));
     }
   }
 
-  public boolean isDownloadSucessful() {
-    return downloadSucessful;
+  public boolean isDownloadSuccessful() {
+    return downloadSuccessful;
   }
 
   /**
    * Called if the application is determined to require resource downloads.
    */
-  private void download(Collection<Resource> resources, Application app) throws IOException {
+  private boolean download(Collection<Resource> resources, Application app) throws IOException {
     Downloader dl = new TmmGetdownDownloader() {
       @Override
       protected void downloadProgress(int percent, long remaining) {
@@ -167,6 +179,11 @@ public class UpdaterTask extends TmmTask {
     if (dl.download(resources, app.maxConcurrentDownloads())) {
       // download completed; mark the completed download by putting a .ready file into the /update folder
       Files.createFile(Paths.get(UPDATE_FOLDER, ".ready"));
+      return true;
+    }
+    else {
+      // download failed or aborted
+      return false;
     }
   }
 }
