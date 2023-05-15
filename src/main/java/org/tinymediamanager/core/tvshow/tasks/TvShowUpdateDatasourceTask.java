@@ -78,6 +78,7 @@ import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -771,6 +772,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
             String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
             imgBasename = showDir.relativize(img.getFileAsPath().getParent()) + "/" + imgBasename;
+
+            // match subtitles with langu in name as "filename.deu.ext"
+            if (img.getType() == MediaFileType.SUBTITLE) {
+              String cleaned = "/" + img.getFilename().replaceAll("." + img.getExtension(), ""); // remove ext
+              cleaned = cleaned.replaceAll(vidBasename, ""); // remove basename
+              // remaining must be some langu...?
+              if (!cleaned.isEmpty()) {
+                String lang = LanguageUtils.parseLanguageFromString(cleaned);
+                if (!lang.isEmpty()) {
+                  epFiles.add(img);
+                }
+              }
+            }
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
