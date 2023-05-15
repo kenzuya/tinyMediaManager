@@ -776,12 +776,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // match subtitles with langu in name as "filename.deu.ext"
             if (img.getType() == MediaFileType.SUBTITLE) {
               String cleaned = "/" + img.getFilename().replaceAll("." + img.getExtension(), ""); // remove ext
-              cleaned = cleaned.replaceAll(vidBasename, ""); // remove basename
-              // remaining must be some langu...?
-              if (!cleaned.isEmpty()) {
-                String lang = LanguageUtils.parseLanguageFromString(cleaned);
-                if (!lang.isEmpty()) {
-                  epFiles.add(img);
+              if (cleaned.startsWith(vidBasename)) {
+                cleaned = cleaned.replaceAll(vidBasename, ""); // remove basename
+                // remaining must be some langu...?
+                if (!cleaned.isEmpty()) {
+                  String lang = LanguageUtils.parseLanguageFromString(cleaned);
+                  if (!lang.isEmpty()) {
+                    epFiles.add(img);
+                  }
                 }
               }
             }
