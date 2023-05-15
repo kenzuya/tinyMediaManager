@@ -78,7 +78,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -768,34 +767,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           String vidBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vid.getFilename()));
           vidBasename = showDir.relativize(vid.getFileAsPath().getParent()) + "/" + vidBasename;
           LOGGER.trace("UDS: video basename {} - {}", vidBasename, vid.getFile());
-          for (MediaFile img : mfs) {
+          for (MediaFile other : mfs) {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
-            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
-            imgBasename = showDir.relativize(img.getFileAsPath().getParent()) + "/" + imgBasename;
-
-            // match subtitles with langu in name as "filename.deu.ext"
-            if (img.getType() == MediaFileType.SUBTITLE) {
-              String cleaned = "/" + img.getFilename().replaceAll("." + img.getExtension(), ""); // remove ext
-              if (cleaned.startsWith(vidBasename)) {
-                cleaned = cleaned.replaceAll(vidBasename, ""); // remove basename
-                // remaining must be some langu...?
-                if (!cleaned.isEmpty()) {
-                  String lang = LanguageUtils.parseLanguageFromString(cleaned);
-                  if (!lang.isEmpty()) {
-                    epFiles.add(img);
-                  }
-                }
-              }
-            }
+            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(other)));
+            imgBasename = showDir.relativize(other.getFileAsPath().getParent()) + "/" + imgBasename;
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
-              if (img.getType() == MediaFileType.POSTER || img.getType() == MediaFileType.GRAPHIC) {
+              if (other.getType() == MediaFileType.POSTER || other.getType() == MediaFileType.GRAPHIC) {
                 // re-type posters to EP "posters" (=thumb)
-                img.setType(MediaFileType.THUMB);
+                other.setType(MediaFileType.THUMB);
               }
-              epFiles.add(img);
-              LOGGER.trace("UDS: found matching {} - {}", imgBasename, img.getFile());
+              epFiles.add(other);
+              LOGGER.trace("UDS: found matching {} - {}", imgBasename, other.getFile());
             }
           } // end inner MF loop over all non videos
         } // end MF nodisc file
@@ -1097,7 +1081,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
         String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
         EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
-        if (result.season > 0 && !result.episodes.isEmpty()) {
+        if (result.season > -1 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
             // get any assigned episode
             List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);
