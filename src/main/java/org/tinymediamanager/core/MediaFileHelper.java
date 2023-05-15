@@ -2624,6 +2624,7 @@ public class MediaFileHelper {
 
       case AUDIO:
         gatherAudioInformation(mediaFile, miSnapshot);
+        gatherSubtitleInformation(mediaFile, miSnapshot); // eg .MKA with subtitles see #2180
         break;
 
       case POSTER:
