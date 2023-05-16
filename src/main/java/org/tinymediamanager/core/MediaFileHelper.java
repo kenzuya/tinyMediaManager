@@ -822,7 +822,7 @@ public class MediaFileHelper {
 
     // read mediainfo.xml only if the file size has not been changed,
     // and ONLY for VIDEO files (else external audio files would ALSO read XML)
-    if (!fileSizeChanged && mediaFile.getType() == MediaFileType.VIDEO) {
+    if (!fileSizeChanged && mediaFile.getType().equals(MediaFileType.VIDEO)) {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
