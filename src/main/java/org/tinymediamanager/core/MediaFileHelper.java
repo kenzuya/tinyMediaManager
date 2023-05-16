@@ -1085,7 +1085,7 @@ public class MediaFileHelper {
     }
 
     // at this point there is no valid XML file - write a new one if configured
-    if (Settings.getInstance().isWriteMediaInfoXml() && mediaFile.getType().equals(MediaFileType.VIDEO)) {
+    if (Settings.getInstance().isWriteMediaInfoXml() && mediaFile.getType() == MediaFileType.VIDEO) {
       try {
         MediaInfoXmlCreator mediaInfoXmlCreator = new MediaInfoXmlCreator(mediaFile, mediaInfoFiles);
         mediaInfoXmlCreator.write();

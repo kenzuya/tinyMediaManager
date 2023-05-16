@@ -675,7 +675,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     Movie movie = null;
     for (MediaFile mf : mfs) {
 
-      if (mf.getType().equals(MediaFileType.NFO)) {
+      if (mf.getType() == MediaFileType.NFO) {
         LOGGER.info("| parsing NFO {}", mf.getFileAsPath());
         Movie nfo = null;
         try {
@@ -718,7 +718,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     } // end MFs
 
     for (MediaFile mf : mfs) {
-      if (mf.getType().equals(MediaFileType.VSMETA)) {
+      if (mf.getType() == MediaFileType.VSMETA) {
         if (movie == null) {
           movie = new Movie();
         }
@@ -809,7 +809,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     String bdmtTitle = ""; // title parsed out of BDMV/META/DL/*.xml
     String videoName = ""; // title from file
     for (MediaFile mf : mfs) {
-      if (mf.getType().equals(MediaFileType.TEXT)) {
+      if (mf.getType() == MediaFileType.TEXT) {
         try {
           String txtFile = Utils.readFileToString(mf.getFileAsPath());
 
@@ -829,7 +829,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           LOGGER.debug("| couldn't read TXT {}", mf.getFilename());
         }
       }
-      else if (mf.getType().equals(MediaFileType.VIDEO)) {
+      else if (mf.getType() == MediaFileType.VIDEO) {
         videoName = mf.getBasename();
       }
     }
@@ -932,7 +932,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // filename.ext as poster
     // ***************************************************************
     for (MediaFile mf : mfs) {
-      if (mf.getType().equals(MediaFileType.GRAPHIC)) {
+      if (mf.getType() == MediaFileType.GRAPHIC) {
         LOGGER.debug("| parsing unknown graphic: {}", mf.getFilename());
         List<MediaFile> vid = movie.getMediaFiles(MediaFileType.VIDEO);
         if (vid != null && !vid.isEmpty()) {

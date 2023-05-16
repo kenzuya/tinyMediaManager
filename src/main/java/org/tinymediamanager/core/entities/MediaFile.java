@@ -232,9 +232,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     }
 
     // parse audio, video and graphic files (NFO only for getting the filedate)
-    if (type.equals(MediaFileType.VIDEO) || type.equals(MediaFileType.EXTRA) || type.equals(MediaFileType.TRAILER)
-        || type.equals(MediaFileType.SAMPLE) || type.equals(MediaFileType.SUBTITLE) || type.equals(MediaFileType.AUDIO)
-        || type.equals(MediaFileType.NFO) || isGraphic()) {
+    if (type == null) {
+      // just prevent NPE
+      return false;
+    }
+
+    switch (type) {
+      case VIDEO:
+      case EXTRA:
+      case TRAILER:
+      case SAMPLE:
+      case SUBTITLE:
+      case AUDIO:
+      case NFO:
+        return true;
+    }
+
+    if (isGraphic()) {
       return true;
     }
 
