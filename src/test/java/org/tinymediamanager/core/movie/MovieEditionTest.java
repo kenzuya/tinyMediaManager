@@ -78,6 +78,9 @@ public class MovieEditionTest extends BasicMovieTest {
     // SPECIAL_EDITION
     assertThat(parse("Close.Encounters.Of.The.Third.Kind.SPECIAL.EDITION.1977.iNTERNAL.1080p.BluRay.x264-EwDp")).isEqualTo(SPECIAL_EDITION);
 
+    // PLEX filename style
+    assertThat(parse("Boomerang.1992.Incl.{edition-My cool Edition}.DVDRip.x264-xyz").getName().equals("My cool Edition"));
+
     // NORMAL
     assertThat(parse("Boomerang.1992.Incl.Directors.Commentary.DVDRip.x264-xyz")).isEqualTo(NONE);
     assertThat(parse("Unrated.The.Movie.2009.720p.BluRay.x264-xyz")).isEqualTo(NONE);

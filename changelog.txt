@@ -24,6 +24,7 @@ x enhanced multi movie detection
 x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
 x moved version info into the toolbar #2161
 x added "Canceled" status for TV shows #2177
+x improved edition detection from filename
 
 
 Version 4.3.10
