@@ -87,7 +87,8 @@ public class MediaFileHelper {
   public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
+      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others",
+      "bloopers");
   // for structure detection
   public static final List<String> BLURAY_FOLDERS     = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
 
@@ -295,7 +296,7 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)\\d?$") // Plex (w/o trailer)
+        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other|bloopers)\\d?$") // Plex (w/o trailer)
         || EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;

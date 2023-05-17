@@ -80,6 +80,7 @@ public class MovieEditionTest extends BasicMovieTest {
 
     // PLEX filename style
     assertThat(parse("Boomerang.1992.Incl.{edition-My cool Edition}.DVDRip.x264-xyz").getName().equals("My cool Edition"));
+    assertThat(parse("Boomerang.1992.Incl.{edition-Theatrical Cut}.DVDRip.x264-xyz")).isEqualTo(THEATRICAL_EDITION);
 
     // NORMAL
     assertThat(parse("Boomerang.1992.Incl.Directors.Commentary.DVDRip.x264-xyz")).isEqualTo(NONE);
