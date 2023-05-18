@@ -91,6 +91,7 @@ public final class Settings extends AbstractSettings {
 
   private String                                           traktAccessToken            = "";
   private String                                           traktRefreshToken           = "";
+  private DateField                                        traktDateField              = DateField.FILE_LAST_MODIFIED_DATE;
 
   private String                                           kodiHost                    = "";
   private int                                              kodiHttpPort                = 8080;
@@ -878,6 +879,16 @@ public final class Settings extends AbstractSettings {
     String oldValue = this.traktRefreshToken;
     this.traktRefreshToken = newValue;
     firePropertyChange("traktRefreshToken", oldValue, newValue);
+  }
+
+  public DateField getTraktDateField() {
+    return traktDateField;
+  }
+
+  public void setTraktDateField(DateField newValue) {
+    DateField oldValue = this.traktDateField;
+    this.traktDateField = newValue;
+    firePropertyChange("traktDateField", oldValue, newValue);
   }
 
   public String getKodiHost() {

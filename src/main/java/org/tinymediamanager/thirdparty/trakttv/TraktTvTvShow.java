@@ -37,6 +37,7 @@ import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -634,7 +635,7 @@ class TraktTvTvShow {
         else {
           // sync collection
           if (!syncEpisodeMap.containsKey(episodeTag)) {
-            OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmEp.getDateAdded()), ZoneOffset.UTC);
+            OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(getDateField(tmmEp)), ZoneOffset.UTC);
             syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).collectedAt(collectedAt));
           }
         }
@@ -893,5 +894,34 @@ class TraktTvTvShow {
     }
 
     return true;
+  }
+
+  private Date getDateField(TvShowEpisode episode) {
+    Date collectedAt = null;
+
+    switch (Settings.getInstance().getTraktDateField()) {
+      case DATE_ADDED:
+        collectedAt = episode.getDateAdded();
+        break;
+
+      case FILE_CREATION_DATE:
+        collectedAt = episode.getMainVideoFile().getDateCreated();
+        break;
+
+      case FILE_LAST_MODIFIED_DATE:
+        collectedAt = episode.getMainVideoFile().getDateLastModified();
+        break;
+
+      case RELEASE_DATE:
+        collectedAt = episode.getReleaseDate();
+        break;
+    }
+
+    if (collectedAt == null) {
+      // fallback
+      collectedAt = episode.getDateAddedForUi();
+    }
+
+    return collectedAt;
   }
 }

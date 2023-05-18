@@ -6,6 +6,7 @@ Version 4.3.11
 + upgraded libmediainfo to 23.04
 + added Macedonian to the scraper languages #2170
 + (mediainfo) extract subtitles from audio files too #2180
++ (Trakt) added an option to choose which date field is used for "collected at" #2168
 x (TMDB) enhanced loading of localized episode content (title, original title, plot) #2165
 x fixed Kodi RPC mappings
 x fixed trailer downloading

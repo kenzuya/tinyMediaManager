@@ -20,11 +20,18 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.license.License;
@@ -45,9 +52,12 @@ import net.miginfocom.swing.MigLayout;
 class ExternalServicesSettingsPanel extends JPanel {
   private static final long serialVersionUID = 7266564870819511988L;
 
+  private final Settings    settings         = Settings.getInstance();
+
   private JButton           btnGetTraktPin;
   private JButton           btnTestTraktConnection;
   private JLabel            lblTraktStatus;
+  private JComboBox         cbTraktDate;
 
   ExternalServicesSettingsPanel() {
     // UI init
@@ -132,7 +142,7 @@ class ExternalServicesSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
       JPanel panelTrakt = new JPanel();
-      panelTrakt.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelTrakt.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][]")); // 16lp ~ width of the
 
       JLabel lblTraktT = new TmmLabel(TmmResourceBundle.getString("Settings.trakt"), H3);
 
@@ -152,8 +162,23 @@ class ExternalServicesSettingsPanel extends JPanel {
         panelTrakt.add(btnGetTraktPin, "cell 1 1 2 1");
 
         btnTestTraktConnection = new JButton(TmmResourceBundle.getString("Settings.trakt.testconnection"));
-        panelTrakt.add(btnTestTraktConnection, "cell 1 1");
+        panelTrakt.add(btnTestTraktConnection, "cell 1 1 2 1");
       }
+
+      JLabel lblTraktDateT = new TmmLabel(TmmResourceBundle.getString("Settings.trakt.date"));
+      panelTrakt.add(lblTraktDateT, "flowx,cell 1 3 2 1");
+
+      cbTraktDate = new JComboBox(DateField.values());
+      panelTrakt.add(cbTraktDate, "cell 1 3 2 1");
     }
+    initDataBindings();
+  }
+
+  protected void initDataBindings() {
+    Property settingsBeanProperty = BeanProperty.create("traktDateField");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, cbTraktDate,
+        jComboBoxBeanProperty);
+    autoBinding.bind();
   }
 }
