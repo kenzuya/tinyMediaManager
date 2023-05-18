@@ -21,5 +21,10 @@
             <id>gpg.passphrase</id>
             <passphrase>${env.GPG_PASSPHRASE}</passphrase>
         </server>
+        <server>
+            <id>github-maven</id>
+            <username>tmmbuild</username>
+            <password>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</password>
+        </server>
     </servers>
 </settings>
