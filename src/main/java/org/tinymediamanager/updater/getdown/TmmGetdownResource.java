@@ -36,17 +36,14 @@ import com.threerings.getdown.util.FileUtil;
 import com.threerings.getdown.util.ProgressObserver;
 
 public class TmmGetdownResource extends Resource {
-  boolean _isBrotli;
 
   public TmmGetdownResource(String path, URL remote, File local, EnumSet<Attr> attrs) {
     super(path, remote, local, attrs);
     this._localNew = new File(UPDATE_FOLDER + File.separator + path);
     this._marker = new File(UPDATE_FOLDER + File.separator + ".getdown", path + "v");
 
-    _isBrotli = isBrotli(_local);
-
     boolean unpack = attrs.contains(Attr.UNPACK);
-    if (unpack && (_isZip || _isBrotli)) {
+    if (unpack && _isZip) {
       _unpacked = _localNew.getParentFile();
     }
     else if (unpack && _isPacked200Jar) {
@@ -96,7 +93,7 @@ public class TmmGetdownResource extends Resource {
   @Override
   public void unpack() throws IOException {
     // sanity check
-    if (!_isZip && !_isPacked200Jar && !_isBrotli) {
+    if (!_isZip && !_isPacked200Jar) {
       throw new IOException("Requested to unpack not supported archive file '" + _localNew + "'.");
     }
 
@@ -113,16 +110,5 @@ public class TmmGetdownResource extends Resource {
     else if (_isPacked200Jar) {
       FileUtil.unpackPacked200Jar(_localNew, _unpacked);
     }
-    else if (_isBrotli) {
-      Utils.unpackBrotli(_localNew, _unpacked);
-    }
-  }
-
-  /**
-   * Returns whether {@code file} is a {@code brotli} file.
-   */
-  public static boolean isBrotli(File file) {
-    String path = file.getName();
-    return path.endsWith(".tar.br");
   }
 }

@@ -68,17 +68,6 @@ public class UtilsTest extends BasicTest {
   }
 
   @Test
-  public void testBrotli() throws Exception {
-    Path sourceFile = Paths.get("target", "test-classes", "test.tar.br");
-    Path target = Paths.get("target", "test-classes", "brotli");
-    Utils.unpackBrotli(sourceFile.toFile(), target.toFile());
-
-    Path targetFile = target.resolve("test.txt");
-    assertThat(targetFile).exists();
-    assertThat(Utils.readFileToString(targetFile).trim()).isEqualTo("FOO");
-  }
-
-  @Test
   public void compareVersions() {
     assertEqual(true, StrgUtils.compareVersion("GIT", "GIT") < 0); // GIT always "lower"
     assertEqual(true, StrgUtils.compareVersion("GIT", "2.7.2") < 0); // GIT always "lower"

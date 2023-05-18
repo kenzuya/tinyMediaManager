@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -78,11 +77,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileExistsException;
@@ -93,7 +87,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
-import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -2095,73 +2088,6 @@ public class Utils {
 
     if (dirty) {
       me.saveToDb();
-    }
-  }
-
-  /**
-   * unpack the given brotli archive ({code .tar.br}) to the given path
-   *
-   * @param archive
-   *          the brotli archive
-   * @param targetPath
-   *          the path to extract
-   * @throws IOException
-   *           any {@link IOException} thrown while extracting
-   */
-  public static void unpackBrotli(File archive, File targetPath) throws IOException {
-    try (FileInputStream fis = new FileInputStream(archive);
-        InputStream buis = new BufferedInputStream(fis);
-        BrotliInputStream bris = new BrotliInputStream(buis);
-        InputStream bis = new BufferedInputStream(bris);
-        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
-      ArchiveEntry entry = null;
-      while ((entry = ais.getNextEntry()) != null) {
-        if (!ais.canReadEntryData(entry)) {
-          // log something?
-          continue;
-        }
-
-        File f = new File(targetPath, entry.getName());
-        if (entry.isDirectory()) {
-          if (!f.isDirectory() && !f.mkdirs()) {
-            throw new IOException("failed to create directory " + f);
-          }
-        }
-        else {
-          File parent = f.getParentFile();
-          if (!parent.isDirectory() && !parent.mkdirs()) {
-            throw new IOException("failed to create directory " + parent);
-          }
-
-          if (entry instanceof TarArchiveEntry && ((TarArchiveEntry) entry).isSymbolicLink()) {
-            try {
-              TarArchiveEntry tae = (TarArchiveEntry) entry;
-              Files.createSymbolicLink(f.toPath(), Paths.get(tae.getLinkName()));
-            }
-            catch (Exception e) {
-              LOGGER.debug("could not create symbolic link - '{}'", e.getMessage());
-            }
-          }
-          else {
-            try (OutputStream o = Files.newOutputStream(f.toPath())) {
-              IOUtils.copy(ais, o);
-            }
-          }
-
-          if (entry instanceof TarArchiveEntry) {
-            try {
-              TarArchiveEntry tae = (TarArchiveEntry) entry;
-              Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
-            }
-            catch (Exception ignored) {
-              // may fail on filesystems w/o posix support
-            }
-          }
-        }
-      }
-    }
-    catch (ArchiveException e) {
-      throw new IOException("Could not extract archive", e);
     }
   }
 
