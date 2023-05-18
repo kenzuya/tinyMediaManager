@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,8 @@ public class MediaFileHelper {
   public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
+      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others",
+      "bloopers");
   // for structure detection
   public static final List<String> BLURAY_FOLDERS     = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
 
@@ -295,7 +296,7 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)\\d?$") // Plex (w/o trailer)
+        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other|bloopers)\\d?$") // Plex (w/o trailer)
         || EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;
@@ -820,8 +821,9 @@ public class MediaFileHelper {
 
     List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
 
-    // read mediainfo.xml only if the file size has not been changed
-    if (!fileSizeChanged) {
+    // read mediainfo.xml only if the file size has not been changed,
+    // and ONLY for VIDEO files (else external audio files would ALSO read XML)
+    if (!fileSizeChanged && mediaFile.getType() == MediaFileType.VIDEO) {
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
@@ -1084,7 +1086,7 @@ public class MediaFileHelper {
     }
 
     // at this point there is no valid XML file - write a new one if configured
-    if (Settings.getInstance().isWriteMediaInfoXml() && mediaFile.getType().equals(MediaFileType.VIDEO)) {
+    if (Settings.getInstance().isWriteMediaInfoXml() && mediaFile.getType() == MediaFileType.VIDEO) {
       try {
         MediaInfoXmlCreator mediaInfoXmlCreator = new MediaInfoXmlCreator(mediaFile, mediaInfoFiles);
         mediaInfoXmlCreator.write();
@@ -2624,6 +2626,7 @@ public class MediaFileHelper {
 
       case AUDIO:
         gatherAudioInformation(mediaFile, miSnapshot);
+        gatherSubtitleInformation(mediaFile, miSnapshot); // eg .MKA with subtitles see #2180
         break;
 
       case POSTER:

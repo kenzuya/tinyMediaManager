@@ -5,6 +5,8 @@ Version 4.3.11
 + (bulk edit) remember last used tab when bulk editing
 + upgraded libmediainfo to 23.04
 + added Macedonian to the scraper languages #2170
++ (mediainfo) extract subtitles from audio files too #2180
++ (Trakt) added an option to choose which date field is used for "collected at" #2168
 x (TMDB) enhanced loading of localized episode content (title, original title, plot) #2165
 x fixed Kodi RPC mappings
 x fixed trailer downloading
@@ -22,6 +24,8 @@ x enhanced extra(s) handling for epsiodes
 x enhanced multi movie detection
 x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
 x moved version info into the toolbar #2161
+x added "Canceled" status for TV shows #2177
+x improved edition detection from filename
 
 
 Version 4.3.10

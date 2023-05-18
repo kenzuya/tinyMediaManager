@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,9 +94,8 @@ import retrofit2.Response;
 
 public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements ITvShowMetadataProvider, ITvShowTmdbMetadataProvider,
     ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider, IRatingProvider, IMediaIdProvider {
-  private static final Logger                                LOGGER                      = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
-  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP      = new CacheMap<>(600, 5);
-  private static final CacheMap<Integer, String>             ORIGINAL_LANGUAGE_CACHE_MAP = new CacheMap<>(600, 5);
+  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
 
   @Override
   protected MediaProviderInfo createMediaProviderInfo() {
@@ -265,7 +264,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     int tmdbId = options.getTmdbId();
 
     // try to get via imdb id
-    if (MediaIdUtil.isValidImdbId(options.getImdbId())) {
+    if (tmdbId == 0 && MediaIdUtil.isValidImdbId(options.getImdbId())) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
       }
@@ -275,7 +274,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     // try to get via tvdb id
-    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+    if (tmdbId == 0 && options.getIdAsIntOrDefault(TVDB, 0) > 0) {
       try {
         tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
       }
@@ -303,7 +302,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // the API does not provide complete access to all episodes, so we have to
     // fetch the show summary first and every season afterwards...
     try {
-      Response<TvShow> showResponse = api.tvService().tv(tmdbId, language).execute();
+      // use the SAME show call, since this is already cached!
+      // Response<TvShow> showResponse = api.tvService().tv(tmdbId, language).execute();
+      Response<TvShow> showResponse = api.tvService()
+          .tv(tmdbId, language,
+              new AppendToResponse(AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS,
+                  AppendToResponseItem.CONTENT_RATINGS, AppendToResponseItem.KEYWORDS))
+          .execute();
       if (!showResponse.isSuccessful() || showResponse.body() == null) {
         throw new HttpException(showResponse.code(), showResponse.message());
       }
@@ -337,7 +342,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // requested language
     String requestedLanguage = getRequestLanguage(options.getLanguage());
     Response<TvSeason> seasonResponse = api.tvSeasonsService()
-        .season(tmdbId, seasonNumber, requestedLanguage, new AppendToResponse(AppendToResponseItem.CREDITS, AppendToResponseItem.TRANSLATIONS))
+        .season(tmdbId, seasonNumber, requestedLanguage, new AppendToResponse(AppendToResponseItem.CREDITS))
         .execute();
     if (!seasonResponse.isSuccessful()) {
       throw new HttpException(seasonResponse.code(), seasonResponse.message());
@@ -353,9 +358,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
       String fallbackLanguage = getProviderInfo().getConfig().getValue("titleFallbackLanguage");
       if (!requestedLanguage.equals(fallbackLanguage)) {
-        seasonResponse = api.tvSeasonsService()
-            .season(tmdbId, seasonNumber, fallbackLanguage, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
-            .execute();
+        seasonResponse = api.tvSeasonsService().season(tmdbId, seasonNumber, fallbackLanguage).execute();
         if (seasonResponse.isSuccessful()) {
           for (TvEpisode episode : ListUtils.nullSafe(seasonResponse.body().episodes)) {
             // season does not send translations, get em only with full episode scrape
@@ -371,9 +374,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       episodesInOriginalLanguage.putAll(episodesInRequestedLanguage);
     }
     else {
-      seasonResponse = api.tvSeasonsService()
-          .season(tmdbId, seasonNumber, originalLanguage, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
-          .execute();
+      seasonResponse = api.tvSeasonsService().season(tmdbId, seasonNumber, originalLanguage).execute();
       if (seasonResponse.isSuccessful()) {
         for (TvEpisode episode : ListUtils.nullSafe(seasonResponse.body().episodes)) {
           // season does not send translations, get em only with full episode scrape
@@ -465,6 +466,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     TvShow complete = null;
     try {
+      // when changing this call/params, be sure to change on line 307 too!
       Response<TvShow> httpResponse = api.tvService()
           .tv(tmdbId, language,
               new AppendToResponse(AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS,
@@ -1304,15 +1306,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
   }
 
-  private Integer toInteger(String str) {
-    try {
-      return Integer.parseInt(str);
-    }
-    catch (Exception exc) {
-      return null;
-    }
-  }
-
   private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode, TvSeason tvSeason, MediaSearchAndScrapeOptions options) {
     MediaMetadata ep = new MediaMetadata(getId());
     ep.setScrapeOptions(options);
@@ -1419,39 +1412,4 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     return result;
   }
-
-  private String getOriginalLanguage(int tmdbId) {
-    String cache = ORIGINAL_LANGUAGE_CACHE_MAP.get(tmdbId);
-    if (StringUtils.isNotBlank(cache)) {
-      return cache;
-    }
-
-    String originalLanguage = "";
-    try {
-      Response<TvShow> httpResponse = api.tvService().tv(tmdbId, null).execute();
-      if (!httpResponse.isSuccessful()) {
-        return "";
-      }
-      TvShow complete = httpResponse.body();
-      if (StringUtils.isNotBlank(complete.original_language)) {
-        originalLanguage = complete.original_language;
-      }
-    }
-    catch (Exception e) {
-      originalLanguage = "";
-    }
-    finally {
-      ORIGINAL_LANGUAGE_CACHE_MAP.put(tmdbId, originalLanguage);
-    }
-
-    return originalLanguage;
-  }
-
-  /**
-   * Is i1 != i2 (when >0)
-   */
-  private boolean yearDiffers(int i1, int i2) {
-    return i1 > 0 && i2 > 0 && i1 != i2;
-  }
-
 }

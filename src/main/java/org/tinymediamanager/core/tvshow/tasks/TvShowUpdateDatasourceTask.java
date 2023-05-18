@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -767,19 +767,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           String vidBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vid.getFilename()));
           vidBasename = showDir.relativize(vid.getFileAsPath().getParent()) + "/" + vidBasename;
           LOGGER.trace("UDS: video basename {} - {}", vidBasename, vid.getFile());
-          for (MediaFile img : mfs) {
+          for (MediaFile other : mfs) {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
-            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
-            imgBasename = showDir.relativize(img.getFileAsPath().getParent()) + "/" + imgBasename;
+            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(other)));
+            imgBasename = showDir.relativize(other.getFileAsPath().getParent()) + "/" + imgBasename;
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
-              if (img.getType() == MediaFileType.POSTER || img.getType() == MediaFileType.GRAPHIC) {
+              if (other.getType() == MediaFileType.POSTER || other.getType() == MediaFileType.GRAPHIC) {
                 // re-type posters to EP "posters" (=thumb)
-                img.setType(MediaFileType.THUMB);
+                other.setType(MediaFileType.THUMB);
               }
-              epFiles.add(img);
-              LOGGER.trace("UDS: found matching {} - {}", imgBasename, img.getFile());
+              epFiles.add(other);
+              LOGGER.trace("UDS: found matching {} - {}", imgBasename, other.getFile());
             }
           } // end inner MF loop over all non videos
         } // end MF nodisc file
@@ -1081,7 +1081,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
         String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
         EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
-        if (result.season > 0 && !result.episodes.isEmpty()) {
+        if (result.season > -1 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
             // get any assigned episode
             List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);

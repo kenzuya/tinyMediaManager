@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ package org.tinymediamanager.core;
 public enum MediaAiredStatus {
   UNKNOWN("Unknown", new String[] { "" }),
   CONTINUING("Continuing", new String[] { "Continuing", "returning series" }),
-  ENDED("Ended", new String[] { "Ended" });
+  ENDED("Ended", new String[] { "Ended" }),
+  CANCELED("Canceled", new String[] { "Canceled" });
 
-  
-  private String                      name;
-  private String[]                    possibleNotations;
+  private final String   name;
+  private final String[] possibleNotations;
 
   MediaAiredStatus(String name, String[] possibleNotations) {
     this.name = name;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
   public static final MovieEdition              SPECIAL_EDITION    = new MovieEdition("SPECIAL_EDITION", 7, "Special Edition",
       ".Special.(Cut|Edition|Version)");
 
+  private static final Pattern                  FILENAME_PATTERN   = Pattern.compile("\\{edition\\-(.*?)\\}", Pattern.CASE_INSENSITIVE);
   private final String                          title;
   private final Pattern                         pattern;
 
@@ -131,6 +132,17 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
       }
     }
 
+    // try parsing filename pattern, and create a new one
+    Matcher matcher = FILENAME_PATTERN.matcher(name);
+    if (matcher.find()) {
+      MovieEdition me = getMovieEditionFromString(matcher.group(1)); // call ourself
+      if (me == NONE) {
+        return new MovieEdition(matcher.group(1), values().length, matcher.group(1), "");
+      }
+      else {
+        return me;
+      }
+    }
     return NONE;
   }
 
