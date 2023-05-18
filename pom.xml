@@ -91,7 +91,7 @@
         <slf4j.version>2.0.4</slf4j.version>
         <release.version>2.5.3</release.version>
         <jre.version>17.0.7</jre.version>
-        <ffmpeg.version>5.1.1</ffmpeg.version>
+        <ffmpeg.version>6.0</ffmpeg.version>
         <launcher.version>5.0.0-SNAPSHOT</launcher.version>
         <jackson.version>2.13.4</jackson.version>
         <sonar.java.source>17</sonar.java.source>
@@ -397,6 +397,17 @@
     </dependencies>
 
     <repositories>
+        <repository>
+            <id>github-maven</id>
+            <url>https://maven.pkg.github.com/tinyMediaManagerOrg/dependencies/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
         <repository>
             <id>gitlab-maven</id>
             <url>https://gitlab.com/api/v4/projects/9945251/packages/maven</url>
@@ -852,20 +863,20 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-windows_x64</artifactId>
+                                            <groupId>org.tinymediamanager.jre</groupId>
+                                            <artifactId>windows_x64</artifactId>
                                             <version>${jre.version}</version>
                                             <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-linux_x64</artifactId>
+                                            <groupId>org.tinymediamanager.jre</groupId>
+                                            <artifactId>linux_x64</artifactId>
                                             <version>${jre.version}</version>
                                             <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-linux_aarch64</artifactId>
+                                            <groupId>org.tinymediamanager.jre</groupId>
+                                            <artifactId>linux_aarch64</artifactId>
                                             <version>${jre.version}</version>
                                             <type>tar.xz</type>
                                         </artifactItem>
@@ -885,8 +896,8 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-macos_x64</artifactId>
+                                            <groupId>org.tinymediamanager.jre</groupId>
+                                            <artifactId>macos_x64</artifactId>
                                             <version>${jre.version}</version>
                                             <type>tar.xz</type>
                                         </artifactItem>
@@ -905,8 +916,8 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager</groupId>
-                                            <artifactId>jre-macos_aarch64</artifactId>
+                                            <groupId>org.tinymediamanager.jre</groupId>
+                                            <artifactId>macos_aarch64</artifactId>
                                             <version>${jre.version}</version>
                                             <type>tar.xz</type>
                                         </artifactItem>
@@ -926,22 +937,22 @@
                                     <artifactItems>
                                         <!-- FFmpeg -->
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
+                                            <groupId>org.tinymediamanager.addons</groupId>
                                             <artifactId>ffmpeg-windows_x64</artifactId>
                                             <version>${ffmpeg.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
+                                            <groupId>org.tinymediamanager.addons</groupId>
                                             <artifactId>ffmpeg-linux_x64</artifactId>
                                             <version>${ffmpeg.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
-                                            <artifactId>ffmpeg-linux_arm32</artifactId>
+                                            <groupId>org.tinymediamanager.addons</groupId>
+                                            <artifactId>ffmpeg-linux_aarch64</artifactId>
                                             <version>${ffmpeg.version}</version>
-                                            <type>tar.br</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}/addons</outputDirectory>
@@ -959,13 +970,14 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
+                                            <groupId>org.tinymediamanager.addons</groupId>
                                             <artifactId>ffmpeg-macos_x64</artifactId>
                                             <version>${ffmpeg.version}</version>
-                                            <type>tar.bz2</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
-                                    <outputDirectory>${project.build.directory}/addons/macos-x64</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/addons/ffmpeg-macos-x64
+                                    </outputDirectory>
                                     <overWriteReleases>true</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>
                                 </configuration>
@@ -979,13 +991,14 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.tinymediamanager.addon</groupId>
+                                            <groupId>org.tinymediamanager.addons</groupId>
                                             <artifactId>ffmpeg-macos_aarch64</artifactId>
                                             <version>${ffmpeg.version}</version>
-                                            <type>tar.bz2</type>
+                                            <type>tar.xz</type>
                                         </artifactItem>
                                     </artifactItems>
-                                    <outputDirectory>${project.build.directory}/addons/macos-aarch64</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/addons/ffmpeg-macos-aarch64
+                                    </outputDirectory>
                                     <overWriteReleases>true</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>
                                 </configuration>

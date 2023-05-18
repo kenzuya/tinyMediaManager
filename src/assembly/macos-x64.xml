@@ -46,7 +46,7 @@
         </fileSet>
         <fileSet>
             <!-- FFmpeg -->
-            <directory>${project.build.directory}/addons/macos-x64/</directory>
+            <directory>${project.build.directory}/addons/ffmpeg-macos-x64/</directory>
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
         </fileSet>
     </fileSets>
