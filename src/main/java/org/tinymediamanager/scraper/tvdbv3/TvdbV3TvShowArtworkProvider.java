@@ -43,6 +43,7 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.thetvdb.entities.Language;
@@ -269,7 +270,13 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
         ma.setPreviewUrl(ma.getDefaultUrl());
       }
 
-      ma.setLanguage(ma.getLanguage());
+      if (StringUtils.isBlank(image.language)) {
+        // no text
+        ma.setLanguage("-");
+      }
+      else {
+        ma.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(image.language));
+      }
 
       artwork.add(ma);
     }

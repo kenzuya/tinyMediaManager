@@ -232,7 +232,13 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       // not anymore - keep url, and just exchange the fanart to /preview/ (Discord Feb 2022)
       ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/"));
 
-      ma.setLanguage(image.lang);
+      if ("OO".equals(image.lang)) {
+        // no text
+        ma.setLanguage("-");
+      }
+      else {
+        ma.setLanguage(image.lang);
+      }
       ma.setLikes(image.likes);
       ma.addImageSize(type.width, type.height, image.url);
       ma.setSizeOrder(type.sizeOrder);

@@ -694,7 +694,8 @@ public class ImageChooserDialog extends TmmDialog {
     List<MediaLanguages> selectedItems = cbLanguage.getSelectedItems();
     List<MediaLanguages> allItems = cbLanguage.getItems();
 
-    if (StringUtils.isBlank(language)) {
+    // - indicates no text
+    if ("-".equals(language)) {
       if (!allItems.contains(MediaLanguages.none)) {
         allItems.add(MediaLanguages.none);
       }

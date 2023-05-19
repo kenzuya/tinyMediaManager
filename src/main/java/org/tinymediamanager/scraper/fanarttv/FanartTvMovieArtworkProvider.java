@@ -72,9 +72,6 @@ public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider imple
     String language = null;
     if (options.getLanguage() != null) {
       language = options.getLanguage().getLanguage();
-      if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-        language += "-" + options.getLanguage().toLocale().getCountry();
-      }
     }
 
     List<MediaArtwork> returnArtwork = new ArrayList<>();

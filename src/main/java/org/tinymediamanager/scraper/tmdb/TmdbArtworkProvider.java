@@ -198,7 +198,13 @@ class TmdbArtworkProvider {
 
         ma.setPreviewUrl(baseUrl + "w185" + image.file_path);
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
-        ma.setLanguage(image.iso_639_1);
+        if (StringUtils.isBlank(image.iso_639_1)) {
+          // no text
+          ma.setLanguage("-");
+        }
+        else {
+          ma.setLanguage(image.iso_639_1);
+        }
         ma.setTmdbId(tmdbId);
 
         if (season > -1) {

@@ -386,7 +386,13 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       ma.setPreviewUrl(ma.getDefaultUrl());
     }
 
-    ma.setLanguage(ma.getLanguage());
+    if (StringUtils.isBlank(image.language)) {
+      // no text
+      ma.setLanguage("-");
+    }
+    else {
+      ma.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(image.language));
+    }
 
     // get the season number
     if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.season != null) {
