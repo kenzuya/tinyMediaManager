@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.IMediaInformation;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
@@ -204,20 +205,7 @@ public class MediaInformationLogosPanel extends JPanel {
       return null;
     }
 
-    String text;
-
-    // mono?
-    if (audioChannelsInt == 1) {
-      text = "1.0";
-    }
-    else if (audioChannelsInt == 2) {
-      // stereo?
-      text = "2.0";
-    }
-    else {
-      text = audioChannelsInt - 1 + ".1";
-    }
-
+    String text = MediaFileHelper.audioChannelInDotNotation(audioChannelsInt);
     try {
       return new AudioChannelsIcon(text);
     }

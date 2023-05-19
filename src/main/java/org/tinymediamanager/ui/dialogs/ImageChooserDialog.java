@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -693,7 +693,8 @@ public class ImageChooserDialog extends TmmDialog {
     List<MediaLanguages> selectedItems = cbLanguage.getSelectedItems();
     List<MediaLanguages> allItems = cbLanguage.getItems();
 
-    if (StringUtils.isBlank(language)) {
+    // - indicates no text
+    if ("-".equals(language)) {
       if (!allItems.contains(MediaLanguages.none)) {
         allItems.add(MediaLanguages.none);
       }

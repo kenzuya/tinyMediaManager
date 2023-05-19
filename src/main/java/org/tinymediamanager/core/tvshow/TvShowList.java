@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,6 +64,7 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -100,6 +102,7 @@ public final class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             videoCodecsInEpisodes;
   private final CopyOnWriteArrayList<String>             videoContainersInEpisodes;
   private final CopyOnWriteArrayList<String>             audioCodecsInEpisodes;
+  private final CopyOnWriteArrayList<Integer>            audioChannelsInEpisodes;
   private final CopyOnWriteArrayList<Double>             frameRatesInEpisodes;
   private final CopyOnWriteArrayList<MediaCertification> certificationsInTvShows;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInEpisodes;
@@ -125,6 +128,7 @@ public final class TvShowList extends AbstractModelObject {
     videoCodecsInEpisodes = new CopyOnWriteArrayList<>();
     videoContainersInEpisodes = new CopyOnWriteArrayList<>();
     audioCodecsInEpisodes = new CopyOnWriteArrayList<>();
+    audioChannelsInEpisodes = new CopyOnWriteArrayList<>();
     frameRatesInEpisodes = new CopyOnWriteArrayList<>();
     certificationsInTvShows = new CopyOnWriteArrayList<>();
     audioStreamsInEpisodes = new CopyOnWriteArrayList<>();
@@ -200,6 +204,46 @@ public final class TvShowList extends AbstractModelObject {
       newEp.addAll(show.getEpisodes());
     }
     return newEp;
+  }
+
+  public void debugListDuplicateEpisode() {
+    int cnt = 0;
+    for (TvShow show : tvShows) {
+      List<int[]> dupes = show.getDuplicateEpisodes();
+      cnt += dupes.size();
+      if (!dupes.isEmpty()) {
+        System.out.println("---------------------");
+        System.out.println("Dupes found! - " + show.getTitle());
+        for (int[] se : dupes) {
+          List<TvShowEpisode> eps = show.getEpisode(se[0], se[1]);
+          for (TvShowEpisode ep : eps) {
+            System.out.println(Arrays.toString(se) + ((eps.size() > 2) ? " MULTI" + eps.size() : "") + " - "
+                + Utils.relPath(show.getPathNIO(), ep.getMainFile().getFileAsPath()));
+          }
+        }
+      }
+    }
+    System.out.println("Found " + cnt + " episodes with same number!");
+  }
+
+  public void debugFindWronglyMatchedEpisodes() {
+    for (TvShow show : tvShows) {
+      boolean first = true;
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        MediaFile mf = ep.getMainFile();
+        String rel = show.getPathNIO().relativize(mf.getFileAsPath()).toString();
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(rel, show.getTitle());
+        if (!result.episodes.contains(ep.getEpisode()) || result.season != ep.getSeason()) {
+          if (first) {
+            System.out.println("---------------------");
+            System.out.println("Episode matching found some differences! - " + show.getTitle());
+            first = false;
+          }
+          System.out.println(
+              "S:" + ep.getSeason() + " E:" + ep.getEpisode() + " - " + rel + "   now detected as S:" + result.season + " E:" + result.episodes);
+        }
+      }
+    }
   }
 
   /**
@@ -990,6 +1034,7 @@ public final class TvShowList extends AbstractModelObject {
     Set<Double> frameRates = new HashSet<>();
     Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioChannels = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
     Set<Integer> subtitleStreamCount = new HashSet<>();
@@ -1020,11 +1065,12 @@ public final class TvShowList extends AbstractModelObject {
           videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
-        // audio codec
+        // audio codec+channels
         for (MediaFileAudioStream audio : mf.getAudioStreams()) {
           if (StringUtils.isNotBlank(audio.getCodec())) {
             audioCodecs.add(audio.getCodec());
           }
+          audioChannels.add(audio.getAudioChannels());
         }
 
         if (first) {
@@ -1092,6 +1138,11 @@ public final class TvShowList extends AbstractModelObject {
       firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInEpisodes);
     }
 
+    // audio channels
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioChannelsInEpisodes, audioChannels)) {
+      firePropertyChange(Constants.AUDIO_CHANNEL, null, audioChannelsInEpisodes);
+    }
+
     // audio streams
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioStreamsInEpisodes, audioStreamCount)) {
       firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInEpisodes);
@@ -1142,6 +1193,10 @@ public final class TvShowList extends AbstractModelObject {
 
   public Collection<String> getAudioCodecsInEpisodes() {
     return Collections.unmodifiableList(audioCodecsInEpisodes);
+  }
+
+  public Collection<Integer> getAudioChannelsInEpisodes() {
+    return Collections.unmodifiableList(audioChannelsInEpisodes);
   }
 
   public Collection<MediaCertification> getCertification() {

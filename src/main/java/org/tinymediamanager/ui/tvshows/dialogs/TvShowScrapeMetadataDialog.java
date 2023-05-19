@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,10 +234,6 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     if (cbEpisodeScraperConfig != null) {
       List<TvShowEpisodeScraperMetadataConfig> config = new ArrayList<>(
           TvShowModuleManager.getInstance().getSettings().getEpisodeScraperMetadataConfig());
-      // only take artwork if only artwork has been requested
-      if (artworkOnly) {
-        config = config.stream().filter(ScraperMetadataConfig::isArtwork).collect(Collectors.toList());
-      }
       // if automatic artwork scrape is not wanted, strip out artwork options
       if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
         config.removeAll(TvShowEpisodeScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
@@ -309,18 +305,18 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
   }
 
   /**
-   * pass the tv show meta data config to the caller
+   * pass the tv show metadata config to the caller
    * 
-   * @return a list of meta data config
+   * @return a list of metadata config
    */
   public List<TvShowScraperMetadataConfig> getTvShowScraperMetadataConfig() {
     return cbTvShowScraperConfig.getSelectedItems();
   }
 
   /**
-   * pass the episode meta data config to the caller
+   * pass the episode metadata config to the caller
    * 
-   * @return a list of meta data config
+   * @return a list of metadata config
    */
   public List<TvShowEpisodeScraperMetadataConfig> getTvShowEpisodeScraperMetadataConfig() {
     return cbEpisodeScraperConfig.getSelectedItems();

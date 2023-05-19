@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,9 +72,6 @@ public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider imple
     String language = null;
     if (options.getLanguage() != null) {
       language = options.getLanguage().getLanguage();
-      if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-        language += "-" + options.getLanguage().toLocale().getCountry();
-      }
     }
 
     List<MediaArtwork> returnArtwork = new ArrayList<>();

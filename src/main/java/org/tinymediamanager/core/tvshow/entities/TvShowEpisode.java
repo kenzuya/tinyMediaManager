@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import static org.tinymediamanager.core.Constants.TV_SHOW;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DISPLAY;
@@ -885,9 +886,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
 
-    // set scraped
-    setScraped(true);
-
     // update DB
     writeNFO();
     saveToDb();
@@ -1279,7 +1277,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public List<MediaFile> getMediaFilesContainingSubtitles() {
     List<MediaFile> mediaFilesWithSubtitles = new ArrayList<>(1);
 
-    for (MediaFile mediaFile : getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
+    for (MediaFile mediaFile : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
       if (mediaFile.hasSubtitles()) {
         mediaFilesWithSubtitles.add(mediaFile);
       }
@@ -1402,21 +1400,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
   }
 
-  /**
-   * checks if this TV show has been scraped.<br>
-   * On a fresh DB, just reading local files, everything is again "unscraped". <br>
-   * detect minimum of filled values as "scraped"
-   * 
-   * @return isScraped
-   */
   @Override
-  public boolean isScraped() {
-    if (!scraped) {
-      if (StringUtils.isNotBlank(plot) && firstAired != null && getSeason() > -1 && getEpisode() > -1) {
-        return true;
-      }
-    }
-    return scraped;
+  protected float calculateScrapeScore() {
+    float score = super.calculateScrapeScore();
+
+    // some fields count multiple times to reach the threshold
+    score = score + returnOneWhenFilled(plot);
+    score = score + returnOneWhenFilled(originalTitle);
+    score = score + returnOneWhenFilled(ratings);
+
+    score = score + 2 * returnOneWhenFilled(firstAired);
+    score = score + 2 * returnOneWhenFilled(actors);
+    score = score + returnOneWhenFilled(directors);
+    score = score + returnOneWhenFilled(writers);
+    score = score + returnOneWhenFilled(artworkUrlMap);
+
+    return score;
   }
 
   /**
@@ -1589,11 +1588,27 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
-    List<String> lang = new ArrayList<String>();
+    List<String> lang = new ArrayList<>();
     lang.addAll(getMainVideoFile().getAudioChannelsList());
 
     for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
       lang.addAll(mf.getAudioChannelsList());
+    }
+    return lang;
+  }
+
+  @Override
+  public String getMediaInfoAudioChannelsDot() {
+    return getMainVideoFile().getAudioChannelsDot();
+  }
+
+  @Override
+  public List<String> getMediaInfoAudioChannelDotList() {
+    List<String> lang = new ArrayList<String>();
+    lang.addAll(getMainVideoFile().getAudioChannelsDotList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
+      lang.addAll(mf.getAudioChannelsDotList());
     }
     return lang;
   }

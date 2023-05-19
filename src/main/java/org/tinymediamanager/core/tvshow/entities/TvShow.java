@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TRAILER;
 import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1069,9 +1071,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    // set scraped
-    setScraped(true);
-
     // update DB
     writeNFO();
     saveToDb();
@@ -1781,6 +1780,35 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     seasons.forEach(TvShowSeason::saveToDb);
   }
 
+  /**
+   * Returns a list of [season, episode] array of duplicate episodes with same S/EE number
+   * 
+   * @return list of duplicated episodes [season, episode] - use {@link TvShow#getEpisode(int, int)} for getting them<br>
+   *         or an empty list
+   */
+  public List<int[]> getDuplicateEpisodes() {
+    List<Integer> see = new ArrayList<>();
+    List<int[]> dupes = new ArrayList<>();
+    for (TvShowEpisode ep : episodes) {
+      if (ep.getSeason() == -1 || ep.getEpisode() == -1) {
+        continue;
+      }
+      int num = ep.getSeason() * 10000 + ep.getEpisode();
+      if (!see.contains(num)) {
+        see.add(num);
+      }
+      else {
+        // already in there? we have a dupe!
+        int[] dupe = { ep.getSeason(), ep.getEpisode() };
+        // deep array equals check - contains does not work
+        if (!dupes.stream().anyMatch(c -> Arrays.equals(c, dupe))) {
+          dupes.add(dupe);
+        }
+      }
+    }
+    return dupes;
+  }
+
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
     if (season == -1 || episode == -1) {
       return Collections.emptyList();
@@ -1803,21 +1831,28 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return false;
   }
 
-  /**
-   * checks if this TV show has been scraped.<br>
-   * On a fresh DB, just reading local files, everything is again "unscraped". <br>
-   * detect minimum of filled values as "scraped"
-   *
-   * @return isScraped
-   */
   @Override
-  public boolean isScraped() {
-    if (!scraped) {
-      if (StringUtils.isNotBlank(plot) && year > 0 && ListUtils.isNotEmpty(genres) && ListUtils.isNotEmpty(actors)) {
-        return true;
-      }
+  protected float calculateScrapeScore() {
+    float score = super.calculateScrapeScore();
+
+    score = score + returnOneWhenFilled(runtime);
+    score = score + returnOneWhenFilled(firstAired);
+    if (status != MediaAiredStatus.UNKNOWN) {
+      score = score + 1;
     }
-    return scraped;
+    if (certification != MediaCertification.UNKNOWN) {
+      score = score + 1;
+    }
+    score = score + returnOneWhenFilled(country);
+    score = score + returnOneWhenFilled(seasonPosterUrlMap);
+    score = score + returnOneWhenFilled(seasonBannerUrlMap);
+    score = score + returnOneWhenFilled(seasonThumbUrlMap);
+    score = score + returnOneWhenFilled(seasonTitleMap);
+    score = score + returnOneWhenFilled(extraFanartUrls);
+    score = score + returnOneWhenFilled(actors);
+    score = score + returnOneWhenFilled(trailer);
+
+    return score;
   }
 
   /**
@@ -1931,6 +1966,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public String getMediaInfoAudioChannelsDot() {
+    return "";
+  }
+
+  @Override
+  public List<String> getMediaInfoAudioChannelDotList() {
     return Collections.emptyList();
   }
 

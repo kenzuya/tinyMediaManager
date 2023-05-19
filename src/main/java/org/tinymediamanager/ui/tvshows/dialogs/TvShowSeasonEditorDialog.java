@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
 
   private final TvShowSeason  tvShowSeasonToEdit;
   private final TvShowList    tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
+  private final JTabbedPane   tabbedPane          = new TmmTabbedPane();
 
   private boolean             continueQueue       = true;
   private boolean             navigateBack        = false;
@@ -112,7 +113,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
    * @param queueSize
    *          the queue size
    */
-  public TvShowSeasonEditorDialog(TvShowSeason tvShowSeason, int queueIndex, int queueSize) {
+  public TvShowSeasonEditorDialog(TvShowSeason tvShowSeason, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor");
 
     this.tvShowSeasonToEdit = tvShowSeason;
@@ -135,11 +136,19 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
       tfBanner.setText(tvShowSeason.getArtworkUrl(SEASON_BANNER));
     }
 
+    tabbedPane.setSelectedIndex(selectedTab);
+  }
+
+  /**
+   * Returns the tab number
+   * 
+   * @return 0-X
+   */
+  public int getSelectedTab() {
+    return tabbedPane.getSelectedIndex();
   }
 
   private void initComponents() {
-    JTabbedPane tabbedPane = new TmmTabbedPane();
-
     // to draw the shadow beneath window frame, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer(tabbedPane, new ShadowLayerUI()); // removed <> because this leads WBP to crash
     getContentPane().add(rootLayer, BorderLayout.CENTER);

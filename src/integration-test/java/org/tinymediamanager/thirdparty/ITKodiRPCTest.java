@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.thirdparty;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -24,14 +25,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.MovieDetail;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 
-public class ITKodiRPCTest extends BasicITest {
+public class ITKodiRPCTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ITKodiRPCTest.class);
   // *************************************************************************************
   // you need to enable Kodi -> remote control from OTHER machines (to open TCP port 9090)
@@ -49,11 +50,6 @@ public class ITKodiRPCTest extends BasicITest {
   @Test
   public void getVersion() {
     System.out.println(KodiRPC.getInstance().getVersion());
-  }
-
-  @Test
-  public void getMappings() {
-    KodiRPC.getInstance().getAndSetMovieMappings();
   }
 
   @Test
@@ -75,11 +71,9 @@ public class ITKodiRPCTest extends BasicITest {
 
   @Test
   public void getDataSources() {
-    for (SplitUri ds : KodiRPC.getInstance().getVideoDataSources()) {
+    for (String ds : KodiRPC.getInstance().getVideoDataSources().keySet()) {
       System.out.println(ds);
     }
-
-    KodiRPC.getInstance().getDataSources();
   }
 
   @Test
@@ -87,16 +81,26 @@ public class ITKodiRPCTest extends BasicITest {
     KodiRPC.getInstance().getAllTvShows();
   }
 
+  @Test
+  public void testEp() {
+    TvShow show = TvShowModuleManager.getInstance().getTvShowList().getTvShowByPath(Paths.get("target\\test-classes\\testtvshows\\Futurama (1999)"));
+    System.out.println(KodiRPC.getInstance().getEpisodeId(show.getEpisodes().get(0)));
+    System.out.println(KodiRPC.getInstance().getEpisodeId(show.getEpisodes().get(1)));
+    System.out.println(KodiRPC.getInstance().getEpisodeId(show.getEpisodes().get(2)));
+  }
+
   @BeforeClass
   public static void setUp() {
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
+    TvShowModuleManager.getInstance().startUp();
 
     // Upnp.getInstance().createUpnpService();
     // Upnp.getInstance().sendPlayerSearchRequest();
     try {
       HostConfig config = new HostConfig("127.0.0.1", 8080, "kodi", "kodi");
       KodiRPC.getInstance().connect(config);
+      Thread.sleep(1000); // FIXME: create task
     }
     catch (Exception e) {
       System.err.println(e.getMessage());
@@ -108,6 +112,7 @@ public class ITKodiRPCTest extends BasicITest {
   public static void tearDown() throws Exception {
     Thread.sleep(10000); // wait a bit - async
     KodiRPC.getInstance().disconnect();
+    TvShowModuleManager.getInstance().shutDown();
     MovieModuleManager.getInstance().shutDown();
     TmmModuleManager.getInstance().shutDown();
     Thread.sleep(200); // wait a bit - async

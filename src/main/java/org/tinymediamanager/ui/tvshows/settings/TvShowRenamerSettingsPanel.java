@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -64,7 +65,6 @@ import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -254,6 +254,9 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${audioChannels}"));
     exampleEventList.add(new TvShowRenamerExample("${audioChannelList}"));
     exampleEventList.add(new TvShowRenamerExample("${audioChannelsAsString}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelsDot}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelDotList}"));
+    exampleEventList.add(new TvShowRenamerExample("${audioChannelsDotAsString}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguage}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguageList}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguagesAsString}"));
@@ -565,8 +568,8 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       if (tvShow != null && episode != null) {
         String tvShowDir = TvShowRenamer.getTvShowFoldername(tfTvShowFolder.getText(), tvShow);
         MediaFile episodeMf = TvShowRenamer
-            .generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow, episode.getMediaFiles(MediaFileType.VIDEO).get(0),
-                episode.getMediaFiles(MediaFileType.VIDEO).get(0))
+            .generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow, episode.getMainVideoFile(),
+                FilenameUtils.getBaseName(episode.getMainVideoFile().getFilename()))
             .get(0);
 
         String newFilenameAndPath = episodeMf.getFile().toString().replace(episode.getTvShow().getPath(), "");

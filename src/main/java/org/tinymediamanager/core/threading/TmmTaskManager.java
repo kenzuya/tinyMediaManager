@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -337,8 +337,10 @@ public class TmmTaskManager implements TmmTaskListener {
    * @return true if a running thread's name contains given String
    */
   private boolean checkForThreadAlive(String contains) {
+    // ignore local thread
+    Thread local = Thread.currentThread();
     for (Thread t : getAllThreads()) {
-      if (t.isAlive() && getThreadName(t).contains(contains)) {
+      if (t != local && t.isAlive() && getThreadName(t).contains(contains)) {
         return true;
       }
     }

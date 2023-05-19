@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,19 +110,19 @@ public class Utils {
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><0-N>
-  private static final Pattern stackingPattern1            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)(\\.[^.]+)$",
+  private static final Pattern stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><a-d>
-  private static final Pattern stackingPattern2            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])(\\.[^.]+)$",
+  private static final Pattern stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
   private static final Pattern      stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern      stackingPattern4            = Pattern
-      .compile("(.*?)[ \\(_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ \\)_-]?(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern4            = Pattern.compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$",
+      Pattern.CASE_INSENSITIVE);
 
   // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
   private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
@@ -2144,5 +2144,80 @@ public class Utils {
       filename = filename.replace(c, '_');
     }
     return filename;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(String value) {
+    if (StringUtils.isNotBlank(value)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(int value) {
+    if (value > 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Date value) {
+    if (value != null && value.getTime() > 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Collection<?> value) {
+    if (value != null && !value.isEmpty()) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * handy method to return 1 when the value is filled
+   *
+   * @param value
+   *          the value
+   * @return 1 if the value is not null/empty - 0 otherwise
+   *
+   */
+  public static int returnOneWhenFilled(Map<?, ?> value) {
+    if (value != null && !value.isEmpty()) {
+      return 1;
+    }
+    return 0;
   }
 }

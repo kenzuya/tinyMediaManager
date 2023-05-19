@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             videoCodecsInMovies;
   private final CopyOnWriteArrayList<String>             videoContainersInMovies;
   private final CopyOnWriteArrayList<String>             audioCodecsInMovies;
+  private final CopyOnWriteArrayList<Integer>            audioChannelsInMovies;
   private final CopyOnWriteArrayList<MediaCertification> certificationsInMovies;
   private final CopyOnWriteArrayList<Double>             frameRatesInMovies;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInMovies;
@@ -137,6 +138,7 @@ public final class MovieList extends AbstractModelObject {
     videoCodecsInMovies = new CopyOnWriteArrayList<>();
     videoContainersInMovies = new CopyOnWriteArrayList<>();
     audioCodecsInMovies = new CopyOnWriteArrayList<>();
+    audioChannelsInMovies = new CopyOnWriteArrayList<>();
     certificationsInMovies = new CopyOnWriteArrayList<>();
     frameRatesInMovies = new CopyOnWriteArrayList<>();
     audioStreamsInMovies = new CopyOnWriteArrayList<>();
@@ -630,18 +632,42 @@ public final class MovieList extends AbstractModelObject {
    * @return the movie list
    */
   public synchronized List<Movie> getSubMoviesByPath(Path path) {
-    return movieList.parallelStream()
-        .filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path))
-        .collect(Collectors.toList());
+    return movieList.stream().filter(movie -> !movie.getPathNIO().equals(path) && movie.getPathNIO().startsWith(path)).collect(Collectors.toList());
   }
 
   /**
    * for each movie, re-evaluate all the paths against others, and set MMD correctly
    */
   public void reevaluateMMD() {
-    if (movieList == null || movieList.size() == 0) {
+    if (ListUtils.isEmpty(movieList)) {
       return;
     }
+
+    // build up lookup maps for a faster MMD comparison
+    Map<String, List<Movie>> moviePathMap = new HashMap<>();
+    for (Movie movie : movieList) {
+      String path = movie.getPathNIO().toAbsolutePath().toString();
+      List<Movie> moviesForPath = moviePathMap.computeIfAbsent(path, k -> new ArrayList<>());
+      moviesForPath.add(movie);
+    }
+
+    Map<String, List<Movie>> subMoviePathMap = new HashMap<>();
+    for (Movie movie : movieList) {
+      Path datasource = Paths.get(movie.getDataSource());
+
+      Path path = movie.getPathNIO().toAbsolutePath();
+      do {
+        List<Movie> moviesForPath = subMoviePathMap.computeIfAbsent(path.toString(), k -> new ArrayList<>());
+        moviesForPath.add(movie);
+
+        if (path.equals(datasource)) {
+          break;
+        }
+
+        path = path.getParent();
+      } while (path != null);
+    }
+
     LOGGER.info("re-evaluating MMD for {} movies...", movieList.size());
     for (Movie movie : movieList) {
       boolean old = movie.isMultiMovieDir();
@@ -651,31 +677,37 @@ public final class MovieList extends AbstractModelObject {
       // movies/bla/blubb/blubb.mkv
       // both would be single (not MMD) file, although the parent MUST be a MMD!
       // so get all sub movies within path (some levels deeper)
-      List<Movie> subMovies = getSubMoviesByPath(movie.getPathNIO());
-      if (subMovies.size() > 0) {
-        // there are some movies down the path - it MUST be treated as MMD
-        movie.setMultiMovieDir(true);
-      }
-      else {
-        // no sub movies, but some in exact same folder? (including myself)
-        List<Movie> samePath = getMoviesByPath(movie.getPathNIO());
-        if (samePath.size() > 1) {
+      if (!movie.getPathNIO().equals(Paths.get(movie.getDataSource()))) {
+        List<Movie> subMovies = subMoviePathMap.get(movie.getPathNIO().toAbsolutePath().toString());
+        if (subMovies.size() > 1) {
+          // there are some other movies down the path - it MUST be treated as MMD
           movie.setMultiMovieDir(true);
         }
         else {
-          // so just me; check another variant - see UDS L840
-          if (movie.getPathNIO().getFileName().toString().matches(MovieUpdateDatasourceTask.FOLDER_STRUCTURE)
-              || MediaGenres.containsGenre(movie.getPathNIO().getFileName().toString())) {
+          // no sub movies, but some in exact same folder? (including myself)
+          List<Movie> samePath = moviePathMap.get(movie.getPathNIO().toAbsolutePath().toString());
+          if (samePath.size() > 1) {
             movie.setMultiMovieDir(true);
           }
           else {
-            // - no submovie
-            // - noone in same path
-            // - no genres/decade/alphanum folder
-            // -> we can now safely assume a single movie - phew :)
-            movie.setMultiMovieDir(false);
+            // so just me; check another variant - see UDS L840
+            if (movie.getPathNIO().getFileName().toString().matches(MovieUpdateDatasourceTask.FOLDER_STRUCTURE)
+                || MediaGenres.containsGenre(movie.getPathNIO().getFileName().toString())) {
+              movie.setMultiMovieDir(true);
+            }
+            else {
+              // - no submovie
+              // - noone in same path
+              // - no genres/decade/alphanum folder
+              // -> we can now safely assume a single movie - phew :)
+              movie.setMultiMovieDir(false);
+            }
           }
         }
+      }
+      else {
+        // DS root
+        movie.setMultiMovieDir(true);
       }
 
       if (old != movie.isMultiMovieDir()) {
@@ -1102,6 +1134,7 @@ public final class MovieList extends AbstractModelObject {
     Set<Double> frameRates = new HashSet<>();
     Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioChannels = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<Integer> subtitleCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
@@ -1141,11 +1174,12 @@ public final class MovieList extends AbstractModelObject {
           videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
-        // audio codec
+        // audio codec+channels
         for (MediaFileAudioStream audio : mf.getAudioStreams()) {
           if (StringUtils.isNotBlank(audio.getCodec())) {
             audioCodecs.add(audio.getCodec());
           }
+          audioChannels.add(audio.getAudioChannels());
         }
         // audio streams
         if (!mf.getAudioStreams().isEmpty()) {
@@ -1192,6 +1226,11 @@ public final class MovieList extends AbstractModelObject {
     // audio codec
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioCodecsInMovies, audioCodecs)) {
       firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
+    }
+
+    // audio channels
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioChannelsInMovies, audioChannels)) {
+      firePropertyChange(Constants.AUDIO_CHANNEL, null, audioChannelsInMovies);
     }
 
     // audio streams
@@ -1282,6 +1321,10 @@ public final class MovieList extends AbstractModelObject {
 
   public Collection<String> getAudioCodecsInMovies() {
     return Collections.unmodifiableList(audioCodecsInMovies);
+  }
+
+  public Collection<Integer> getAudioChannelsInMovies() {
+    return Collections.unmodifiableList(audioChannelsInMovies);
   }
 
   public Collection<MediaCertification> getCertificationsInMovies() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,9 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
-  private static final int NUMBER_OF_EXPECTED_SHOWS    = 16;
-  private static final int NUMBER_OF_EXPECTED_EPISODES = 162;
+  private static final int NUMBER_OF_EXPECTED_SHOWS      = 16;
+  private static final int NUMBER_OF_EXPECTED_EPISODES   = 162;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 400;
 
   @Before
   public void setup() throws Exception {
@@ -79,19 +80,23 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     }
 
     int episodeCnt = 0;
+    int mfCnt = 0;
     // do some checks before shutting down the database
     for (TvShow show : tvShowList.getTvShows()) {
       System.out.println(show.getPath());
+      mfCnt += show.getMediaFiles().size();
 
       // check for every found episode that it has at least one VIDEO file
       for (TvShowEpisode episode : show.getEpisodes()) {
         assertThat(episode.getMediaFiles(MediaFileType.VIDEO)).isNotEmpty();
         episodeCnt++;
+        mfCnt += episode.getMediaFiles().size();
       }
     }
 
     assertThat(tvShowList.getTvShows().size()).isEqualTo(NUMBER_OF_EXPECTED_SHOWS);
     assertThat(episodeCnt).isEqualTo(NUMBER_OF_EXPECTED_EPISODES);
+    assertThat(mfCnt).isEqualTo(NUMBER_OF_EXPECTED_MEDIAFILES);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Breaking Bad

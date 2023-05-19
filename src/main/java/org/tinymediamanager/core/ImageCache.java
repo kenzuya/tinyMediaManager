@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.threading.ThreadUtils;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -133,7 +134,7 @@ public class ImageCache {
       return StrgUtils.bytesToHex(key);
     }
     catch (Exception e) {
-      LOGGER.debug("Failed to create cached filename for image: {} - {}", path, e);
+      LOGGER.debug("Failed to create cached filename for image: {} - {}", path, e.getMessage());
     }
     return "";
   }
@@ -222,7 +223,7 @@ public class ImageCache {
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
           LOGGER.debug("hit memory cap: {}", e.getMessage());
-          Thread.sleep(500);
+          ThreadUtils.sleep(500);
         }
         retries--;
       } while (retries > 0);
@@ -262,7 +263,7 @@ public class ImageCache {
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
           LOGGER.debug("hit memory cap: {}", e.getMessage());
-          Thread.sleep(500);
+          ThreadUtils.sleep(500);
         }
         retries--;
       } while (retries > 0);
@@ -310,7 +311,7 @@ public class ImageCache {
       scaledImage.flush();
 
       // give it a few milliseconds for being written to the filesystem
-      Thread.sleep(150);
+      ThreadUtils.sleep(150);
 
       if (!Files.exists(cachedFile)) {
         throw new IOException("unable to cache file: " + originalFile);

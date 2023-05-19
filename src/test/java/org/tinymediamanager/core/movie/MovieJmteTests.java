@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,6 +106,7 @@ public class MovieJmteTests extends BasicMovieTest {
       compare("${audioCodecList[1]}", "MP3");
       compare("${audioCodecList[2]}", "");
       compare("${audioChannels}", "6ch");
+      compare("${audioChannelsDot}", "5.1");
       compare("${audioChannelList[1]}", "2ch");
       compare("${audioChannelList[2]}", "");
       compare("${audioLanguage}", "en");

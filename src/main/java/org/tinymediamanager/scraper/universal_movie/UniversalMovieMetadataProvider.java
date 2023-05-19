@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -336,7 +336,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         }
       }
       catch (Exception e) {
-        LOGGER.warn("Could not get a result from scraper: {}", e.getMessage());
+        LOGGER.debug("Could not get a result from scraper: {}", e.getMessage());
       }
     }
     return metadataMap;

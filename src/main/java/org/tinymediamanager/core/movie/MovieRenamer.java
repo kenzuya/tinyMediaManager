@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,15 +150,20 @@ public class MovieRenamer {
     tokenMap.put("videoResolution", "movie.mediaInfoVideoResolution");
     tokenMap.put("videoBitDepth", "movie.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "movie.mediaInfoVideoBitrate;bitrate");
+
     tokenMap.put("audioCodec", "movie.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "movie.mediaInfoAudioCodecList");
     tokenMap.put("audioCodecsAsString", "movie.mediaInfoAudioCodecList;array");
     tokenMap.put("audioChannels", "movie.mediaInfoAudioChannels");
     tokenMap.put("audioChannelList", "movie.mediaInfoAudioChannelList");
     tokenMap.put("audioChannelsAsString", "movie.mediaInfoAudioChannelList;array");
+    tokenMap.put("audioChannelsDot", "movie.mediaInfoAudioChannelsDot");
+    tokenMap.put("audioChannelDotList", "movie.mediaInfoAudioChannelDotList");
+    tokenMap.put("audioChannelsDotAsString", "movie.mediaInfoAudioChannelDotList;array");
     tokenMap.put("audioLanguage", "movie.mediaInfoAudioLanguage");
     tokenMap.put("audioLanguageList", "movie.mediaInfoAudioLanguageList");
     tokenMap.put("audioLanguagesAsString", "movie.mediaInfoAudioLanguageList;array");
+
     tokenMap.put("subtitleLanguageList", "movie.mediaInfoSubtitleLanguageList");
     tokenMap.put("subtitleLanguagesAsString", "movie.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "movie.video3DFormat");
@@ -213,8 +218,8 @@ public class MovieRenamer {
         }
       }
       else {
-        /** SHOULD NOT BE NEEDED ANY MORE?! **/
         // detect from filename, if we don't have a MediaFileSubtitle entry!
+        // happens if subtitle file is empty, and gatherMI() does not create an entry...
         // remove the filename of movie from subtitle, to ease parsing
         String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
         if (ListUtils.isNotEmpty(m.getMediaFiles(MediaFileType.VIDEO))) {
@@ -850,6 +855,13 @@ public class MovieRenamer {
       newFilename = FilenameUtils.getBaseName(newFilename);
     }
 
+    // happens, when renaming pattern returns nothing (empty field like originalTitle)
+    // just return same file
+    if (newFilename.isEmpty()) {
+      newFiles.add(mf);
+      return newFiles;
+    }
+
     // extra clone, just for easy adding the "default" ones ;)
     MediaFile defaultMF = new MediaFile(mf);
     defaultMF.replacePathForRenamedFolder(movie.getPathNIO(), newMovieDir);
@@ -1151,7 +1163,7 @@ public class MovieRenamer {
           if (!extraFanartNamings.isEmpty()) {
             MovieExtraFanartNaming fileNaming = extraFanartNamings.get(0);
 
-            String newExtraFanartFilename = MovieArtworkHelper.getArtworkFilename(movie, fileNaming, getArtworkExtension(mf));
+            String newExtraFanartFilename = fileNaming.getFilename(newFilename, getArtworkExtension(mf));
             if (StringUtils.isNotBlank(newExtraFanartFilename)) {
               // split the filename again and attach the counter
               String basename = FilenameUtils.getBaseName(newExtraFanartFilename);

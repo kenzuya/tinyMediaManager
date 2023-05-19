@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,15 +178,20 @@ public class TvShowRenamer {
     tokenMap.put("aspectRatio2", "episode.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
+
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "episode.mediaInfoAudioCodecList");
     tokenMap.put("audioCodecsAsString", "episode.mediaInfoAudioCodecList;array");
     tokenMap.put("audioChannels", "episode.mediaInfoAudioChannels");
     tokenMap.put("audioChannelList", "episode.mediaInfoAudioChannelList");
     tokenMap.put("audioChannelsAsString", "episode.mediaInfoAudioChannelList;array");
+    tokenMap.put("audioChannelsDot", "episode.mediaInfoAudioChannelsDot");
+    tokenMap.put("audioChannelDotList", "episode.mediaInfoAudioChannelDotList");
+    tokenMap.put("audioChannelsDotAsString", "episode.mediaInfoAudioChannelDotList;array");
     tokenMap.put("audioLanguage", "episode.mediaInfoAudioLanguage");
     tokenMap.put("audioLanguageList", "episode.mediaInfoAudioLanguageList");
     tokenMap.put("audioLanguagesAsString", "episode.mediaInfoAudioLanguageList;array");
+
     tokenMap.put("subtitleLanguageList", "episode.mediaInfoSubtitleLanguageList");
     tokenMap.put("subtitleLanguagesAsString", "episode.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "episode.video3DFormat");
@@ -394,6 +399,10 @@ public class TvShowRenamer {
         if (Files.exists(cl.getFileAsPath())) { // unneeded, but for not displaying wrong deletes in logger...
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
+          // also cleanup the cache for deleted mfs
+          if (cl.isGraphic()) {
+            ImageCache.invalidateCachedImage(cl);
+          }
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
@@ -726,7 +735,12 @@ public class TvShowRenamer {
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           tvShow.removeFromMediaFiles(cl);
+          tvShow.removeSeasonArtwork(cl);
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
+          // also cleanup the cache for deleted mfs
+          if (cl.isGraphic()) {
+            ImageCache.invalidateCachedImage(cl);
+          }
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
@@ -748,6 +762,20 @@ public class TvShowRenamer {
     }
     catch (Exception e) {
       LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
+    }
+
+    // and rebuild the whole artwork maps
+    for (MediaFile mf : needed) {
+      String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+      int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+
+      if (season != Integer.MIN_VALUE) {
+        tvShow.setSeasonArtwork(season, mf);
+      }
+      else {
+        tvShow.removeFromMediaFiles(mf);
+        tvShow.removeSeasonArtwork(mf);
+      }
     }
 
     // ######################################################################
@@ -811,12 +839,16 @@ public class TvShowRenamer {
         }
       }
     }
+
+    // BASENAME
+    String oldVideoBasename = episode.getVideoBasenameWithoutStacking();
+
     // ######################################################################
     // ## rename VIDEO (move 1:1)
     // ######################################################################
     for (MediaFile vid : episode.getMediaFiles(MediaFileType.VIDEO)) {
       LOGGER.trace("Rename 1:1 {} {}", vid.getType(), vid.getFileAsPath());
-      MediaFile newMF = generateEpisodeFilenames(episode.getTvShow(), vid, originalVideoMediaFile).get(0); // there can be only one
+      MediaFile newMF = generateEpisodeFilenames(episode.getTvShow(), vid, "").get(0); // there can be only one
       boolean ok = moveFile(vid.getFileAsPath(), newMF.getFileAsPath());
       if (ok) {
         vid.setFile(newMF.getFileAsPath()); // update
@@ -848,7 +880,7 @@ public class TvShowRenamer {
     mfs.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
     for (MediaFile mf : mfs) {
       LOGGER.trace("Rename 1:N {} {}", mf.getType(), mf.getFileAsPath());
-      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), mf, originalVideoMediaFile); // 1:N
+      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), mf, oldVideoBasename); // 1:N
       for (MediaFile newMF : newMFs) {
         boolean ok = copyFile(mf.getFileAsPath(), newMF.getFileAsPath());
         if (ok) {
@@ -907,7 +939,7 @@ public class TvShowRenamer {
     // ######################################################################
     for (MediaFile subtitle : episode.getMediaFiles(MediaFileType.SUBTITLE)) {
       LOGGER.trace("Rename 1:1 {} {}", subtitle.getType(), subtitle.getFileAsPath());
-      MediaFile sub = generateEpisodeFilenames(episode.getTvShow(), subtitle, originalVideoMediaFile).get(0); // there can be only one
+      MediaFile sub = generateEpisodeFilenames(episode.getTvShow(), subtitle, oldVideoBasename).get(0); // there can be only one
       boolean ok = moveFile(subtitle.getFileAsPath(), sub.getFileAsPath());
       if (ok) {
         if (sub.getFilename().endsWith(".sub")) {
@@ -936,7 +968,7 @@ public class TvShowRenamer {
     for (MediaFile other : mfs) {
       LOGGER.trace("Rename 1:1 {} - {}", other.getType(), other.getFileAsPath());
 
-      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), other, originalVideoMediaFile); // 1:N
+      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), other, oldVideoBasename); // 1:N
       newMFs.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
 
       for (MediaFile newMF : newMFs) {
@@ -1161,8 +1193,8 @@ public class TvShowRenamer {
    *          the original video file (for extracting diffs)
    * @return the file name for the media file
    */
-  public static List<MediaFile> generateEpisodeFilenames(TvShow tvShow, MediaFile mf, MediaFile originalVideoFile) {
-    return generateEpisodeFilenames("", tvShow, mf, originalVideoFile);
+  public static List<MediaFile> generateEpisodeFilenames(TvShow tvShow, MediaFile mf, String videoBasename) {
+    return generateEpisodeFilenames("", tvShow, mf, videoBasename);
   }
 
   /**
@@ -1178,7 +1210,7 @@ public class TvShowRenamer {
    *          the original video file (for extracting diffs)
    * @return the file name for the media file
    */
-  public static List<MediaFile> generateEpisodeFilenames(String template, TvShow tvShow, MediaFile mf, MediaFile originalVideoFile) {
+  public static List<MediaFile> generateEpisodeFilenames(String template, TvShow tvShow, MediaFile mf, String oldVideoBasename) {
     // return list of all generated MFs
     ArrayList<MediaFile> newFiles = new ArrayList<>();
 
@@ -1195,13 +1227,19 @@ public class TvShowRenamer {
       return Integer.compare(ep1.getEpisode(), ep2.getEpisode());
     });
 
-    String newFilename;
+    String newFilename = "";
+    // FIXME: check, where/when the stacking marker gets added, and WHICH (from which stacked video)
     if (StringUtils.isBlank(template)) {
       newFilename = createDestination(TvShowModuleManager.getInstance().getSettings().getRenamerFilename(), eps);
     }
     else {
       newFilename = createDestination(template, eps);
     }
+    if (mf.getStacking() > 0) {
+      // remove the stacking here, so we have a correct basename
+      newFilename = Utils.cleanFolderStackingMarkers(newFilename); // i know, but this needs no extension ;)
+    }
+
     // when renaming with $originalFilename, we get already the extension added!
     if (newFilename.endsWith(mf.getExtension())) {
       newFilename = FilenameUtils.getBaseName(newFilename);
@@ -1261,6 +1299,7 @@ public class TvShowRenamer {
       case SUBTITLE:
         List<MediaFileSubtitle> subtitles = mf.getSubtitles();
         String subtitleFilename = "";
+        newFilename += getStackingString(mf); // ToDo
         if (subtitles != null && !subtitles.isEmpty()) {
           MediaFileSubtitle mfs = mf.getSubtitles().get(0);
           if (mfs != null) {
@@ -1365,6 +1404,7 @@ public class TvShowRenamer {
       ////////////////////////////////////////////////////////////////////////
       case MEDIAINFO:
         MediaFile mediainfo = new MediaFile(mf);
+        newFilename += getStackingString(mf); // ToDo
         mediainfo.setFile(seasonFolder.resolve(newFilename + "-mediainfo." + mf.getExtension()));
         newFiles.add(mediainfo);
         break;
@@ -1389,9 +1429,8 @@ public class TvShowRenamer {
         // this extra is for an episode -> move it at least to the season folder and try to replace the episode tokens
         MediaFile extra = new MediaFile(mf);
         // try to detect the title of the extra file
-        TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(mf.getFilename(),
-            tvShow.getTitle());
-        extra.setFile(seasonFolder.resolve("extras/" + newFilename + "-" + result.cleanedName + "." + mf.getExtension()));
+        String extraTitle = mf.getBasename().replace(oldVideoBasename, "");
+        extra.setFile(seasonFolder.resolve(newFilename + extraTitle + "." + mf.getExtension()));
         newFiles.add(extra);
         break;
 
@@ -1416,9 +1455,7 @@ public class TvShowRenamer {
         MediaFile other = new MediaFile(mf);
         boolean spaceSubstitution = TvShowModuleManager.getInstance().getSettings().isRenamerFilenameSpaceSubstitution();
         String spaceReplacement = TvShowModuleManager.getInstance().getSettings().getRenamerFilenameSpaceReplacement();
-        String destination = cleanupDestination(
-            newFilename
-                + StringUtils.difference(FilenameUtils.getBaseName(originalVideoFile.getFilename()), FilenameUtils.getBaseName(mf.getFilename())),
+        String destination = cleanupDestination(newFilename + StringUtils.difference(oldVideoBasename, FilenameUtils.getBaseName(mf.getFilename())),
             spaceSubstitution, spaceReplacement);
         other.setFile(seasonFolder.resolve(destination + "." + mf.getExtension()));
         newFiles.add(other);

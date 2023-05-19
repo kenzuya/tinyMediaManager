@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@ import static org.tinymediamanager.core.Constants.PLOT;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.Constants.RATING;
-import static org.tinymediamanager.core.Constants.SCRAPED;
 import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.THUMB;
 import static org.tinymediamanager.core.Constants.TITLE;
 import static org.tinymediamanager.core.Constants.YEAR;
+import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.awt.Dimension;
 import java.io.IOException;
@@ -126,8 +126,6 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
   protected Date                       dateAdded          = new Date();
   @JsonProperty
   protected String                     productionCompany  = "";
-  @JsonProperty
-  protected boolean                    scraped            = false;
   @JsonProperty
   protected String                     note               = "";
 
@@ -722,13 +720,38 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     firePropertyChange(PRODUCTION_COMPANY, oldValue, newValue);
   }
 
-  protected void setScraped(boolean newValue) {
-    this.scraped = newValue;
-    firePropertyChange(SCRAPED, false, newValue);
+  /**
+   * checks if this {@link MediaEntity} has been scraped.<br>
+   * detect minimum of filled values as to classify this {@link MediaEntity} as "scraped"<br>
+   * we do calculate a score of all "filled" values and if that is above a certain level we're rather sure this is scraped<br>
+   * some values might come from just reading filenames/external NFO files, but other values can only be filled when scraping inside tmm or importing
+   * a complete NFO file
+   *
+   * @return isScraped
+   */
+  public boolean isScraped() {
+    return calculateScrapeScore() > 5;
   }
 
-  public boolean isScraped() {
-    return scraped;
+  /**
+   * this method takes local values/properties and checks if they are "filled" to calculate a score which indicated whether this {@link MediaEntity}
+   * has been scraped or not
+   * 
+   * @return the calculated score
+   */
+  protected float calculateScrapeScore() {
+    float score = 0;
+
+    // all properties from this class - except "title" which is always filled (at leas with the filename)
+    score = score + ids.size(); // each given ID increases the score by 1
+    score = score + returnOneWhenFilled(year);
+    score = score + returnOneWhenFilled(originalTitle);
+    score = score + returnOneWhenFilled(plot);
+    score = score + returnOneWhenFilled(productionCompany);
+    score = score + returnOneWhenFilled(ratings);
+    score = score + returnOneWhenFilled(artworkUrlMap);
+
+    return score;
   }
 
   public void setNote(String newValue) {

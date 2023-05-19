@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public final class Constants {
   public static final String ADDED_SEASON           = "addedSeason";
   public static final String ADDED_TV_SHOW          = "addedTvShow";
   public static final String AUDIO_CODEC            = "audioCodec";
+  public static final String AUDIO_CHANNEL          = "audioChannel";
   public static final String AUDIOSTREAMS_COUNT     = "audioStreams";
   public static final String BANNER                 = "banner";
   public static final String BANNER_URL             = "bannerUrl";

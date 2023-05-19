@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,6 +141,7 @@ public class MovieEditorDialog extends TmmDialog {
 
   private final Movie                              movieToEdit;
   private final MovieList                          movieList           = MovieModuleManager.getInstance().getMovieList();
+  private final JTabbedPane                        tabbedPane          = new TmmTabbedPane();
 
   private final List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<MediaTrailer>            trailers;
@@ -233,7 +234,7 @@ public class MovieEditorDialog extends TmmDialog {
    * @param queueSize
    *          the queue size
    */
-  public MovieEditorDialog(Movie movie, int queueIndex, int queueSize) {
+  public MovieEditorDialog(Movie movie, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("movie.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + movie.getPathNIO()
         + " >", "movieEditor");
 
@@ -370,11 +371,20 @@ public class MovieEditorDialog extends TmmDialog {
         }
       }
     });
+
+    tabbedPane.setSelectedIndex(selectedTab);
+  }
+
+  /**
+   * Returns the tab number
+   * 
+   * @return 0-X
+   */
+  public int getSelectedTab() {
+    return tabbedPane.getSelectedIndex();
   }
 
   private void initComponents() {
-    JTabbedPane tabbedPane = new TmmTabbedPane();
-
     // to draw the shadow beneath window frame, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer(tabbedPane, new ShadowLayerUI()); // removed <> because this leads WBP to crash
     getContentPane().add(rootLayer, BorderLayout.CENTER);
@@ -2177,7 +2187,6 @@ public class MovieEditorDialog extends TmmDialog {
   @Override
   public void dispose() {
     super.dispose();
-
     if (mediaFilesPanel != null) {
       mediaFilesPanel.unbindBindings();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -530,6 +530,26 @@ public class UpgradeTasks {
           }
           if (dirty) {
             episode.saveToDb();
+          }
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "4.3.11") < 0) {
+      // upgrade stacking information for subtitles
+      for (Movie movie : movieList.getMovies()) {
+        if (movie.isStacked()) {
+          boolean dirty = false;
+          for (MediaFile mf : movie.getMediaFiles(MediaFileType.SUBTITLE)) {
+            String old = mf.getStackingMarker();
+            mf.detectStackingInformation();
+            if (!old.equals(mf.getStackingMarker())) {
+              dirty = true;
+            }
+          }
+          if (dirty) {
+            movie.saveToDb();
+            movie.firePropertyChange(MEDIA_INFORMATION, false, true);
           }
         }
       }

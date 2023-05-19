@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,11 @@ import org.tinymediamanager.scraper.mpdbtv.entities.DiscArt;
 import org.tinymediamanager.scraper.mpdbtv.entities.Fanart;
 import org.tinymediamanager.scraper.mpdbtv.entities.HDClearArt;
 import org.tinymediamanager.scraper.mpdbtv.entities.HDLogo;
+import org.tinymediamanager.scraper.mpdbtv.entities.Languages;
 import org.tinymediamanager.scraper.mpdbtv.entities.MovieEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Poster;
 import org.tinymediamanager.scraper.mpdbtv.services.Controller;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 
 import retrofit2.Response;
@@ -130,6 +132,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       mediaArtwork.setOriginalUrl(poster.original);
       mediaArtwork.setLikes(poster.votes);
 
+      if (!poster.languages.isEmpty()) {
+        Languages language = poster.languages.get(0);
+        mediaArtwork.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(language.language));
+      }
+
       ma.add(mediaArtwork);
     }
 
@@ -140,6 +147,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       mediaArtwork.setDefaultUrl(fanart.original);
       mediaArtwork.setOriginalUrl(fanart.original);
       mediaArtwork.setLikes(fanart.votes);
+
+      if (!fanart.languages.isEmpty()) {
+        Languages language = fanart.languages.get(0);
+        mediaArtwork.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(language.language));
+      }
 
       ma.add(mediaArtwork);
     }
@@ -152,6 +164,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       mediaArtwork.setOriginalUrl(discArt.original);
       mediaArtwork.setLikes(discArt.votes);
 
+      if (!discArt.languages.isEmpty()) {
+        Languages language = discArt.languages.get(0);
+        mediaArtwork.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(language.language));
+      }
+
       ma.add(mediaArtwork);
     }
 
@@ -163,6 +180,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       mediaArtwork.setOriginalUrl(hdClearArt.original);
       mediaArtwork.setLikes(hdClearArt.votes);
 
+      if (!hdClearArt.languages.isEmpty()) {
+        Languages language = hdClearArt.languages.get(0);
+        mediaArtwork.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(language.language));
+      }
+
       ma.add(mediaArtwork);
     }
 
@@ -173,6 +195,11 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
       mediaArtwork.setDefaultUrl(hdLogo.original);
       mediaArtwork.setOriginalUrl(hdLogo.original);
       mediaArtwork.setLikes(hdLogo.votes);
+
+      if (!hdLogo.languages.isEmpty()) {
+        Languages language = hdLogo.languages.get(0);
+        mediaArtwork.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(language.language));
+      }
 
       ma.add(mediaArtwork);
     }

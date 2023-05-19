@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_DOWNLOAD             = createSVGIcon("icn_download.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_EDIT                 = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_EDIT_HOVER           = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_LOGO                 = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
+  public static final ImageIcon              TOOLBAR_LOGO                 = createSVGIcon("tmm_logo.svg", new Dimension(100, 45));
   public static final ImageIcon              TOOLBAR_REFRESH              = createSVGIcon("icn_refresh.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_REFRESH_HOVER        = createSVGIcon("icn_refresh_hover.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_RENAME               = createSVGIcon("icn_rename.svg", new Dimension(36, 36));

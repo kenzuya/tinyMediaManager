@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
@@ -100,7 +99,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
    */
   public static synchronized MainWindow getInstance() {
     if (instance == null) {
-      new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
+      new MainWindow("tinyMediaManager");
     }
     return instance;
   }
@@ -273,20 +272,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
 
-      for (Window window : Window.getWindows()) {
-        if (window instanceof JDialog) {
-          JDialog dialog = (JDialog) window;
-          if (dialog.isVisible()) {
-            TmmUILayoutStore.getInstance().saveSettings(dialog);
-          }
-        }
-        else if (window instanceof JFrame) {
-          JFrame frame = (JFrame) window;
-          if (frame.isVisible()) {
-            TmmUILayoutStore.getInstance().saveSettings(frame);
-          }
-        }
-      }
+      saveWindowLayout();
 
       TinyMediaManager.shutdown();
       dispose();
@@ -317,6 +303,23 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
   public void createLightbox(String pathToFile, String urlToFile) {
     LightBox.showLightBox(instance, pathToFile, urlToFile);
+  }
+
+  public void saveWindowLayout() {
+    for (Window window : Window.getWindows()) {
+      if (window instanceof JDialog) {
+        JDialog dialog = (JDialog) window;
+        if (dialog.isVisible()) {
+          TmmUILayoutStore.getInstance().saveSettings(dialog);
+        }
+      }
+      else if (window instanceof JFrame) {
+        JFrame frame = (JFrame) window;
+        if (frame.isVisible()) {
+          TmmUILayoutStore.getInstance().saveSettings(frame);
+        }
+      }
+    }
   }
 
   @Override

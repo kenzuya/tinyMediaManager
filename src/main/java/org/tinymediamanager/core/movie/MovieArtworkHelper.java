@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1010,8 +1010,8 @@ public class MovieArtworkHelper {
       }
     }
 
-    // the right language and down to 2 resolutions lower (if language has priority)
     if (MovieModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
+      // the right language and down to 2 resolutions lower (if language has priority)
       int counter = 1;
       int newOrder = sizeOrder;
       while (counter <= 2) {
@@ -1024,36 +1024,42 @@ public class MovieArtworkHelper {
         }
         counter++;
       }
-    }
 
-    // the right resolution
-    for (MediaArtwork art : artwork) {
-      // only get artwork in desired resolution
-      if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == sizeOrder) {
-        sortedArtwork.add(art);
-      }
-    }
-
-    // down to 2 resolutions lower
-    int counter = 1;
-    int newOrder = sizeOrder;
-    while (counter <= 2) {
-      newOrder = newOrder / 2;
-
+      // no language, but the right resolution
       for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
           sortedArtwork.add(art);
         }
       }
-      counter++;
     }
-
-    // the first we find
-    if (sortedArtwork.isEmpty() && !artwork.isEmpty()) {
+    else {
+      // the right resolution (first w/o text)
       for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type) {
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
           sortedArtwork.add(art);
         }
+      }
+
+      // other languages
+      for (MediaArtwork art : artwork) {
+        // only get artwork in desired resolution
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == sizeOrder) {
+          sortedArtwork.add(art);
+        }
+      }
+
+      // down to 2 resolutions lower
+      int counter = 1;
+      int newOrder = sizeOrder;
+      while (counter <= 2) {
+        newOrder = newOrder / 2;
+
+        for (MediaArtwork art : artwork) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+        counter++;
       }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String>    SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
-      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
   private static final String          SKIP_REGEX    = "^[.][\\w@]+.*";
@@ -566,7 +566,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // check, if some episode MFs are assigned also to tvshows...!
       List<MediaFile> episodeFiles = tvShow.getEpisodesMediaFiles();
-      List<MediaFile> cleanup = new ArrayList<MediaFile>();
+      List<MediaFile> cleanup = new ArrayList<>();
       for (MediaFile showFile : tvShow.getMediaFiles()) {
         if (episodeFiles.contains(showFile)) {
           cleanup.add(showFile);
@@ -817,19 +817,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           String vidBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vid.getFilename()));
           vidBasename = showDir.relativize(vid.getFileAsPath().getParent()) + "/" + vidBasename;
           LOGGER.trace("UDS: video basename {} - {}", vidBasename, vid.getFile());
-          for (MediaFile img : mfs) {
+          for (MediaFile other : mfs) {
             // change asdf-poster.jpg -> asdf.jpg, to ease basename matching ;)
-            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(img)));
-            imgBasename = showDir.relativize(img.getFileAsPath().getParent()) + "/" + imgBasename;
+            String imgBasename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(getMediaFileNameWithoutType(other)));
+            imgBasename = showDir.relativize(other.getFileAsPath().getParent()) + "/" + imgBasename;
 
             // we now got a match with same (generated) basename!
             if (vidBasename.equalsIgnoreCase(imgBasename)) {
-              if (img.getType() == MediaFileType.POSTER || img.getType() == MediaFileType.GRAPHIC) {
+              if (other.getType() == MediaFileType.POSTER || other.getType() == MediaFileType.GRAPHIC) {
                 // re-type posters to EP "posters" (=thumb)
-                img.setType(MediaFileType.THUMB);
+                other.setType(MediaFileType.THUMB);
               }
-              epFiles.add(img);
-              LOGGER.trace("UDS: found matching {} - {}", imgBasename, img.getFile());
+              epFiles.add(other);
+              LOGGER.trace("UDS: found matching {} - {}", imgBasename, other.getFile());
             }
           } // end inner MF loop over all non videos
         } // end MF nodisc file
@@ -1142,8 +1142,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
 
         String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
-        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(relativePath, tvShow.getTitle());
-        if (result.season > 0 && !result.episodes.isEmpty()) {
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
+        if (result.season > -1 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
             // get any assigned episode
             List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);
@@ -1232,7 +1232,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
     /**
      * gets the filename of the MF, reduced by type<br>
-     * episode1-poster.jpg -> episode1.jpg
+     * episode1-poster.jpg -> episode1.jpg<br>
+     * also remove named extra files like '*-behinthescenes'
      *
      * @param mf
      * @return
@@ -1241,6 +1242,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       String ret = mf.getFilename();
       // does not work for extrafanarts/landscape - but thats mostly not used on episode level
       ret = ret.replaceFirst("(?i)[_.-]" + mf.getType() + "[.]" + mf.getExtension(), "." + mf.getExtension());
+
+      for (String extr : MediaFileHelper.EXTRA_FOLDERS) {
+        ret = ret.replaceFirst("(?i)[_.-]" + extr + "\\d?[.]" + mf.getExtension(), "." + mf.getExtension());
+      }
       return ret;
     }
 
@@ -1460,29 +1465,35 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return CONTINUE;
       }
 
-      String filename = file.getFileName().toString();
-      String path = "";
-      if (file.getParent() != null && file.getParent().getFileName() != null) {
-        path = file.getParent().getFileName().toString();
-      }
+      try {
 
-      // in a disc folder we only accept NFO files
-      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
-        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
-          fFound.add(file.toAbsolutePath());
+        String filename = file.getFileName().toString();
+        String path = "";
+        if (file.getParent() != null && file.getParent().getFileName() != null) {
+          path = file.getParent().getFileName().toString();
         }
-        return CONTINUE;
-      }
 
-      // check if we're in dirty disc folder
-      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
-      }
+        // in a disc folder we only accept NFO files
+        if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+          if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+            fFound.add(file.toAbsolutePath());
+          }
+          return CONTINUE;
+        }
 
-      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
-        return CONTINUE;
+        // check if we're in dirty disc folder
+        if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+
+        if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+          fFound.add(file.toAbsolutePath());
+          return CONTINUE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze file '{}' - '{}'", file.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;
@@ -1496,21 +1507,26 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       incPreDir();
 
-      // getFilename returns null on DS root!
-      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
-        LOGGER.debug("Skipping dir: {}", dir);
-        return SKIP_SUBTREE;
-      }
+      try {
+        // getFilename returns null on DS root!
+        if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
+          LOGGER.debug("Skipping dir: {}", dir);
+          return SKIP_SUBTREE;
+        }
 
-      // add the disc folder itself (clean disc folder)
-      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        fFound.add(dir.toAbsolutePath());
-        return CONTINUE;
-      }
+        // add the disc folder itself (clean disc folder)
+        if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          fFound.add(dir.toAbsolutePath());
+          return CONTINUE;
+        }
 
-      // don't go below a disc folder
-      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-        return SKIP_SUBTREE;
+        // don't go below a disc folder
+        if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+          return SKIP_SUBTREE;
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not analyze folder '{}' - '{}'", dir.toAbsolutePath(), e.getMessage());
       }
 
       return CONTINUE;

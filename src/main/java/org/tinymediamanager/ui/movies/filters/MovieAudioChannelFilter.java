@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,18 @@ import static org.tinymediamanager.core.MediaFileType.AUDIO;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
+import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -35,16 +40,13 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class MovieAudioChannelFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
-  private static final String CHANNEL_1 = "1 (Mono)";
-  private static final String CHANNEL_2 = "2 (Stereo)";
-  private static final String CHANNEL_3 = "3 (2.1)";
-  private static final String CHANNEL_6 = "6 (5.1)";
-  private static final String CHANNEL_8 = "8 (7.1)";
+  private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
   public MovieAudioChannelFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
-    setValues(CHANNEL_1, CHANNEL_2, CHANNEL_3, CHANNEL_6, CHANNEL_8);
+    checkComboBox.enableFilter((s, s2) -> s.substring(0, 1).equals(s2.substring(0, 1))); // first char is channel
+    buildAudioChannelArray();
+    movieList.addPropertyChangeListener(Constants.AUDIO_CHANNEL, evt -> SwingUtilities.invokeLater(this::buildAudioChannelArray));
   }
 
   @Override
@@ -54,14 +56,16 @@ public class MovieAudioChannelFilter extends AbstractCheckComboBoxMovieUIFilter<
 
   @Override
   public boolean accept(Movie movie) {
-    List<String> selectedValues = checkComboBox.getSelectedItems();
-    List<String> audioChannels = prepareSelectesAudioChannels(selectedValues);
+    List<String> audioChannels = new ArrayList<String>();
+    for (String values : checkComboBox.getSelectedItems()) {
+      audioChannels.add(values.substring(0, 1)); // MI does not return more than 8 channels, so 16 is no issue ;)
+    }
 
     // check all audio channels of all VIDEO and AUDIO files
     List<MediaFile> mediaFiles = movie.getMediaFiles(VIDEO, AUDIO);
     for (MediaFile mf : mediaFiles) {
       for (String channels : mf.getAudioChannelsList()) {
-        if (audioChannels.contains(channels)) {
+        if (audioChannels.contains(channels.substring(0, 1))) {
           return true;
         }
       }
@@ -70,38 +74,35 @@ public class MovieAudioChannelFilter extends AbstractCheckComboBoxMovieUIFilter<
     return false;
   }
 
-  private List<String> prepareSelectesAudioChannels(List<String> selectedValues) {
-    List<String> selectedAudioChannels = new ArrayList<>();
-
-    for (String channel : selectedValues) {
-      switch (channel) {
-        case CHANNEL_1:
-          selectedAudioChannels.add("1ch");
-          break;
-
-        case CHANNEL_2:
-          selectedAudioChannels.add("2ch");
-          break;
-
-        case CHANNEL_3:
-          selectedAudioChannels.add("3ch");
-          break;
-
-        case CHANNEL_6:
-          selectedAudioChannels.add("6ch");
-          break;
-
-        case CHANNEL_8:
-          selectedAudioChannels.add("8ch");
-          break;
-
-        default:
-          break;
-      }
-
+  private void buildAudioChannelArray() {
+    List<String> audioChannel = new ArrayList<>();
+    for (int channel : movieList.getAudioChannelsInMovies()) {
+      audioChannel.add(audioChannelNotation(channel));
     }
+    Collections.sort(audioChannel);
+    setValues(audioChannel);
+  }
 
-    return selectedAudioChannels;
+  private String audioChannelNotation(int channels) {
+    String ret = "";
+    switch (channels) {
+      case 0:
+        ret = "0 (no audio)";
+        break;
+
+      case 1:
+        ret = "1 (Mono)";
+        break;
+
+      case 2:
+        ret = "2 (Stereo)";
+        break;
+
+      default:
+        ret = channels + " (" + MediaFileHelper.audioChannelInDotNotation(channels) + ")";
+        break;
+    }
+    return ret;
   }
 
   @Override

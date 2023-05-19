@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,8 +186,10 @@ public class TvShowExporter extends MediaEntityExporter {
     }
     if (entity instanceof TvShowEpisode episode) {
       MediaFile mainVideoFile = episode.getMainVideoFile();
-      return FilenameUtils
-          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile)
+      return FilenameUtils.getBaseName(
+          TvShowRenamer
+              .generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile,
+                  FilenameUtils.getBaseName(mainVideoFile.getFilename()))
               .get(0)
               .getFilename());
     }

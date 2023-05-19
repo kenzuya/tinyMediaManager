@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
   private final TvShow                             tvShowToEdit;
   private final TvShowList                         tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
+  private final JTabbedPane                        tabbedPane          = new TmmTabbedPane();
   private final EventList<Person>                  actors;
   private final List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<MediaId>                 ids;
@@ -224,7 +225,7 @@ public class TvShowEditorDialog extends TmmDialog {
    * @param queueSize
    *          the queue size
    */
-  public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize) {
+  public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO()
         + " >", "tvShowEditor");
 
@@ -367,6 +368,17 @@ public class TvShowEditorDialog extends TmmDialog {
         }
       }
     });
+
+    tabbedPane.setSelectedIndex(selectedTab);
+  }
+
+  /**
+   * Returns the tab number
+   *
+   * @return 0-X
+   */
+  public int getSelectedTab() {
+    return tabbedPane.getSelectedIndex();
   }
 
   private void buildEpisodeContainer(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
@@ -381,8 +393,6 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private void initComponents() {
-    JTabbedPane tabbedPane = new TmmTabbedPane();
-
     // to draw the shadow beneath window frame, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer(tabbedPane, new ShadowLayerUI()); // removed <> because this leads WBP to crash
     getContentPane().add(rootLayer, BorderLayout.CENTER);

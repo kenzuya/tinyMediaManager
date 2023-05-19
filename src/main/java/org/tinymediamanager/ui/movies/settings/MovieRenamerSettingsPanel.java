@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -239,6 +239,9 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${audioChannels}"));
     exampleEventList.add(new MovieRenamerExample("${audioChannelList}"));
     exampleEventList.add(new MovieRenamerExample("${audioChannelsAsString}"));
+    exampleEventList.add(new MovieRenamerExample("${audioChannelsDot}"));
+    exampleEventList.add(new MovieRenamerExample("${audioChannelDotList}"));
+    exampleEventList.add(new MovieRenamerExample("${audioChannelsDotAsString}"));
     exampleEventList.add(new MovieRenamerExample("${audioLanguage}"));
     exampleEventList.add(new MovieRenamerExample("${audioLanguageList}"));
     exampleEventList.add(new MovieRenamerExample("${audioLanguagesAsString}"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -386,7 +386,13 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       ma.setPreviewUrl(ma.getDefaultUrl());
     }
 
-    ma.setLanguage(ma.getLanguage());
+    if (StringUtils.isBlank(image.language)) {
+      // no text
+      ma.setLanguage("-");
+    }
+    else {
+      ma.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(image.language));
+    }
 
     // get the season number
     if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.season != null) {

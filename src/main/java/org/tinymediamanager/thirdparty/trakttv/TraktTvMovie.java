@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -609,7 +610,7 @@ class TraktTvMovie {
     switch (syncType) {
       case COLLECTION:
         // sync collection
-        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneOffset.UTC));
+        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(getDateField(tmmMovie)), ZoneOffset.UTC));
         break;
 
       case WATCHED:
@@ -643,5 +644,34 @@ class TraktTvMovie {
 
   private SyncMovie toSyncMovie(BaseMovie baseMovie) {
     return new SyncMovie().id(baseMovie.movie.ids).collectedAt(baseMovie.collected_at).watchedAt(baseMovie.last_watched_at);
+  }
+
+  private Date getDateField(Movie movie) {
+    Date collectedAt = null;
+
+    switch (Settings.getInstance().getTraktDateField()) {
+      case DATE_ADDED:
+        collectedAt = movie.getDateAdded();
+        break;
+
+      case FILE_CREATION_DATE:
+        collectedAt = movie.getMainVideoFile().getDateCreated();
+        break;
+
+      case FILE_LAST_MODIFIED_DATE:
+        collectedAt = movie.getMainVideoFile().getDateLastModified();
+        break;
+
+      case RELEASE_DATE:
+        collectedAt = movie.getReleaseDate();
+        break;
+    }
+
+    if (collectedAt == null) {
+      // fallback
+      collectedAt = movie.getDateAddedForUi();
+    }
+
+    return collectedAt;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,8 @@ public class MovieSetEditAction extends TmmAction {
 
     int selectedCount = selectedObjects.size();
     int index = 0;
+    int selectedMovieTab = 0;
+    int selectedMoviesetTab = 0;
 
     if (selectedCount == 0) {
       return;
@@ -68,8 +70,9 @@ public class MovieSetEditAction extends TmmAction {
 
       if (object instanceof MovieSet) {
         MovieSet movieSet = (MovieSet) object;
-        MovieSetEditorDialog editor = new MovieSetEditorDialog(movieSet, index, selectedCount);
+        MovieSetEditorDialog editor = new MovieSetEditorDialog(movieSet, index, selectedCount, selectedMoviesetTab);
         editor.setVisible(true);
+        selectedMoviesetTab = editor.getSelectedTab();
         if (!editor.isContinueQueue()) {
           break;
         }
@@ -83,8 +86,9 @@ public class MovieSetEditAction extends TmmAction {
       }
       else if (object instanceof Movie) {
         Movie movie = (Movie) object;
-        MovieEditorDialog editor = new MovieEditorDialog(movie, index, selectedCount);
+        MovieEditorDialog editor = new MovieEditorDialog(movie, index, selectedCount, selectedMovieTab);
         editor.setVisible(true);
+        selectedMovieTab = editor.getSelectedTab();
         if (!editor.isContinueQueue()) {
           break;
         }

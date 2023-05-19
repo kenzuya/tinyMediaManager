@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ public class MovieSetEditMovieAction extends TmmAction {
 
     int selectedCount = selectedMovies.size();
     int index = 0;
+    int selectedTab = 0;
 
     if (selectedCount == 0) {
       return;
@@ -56,8 +57,9 @@ public class MovieSetEditMovieAction extends TmmAction {
 
     do {
       Movie movie = selectedMovies.get(index);
-      MovieEditorDialog dialogMovieEditor = new MovieEditorDialog(movie, index, selectedCount);
+      MovieEditorDialog dialogMovieEditor = new MovieEditorDialog(movie, index, selectedCount, selectedTab);
       dialogMovieEditor.setVisible(true);
+      selectedTab = dialogMovieEditor.getSelectedTab();
 
       if (!dialogMovieEditor.isContinueQueue()) {
         break;

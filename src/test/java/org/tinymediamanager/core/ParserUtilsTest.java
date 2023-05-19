@@ -120,7 +120,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("stvs7ep9 10", detectTY("stvs7ep9-10.avi"));
     assertEqual("s01e545 Steamtown USA", detectTY("s01e545 - Steamtown USA.mkv"));
     assertEqual("Doctor Who S13 E2 Part4 Planet of Evil", detectTY("Doctor.Who.S13.E2.Part4.Planet.of.Evil.DVDRip.XviD-m00tv.avi"));
-    assertEqual("vs once upon a time S03XE05 dd51 ded", detectTY("vs-once-upon-a-time-_S03XE05_dd51-ded-dl-7p-bd-x264-305.mkv"));
+    assertEqual("vs once upon a time S03XE05", detectTY("vs-once-upon-a-time-_S03XE05_dd51-ded-dl-7p-bd-x264-305.mkv"));
     assertEqual("Live at the Apollo Series 5 Episode 1 b00p86mz default", detectTY("Live_at_the_Apollo_Series_5_-_Episode_1_b00p86mz_default"));
     assertEqual("The League S06E01", detectTY("The.League.S06E01.720p.WEB-DL.DD5.1.H.264-pcsyndicate.mkv"));
     assertEqual("Season 02/CSI Crime Scene Investigation S02E09 And Then There Were None",

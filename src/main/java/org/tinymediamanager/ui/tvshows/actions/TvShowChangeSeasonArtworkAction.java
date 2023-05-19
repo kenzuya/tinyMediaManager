@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,11 +60,13 @@ public class TvShowChangeSeasonArtworkAction extends TmmAction {
 
     int selectedCount = selectedTvShowSeasons.size();
     int index = 0;
+    int selectedSeasonTab = 0;
 
     do {
       TvShowSeason season = selectedTvShowSeasons.get(index);
-      TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount);
+      TvShowSeasonEditorDialog editor = new TvShowSeasonEditorDialog(season, index, selectedCount, selectedSeasonTab);
       editor.setVisible(true);
+      selectedSeasonTab = editor.getSelectedTab();
       if (!editor.isContinueQueue()) {
         break;
       }

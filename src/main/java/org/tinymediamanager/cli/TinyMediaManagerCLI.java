@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2022 Manuel Laggner
+ * Copyright 2012 - 2023 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class TinyMediaManagerCLI implements Runnable {
         UpdaterTask updaterTask = new UpdaterTask();
         updaterTask.doInBackground();
 
-        if (updaterTask.isDownloadSucessful()) {
+        if (updaterTask.isDownloadSuccessful()) {
           LOGGER.info("Update downloaded successful - restart to apply");
         }
       }
