@@ -535,7 +535,7 @@ public class MediaArtwork {
   }
 
   public static class MediaArtworkComparator implements Comparator<MediaArtwork> {
-    private String preferredLangu = "en";
+    private String preferredLangu;
 
     public MediaArtworkComparator(String language) {
       preferredLangu = language;

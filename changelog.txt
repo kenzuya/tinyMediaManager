@@ -26,6 +26,7 @@ x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" 
 x moved version info into the toolbar #2161
 x added "Canceled" status for TV shows #2177
 x improved edition detection from filename
+x some enhancements on the automatic artwork download algorithm
 
 
 Version 4.3.10
