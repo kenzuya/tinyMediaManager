@@ -160,7 +160,7 @@ public final class TinyMediaManager {
     }
 
     LOGGER.info("=======================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012 - 2022 Manuel Laggner ===");
+    LOGGER.info("=== tinyMediaManager (c) 2012 - 2023 Manuel Laggner ===");
     LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     if (!ReleaseInfo.isGitBuild()) {
