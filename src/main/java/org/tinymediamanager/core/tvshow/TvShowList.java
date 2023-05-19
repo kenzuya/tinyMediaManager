@@ -232,7 +232,7 @@ public final class TvShowList extends AbstractModelObject {
       for (TvShowEpisode ep : show.getEpisodes()) {
         MediaFile mf = ep.getMainFile();
         String rel = show.getPathNIO().relativize(mf.getFileAsPath()).toString();
-        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(rel, show.getTitle());
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(rel, show.getTitle());
         if (!result.episodes.contains(ep.getEpisode()) || result.season != ep.getSeason()) {
           if (first) {
             System.out.println("---------------------");

@@ -279,7 +279,7 @@ public class TvShowTest extends BasicTvShowTest {
   private String detectEpisode(String name) {
     StringBuilder sb = new StringBuilder();
     // EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(new File(name));
-    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(name, "asdf[.*]asdf");
+    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(name, "asdf[.*]asdf");
     sb.append("S:");
     sb.append(result.season);
     for (int ep : result.episodes) {

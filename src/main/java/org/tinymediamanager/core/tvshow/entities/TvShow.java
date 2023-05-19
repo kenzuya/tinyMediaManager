@@ -1117,14 +1117,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         default -> new TvShowToKodiConnector(this);
       };
 
-    try {
-      connector.write(nfoNamings);
-      firePropertyChange(HAS_NFO_FILE, false, true);
+      try {
+        connector.write(nfoNamings);
+        firePropertyChange(HAS_NFO_FILE, false, true);
+      }
+      catch (Exception e) {
+        LOGGER.error("could not write NFO file - '{}'", e.getMessage());
+      }
     }
-    catch (Exception e) {
-      LOGGER.error("could not write NFO file - '{}'", e.getMessage());
-    }
-  }
 
     // also force to write all season NFO files
     seasons.forEach(TvShowSeason::writeNfo);
@@ -1844,10 +1844,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       score = score + 1;
     }
     score = score + returnOneWhenFilled(country);
-    score = score + returnOneWhenFilled(seasonPosterUrlMap);
-    score = score + returnOneWhenFilled(seasonBannerUrlMap);
-    score = score + returnOneWhenFilled(seasonThumbUrlMap);
-    score = score + returnOneWhenFilled(seasonTitleMap);
+
+    for (TvShowSeason season : getSeasons()) {
+      score = score + returnOneWhenFilled(season.getTitle());
+      score = score + returnOneWhenFilled(season.getArtworkUrls());
+    }
+
     score = score + returnOneWhenFilled(extraFanartUrls);
     score = score + returnOneWhenFilled(actors);
     score = score + returnOneWhenFilled(trailer);

@@ -195,7 +195,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     artworkUrlMap.putAll(source.artworkUrlMap);
 
     dateAdded = new Date(source.dateAdded.getTime());
-    scraped = source.scraped;
     ids.putAll(source.ids);
     mediaSource = source.mediaSource;
 

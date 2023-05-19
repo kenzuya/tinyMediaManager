@@ -60,7 +60,6 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
-import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -735,7 +734,11 @@ public class TvShowRenamer {
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           tvShow.removeFromMediaFiles(cl);
-          tvShow.removeSeasonArtwork(cl);
+
+          for (TvShowSeason season : tvShow.getSeasons()) {
+            season.removeFromMediaFiles(cl);
+          }
+
           Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
           // also cleanup the cache for deleted mfs
           if (cl.isGraphic()) {
@@ -769,12 +772,15 @@ public class TvShowRenamer {
       String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
       int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
 
-      if (season != Integer.MIN_VALUE) {
-        tvShow.setSeasonArtwork(season, mf);
+      tvShow.removeFromMediaFiles(mf);
+
+      for (TvShowSeason tvShowSeason : tvShow.getSeasons()) {
+        tvShowSeason.removeFromMediaFiles(mf);
       }
-      else {
-        tvShow.removeFromMediaFiles(mf);
-        tvShow.removeSeasonArtwork(mf);
+
+      if (season != Integer.MIN_VALUE) {
+        TvShowSeason tvShowSeason = tvShow.getSeason(season);
+        tvShowSeason.addToMediaFiles(mf);
       }
     }
 
@@ -915,7 +921,7 @@ public class TvShowRenamer {
     }
 
     if (nfo != MediaFile.EMPTY_MEDIAFILE) { // one valid found? copy our NFO to all variants
-      List<MediaFile> newNFOs = generateEpisodeFilenames(episode.getTvShow(), nfo, originalVideoMediaFile); // 1:N
+      List<MediaFile> newNFOs = generateEpisodeFilenames(episode.getTvShow(), nfo, oldVideoBasename); // 1:N
       if (!newNFOs.isEmpty()) {
         // ok, at least one has been set up
         for (MediaFile newNFO : newNFOs) {
@@ -1189,8 +1195,8 @@ public class TvShowRenamer {
    *          the tvShow
    * @param mf
    *          the MF for multiepisode
-   * @param originalVideoFile
-   *          the original video file (for extracting diffs)
+   * @param videoBasename
+   *          the original video file name
    * @return the file name for the media file
    */
   public static List<MediaFile> generateEpisodeFilenames(TvShow tvShow, MediaFile mf, String videoBasename) {
@@ -1206,8 +1212,8 @@ public class TvShowRenamer {
    *          the tvShow
    * @param mf
    *          the MF for multiepisode
-   * @param originalVideoFile
-   *          the original video file (for extracting diffs)
+   * @param oldVideoBasename
+   *          the original video file name
    * @return the file name for the media file
    */
   public static List<MediaFile> generateEpisodeFilenames(String template, TvShow tvShow, MediaFile mf, String oldVideoBasename) {

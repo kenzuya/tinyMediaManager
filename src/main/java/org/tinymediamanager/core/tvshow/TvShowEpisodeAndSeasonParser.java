@@ -52,18 +52,19 @@ public class TvShowEpisodeAndSeasonParser {
   private static final Pattern DATE_2                   = Pattern.compile("([0-9]{2})[.-]([0-9]{2})[.-]([0-9]{4})", Pattern.CASE_INSENSITIVE);
 
   // new parsing logic
-  public static final Pattern  SEASON_LONG           = Pattern.compile("(staffel|season|saison|series|temporada)[\\s_.-]?(\\d{1,4})",
+  public static final Pattern  SEASON_LONG              = Pattern.compile("(staffel|season|saison|series|temporada)[\\s_.-]?(\\d{1,4})",
       Pattern.CASE_INSENSITIVE);
   // must start with a delimiter!
-  public static final Pattern  SEASON_ONLY     = Pattern.compile("[\\s_.-]s[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
-  public static final Pattern  EPISODE_ONLY    = Pattern.compile("[\\s_.-]ep?[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
-  private static final Pattern episodePattern  = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
-  private static final Pattern episodePattern2 = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
-  private static final Pattern romanPattern    = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);
-  private static final Pattern seasonMultiEP   = Pattern.compile("s(\\d{1,4})[ ]?((?:([epx_.-]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
-  private static final Pattern seasonMultiEP2  = Pattern.compile("(\\d{1,4})(?=x)((?:([epx]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
-  private static final Pattern numbers2Pattern = Pattern.compile("([0-9]{2})", Pattern.CASE_INSENSITIVE);
-  private static final Pattern numbers3Pattern = Pattern.compile("([0-9])([0-9]{2})", Pattern.CASE_INSENSITIVE);
+  public static final Pattern  SEASON_ONLY              = Pattern.compile("[\\s_.-]s[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  public static final Pattern  EPISODE_ONLY             = Pattern.compile("[\\s_.-]ep?[\\s_.-]?(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  private static final Pattern ABSOLUTE_EPISODE_PATTERN = Pattern.compile("EP+(\\d{3})", Pattern.CASE_INSENSITIVE);
+  private static final Pattern EPISODE_PATTERN          = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  private static final Pattern EPISODE_PATTERN_2        = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  private static final Pattern ROMAN_PATTERN            = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern SEASON_MULTI_EP          = Pattern.compile("s(\\d{1,4})[ ]?((?:([epx_.-]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
+  private static final Pattern SEASON_MULTI_EP_2        = Pattern.compile("(\\d{1,4})(?=x)((?:([epx]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
+  private static final Pattern NUMBERS_2_PATTERN        = Pattern.compile("([0-9]{2})", Pattern.CASE_INSENSITIVE);
+  private static final Pattern NUMBERS_3_PATTERN        = Pattern.compile("([0-9])([0-9]{2})", Pattern.CASE_INSENSITIVE);
 
   private TvShowEpisodeAndSeasonParser() {
     throw new IllegalAccessError();
@@ -657,8 +658,8 @@ public class TvShowEpisodeAndSeasonParser {
 
   private static EpisodeMatchingResult postClean(EpisodeMatchingResult emr) {
     // try to clean the filename
-    emr.cleanedName = cleanFilename(emr.name,
-        new Pattern[] { SEASON_LONG, SEASON_MULTI_EP, SEASON_MULTI_EP_2, EPISODE_PATTERN, EPISODE_PATTERN_2,NUMBERS_3_PATTERN, NUMBERS_2_PATTERN,ROMAN_PATTERN, DATE_1, DATE_2, SEASON_ONLY });
+    emr.cleanedName = cleanFilename(emr.name, new Pattern[] { SEASON_LONG, SEASON_MULTI_EP, SEASON_MULTI_EP_2, EPISODE_PATTERN, EPISODE_PATTERN_2,
+        NUMBERS_3_PATTERN, NUMBERS_2_PATTERN, ROMAN_PATTERN, DATE_1, DATE_2, SEASON_ONLY });
     Collections.sort(emr.episodes);
     LOGGER.trace("returning result '{}'", emr);
     return emr;

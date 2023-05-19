@@ -1142,7 +1142,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
 
         String relativePath = showDir.relativize(mf.getFileAsPath()).toString();
-        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
+        EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(relativePath, tvShow.getTitle());
         if (result.season > -1 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
             // get any assigned episode
