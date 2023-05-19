@@ -86,6 +86,10 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
       System.out.println(show.getPath());
       mfCnt += show.getMediaFiles().size();
 
+      for (TvShowSeason season : show.getSeasons()) {
+        mfCnt += season.getMediaFiles().size();
+      }
+
       // check for every found episode that it has at least one VIDEO file
       for (TvShowEpisode episode : show.getEpisodes()) {
         assertThat(episode.getMediaFiles(MediaFileType.VIDEO)).isNotEmpty();
