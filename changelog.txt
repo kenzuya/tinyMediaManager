@@ -14,13 +14,13 @@ x (Docker) force writing of window sizes/locations on shutdown #2091
 x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
 x (movie set) downloading of artwork with different extensions #2154
 x (TV shows) fixed renaming of video extras #2145
-x fix extras detection for tvshows/episodes
+x fix extras detection for TV shows/episodes
 x (movie) fix renaming of stacked subtitles
 x fix renamer preview for extras
 x added a faster way to re-evaluate MMD on each update
 x made update data sources more crash resistant #2169
 x enhanced logic to detect scraped status #2156
-x enhanced extra(s) handling for epsiodes
+x enhanced extra(s) handling for episodes
 x enhanced multi movie detection
 x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
 x moved version info into the toolbar #2161
