@@ -1,4 +1,4 @@
-Version 4.3.12
+Version 4.3.11.1
 =======================
 x some fixes/enhancements on the automatic artwork download algorithm #2182, #2184
 x use "date added" as default date for Trakt.tv sync #2183
