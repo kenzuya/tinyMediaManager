@@ -1,5 +1,6 @@
 Version 4.3.12
 =======================
+x some fixes/enhancements on the automatic artwork download algorithm #2182, #2184
 
 
 Version 4.3.11
