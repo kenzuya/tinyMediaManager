@@ -91,7 +91,7 @@ public final class Settings extends AbstractSettings {
 
   private String                                           traktAccessToken            = "";
   private String                                           traktRefreshToken           = "";
-  private DateField                                        traktDateField              = DateField.FILE_LAST_MODIFIED_DATE;
+  private DateField                                        traktDateField              = DateField.DATE_ADDED;
 
   private String                                           kodiHost                    = "";
   private int                                              kodiHttpPort                = 8080;
