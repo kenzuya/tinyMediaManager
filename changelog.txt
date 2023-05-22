@@ -2,6 +2,7 @@ Version 4.3.12
 =======================
 x some fixes/enhancements on the automatic artwork download algorithm #2182, #2184
 x use "date added" as default date for Trakt.tv sync #2183
+x (Trakt) added sanity check: we must not sync a date in the future #2183
 
 
 Version 4.3.11
