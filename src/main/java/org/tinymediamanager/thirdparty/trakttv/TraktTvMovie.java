@@ -672,6 +672,12 @@ class TraktTvMovie {
       collectedAt = movie.getDateAddedForUi();
     }
 
+    // sanity check - must not sync a date in the future
+    Date now = new Date();
+    if (now.before(collectedAt)) {
+      collectedAt = movie.getDateAdded();
+    }
+
     return collectedAt;
   }
 }

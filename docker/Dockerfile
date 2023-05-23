@@ -7,7 +7,7 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV LC_TIME=C.UTF-8
 
-ARG TMM_VERSION=4.3.11
+ARG TMM_VERSION=4.3.11.1
 ARG TMM=https://gitlab.com/api/v4/projects/9945251/packages/maven/org/tinymediamanager/tinyMediaManager/${TMM_VERSION}/tinyMediaManager-${TMM_VERSION}-linux.tar.gz
 
 # Install requirements for TMM
