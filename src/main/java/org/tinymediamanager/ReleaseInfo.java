@@ -197,7 +197,7 @@ public class ReleaseInfo {
       v += " - PRE-RELEASE";
     }
 
-    return "v" + v;
+    return v;
   }
 
   /**
