@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.components.toolbar;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,8 +118,8 @@ public class ToolbarPanel extends JPanel {
         new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx center, aligny bottom");
-    JLabel lblVersion = new JLabel(ReleaseInfo.getRealVersion());
-    TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L3);
+    JLabel lblVersion = new ToolbarLabel(ReleaseInfo.getRealVersion());
+    TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L2, Font.BOLD);
     panelCenter.add(lblVersion, "cell 1 1, alignx center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
