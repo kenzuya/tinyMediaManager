@@ -69,7 +69,7 @@ public class MovieSetArtworkHelper {
   private static final String[]            SUPPORTED_ARTWORK_FILETYPES = { "jpg", "png", "tbn", "webp" };
 
   private MovieSetArtworkHelper() {
-    // hide default constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -122,7 +122,7 @@ public class MovieSetArtworkHelper {
           return false;
         }
         return true;
-      }).collect(Collectors.toList());
+      }).toList();
 
       if (mediaFiles.isEmpty()) {
         continue;
@@ -437,6 +437,15 @@ public class MovieSetArtworkHelper {
    *          the movie to look for the movie set artwork
    */
   private static void findArtworkInMovieFolder(MovieSet movieSet, Movie movie) {
+    // old tmm style
+    String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+
+    // also remove illegal separators
+    movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
+    // replace multiple spaces with a single one
+    movieSetName = movieSetName.replaceAll(" +", " ").trim();
+
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
       // only if there is not yet any artwork assigned
       if (!movieSet.getMediaFiles(type).isEmpty()) {
@@ -444,8 +453,19 @@ public class MovieSetArtworkHelper {
       }
 
       for (String fileType : SUPPORTED_ARTWORK_FILETYPES) {
+        // movieset-type.ext
         String artworkFileName = "movieset-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         Path artworkFile = movie.getPathNIO().resolve(artworkFileName);
+        if (Files.exists(artworkFile)) {
+          // add this artwork to the media files
+          MediaFile mediaFile = new MediaFile(artworkFile, type);
+          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
+          movieSet.addToMediaFiles(mediaFile);
+        }
+
+        // <movie set name>-type.ext
+        artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        artworkFile = movie.getPathNIO().resolve(artworkFileName);
         if (Files.exists(artworkFile)) {
           // add this artwork to the media files
           MediaFile mediaFile = new MediaFile(artworkFile, type);
@@ -982,12 +1002,21 @@ public class MovieSetArtworkHelper {
         return;
       }
 
+      // old tmm style
+      String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+
+      // also remove illegal separators
+      movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
+      // replace multiple spaces with a single one
+      movieSetName = movieSetName.replaceAll(" +", " ").trim();
+
       List<IMovieSetFileNaming> movieFileNamings = fileNamings.stream()
           .filter(fileNaming -> fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.MOVIE_FOLDER)
-          .collect(Collectors.toList());
+          .toList();
 
       for (IMovieSetFileNaming fileNaming : movieFileNamings) {
-        String filename = fileNaming.getFilename("", extension);
+        String filename = fileNaming.getFilename(movieSetName, extension);
 
         // write image for all movies
         for (Movie movie : movies) {

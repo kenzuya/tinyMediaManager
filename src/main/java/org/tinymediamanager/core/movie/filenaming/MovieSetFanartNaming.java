@@ -19,13 +19,13 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MoviefanartNaming.
+ * The enum {@link MovieFanartNaming} - used to generate fanart filenames
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetFanartNaming implements IMovieSetFileNaming {
 
-  /** movieset-fanart.* */
+  /** movieset-fanart.ext - in movie folder */
   MOVIE_FANART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +38,20 @@ public enum MovieSetFanartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** fanart.* */
+  /** [movieset name]-fanart.ext - in movie folder */
+  MOVIESET_FANART {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-fanart." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** fanart.ext - in artwork folder */
   KODI_FANART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +64,7 @@ public enum MovieSetFanartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-fanart.* */
+  /** [movie set name]-fanart.ext - in artwork folder */
   AUTOMATOR_FANART {
     @Override
     public String getFilename(String basename, String extension) {

@@ -19,13 +19,15 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MovieClearartNaming.
+ * The enum {@link MovieClearartNaming} - used to generate the clearart filename
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetClearartNaming implements IMovieSetFileNaming {
 
-  /** movieset-clearart.* */
+  /**
+   * movieset-clearart.ext - in movie folder
+   */
   MOVIE_CLEARART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +40,24 @@ public enum MovieSetClearartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** clearart.* */
+  /**
+   * [movieset name]-clearart.ext - in movie folder
+   */
+  MOVIESET_CLEARART {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-clearart." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /**
+   * clearart.ext - in artwork folder
+   */
   KODI_CLEARART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +70,9 @@ public enum MovieSetClearartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-clearart.* */
+  /**
+   * [movie set name]-clearart.ext in artwork folder
+   */
   AUTOMATOR_CLEARART {
     @Override
     public String getFilename(String basename, String extension) {

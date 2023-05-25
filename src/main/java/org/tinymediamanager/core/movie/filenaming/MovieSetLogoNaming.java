@@ -19,13 +19,13 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MovieLogoNaming.
+ * The enum {@link MovieLogoNaming} - used to generate logo filenames
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetLogoNaming implements IMovieSetFileNaming {
 
-  /** movieset-logo.* */
+  /** movieset-logo.ext - in movie folder */
   MOVIE_LOGO {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +38,20 @@ public enum MovieSetLogoNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** logo.* */
+  /** [movieset name]-logo.ext - in movie folder */
+  MOVIESET_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-logo." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** logo.ext - in artwork folder */
   KODI_LOGO {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +64,7 @@ public enum MovieSetLogoNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-logo.* */
+  /** [movie set name]-logo.ext - in artwork folder */
   AUTOMATOR_LOGO {
     @Override
     public String getFilename(String basename, String extension) {
