@@ -1,5 +1,6 @@
 Version 4.3.12
 =======================
+x (FFmpeg) set correct artwork metadata for the enhanced artwork download algorithm #2181
 
 
 Version 4.3.11.1

@@ -159,25 +159,32 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second + variance);
 
         // set the artwork type depending on the configured type
+        int width = mediaFile.getVideoWidth();
+        int height = mediaFile.getVideoHeight();
+        int artworkSizeOrder = detectArtworkSizeOrder(width);
+
         if (isFanartEnabled()) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
           still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+          still.setSizeOrder(artworkSizeOrder);
+          still.setLanguage("-");
           artworks.add(still);
         }
         if (isThumbEnabled()) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-          still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
           still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+          still.setSizeOrder(artworkSizeOrder);
+          still.setLanguage("-");
           artworks.add(still);
         }
 
       }
       catch (Exception e) {
         // has already been logged in FFmpeg
-        return artworks;
       }
     }
 
@@ -229,28 +236,50 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           FFmpeg.createStill(path, tempFile, second);
 
           // set the artwork type depending on the configured type
+          int width = mediaFile.getVideoWidth();
+          int height = mediaFile.getVideoHeight();
+          int artworkSizeOrder = detectArtworkSizeOrder(width);
+
           if (isFanartEnabled()) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-            still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            still.setSizeOrder(artworkSizeOrder);
+            still.setLanguage("-");
             artworks.add(still);
           }
           if (isThumbEnabled()) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-            still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath());
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            still.setSizeOrder(artworkSizeOrder);
+            still.setLanguage("-");
             artworks.add(still);
           }
         }
         catch (Exception e) {
           // has already been logged in FFmpeg
-          return artworks;
         }
       }
     }
     return artworks;
+  }
+
+  private int detectArtworkSizeOrder(int width) {
+    if (width >= 3840) {
+      return MediaArtwork.FanartSizes.XLARGE.getOrder();
+    }
+    if (width >= 1920) {
+      return MediaArtwork.FanartSizes.LARGE.getOrder();
+    }
+    else if (width >= 1280) {
+      return MediaArtwork.FanartSizes.MEDIUM.getOrder();
+    }
+    else {
+      return MediaArtwork.FanartSizes.SMALL.getOrder();
+    }
   }
 
   /**
