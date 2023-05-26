@@ -28,6 +28,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,11 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -63,6 +70,8 @@ public class ExportLogAction extends TmmAction {
       if (file != null) {
         writeLogsFile(file.toFile());
         TmmProperties.getInstance().putProperty("exportlogs.path", file.toAbsolutePath().toString());
+        exportMovieDatasources(file.getParent());
+        exportTvShowDatasources(file.getParent());
       }
     }
     catch (Exception ex) {
@@ -98,10 +107,8 @@ public class ExportLogAction extends TmmAction {
       if (data != null) {
         for (File dataFile : data) {
           try (FileInputStream in = new FileInputStream(dataFile)) {
-
             ZipEntry ze = new ZipEntry("data/" + dataFile.getName());
             zos.putNextEntry(ze);
-
             IOUtils.copy(in, zos);
             zos.closeEntry();
           }
@@ -112,4 +119,43 @@ public class ExportLogAction extends TmmAction {
       }
     }
   }
+
+  private void exportMovieDatasources(Path folder) {
+    try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(folder.resolve("tmm_moviefiles.zip").toFile())) {
+      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
+        Path datasource = Paths.get(movie.getDataSource());
+        for (MediaFile mf : movie.getMediaFiles()) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          ZipArchiveEntry entry = new ZipArchiveEntry(datasource.getFileName().toString() + "/" + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+      archive.finish();
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+  }
+
+  private void exportTvShowDatasources(Path folder) {
+    try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(folder.resolve("tmm_tvshowfiles.zip").toFile())) {
+      for (TvShow show : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        Path datasource = Paths.get(show.getDataSource());
+        List<MediaFile> mfs = show.getMediaFiles();
+        mfs.addAll(show.getEpisodesMediaFiles());
+        for (MediaFile mf : mfs) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          ZipArchiveEntry entry = new ZipArchiveEntry(datasource.getFileName().toString() + "/" + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+      archive.finish();
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+  }
+
 }
