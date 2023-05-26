@@ -589,6 +589,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     Path movieRoot = movieDir; // root set to current dir - might be adjusted by disc folders
 
     for (Path path : movieDirList) {
+      LOGGER.trace("found file {}", path);
       if (Utils.isRegularFile(path)) {
         files.add(path.toAbsolutePath());
 
@@ -598,6 +599,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         mf.setPath(path.getParent().toString());
         mf.setFilename(path.getFileName().toString());
         mf.setType(MediaFileHelper.parseMediaFileType(path, movieDir));
+        LOGGER.trace("identified as {}", mf.getType());
 
         if (mf.getType() == MediaFileType.VIDEO) {
           videoFileFound = true;
