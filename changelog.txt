@@ -1,6 +1,8 @@
 Version 4.3.12
 =======================
 x (FFmpeg) set correct artwork metadata for the enhanced artwork download algorithm #2181
+x added an action to export internal data for issue analysis
+x encrypt exported logs/data for your privacy
 
 
 Version 4.3.11.1
