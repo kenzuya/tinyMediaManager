@@ -1121,7 +1121,8 @@ public class MovieArtworkHelper {
    */
   private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
     // sort artwork due to our preferences
-    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    // this is everything but the poster/fanart - so we must not use the fanart size here
+    int preferredSizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder(); // big enough to catch _all_ sizes
     String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
     List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder, preferredLanguage);
 
