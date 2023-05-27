@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
 
 public class ToolbarMenu extends ToolbarLabel {
-  public static Color        COLOR       = Color.GRAY;
-  public static Color        COLOR_HOVER = Color.WHITE;
+  public static Color  COLOR       = Color.GRAY;
+  public static Color  COLOR_HOVER = Color.WHITE;
 
-  protected JPopupMenu       popupMenu   = null;
+  protected JPopupMenu popupMenu   = null;
 
   public ToolbarMenu(String text) {
     super(text);
@@ -66,7 +66,7 @@ public class ToolbarMenu extends ToolbarLabel {
       }
 
       @Override
-      public void mouseClicked(MouseEvent arg0) {
+      public void mousePressed(MouseEvent e) {
         if (popupMenu != null) {
           int x = ToolbarMenu.this.getWidth() - (int) popupMenu.getPreferredSize().getWidth();
           // prevent the popupmenu from being displayed on another screen if x < 0
