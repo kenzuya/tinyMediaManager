@@ -1010,19 +1010,20 @@ public class MovieArtworkHelper {
       }
     }
 
+    // we've got two different search logics here
+    // 1. try to get the image in the chosen language (or no text when not found) - independently of the artwork size
+    // 2. try to get the chosen artwork size (first in chosen language, second with no text, third with en - fallback with _any_ language)
     if (MovieModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
-      // the right language and down to 2 resolutions lower (if language has priority)
-      int counter = 1;
+      // the right language and a smaller artwork dimension
       int newOrder = sizeOrder;
-      while (counter <= 2) {
+      while (newOrder > 1) {
         newOrder = newOrder / 2;
 
         for (MediaArtwork art : artwork) {
-          if (art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
             sortedArtwork.add(art);
           }
         }
-        counter++;
       }
 
       // no language, but the right resolution
@@ -1031,11 +1032,31 @@ public class MovieArtworkHelper {
           sortedArtwork.add(art);
         }
       }
+
+      // no language, but the lower resolution
+      newOrder = sizeOrder;
+      while (newOrder > 1) {
+        newOrder = newOrder / 2;
+
+        for (MediaArtwork art : artwork) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+      }
     }
     else {
       // the right resolution (first w/o text)
       for (MediaArtwork art : artwork) {
         if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
+          sortedArtwork.add(art);
+        }
+      }
+
+      // en
+      for (MediaArtwork art : artwork) {
+        // only get artwork in desired resolution
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("en") && art.getSizeOrder() == sizeOrder) {
           sortedArtwork.add(art);
         }
       }
@@ -1049,17 +1070,37 @@ public class MovieArtworkHelper {
       }
 
       // down to 2 resolutions lower
-      int counter = 1;
       int newOrder = sizeOrder;
-      while (counter <= 2) {
+      while (newOrder > 1) {
         newOrder = newOrder / 2;
 
+        // first with chosen language
+        for (MediaArtwork art : artwork) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+
+        // w/o text
+        for (MediaArtwork art : artwork) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+
+        // en
+        for (MediaArtwork art : artwork) {
+          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("en") && art.getSizeOrder() == newOrder) {
+            sortedArtwork.add(art);
+          }
+        }
+
+        // any
         for (MediaArtwork art : artwork) {
           if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
             sortedArtwork.add(art);
           }
         }
-        counter++;
       }
     }
 
@@ -1080,7 +1121,8 @@ public class MovieArtworkHelper {
    */
   private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
     // sort artwork due to our preferences
-    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    // this is everything but the poster/fanart - so we must not use the fanart size here
+    int preferredSizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder(); // big enough to catch _all_ sizes
     String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
     List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder, preferredLanguage);
 

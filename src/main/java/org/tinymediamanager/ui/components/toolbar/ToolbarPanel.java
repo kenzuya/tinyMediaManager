@@ -19,6 +19,7 @@ import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,6 +69,7 @@ import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
 import org.tinymediamanager.ui.actions.DeleteTrashAction;
 import org.tinymediamanager.ui.actions.DocsAction;
+import org.tinymediamanager.ui.actions.ExportAnalysisDataAction;
 import org.tinymediamanager.ui.actions.ExportLogAction;
 import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
@@ -122,8 +124,8 @@ public class ToolbarPanel extends JPanel {
         new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx center, aligny bottom");
-    JLabel lblVersion = new JLabel(ReleaseInfo.getRealVersion());
-    TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L3);
+    JLabel lblVersion = new ToolbarLabel(ReleaseInfo.getRealVersion());
+    TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L2, Font.BOLD);
     panelCenter.add(lblVersion, "cell 1 1, alignx center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
@@ -420,6 +422,7 @@ public class ToolbarPanel extends JPanel {
     menu.addSeparator();
     menu.add(new BugReportAction());
     menu.add(new ExportLogAction());
+    menu.add(new ExportAnalysisDataAction());
 
     if (SystemUtils.IS_OS_LINUX) {
       menu.addSeparator();

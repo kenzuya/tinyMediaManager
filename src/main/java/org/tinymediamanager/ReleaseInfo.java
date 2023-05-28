@@ -182,12 +182,17 @@ public class ReleaseInfo {
       // no manifest? only happens on git builds - get the version from special file
       v = getVersion() + " - GIT";
     }
+
+    // replace SNAPSHOT wording
+    v = v.replace("-SNAPSHOT", "");
+
     if (isNightly()) {
       v += " - NIGHTLY";
     }
     else if (isPreRelease()) {
       v += " - PRE-RELEASE";
     }
+
     return v;
   }
 

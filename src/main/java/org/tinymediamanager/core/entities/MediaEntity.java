@@ -681,6 +681,12 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       date = dateAdded;
     }
 
+    // sanity check - must not return a date in the future
+    Date now = new Date();
+    if (now.before(date)) {
+      date = dateAdded;
+    }
+
     return date;
   }
 
