@@ -244,6 +244,7 @@ public final class Settings extends AbstractSettings {
     addCleanupFileType(".txt$");
     addCleanupFileType(".url$");
     addCleanupFileType(".html$");
+    addCleanupFileType(".sfv$");
     Collections.sort(cleanupFileTypes);
 
     ardSampleSettings = ArdSettings.defaultSampleSettings();
