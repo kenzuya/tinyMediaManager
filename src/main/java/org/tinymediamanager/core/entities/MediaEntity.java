@@ -744,12 +744,15 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
 
     // all properties from this class - except "title" which is always filled (at leas with the filename)
     score = score + ids.size(); // each given ID increases the score by 1
-    score = score + returnOneWhenFilled(year);
     score = score + returnOneWhenFilled(originalTitle);
     score = score + returnOneWhenFilled(plot);
     score = score + returnOneWhenFilled(productionCompany);
     score = score + returnOneWhenFilled(ratings);
     score = score + returnOneWhenFilled(artworkUrlMap);
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      score++;
+    }
+    score = score + returnOneWhenFilled(lastScraperId);
 
     return score;
   }
