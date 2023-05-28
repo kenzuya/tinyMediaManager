@@ -87,6 +87,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -110,22 +111,22 @@ public class Utils {
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><0-N>
-  private static final Pattern stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
+  private static final Pattern      stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><a-d>
-  private static final Pattern stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
+  private static final Pattern      stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
   private static final Pattern      stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern stackingPattern4            = Pattern.compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern      stackingPattern4            = Pattern
+      .compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$", Pattern.CASE_INSENSITIVE);
 
   // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
-  private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
+  private static final Pattern      folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
   // illegal file name characters
@@ -614,7 +615,9 @@ public class Utils {
       if (matcher.find()) {
         try {
           if (replacements.length > index) {
-            result = result.replaceFirst(pattern.pattern(), StringEscapeUtils.escapeJava(replacements[index]));
+            // we need the UnicodeUnescaper, because StringEscapeUtils.escapeJava translated unicode
+            // https://stackoverflow.com/questions/59280607/stringescapeutils-not-handling-utf-8
+            result = result.replaceFirst(pattern.pattern(), new UnicodeUnescaper().translate(StringEscapeUtils.escapeJava(replacements[index])));
           }
           else {
             result = result.replaceFirst(pattern.pattern(), "");
