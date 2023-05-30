@@ -617,7 +617,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return true;
     }
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO)) {
       if (mf.hasSubtitles()) {
         return true;
       }

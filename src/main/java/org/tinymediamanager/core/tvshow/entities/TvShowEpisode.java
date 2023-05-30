@@ -1281,7 +1281,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       return true;
     }
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO)) {
       if (mf.hasSubtitles()) {
         return true;
       }
