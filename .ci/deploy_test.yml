@@ -90,6 +90,7 @@ deploy-docker-x64:
       /kaniko/executor \
       --context "${CI_PROJECT_DIR}/target/docker" \
       --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --custom-platform=linux/amd64/ \
       --destination "${IMAGE_NAME}:5-test" \
       --destination "${IMAGE_NAME}:latest-test"
 
@@ -123,6 +124,7 @@ deploy-docker-arm64:
       /kaniko/executor \
       --context "${CI_PROJECT_DIR}/target/docker" \
       --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --custom-platform=linux/arm64/ \
       --destination "${IMAGE_NAME}:5-test" \
       --destination "${IMAGE_NAME}:latest-test"
 

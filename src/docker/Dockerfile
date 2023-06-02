@@ -1,5 +1,5 @@
 # Building application container
-FROM max06net/base-gui:0.3.0-bullseye-slim
+FROM max06net/base-gui:edge-bullseye-slim
 
 LABEL "org.opencontainers.image.version"="${human.version}"
 LABEL "org.opencontainers.image.title"="${project.artifactId}"
