@@ -62,7 +62,7 @@ build-mac:
     # push the build to the webserver
     - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
-deploy-docker-x64:
+deploy-docker:
   stage: deploy
   image:
     name: gcr.io/kaniko-project/executor:v1.9.1-debug
@@ -76,59 +76,61 @@ deploy-docker-x64:
     - build
   tags:
     - tmm # force running on own runners
+  before_script:
+    - GHPRJ="https://github.com/estesp/manifest-tool"
+    - VERSION="v2.0.8"
+    - ARTIFACT="manifest-tool-linux-amd64"
+    - URL="$GHPRJ/releases/download/$VERSION/$ARTIFACT"
+    - curl -L -o ${CI_PROJECT_DIR}/target/manifest-tool $URL
+    - chmod +x ${CI_PROJECT_DIR}/target/manifest-stool
   script:
     # create login credentials
     - echo -e $DOCKERHUB_AUTH > /kaniko/.docker/config.json
 
+    #####################################
+    # x64
+    #####################################
+
     # copy data
-    - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
-    - cd target/docker
+    - cp -r ${CI_PROJECT_DIR}/target/docker ${CI_PROJECT_DIR}/target/docker-x64
+    - tar xJf ${CI_PROJECT_DIR}/dist/tinyMediaManager*linux-amd64.tar.xz -C ${CI_PROJECT_DIR}/target/docker-x64/
+    - cd ${CI_PROJECT_DIR}/target/docker-x64
 
     # build image
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
     - |
       /kaniko/executor \
-      --context "${CI_PROJECT_DIR}/target/docker" \
-      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --context "${CI_PROJECT_DIR}/target/docker-x64" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker-x64/Dockerfile" \
       --custom-platform=linux/amd64/ \
-      --destination "${IMAGE_NAME}:5-test" \
-      --destination "${IMAGE_NAME}:latest-test"
+      --destination "${IMAGE_NAME}:5-test-amd64"
+    #--destination "${IMAGE_NAME}:${$VERSION}"
 
-    #--destination "${IMAGE_NAME}:${$VERSION}" \
-
-deploy-docker-arm64:
-  stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.1-debug
-    entrypoint: [ "" ]
-  variables:
-    IMAGE_NAME: tinymediamanager/tinymediamanager
-  environment:
-    name: test
-    url: https://test.tinymediamanager.org
-  needs:
-    - build
-  tags:
-    - tmm-arm64 # force running on own runners
-  script:
-    # create login credentials
-    - echo -e $DOCKERHUB_AUTH > /kaniko/.docker/config.json
-
+    #####################################
+    # arm64
+    #####################################
     # copy data
-    - tar xJf dist/tinyMediaManager*linux-arm64.tar.xz -C target/docker/
-    - cd target/docker
+    - cp -r ${CI_PROJECT_DIR}/target/docker ${CI_PROJECT_DIR}/target/docker-arm64
+    - tar xJf ${CI_PROJECT_DIR}/dist/tinyMediaManager*linux-arm64.tar.xz -C ${CI_PROJECT_DIR}/target/docker-arm64/
+    - cd ${CI_PROJECT_DIR}/target/docker-arm64
 
     # build image
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
     - |
       /kaniko/executor \
-      --context "${CI_PROJECT_DIR}/target/docker" \
-      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --context "${CI_PROJECT_DIR}/target/docker-arm64" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker-arm64/Dockerfile" \
       --custom-platform=linux/arm64/ \
-      --destination "${IMAGE_NAME}:5-test" \
-      --destination "${IMAGE_NAME}:latest-test"
+      --destination "${IMAGE_NAME}:5-test-arm64"
+    #--destination "${IMAGE_NAME}:${$VERSION}"
 
-    #--destination "${IMAGE_NAME}:${$VERSION}" \
+    # create the manifest for multiarch tag
+    - cd ${CI_PROJECT_DIR}/target/docker
+    - echo
+    - ${CI_PROJECT_DIR}/manifest-tool push from-args \
+      --platforms linux/amd64,linux/arm64 \
+      --template tinymediamanager/tinymediamanager:5-test-ARCH \
+      --target tinymediamanager/tinymediamanager:latest-test
 
 deploy:
   stage: deploy
