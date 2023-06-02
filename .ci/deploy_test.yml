@@ -38,6 +38,7 @@ build:
     expire_in: 2 hours
     paths:
       - dist/tinyMediaManager*linux-amd64.tar.xz # upload for docker build
+      - dist/tinyMediaManager*linux-arm64.tar.xz # upload for docker build
       - target/docker # compiled Dockerfile
       - target/tinyMediaManager*macos*.zip # for macOS build
 
@@ -53,6 +54,7 @@ build-mac:
   script:
     # remove linux build (no need to upload this twice)
     - rm dist/tinyMediaManager*linux-amd64.tar.xz
+    - rm dist/tinyMediaManager*linux-arm64.tar.xz
 
     # create macOS bundles
     - sh AppBundler/create_mac_image.sh
@@ -60,7 +62,7 @@ build-mac:
     # push the build to the webserver
     - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_TEST},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
 
-deploy-docker:
+deploy-docker-x64:
   stage: deploy
   image:
     name: gcr.io/kaniko-project/executor:v1.9.1-debug
@@ -80,6 +82,39 @@ deploy-docker:
 
     # copy data
     - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
+    - cd target/docker
+
+    # build image
+    - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
+    - |
+      /kaniko/executor \
+      --context "${CI_PROJECT_DIR}/target/docker" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --destination "${IMAGE_NAME}:5-test" \
+      --destination "${IMAGE_NAME}:latest-test"
+
+    #--destination "${IMAGE_NAME}:${$VERSION}" \
+
+deploy-docker-arm64:
+  stage: deploy
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.1-debug
+    entrypoint: [ "" ]
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager
+  environment:
+    name: test
+    url: https://test.tinymediamanager.org
+  needs:
+    - build
+  tags:
+    - tmm-arm64 # force running on own runners
+  script:
+    # create login credentials
+    - echo -e $DOCKERHUB_AUTH > /kaniko/.docker/config.json
+
+    # copy data
+    - tar xJf dist/tinyMediaManager*linux-arm64.tar.xz -C target/docker/
     - cd target/docker
 
     # build image
