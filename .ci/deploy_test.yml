@@ -139,19 +139,13 @@ deploy-docker:
     - chmod +x manifest-tool
 
     # create the manifest for multiarch tag
-    - ./manifest-tool \
-      --username $DOCKERHUB_USERNAME \
-      --password $DOCKERHUB_PASSWORD \
-      push from-args \
-      --platforms linux/amd64,linux/arm64 \
-      --template tinymediamanager/tinymediamanager:5-test-ARCH \
+    - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
+      --platforms linux/amd64,linux/arm64
+      --template tinymediamanager/tinymediamanager:5-test-ARCH
       --target tinymediamanager/tinymediamanager:5-test
-    - ./manifest-tool \
-      --username $DOCKERHUB_USERNAME \
-      --password $DOCKERHUB_PASSWORD \
-      push from-args \
-      --platforms linux/amd64,linux/arm64 \
-      --template tinymediamanager/tinymediamanager:5-test-ARCH \
+    - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
+      --platforms linux/amd64,linux/arm64
+      --template tinymediamanager/tinymediamanager:5-test-ARCH
       --target tinymediamanager/tinymediamanager:latest-test
 
 deploy:
