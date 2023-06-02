@@ -81,6 +81,7 @@ deploy-docker:
     - VERSION="v2.0.8"
     - ARTIFACT="manifest-tool-linux-amd64"
     - URL="$GHPRJ/releases/download/$VERSION/$ARTIFACT"
+    - apt install curl
     - curl -L -o ${CI_PROJECT_DIR}/target/manifest-tool $URL
     - chmod +x ${CI_PROJECT_DIR}/target/manifest-stool
   script:
