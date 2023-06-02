@@ -22,7 +22,6 @@
                 <include>*.exe</include>
                 <include>jre/*windows*</include>
                 <include>native/windows/*</include>
-                <include>native/windows/addons/*windows_x64*</include>
             </includes>
         </fileSet>
     </fileSets>
