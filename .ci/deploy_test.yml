@@ -110,6 +110,7 @@ deploy-docker-arm64:
     # copy data
     - tar xJf dist/tinyMediaManager*linux-arm64.tar.xz -C target/docker/
     - cd target/docker
+    - mv tinyMediaManager/tinyMediaManager-arm tinyMediaManager/tinyMediaManager
 
     # build image
     - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
