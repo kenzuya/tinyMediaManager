@@ -129,25 +129,24 @@ deploy-docker:
   needs:
     - deploy-docker-amd64
     - deploy-docker-arm64
+  dependencies: [ ]  # do not download any artifacts
   tags:
     - tmm # force running on own runners
   script:
-    - GHPRJ="https://github.com/estesp/manifest-tool"
-    - VERSION="v2.0.8"
-    - ARTIFACT="manifest-tool-linux-amd64"
-    - URL="$GHPRJ/releases/download/$VERSION/$ARTIFACT"
-    - curl -L -o ${CI_PROJECT_DIR}/target/manifest-tool $URL
-    - chmod +x ${CI_PROJECT_DIR}/target/manifest-stool
+    - cd /tmp
+    - curl -s -L https://github.com/estesp/manifest-tool/releases/download/v2.0.8/binaries-manifest-tool-2.0.8.tar.gz | tar xvz
+    - mv manifest-tool-linux-amd64 manifest-tool
+    - chmod +x manifest-tool
 
     # create the manifest for multiarch tag
-    - ${CI_PROJECT_DIR}/manifest-tool \
+    - ./manifest-tool \
       --username $DOCKERHUB_USERNAME \
       --password $DOCKERHUB_PASSWORD \
       push from-args \
       --platforms linux/amd64,linux/arm64 \
       --template tinymediamanager/tinymediamanager:5-test-ARCH \
       --target tinymediamanager/tinymediamanager:5-test
-    - ${CI_PROJECT_DIR}/manifest-tool \
+    - ./manifest-tool \
       --username $DOCKERHUB_USERNAME \
       --password $DOCKERHUB_PASSWORD \
       push from-args \
@@ -161,6 +160,7 @@ deploy:
   environment:
     name: test
     url: https://test.tinymediamanager.org
+  dependencies: [ ]  # do not download any artifacts
   tags:
     - tmm # force running on own runners
   script:
