@@ -19,6 +19,7 @@ import java.beans.BeanProperty;
 
 import javax.swing.JComponent;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.UIDefaults;
 
 /**
@@ -32,14 +33,19 @@ public class TmmRoundTextArea extends JTextArea {
 
   public TmmRoundTextArea() {
     super();
-    setLineWrap(true);
-    setWrapStyleWord(true);
+    init();
   }
 
   public TmmRoundTextArea(String text) {
     super(text);
+    init();
+  }
+
+  protected void init() {
     setLineWrap(true);
     setWrapStyleWord(true);
+
+    getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "doNothing");
   }
 
   /**

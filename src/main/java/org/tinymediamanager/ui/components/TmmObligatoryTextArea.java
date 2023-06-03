@@ -28,15 +28,16 @@ import org.apache.commons.lang3.StringUtils;
 public class TmmObligatoryTextArea extends TmmRoundTextArea {
   public TmmObligatoryTextArea() {
     super();
-    init();
   }
 
   public TmmObligatoryTextArea(String text) {
     super(text);
-    init();
   }
 
-  private void init() {
+  @Override
+  protected void init() {
+    super.init();
+
     addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
