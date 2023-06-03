@@ -458,6 +458,9 @@ public final class MovieSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
+        setNfoLanguage(ml);
+        setImageScraperLanguage(ml);
+        setSubtitleScraperLanguage(ml);
       }
     }
     saveSettings();
