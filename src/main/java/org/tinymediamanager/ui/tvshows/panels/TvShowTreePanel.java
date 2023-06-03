@@ -518,6 +518,10 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
 
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
+
     // add the tree menu entries on the bottom
     popupMenu.addSeparator();
     popupMenu.add(new ExpandAllAction());

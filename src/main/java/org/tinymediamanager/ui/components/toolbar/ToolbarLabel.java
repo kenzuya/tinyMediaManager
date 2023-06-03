@@ -27,8 +27,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 public class ToolbarLabel extends JLabel {
-  public static Color    COLOR       = Color.GRAY;
-  public static Color    COLOR_HOVER = Color.WHITE;
+  public static final Color COLOR       = Color.GRAY;
+  public static final Color COLOR_HOVER = Color.WHITE;
 
   protected final String defaultText;
   private ActionListener action      = null;

@@ -82,6 +82,9 @@ public class ToolbarMenu extends ToolbarLabel {
 
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
 
     if (popupMenu == null || StringUtils.isBlank(popupMenu.getLabel())) {
       setText(defaultText);

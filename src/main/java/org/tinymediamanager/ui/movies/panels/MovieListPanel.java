@@ -399,6 +399,10 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
 
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
+
     movieTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
