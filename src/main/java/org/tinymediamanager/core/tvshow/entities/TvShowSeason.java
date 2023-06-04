@@ -27,18 +27,19 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -57,13 +58,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason> {
   @JsonProperty
-  private UUID                      tvShowDbId = null;
+  private UUID                      tvShowDbId    = null;
 
   @JsonProperty
   private final int                 season;
 
-  private TvShow                    tvShow     = null;
-  private final List<TvShowEpisode> episodes   = new CopyOnWriteArrayList<>();
+  private TvShow                    tvShow        = null;
+  private final List<TvShowEpisode> episodes      = new ArrayList<>();
+  private final List<TvShowEpisode> dummyEpisodes = new ArrayList<>();
 
   private PropertyChangeListener    listener;
 
@@ -105,7 +107,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
 
   private void init() {
     listener = evt -> {
-      if (evt.getSource()instanceof TvShowEpisode episode) {
+      if (evt.getSource() instanceof TvShowEpisode episode) {
         switch (evt.getPropertyName()) {
           case MEDIA_FILES -> firePropertyChange(MEDIA_FILES, null, evt.getNewValue());
           case SEASON -> {
@@ -165,26 +167,23 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
 
   public synchronized void addEpisode(TvShowEpisode episode) {
     // do not add twice
-    if (episode == null || episodes.contains(episode)) {
+    if (episode == null) {
       return;
     }
 
-    // when adding a new episode, check:
-    for (TvShowEpisode e : episodes) {
-      // - if that is a dummy episode; do not add it if a the real episode is available
-      if (episode.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
-          || (episode.getDvdEpisode() > 0 && episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
-        return;
+    if (episode.isDummy()) {
+      if (!dummyEpisodes.contains(episode)) {
+        dummyEpisodes.add(episode);
+        dummyEpisodes.sort(TvShowEpisode::compareTo);
       }
-      // - if that is a real episode; remove the corresponding dummy episode if available
-      if (!episode.isDummy() && e.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
-          || (episode.getDvdEpisode() > 0 && episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
-        tvShow.removeEpisode(e);
+    }
+    else {
+      if (!episodes.contains(episode)) {
+        episodes.add(episode);
+        episodes.sort(TvShowEpisode::compareTo);
       }
     }
 
-    episodes.add(episode);
-    episodes.sort(TvShowEpisode::compareTo);
     episode.addPropertyChangeListener(listener);
     firePropertyChange(ADDED_EPISODE, null, episodes);
     firePropertyChange(FIRST_AIRED, null, getFirstAired());
@@ -198,7 +197,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   }
 
   public List<TvShowEpisode> getEpisodes() {
-    return this.episodes.stream().filter(episode -> !episode.isDummy()).toList();
+    return episodes;
   }
 
   /**
@@ -209,7 +208,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   public Date getFirstAired() {
     Date firstAired = null;
 
-    for (TvShowEpisode episode : episodes) {
+    for (TvShowEpisode episode : getEpisodesForDisplay()) {
       if (firstAired == null) {
         firstAired = episode.getFirstAired();
       }
@@ -298,15 +297,39 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   }
 
   public boolean isDummy() {
-    for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy()) {
-        return false;
-      }
-    }
-    return true;
+    return episodes.isEmpty();
   }
 
   public List<TvShowEpisode> getEpisodesForDisplay() {
+    List<TvShowEpisode> episodes = new ArrayList<>(getEpisodes());
+
+    // mix in unavailable episodes if the user wants to
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      // build up a set which holds a string representing the S/E indicator
+      Set<String> availableEpisodes = new HashSet<>();
+
+      for (TvShowEpisode episode : episodes) {
+        if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+          availableEpisodes.add("A" + episode.getSeason() + "." + episode.getEpisode());
+        }
+        if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
+          availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
+        }
+      }
+
+      // and now mix in unavailable ones
+      for (TvShowEpisode episode : dummyEpisodes) {
+        if (!TvShowHelpers.shouldAddDummyEpisode(episode)) {
+          continue;
+        }
+
+        if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
+            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())) {
+          episodes.add(episode);
+        }
+      }
+    }
+
     return episodes;
   }
 

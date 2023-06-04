@@ -149,23 +149,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
-        case "displayMissingEpisodes":
-          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
-            addDummyEpisodes();
-          }
-          else {
-            removeDummyEpisodes();
-          }
-          break;
-
-        case "displayMissingSpecials":
-          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
-            addDummySpecials();
-          }
-          else {
-            removeDummySpecials();
-          }
-          break;
+        case "displayMissingEpisodes", "displayMissingSpecials", "displayMissingNotAired" -> updateDummyEpisodes();
       }
     });
   }
@@ -173,32 +157,9 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   /**
    * add the dummy episodes to the tree is the setting has been activated
    */
-  private void addDummyEpisodes() {
+  private void updateDummyEpisodes() {
     for (TvShow tvShow : tvShowList.getTvShows()) {
-      for (TvShowEpisode episode : tvShow.getEpisodesForDisplay()) {
-        if (episode.isDummy()) {
-          addTvShowEpisode(episode);
-        }
-      }
-    }
-  }
-
-  /**
-   * remove the dummy episodes from the tree is the setting has been deactivated
-   */
-  private void removeDummyEpisodes() {
-    for (TvShow tvShow : tvShowList.getTvShows()) {
-      for (TvShowEpisode episode : tvShow.getDummyEpisodes()) {
-        if (episode.isDummy()) {
-          removeTvShowEpisode(episode);
-        }
-      }
-      // last but not least - remove all empty seasons
-      for (TvShowSeason season : tvShow.getSeasons()) {
-        if (season.isDummy()) {
-          removeTvShowSeason(season);
-        }
-      }
+      updateDummyEpisodesForTvShow(tvShow);
     }
   }
 
@@ -218,38 +179,6 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       else if (!episodesForDisplay.contains(episode) && getNodeFromCache(episode) != null) {
         // is here but shouldn't -> remove
         removeTvShowEpisode(episode);
-      }
-    }
-  }
-
-  /**
-   * add the dummy specials to the tree is the setting has been activated
-   */
-  private void addDummySpecials() {
-    for (TvShow tvShow : tvShowList.getTvShows()) {
-      for (TvShowEpisode episode : tvShow.getEpisodesForDisplay()) {
-        if (episode.isDummy() && episode.getSeason() <= 0) {
-          addTvShowEpisode(episode);
-        }
-      }
-    }
-  }
-
-  /**
-   * remove the dummy specials from the tree is the setting has been deactivated
-   */
-  private void removeDummySpecials() {
-    for (TvShow tvShow : tvShowList.getTvShows()) {
-      for (TvShowEpisode episode : tvShow.getDummyEpisodes()) {
-        if (episode.isDummy() && episode.getSeason() <= 0) {
-          removeTvShowEpisode(episode);
-        }
-      }
-      // last but not least remove all empty seasons
-      for (TvShowSeason season : tvShow.getSeasons()) {
-        if (season.getSeason() <= 0 && season.isDummy()) {
-          removeTvShowSeason(season);
-        }
       }
     }
   }
@@ -276,7 +205,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     if (child.getUserObject() instanceof TvShow) {
       return root;
     }
-    else if (child.getUserObject()instanceof TvShowSeason season) {
+    else if (child.getUserObject() instanceof TvShowSeason season) {
       TmmTreeNode node = getNodeFromCache(season.getTvShow());
       // parent TV show not yet added? add it
       if (node == null) {
@@ -284,7 +213,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
       return node;
     }
-    else if (child.getUserObject()instanceof TvShowEpisode episode) {
+    else if (child.getUserObject() instanceof TvShowEpisode episode) {
       TmmTreeNode node = getNodeFromCache(episode.getTvShowSeason());
       if (node == null) {
         node = addTvShowSeason(episode.getTvShowSeason());
@@ -312,7 +241,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
       return nodes;
     }
-    else if (parent.getUserObject()instanceof TvShow tvShow) {
+    else if (parent.getUserObject() instanceof TvShow tvShow) {
       List<TmmTreeNode> nodes = new ArrayList<>();
       for (TvShowSeason season : tvShow.getSeasons()) {
         if (!season.getEpisodesForDisplay().isEmpty()) {
@@ -323,7 +252,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
       return nodes;
     }
-    else if (parent.getUserObject()instanceof TvShowSeason season) {
+    else if (parent.getUserObject() instanceof TvShowSeason season) {
       List<TmmTreeNode> nodes = new ArrayList<>();
       for (TvShowEpisode episode : season.getEpisodesForDisplay()) {
         // look if a node of this episode already exist
@@ -581,7 +510,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     @Override
     public String toString() {
       // return TV show name
-      if (getUserObject()instanceof TvShow tvShow) {
+      if (getUserObject() instanceof TvShow tvShow) {
         return tvShow.getTitleSortable();
       }
 
@@ -591,7 +520,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getTitle() {
-      if (getUserObject()instanceof TvShow tvShow) {
+      if (getUserObject() instanceof TvShow tvShow) {
         return tvShow.getTitle();
       }
 
@@ -600,7 +529,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getOriginalTitle() {
-      if (getUserObject()instanceof TvShow tvShow) {
+      if (getUserObject() instanceof TvShow tvShow) {
         return tvShow.getOriginalTitle();
       }
 
@@ -630,7 +559,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     @Override
     public String toString() {
       // return season name
-      if (getUserObject()instanceof TvShowSeason season) {
+      if (getUserObject() instanceof TvShowSeason season) {
         if (StringUtils.isNotBlank(season.getTitle())) {
           return season.getTitle();
         }
@@ -686,7 +615,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     @Override
     public String toString() {
       // return episode name and number
-      if (getUserObject()instanceof TvShowEpisode episode) {
+      if (getUserObject() instanceof TvShowEpisode episode) {
         if (episode.getEpisode() >= 0) {
           return episode.getEpisode() + ". " + episode.getTitle();
         }
@@ -701,7 +630,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getTitle() {
-      if (getUserObject()instanceof TvShowEpisode episode) {
+      if (getUserObject() instanceof TvShowEpisode episode) {
         return episode.getTitle();
       }
 
@@ -710,7 +639,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     public String getOriginalTitle() {
-      if (getUserObject()instanceof TvShowEpisode episode) {
+      if (getUserObject() instanceof TvShowEpisode episode) {
         return episode.getOriginalTitle();
       }
 
@@ -719,7 +648,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     @Override
     String getNote() {
-      if (getUserObject()instanceof TvShowEpisode episode) {
+      if (getUserObject() instanceof TvShowEpisode episode) {
         return episode.getNote();
       }
 

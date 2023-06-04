@@ -239,6 +239,7 @@ public final class TvShowSettings extends AbstractSettings {
   final List<MediaFileType>                      showEpisodeArtworkTypes                = ObservableCollections.observableList(new ArrayList<>());
   boolean                                        displayMissingEpisodes                 = false;
   boolean                                        displayMissingSpecials                 = false;
+  boolean                                        displayMissingNotAired                 = false;
   boolean                                        capitalWordsinTitles                   = false;
   boolean                                        showTvShowTableTooltips                = true;
   boolean                                        seasonArtworkFallback                  = false;
@@ -1032,6 +1033,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.displayMissingSpecials;
     this.displayMissingSpecials = newValue;
     firePropertyChange("displayMissingSpecials", oldValue, newValue);
+  }
+
+  public boolean isDisplayMissingNotAired() {
+    return displayMissingNotAired;
+  }
+
+  public void setDisplayMissingNotAired(boolean newValue) {
+    boolean oldValue = this.displayMissingNotAired;
+    this.displayMissingNotAired = newValue;
+    firePropertyChange("displayMissingNotAired", oldValue, newValue);
   }
 
   public void setNode(boolean newValue) {

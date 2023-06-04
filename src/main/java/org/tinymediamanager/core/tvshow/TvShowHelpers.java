@@ -44,9 +44,9 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
+import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
 
 /**
  * a collection of various helpers for the TV show module
@@ -368,5 +368,23 @@ public class TvShowHelpers {
       List<MediaMetadata> episodeList) {
     // FIXME find a good algorithm to detect the episode group
     return null;
+  }
+
+  /**
+   * should we add this dummy episode to the {@link TvShow}?
+   * 
+   * @param episode
+   *          the dummy episode to add
+   * @return true/false
+   */
+  public static boolean shouldAddDummyEpisode(TvShowEpisode episode) {
+    TvShowEpisodeType episodeType = TvShowEpisodeType.getTypeForEpisode(episode);
+
+    return switch (episodeType) {
+      case DUMMY_NORMAL -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes();
+      case DUMMY_SPECIAL -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials();
+      case DUMMY_NOT_AIRED -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingNotAired();
+      default -> false;
+    };
   }
 }

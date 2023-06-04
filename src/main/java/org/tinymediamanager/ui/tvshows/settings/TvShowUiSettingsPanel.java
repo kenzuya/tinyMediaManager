@@ -70,9 +70,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowUiSettingsPanel extends JPanel {
-  private static final int                                         COL_COUNT        = 7;
+  private static final int                                         COL_COUNT = 7;
 
-  private final TvShowSettings                                     settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings                                     settings  = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                                       checkBoxListener;
   private JCheckBox                                                chckbxShowMissingEpisodes;
   private AutocompleteComboBox<String>                             cbRating;
@@ -118,6 +118,7 @@ class TvShowUiSettingsPanel extends JPanel {
   private JCheckBox                                                chckbxSeasonThumb;
   private JCheckBox                                                chckbxSeasonBanner;
   private JCheckBox                                                chckbxSeasonFanart;
+  private JCheckBox                                                chckbxIncludeNotAired;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -463,7 +464,7 @@ class TvShowUiSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][][grow][10lp!][][][10lp!][][]"));
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][10lp!][][grow][10lp!][][][10lp!][][]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -527,12 +528,15 @@ class TvShowUiSettingsPanel extends JPanel {
         chckbxShowMissingSpecials = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingespecials"));
         panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 3");
 
+        chckbxIncludeNotAired = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingnotaired"));
+        panelUiSettings.add(chckbxIncludeNotAired, "cell 2 4");
+
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
-        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 4 2 1");
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
 
         {
           JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
-          panelUiSettings.add(lblCheckMetadata, "cell 1 6 2 1");
+          panelUiSettings.add(lblCheckMetadata, "cell 1 7 2 1");
 
           JPanel panelCheckMetadata = new JPanel(new GridBagLayout());
 
@@ -627,11 +631,11 @@ class TvShowUiSettingsPanel extends JPanel {
           chckbxEpisodeSpecialsCheckMissingMetadata = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkmetadata.specials"));
           panelCheckMetadata.add(chckbxEpisodeSpecialsCheckMissingMetadata, gbc.clone());
 
-          panelUiSettings.add(panelCheckMetadata, "cell 2 7");
+          panelUiSettings.add(panelCheckMetadata, "cell 2 8");
         }
         {
           JLabel lblCheckArtwork = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-          panelUiSettings.add(lblCheckArtwork, "cell 1 9 2 1");
+          panelUiSettings.add(lblCheckArtwork, "cell 1 10 2 1");
 
           JPanel panelCheckArtwork = new JPanel(new GridBagLayout());
 
@@ -740,19 +744,19 @@ class TvShowUiSettingsPanel extends JPanel {
           chckbxEpisodeSpecialsCheckMissingArtwork = new JCheckBox(TmmResourceBundle.getString("tvshowepisode.checkartwork.specials"));
           panelCheckArtwork.add(chckbxEpisodeSpecialsCheckMissingArtwork, gbc.clone());
 
-          panelUiSettings.add(panelCheckArtwork, "cell 2 10");
+          panelUiSettings.add(panelCheckArtwork, "cell 2 11");
         }
       }
       {
         chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
-        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 12 2 1");
+        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 13 2 1");
       }
 
       JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-      panelUiSettings.add(lblRating, "cell 1 13 2 1");
+      panelUiSettings.add(lblRating, "cell 1 14 2 1");
 
       cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
-      panelUiSettings.add(cbRating, "cell 1 13 2 1");
+      panelUiSettings.add(cbRating, "cell 1 14 2 1");
     }
     {
       JPanel panelFilter = new JPanel();
@@ -926,5 +930,14 @@ class TvShowUiSettingsPanel extends JPanel {
     AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_24,
         chckbxEpisodeSpecialsCheckMissingArtwork, jCheckBoxBeanProperty);
     autoBinding_24.bind();
+    //
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxShowMissingEpisodes, jCheckBoxBeanProperty, chckbxIncludeNotAired,
+        jCheckBoxBeanProperty_1);
+    autoBinding.bind();
+    //
+    Property tvShowSettingsBeanProperty = BeanProperty.create("displayMissingNotAired");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, chckbxIncludeNotAired,
+        jCheckBoxBeanProperty);
+    autoBinding_1.bind();
   }
 }

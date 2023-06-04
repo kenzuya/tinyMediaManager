@@ -21,6 +21,7 @@ import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGro
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
   private final JButton                     btnClose;
   private final JCheckBox                   chckbxShowMissingSpecials;
+  private final JCheckBox                   chckbxIncludeNotAired;
   private final JProgressBar                pbListEpisodes;
   private final EventList<EpisodeContainer> results;
   private final TmmTable                    tblMissingEpisodeList;
@@ -114,6 +116,19 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       });
       infoPanel.add(chckbxShowMissingSpecials, "cell 0 0");
 
+      chckbxIncludeNotAired = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingnotaired"));
+      chckbxIncludeNotAired.setSelected(TvShowModuleManager.getInstance().getSettings().isDisplayMissingNotAired());
+
+      chckbxIncludeNotAired.addItemListener(e -> {
+        if (episodeListWorker != null && !episodeListWorker.isDone()) {
+          episodeListWorker.cancel(true);
+        }
+        results.clear();
+        episodeListWorker = new EpisodeListWorker(tvShows);
+        episodeListWorker.execute();
+      });
+      infoPanel.add(chckbxIncludeNotAired, "cell 1 0");
+
       pbListEpisodes = new JProgressBar();
       infoPanel.add(pbListEpisodes, "cell 1 0");
 
@@ -134,6 +149,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     int    season;
     int    episode;
     String episodeTitle;
+    Date   airedDate;
   }
 
   private static class EpisodeContainerComparator implements Comparator<EpisodeContainer> {
@@ -156,6 +172,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     MissingEpisodeListTableFormat() {
       Comparator<String> stringComparator = new StringComparator();
       Comparator<Integer> integerComparator = new IntegerComparator();
+      Comparator<Date> dateComparator = new DateComparator();
       FontMetrics fontMetrics = getFontMetrics();
 
       /*
@@ -190,7 +207,15 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       addColumn(col);
 
       /*
-       * Episode Title
+       * episode aired date
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.aired"), "airedDate", container -> container.airedDate, Date.class);
+      col.setColumnComparator(dateComparator);
+      col.setColumnResizeable(false);
+      addColumn(col);
+
+      /*
+       * episode title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "episodeTitle", container -> container.episodeTitle, String.class);
       col.setColumnComparator(stringComparator);
@@ -212,6 +237,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
       btnClose.setEnabled(false);
       chckbxShowMissingSpecials.setEnabled(false);
+      chckbxIncludeNotAired.setEnabled(false);
       startProgressBar();
       compareTvShows();
 
@@ -275,6 +301,13 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
             container.episode = episodeNumber.episode();
           }
 
+          container.airedDate = mediaEpisode.getReleaseDate();
+
+          boolean alreadyAired = mediaEpisode.getReleaseDate() != null && mediaEpisode.getReleaseDate().compareTo(new Date()) <= 0;
+          if (!alreadyAired && !chckbxIncludeNotAired.isSelected()) {
+            continue;
+          }
+
           for (TvShowEpisode scrapedEpisode : scrapedEpisodes) {
 
             boolean showMissingSpecials = chckbxShowMissingSpecials.isSelected();
@@ -303,6 +336,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       stopProgressBar();
       btnClose.setEnabled(true);
       chckbxShowMissingSpecials.setEnabled(true);
+      chckbxIncludeNotAired.setEnabled(true);
       tblMissingEpisodeList.adjustColumnPreferredWidths(3);
     }
   }
