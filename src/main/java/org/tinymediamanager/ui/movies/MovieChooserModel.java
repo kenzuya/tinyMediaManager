@@ -389,7 +389,7 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
       options.setId("mediaFile", movieToScrape.getMainFile());
-      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 

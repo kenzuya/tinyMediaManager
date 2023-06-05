@@ -311,7 +311,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
       catch (Exception e) {
         options.setTmdbId(0);
       }
-      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 

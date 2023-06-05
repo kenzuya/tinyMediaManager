@@ -35,6 +35,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 1.0
  */
 public class MediaArtwork {
+  public static final int MAX_IMAGE_SIZE_ORDER = 32;
 
   /**
    * The different types of artwork we know

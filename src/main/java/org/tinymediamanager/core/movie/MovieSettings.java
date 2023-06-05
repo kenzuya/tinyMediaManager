@@ -197,8 +197,12 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   imageExtraFanart                       = false;
   int                                       imageExtraFanartCount                  = 5;
   boolean                                   scrapeBestImage                        = true;
-  MediaLanguages                            imageScraperLanguage                   = MediaLanguages.en;
-  boolean                                   imageLanguagePriority                  = false;
+  final List<MediaLanguages>                imageScraperLanguages                  = ObservableCollections.observableList(new ArrayList<>());
+
+  boolean                                   imageScraperOtherResolutions           = true;
+  boolean                                   imageScraperFallback                   = true;
+  boolean                                   imageScraperPreferFanartWoText         = true;
+
   boolean                                   writeActorImages                       = false;
 
   // trailer scraper
@@ -378,6 +382,9 @@ public final class MovieSettings extends AbstractSettings {
     ratingSources.clear();
     addRatingSource(MediaMetadata.IMDB);
 
+    imageScraperLanguages.clear();
+    addImageScraperLanguage(MediaLanguages.en);
+
     movieSetCheckMetadata.clear();
     addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.ID);
     addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.TITLE);
@@ -459,7 +466,8 @@ public final class MovieSettings extends AbstractSettings {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
         setNfoLanguage(ml);
-        setImageScraperLanguage(ml);
+        imageScraperLanguages.clear();
+        addImageScraperLanguage(ml);
         setSubtitleScraperLanguage(ml);
       }
     }
@@ -1539,24 +1547,66 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("ratingSources", null, ratingSources);
   }
 
-  public MediaLanguages getImageScraperLanguage() {
-    return imageScraperLanguage;
+  public void addImageScraperLanguage(MediaLanguages language) {
+    if (!imageScraperLanguages.contains(language)) {
+      imageScraperLanguages.add(language);
+      firePropertyChange("imageScraperLanguages", null, ratingSources);
+    }
   }
 
-  public void setImageScraperLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = this.imageScraperLanguage;
-    this.imageScraperLanguage = newValue;
-    firePropertyChange("imageScraperLanguage", oldValue, newValue);
+  public void removeImageScraperLanguage(MediaLanguages language) {
+    if (imageScraperLanguages.remove(language)) {
+      firePropertyChange("imageScraperLanguages", null, ratingSources);
+    }
   }
 
-  public boolean isImageLanguagePriority() {
-    return imageLanguagePriority;
+  public void swapImageScraperLanguage(int pos1, int pos2) {
+    MediaLanguages tmp = imageScraperLanguages.get(pos1);
+    imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
+    imageScraperLanguages.set(pos2, tmp);
+    firePropertyChange("imageScraperLanguages", null, ratingSources);
   }
 
-  public void setImageLanguagePriority(boolean newValue) {
-    boolean oldValue = this.imageLanguagePriority;
-    this.imageLanguagePriority = newValue;
-    firePropertyChange("imageLanguagePriority", oldValue, newValue);
+  public List<MediaLanguages> getImageScraperLanguages() {
+    return imageScraperLanguages;
+  }
+
+  public MediaLanguages getDefaultImageScraperLanguage() {
+    MediaLanguages language = scraperLanguage; // fallback
+    if (!imageScraperLanguages.isEmpty()) {
+      language = imageScraperLanguages.get(0);
+    }
+    return language;
+  }
+
+  public boolean isImageScraperOtherResolutions() {
+    return imageScraperOtherResolutions;
+  }
+
+  public void setImageScraperOtherResolutions(boolean newValue) {
+    boolean oldValue = this.imageScraperOtherResolutions;
+    this.imageScraperOtherResolutions = newValue;
+    firePropertyChange("imageScraperOtherResolutions", oldValue, newValue);
+  }
+
+  public boolean isImageScraperFallback() {
+    return imageScraperFallback;
+  }
+
+  public void setImageScraperFallback(boolean newValue) {
+    boolean oldValue = this.imageScraperFallback;
+    this.imageScraperFallback = newValue;
+    firePropertyChange("imageScraperFallback", oldValue, newValue);
+  }
+
+  public boolean isImageScraperPreferFanartWoText() {
+    return imageScraperPreferFanartWoText;
+  }
+
+  public void setImageScraperPreferFanartWoText(boolean newValue) {
+    boolean oldValue = this.imageScraperPreferFanartWoText;
+    this.imageScraperPreferFanartWoText = newValue;
+    firePropertyChange("imageScraperPreferFanartWoText", oldValue, newValue);
   }
 
   public CertificationStyle getCertificationStyle() {

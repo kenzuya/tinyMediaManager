@@ -8,6 +8,7 @@ Version 5.0
 + changed Linux ARM build to 64 bit (arm64/aarch64)
 + enabled usage of different episode groups #1935 #1138 #736
 + reworked some dialogs to a material design like input dialog
++ enhanced automatic artwork downloading #2184, #2182
 + added subtitle format info to media files tab and filters #1709
 + fetch ratings: remember last used rating sources #1940
 + added some more movie editions per default #1987

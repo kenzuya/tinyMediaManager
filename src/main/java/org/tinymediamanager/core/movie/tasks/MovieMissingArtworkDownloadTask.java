@@ -105,7 +105,7 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
           options.setArtworkType(MediaArtworkType.ALL);
           options.setIds(movie.getIds());
           options.setId("mediaFile", movie.getMainFile());
-          options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+          options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
           options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
           options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 

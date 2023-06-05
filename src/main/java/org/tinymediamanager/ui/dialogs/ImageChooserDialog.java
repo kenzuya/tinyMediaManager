@@ -1143,7 +1143,7 @@ public class ImageChooserDialog extends TmmDialog {
 
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(mediaType);
           if (mediaType == MediaType.MOVIE || mediaType == MediaType.MOVIE_SET) {
-            options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
             options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
             options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
           }

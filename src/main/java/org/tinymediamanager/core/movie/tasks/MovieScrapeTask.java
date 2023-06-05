@@ -305,7 +305,7 @@ public class MovieScrapeTask extends TmmThreadPool {
         options.setIds(metadata.getIds());
       }
       options.setId("mediaFile", movie.getMainFile());
-      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
