@@ -1830,7 +1830,7 @@ public class Utils {
     }
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(root)) {
       for (Path path : directoryStream) {
-        if (Files.isRegularFile(path)) {
+        if (Utils.isRegularFile(path)) {
           filesFound.add(path);
         }
       }
