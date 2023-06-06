@@ -227,7 +227,9 @@ public class Utils {
    * this is the TMM variant of isRegularFiles()<br>
    * because deduplication creates windows junction points, we check here if it is<br>
    * not a directory, and either a regular file or "other" one.<br>
-   * see http://serverfault.com/a/667220
+   * see http://serverfault.com/a/667220<br>
+   * <br>
+   * <b>Changed to only check for NOT DIRECTORY, treating all others as regular</b>
    * 
    * @param attr
    * @return
@@ -235,7 +237,12 @@ public class Utils {
   public static boolean isRegularFile(BasicFileAttributes attr) {
     // see windows impl http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/nio/fs/WindowsFileAttributes.java#451
     // symbolic link is used in git annex
-    return (attr.isRegularFile() || attr.isOther() || attr.isSymbolicLink()) && !attr.isDirectory();
+    // return (attr.isRegularFile() || attr.isOther() || attr.isSymbolicLink()) && !attr.isDirectory();
+
+    // JVM isRegular() checks for !sym, !dir, !other
+    // we add isSym & isOther
+    // the only portion what's left is the !dir - should be enough to check only for that ;)
+    return !attr.isDirectory();
   }
 
   /**
