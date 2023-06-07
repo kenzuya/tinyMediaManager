@@ -218,6 +218,7 @@ public class Utils {
         return isRegularFile(attr);
       }
       catch (IOException e1) {
+        LOGGER.warn("Could not read BasicFileAttributes: {}", e1);
         return false;
       }
     }
