@@ -787,17 +787,12 @@ public class MediaFileHelper {
       return;
     }
 
-    // gather subtitle infos independent of MI
-    // if (mediaFile.getType() == MediaFileType.SUBTITLE) {
-    // gatherSubtitleInformationFromFilename(mediaFile);
-    // }
-
     // do not work further on 0 byte files
     if (mediaFile.getFilesize() == 0 && StringUtils.isBlank(mediaFile.getContainerFormat())) {
       LOGGER.debug("0 Byte file detected: {}", mediaFile.getFilename());
       // set container format to do not trigger it again
       mediaFile.setContainerFormat(extension);
-      return;
+      // return; // let em run... we get some info out of filenames...
     }
 
     // do not work further on non media files files
@@ -3063,7 +3058,7 @@ public class MediaFileHelper {
     if (StringUtils.isNotBlank(foundToken)) {
       // found trailing language code - just need to remove it from the title
       language = LanguageUtils.getIso3LanguageFromLocalizedString(foundToken);
-      title = shortname.replaceAll("(?i).*" + Pattern.quote(foundToken) + "$", "");
+      title = shortname.replaceAll("(?i).*" + Pattern.quote(foundToken) + "$", ""); // FIXME: seem not to work
     }
     else {
       // split the shortname into chunks and search from the end to the beginning for the language
