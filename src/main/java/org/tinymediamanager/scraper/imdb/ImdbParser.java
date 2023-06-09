@@ -1587,6 +1587,17 @@ public abstract class ImdbParser {
   }
 
   protected void parsePlotsummaryPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+
+    // NEW style as of may 2023
+    // JSON is weird - do not do that
+    // just take first summary
+    if (md.getPlot().isEmpty()) {
+      Elements sum = doc.getElementsByClass("ipc-html-content-inner-div");
+      String plot = cleanString(sum.text());
+      md.setPlot(plot);
+    }
+
+    // OLD style
     // just take first summary
     // <li class="ipl-zebra-list__item" id="summary-ps21700000">
     // <p>text text text text </p>
@@ -1594,21 +1605,23 @@ public abstract class ImdbParser {
     // <em>&mdash;<a href="/search/title?plot_author=author">Author Name</a></em>
     // </div>
     // </li>
-    Element zebraList = doc.getElementById("plot-summaries-content");
-    if (zebraList != null) {
-      Elements p = zebraList.getElementsByClass("ipl-zebra-list__item");
-      if (!p.isEmpty()) {
-        Element em = p.get(0);
+    if (md.getPlot().isEmpty()) {
+      Element zebraList = doc.getElementById("plot-summaries-content");
+      if (zebraList != null) {
+        Elements p = zebraList.getElementsByClass("ipl-zebra-list__item");
+        if (!p.isEmpty()) {
+          Element em = p.get(0);
 
-        // remove author
-        Elements authors = em.getElementsByClass("author-container");
-        if (!authors.isEmpty()) {
-          authors.get(0).remove();
-        }
+          // remove author
+          Elements authors = em.getElementsByClass("author-container");
+          if (!authors.isEmpty()) {
+            authors.get(0).remove();
+          }
 
-        if (!"no-summary-content".equals(em.id())) {
-          String plot = cleanString(em.text());
-          md.setPlot(plot);
+          if (!"no-summary-content".equals(em.id())) {
+            String plot = cleanString(em.text());
+            md.setPlot(plot);
+          }
         }
       }
     }
