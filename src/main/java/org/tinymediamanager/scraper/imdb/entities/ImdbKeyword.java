@@ -9,6 +9,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * keywords on detail page
+ */
 public class ImdbKeyword {
 
   public ImdbTextType         node                 = null;

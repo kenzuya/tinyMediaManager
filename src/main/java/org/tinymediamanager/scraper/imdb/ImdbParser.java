@@ -79,6 +79,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.JsonUtils;
@@ -1530,22 +1531,56 @@ public abstract class ImdbParser {
   }
 
   protected void parseKeywordsPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
-    Element div = doc.getElementById("keywords_content");
-    if (div == null) {
-      return;
-    }
-
     int maxKeywordCount = getMaxKeywordCount();
     int counter = 0;
 
-    Elements keywords = div.getElementsByClass("sodatext");
-    for (Element keyword : keywords) {
-      if (StringUtils.isNotBlank(keyword.text())) {
-        md.addTag(keyword.text());
+    // new style via JSON
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      // System.out.println(json);
+      JsonNode node = mapper.readTree(json);
+      JsonNode keywordsNode = node.at("/props/pageProps/contentData/section/items");
+      for (ImdbTitleKeyword kw : JsonUtils.parseList(mapper, keywordsNode, ImdbTitleKeyword.class)) {
+        md.addTag(kw.rowTitle);
         counter++;
-
         if (counter >= maxKeywordCount) {
           break;
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing JSON: '{}'", e);
+    }
+
+    // new style as of may 2023
+    if (md.getTags().size() < maxKeywordCount) {
+      counter = 0;
+      Elements keywords = doc.getElementsByClass("ipc-metadata-list-summary-item__t");
+      for (Element keyword : keywords) {
+        if (StringUtils.isNotBlank(keyword.text())) {
+          md.addTag(keyword.text());
+          counter++;
+          if (counter >= maxKeywordCount) {
+            break;
+          }
+        }
+      }
+    }
+
+    // old style
+    if (md.getTags().size() < maxKeywordCount) {
+      counter = 0;
+      Element div = doc.getElementById("keywords_content");
+      if (div != null) {
+        Elements keywords = div.getElementsByClass("sodatext");
+        for (Element keyword : keywords) {
+          if (StringUtils.isNotBlank(keyword.text())) {
+            md.addTag(keyword.text());
+            counter++;
+            if (counter >= maxKeywordCount) {
+              break;
+            }
+          }
         }
       }
     }
