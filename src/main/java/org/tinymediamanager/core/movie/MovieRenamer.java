@@ -890,9 +890,9 @@ public class MovieRenamer {
         break;
 
       case TRAILER:
-        // if the trailer in in a /trailer subfolder, just move it to the destination
+        // if the trailer is in a /trailer subfolder, just move it to the destination
         if (relativePathOfMediafile.getNameCount() > 1
-            && MediaFileHelper.TRAILER_FOLDERS.contains(relativePathOfMediafile.subpath(0, 1).toString())) {
+            && MediaFileHelper.TRAILER_FOLDERS.contains(relativePathOfMediafile.subpath(0, 1).toString().toLowerCase(Locale.ROOT))) {
           // the trailer is in a /trailer(s) subfolder
           newFiles.add(defaultMF);
         }
