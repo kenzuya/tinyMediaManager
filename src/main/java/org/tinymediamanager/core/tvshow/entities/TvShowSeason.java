@@ -25,6 +25,7 @@ import static org.tinymediamanager.core.Constants.TV_SHOW;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -197,7 +198,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   }
 
   public List<TvShowEpisode> getEpisodes() {
-    return episodes;
+    return Collections.unmodifiableList(episodes);
   }
 
   /**

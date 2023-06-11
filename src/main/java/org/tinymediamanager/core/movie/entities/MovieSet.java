@@ -368,7 +368,7 @@ public class MovieSet extends MediaEntity {
   }
 
   public List<Movie> getMovies() {
-    return movies;
+    return Collections.unmodifiableList(movies);
   }
 
   /**
