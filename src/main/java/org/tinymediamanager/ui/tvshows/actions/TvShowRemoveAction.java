@@ -19,6 +19,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -90,7 +91,7 @@ public class TvShowRemoveAction extends TmmAction {
       }
 
       for (TvShowSeason season : selectedObjects.getSeasons()) {
-        for (TvShowEpisode episode : season.getEpisodes()) {
+        for (TvShowEpisode episode : new ArrayList<>(season.getEpisodes())) {
           season.getTvShow().removeEpisode(episode);
         }
       }
