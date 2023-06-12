@@ -805,7 +805,7 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
-    protected void postProcess(List<MovieScraperMetadataConfig> config) {
+    protected void postProcess(List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
       // no postprocessing needed
     }
 
@@ -821,7 +821,7 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
-    public void writeActorImages() {
+    public void writeActorImages(boolean overwriteExistingItems) {
       // do nothing here
     }
 

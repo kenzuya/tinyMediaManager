@@ -56,11 +56,11 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
     }
 
     for (TvShow tvShow : selectedObjects.getTvShows()) {
-      tvShow.writeActorImages();
+      tvShow.writeActorImages(true);
     }
 
     for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
-      episode.writeActorImages();
+      episode.writeActorImages(true);
     }
   }
 }
