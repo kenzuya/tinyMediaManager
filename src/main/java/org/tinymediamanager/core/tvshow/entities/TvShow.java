@@ -105,6 +105,7 @@ import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.connector.ITvShowConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToEmbyConnector;
+import org.tinymediamanager.core.tvshow.connector.TvShowToJellyfinConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
@@ -1090,6 +1091,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       connector = switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
         case XBMC, MEDIAPORTAL -> new TvShowToXbmcConnector(this);
         case EMBY -> new TvShowToEmbyConnector(this);
+        case JELLYFIN -> new TvShowToJellyfinConnector(this);
         default -> new TvShowToKodiConnector(this);
       };
 
