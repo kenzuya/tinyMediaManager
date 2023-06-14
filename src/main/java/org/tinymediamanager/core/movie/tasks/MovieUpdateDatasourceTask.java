@@ -1291,10 +1291,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
               mainVideoFile = mf;
             }
             movie.addToMediaFiles(mf);
-
-            if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-              movie.setMediaSource(MediaSource.parseMediaSource(mf.getFilename()));
-            }
             break;
 
           case SUBTITLE:

@@ -7,6 +7,10 @@ public class MovieMediaSourceTest extends BasicMovieTest {
 
   @Test
   public void performTest() {
+
+    // folder only (but with .tc pattern!)
+    assertEqual(MediaSource.DVD, MediaSource.parseMediaSource("/movies/DVD/Godzilla.x264/some_tc.sdf.mkv"));
+
     // folder structure - parse backwards
     assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("/movies/-DVD-/Godzilla.BluRay.x264"));
 
@@ -17,6 +21,7 @@ public class MovieMediaSourceTest extends BasicMovieTest {
     assertEqual(MediaSource.UHD_BLURAY, MediaSource.parseMediaSource("Arsenal 2017 UHD-Blu-ray.avi"));
 
     // bluray from different releases
+    assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("/movies/DVD/Godzilla.Blu-RaY.x264/some_tc.sdf.mkv"));
     assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("Godzilla.German.AC3.Dubbed.720p.BluRay.x264"));
     assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.BDRip.x264"));
     assertEqual(MediaSource.BLURAY, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.BRRip.x264"));
