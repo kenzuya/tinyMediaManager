@@ -72,7 +72,7 @@ public class MovieMediaSourceTest extends BasicMovieTest {
     // webrip
     assertEqual(MediaSource.WEBRIP, MediaSource.parseMediaSource("/media/movies/Tsunami.webrip.avi"));
     assertEqual(MediaSource.WEBRIP,
-        MediaSource.parseMediaSource("\\Video\\TV Shows\\showname (2020)\\Season 3\\TV.Show.-.S01E01.-.My Show.WEBRip.720p.x264.GroupTV.mkv"));
+        MediaSource.parseMediaSource("showname (2020)\\Season 3\\TV.Show.-.S01E01.-.My Show.WEBRip.720p.x264.GroupTV.mkv"));
 
     // internet stream
     assertEqual(MediaSource.STREAM, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.strm"));

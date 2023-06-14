@@ -991,7 +991,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // if the new file has a source identifier in its filename, update the source too
-        MediaSource newSource = MediaSource.parseMediaSource(vid.getFileAsPath().toString());
+        MediaSource newSource = MediaSource.parseMediaSource(Utils.relPath(movie.getDataSource(), vid.getFileAsPath().toString()));
         if (newSource != MediaSource.UNKNOWN) {
           // source has been found in the filename - update
           movie.setMediaSource(newSource);
@@ -1183,7 +1183,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movie.setTmdbId(ParserUtils.detectTmdbId(mf.getFileAsPath().toString()));
       }
       if (movie.getMediaSource() == MediaSource.UNKNOWN) {
-        movie.setMediaSource(MediaSource.parseMediaSource(mf.getFileAsPath().toString()));
+        movie.setMediaSource(MediaSource.parseMediaSource(Utils.relPath(movie.getDataSource(), mf.getFileAsPath().toString())));
       }
       LOGGER.debug("| parsing video file {}", mf.getFilename());
       movie.setMultiMovieDir(true);
