@@ -154,7 +154,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
       Path p = Paths.get(fn);
       for (MediaSource mediaSource : s) {
         Path work = p;
-        while (work.getNameCount() > 0) {
+        while (work != null) {
           String name = work.getName(work.getNameCount() - 1).toString();
           if (mediaSource.pattern != null && mediaSource.pattern.matcher(name).find()) {
             return mediaSource;
