@@ -146,8 +146,8 @@ public class MediaSource extends DynaEnum<MediaSource> {
    */
   public static MediaSource parseMediaSource(String filename) {
     String fn = filename.toLowerCase(Locale.ROOT);
-    MediaSource[] s = values(MediaSource.class); // use unsorted / 1:1
-    // Arrays.sort(s, MediaSource.COMP_LENGTH);
+    MediaSource[] s = MediaSource.values();
+    Arrays.sort(s, MediaSource.COMP_LENGTH);
 
     // convert to path, and start parsing from filename upto base directory
     try {
