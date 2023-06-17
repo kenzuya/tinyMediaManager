@@ -4,7 +4,7 @@ stages:
 
 variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Xmx1024m"
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
