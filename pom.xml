@@ -547,9 +547,10 @@
                     <!-- spawn one jvm per test class per cpu core -->
                     <!-- needed for static settings per test -->
                     <parallel>classes</parallel>
-                    <forkCount>1C</forkCount>
+                    <forkCount>1</forkCount>
                     <threadCount>1</threadCount>
                     <reuseForks>false</reuseForks>
+                    <argLine>-Xmx1024m</argLine>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
