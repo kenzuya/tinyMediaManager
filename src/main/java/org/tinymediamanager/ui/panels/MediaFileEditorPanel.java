@@ -15,8 +15,10 @@
  */
 package org.tinymediamanager.ui.panels;
 
+import static org.tinymediamanager.core.MediaFileType.AUDIO;
 import static org.tinymediamanager.core.MediaFileType.NFO;
 import static org.tinymediamanager.core.MediaFileType.SAMPLE;
+import static org.tinymediamanager.core.MediaFileType.SUBTITLE;
 import static org.tinymediamanager.core.MediaFileType.TRAILER;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
@@ -319,13 +321,16 @@ public class MediaFileEditorPanel extends JPanel {
           MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
           // codec should not be enabled for NFOs
           tfCodec.setEnabled(container.mediaFile.getType() != NFO);
-          // audio streams and subtitles should not be enabled for anything except VIDEOS/TRAILER/SAMPLES
-          btnAddAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()));
-          btnRemoveAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()));
-          btnAddSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()));
-          btnRemoveSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+
+          // audio streams and subtitles should not be enabled for anything except VIDEOS/TRAILER/SAMPLES/AUDIO/SUBTITLES
+          btnAddAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()) || container.mediaFile.getType() == AUDIO);
+          btnRemoveAudioStream.setEnabled(videoTypes.contains(container.mediaFile.getType()) || container.mediaFile.getType() == AUDIO);
+          btnAddSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()) || container.mediaFile.getType() == SUBTITLE);
+          btnRemoveSubtitle.setEnabled(videoTypes.contains(container.mediaFile.getType()) || container.mediaFile.getType() == SUBTITLE);
+
           // 3D is only available for video types
           cb3dFormat.setEnabled(videoTypes.contains(container.mediaFile.getType()));
+
           // runtime is also only available for video types
           tfRuntime.setEnabled(videoTypes.contains(container.mediaFile.getType()));
           btnARD.setEnabled(videoTypes.contains(container.mediaFile.getType()) && FFmpeg.isAvailable());
@@ -343,22 +348,6 @@ public class MediaFileEditorPanel extends JPanel {
     if (!this.mediaFiles.isEmpty()) {
       tableMediaFiles.getSelectionModel().setSelectionInterval(0, 0);
     }
-
-    audioStreams.addListEventListener(listChanges -> {
-      int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
-      if (selectedRow > -1) {
-        MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
-        container.setAudioStreams(audioStreams);
-      }
-    });
-
-    subtitles.addListEventListener(listChanges -> {
-      int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
-      if (selectedRow > -1) {
-        MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
-        container.setSubtitles(subtitles);
-      }
-    });
   }
 
   private List<AspectRatioContainer> getAspectRatios() {
@@ -381,6 +370,22 @@ public class MediaFileEditorPanel extends JPanel {
     return aspectRatios2;
   }
 
+  private void syncAudioStreams() {
+    int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
+    if (selectedRow > -1) {
+      MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
+      container.setAudioStreams(audioStreams);
+    }
+  }
+
+  private void syncSubtitles() {
+    int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
+    if (selectedRow > -1) {
+      MediaFileContainer container = MediaFileEditorPanel.this.mediaFiles.get(selectedRow);
+      container.setSubtitles(subtitles);
+    }
+  }
+
   private class AddAudioStreamAction extends AbstractAction {
     public AddAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("audiostream.add"));
@@ -390,6 +395,7 @@ public class MediaFileEditorPanel extends JPanel {
     @Override
     public void actionPerformed(ActionEvent e) {
       tableAudioStreams.addAudioStream();
+      syncAudioStreams();
     }
   }
 
@@ -405,6 +411,7 @@ public class MediaFileEditorPanel extends JPanel {
       for (int index : audioRows) {
         audioStreams.remove(index);
       }
+      syncAudioStreams();
     }
   }
 
@@ -417,6 +424,7 @@ public class MediaFileEditorPanel extends JPanel {
     @Override
     public void actionPerformed(ActionEvent e) {
       tableSubtitles.addSubtitle();
+      syncSubtitles();
     }
   }
 
@@ -432,6 +440,7 @@ public class MediaFileEditorPanel extends JPanel {
       for (int index : audioRows) {
         subtitles.remove(index);
       }
+      syncSubtitles();
     }
   }
 
