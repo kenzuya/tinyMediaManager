@@ -35,6 +35,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -132,8 +133,9 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     List<SubtitleSearchResult> results = new ArrayList<>();
 
     // first try: search with moviehash & filesize
-    if (options.getFile() != null && options.getFile().exists() && options.getFile().length() > 0) {
-      File file = options.getFile();
+    MediaFile mediaFile = options.getMediaFile();
+    if (mediaFile != null && mediaFile.exists() && mediaFile.getFilesize() > 0) {
+      File file = mediaFile.getFile().toFile();
       long fileSize = file.length();
       String hash = computeOpenSubtitlesHash(file);
 
@@ -295,7 +297,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     result.setId(movieInfo.id);
     result.setTitle(movieInfo.movieTitle);
     result.setReleaseName(movieInfo.movieReleaseName);
-    result.setUrl(movieInfo.zipDownloadLink);
+    result.setUrl(() -> movieInfo.zipDownloadLink);
     result.setRating(movieInfo.subRating);
     result.setStackCount(movieInfo.subSumCD);
     result.setScore((float) movieInfo.score);

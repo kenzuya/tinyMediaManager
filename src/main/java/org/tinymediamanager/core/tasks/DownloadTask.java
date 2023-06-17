@@ -49,10 +49,11 @@ import okhttp3.Headers;
  * @author Myron Boyle, Manuel Laggner
  */
 public abstract class DownloadTask extends TmmTask {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadTask.class);
+  private static final Logger LOGGER   = LoggerFactory.getLogger(DownloadTask.class);
 
   protected String            url;
   protected Path              tempFile;
+  protected String            fileType = "";
 
   /**
    * Starts the download of an url to a file
@@ -177,6 +178,8 @@ public abstract class DownloadTask extends TmmTask {
           // fallback!
           fileExtension = "dat";
         }
+
+        fileType = fileExtension.toLowerCase(Locale.ROOT);
 
         LOGGER.debug("Downloading to '{}'", tempFile);
 

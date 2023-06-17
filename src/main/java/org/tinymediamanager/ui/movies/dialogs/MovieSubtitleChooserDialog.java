@@ -23,10 +23,10 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -146,11 +146,11 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
 
     // action listeners
-    btnSearch.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
-    cbLanguage.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
+    btnSearch.addActionListener(e -> searchSubtitle(fileToScrape, tfSearchQuery.getText()));
+    cbLanguage.addActionListener(e -> searchSubtitle(fileToScrape, tfSearchQuery.getText()));
 
     // start initial search
-    searchSubtitle(fileToScrape.getFileAsPath().toFile(), movieToScrape.getImdbId(), tfSearchQuery.getText());
+    searchSubtitle(fileToScrape, movie.getIds(), tfSearchQuery.getText());
   }
 
   private void initComponents() {
@@ -246,7 +246,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
   }
 
-  private void searchSubtitle(File file, String imdbId, String searchTerm) {
+  private void searchSubtitle(MediaFile mediaFile, Map<String, Object> ids, String searchTerm) {
     if (activeSearchTask != null && !activeSearchTask.isDone()) {
       activeSearchTask.cancel();
     }
@@ -254,7 +254,19 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     // scrapers
     List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
 
-    activeSearchTask = new SearchTask(file, imdbId, searchTerm, scrapers);
+    activeSearchTask = new SearchTask(mediaFile, ids, searchTerm, scrapers);
+    activeSearchTask.execute();
+  }
+
+  private void searchSubtitle(MediaFile mediaFilele, String searchTerm) {
+    if (activeSearchTask != null && !activeSearchTask.isDone()) {
+      activeSearchTask.cancel();
+    }
+
+    // scrapers
+    List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
+
+    activeSearchTask = new SearchTask(mediaFilele, searchTerm, scrapers);
     activeSearchTask.execute();
   }
 
@@ -287,19 +299,24 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private File                       file;
-    private String                     searchTerm;
-    private String                     imdbId;
-    private List<SubtitleSearchResult> searchResults;
-    private MediaLanguages             language;
-    private List<MediaScraper>         scrapers;
-    boolean                            cancel;
-    private String                     message;
+    private final MediaFile                  mediaFile;
+    private final String                     searchTerm;
+    private final Map<String, Object>        ids;
+    private final List<SubtitleSearchResult> searchResults;
+    private final MediaLanguages             language;
+    private final List<MediaScraper>         scrapers;
 
-    public SearchTask(File file, String imdbId, String searchTerm, List<MediaScraper> scrapers) {
-      this.file = file;
+    boolean                                  cancel;
+    private String                           message;
+
+    public SearchTask(MediaFile mediaFile, String searchTerm, List<MediaScraper> scrapers) {
+      this(mediaFile, Collections.emptyMap(), searchTerm, scrapers);
+    }
+
+    public SearchTask(MediaFile mediaFile, Map<String, Object> ids, String searchTerm, List<MediaScraper> scrapers) {
+      this.mediaFile = mediaFile;
       this.searchTerm = searchTerm;
-      this.imdbId = imdbId;
+      this.ids = ids;
       this.language = (MediaLanguages) cbLanguage.getSelectedItem();
       this.searchResults = new ArrayList<>();
       this.scrapers = scrapers;
@@ -313,9 +330,9 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
         try {
           IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
-          options.setFile(file);
+          options.setMediaFile(mediaFile);
           options.setSearchQuery(searchTerm);
-          options.setImdbId(imdbId);
+          options.setIds(ids);
           options.setLanguage(language);
           searchResults.addAll(subtitleProvider.search(options));
         }

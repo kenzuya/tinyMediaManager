@@ -7,6 +7,7 @@ Version 5.0
 + providing signed installers (Windows, macOS)
 + changed Linux ARM build to 64 bit (arm64/aarch64)
 + enabled usage of different episode groups #1935 #1138 #736
++ added support for OpenSubtitles.com
 + reworked some dialogs to a material design like input dialog
 + enhanced automatic artwork downloading #2184, #2182
 + added subtitle format info to media files tab and filters #1709

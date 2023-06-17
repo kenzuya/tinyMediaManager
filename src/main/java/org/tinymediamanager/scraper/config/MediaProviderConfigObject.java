@@ -117,7 +117,7 @@ public class MediaProviderConfigObject {
     return this.value;
   }
 
-  public Boolean getValueAsBool() {
+  public boolean getValueAsBool() {
     boolean bool = Boolean.FALSE;
     if (type != ConfigType.BOOL) {
       return bool;
