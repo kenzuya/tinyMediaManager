@@ -504,6 +504,7 @@
 					<forkCount>1C</forkCount>
 					<threadCount>1</threadCount>
 					<reuseForks>false</reuseForks>
+					<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
 					<includes>
 						<include>**/*.java</include>
 					</includes>
