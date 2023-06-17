@@ -3,6 +3,7 @@ Version 4.3.12
 x (FFmpeg) set correct artwork metadata for the enhanced artwork download algorithm #2181
 x added an action to export internal data for issue analysis
 x encrypt exported logs/data for your privacy
+x do not always download actor images, when "overwrite existing" is false
 
 
 Version 4.3.11.1

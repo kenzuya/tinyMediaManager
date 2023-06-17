@@ -862,7 +862,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1829,8 +1829,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 
@@ -1955,7 +1956,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return null;
   }
 
-  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
@@ -1974,7 +1975,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }

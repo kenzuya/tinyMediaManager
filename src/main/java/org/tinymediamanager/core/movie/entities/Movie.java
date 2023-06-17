@@ -1022,7 +1022,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1329,8 +1329,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     MovieActorImageFetcherTask task = new MovieActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 
@@ -2954,7 +2955,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return null;
   }
 
-  protected void postProcess(List<MovieScraperMetadataConfig> config) {
+  protected void postProcess(List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
@@ -2971,7 +2972,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }

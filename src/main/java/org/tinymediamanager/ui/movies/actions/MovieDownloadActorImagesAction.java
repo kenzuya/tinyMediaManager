@@ -54,7 +54,7 @@ public class MovieDownloadActorImagesAction extends TmmAction {
     }
 
     for (Movie movie : selectedMovies) {
-      movie.writeActorImages();
+      movie.writeActorImages(true);
     }
   }
 }
