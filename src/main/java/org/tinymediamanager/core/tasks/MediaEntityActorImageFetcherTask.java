@@ -39,11 +39,12 @@ import org.tinymediamanager.core.entities.Person;
  */
 public abstract class MediaEntityActorImageFetcherTask implements Runnable {
 
-  private static final Logger LOGGER  = LoggerFactory.getLogger(MediaEntityActorImageFetcherTask.class);
+  private static final Logger LOGGER                 = LoggerFactory.getLogger(MediaEntityActorImageFetcherTask.class);
 
   protected MediaEntity       mediaEntity;
   protected Set<Person>       persons;
-  protected boolean           cleanup = true;
+  protected boolean           cleanup                = true;
+  protected boolean           overwriteExistingItems = true;
 
   protected abstract Logger getLogger();
 
@@ -95,7 +96,7 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
       // second - download images
       for (Person person : persons) {
         try {
-          downloadPersonImage(person);
+          downloadPersonImage(person, overwriteExistingItems);
         }
         catch (InterruptedException | InterruptedIOException e) {
           LOGGER.info("artwork download aborted");
@@ -116,7 +117,7 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
     }
   }
 
-  private void downloadPersonImage(Person person) throws Exception {
+  private void downloadPersonImage(Person person, boolean overwriteExistingItems) throws Exception {
     String actorImageFilename = person.getNameForStorage();
     if (StringUtils.isBlank(actorImageFilename) && StringUtils.isBlank(person.getThumbUrl())) {
       return;
@@ -129,6 +130,9 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
     }
 
     Path actorImage = actorsDir.resolve(actorImageFilename);
+    if (!overwriteExistingItems && Files.exists(actorImage)) {
+      return;
+    }
 
     if (StringUtils.isNotEmpty(person.getThumbUrl())) {
       Path cache = ImageCache.getCachedFile(person.getThumbUrl());
@@ -148,5 +152,13 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
         ImageCache.cacheImageSilently(actorImage);
       }
     }
+  }
+
+  public boolean isOverwriteExistingItems() {
+    return overwriteExistingItems;
+  }
+
+  public void setOverwriteExistingItems(boolean overwriteExistingItems) {
+    this.overwriteExistingItems = overwriteExistingItems;
   }
 }

@@ -434,7 +434,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   /**
    * get all available "named" {@link MediaEpisodeGroup}s for this TV show
-   * 
+   *
    * @return a {@link List} of all names {@link MediaEpisodeGroup}s
    */
   public List<MediaEpisodeGroup> getEpisodeGroups() {
@@ -443,7 +443,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   /**
    * set the list of "named" {@link MediaEpisodeGroup}s for this TV show
-   * 
+   *
    * @param newValue
    *          the {@link List} of all named {@link MediaEpisodeGroup}s
    */
@@ -660,7 +660,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   /**
    * gets or creates a new season. This can be handy if you have metadata/artwork for a _new_ season
-   * 
+   *
    * @param seasonNumber
    *          the season number
    * @return the {@link TvShowSeason}
@@ -1053,7 +1053,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     saveToDb();
 
     // and post-process
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1108,7 +1108,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     seasons.forEach(TvShowSeason::writeNfo);
   }
 
-  private void postProcess(List<TvShowScraperMetadataConfig> config) {
+  private void postProcess(List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     // rename the TV show if that has been chosen in the settings
@@ -1121,7 +1121,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }
@@ -1838,8 +1838,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 

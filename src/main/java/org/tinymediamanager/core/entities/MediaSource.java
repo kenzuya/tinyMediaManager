@@ -71,6 +71,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
 
   private final String                         title;
   private final Pattern                        pattern;
+  private final Pattern                        patternWoDelim;
 
   private MediaSource(String enumName, int ordinal, String title) {
     this(enumName, ordinal, title, "");
@@ -81,9 +82,11 @@ public class MediaSource extends DynaEnum<MediaSource> {
     this.title = title;
     if (StringUtils.isNotBlank(pattern)) {
       this.pattern = Pattern.compile(START_TOKEN + pattern + END_TOKEN, Pattern.CASE_INSENSITIVE);
+      this.patternWoDelim = Pattern.compile("^" + pattern + "$", Pattern.CASE_INSENSITIVE);
     }
     else {
       this.pattern = null;
+      this.patternWoDelim = null;
     }
 
     addElement();
@@ -147,17 +150,20 @@ public class MediaSource extends DynaEnum<MediaSource> {
     Arrays.sort(s, MediaSource.COMP_LENGTH);
 
     // convert to path, and start parsing from filename upto base directory
-    // better than before, but due to having our tokens around, /DVD/ and such won't work
     try {
       Path p = Paths.get(fn);
-      while (p.getNameCount() > 0) {
-        String name = p.getName(p.getNameCount() - 1).toString();
-        for (MediaSource mediaSource : s) {
+      for (MediaSource mediaSource : s) {
+        Path work = p;
+        while (work != null) {
+          String name = work.getName(work.getNameCount() - 1).toString();
           if (mediaSource.pattern != null && mediaSource.pattern.matcher(name).find()) {
             return mediaSource;
           }
+          if (mediaSource.patternWoDelim != null && mediaSource.patternWoDelim.matcher(name).find()) {
+            return mediaSource;
+          }
+          work = work.getParent();
         }
-        p = p.getParent();
       }
     }
     catch (Exception e) {

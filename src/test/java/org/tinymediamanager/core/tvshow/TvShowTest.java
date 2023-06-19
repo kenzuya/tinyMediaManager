@@ -188,6 +188,16 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:4 E:204", detectEpisode("4x204.avi"));
     assertEqual("S:1 E:13 E:14 E:15", detectEpisode("Peter Pan S01E13_1x14_1x15 - El Hookato.ts"));
 
+    // special case - show with only number like "24"
+    assertEqual("S:1 E:1", detectEpisode("24 S01E01 1080p BluRay.mkv", "24"));
+    assertEqual("S:1 E:24", detectEpisode("24 S01E24 1080p BluRay.mkv", "24"));
+    assertEqual("S:1 E:24", detectEpisode("24 S01EP24 1080p BluRay.mkv", "24"));
+    assertEqual("S:24 E:1", detectEpisode("24 S24E01 1080p BluRay.mkv", "24"));
+    assertEqual("S:1 E:24", detectEpisode("S01E24 1080p BluRay.mkv", "24"));
+    assertEqual("S:24 E:1", detectEpisode("S24E01 1080p BluRay.mkv", "24"));
+    assertEqual("S:1 E:24", detectEpisode("24 Season 1 Episode 24 1080p BluRay.mkv", "24"));
+    assertEqual("S:24 E:1", detectEpisode("24 Season 24 Episode 1 1080p BluRay.mkv", "24"));
+
     // ************************************************************************
     // 1-3 chars, if they are the ONLY numbers in file
     assertEqual("S:-1 E:2", detectEpisode("2.mkv"));
@@ -277,9 +287,20 @@ public class TvShowTest extends BasicTvShowTest {
    * @return the string
    */
   private String detectEpisode(String name) {
+    return detectEpisode(name, "asdf[.*]asdf");
+  }
+
+  /**
+   * Detect episode.
+   *
+   * @param name
+   *          the name
+   * @return the string
+   */
+  private String detectEpisode(String name, String show) {
     StringBuilder sb = new StringBuilder();
     // EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(new File(name));
-    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(name, "asdf[.*]asdf");
+    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(name, show);
     sb.append("S:");
     sb.append(result.season);
     for (int ep : result.episodes) {

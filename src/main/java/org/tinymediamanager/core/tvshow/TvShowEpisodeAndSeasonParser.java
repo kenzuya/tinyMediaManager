@@ -201,21 +201,6 @@ public class TvShowEpisodeAndSeasonParser {
       return result;
     }
 
-    if (showname != null && !showname.isEmpty()) {
-      // remove string like tvshow name (440, 24, ...)
-      basename = basename.replaceAll("(?i)" + Pattern.quote(showname), "");
-      foldername = foldername.replaceAll("(?i)" + Pattern.quote(showname), "");
-      try {
-        // Since this is the title, change all spaces to delimiter pattern!
-        // "some fine show" would match with "some.fine-show"
-        // since we generate a dynamic pattern, guard that with try/catch - the quote() from above would not work
-        showname = showname.replaceAll("[ _.-]", "[ _.-]"); // replace all delimiters, with delimiters pattern ;)
-        foldername = foldername.replaceAll("(?i)" + showname, "");
-      }
-      catch (Exception e) {
-        // ignore
-      }
-    }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year
     basename = basename.replaceFirst("[\\(\\[][A-Fa-f0-9]{8}[\\)\\]]", ""); // remove (xxxxxxxx) or [xxxxxxxx] as 8 byte crc
@@ -237,15 +222,32 @@ public class TvShowEpisodeAndSeasonParser {
     result = parseSeasonMultiEP2(result, basename + foldername);
     result = parseEpisodePattern(result, basename);
 
+    if (!result.episodes.isEmpty()) {
+      return postClean(result);
+    }
+
+    // since we parsed all long variants, now it is a good time to remove the show name, even something like "24"
+    if (showname != null && !showname.isEmpty()) {
+      // remove string like tvshow name (440, 24, ...)
+      basename = basename.replaceAll("(?i)[^ES]" + Pattern.quote(showname), ""); // with our added space, but not prefixed with S/E
+      foldername = foldername.replaceAll("(?i)[^ES]" + Pattern.quote(showname), ""); // with our added space, but not prefixed with S/E
+      try {
+        // Since this is the title, change all spaces to delimiter pattern!
+        // "some fine show" would match with "some.fine-show"
+        // since we generate a dynamic pattern, guard that with try/catch - the quote() from above would not work
+        showname = showname.replaceAll("[ _.-]", "[ _.-]"); // replace all delimiters, with delimiters pattern ;)
+        foldername = foldername.replaceAll("(?i)" + showname, "");
+      }
+      catch (Exception e) {
+        // ignore
+      }
+    }
+
     // ======================================================================
     // After here are some weird detections
     // run them only, when we have NO result!!!
     // so we step out here...
     // ======================================================================
-    if (!result.episodes.isEmpty()) {
-      return postClean(result);
-    }
-
     result = parseRoman(result, basename);
     if (!result.episodes.isEmpty()) {
       return postClean(result);
