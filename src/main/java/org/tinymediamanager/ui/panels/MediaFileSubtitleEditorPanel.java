@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -33,6 +32,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 
 import net.miginfocom.swing.MigLayout;
@@ -45,7 +45,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
   private final MediaFileSubtitle               subtitle;
 
-  private final JComboBox<LocaleContainer>      cbLanguage;
+  private final AutocompleteComboBox            cbLanguage;
   private final JCheckBox                       chkbxForced;
   private final JCheckBox                       chkbxSdh;
   private final JTextField                      tfFormat;
@@ -60,9 +60,9 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
 
     stringComparator = new TmmTableFormat.StringComparator();
 
-    List<LocaleContainer> languages = new ArrayList<>();
+    List<LanguageContainer> languages = new ArrayList<>();
     for (Locale locale : Locale.getAvailableLocales()) {
-      LocaleContainer localeContainer = new LocaleContainer(locale);
+      LanguageContainer localeContainer = new LanguageContainer(locale);
       if (!languages.contains(localeContainer)) {
         languages.add(localeContainer);
       }
@@ -75,8 +75,8 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
         JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
         add(lblLanguageT, "cell 0 0,alignx trailing");
 
-        cbLanguage = new JComboBox(languages.toArray());
-        add(cbLanguage, "cell 1 0 2 1");
+        cbLanguage = new AutocompleteComboBox(languages.toArray());
+        add(cbLanguage, "cell 1 0 2 1, wmin 50%");
       }
       {
         JLabel lblForcedT = new TmmLabel(TmmResourceBundle.getString("metatag.forced"));
@@ -113,7 +113,7 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
     tfFormat.setText(subtitle.getCodec());
     chkbxForced.setSelected(subtitle.isForced());
     chkbxSdh.setSelected(subtitle.isSdh());
-    cbLanguage.setSelectedItem(new LocaleContainer(LocaleUtils.toLocale(subtitle.getLanguage())));
+    cbLanguage.setSelectedItem(new LanguageContainer(LocaleUtils.toLocale(subtitle.getLanguage())));
     tfTitle.setText(subtitle.getTitle());
 
     // set focus to the first combobox
@@ -127,8 +127,11 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
     subtitle.setSdh(chkbxSdh.isSelected());
 
     Object obj = cbLanguage.getSelectedItem();
-    if (obj instanceof LocaleContainer localeContainer) {
+    if (obj instanceof LanguageContainer localeContainer) {
       subtitle.setLanguage(localeContainer.iso3);
+    }
+    else if (obj instanceof String language) {
+      subtitle.setLanguage(language);
     }
 
     subtitle.setTitle(tfTitle.getText());
@@ -136,13 +139,11 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
     setVisible(false);
   }
 
-  private static class LocaleContainer {
-    private final Locale locale;
+  private static class LanguageContainer {
     private final String iso3;
     private final String description;
 
-    public LocaleContainer(@NotNull Locale locale) {
-      this.locale = locale;
+    public LanguageContainer(@NotNull Locale locale) {
       this.iso3 = LanguageUtils.getIso3Language(locale);
       this.description = StringUtils.isNotBlank(locale.getDisplayLanguage()) ? locale.getDisplayLanguage() + " (" + this.iso3 + ")" : "";
     }
@@ -160,7 +161,7 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      LocaleContainer that = (LocaleContainer) o;
+      LanguageContainer that = (LanguageContainer) o;
       return iso3.equals(that.iso3);
     }
 

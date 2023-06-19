@@ -436,7 +436,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      int[] audioRows = convertSelectedRowsToModelRows(tableAudioStreams);
+      int[] audioRows = convertSelectedRowsToModelRows(tableSubtitles);
       for (int index : audioRows) {
         subtitles.remove(index);
       }
