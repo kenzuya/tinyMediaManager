@@ -139,58 +139,47 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
 
     String language = options.getLanguage().getLanguage().toLowerCase(Locale.ROOT);
 
-    // first try: search with moviehash & filesize
+    // according to the API we can send everything together:
+    // you can combine all together (send everything what you have and we will take of rest)
+    // https://opensubtitles.stoplight.io/docs/opensubtitles-api/a172317bd5ccc-search-for-subtitles
+    Map<String, String> query = new TreeMap<>();
+
+    query.put("languages", language);
+
+    if (getProviderInfo().getConfig().getValueAsBool("aiTranslated")) {
+      query.put("ai_translated", "include");
+    }
+    else {
+      query.put("ai_translated", "exclude");
+    }
+
+    if (getProviderInfo().getConfig().getValueAsBool("trustedSources")) {
+      query.put("trusted_sources", "only");
+    }
+    else {
+      query.put("trusted_sources", "include");
+    }
+
+    if (getProviderInfo().getConfig().getValueAsBool("machineTranslated")) {
+      query.put("machine_translated", "include");
+    }
+    else {
+      query.put("machine_translated", "exclude");
+    }
+
+    // pass moviehash
     MediaFile mediaFile = options.getMediaFile();
     if (mediaFile != null && mediaFile.exists() && mediaFile.getFilesize() > 0) {
       File file = mediaFile.getFile().toFile();
       long fileSize = file.length();
       String hash = computeOpenSubtitlesHash(file);
-
-      Map<String, String> query = new TreeMap<>();
       query.put("moviehash", hash);
-      query.put("moviehash_match", "only");
-      query.put("languages", language);
 
-      putCommonQueryParameters(query);
-
-      getLogger().debug("searching subtitle for {}", file);
       getLogger().debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
-
-      try {
-        Response<SearchResponse> response = controller.getService().search(query).execute();
-
-        if (response.isSuccessful() && response.body() != null) {
-          for (SearchResult result : ListUtils.nullSafe(response.body().data)) {
-            if (result.attributes == null || ListUtils.isEmpty(result.attributes.files)) {
-              continue;
-            }
-
-            // requested language and response must match
-            if (!language.equals(result.attributes.language)) {
-              continue;
-            }
-
-            SubtitleSearchResult subtitleSearchResult = prepareSearchResult(result, options);
-            if (subtitleSearchResult == null) {
-              getLogger().debug("Could not detect any valid subtitle file to download");
-              continue;
-            }
-
-            results.add(subtitleSearchResult);
-          }
-        }
-
-        getLogger().debug("found {} results", results.size());
-      }
-      catch (Exception e) {
-        getLogger().error("Could not search subtitle - {}", e.getMessage());
-      }
     }
 
-    // second try: search by IMDB Id/TMDB Id
-    if (results.isEmpty() && (MediaIdUtil.isValidImdbId(options.getImdbId()) || options.getTmdbId() > 0)) {
-      Map<String, String> query = new TreeMap<>();
-
+    // pass imdb/tmdb id
+    if (MediaIdUtil.isValidImdbId(options.getImdbId()) || options.getTmdbId() > 0) {
       if (MediaIdUtil.isValidImdbId(options.getImdbId())) {
         getLogger().debug("searching subtitle for imdb id '{}'", options.getImdbId());
         query.put("imdb_id", String.valueOf(formatImdbId(options.getImdbId())));
@@ -221,83 +210,38 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
           query.put("season_number", String.valueOf(options.getSeason()));
         }
       }
-
-      query.put("languages", language);
-
-      putCommonQueryParameters(query);
-
-      try {
-        Response<SearchResponse> response = controller.getService().search(query).execute();
-
-        if (response.isSuccessful() && response.body() != null) {
-          for (SearchResult result : ListUtils.nullSafe(response.body().data)) {
-            if (result.attributes == null || ListUtils.isEmpty(result.attributes.files)) {
-              continue;
-            }
-
-            // requested language and response must match
-            if (!language.equals(result.attributes.language)) {
-              continue;
-            }
-
-            SubtitleSearchResult subtitleSearchResult = prepareSearchResult(result, options);
-            if (subtitleSearchResult == null) {
-              getLogger().debug("Could not detect any valid subtitle file to download");
-              continue;
-            }
-
-            results.add(subtitleSearchResult);
-          }
-        }
-
-        getLogger().debug("found {} results", results.size());
-      }
-      catch (Exception e) {
-        getLogger().error("Could not search subtitle.", e);
-      }
     }
 
-    // third try: search by query
-    if (results.isEmpty() && StringUtils.isNotBlank(options.getSearchQuery())) {
-      Map<String, String> query = new TreeMap<>();
+    getLogger().debug("searching subtitle");
 
-      getLogger().debug("searching subtitle for query: {}", options.getSearchQuery());
+    try {
+      Response<SearchResponse> response = controller.getService().search(query).execute();
 
-      query.put("query", options.getSearchQuery());
-      query.put("languages", language);
-
-      putCommonQueryParameters(query);
-
-      try {
-        Response<SearchResponse> response = controller.getService().search(query).execute();
-
-        if (response.isSuccessful() && response.body() != null) {
-          for (SearchResult result : ListUtils.nullSafe(response.body().data)) {
-            if (result.attributes == null || ListUtils.isEmpty(result.attributes.files)) {
-              continue;
-            }
-
-            // requested language and response must match
-            if (!language.equals(result.attributes.language)) {
-              continue;
-            }
-
-            SubtitleSearchResult subtitleSearchResult = prepareSearchResult(result, options);
-
-            if (subtitleSearchResult == null) {
-              getLogger().debug("Could not detect any valid subtitle file to download");
-              continue;
-            }
-
-            results.add(subtitleSearchResult);
+      if (response.isSuccessful() && response.body() != null) {
+        for (SearchResult result : ListUtils.nullSafe(response.body().data)) {
+          if (result.attributes == null || ListUtils.isEmpty(result.attributes.files)) {
+            continue;
           }
-        }
 
-        getLogger().debug("found {} results", results.size());
+          // requested language and response must match
+          if (!language.equals(result.attributes.language)) {
+            continue;
+          }
+
+          SubtitleSearchResult subtitleSearchResult = prepareSearchResult(result, options);
+          if (subtitleSearchResult == null) {
+            getLogger().debug("Could not detect any valid subtitle file to download");
+            continue;
+          }
+
+          results.add(subtitleSearchResult);
+        }
       }
-      catch (Exception e) {
-        getLogger().error("Could not search subtitle.", e);
-      }
+
+      getLogger().debug("found {} results", results.size());
+    }
+    catch (Exception e) {
+      getLogger().error("Could not search subtitle - {}", e.getMessage());
     }
 
     Collections.sort(results);
@@ -419,29 +363,6 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
     return true;
   }
 
-  protected void putCommonQueryParameters(Map<String, String> query) {
-    if (getProviderInfo().getConfig().getValueAsBool("aiTranslated")) {
-      query.put("ai_translated", "include");
-    }
-    else {
-      query.put("ai_translated", "exclude");
-    }
-
-    if (getProviderInfo().getConfig().getValueAsBool("trustedSources")) {
-      query.put("trusted_sources", "only");
-    }
-    else {
-      query.put("trusted_sources", "include");
-    }
-
-    if (getProviderInfo().getConfig().getValueAsBool("machineTranslated")) {
-      query.put("machine_translated", "include");
-    }
-    else {
-      query.put("machine_translated", "exclude");
-    }
-  }
-
   private String download(SubtitleFile file, double frameRate) {
     DownloadRequest request = new DownloadRequest();
     request.file_id = file.fileId;
@@ -508,7 +429,7 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
       fileChannel.read(buf, Math.max(size - HASH_CHUNK_SIZE, 0));
       long tail = computeOpenSubtitlesHashForChunk(buf);
 
-      return String.format("%016x", size + head + tail);
+      return String.format("%016x", size + head + tail).toLowerCase(Locale.ROOT);
     }
     catch (Exception e) {
       getLogger().error("Error computing OpenSubtitles hash", e);

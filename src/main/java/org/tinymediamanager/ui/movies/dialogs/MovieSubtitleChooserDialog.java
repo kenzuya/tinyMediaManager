@@ -37,7 +37,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -101,7 +100,6 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
   // UI components
   private TmmTable                                   tableSubs;
-  private JTextField                                 tfSearchQuery;
   private JComboBox<MediaLanguages>                  cbLanguage;
   private MediaScraperCheckComboBox                  cbScraper;
   private JLabel                                     lblProgressAction;
@@ -146,11 +144,11 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
 
     // action listeners
-    btnSearch.addActionListener(e -> searchSubtitle(fileToScrape, tfSearchQuery.getText()));
-    cbLanguage.addActionListener(e -> searchSubtitle(fileToScrape, tfSearchQuery.getText()));
+    btnSearch.addActionListener(e -> searchSubtitle());
+    cbLanguage.addActionListener(e -> searchSubtitle());
 
     // start initial search
-    searchSubtitle(fileToScrape, movie.getIds(), tfSearchQuery.getText());
+    searchSubtitle();
   }
 
   private void initComponents() {
@@ -192,10 +190,6 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
       cbScraper = new MediaScraperCheckComboBox(movieList.getAvailableSubtitleScrapers());
       panelContent.add(cbScraper, "cell 1 2,growx");
-
-      tfSearchQuery = new JTextField(movieToScrape.getTitle());
-      panelContent.add(tfSearchQuery, "cell 2 2 3 1,growx,aligny center");
-      tfSearchQuery.setColumns(10);
 
       btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
       panelContent.add(btnSearch, "cell 2 2,alignx left,aligny top");
@@ -246,7 +240,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
   }
 
-  private void searchSubtitle(MediaFile mediaFile, Map<String, Object> ids, String searchTerm) {
+  private void searchSubtitle() {
     if (activeSearchTask != null && !activeSearchTask.isDone()) {
       activeSearchTask.cancel();
     }
@@ -254,19 +248,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     // scrapers
     List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
 
-    activeSearchTask = new SearchTask(mediaFile, ids, searchTerm, scrapers);
-    activeSearchTask.execute();
-  }
-
-  private void searchSubtitle(MediaFile mediaFilele, String searchTerm) {
-    if (activeSearchTask != null && !activeSearchTask.isDone()) {
-      activeSearchTask.cancel();
-    }
-
-    // scrapers
-    List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
-
-    activeSearchTask = new SearchTask(mediaFilele, searchTerm, scrapers);
+    activeSearchTask = new SearchTask(fileToScrape, movieToScrape.getIds(), movieToScrape.getTitle(), scrapers);
     activeSearchTask.execute();
   }
 
