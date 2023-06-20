@@ -20,6 +20,7 @@ Version 5.0
 + filter enhancements: numerical values can now be filtered with various other comparison methods #1952
 + many new filters #1052 #1952 #1949
 + added an option to control how the "new" flag should be cleared
++ added a logo for HDR/Dolby Vision #2191
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons
 x (movie) renamer preview now shows subfolders too #2010

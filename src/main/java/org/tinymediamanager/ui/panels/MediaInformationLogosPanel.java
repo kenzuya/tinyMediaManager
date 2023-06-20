@@ -38,28 +38,38 @@ import net.miginfocom.swing.MigLayout;
  * The class MediaInformationLogosPanel is used to display all media info related logos
  */
 public class MediaInformationLogosPanel extends JPanel {
-  private IMediaInformation   mediaInformationSource;
+  private IMediaInformation mediaInformationSource;
 
-  private JLabel              lblVideoFormat   = new JLabel();
-  private JLabel              lblAspectRatio   = new JLabel();
-  private JLabel              lblVideoCodec    = new JLabel();
-  private JLabel              lblVideo3d       = new JLabel();
-  private JLabel              lblAudioCodec    = new JLabel();
-  private JLabel              lblAudioChannels = new JLabel();
-  private JLabel              lblSource        = new JLabel();
+  private final JLabel      lblVideoFormat;
+  private final JLabel      lblAspectRatio;
+  private final JLabel      lblVideoCodec;
+  private final JLabel      lblVideo3d;
+  private final JLabel      lblVideoHdr;
+  private final JLabel      lblAudioCodec;
+  private final JLabel      lblAudioChannels;
+  private final JLabel      lblSource;
 
   public MediaInformationLogosPanel() {
-    setLayout(new MigLayout("hidemode 3", "[][][][][10lp][][][10lp][]", "[]"));
+    setLayout(new MigLayout("hidemode 3", "[][][][][][10lp][][][10lp][]", "[]"));
 
+    lblVideoFormat = new JLabel();
     add(lblVideoFormat, "cell 0 0, bottom");
+    lblAspectRatio = new JLabel();
     add(lblAspectRatio, "cell 1 0, bottom");
+    lblVideoCodec = new JLabel();
     add(lblVideoCodec, "cell 2 0, bottom");
+    lblVideo3d = new JLabel();
     add(lblVideo3d, "cell 3 0, bottom");
+    lblVideoHdr = new JLabel();
+    add(lblVideoHdr, "cell 4 0, bottom");
 
-    add(lblAudioChannels, "cell 5 0, bottom");
-    add(lblAudioCodec, "cell 6 0, bottom");
+    lblAudioChannels = new JLabel();
+    add(lblAudioChannels, "cell 6 0, bottom");
+    lblAudioCodec = new JLabel();
+    add(lblAudioCodec, "cell 7 0, bottom");
 
-    add(lblSource, "cell 8 0, bottom");
+    lblSource = new JLabel();
+    add(lblSource, "cell 9 0, bottom");
 
     // listen to UI changes to re-set the icons
   }
@@ -83,6 +93,7 @@ public class MediaInformationLogosPanel extends JPanel {
     setIcon(lblAspectRatio, getAspectRatioIcon());
     setIcon(lblVideoCodec, getVideoCodecIcon());
     setIcon(lblVideo3d, getVideo3dIcon());
+    setIcon(lblVideoHdr, getVideoHdrIcon());
     setIcon(lblAudioCodec, getAudioCodecIcon());
     setIcon(lblAudioChannels, getAudioChannelsIcon());
     setIcon(lblSource, getSourceIcon());
@@ -227,6 +238,26 @@ public class MediaInformationLogosPanel extends JPanel {
 
     try {
       return new MediaInfoIcon("video/3d.svg");
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * get the right icon for HDR
+   *
+   * @return the icon or null
+   */
+  private Icon getVideoHdrIcon() {
+    String hdrFormat = mediaInformationSource.getVideoHDRFormat();
+    // a) return null if the video is not in 3D
+    if (StringUtils.isBlank(hdrFormat)) {
+      return null;
+    }
+
+    try {
+      return new MediaInfoIcon("video/" + hdrFormat.toLowerCase(Locale.ROOT).replace(" ", "_") + ".svg");
     }
     catch (Exception e) {
       return null;
