@@ -1045,7 +1045,9 @@ public class MovieArtworkHelper {
         }
       }
     }
-    else {
+
+    // nothing found in requested languages - try to get the other way
+    if (sortedArtwork.isEmpty()) {
       // the right resolution (first w/o text)
       for (MediaArtwork art : artwork) {
         if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
