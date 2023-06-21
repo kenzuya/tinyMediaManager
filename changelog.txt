@@ -4,6 +4,7 @@ x (FFmpeg) set correct artwork metadata for the enhanced artwork download algori
 x added an action to export internal data for issue analysis
 x encrypt exported logs/data for your privacy
 x do not always download actor images, when "overwrite existing" is false
+x rewrite NFO file after gathering mediainfo !488
 
 
 Version 4.3.11.1

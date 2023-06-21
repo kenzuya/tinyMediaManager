@@ -2779,8 +2779,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -2847,6 +2845,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+
+    writeNFO();
   }
 
   public Object getValueForMetadata(MovieScraperMetadataConfig metadataConfig) {

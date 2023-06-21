@@ -516,6 +516,11 @@ public class MovieSet extends MediaEntity {
   }
 
   @Override
+  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
+    // nothing to do here
+  }
+
+  @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
     // nothing to do here
   }

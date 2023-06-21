@@ -1304,12 +1304,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do here
   }
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -1371,6 +1370,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       saveToDb();
     }
 
+    writeNFO();
   }
 
   @Override
