@@ -23,10 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,11 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.license.ZipArchiveHelper;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -47,17 +55,16 @@ import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 /**
- * the class {@link ExportLogAction} is used to prepare debugging logs
+ * the class {@link ExportAnalysisDataAction} is used offer enhanced analysis data
  *
  * @author Manuel Laggner
  */
-public class ExportLogAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
-  private static final long   serialVersionUID = -1578568721825387890L;
+public class ExportAnalysisDataAction extends TmmAction {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExportAnalysisDataAction.class);
 
-  public ExportLogAction() {
-    putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportlogs.desc"));
+  public ExportAnalysisDataAction() {
+    putValue(NAME, TmmResourceBundle.getString("tmm.exportanalysisdata"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportanalysisdata.desc"));
   }
 
   @Override
@@ -66,13 +73,14 @@ public class ExportLogAction extends TmmAction {
     Path file = null;
     try {
       String path = TmmProperties.getInstance().getProperty("exportlogs.path", "");
-      file = TmmUIHelper.saveFile(TmmResourceBundle.getString("BugReport.savelogs"), path, "tmm_logs.zip",
+      file = TmmUIHelper.saveFile(TmmResourceBundle.getString("BugReport.savelogs"), path, "tmm_data.zip",
           new FileNameExtensionFilter("Zip files", ".zip"));
       if (file != null) {
         MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         writeLogsFile(file.toFile());
         TmmProperties.getInstance().putProperty("exportlogs.path", file.toAbsolutePath().toString());
         MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
       }
     }
     catch (Exception ex) {
@@ -83,6 +91,12 @@ public class ExportLogAction extends TmmAction {
   }
 
   private void writeLogsFile(File file) throws Exception {
+    List<Path> extraFiles = new ArrayList<>();
+    // create data exports
+    extraFiles.add(exportMovieDatasources());
+    extraFiles.add(exportTvShowDatasources());
+
+    // create zip
     ZipParameters zipParameters = createZipParameters();
 
     try (FileOutputStream os = new FileOutputStream(file); ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
@@ -119,6 +133,22 @@ public class ExportLogAction extends TmmAction {
           }
         }
       }
+
+      // attach extra files
+      for (Path extraFile : extraFiles) {
+        try (FileInputStream in = new FileInputStream(extraFile.toFile())) {
+          zipParameters.setFileNameInZip(extraFile.getFileName().toString());
+
+          zos.putNextEntry(zipParameters);
+          IOUtils.copy(in, zos);
+          zos.closeEntry();
+        }
+        catch (Exception e) {
+          LOGGER.warn("unable to attach {} - {}", extraFile.getFileName(), e.getMessage());
+        }
+
+        Utils.deleteFileSafely(extraFile);
+      }
     }
   }
 
@@ -130,5 +160,53 @@ public class ExportLogAction extends TmmAction {
     zipParameters.setEncryptFiles(true);
 
     return zipParameters;
+  }
+
+  private Path exportMovieDatasources() {
+    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_moviefiles.7z");
+    Utils.deleteFileSafely(exportFile);
+
+    try (SevenZOutputFile archive = new SevenZOutputFile(exportFile.toFile())) {
+      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
+        Path datasource = Paths.get(movie.getDataSource());
+        for (MediaFile mf : movie.getMediaFiles()) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          SevenZArchiveEntry entry = new SevenZArchiveEntry();
+          entry.setName(datasource.getFileName().toString() + "/" + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+
+    return exportFile;
+  }
+
+  private Path exportTvShowDatasources() {
+    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_tvshowfiles.7z");
+    Utils.deleteFileSafely(exportFile);
+
+    try (SevenZOutputFile archive = new SevenZOutputFile(exportFile.toFile())) {
+      for (TvShow show : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        Path datasource = Paths.get(show.getDataSource());
+        List<MediaFile> mfs = show.getMediaFiles();
+        mfs.addAll(show.getEpisodesMediaFiles());
+        for (MediaFile mf : mfs) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          SevenZArchiveEntry entry = new SevenZArchiveEntry();
+          entry.setName(datasource.getFileName().toString() + "/" + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+
+    return exportFile;
   }
 }

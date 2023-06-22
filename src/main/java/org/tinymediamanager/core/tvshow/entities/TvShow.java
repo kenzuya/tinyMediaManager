@@ -1084,7 +1084,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1161,7 +1161,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
   }
 
-  private void postProcess(List<TvShowScraperMetadataConfig> config) {
+  private void postProcess(List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     // rename the TV show if that has been chosen in the settings
@@ -1174,7 +1174,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }
@@ -2266,8 +2266,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 
@@ -2508,8 +2509,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();

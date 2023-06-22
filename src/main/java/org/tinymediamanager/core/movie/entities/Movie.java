@@ -617,7 +617,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return true;
     }
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO)) {
       if (mf.hasSubtitles()) {
         return true;
       }
@@ -1022,7 +1022,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1329,8 +1329,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     MovieActorImageFetcherTask task = new MovieActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 
@@ -2778,8 +2779,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -2845,6 +2844,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();
+    }
+
+    // only write updated data to the NFO file if there is already an NFO file
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      writeNFO();
     }
   }
 
@@ -2954,7 +2958,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return null;
   }
 
-  protected void postProcess(List<MovieScraperMetadataConfig> config) {
+  protected void postProcess(List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
@@ -2971,7 +2975,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }

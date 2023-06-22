@@ -198,7 +198,7 @@ public final class MovieSettings extends AbstractSettings {
   int                                       imageExtraFanartCount                  = 5;
   boolean                                   scrapeBestImage                        = true;
   MediaLanguages                            imageScraperLanguage                   = MediaLanguages.en;
-  boolean                                   imageLanguagePriority                  = true;
+  boolean                                   imageLanguagePriority                  = false;
   boolean                                   writeActorImages                       = false;
 
   // trailer scraper

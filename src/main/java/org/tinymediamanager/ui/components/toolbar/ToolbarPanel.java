@@ -67,6 +67,7 @@ import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
 import org.tinymediamanager.ui.actions.DeleteTrashAction;
 import org.tinymediamanager.ui.actions.DocsAction;
+import org.tinymediamanager.ui.actions.ExportAnalysisDataAction;
 import org.tinymediamanager.ui.actions.ExportLogAction;
 import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
@@ -389,6 +390,7 @@ public class ToolbarPanel extends JPanel {
     menu.addSeparator();
     menu.add(new BugReportAction());
     menu.add(new ExportLogAction());
+    menu.add(new ExportAnalysisDataAction());
 
     if (SystemUtils.IS_OS_LINUX) {
       menu.addSeparator();

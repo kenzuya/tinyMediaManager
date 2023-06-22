@@ -862,7 +862,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     writeNFO();
     saveToDb();
 
-    postProcess(config);
+    postProcess(config, overwriteExistingItems);
   }
 
   /**
@@ -1281,7 +1281,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       return true;
     }
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO)) {
       if (mf.hasSubtitles()) {
         return true;
       }
@@ -1304,12 +1304,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do here
   }
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -1371,6 +1370,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       saveToDb();
     }
 
+    // only write updated data to the NFO file if there is already an NFO file
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      writeNFO();
+    }
   }
 
   @Override
@@ -1829,8 +1832,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   /**
    * Write actor images.
    */
-  public void writeActorImages() {
+  public void writeActorImages(boolean overwriteExistingItems) {
     TvShowActorImageFetcherTask task = new TvShowActorImageFetcherTask(this);
+    task.setOverwriteExistingItems(overwriteExistingItems);
     TmmTaskManager.getInstance().addImageDownloadTask(task);
   }
 
@@ -1955,7 +1959,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return null;
   }
 
-  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config) {
+  protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
@@ -1974,7 +1978,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
-          writeActorImages();
+          writeActorImages(overwriteExistingItems);
         }
       });
     }

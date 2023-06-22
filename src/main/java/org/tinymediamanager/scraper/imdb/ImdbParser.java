@@ -1916,7 +1916,7 @@ public abstract class ImdbParser {
     }
 
     if (width > 0 && height > 0) {
-      // get highest artwork size (from scraper)
+      // get the highest artwork size (from scraper)
       ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
       if (originalSize != null) {
         if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
@@ -1927,6 +1927,7 @@ public abstract class ImdbParser {
           String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
           artwork.setDefaultUrl(defaultUrl);
           artwork.setSizeOrder(options.getPosterSize().getOrder());
+          artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
           artwork.addImageSize(width, height, defaultUrl);
         }
       }
@@ -1938,6 +1939,7 @@ public abstract class ImdbParser {
         String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
         artwork.setDefaultUrl(defaultUrl);
         artwork.setSizeOrder(options.getPosterSize().getOrder());
+        artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
         artwork.addImageSize(width, height, defaultUrl);
       }
     }
@@ -1947,7 +1949,7 @@ public abstract class ImdbParser {
     if (StringUtils.isEmpty(oldString)) {
       return "";
     }
-    // remove non breaking spaces
+    // remove non-breaking spaces
     String newString = StringUtils.trim(oldString.replace(String.valueOf((char) 160), " "));
 
     // if there is a leading AND trailing quotation marks (e.g. at TV shows) - remove them

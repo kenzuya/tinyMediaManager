@@ -50,7 +50,7 @@ public class ParserUtilsTest extends BasicTest {
     // RELEASE NAMES
     assertEqual("Auferstanden | 2016", detectTY("Auferstanden.2016.German.DL.DTS.1080p.BluRay.x264-CiNEViSiON"));
     assertEqual("Auferstanden | 2016", detectTY("Auferstanden.2016.German.DL.DTS.720p.BluRay.x264-CiNEViSiON"));
-    assertEqual("Der Blob REMASTERED | 1988", detectTY("Der.Blob.REMASTERED.GERMAN.1988.DL.BDRiP.x264-GOREHOUNDS"));
+    assertEqual("Der Blob | 1988", detectTY("Der.Blob.REMASTERED.GERMAN.1988.DL.BDRiP.x264-GOREHOUNDS"));
     assertEqual("Die Hochzeit meiner Eltern | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.720p.WEBHD.h264-REMSG"));
     assertEqual("Die Hochzeit meiner Eltern | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.WEBRiP.x264-REMSG"));
     assertEqual("Die Hochzeit meines Vaters | 2006", detectTY("Die.Hochzeit.meines.Vaters.2006.German.720p.HDTV.x264-AIDA"));

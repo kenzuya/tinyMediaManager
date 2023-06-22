@@ -1,3 +1,16 @@
+Version 4.3.12
+=======================
+x (FFmpeg) set correct artwork metadata for the enhanced artwork download algorithm #2181
+x added an action to export internal data for issue analysis
+x encrypt exported logs/data for your privacy
+x do not always download actor images, when "overwrite existing" is false
+x rewrite NFO file after gathering mediainfo !488
+x enhanced media source detection
+x ignore case when checking for special folders (Trailers, Behind The Scenes, Featurettes, ...) #2205
+x enhanced detection of movies in "update data sources"
+x enhanced detection of season/episode names
+
+
 Version 4.3.11.1
 =======================
 x some fixes/enhancements on the automatic artwork download algorithm #2182, #2184
