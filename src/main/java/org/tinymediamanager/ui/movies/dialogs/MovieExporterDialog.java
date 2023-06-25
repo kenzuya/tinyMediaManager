@@ -53,6 +53,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -76,12 +77,12 @@ public class MovieExporterDialog extends TmmDialog {
   private List<Movie>          movies;
   private List<ExportTemplate> templatesFound;
 
-  private JTextField           tfExportDir;
-  private JList                list;
-  private JLabel               lblTemplateName;
-  private JLabel               lblUrl;
-  private JTextArea            taDescription;
-  private JCheckBox            chckbxTemplateWithDetail;
+  private final JTextField     tfExportDir;
+  private final JList          list;
+  private final JLabel         lblTemplateName;
+  private final JLabel         lblUrl;
+  private final JTextArea      taDescription;
+  private final JCheckBox      chckbxTemplateWithDetail;
 
   /**
    * Create the dialog.
@@ -112,10 +113,12 @@ public class MovieExporterDialog extends TmmDialog {
       splitPane.setRightComponent(panelExporterDetails);
       panelExporterDetails.setLayout(new MigLayout("", "[100lp,grow]", "[][][][200lp,grow]"));
 
-      lblTemplateName = new JLabel("");
+      lblTemplateName = new TmmLabel("");
+      TmmFontHelper.changeFont(lblTemplateName, TmmFontHelper.H1);
       panelExporterDetails.add(lblTemplateName, "cell 0 0,growx");
 
       lblUrl = new JLabel("");
+      TmmFontHelper.changeFont(lblUrl, TmmFontHelper.L1);
       panelExporterDetails.add(lblUrl, "cell 0 1,growx");
 
       chckbxTemplateWithDetail = new JCheckBox("");
