@@ -1547,16 +1547,22 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("ratingSources", null, ratingSources);
   }
 
+  public void setImageScraperLanguages(List<MediaLanguages> newValue) {
+    imageScraperLanguages.clear();
+    imageScraperLanguages.addAll(newValue);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+  }
+
   public void addImageScraperLanguage(MediaLanguages language) {
     if (!imageScraperLanguages.contains(language)) {
       imageScraperLanguages.add(language);
-      firePropertyChange("imageScraperLanguages", null, ratingSources);
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
     }
   }
 
   public void removeImageScraperLanguage(MediaLanguages language) {
     if (imageScraperLanguages.remove(language)) {
-      firePropertyChange("imageScraperLanguages", null, ratingSources);
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
     }
   }
 
@@ -1564,7 +1570,7 @@ public final class MovieSettings extends AbstractSettings {
     MediaLanguages tmp = imageScraperLanguages.get(pos1);
     imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
     imageScraperLanguages.set(pos2, tmp);
-    firePropertyChange("imageScraperLanguages", null, ratingSources);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
   }
 
   public List<MediaLanguages> getImageScraperLanguages() {
