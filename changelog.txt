@@ -9,6 +9,7 @@ x enhanced media source detection
 x ignore case when checking for special folders (Trailers, Behind The Scenes, Featurettes, ...) #2205
 x enhanced detection of movies in "update data sources"
 x enhanced detection of season/episode names
+x Movie Picker export template update (thx @bastienpruvost)
 
 
 Version 4.3.11.1
