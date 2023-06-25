@@ -10,6 +10,7 @@ x ignore case when checking for special folders (Trailers, Behind The Scenes, Fe
 x enhanced detection of movies in "update data sources"
 x enhanced detection of season/episode names
 x Movie Picker export template update (thx @bastienpruvost)
+x new "Dark" export templates for movies and TV shows (thx @jhartlep)
 
 
 Version 4.3.11.1
