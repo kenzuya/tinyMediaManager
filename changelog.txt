@@ -11,6 +11,7 @@ x enhanced detection of movies in "update data sources"
 x enhanced detection of season/episode names
 x Movie Picker export template update (thx @bastienpruvost)
 x new "Dark" export templates for movies and TV shows (thx @jhartlep)
+x only trigger Trakt.tv sync if there is anything to sync
 
 
 Version 4.3.11.1

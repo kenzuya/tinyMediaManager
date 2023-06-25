@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * Sync your data with trakt.tv
@@ -61,6 +62,12 @@ public class MovieSyncTraktTvTask extends TmmTask {
       return;
     }
 
+    // check if there is a need to sync
+    // without _any_ scraped movies no sync is needed
+    if (!syncNeeded(movies)) {
+      return;
+    }
+
     TraktTv traktTV = TraktTv.getInstance();
 
     if (syncCollection) {
@@ -92,5 +99,21 @@ public class MovieSyncTraktTvTask extends TmmTask {
         LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
     }
+  }
+
+  private boolean syncNeeded(List<Movie> movies) {
+    for (Movie movie : movies) {
+      if (movie.getTmdbId() > 0) {
+        return true;
+      }
+      if (movie.getTraktId() > 0) {
+        return true;
+      }
+      if (MediaIdUtil.isValidImdbId(movie.getImdbId())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
