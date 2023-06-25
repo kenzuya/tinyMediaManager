@@ -106,13 +106,6 @@ public final class TinyMediaManager {
    *          the arguments
    */
   public static void main(String[] args) {
-    try {
-      License.getInstance().init();
-    }
-    catch (Exception e) {
-      System.exit(1);
-    }
-
     // simple parse command line
     if (args != null && args.length > 0) {
       LOGGER.debug("TMM started with: {}", Arrays.toString(args));
@@ -187,12 +180,6 @@ public final class TinyMediaManager {
     }
     if (Globals.isRunningWebSwing()) {
       LOGGER.info("java.webswing    : true");
-    }
-
-    if (License.getInstance().isValidLicense()) {
-      LOGGER.info("PRO              : true");
-      LOGGER.info("                 : {}", License.getInstance().sig());
-      LOGGER.info("                 : {}", License.getInstance().dat());
     }
 
     // START character encoding debug
