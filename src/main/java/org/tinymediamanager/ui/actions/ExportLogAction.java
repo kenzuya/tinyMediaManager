@@ -157,7 +157,7 @@ public class ExportLogAction extends TmmAction {
           // skip unneeded folders
           String foldername = file.getFileName().toString();
           if ("backup".equals(foldername) || "logs".equals(foldername) || "cache".equals(foldername) || "update".equals(foldername)
-              || ".git".equals(foldername)) {
+              || "templates".equals(foldername) || ".git".equals(foldername) || ".idea".equals(foldername) || ".settings".equals(foldername)) {
             return FileVisitResult.SKIP_SUBTREE;
           }
 
@@ -181,6 +181,8 @@ public class ExportLogAction extends TmmAction {
 
     for (Path path : filesAndFolders) {
       sb.append(current.relativize(path));
+      sb.append("\t");
+      sb.append(path.toFile().length());
       sb.append("\n");
     }
 
