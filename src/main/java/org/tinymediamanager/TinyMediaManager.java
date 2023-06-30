@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,6 +108,13 @@ public final class TinyMediaManager {
    *          the arguments
    */
   public static void main(String[] args) {
+    try {
+      License.getInstance().init();
+    }
+    catch (Exception e) {
+      LOGGER.error("Could not initialize license module!");
+    }
+
     // simple parse command line
     if (args != null && args.length > 0) {
       LOGGER.debug("TMM started with: {}", Arrays.toString(args));
@@ -192,6 +201,13 @@ public final class TinyMediaManager {
     LOGGER.info("Scraper language : {}", MovieModuleManager.getInstance().getSettings().getScraperLanguage());
     LOGGER.info("TV Scraper lang  : {}", TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
 
+    // start & JVM params
+    if (args != null) {
+      LOGGER.info("Start parameters : {}", String.join(" ", args));
+    }
+    RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+    LOGGER.info("JVM parameters   : {}", String.join(" ", runtimeMXBean.getInputArguments()));
+
     // start EDT
     EventQueue.invokeLater(new Runnable() {
       private SplashScreen splash    = null;
@@ -242,6 +258,12 @@ public final class TinyMediaManager {
           updateProgress("loading internals", 20);
 
           TmmOsUtils.loadNativeLibs();
+
+          // some infos from lic
+          if (License.getInstance().validUntil() != null) {
+            LOGGER.info("{}", License.getInstance().sig());
+            LOGGER.info("{}", License.getInstance().dat());
+          }
 
           // various initializations of classes
           MediaGenres.init();
