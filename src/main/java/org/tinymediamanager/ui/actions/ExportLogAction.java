@@ -18,11 +18,22 @@ package org.tinymediamanager.ui.actions;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -31,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.AbstractFileVisitor;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
@@ -119,7 +131,62 @@ public class ExportLogAction extends TmmAction {
           }
         }
       }
+
+      // attach install folder structure
+      try (InputStream in = generateFileListing()) {
+        zipParameters.setFileNameInZip("install.txt");
+
+        zos.putNextEntry(zipParameters);
+        IOUtils.copy(in, zos);
+        zos.closeEntry();
+      }
+      catch (Exception e) {
+        LOGGER.warn("unable to attach install.txt - {}", e.getMessage());
+      }
     }
+  }
+
+  private InputStream generateFileListing() {
+    List<Path> filesAndFolders = new ArrayList<>();
+    Path current = Paths.get(".");
+
+    try {
+      Files.walkFileTree(current, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new AbstractFileVisitor() {
+        @Override
+        public FileVisitResult preVisitDirectory(Path file, BasicFileAttributes attrs) throws IOException {
+          // skip unneeded folders
+          String foldername = file.getFileName().toString();
+          if ("backup".equals(foldername) || "logs".equals(foldername) || "cache".equals(foldername) || "update".equals(foldername)
+              || "templates".equals(foldername) || ".git".equals(foldername) || ".idea".equals(foldername) || ".settings".equals(foldername)) {
+            return FileVisitResult.SKIP_SUBTREE;
+          }
+
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+          filesAndFolders.add(file);
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not get a file listing: {}", e.getMessage());
+    }
+
+    Collections.sort(filesAndFolders);
+
+    StringBuilder sb = new StringBuilder();
+
+    for (Path path : filesAndFolders) {
+      sb.append(current.relativize(path));
+      sb.append("\t");
+      sb.append(path.toFile().length());
+      sb.append("\n");
+    }
+
+    return new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   private ZipParameters createZipParameters() {

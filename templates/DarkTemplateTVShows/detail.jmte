@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="stylesheet" type="text/css" href="../style.css"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="../favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+</head>
+<body>
+	<header class="show-header">
+		<a href="../tvshows.html" class="top-button">
+			<div class="icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M401.4 224h-214l83-79.4c11.9-12.5 11.9-32.7 0-45.2s-31.2-12.5-43.2 0L89 233.4c-6 5.8-9 13.7-9 22.4v.4c0 8.7 3 16.6 9 22.4l138.1 134c12 12.5 31.3 12.5 43.2 0 11.9-12.5 11.9-32.7 0-45.2l-83-79.4h214c16.9 0 30.6-14.3 30.6-32 .1-18-13.6-32-30.5-32z"/></svg>
+			</div>
+		</a>
+		${if tvShow.artworkUrls.BANNER}
+		<div class="fanart" style="background-image: url('../images/${tvShow;copyArtwork(type=BANNER, thumb=false, width=750, escape=true)}'); background-image: linear-gradient(rgba(0,0,0,0),#141414), url('../images/${tvShow;copyArtwork(type=BANNER, thumb=false, width=750, escape=true}' );"></div>
+		${else}
+		<div class="fanart" style="background-image: url('../banner.png'); background-image: linear-gradient(rgba(0,0,0,0),#141414), url('../banner.png' );"></div>
+		${end}
+		<div class="show-header-bottom">
+			<div class="poster">
+				<img src="../images/${tvShow;copyArtwork(type=POSTER, thumb=true, width=250, escape=true)}"/>
+			</div>
+			<div class="info">
+				<h1>${tvShow.title}</h1>
+				<div class="item-array info-line">
+					<p class="year item">${tvShow.year}</p>
+					<p class="seasons item">Staffeln: ${tvShow.seasonCount}</p>
+					<p class="episodes item">Episoden: ${tvShow.episodeCount}</p>
+					<p class="rating item">⭐${tvShow.rating.rating}</p>
+				</div>
+				<div class="key-value genres info-line">
+					${foreach tvShow.genres genre , }<span class="genre">${genre}</span>${end}
+				</div>
+				<div class="item-array info-line">
+					<p class="studio item"><b>Studio:</b> ${tvShow.productionCompany}</p>
+				</div>
+			</div>
+		</div>
+	</header>
+	<section>
+		<p class="plot">
+			${tvShow.plot}
+		</p>
+	</section>
+	<section>
+		<div class="episodes">
+			<div class="episodes wrapper">
+				${foreach tvShow.episodes episode}
+				<div class="episode outerContainer">
+					<div class="episode epTitle">
+						${episode.season}x${episode.episode} - ${episode.title}
+					</div>
+					<div class="episode innerContainer">
+						<div class="episode epThumbnail">
+							<img onerror="this.style.visibility=&#39;hidden&#39;;" src="../images/episodes/${episode;copyArtwork(type=THUMB, thumb=true, width=160, escape=true, default=../nopicture.gif, destination=images/episodes)}" />
+						</div>
+						<div class="episode epPlot">
+							${episode.plot}
+						</div>
+					</div>
+				</div>
+				${end}
+			</div>
+		</div>
+	</section>
+  </body>
+</html>

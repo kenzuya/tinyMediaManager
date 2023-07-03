@@ -52,6 +52,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -75,12 +76,12 @@ public class TvShowExporterDialog extends TmmDialog {
   private List<TvShow>         tvShows;
   private List<ExportTemplate> templatesFound;
 
-  private JTextField           tfExportDir;
-  private JList                list;
-  private JLabel               lblTemplateName;
-  private JLabel               lblUrl;
-  private JTextArea            tpDescription;
-  private JCheckBox            chckbxTemplateWithDetail;
+  private final JTextField     tfExportDir;
+  private final JList          list;
+  private final JLabel         lblTemplateName;
+  private final JLabel         lblUrl;
+  private final JTextArea      tpDescription;
+  private final JCheckBox      chckbxTemplateWithDetail;
 
   /**
    * Create the dialog.
@@ -111,10 +112,12 @@ public class TvShowExporterDialog extends TmmDialog {
       splitPane.setRightComponent(panelExporterDetails);
       panelExporterDetails.setLayout(new MigLayout("", "[100lp,grow]", "[][][][200lp,grow]"));
 
-      lblTemplateName = new JLabel("");
+      lblTemplateName = new TmmLabel("");
+      TmmFontHelper.changeFont(lblTemplateName, TmmFontHelper.H1);
       panelExporterDetails.add(lblTemplateName, "cell 0 0,growx");
 
       lblUrl = new JLabel("");
+      TmmFontHelper.changeFont(lblUrl, TmmFontHelper.L1);
       panelExporterDetails.add(lblUrl, "cell 0 1,growx");
 
       chckbxTemplateWithDetail = new JCheckBox("");

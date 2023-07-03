@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="stylesheet" type="text/css" href="style.css"/>
+	<script src="fuzzyset.js"></script>
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+	<script src="main.js"></script>
+</head>
+
+<body>
+	<h1 class="center">TV Shows</h1>
+	<nav>
+		<input id="showtitle" name="showtitle" placeholder="title" value=""/>
+		<label for="showtitle" class="icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" ><path d="M337.509 305.372h-17.501l-6.571-5.486c20.791-25.232 33.922-57.054 33.922-93.257C347.358 127.632 283.896 64 205.135 64 127.452 64 64 127.632 64 206.629s63.452 142.628 142.225 142.628c35.011 0 67.831-13.167 92.991-34.008l6.561 5.487v17.551L415.18 448 448 415.086 337.509 305.372zm-131.284 0c-54.702 0-98.463-43.887-98.463-98.743 0-54.858 43.761-98.742 98.463-98.742 54.7 0 98.462 43.884 98.462 98.742 0 54.856-43.762 98.743-98.462 98.743z"/></svg>
+		</label>
+	</nav>
+	<div class="shows" id="answers"></div>
+	<div class="shows" id="shows">
+		${foreach tvShows show}
+		<div class="show" data-id="${if show.imdbId}${show.imdbId}${else}${show.dbId}${end}" id="${show.imdbId}" data-title="${show.titleSortable} ${show.year}">
+			<a href="${show.title} (${show.year})/tvshow.html">
+				${if show.artworkUrls.BANNER}
+				<img data-src="images/${show;copyArtwork(type=BANNER, thumb=false, width=750, escape=true)}" class="banner" loading="lazy"/>
+				${else}
+				<img data-src="banner.png" class="banner" loading="lazy"/>
+				${end}
+				<img data-src="images/${show;copyArtwork(type=POSTER, thumb=true, width=250, escape=true, default=../nopicture.gif)}" class="poster" loading="lazy"/>
+			</a>
+			<p><a href="shows/${show;filename(escape=true)}.html">${show.title}</a></p>
+			<p>${show.year}</p>
+		</div>
+		${end}
+	</div>
+</body>
+</html>

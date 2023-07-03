@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="stylesheet" type="text/css" href="../style.css"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="../favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+</head>
+<body>
+	<header class="movie-header">
+		<a href="../movielist.html" class="top-button">
+			<div class="icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M401.4 224h-214l83-79.4c11.9-12.5 11.9-32.7 0-45.2s-31.2-12.5-43.2 0L89 233.4c-6 5.8-9 13.7-9 22.4v.4c0 8.7 3 16.6 9 22.4l138.1 134c12 12.5 31.3 12.5 43.2 0 11.9-12.5 11.9-32.7 0-45.2l-83-79.4h214c16.9 0 30.6-14.3 30.6-32 .1-18-13.6-32-30.5-32z"/></svg>
+			</div>
+		</a>
+		${if movie.artworkUrls.BANNER}
+		<div class="fanart" style="background-image: url('../images/${movie;copyArtwork(type=BANNER, thumb=false, width=750, escape=true)}'); background-image: linear-gradient(rgba(0,0,0,0),#141414), url('../images/${movie;copyArtwork(type=BANNER, thumb=false, width=750, escape=true)}' );"></div>
+		${else}
+		<div class="fanart" style="background-image: url('../banner.png'); background-image: linear-gradient(rgba(0,0,0,0),#141414), url('../banner.png' );"></div>
+		${end}
+		<div class="movie-header-bottom">
+			<div class="poster">
+				<img src="../images/${movie;copyArtwork(type=POSTER, thumb=true, width=250, escape=true)}"/>
+			</div>
+			<div class="info">
+				<h1>${movie.title}</h1>
+				<div class="item-array info-line">
+					<p class="year item">${movie.year}</p>
+					<p class="runtime item">${movie.runtime}</p>
+					<p class="rating item">⭐${movie.rating.rating}</p>
+				</div>
+				<div class="key-value genres info-line">
+					${foreach movie.genres genre , }<span class="genre">${genre}</span>${end}
+				</div>
+				<div class="key-value director info-line">
+					${foreach movie.directors director , }<span class="genre">${director.name}</span>${end}
+				</div>
+			</div>
+		</div>
+	</header>
+	<section>
+		<p class="plot">
+			${movie.plot}
+		</p>
+	</section>
+</body>
+</html>

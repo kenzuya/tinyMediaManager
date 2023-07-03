@@ -90,6 +90,11 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
     List<MediaTrailer> trailers = new ArrayList<>();
     MediaMetadata md = options.getMetadata();
 
+    if (md == null) {
+      LOGGER.warn("no originalTitle served");
+      throw new MissingIdException("originalTitle");
+    }
+
     String ot = md.getOriginalTitle();
     if (ot.isEmpty() && options.getLanguage() == MediaLanguages.en) {
       ot = md.getTitle();
