@@ -62,7 +62,8 @@ public class ParserUtils {
   protected static final String[] CLEANWORDS      = { "24\\.000", "23\\.976", "23\\.98", "24\\.00", "web\\-dl", "web\\-rip", "blue\\-ray",
       "blu\\-ray", "dvd\\-rip" };
 
-  protected static final Pattern  TMDB_ID_PATTERN = Pattern.compile("(tmdbid|tmdb)[ ._-]?(\\d*)", Pattern.CASE_INSENSITIVE);
+  protected static final Pattern  TMDB_ID_PATTERN = Pattern.compile("(tmdbid|tmdb)[ ._-]?(\\d+)", Pattern.CASE_INSENSITIVE);
+  protected static final Pattern  TVDB_ID_PATTERN = Pattern.compile("(tvdbid|tvdb)[ ._-]?(\\d+)", Pattern.CASE_INSENSITIVE);
 
   private ParserUtils() {
     throw new IllegalAccessError();
@@ -307,10 +308,31 @@ public class ParserUtils {
         }
       }
       else {
-        tmdbId = MetadataUtil.parseInt(StrgUtils.substr(text, "themoviedb\\.org\\/movie\\/(\\d+)"), 0);
+        tmdbId = MetadataUtil.parseInt(StrgUtils.substr(text, "themoviedb\\.org\\/(?:movie|tv)\\/(\\d+)"), 0);
       }
     }
     return tmdbId;
+  }
+
+  /**
+   * gets TVDB id out of filename (in the form tvdb-xxxxx
+   *
+   * @param text
+   *          a string
+   * @return tvdbid or empty String
+   */
+  public static String detectTvdbId(String text) {
+    String tvdbId = "";
+    if (StringUtils.isNotBlank(text)) {
+      Matcher matcher = TVDB_ID_PATTERN.matcher(text);
+      if (matcher.find() && matcher.groupCount() >= 2) {
+        tvdbId = matcher.group(2);
+      }
+      else {
+        tvdbId = StrgUtils.substr(text, "thetvdb\\.com\\/(?:movies|series)\\/(\\d+)");
+      }
+    }
+    return tvdbId;
   }
 
   /**
