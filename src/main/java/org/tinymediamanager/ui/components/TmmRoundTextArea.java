@@ -41,6 +41,13 @@ public class TmmRoundTextArea extends JTextArea {
     init();
   }
 
+  @Override
+  public void setCaretPosition(int position) {
+    if (getCaret() != null) {
+      super.setCaretPosition(position);
+    }
+  }
+
   protected void init() {
     setLineWrap(true);
     setWrapStyleWord(true);
