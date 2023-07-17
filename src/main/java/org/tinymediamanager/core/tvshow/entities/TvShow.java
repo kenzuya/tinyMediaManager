@@ -2053,8 +2053,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();

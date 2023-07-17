@@ -118,7 +118,9 @@ public final class TmmModuleManager {
    * shutdown tmm - forces all registered modules to shut down
    */
   public void shutDown() {
-    statisticsTimer.cancel();
+    if (statisticsTimer != null) {
+      statisticsTimer.cancel();
+    }
 
     // shutdown modules
     for (ITmmModule module : modules) {

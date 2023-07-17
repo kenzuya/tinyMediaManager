@@ -218,6 +218,9 @@ public abstract class MediaEntityExporter {
       // nothing to do
     }
 
+    // sort by title
+    templatesFound.sort((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+
     return templatesFound;
   }
 

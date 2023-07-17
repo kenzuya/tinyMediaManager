@@ -1318,8 +1318,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -1369,6 +1367,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       saveToDb();
     }
 
+    // only write updated data to the NFO file if there is already an NFO file
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      writeNFO();
+    }
   }
 
   @Override

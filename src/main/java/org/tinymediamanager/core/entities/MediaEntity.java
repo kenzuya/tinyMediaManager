@@ -1461,11 +1461,9 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     firePropertyChange(TAGS_AS_STRING, null, tags);
   }
 
-  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    // empty - to be used in subclasses
-  }
-
   public abstract void saveToDb();
+
+  public abstract void callbackForGatheredMediainformation(MediaFile mediaFile);
 
   public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 

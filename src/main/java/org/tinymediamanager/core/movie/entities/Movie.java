@@ -2779,8 +2779,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
-    super.callbackForGatheredMediainformation(mediaFile);
-
     boolean dirty = false;
 
     // upgrade MediaSource to UHD bluray, if video format says so
@@ -2846,6 +2844,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();
+    }
+
+    // only write updated data to the NFO file if there is already an NFO file
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      writeNFO();
     }
   }
 

@@ -748,6 +748,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               LOGGER.debug("| Found TMDB id: {}", tmdb);
               tvShow.setTmdbId(MetadataUtil.parseInt(tmdb, 0));
             }
+
+            String tvdb = StrgUtils.substr(content, "thetvdb\\.com\\/series\\/(\\d+)");
+            if (tvShow.getTvdbId().isEmpty() && !tvdb.isEmpty()) {
+              LOGGER.debug("| Found TVDB id: {}", tmdb);
+              tvShow.setTvdbId(tvdb);
+            }
           }
           catch (IOException e) {
             LOGGER.warn("| couldn't read NFO {}", showNFO);
@@ -758,6 +764,17 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         tvShow.setDataSource(datasource.toString());
         tvShow.setNewlyAdded(true);
         tvShowList.addTvShow(tvShow);
+      }
+
+      // detect some IDs from show folder
+      if (!MediaIdUtil.isValidImdbId(tvShow.getImdbId())) {
+        tvShow.setId(Constants.IMDB, ParserUtils.detectImdbId(showDir.getFileName().toString()));
+      }
+      if (tvShow.getTmdbId() == 0) {
+        tvShow.setId(Constants.TMDB, ParserUtils.detectTmdbId(showDir.getFileName().toString()));
+      }
+      if (tvShow.getTvdbId().isEmpty()) {
+        tvShow.setId(Constants.TVDB, ParserUtils.detectTvdbId(showDir.getFileName().toString()));
       }
 
       // ******************************
@@ -996,11 +1013,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
               // try to parse the imdb id from the filename
               if (!MediaIdUtil.isValidImdbId(episode.getImdbId())) {
-                episode.setId(Constants.IMDB, ParserUtils.detectImdbId(vid.getFileAsPath().toString()));
+                episode.setId(Constants.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               // try to parse the Tmdb id from the filename
               if (episode.getTmdbId().isEmpty()) {
-                episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(vid.getFileAsPath().toString()));
+                episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+              }
+              // try to parse the Tvdb id from the filename
+              if (episode.getTvdbId().isEmpty()) {
+                episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               if (episode.getMediaSource() == MediaSource.UNKNOWN) {
                 episode.setMediaSource(MediaSource.parseMediaSource(vid.getFilename()));
@@ -1067,11 +1088,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             // try to parse the imdb id from the filename
             if (!MediaIdUtil.isValidImdbId(episode.getImdbId())) {
-              episode.setId(Constants.IMDB, ParserUtils.detectImdbId(vid.getFileAsPath().toString()));
+              episode.setId(Constants.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             // try to parse the Tmdb id from the filename
             if (episode.getTmdbId().isEmpty()) {
-              episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(vid.getFileAsPath().toString()));
+              episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+            }
+            // try to parse the Tvdb id from the filename
+            if (episode.getTvdbId().isEmpty()) {
+              episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             if (episode.getMediaSource() == MediaSource.UNKNOWN) {
               episode.setMediaSource(MediaSource.parseMediaSource(vid.getFilename()));

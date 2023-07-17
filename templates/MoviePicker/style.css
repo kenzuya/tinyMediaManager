@@ -14,7 +14,6 @@ body, html {
     font-size: 14px;
     background-color: #171717 !important;
     color: #919191;
-    position: absolute;
     width:100%;
     opacity: 1;
     z-index:999;
@@ -95,11 +94,10 @@ body, html {
 
 #movies_list{
     padding: 0px;
-    height: 100vh;
-    overflow: scroll;
+    height: calc(100vh - 40px);
+    overflow-y: scroll;
     background-color:#111111;
     color:#919191;
-    padding-top: 40px;
 }
 
 #movies_list .list-group-item{
@@ -146,6 +144,29 @@ body, html {
     text-decoration: underline;
 }
 
+
+/* width */
+#movies_list::-webkit-scrollbar {
+    width: 8px;
+    height:50px;
+}
+
+/* Track */
+#movies_list::-webkit-scrollbar-track {
+    background: #111;
+}
+
+/* Handle */
+#movies_list::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: #444;
+}
+
+/* Handle on hover */
+#movies_list::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
 .row{
     margin-left: 0px;
     margin-right: 0px;
@@ -189,11 +210,11 @@ body, html {
 
 .bgimg {
     position: absolute;
-    opacity: 0.8;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100vh;
+    opacity:  0.9;
+    height: calc(100vh - 40px);
     width: 100%;
 }
 
@@ -208,9 +229,9 @@ body, html {
     left: 0;
     padding: 15px;
     margin: 15px;
-    background-color: #111111;
+    background-color: #171717;
     color:#919191;
-    opacity: 0.9;
+    opacity: 0.95;
     height:170px;
     width: -webkit-fill-available;
 }

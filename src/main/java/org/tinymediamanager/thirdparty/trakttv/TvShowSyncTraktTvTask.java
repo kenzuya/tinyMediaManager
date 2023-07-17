@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * Sync your data with trakt.tv
@@ -61,6 +63,12 @@ public class TvShowSyncTraktTvTask extends TmmTask {
       return;
     }
 
+    // check if there is a need to sync
+    // without _any_ scraped movies no sync is needed
+    if (!syncNeeded(tvShows)) {
+      return;
+    }
+
     TraktTv traktTV = TraktTv.getInstance();
 
     if (syncCollection) {
@@ -92,5 +100,24 @@ public class TvShowSyncTraktTvTask extends TmmTask {
         LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
     }
+  }
+
+  private boolean syncNeeded(List<TvShow> tvShows) {
+    for (TvShow tvShow : tvShows) {
+      if (tvShow.getIdAsInt(MediaMetadata.TVDB) > 0) {
+        return true;
+      }
+      if (tvShow.getTmdbId() > 0) {
+        return true;
+      }
+      if (tvShow.getTraktId() > 0) {
+        return true;
+      }
+      if (MediaIdUtil.isValidImdbId(tvShow.getImdbId())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
