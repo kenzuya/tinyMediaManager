@@ -24,6 +24,8 @@ import java.awt.GraphicsEnvironment;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -332,6 +334,10 @@ public final class TinyMediaManager {
     LOGGER.info("current encoding : {} | {} | {}", System.getProperty("file.encoding"),
         new InputStreamReader(new ByteArrayInputStream(bArray)).getEncoding(), Charset.defaultCharset());
 
+    // start & JVM params
+    RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+    LOGGER.info("JVM parameters   : {}", String.join(" ", runtimeMXBean.getInputArguments()));
+
     // set GUI default language
     LOGGER.info("System language  : {}_{}", System.getProperty("user.language"), System.getProperty("user.country"));
     LOGGER.info("GUI language     : {}_{}", Locale.getDefault().getLanguage(), Locale.getDefault().getCountry());
@@ -387,6 +393,12 @@ public final class TinyMediaManager {
     updateProgress("splash.internals", 20);
 
     TmmOsUtils.loadNativeLibs();
+
+    // some infos from lic
+    if (License.getInstance().validUntil() != null) {
+      LOGGER.info("{}", License.getInstance().sig());
+      LOGGER.info("{}", License.getInstance().dat());
+    }
 
     // various initializations of classes
     MediaGenres.init();
@@ -520,6 +532,13 @@ public final class TinyMediaManager {
    */
   public static void main(String[] args) {
     Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
+
+    try {
+      License.getInstance().init();
+    }
+    catch (Exception e) {
+      LOGGER.error("Could not initialize license module!");
+    }
 
     // simple parse command line
     if (args != null && args.length > 0) {
