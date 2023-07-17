@@ -396,6 +396,11 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     TvShowModuleManager.getInstance().getTvShowList().persistSeason(this);
   }
 
+  @Override
+  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
+    // nothing to do
+  }
+
   public void writeNfo() {
     ITvShowSeasonConnector connector;
 
