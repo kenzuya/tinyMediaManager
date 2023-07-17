@@ -1604,7 +1604,6 @@ public class Utils {
    *          the name of the file to extract
    * @param destFile
    *          the directory to unzip to
-   * @throws IOException
    */
   public static void unzipFile(final Path zipFile, final Path fileToExtract, final Path destFile) {
     Map<String, String> env = new HashMap<>();
@@ -1663,8 +1662,17 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static void writeStringToFile(Path file, String text) throws IOException {
-    byte[] buf = text.getBytes(StandardCharsets.UTF_8);
-    Files.write(file, buf);
+    // pre-delete existing file. this will be needed for CaSe insensitive file systems, because truncating the existing one may result to a false
+    // filename
+    try {
+      Files.deleteIfExists(file);
+    }
+    catch (Exception e) {
+      LOGGER.debug("could not delete existing file - '{}'", e.getMessage());
+    }
+
+    // write the file
+    Files.writeString(file, text);
   }
 
   /**
