@@ -21,7 +21,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
@@ -193,13 +192,10 @@ public class TvShowEditorDialog extends TmmDialog {
 
   private JTextField                               tfPoster;
   private JTextField                               tfFanart;
-  private JTextField                               tfLogo;
   private JTextField                               tfClearLogo;
   private JTextField                               tfBanner;
   private JTextField                               tfClearArt;
   private JTextField                               tfThumb;
-
-  private ImageLabel                               lblLogo;
   private ImageLabel                               lblClearlogo;
   private ImageLabel                               lblClearart;
   private ImageLabel                               lblThumb;
@@ -252,7 +248,6 @@ public class TvShowEditorDialog extends TmmDialog {
       taPlot.setText(tvShow.getPlot());
       lblPoster.setImagePath(tvShow.getArtworkFilename(MediaFileType.POSTER));
       lblFanart.setImagePath(tvShow.getArtworkFilename(MediaFileType.FANART));
-      lblLogo.setImagePath(tvShow.getArtworkFilename(MediaFileType.LOGO));
       lblClearlogo.setImagePath(tvShow.getArtworkFilename(MediaFileType.CLEARLOGO));
       lblClearart.setImagePath(tvShow.getArtworkFilename(MediaFileType.CLEARART));
       lblThumb.setImagePath(tvShow.getArtworkFilename(MediaFileType.THUMB));
@@ -261,7 +256,6 @@ public class TvShowEditorDialog extends TmmDialog {
       lblKeyart.setImagePath(tvShow.getArtworkFilename(MediaFileType.KEYART));
       tfPoster.setText(tvShow.getArtworkUrl(MediaFileType.POSTER));
       tfFanart.setText(tvShow.getArtworkUrl(MediaFileType.FANART));
-      tfLogo.setText(tvShow.getArtworkUrl(MediaFileType.LOGO));
       tfClearLogo.setText(tvShow.getArtworkUrl(MediaFileType.CLEARLOGO));
       tfClearArt.setText(tvShow.getArtworkUrl(MediaFileType.CLEARART));
       tfThumb.setText(tvShow.getArtworkUrl(MediaFileType.THUMB));
@@ -768,11 +762,83 @@ public class TvShowEditorDialog extends TmmDialog {
             e -> setImageSizeAndCreateLink(lblClearlogoSize, lblClearlogo, btnDeleteClearLogo, MediaFileType.CLEARLOGO));
       }
       {
+        JLabel lblClearartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
+        artworkPanel.add(lblClearartT, "flowx,cell 2 0");
+
+        LinkLabel lblClearartSize = new LinkLabel();
+        artworkPanel.add(lblClearartSize, "flowx,cell 2 0");
+
+        JButton btnDeleteClearart = new FlatButton(IconManager.DELETE_GRAY);
+        btnDeleteClearart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
+        btnDeleteClearart.addActionListener(e -> {
+          lblClearart.clearImage();
+          tfClearArt.setText("");
+        });
+        artworkPanel.add(btnDeleteClearart, "cell 2 0");
+
+        lblClearart = new ImageLabel();
+        lblClearart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblClearart.addMouseListener(new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
+                tvShowList.getDefaultArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
+
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
+            dialog.setVisible(true);
+            updateArtworkUrl(lblClearart, tfClearArt);
+          }
+        });
+        artworkPanel.add(lblClearart, "cell 2 1,grow");
+        lblClearart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+            e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
+      }
+      {
+        JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
+        artworkPanel.add(lblKeyartT, "cell 4 0");
+
+        LinkLabel lblKeyartSize = new LinkLabel();
+        artworkPanel.add(lblKeyartSize, "flowx,cell 4 0");
+
+        JButton btnDeleteKeyart = new FlatButton(IconManager.DELETE_GRAY);
+        btnDeleteKeyart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
+        btnDeleteKeyart.addActionListener(e -> {
+          lblKeyart.clearImage();
+          tfKeyart.setText("");
+        });
+        artworkPanel.add(btnDeleteKeyart, "cell 4 0");
+
+        lblKeyart = new ImageLabel();
+        lblKeyart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblKeyart.addMouseListener(new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
+                tvShowList.getDefaultArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
+
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
+            dialog.setVisible(true);
+            updateArtworkUrl(lblKeyart, tfKeyart);
+          }
+        });
+        artworkPanel.add(lblKeyart, "cell 4 1 1 4,grow");
+        lblKeyart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+            e -> setImageSizeAndCreateLink(lblKeyartSize, lblKeyart, btnDeleteKeyart, MediaFileType.KEYART));
+      }
+      {
         JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
-        artworkPanel.add(lblBannerT, "cell 2 0 3 1");
+        artworkPanel.add(lblBannerT, "cell 0 3 3 1");
 
         LinkLabel lblBannerSize = new LinkLabel();
-        artworkPanel.add(lblBannerSize, "cell 2 0 3 1");
+        artworkPanel.add(lblBannerSize, "flowx,cell 0 3 3 1");
 
         JButton btnDeleteBanner = new FlatButton(IconManager.DELETE_GRAY);
         btnDeleteBanner.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
@@ -780,7 +846,7 @@ public class TvShowEditorDialog extends TmmDialog {
           lblBanner.clearImage();
           tfBanner.setText("");
         });
-        artworkPanel.add(btnDeleteBanner, "cell 2 0 3 1");
+        artworkPanel.add(btnDeleteBanner, "cell 0 3 3 1");
 
         lblBanner = new ImageLabel();
         lblBanner.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -800,117 +866,9 @@ public class TvShowEditorDialog extends TmmDialog {
 
           }
         });
-        artworkPanel.add(lblBanner, "cell 2 1 3 1,grow");
+        artworkPanel.add(lblBanner, "cell 0 4 3 1,grow");
         lblBanner.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
             e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, btnDeleteBanner, MediaFileType.BANNER));
-      }
-      {
-        JLabel lblClearartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
-        artworkPanel.add(lblClearartT, "cell 2 3");
-
-        LinkLabel lblClearartSize = new LinkLabel();
-        artworkPanel.add(lblClearartSize, "cell 2 3");
-
-        JButton btnDeleteClearart = new FlatButton(IconManager.DELETE_GRAY);
-        btnDeleteClearart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
-        btnDeleteClearart.addActionListener(e -> {
-          lblClearart.clearImage();
-          tfClearArt.setText("");
-        });
-        artworkPanel.add(btnDeleteClearart, "cell 2 3");
-
-        lblClearart = new ImageLabel();
-        lblClearart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        lblClearart.addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
-                tvShowList.getDefaultArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
-
-            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
-              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
-            }
-
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblClearart, tfClearArt);
-          }
-        });
-        artworkPanel.add(lblClearart, "cell 2 4,grow");
-        lblClearart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-            e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
-      }
-      {
-        JLabel lblLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
-        artworkPanel.add(lblLogoT, "cell 0 3");
-
-        LinkLabel lblLogoSize = new LinkLabel();
-        artworkPanel.add(lblLogoSize, "cell 0 3");
-
-        JButton btnDeleteLogo = new FlatButton(IconManager.DELETE_GRAY);
-        btnDeleteLogo.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
-        btnDeleteLogo.addActionListener(e -> {
-          lblLogo.clearImage();
-          tfLogo.setText("");
-        });
-        artworkPanel.add(btnDeleteLogo, "cell 0 3");
-
-        lblLogo = new ImageLabel();
-        lblLogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        lblLogo.addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), LOGO,
-                tvShowList.getDefaultArtworkScrapers(), lblLogo, MediaType.TV_SHOW);
-
-            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
-              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
-            }
-
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblLogo, tfLogo);
-          }
-        });
-        artworkPanel.add(lblLogo, "cell 0 4,grow");
-        lblLogo.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-            e -> setImageSizeAndCreateLink(lblLogoSize, lblLogo, btnDeleteLogo, MediaFileType.LOGO));
-      }
-      {
-        JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
-        artworkPanel.add(lblKeyartT, "cell 4 3");
-
-        LinkLabel lblKeyartSize = new LinkLabel();
-        artworkPanel.add(lblKeyartSize, "cell 4 3");
-
-        JButton btnDeleteKeyart = new FlatButton(IconManager.DELETE_GRAY);
-        btnDeleteKeyart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
-        btnDeleteKeyart.addActionListener(e -> {
-          lblKeyart.clearImage();
-          tfKeyart.setText("");
-        });
-        artworkPanel.add(btnDeleteKeyart, "cell 4 3");
-
-        lblKeyart = new ImageLabel();
-        lblKeyart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        lblKeyart.addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
-                tvShowList.getDefaultArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
-
-            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
-              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
-            }
-
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblKeyart, tfKeyart);
-          }
-        });
-        artworkPanel.add(lblKeyart, "cell 4 4 1 4,grow");
-        lblKeyart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-            e -> setImageSizeAndCreateLink(lblKeyartSize, lblKeyart, btnDeleteKeyart, MediaFileType.KEYART));
       }
       {
         JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
@@ -992,7 +950,7 @@ public class TvShowEditorDialog extends TmmDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("edit.artwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][][]"));
+      artworkPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][]"));
       {
         JLabel lblPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster"));
         artworkPanel.add(lblPosterT, "cell 0 0,alignx right");
@@ -1008,53 +966,46 @@ public class TvShowEditorDialog extends TmmDialog {
         artworkPanel.add(tfFanart, "cell 1 1,growx");
       }
       {
-        JLabel lblLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
-        artworkPanel.add(lblLogoT, "cell 0 2,alignx right");
-
-        tfLogo = new JTextField();
-        artworkPanel.add(tfLogo, "cell 1 2,growx");
-      }
-      {
         JLabel lblClearLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
-        artworkPanel.add(lblClearLogoT, "cell 0 3,alignx right");
+        artworkPanel.add(lblClearLogoT, "cell 0 2,alignx right");
 
         tfClearLogo = new JTextField();
-        artworkPanel.add(tfClearLogo, "cell 1 3,growx");
+        artworkPanel.add(tfClearLogo, "cell 1 2,growx");
       }
       {
         JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
-        artworkPanel.add(lblBannerT, "cell 0 4,alignx right");
+        artworkPanel.add(lblBannerT, "cell 0 3,alignx right");
 
         tfBanner = new JTextField();
-        artworkPanel.add(tfBanner, "cell 1 4,growx");
+        artworkPanel.add(tfBanner, "cell 1 3,growx");
       }
       {
         JLabel lblClearArtT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
-        artworkPanel.add(lblClearArtT, "cell 0 5,alignx right");
+        artworkPanel.add(lblClearArtT, "cell 0 4,alignx right");
 
         tfClearArt = new JTextField();
-        artworkPanel.add(tfClearArt, "cell 1 5,growx");
+        artworkPanel.add(tfClearArt, "cell 1 4,growx");
       }
       {
         JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
-        artworkPanel.add(lblThumbT, "cell 0 6,alignx right");
+        artworkPanel.add(lblThumbT, "cell 0 5,alignx right");
 
         tfThumb = new JTextField();
-        artworkPanel.add(tfThumb, "cell 1 6,growx");
+        artworkPanel.add(tfThumb, "cell 1 5,growx");
       }
       {
         JLabel lblCharacterartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.characterart"));
-        artworkPanel.add(lblCharacterartT, "cell 0 7,alignx trailing");
+        artworkPanel.add(lblCharacterartT, "cell 0 6,alignx trailing");
 
         tfCharacterart = new JTextField();
-        artworkPanel.add(tfCharacterart, "cell 1 7,growx");
+        artworkPanel.add(tfCharacterart, "cell 1 6,growx");
       }
       {
         JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
-        artworkPanel.add(lblKeyartT, "cell 0 8,alignx trailing");
+        artworkPanel.add(lblKeyartT, "cell 0 7,alignx trailing");
 
         tfKeyart = new JTextField();
-        artworkPanel.add(tfKeyart, "cell 1 8,growx");
+        artworkPanel.add(tfKeyart, "cell 1 7,growx");
       }
     }
 
@@ -1213,7 +1164,6 @@ public class TvShowEditorDialog extends TmmDialog {
       // process artwork
       processArtwork(MediaFileType.POSTER, lblPoster, tfPoster);
       processArtwork(MediaFileType.FANART, lblFanart, tfFanart);
-      processArtwork(MediaFileType.LOGO, lblLogo, tfLogo);
       processArtwork(MediaFileType.CLEARLOGO, lblClearlogo, tfClearLogo);
       processArtwork(MediaFileType.BANNER, lblBanner, tfBanner);
       processArtwork(MediaFileType.CLEARART, lblClearart, tfClearArt);

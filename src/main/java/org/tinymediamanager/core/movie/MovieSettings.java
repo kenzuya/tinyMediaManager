@@ -47,7 +47,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetBannerNaming;
@@ -55,7 +54,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
@@ -97,7 +95,6 @@ public final class MovieSettings extends AbstractSettings {
   static final String                       BANNER_FILENAME                        = "bannerFilename";
   static final String                       CLEARART_FILENAME                      = "clearartFilename";
   static final String                       THUMB_FILENAME                         = "thumbFilename";
-  static final String                       LOGO_FILENAME                          = "logoFilename";
   static final String                       CLEARLOGO_FILENAME                     = "clearlogoFilename";
   static final String                       DISCART_FILENAME                       = "discartFilename";
   static final String                       KEYART_FILENAME                        = "keyartFilename";
@@ -132,7 +129,6 @@ public final class MovieSettings extends AbstractSettings {
   final List<MovieClearartNaming>           clearartFilenames                      = new ArrayList<>();
   final List<MovieThumbNaming>              thumbFilenames                         = new ArrayList<>();
   final List<MovieClearlogoNaming>          clearlogoFilenames                     = new ArrayList<>();
-  final List<MovieLogoNaming>               logoFilenames                          = new ArrayList<>();
   final List<MovieDiscartNaming>            discartFilenames                       = new ArrayList<>();
   final List<MovieKeyartNaming>             keyartFilenames                        = new ArrayList<>();
 
@@ -269,7 +265,6 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   storeMovieSetUiFilters                 = false;
   final List<MovieSetClearlogoNaming>       movieSetClearlogoFilenames             = new ArrayList<>();
   final List<UIFilters>                     movieSetUiFilters                      = new ArrayList<>();
-  final List<MovieSetLogoNaming>            movieSetLogoFilenames                  = new ArrayList<>();
   final Map<String, List<UIFilters>>        movieUiFilterPresets                   = new HashMap<>();
   final List<MovieSetDiscartNaming>         movieSetDiscartFilenames               = new ArrayList<>();
   final Map<String, List<UIFilters>>        movieSetUiFilterPresets                = new HashMap<>();
@@ -310,9 +305,6 @@ public final class MovieSettings extends AbstractSettings {
     thumbFilenames.clear();
     addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
-    logoFilenames.clear();
-    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
-
     clearlogoFilenames.clear();
     addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
@@ -339,9 +331,6 @@ public final class MovieSettings extends AbstractSettings {
 
     movieSetThumbFilenames.clear();
     addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
-
-    movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
 
     movieSetClearlogoFilenames.clear();
     addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
@@ -649,22 +638,6 @@ public final class MovieSettings extends AbstractSettings {
 
   public List<MovieThumbNaming> getThumbFilenames() {
     return new ArrayList<>(this.thumbFilenames);
-  }
-
-  public void addLogoFilename(MovieLogoNaming filename) {
-    if (!logoFilenames.contains(filename)) {
-      logoFilenames.add(filename);
-      firePropertyChange(LOGO_FILENAME, null, logoFilenames);
-    }
-  }
-
-  public void clearLogoFilenames() {
-    logoFilenames.clear();
-    firePropertyChange(LOGO_FILENAME, null, logoFilenames);
-  }
-
-  public List<MovieLogoNaming> getLogoFilenames() {
-    return new ArrayList<>(this.logoFilenames);
   }
 
   public void addClearlogoFilename(MovieClearlogoNaming filename) {
@@ -1879,22 +1852,6 @@ public final class MovieSettings extends AbstractSettings {
 
   public List<MovieSetThumbNaming> getMovieSetThumbFilenames() {
     return new ArrayList<>(this.movieSetThumbFilenames);
-  }
-
-  public void addMovieSetLogoFilename(MovieSetLogoNaming filename) {
-    if (!movieSetLogoFilenames.contains(filename)) {
-      movieSetLogoFilenames.add(filename);
-      firePropertyChange(MOVIE_SET_LOGO_FILENAME, null, movieSetLogoFilenames);
-    }
-  }
-
-  public void clearMovieSetLogoFilenames() {
-    movieSetLogoFilenames.clear();
-    firePropertyChange(MOVIE_SET_LOGO_FILENAME, null, movieSetLogoFilenames);
-  }
-
-  public List<MovieSetLogoNaming> getMovieSetLogoFilenames() {
-    return new ArrayList<>(this.movieSetLogoFilenames);
   }
 
   public void addMovieSetClearlogoFilename(MovieSetClearlogoNaming filename) {

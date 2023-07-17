@@ -40,5 +40,21 @@ public enum MovieClearlogoNaming implements IFileNaming {
     public String getFilename(String basename, String extension) {
       return "clearlogo." + extension;
     }
+  },
+
+  /** [filename]-logo.* */
+  FILENAME_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-logo." + extension : "";
+    }
+  },
+
+  /** logo.* */
+  LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "logo." + extension;
+    }
   }
 }

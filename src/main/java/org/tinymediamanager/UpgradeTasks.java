@@ -515,7 +515,7 @@ public class UpgradeTasks {
         for (TvShowEpisode ep : cleanup) {
           tvShow.removeEpisode(ep);
           LOGGER.info("Removed invalid episode '{}' (S{} E{}) from show /{}", ep.getTitle(), ep.getSeason(), ep.getEpisode(),
-                  tvShow.getPathNIO().getFileName());
+              tvShow.getPathNIO().getFileName());
         }
       }
     }
@@ -559,8 +559,53 @@ public class UpgradeTasks {
      * V5
      */
     if (StrgUtils.compareVersion(v, "5.0") < 0) {
-      // upgrade TV show episode layout
+      // upgrade movies
+      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
+        // migrate logo to clearlogo
+        for (MediaFile mf : movie.getMediaFiles(MediaFileType.LOGO)) {
+          // remove
+          movie.removeFromMediaFiles(mf);
+
+          // change type
+          mf.setType(MediaFileType.CLEARLOGO);
+
+          // and add ad the end
+          movie.addToMediaFiles(mf);
+        }
+
+        String logoUrl = movie.getArtworkUrl(MediaFileType.LOGO);
+        if (StringUtils.isNotBlank(logoUrl)) {
+          movie.removeArtworkUrl(MediaFileType.LOGO);
+          String clearlogoUrl = movie.getArtworkUrl(MediaFileType.CLEARLOGO);
+          if (StringUtils.isBlank(clearlogoUrl)) {
+            movie.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
+          }
+        }
+      }
+
+      // upgrade TV shows
       for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        // migrate logo to clearlogo
+        for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.LOGO)) {
+          // remove
+          tvShow.removeFromMediaFiles(mf);
+
+          // change type
+          mf.setType(MediaFileType.CLEARLOGO);
+
+          // and add ad the end
+          tvShow.addToMediaFiles(mf);
+        }
+
+        String logoUrl = tvShow.getArtworkUrl(MediaFileType.LOGO);
+        if (StringUtils.isNotBlank(logoUrl)) {
+          tvShow.removeArtworkUrl(MediaFileType.LOGO);
+          String clearlogoUrl = tvShow.getArtworkUrl(MediaFileType.CLEARLOGO);
+          if (StringUtils.isBlank(clearlogoUrl)) {
+            tvShow.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
+          }
+        }
+
         // migrate season artwork to the seasons
         List<MediaFile> seasonMediaFiles = tvShow.getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
             MediaFileType.SEASON_FANART);

@@ -117,8 +117,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final Logger               LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
-  private static final String               DIALOG_ID        = "imageChooser";
+  private static final Logger               LOGGER         = LoggerFactory.getLogger(ImageChooserDialog.class);
+  private static final String               DIALOG_ID      = "imageChooser";
 
   private final Map<String, Object>         ids;
   private final MediaArtworkType            type;
@@ -126,9 +126,9 @@ public class ImageChooserDialog extends TmmDialog {
   private final ImageLabel                  imageLabel;
   private final List<MediaScraper>          artworkScrapers;
 
-  private final ButtonGroup                 buttonGroup      = new NoneSelectedButtonGroup();
-  private final List<JToggleButton>         buttons          = new ArrayList<>();
-  private final List<JPanel>                imagePanels      = new ArrayList<>();
+  private final ButtonGroup                 buttonGroup    = new NoneSelectedButtonGroup();
+  private final List<JToggleButton>         buttons        = new ArrayList<>();
+  private final List<JPanel>                imagePanels    = new ArrayList<>();
   private final ActionListener              filterListener;
 
   private JProgressBar                      progressBar;
@@ -138,9 +138,9 @@ public class ImageChooserDialog extends TmmDialog {
   private LockableViewPort                  viewport;
   private JTextField                        tfImageUrl;
 
-  private String                            openFolderPath   = null;
-  private List<String>                      extraThumbs      = null;
-  private List<String>                      extraFanarts     = null;
+  private String                            openFolderPath = null;
+  private List<String>                      extraThumbs    = null;
+  private List<String>                      extraFanarts   = null;
   private DownloadTask                      task;
 
   private MediaScraperCheckComboBox         cbScraper;
@@ -240,10 +240,6 @@ public class ImageChooserDialog extends TmmDialog {
 
       case DISC:
         setTitle(TmmResourceBundle.getString("image.choose.disc"));
-        break;
-
-      case LOGO:
-        setTitle(TmmResourceBundle.getString("image.choose.logo"));
         break;
 
       case CLEARLOGO:
@@ -824,11 +820,8 @@ public class ImageChooserDialog extends TmmDialog {
             art = new MediaArtwork("", BACKGROUND);
             break;
 
-          case LOGO:
-            art = new MediaArtwork("", MediaArtworkType.LOGO);
-            break;
-
           case CLEARLOGO:
+          case LOGO:
             art = new MediaArtwork("", MediaArtworkType.CLEARLOGO);
             break;
 
@@ -1193,11 +1186,8 @@ public class ImageChooserDialog extends TmmDialog {
               options.setArtworkType(MediaArtworkType.DISC);
               break;
 
-            case LOGO:
-              options.setArtworkType(MediaArtworkType.LOGO);
-              break;
-
             case CLEARLOGO:
+            case LOGO:
               options.setArtworkType(MediaArtworkType.CLEARLOGO);
               break;
 

@@ -21,7 +21,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
@@ -503,14 +502,8 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
         imageType = BANNER;
         break;
 
-      case LOGO:
-        if (MovieModuleManager.getInstance().getSettings().getMovieSetLogoFilenames().isEmpty()) {
-          return;
-        }
-        imageType = LOGO;
-        break;
-
       case CLEARLOGO:
+      case LOGO:
         if (MovieModuleManager.getInstance().getSettings().getMovieSetClearlogoFilenames().isEmpty()) {
           return;
         }

@@ -255,11 +255,6 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
         }
       }
       artworks.add(ma);
-
-      // fanart.tv only knows clearlogo; copy that for the logo type
-      if (type.type == MediaArtworkType.CLEARLOGO) {
-        artworks.add(new MediaArtwork(ma, MediaArtworkType.LOGO));
-      }
     }
 
     return artworks;

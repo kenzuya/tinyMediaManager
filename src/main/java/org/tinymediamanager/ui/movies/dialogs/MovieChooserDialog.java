@@ -22,7 +22,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
@@ -531,10 +530,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.BANNER)))) {
                 chooseArtwork(MediaFileType.BANNER);
               }
-              if (scraperConfig.contains(MovieScraperMetadataConfig.LOGO)
-                  && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.LOGO)))) {
-                chooseArtwork(MediaFileType.LOGO);
-              }
               if (scraperConfig.contains(MovieScraperMetadataConfig.CLEARLOGO)
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
                 chooseArtwork(MediaFileType.CLEARLOGO);
@@ -633,13 +628,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           return;
         }
         imageType = BANNER;
-        break;
-
-      case LOGO:
-        if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-          return;
-        }
-        imageType = LOGO;
         break;
 
       case CLEARLOGO:

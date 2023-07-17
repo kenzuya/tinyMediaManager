@@ -22,7 +22,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
@@ -566,7 +565,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
           tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
           tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
-          if (cbEpisodeGroup.getSelectedItem()instanceof MediaEpisodeGroup episodeGroup) {
+          if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup episodeGroup) {
             tvShowToScrape.setEpisodeGroup(episodeGroup);
           }
           else {
@@ -597,10 +596,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.BANNER)
                   && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.BANNER)))) {
                 chooseArtwork(MediaFileType.BANNER);
-              }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.LOGO)
-                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.LOGO)))) {
-                chooseArtwork(MediaFileType.LOGO);
               }
               if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARLOGO)
                   && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
@@ -737,13 +732,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           return;
         }
         imageType = BANNER;
-        break;
-
-      case LOGO:
-        if (TvShowModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-          return;
-        }
-        imageType = LOGO;
         break;
 
       case CLEARLOGO:

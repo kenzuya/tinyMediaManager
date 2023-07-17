@@ -62,7 +62,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   BANNER(Type.ARTWORK),
   CLEARART(Type.ARTWORK),
   THUMB(Type.ARTWORK),
-  LOGO(Type.ARTWORK),
+  LOGO(Type.DEPRECATED),
   CLEARLOGO(Type.ARTWORK),
   DISCART(Type.ARTWORK, "mediafiletype.disc"),
   KEYART(Type.ARTWORK),

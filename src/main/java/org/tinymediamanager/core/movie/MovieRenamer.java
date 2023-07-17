@@ -77,7 +77,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
@@ -440,7 +439,6 @@ public class MovieRenamer {
     fileNamings.addAll(Arrays.asList(MovieFanartNaming.values()));
     fileNamings.addAll(Arrays.asList(MovieBannerNaming.values()));
     fileNamings.addAll(Arrays.asList(MovieClearartNaming.values()));
-    fileNamings.addAll(Arrays.asList(MovieLogoNaming.values()));
     fileNamings.addAll(Arrays.asList(MovieClearlogoNaming.values()));
     fileNamings.addAll(Arrays.asList(MovieThumbNaming.values()));
     fileNamings.addAll(Arrays.asList(MovieDiscartNaming.values()));
@@ -1109,18 +1107,8 @@ public class MovieRenamer {
         }
         break;
 
-      case LOGO:
-        for (MovieLogoNaming name : MovieArtworkHelper.getLogoNamesForMovie(movie)) {
-          String newLogoName = name.getFilename(newFilename, getArtworkExtension(mf));
-          if (StringUtils.isNotBlank(newLogoName)) {
-            MediaFile logo = new MediaFile(mf);
-            logo.setFile(newMovieDir.resolve(newLogoName));
-            newFiles.add(logo);
-          }
-        }
-        break;
-
       case CLEARLOGO:
+      case LOGO:
         for (MovieClearlogoNaming name : MovieArtworkHelper.getClearlogoNamesForMovie(movie)) {
           String newClearlogoName = name.getFilename(newFilename, getArtworkExtension(mf));
           if (StringUtils.isNotBlank(newClearlogoName)) {

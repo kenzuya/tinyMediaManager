@@ -20,7 +20,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_FANART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
@@ -110,10 +109,6 @@ public class TvShowArtworkHelper {
           fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getBannerFilenames());
           break;
 
-        case LOGO:
-          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getLogoFilenames());
-          break;
-
         case CLEARLOGO:
           fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames());
           break;
@@ -183,11 +178,6 @@ public class TvShowArtworkHelper {
     // fanart
     if (tvShow.getMediaFiles(MediaFileType.FANART).isEmpty()) {
       setBestFanart(tvShow, artwork);
-    }
-
-    // logo
-    if (tvShow.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.LOGO);
     }
 
     // clearlogo
@@ -429,10 +419,6 @@ public class TvShowArtworkHelper {
         && tvShow.getMediaFiles(MediaFileType.DISC).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.LOGO) && !TvShowModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()
-        && tvShow.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
-      return true;
-    }
     if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO) && !TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
       return true;
@@ -509,14 +495,14 @@ public class TvShowArtworkHelper {
    */
   public static void downloadSeasonArtwork(TvShowSeason tvShowSeason, MediaFileType artworkType) {
     switch (artworkType) {
-      case SEASON_POSTER -> downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(),
-          artworkType);
-      case SEASON_FANART -> downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(),
-          artworkType);
-      case SEASON_BANNER -> downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(),
-          artworkType);
-      case SEASON_THUMB -> downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(),
-          artworkType);
+      case SEASON_POSTER ->
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(), artworkType);
+      case SEASON_FANART ->
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(), artworkType);
+      case SEASON_BANNER ->
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), artworkType);
+      case SEASON_THUMB ->
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(), artworkType);
     }
   }
 
@@ -663,11 +649,6 @@ public class TvShowArtworkHelper {
     // banner
     if (config.contains(TvShowScraperMetadataConfig.BANNER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.BANNER)))) {
       setBestArtwork(tvShow, artwork, BANNER);
-    }
-
-    // logo
-    if (config.contains(TvShowScraperMetadataConfig.LOGO) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.LOGO)))) {
-      setBestArtwork(tvShow, artwork, LOGO);
     }
 
     // clearlogo

@@ -79,5 +79,57 @@ public enum MovieSetClearlogoNaming implements IMovieSetFileNaming {
     public Location getFolderLocation() {
       return Location.AUTOMATOR_STYLE_FOLDER;
     }
+  },
+
+  /** movieset-logo.ext - in movie folder */
+  MOVIE_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "movieset-logo." + extension;
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** [movieset name]-logo.ext - in movie folder */
+  MOVIESET_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-logo." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** logo.ext - in artwork folder */
+  KODI_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "logo." + extension;
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.KODI_STYLE_FOLDER;
+    }
+  },
+
+  /** [movie set name]-logo.ext - in artwork folder */
+  AUTOMATOR_LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-logo." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.AUTOMATOR_STYLE_FOLDER;
+    }
   }
 }

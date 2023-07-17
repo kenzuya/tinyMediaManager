@@ -2125,9 +2125,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       case THUMB:
         return getMediaFiles(MediaFileType.THUMB);
 
-      case LOGO:
-        return getMediaFiles(MediaFileType.LOGO);
-
       case CLEARLOGO:
         return getMediaFiles(MediaFileType.CLEARLOGO);
 

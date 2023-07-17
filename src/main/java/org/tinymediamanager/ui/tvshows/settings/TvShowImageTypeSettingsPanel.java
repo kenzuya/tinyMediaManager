@@ -36,7 +36,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowDiscartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowKeyartNaming;
-import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
@@ -57,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowImageTypeSettingsPanel extends JPanel {
-  private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener   checkBoxListener;
 
   private JCheckBox            chckbxEpisodeThumb1;
@@ -112,7 +111,7 @@ class TvShowImageTypeSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
       JPanel panelFileNaming = new JPanel(new MigLayout("insets 0", "[20lp!][right][][50lp!][right][grow]",
-          "[][][25lp][10lp][25lp][10lp][25lp][10lp][25lp][10lp][][25lp][][10lp][][25lp][][][][][25lp][10lp][][10lp][25lp!][20lp]"));
+          "[][][25lp][10lp][25lp][10lp][25lp][10lp][][25lp][10lp][25lp][][10lp][][25lp][][][][][25lp][10lp][][10lp][25lp!][20lp]"));
 
       JLabel lblFiletypes = new TmmLabel(TmmResourceBundle.getString("Settings.artwork.naming"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFileNaming, lblFiletypes, true);
@@ -161,32 +160,29 @@ class TvShowImageTypeSettingsPanel extends JPanel {
         chckbxCharacterart1 = new JCheckBox("characterart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxCharacterart1, "cell 5 5");
 
-        JLabel lblLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
-        panelFileNaming.add(lblLogoT, "cell 1 7");
-
-        chckbxLogo1 = new JCheckBox("logo." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelFileNaming.add(chckbxLogo1, "cell 2 7");
-
         JLabel lblClearlogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
-        panelFileNaming.add(lblClearlogoT, "cell 4 7");
+        panelFileNaming.add(lblClearlogoT, "cell 1 7");
 
         chckbxClearlogo1 = new JCheckBox("clearlogo." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelFileNaming.add(chckbxClearlogo1, "cell 5 7");
+        panelFileNaming.add(chckbxClearlogo1, "cell 2 7");
 
         JLabel lblDiscartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.disc"));
-        panelFileNaming.add(lblDiscartT, "cell 1 9");
+        panelFileNaming.add(lblDiscartT, "cell 4 7");
 
         chckbxDiscart1 = new JCheckBox("discart." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelFileNaming.add(chckbxDiscart1, "cell 2 9");
+        panelFileNaming.add(chckbxDiscart1, "cell 5 7");
 
-        JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
-        panelFileNaming.add(lblKeyartT, "cell 4 9");
-
-        chckbxKeyart1 = new JCheckBox("keyart." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelFileNaming.add(chckbxKeyart1, "cell 5 9");
+        chckbxLogo1 = new JCheckBox("logo." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelFileNaming.add(chckbxLogo1, "cell 2 8");
 
         chckbxDiscart2 = new JCheckBox("disc." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelFileNaming.add(chckbxDiscart2, "cell 2 10");
+        panelFileNaming.add(chckbxDiscart2, "cell 5 8");
+
+        JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
+        panelFileNaming.add(lblKeyartT, "cell 1 10");
+
+        chckbxKeyart1 = new JCheckBox("keyart." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelFileNaming.add(chckbxKeyart1, "cell 2 10");
 
         JLabel lblSeasonPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.season_poster"));
         panelFileNaming.add(lblSeasonPosterT, "cell 1 12");
@@ -372,18 +368,14 @@ class TvShowImageTypeSettingsPanel extends JPanel {
       }
     }
 
-    for (TvShowLogoNaming logoNaming : settings.getLogoFilenames()) {
-      switch (logoNaming) {
-        case LOGO:
-          chckbxLogo1.setSelected(true);
-          break;
-      }
-    }
-
     for (TvShowClearlogoNaming clearlogoNaming : settings.getClearlogoFilenames()) {
       switch (clearlogoNaming) {
         case CLEARLOGO:
           chckbxClearlogo1.setSelected(true);
+          break;
+
+        case LOGO:
+          chckbxLogo1.setSelected(true);
           break;
       }
     }
@@ -564,14 +556,12 @@ class TvShowImageTypeSettingsPanel extends JPanel {
       settings.addThumbFilename(TvShowThumbNaming.LANDSCAPE);
     }
 
-    settings.clearLogoFilenames();
-    if (chckbxLogo1.isSelected()) {
-      settings.addLogoFilename(TvShowLogoNaming.LOGO);
-    }
-
     settings.clearClearlogoFilenames();
     if (chckbxClearlogo1.isSelected()) {
       settings.addClearlogoFilename(TvShowClearlogoNaming.CLEARLOGO);
+    }
+    if (chckbxLogo1.isSelected()) {
+      settings.addClearlogoFilename(TvShowClearlogoNaming.LOGO);
     }
 
     settings.clearDiscartFilenames();

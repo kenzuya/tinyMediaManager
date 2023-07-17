@@ -41,7 +41,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.tasks.MovieExtraImageFetcherTask;
@@ -176,13 +175,8 @@ public class MovieArtworkHelper {
             }
             break;
 
-          case LOGO:
-            if (!MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty() || force) {
-              download = true;
-            }
-            break;
-
           case CLEARLOGO:
+          case LOGO:
             if (!MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty() || force) {
               download = true;
             }
@@ -243,11 +237,6 @@ public class MovieArtworkHelper {
     // fanart
     if (metadataConfig.contains(MovieScraperMetadataConfig.FANART) && movie.getMediaFiles(MediaFileType.FANART).isEmpty()) {
       setBestFanart(movie, artwork);
-    }
-
-    // logo
-    if (metadataConfig.contains(MovieScraperMetadataConfig.LOGO) && movie.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.LOGO, !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty());
     }
 
     // clearlogo
@@ -351,10 +340,6 @@ public class MovieArtworkHelper {
     }
     if (config.contains(MovieScraperMetadataConfig.DISCART) && !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty()
         && movie.getMediaFiles(MediaFileType.DISC).isEmpty()) {
-      return true;
-    }
-    if (config.contains(MovieScraperMetadataConfig.LOGO) && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()
-        && movie.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
       return true;
     }
     if (config.contains(MovieScraperMetadataConfig.CLEARLOGO) && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()
@@ -638,43 +623,6 @@ public class MovieArtworkHelper {
   }
 
   /**
-   * Logo format is not empty, so we want at least one ;)<br>
-   * Idea is, to check whether the preferred format is set in settings<br>
-   * and if not, take some default (since we want logos)
-   *
-   * @param movie
-   *          the movie to get the logo names for
-   * @return list of MovieLogoNaming (can be empty!)
-   */
-  public static List<MovieLogoNaming> getLogoNamesForMovie(Movie movie) {
-    List<MovieLogoNaming> logonames = new ArrayList<>();
-    if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-      return logonames;
-    }
-
-    if (movie.isMultiMovieDir()) {
-      if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().contains(MovieLogoNaming.FILENAME_LOGO)) {
-        logonames.add(MovieLogoNaming.FILENAME_LOGO);
-      }
-      if (logonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-        logonames.add(MovieLogoNaming.FILENAME_LOGO);
-      }
-    }
-    else if (movie.isDisc()) {
-      if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().contains(MovieLogoNaming.LOGO)) {
-        logonames.add(MovieLogoNaming.LOGO);
-      }
-      if (logonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-        logonames.add(MovieLogoNaming.LOGO);
-      }
-    }
-    else {
-      logonames.addAll(MovieModuleManager.getInstance().getSettings().getLogoFilenames());
-    }
-    return logonames;
-  }
-
-  /**
    * Clearlogo format is not empty, so we want at least one ;)<br>
    * Idea is, to check whether the preferred format is set in settings<br>
    * and if not, take some default (since we want clearlogos)
@@ -693,6 +641,10 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.FILENAME_CLEARLOGO)) {
         clearlogonames.add(MovieClearlogoNaming.FILENAME_CLEARLOGO);
       }
+      else if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.FILENAME_LOGO)) {
+        clearlogonames.add(MovieClearlogoNaming.FILENAME_LOGO);
+      }
+
       if (clearlogonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
         clearlogonames.add(MovieClearlogoNaming.FILENAME_CLEARLOGO);
       }
@@ -701,6 +653,10 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.CLEARLOGO)) {
         clearlogonames.add(MovieClearlogoNaming.CLEARLOGO);
       }
+      else if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.LOGO)) {
+        clearlogonames.add(MovieClearlogoNaming.LOGO);
+      }
+
       if (clearlogonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
         clearlogonames.add(MovieClearlogoNaming.CLEARLOGO);
       }
@@ -830,10 +786,6 @@ public class MovieArtworkHelper {
     }
 
     // works now for single & multimovie
-    if (config.contains(MovieScraperMetadataConfig.LOGO) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.LOGO)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.LOGO, !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty());
-    }
-
     if (config.contains(MovieScraperMetadataConfig.CLEARLOGO)
         && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
@@ -1172,10 +1124,6 @@ public class MovieArtworkHelper {
 
       case POSTER:
         fileNamings.addAll(getPosterNamesForMovie(movie));
-        break;
-
-      case LOGO:
-        fileNamings.addAll(getLogoNamesForMovie(movie));
         break;
 
       case CLEARLOGO:

@@ -469,11 +469,8 @@ public class TvShowRenamer {
         filenamings = TvShowModuleManager.getInstance().getSettings().getBannerFilenames();
         break;
 
-      case LOGO:
-        filenamings = TvShowModuleManager.getInstance().getSettings().getLogoFilenames();
-        break;
-
       case CLEARLOGO:
+      case LOGO:
         filenamings = TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames();
         break;
 

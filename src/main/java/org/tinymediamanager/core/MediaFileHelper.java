@@ -446,10 +446,10 @@ public class MediaFileHelper {
       return MediaFileType.CLEARART;
     }
 
-    // logo.*
+    // logo.* is now CLEARLOGO
     matcher = MediaFileHelper.LOGO_PATTERN.matcher(filename);
     if (matcher.matches()) {
-      return MediaFileType.LOGO;
+      return MediaFileType.CLEARLOGO;
     }
 
     // clearlogo.*

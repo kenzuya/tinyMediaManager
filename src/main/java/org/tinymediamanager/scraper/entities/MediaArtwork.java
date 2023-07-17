@@ -58,6 +58,7 @@ public class MediaArtwork {
     KEYART,
     CHARACTERART,
     DISC, 
+    @Deprecated
     LOGO,
     CLEARLOGO,
     ALL
@@ -536,7 +537,7 @@ public class MediaArtwork {
   }
 
   public static class MediaArtworkComparator implements Comparator<MediaArtwork> {
-    private String preferredLangu;
+    private final String preferredLangu;
 
     public MediaArtworkComparator(String language) {
       preferredLangu = language;
