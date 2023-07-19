@@ -122,6 +122,7 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:3 E:50", detectEpisode("[HorribleSubs] Shingeki no Kyojin S3 - 50 [1080p].mkv"));
     assertEqual("S:5 E:22", detectEpisode("Quincy.S05E22.Gefaehrlicher.Krankentransport.GERMAN.FS.dTV.X264-SQUiZZiEs\\s-quincy-s0522.mkv"));
     assertEqual("S:-1", detectEpisode("Specials\\Bye.Bye.Big.Bang.Theory.Das.Special.GERMAN.1080p.HDTV.x264-VoDTv.mkv"));
     assertEqual("S:1 E:11 E:12", detectEpisode(
@@ -197,6 +198,10 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:24 E:1", detectEpisode("S24E01 1080p BluRay.mkv", "24"));
     assertEqual("S:1 E:24", detectEpisode("24 Season 1 Episode 24 1080p BluRay.mkv", "24"));
     assertEqual("S:24 E:1", detectEpisode("24 Season 24 Episode 1 1080p BluRay.mkv", "24"));
+
+    // subtitles in folder, named with numbers
+    assertEqual("S:1 E:1", detectEpisode("Subs/subtitle folder for S01E01 and so/1_german.srt"));
+    assertEqual("S:1 E:1", detectEpisode("Subs/subtitle folder for S01E01 and so/23_german.srt"));
 
     // ************************************************************************
     // 1-3 chars, if they are the ONLY numbers in file

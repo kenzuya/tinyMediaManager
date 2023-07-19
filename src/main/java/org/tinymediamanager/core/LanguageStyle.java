@@ -27,9 +27,8 @@ public enum LanguageStyle {
   ISO3T,
   ISO3B,
   LANG_EN,
-  LANG_LOCALIZED;
-
-
+  LANG_LOCALIZED,
+  ORIGINAL;
 
   @Override
   public String toString() {
@@ -67,6 +66,7 @@ public enum LanguageStyle {
       case LANG_LOCALIZED:
         return LanguageUtils.getLocalizedLanguageNameFromLocalizedString(language);
 
+      case ORIGINAL:
       default:
         return language;
     }

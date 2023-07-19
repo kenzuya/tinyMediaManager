@@ -88,6 +88,10 @@ public class MediaStreamInfo extends AbstractModelObject {
     streamFlags.addAll(Arrays.asList(flags));
   }
 
+  public Set<Flags> getFlags() {
+    return streamFlags;
+  }
+
   public void set(Collection<Flags> flags) {
     streamFlags.addAll(flags);
   }

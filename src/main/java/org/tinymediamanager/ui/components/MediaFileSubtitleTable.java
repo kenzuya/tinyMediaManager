@@ -65,7 +65,7 @@ public class MediaFileSubtitleTable extends TmmEditorTable {
     MediaFileSubtitle subtitle = getSubtitle(row);
 
     ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
-    popupPanel.setTitle(TmmResourceBundle.getString("audiostream.edit"));
+    popupPanel.setTitle(TmmResourceBundle.getString("subtitle.edit"));
 
     MediaFileSubtitleEditorPanel subtitleEditorPanel = new MediaFileSubtitleEditorPanel(subtitle);
     popupPanel.setContent(subtitleEditorPanel);
@@ -89,12 +89,12 @@ public class MediaFileSubtitleTable extends TmmEditorTable {
    *
    * @return a {@link List} of all selected {@link MediaFileSubtitle}s
    */
-  public List<MediaFileSubtitle> getAudioStreams() {
+  public List<MediaFileSubtitle> getSubtitleStreams() {
     List<MediaFileSubtitle> subtitles = new ArrayList<>();
     for (int i : getSelectedRows()) {
-      MediaFileSubtitle audioStream = getSubtitle(i);
-      if (audioStream != null) {
-        subtitles.add(audioStream);
+      MediaFileSubtitle subtitleStream = getSubtitle(i);
+      if (subtitleStream != null) {
+        subtitles.add(subtitleStream);
       }
 
     }

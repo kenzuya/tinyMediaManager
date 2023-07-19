@@ -35,9 +35,9 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
-  private static final int NUMBER_OF_EXPECTED_SHOWS      = 16;
-  private static final int NUMBER_OF_EXPECTED_EPISODES   = 162;
-  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 400;
+  private static final int NUMBER_OF_EXPECTED_SHOWS      = 17;
+  private static final int NUMBER_OF_EXPECTED_EPISODES   = 164;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 408;
 
   @Before
   public void setup() throws Exception {

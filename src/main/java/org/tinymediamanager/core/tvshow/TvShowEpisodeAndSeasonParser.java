@@ -148,12 +148,21 @@ public class TvShowEpisodeAndSeasonParser {
     // first check ONLY filename!
     EpisodeMatchingResult result = detect(FilenameUtils.getName(name), showname);
 
-    // only EPs found, but no season - parse whole string for season ONLY
+    // only EPs found, but no season
     if (!result.episodes.isEmpty() && result.season == -1) {
+      // try parsing whole string,
       EpisodeMatchingResult result2 = detect(name, showname);
-      result.season = result2.season;
+      // and IF the detected episodes (from filename) are same AMOUNT, take it
+      // (so a multifile folder pattern wont override a single file in there)
+      if (result2.season != -1 && result2.episodes.size() == result.episodes.size()) {
+        result = result2;
+      }
+      else {
+        // take season only - rely on former filename only detection
+        result.season = result2.season;
+      }
     }
-    else if (result.season == -1 && result.episodes.isEmpty()) {
+    else if (result.episodes.isEmpty()) {
       // nothing found - check whole string as such
       result = detect(name, showname);
     }
@@ -211,7 +220,6 @@ public class TvShowEpisodeAndSeasonParser {
     result.stackingMarkerFound = !Utils.getStackingMarker(filename).isEmpty();
     result.name = basename.trim();
 
-    result = parseAbsolute(result, basename);
     // parse all long named season names, and remove
     result = parseSeasonLong(result, basename + foldername);
     if (result.season != -1) {
@@ -220,6 +228,7 @@ public class TvShowEpisodeAndSeasonParser {
     }
     result = parseSeasonMultiEP(result, basename + foldername);
     result = parseSeasonMultiEP2(result, basename + foldername);
+    result = parseAbsolute(result, basename);
     result = parseEpisodePattern(result, basename);
 
     if (!result.episodes.isEmpty()) {
@@ -272,11 +281,11 @@ public class TvShowEpisodeAndSeasonParser {
     }
 
     // parse season short (S 01), but only if we do not have already one!
-    // and ONLY from foldername, since a filename only with season is less likely ;)
     if (result.season == -1) {
-      result = parseSeasonOnly(result, foldername);
+      result = parseSeasonOnly(result, basename + foldername);
       if (result.season != -1) {
         foldername = foldername.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
+        basename = basename.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
       }
     }
     // parse episode short (EP 01), but only if we do not have already one!

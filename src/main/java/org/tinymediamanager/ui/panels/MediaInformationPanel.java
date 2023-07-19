@@ -347,15 +347,7 @@ public abstract class MediaInformationPanel extends JPanel {
       /*
        * language
        */
-      col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> {
-        String language = container.subtitle.getLanguage();
-
-        if (StringUtils.isNotBlank(container.subtitle.getCodec())) {
-          language += " (" + container.subtitle.getCodec() + ")";
-        }
-
-        return language;
-      }, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> container.subtitle.getLanguage(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
 

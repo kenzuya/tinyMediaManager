@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.entities.MediaStreamInfo.Flags;
 import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
@@ -165,7 +166,7 @@ public class MediaFileHelper {
         ".thd", ".wav", ".wave", ".wma");
 
     DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
-        ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
+        ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub", ".vtt");
 
     BINARY_FILETYPES = List.of("bin", "dat", "img", "nrg", "disc");
 
@@ -1881,28 +1882,10 @@ public class MediaFileHelper {
   private static MediaFileSubtitle gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
-
     MediaFileSubtitle sub = new MediaFileSubtitle();
-    String shortname = mediaFile.getBasename().toLowerCase(Locale.ROOT);
 
-    List<String> splitted = ParserUtils.splitByPunctuation(shortname);
-    if (splitted.contains("forced")) {
-      sub.setForced(true);
-      sub.set(Flags.FLAG_FORCED);
-      shortname = shortname.replaceAll("\\p{Punct}*forced", "");
-    }
-    if (splitted.contains("sdh")) {
-      sub.set(Flags.FLAG_HEARING_IMPAIRED);
-      shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
-    }
-    else if (splitted.contains("cc")) { // basically the same as sdh
-      sub.set(Flags.FLAG_HEARING_IMPAIRED);
-      shortname = shortname.replaceAll("\\p{Punct}*cc", "");
-    }
-    sub.setLanguage(parseLanguageFromString(shortname));
-
-    if (sub.getLanguage().isEmpty() && filename.endsWith(".sub")) {
-      // not found in name, try to parse from idx
+    // parse FIRST from idx
+    if (filename.endsWith(".sub")) {
       Path idx = Paths.get(path, filename.replaceFirst("sub$", "idx"));
 
       try (FileReader fr = new FileReader(idx.toFile()); BufferedReader br = new BufferedReader(fr)) {
@@ -1917,7 +1900,7 @@ public class MediaFileHelper {
             lang = StrgUtils.substr(line, "^# alt: (.*?)$");
           }
           if (!lang.isEmpty()) {
-            sub.setLanguage(LanguageUtils.getIso3LanguageFromLocalizedString(lang));
+            sub.setLanguage(LanguageUtils.findLanguageInString(lang));
             break;
           }
         }
@@ -1927,6 +1910,21 @@ public class MediaFileHelper {
       }
     }
 
+    // override with file infos
+    MediaStreamInfo file = gatherLanguageInformation(mediaFile.getBasename());
+    if (sub.getLanguage().isEmpty()) {
+      sub.setLanguage(file.getLanguage());
+    }
+    else {
+      // if we have detected a locale (which is more specific than language alone) us this
+      if (!file.getLanguage().isEmpty() && file.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
+        sub.setLanguage(file.getLanguage());
+      }
+    }
+    if (sub.getTitle().isEmpty()) {
+      sub.setTitle(file.getTitle());
+    }
+    sub.set(file.getFlags());
     sub.setCodec(mediaFile.getExtension());
     return sub;
   }
@@ -1977,10 +1975,13 @@ public class MediaFileHelper {
         MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, 0);
         sub = stream;
       }
-      MediaFileSubtitle file = gatherSubtitleInformationFromFilename(mediaFile);
       // overwrite with file infos
+      MediaFileSubtitle file = gatherSubtitleInformationFromFilename(mediaFile);
       if (sub.getLanguage().isEmpty()) {
         sub.setLanguage(file.getLanguage());
+      }
+      if (sub.getTitle().isEmpty()) {
+        sub.setTitle(file.getTitle());
       }
       if (file.isSdh()) {
         sub.setSdh(true);
@@ -1993,12 +1994,10 @@ public class MediaFileHelper {
     else {
       // embedded
       List<MediaFileSubtitle> subtitles = new ArrayList<>();
-
       for (int i = 0; i < streams; i++) {
         MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, i);
         subtitles.add(stream);
       }
-
       mediaFile.setSubtitles(subtitles);
     }
   }
@@ -2191,6 +2190,20 @@ public class MediaFileHelper {
       stream.setTitle(title);
 
       audioStreams.add(stream);
+    }
+
+    // we might parse the language from file, IF we have only ONE stream
+    if (audioStreams.size() == 1) {
+      MediaFileAudioStream audio = audioStreams.get(0);
+      MediaStreamInfo info = gatherLanguageInformation(mediaFile.getBasename());
+
+      if (StringUtils.isBlank(audio.getLanguage())) {
+        audio.setLanguage(info.getLanguage());
+      }
+
+      if (StringUtils.isBlank(audio.getTitle())) {
+        audio.setTitle(info.getTitle());
+      }
     }
 
     mediaFile.setAudioStreams(audioStreams);
@@ -3035,82 +3048,116 @@ public class MediaFileHelper {
    * to pass the basename of the main video file to this method too.<br />
    * This is only usable for audio and subtitle files
    *
-   * @param mediaFile
-   *          the {@link MediaFile} to work with
+   * @param basename
+   *          the basename of {@link MediaFile} to work with (no extension!)
    * @param commonPart
    *          the common part of the filename which is shared with the video file
    */
-  public static void gatherLanguageInformation(MediaFile mediaFile, String commonPart) {
-    if (mediaFile.getType() != MediaFileType.SUBTITLE && mediaFile.getType() != MediaFileType.AUDIO) {
-      return;
-    }
-
-    String shortname = mediaFile.getBasename();
-
-    shortname = shortname.replace(commonPart, "");
-
+  public static MediaStreamInfo gatherLanguageInformation(String basename) {
+    String shortname = basename; // .replace(commonPart, "");
     String language = "";
     String title = "";
     List<Flags> flags = new ArrayList<>();
 
-    // look with the whole term first
-    String foundToken = LanguageUtils.findLanguageInString(shortname);
-    if (StringUtils.isNotBlank(foundToken)) {
-      // found trailing language code - just need to remove it from the title
-      language = LanguageUtils.getIso3LanguageFromLocalizedString(foundToken);
-      title = shortname.replaceAll("(?i).*" + Pattern.quote(foundToken) + "$", ""); // FIXME: seem not to work
+    // FIRST - remove known flags
+    boolean hicc = false;
+    if (shortname.contains("forced")) {
+      flags.add(Flags.FLAG_FORCED);
+      shortname = shortname.replaceAll("[\\p{Punct} ]+forced", ""); // punct + space
     }
-    else {
-      // split the shortname into chunks and search from the end to the beginning for the language
-      List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+    if (shortname.contains("sdh")) {
+      flags.add(Flags.FLAG_HEARING_IMPAIRED);
+      shortname = shortname.replaceAll("[\\p{Punct} ]+sdh", ""); // punct + space
+    }
+    if (shortname.contains("cc") || shortname.contains("hi")) {
+      // remember this - if we don't find other langu, this IS the langu (and not a flag)
+      hicc = true;
+    }
 
-      int languageIndex = 0;
+    // SECOND - try to find country-lang Locales ONLY
+    String[] splitted = shortname.split("[\\p{Punct} &&[^_-]]"); // punctuation (+space), but WITHOUT dash and underscore
+    for (String token : splitted) {
+      // does not work, if it is ALSO delimited with dash like movie-es-419
+      // lets assume, the language token MUST be exact 2 chars
+      if (!token.matches("[a-zA-Z][a-zA-Z][_-].*")) {
+        token = token.replaceFirst("[^_-]+[_-]", ""); // remove all up to first delimiter
+      }
 
-      for (int i = chunks.size() - 1; i >= 0; i--) {
-        language = LanguageUtils.parseLanguageFromString(chunks.get(i));
-        if (StringUtils.isNotBlank(language)) {
-          languageIndex = i;
-          break;
+      // now?
+      if (token.matches("[a-zA-Z][a-zA-Z][_-].*")) {
+        // if WE dont have it in our array, it is some xx_YY locale, but not valid
+        if (LanguageUtils.KEY_TO_LOCALE_MAP.containsKey(token.toLowerCase())) {
+          language = token;
+          break; // step out
         }
       }
+    }
 
-      if (languageIndex < chunks.size() - 1) {
-        // the language index was not the last chunk. Save the part between the language index and the last chunk as title
-        title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+    // THIRD - tokenize even more
+    if (language.isEmpty()) {
+      // look with the whole term first
+      String languWoHiCC = "";
+      if (hicc) {
+        languWoHiCC = shortname;
+        languWoHiCC = languWoHiCC.replaceAll("\\p{Punct}+hi", "");
+        languWoHiCC = languWoHiCC.replaceAll("\\p{Punct}+cc", "");
+        languWoHiCC = LanguageUtils.findLanguageInString(languWoHiCC);
+      }
+      if (StringUtils.isNotBlank(languWoHiCC)) {
+        // found trailing language code - just need to remove it from the title
+        language = languWoHiCC; // LanguageUtils.getIso3LanguageFromLocalizedString(foundToken);
+        // no title, since we parsed the whole string with langu at end!
+      }
+      else {
+        // split the shortname into chunks
+        List<String> chunks = ParserUtils.splitByPunctuation(shortname);
+        int languageIndex = 0;
+        // parse forward, since language is more significant
+        for (int i = 0; i < chunks.size(); i++) {
+          language = LanguageUtils.findLanguageInString(chunks.get(i));
+          if (StringUtils.isNotBlank(language)) {
+            languageIndex = i;
+            break;
+          }
+        }
+        if (hicc) {
+          if (!language.equalsIgnoreCase("hi")) {
+            // we found them, but it is not langu - remove from title
+            chunks.remove("cc");
+            chunks.remove("hi");
+            flags.add(Flags.FLAG_HEARING_IMPAIRED);
+          }
+          else {
+            // HI langu
+            if (chunks.indexOf("cc") > languageIndex) {
+              // CC is no language code, but a country!
+              // if CC present and AFTER language, it is a flag to be removed.
+              // if it is BEFORE language, it might be from filename/movie title - keep
+              chunks.remove("cc");
+              flags.add(Flags.FLAG_HEARING_IMPAIRED);
+            }
+          }
+        }
+        if (languageIndex < chunks.size() - 1) {
+          // the language index was not the last chunk. Save the part between the language index and the last chunk as title
+          title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+        }
       }
     }
-    if (title.contains("forced")) {
-      flags.add(Flags.FLAG_FORCED);
-      title = title.replaceAll("\\p{Punct}*forced", "");
+    else {
+      // we already found our language, just check for title
+      int pos = shortname.indexOf(language) + language.length(); // end
+      if (pos + 1 <= shortname.length()) {
+        title = shortname.substring(pos + 1); // plus delimiter
+      }
     }
-    if (title.contains("sdh")) {
-      flags.add(Flags.FLAG_HEARING_IMPAIRED);
-      title = title.replaceAll("\\p{Punct}*sdh", "");
-    }
-    else if (title.contains("cc")) { // basically the same as sdh
-      flags.add(Flags.FLAG_HEARING_IMPAIRED);
-      title = title.replaceAll("\\p{Punct}*cc", "");
-    }
-
     title = title.strip();
 
-    if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
-      MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
-      if (StringUtils.isBlank(sub.getLanguage())) {
-        sub.setLanguage(language);
-      }
-      sub.setTitle(title);
-      sub.set(flags);
-    }
-    else if (mediaFile.getType() == MediaFileType.AUDIO && mediaFile.getAudioChannels().isEmpty()) {
-      MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
-      if (StringUtils.isBlank(audio.getLanguage())) {
-        audio.setLanguage(language);
-      }
-      if (StringUtils.isBlank(audio.getTitle())) {
-        audio.setTitle(title);
-      }
-      audio.set(flags);
-    }
+    MediaStreamInfo info = new MediaStreamInfo();
+    info.setLanguage(language);
+    info.setTitle(title);
+    info.set(flags);
+
+    return info;
   }
 }

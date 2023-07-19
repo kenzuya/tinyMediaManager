@@ -459,7 +459,7 @@ public class LanguageUtils {
     String result = findLanguageInString(string);
 
     if (StringUtils.isNotBlank(result)) {
-      return LanguageUtils.getIso3LanguageFromLocalizedString(result);
+      return getIso3LanguageFromLocalizedString(result);
 
     }
 
@@ -478,12 +478,13 @@ public class LanguageUtils {
       return "";
     }
 
-    Set<String> langArray = LanguageUtils.KEY_TO_LOCALE_MAP.keySet();
+    Set<String> langArray = KEY_TO_LOCALE_MAP.keySet();
     string = string.replaceAll("(?i)Part [Ii]+", ""); // hardcoded; remove Part II which is no stacking marker; b/c II is a valid iso code :p
+    string = string.toLowerCase(Locale.ROOT); // lang array is lowercase only!
     string = StringUtils.split(string, '/')[0].trim(); // possibly "de / de" - just take first
     for (String s : langArray) {
       try {
-        if (LanguageUtils.doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
+        if (doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
           return s;
         }
       }

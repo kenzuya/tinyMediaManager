@@ -51,7 +51,6 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
-import org.tinymediamanager.core.entities.MediaStreamInfo.Flags;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
@@ -81,9 +80,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
-import org.tinymediamanager.scraper.util.LanguageUtils;
-import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.Engine;
@@ -188,135 +184,6 @@ public class MovieRenamer {
 
   public static Map<String, String> getTokenMapReversed() {
     return Collections.unmodifiableMap(TOKEN_MAP.entrySet().stream().collect(Collectors.toMap(Entry::getValue, Entry::getKey)));
-  }
-
-  private static void renameSubtitles(Movie m) {
-    // build language lists
-    Set<String> langArray = LanguageUtils.KEY_TO_LOCALE_MAP.keySet();
-    List<MediaFile> subtitleFiles = m.getMediaFiles(MediaFileType.SUBTITLE);
-
-    for (MediaFile sub : subtitleFiles) {
-      String originalLang = "";
-      String lang = "";
-      String additional = "";
-      List<MediaFileSubtitle> mfsl = sub.getSubtitles();
-
-      if (ListUtils.isNotEmpty(mfsl)) {
-        // use internal values
-        MediaFileSubtitle mfs = mfsl.get(0);
-        originalLang = mfs.getLanguage();
-
-        if (StringUtils.isNotBlank(mfs.getTitle())) {
-          additional = "(" + mfs.getTitle().strip() + ")";
-        }
-        if (mfs.isForced()) {
-          additional += ".forced";
-        }
-        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
-          additional += ".sdh"; // double possible?!
-        }
-      }
-      else {
-        // detect from filename, if we don't have a MediaFileSubtitle entry!
-        // happens if subtitle file is empty, and gatherMI() does not create an entry...
-        // remove the filename of movie from subtitle, to ease parsing
-        String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
-        if (ListUtils.isNotEmpty(m.getMediaFiles(MediaFileType.VIDEO))) {
-          shortname = sub.getBasename().toLowerCase(Locale.ROOT).replace(m.getVideoBasenameWithoutStacking(), "");
-        }
-
-        List<String> splitted = ParserUtils.splitByPunctuation(shortname);
-        if (splitted.contains("forced")) {
-          // detect "forced" before language!
-          additional = ".forced";
-          shortname = shortname.replaceAll("\\p{Punct}*forced", "");
-        }
-        if (splitted.contains("sdh")) {
-          additional += ".sdh"; // double possible?!
-          shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
-        }
-
-        for (String s : langArray) {
-          if (LanguageUtils.doesStringEndWithLanguage(shortname, s)) {
-            originalLang = s;
-            LOGGER.trace("found language '{}' in subtitle", s);
-            break;
-          }
-        }
-      }
-
-      // check if there is only one subtitle file and the user wants to write this w/o the language tag
-      if (!MovieModuleManager.getInstance().getSettings().isSubtitleWithoutLanguageTag() || subtitleFiles.size() > 1) {
-        lang = LanguageStyle.getLanguageCodeForStyle(originalLang, MovieModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
-        if (StringUtils.isBlank(lang)) {
-          lang = originalLang;
-        }
-      }
-      else {
-        lang = "";
-      }
-
-      // rebuild new filename
-      String newSubName = "";
-      String basename = "";
-
-      if (sub.getStacking() == 0) {
-        // fine, so match to first movie file
-        MediaFile mf = m.getMediaFiles(MediaFileType.VIDEO).get(0);
-        basename = newSubName = mf.getBasename();
-        if (!lang.isEmpty()) {
-          newSubName += "." + lang;
-        }
-        newSubName += additional;
-      }
-      else {
-        // with stacking info; try to match
-        for (MediaFile mf : m.getMediaFiles(MediaFileType.VIDEO)) {
-          if (mf.getStacking() == sub.getStacking()) {
-            basename = newSubName = mf.getBasename();
-            if (!lang.isEmpty()) {
-              newSubName += "." + lang;
-            }
-            newSubName += additional;
-
-            break;
-          }
-        }
-      }
-      newSubName += "." + sub.getExtension();
-
-      Path newFile = m.getPathNIO().resolve(newSubName);
-      try {
-        boolean ok = Utils.moveFileSafe(sub.getFileAsPath(), newFile);
-        if (ok) {
-          if (sub.getFilename().endsWith(".sub")) {
-            // when having a .sub, also rename .idx (don't care if error)
-            try {
-              Path oldidx = sub.getFileAsPath().resolveSibling(sub.getFilename().replaceFirst("sub$", "idx"));
-              Path newidx = newFile.resolveSibling(newFile.getFileName().toString().replaceFirst("sub$", "idx"));
-              Utils.moveFileSafe(oldidx, newidx);
-            }
-            catch (Exception e) {
-              // no idx found or error - ignore
-            }
-          }
-          m.removeFromMediaFiles(sub);
-
-          MediaFile mf = new MediaFile(sub);
-          mf.setFile(newFile);
-          m.addToMediaFiles(mf);
-        }
-        else {
-          MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, sub.getFilename(), "message.renamer.failedrename"));
-        }
-      }
-      catch (Exception e) {
-        LOGGER.error("error moving subtitles", e);
-        MessageManager.instance.pushMessage(
-            new Message(MessageLevel.ERROR, sub.getFilename(), "message.renamer.failedrename", new String[] { ":", e.getLocalizedMessage() }));
-      }
-    } // end MF loop
-    m.saveToDb();
   }
 
   /**
@@ -459,6 +326,7 @@ public class MovieRenamer {
 
     // BASENAME
     String newVideoBasename = "";
+    String oldVideoBasename = Utils.cleanStackingMarkers(movie.getMainVideoFile().getBasename());
     if (!isFilePatternValid()) {
       // Template empty or not even title set, so we are NOT renaming any files
       // we keep the same name on renaming ;)
@@ -608,9 +476,31 @@ public class MovieRenamer {
     }
 
     // ######################################################################
-    // ## rename subtitles later, but ADD it to not clean up
+    // ## rename SUBTITLEs (copy 1:1)
     // ######################################################################
-    needed.addAll(movie.getMediaFiles(MediaFileType.SUBTITLE));
+    for (MediaFile sub : movie.getMediaFiles(MediaFileType.SUBTITLE)) {
+      LOGGER.trace("Rename 1:1 {} - {}", sub.getType(), sub.getFileAsPath());
+      MediaFile newMF = generateFilename(movie, sub, newVideoBasename, oldVideoBasename).get(0);
+      boolean ok = moveFile(sub.getFileAsPath(), newMF.getFileAsPath());
+      if (ok) {
+        if (sub.getFilename().endsWith(".sub")) {
+          // when having a .sub, also rename .idx (don't care if error)
+          try {
+            Path oldidx = sub.getFileAsPath().resolveSibling(sub.getFilename().replaceFirst("sub$", "idx"));
+            Path newidx = newMF.getFileAsPath().resolveSibling(newMF.getFilename().toString().replaceFirst("sub$", "idx"));
+            Utils.moveFileSafe(oldidx, newidx);
+          }
+          catch (Exception e) {
+            // no idx found or error - ignore
+          }
+        }
+        needed.add(newMF);
+      }
+      else {
+        LOGGER.error("could not movie subtitle file '{}'", sub.getFileAsPath());
+        needed.add(sub);
+      }
+    }
 
     // ######################################################################
     // ## invalidate image cache
@@ -629,9 +519,6 @@ public class MovieRenamer {
     movie.removeAllMediaFiles();
     movie.addToMediaFiles(needed);
     movie.setPath(newPathname);
-
-    // cleanup & rename subtitle files
-    renameSubtitles(movie);
 
     movie.gatherMediaFileInformation(false);
 
@@ -811,11 +698,28 @@ public class MovieRenamer {
    *          the movie (for datasource, path)
    * @param mf
    *          the MF
-   * @param videoFileName
+   * @param newVideoFileName
    *          the basename of the renamed videoFileName (saved earlier)
    * @return list of renamed filename
    */
-  public static List<MediaFile> generateFilename(Movie movie, MediaFile mf, String videoFileName) {
+  public static List<MediaFile> generateFilename(Movie movie, MediaFile mf, String newVideoFileName) {
+    return generateFilename(movie, mf, newVideoFileName, "");
+  }
+
+  /**
+   * generates renamed filename(s) per MF
+   *
+   * @param movie
+   *          the movie (for datasource, path)
+   * @param mf
+   *          the MF
+   * @param newVideoFileName
+   *          the basename of the renamed videoFileName (saved earlier)
+   * @param oldVideoFileName
+   *          the basename of the ORIGINAL videoFileName (saved earlier)
+   * @return list of renamed filename
+   */
+  public static List<MediaFile> generateFilename(Movie movie, MediaFile mf, String newVideoFileName, String oldVideoFileName) {
     // return list of all generated MFs
     ArrayList<MediaFile> newFiles = new ArrayList<>();
     boolean newDestIsMultiMovieDir = movie.isMultiMovieDir();
@@ -843,10 +747,10 @@ public class MovieRenamer {
       LOGGER.warn("new movie folder name is illegal - '{}'", e.getMessage());
     }
 
-    String newFilename = videoFileName;
+    String newFilename = newVideoFileName;
     if (newFilename == null || newFilename.isEmpty()) {
       // empty only when first generating basename, so generation here is OK
-      newFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
+      newFilename = createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
     }
     // when renaming with $originalFilename, we get already the extension added!
     if (newFilename.endsWith(mf.getExtension())) {
@@ -976,43 +880,43 @@ public class MovieRenamer {
         break;
 
       case SUBTITLE:
-        List<MediaFileSubtitle> mfsl = mf.getSubtitles();
-        List<MediaFile> subtitleFiles = movie.getMediaFiles(MediaFileType.SUBTITLE);
-
-        // check if there is only one subtitle file and the user wants to write this w/o the language tag
-        if (!MovieModuleManager.getInstance().getSettings().isSubtitleWithoutLanguageTag() || subtitleFiles.size() > 1) {
-          newFilename += getStackingString(mf);
-          if (ListUtils.isNotEmpty(mfsl)) {
-            // internal values
-            MediaFileSubtitle mfs = mfsl.get(0);
-            if (!mfs.getLanguage().isEmpty()) {
-              String lang = LanguageStyle.getLanguageCodeForStyle(mfs.getLanguage(),
+        List<MediaFileSubtitle> subtitles = mf.getSubtitles();
+        newFilename += getStackingString(mf);
+        String subtitleFilename = newFilename;
+        if (subtitles != null && !subtitles.isEmpty()) {
+          MediaFileSubtitle sub = mf.getSubtitles().get(0);
+          if (sub != null) {
+            if (!sub.getLanguage().isEmpty()) {
+              String lang = LanguageStyle.getLanguageCodeForStyle(sub.getLanguage(),
                   MovieModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
               if (StringUtils.isBlank(lang)) {
-                lang = mfs.getLanguage();
+                lang = sub.getLanguage();
               }
-              newFilename += "." + lang;
+              subtitleFilename += "." + lang;
             }
 
-            String additional = "";
-            if (StringUtils.isNotBlank(mfs.getTitle())) {
-              additional = "(" + mfs.getTitle().strip() + ")";
+            if (sub.isForced()) {
+              subtitleFilename += ".forced";
             }
-            if (mfs.isForced()) {
-              additional += ".forced";
+            if (sub.isSdh()) {
+              subtitleFilename += ".sdh"; // double possible?! should be no prob...
             }
-            if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
-              additional += ".sdh"; // double possible?!
+            if (StringUtils.isNotBlank(sub.getTitle())) {
+              subtitleFilename += "." + sub.getTitle().strip();
             }
-
-            newFilename += additional;
           }
         }
-        newFilename += "." + mf.getExtension();
 
-        MediaFile sub = new MediaFile(mf);
-        sub.setFile(newMovieDir.resolve(newFilename));
-        newFiles.add(sub);
+        // still no subtitle filename? take at least the whole filename
+        if (StringUtils.isBlank(subtitleFilename)) {
+          subtitleFilename = newFilename;
+        }
+
+        if (StringUtils.isNotBlank(subtitleFilename)) {
+          MediaFile subtitle = new MediaFile(mf);
+          subtitle.setFile(newMovieDir.resolve(subtitleFilename + "." + mf.getExtension()));
+          newFiles.add(subtitle);
+        }
         break;
 
       case NFO:

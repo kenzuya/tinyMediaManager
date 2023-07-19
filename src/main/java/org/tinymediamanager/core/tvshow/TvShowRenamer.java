@@ -57,7 +57,6 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
-import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
@@ -82,7 +81,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
-import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -1301,74 +1299,29 @@ public class TvShowRenamer {
       ////////////////////////////////////////////////////////////////////////
       case SUBTITLE:
         List<MediaFileSubtitle> subtitles = mf.getSubtitles();
-        String subtitleFilename = "";
-        newFilename += getStackingString(mf); // ToDo
+        newFilename += getStackingString(mf);
+        String subtitleFilename = newFilename;
         if (subtitles != null && !subtitles.isEmpty()) {
-          MediaFileSubtitle mfs = mf.getSubtitles().get(0);
-          if (mfs != null) {
-            if (!mfs.getLanguage().isEmpty()) {
-              String lang = LanguageStyle.getLanguageCodeForStyle(mfs.getLanguage(),
+          MediaFileSubtitle sub = mf.getSubtitles().get(0);
+          if (sub != null) {
+            if (!sub.getLanguage().isEmpty()) {
+              String lang = LanguageStyle.getLanguageCodeForStyle(sub.getLanguage(),
                   TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
               if (StringUtils.isBlank(lang)) {
-                lang = mfs.getLanguage();
+                lang = sub.getLanguage();
               }
-              subtitleFilename = newFilename + "." + lang;
+              subtitleFilename += "." + lang;
             }
 
-            String additional = "";
-
-            if (StringUtils.isNotBlank(mfs.getTitle())) {
-              additional = "(" + mfs.getTitle().strip() + ")";
+            if (sub.isForced()) {
+              subtitleFilename += ".forced";
             }
-            if (mfs.isForced()) {
-              additional += ".forced";
+            if (sub.isSdh()) {
+              subtitleFilename += ".sdh"; // double possible?!
             }
-            if (mfs.has(MediaStreamInfo.Flags.FLAG_HEARING_IMPAIRED)) {
-              additional += ".sdh"; // double possible?!
+            if (StringUtils.isNotBlank(sub.getTitle())) {
+              subtitleFilename += "." + sub.getTitle().strip();
             }
-
-            subtitleFilename += additional;
-          }
-        }
-
-        if (StringUtils.isBlank(subtitleFilename)) {
-          /** SHOULD NOT BE NEEDED ANY MORE?! **/
-          // detect from filename, if we don't have a MediaFileSubtitle entry or could not create a file name out of it!
-          // remove the filename of episode from subtitle, to ease parsing
-          String shortname = mf.getBasename().toLowerCase(Locale.ROOT).replace(eps.get(0).getVideoBasenameWithoutStacking(), "");
-          String originalLang = "";
-          String lang = "";
-          String forced = "";
-
-          if (mf.getFilename().toLowerCase(Locale.ROOT).contains("forced")) {
-            // add "forced" prior language
-            forced = ".forced";
-            shortname = shortname.replaceAll("\\p{Punct}*forced", "");
-          }
-          // shortname = shortname.replaceAll("\\p{Punct}", "").trim(); // NEVER EVER!!!
-
-          try {
-            for (String s : LanguageUtils.KEY_TO_LOCALE_MAP.keySet()) {
-              if (LanguageUtils.doesStringEndWithLanguage(shortname, s)) {
-                originalLang = s;
-                // lang = Utils.getIso3LanguageFromLocalizedString(s);
-                // LOGGER.debug("found language '" + s + "' in subtitle; displaying it as '" + lang + "'");
-                break;
-              }
-            }
-          }
-          catch (Exception e) {
-            // e.printStackTrace();
-          }
-          lang = LanguageStyle.getLanguageCodeForStyle(originalLang, TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
-          if (StringUtils.isBlank(lang)) {
-            lang = originalLang;
-          }
-          if (StringUtils.isNotBlank(lang)) {
-            subtitleFilename = newFilename + "." + lang;
-          }
-          if (StringUtils.isNotBlank(forced)) {
-            subtitleFilename += forced;
           }
         }
 

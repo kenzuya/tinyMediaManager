@@ -40,7 +40,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
   private static final int NUMBER_OF_STACKED_MOVIES      = 14;
   private static final int NUMBER_OF_DISC_MOVIES         = 7;
   private static final int NUMBER_OF_MOVIES_IN_MMD       = 47;
-  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 210;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 215;
 
   @Before
   public void setup() throws Exception {

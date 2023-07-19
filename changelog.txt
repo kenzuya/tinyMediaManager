@@ -4,6 +4,9 @@ Version 5.0
   - macOS: ~/Library/Application Support/tinyMediaManager
   - Windows: Users home\AppData\Roaming
   - added an extra portable build for local storage
++ Subtitle handling rework: 
+  - support for any language/locale style, greatly improved detection
+  - check new "original" language style for renaming
 + providing signed installers (Windows, macOS)
 + changed Linux ARM build to 64 bit (arm64/aarch64)
 + enabled usage of different episode groups #1935 #1138 #736

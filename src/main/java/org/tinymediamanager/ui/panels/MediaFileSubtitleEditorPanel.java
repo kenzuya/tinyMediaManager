@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -68,6 +67,15 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
       }
     }
     languages.sort((o1, o2) -> stringComparator.compare(o1.toString(), o2.toString()));
+
+    // add our unknown/invalid/LocaleString subtitle value to GUI list
+    LanguageContainer fileLocale = new LanguageContainer(subtitle.getLanguage());
+    if (fileLocale.locale == null || (fileLocale.locale != null && !languages.contains(fileLocale))) {
+      // 1) locale could not be parsed (like "asdf" or similar) - add it
+      // 2) locale COULD be parsed (3 chars like "asd"), but not already in our array
+      // 3) Valid Locale (like de_AT) found, but since we have a language-only list, add it
+      languages.add(fileLocale);
+    }
 
     {
       setLayout(new MigLayout("", "[][][300lp,grow]", "[][][][][]"));
@@ -113,8 +121,10 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
     tfFormat.setText(subtitle.getCodec());
     chkbxForced.setSelected(subtitle.isForced());
     chkbxSdh.setSelected(subtitle.isSdh());
-    cbLanguage.setSelectedItem(new LanguageContainer(LocaleUtils.toLocale(subtitle.getLanguage())));
     tfTitle.setText(subtitle.getTitle());
+
+    LanguageContainer foundByValue = languages.stream().filter(v -> v.value.equalsIgnoreCase(subtitle.getLanguage())).findFirst().get();
+    cbLanguage.setSelectedItem(foundByValue);
 
     // set focus to the first combobox
     SwingUtilities.invokeLater(cbLanguage::requestFocus);
@@ -128,10 +138,10 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
 
     Object obj = cbLanguage.getSelectedItem();
     if (obj instanceof LanguageContainer localeContainer) {
-      subtitle.setLanguage(localeContainer.iso3);
+      subtitle.setLanguage(localeContainer.value.trim());
     }
     else if (obj instanceof String language) {
-      subtitle.setLanguage(language);
+      subtitle.setLanguage(language.trim());
     }
 
     subtitle.setTitle(tfTitle.getText());
@@ -140,12 +150,24 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
   }
 
   private static class LanguageContainer {
-    private final String iso3;
+    private final String value;
+    private Locale       locale;
     private final String description;
 
     public LanguageContainer(@NotNull Locale locale) {
-      this.iso3 = LanguageUtils.getIso3Language(locale);
-      this.description = StringUtils.isNotBlank(locale.getDisplayLanguage()) ? locale.getDisplayLanguage() + " (" + this.iso3 + ")" : "";
+      this.locale = locale;
+      this.value = locale.getISO3Language();
+      this.description = StringUtils.isNotBlank(locale.getDisplayLanguage()) ? locale.getDisplayLanguage() + " (" + this.value + ")" : "";
+    }
+
+    public LanguageContainer(@NotNull String locale) {
+      Locale tmp = LanguageUtils.KEY_TO_LOCALE_MAP.get(locale);
+      // if WE dont have it in our array, it is not valid!
+      if (tmp != null) {
+        this.locale = tmp;
+      }
+      this.value = locale;
+      this.description = this.locale != null ? value + " (" + this.locale.getISO3Language() + ")" : value;
     }
 
     @Override
@@ -162,12 +184,12 @@ public class MediaFileSubtitleEditorPanel extends AbstractModalInputPanel {
         return false;
       }
       LanguageContainer that = (LanguageContainer) o;
-      return iso3.equals(that.iso3);
+      return value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(iso3);
+      return Objects.hash(value);
     }
   }
 }

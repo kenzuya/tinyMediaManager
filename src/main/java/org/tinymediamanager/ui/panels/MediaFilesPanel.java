@@ -57,12 +57,13 @@ import ca.odell.glazedlists.EventList;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The Class MediaFilesPanel.
+ * The class {@link MediaFilesPanel} holds a {@link JTable} which contains all {@link MediaFile}s of a
+ * {@link org.tinymediamanager.core.entities.MediaEntity}.
  * 
  * @author Manuel Laggner
  */
 public class MediaFilesPanel extends JPanel {
-  private static final Logger        LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
+  private static final Logger        LOGGER = LoggerFactory.getLogger(MediaFilesPanel.class);
 
   private TmmTable                   tableFiles;
 
@@ -151,6 +152,7 @@ public class MediaFilesPanel extends JPanel {
        * title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MediaFile::getTitle, String.class);
+      col.setDefaultHidden(true);
       addColumn(col);
 
       /*
