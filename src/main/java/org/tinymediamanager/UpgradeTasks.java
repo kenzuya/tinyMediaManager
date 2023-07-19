@@ -757,4 +757,41 @@ public class UpgradeTasks {
       }
     }
   }
+
+  /**
+   * copy over data/settings from v4
+   * 
+   * @param path
+   *          the path to the v4 data folder
+   */
+  public static void copyV4Data(Path path) {
+    // close tmm internals
+    TinyMediaManager.shutdown();
+
+    File[] files = path.toFile().listFiles();
+    if (files != null) {
+      for (File file : files) {
+        try {
+          Utils.copyFileSafe(file.toPath(), Paths.get(Globals.DATA_FOLDER, file.getName()), true);
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not copy file '{}' from v4 - '{}'", file.getName(), e.getMessage());
+        }
+      }
+    }
+
+    // spawn our process
+    ProcessBuilder pb = TmmOsUtils.getPBforTMMrestart();
+    try {
+      LOGGER.info("Going to execute: {}", pb.command());
+      pb.start();
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot spawn process:", e);
+    }
+
+    TinyMediaManager.shutdownLogger();
+
+    System.exit(0);
+  }
 }

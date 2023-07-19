@@ -40,7 +40,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class ClearDatabaseAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearDatabaseAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClearDatabaseAction.class);
 
   public ClearDatabaseAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.cleardatabase"));
@@ -51,7 +51,7 @@ public class ClearDatabaseAction extends TmmAction {
     // display warning popup
     Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
     int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.cleardatabase.hint"),
-        TmmResourceBundle.getString("tmm.cleardatabase"), JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, null);
+        TmmResourceBundle.getString("tmm.cleardatabase"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
     }

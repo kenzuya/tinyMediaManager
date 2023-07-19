@@ -152,9 +152,7 @@ public final class MovieList extends AbstractModelObject {
 
     // movie listener: it's used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
-      if (evt.getSource() instanceof Movie) {
-        Movie movie = (Movie) evt.getSource();
-
+      if (evt.getSource() instanceof Movie movie) {
         // do not update all list at the same time - could be a performance issue
         switch (evt.getPropertyName()) {
           case YEAR:
@@ -263,7 +261,7 @@ public final class MovieList extends AbstractModelObject {
    */
   void exchangeDatasource(String oldDatasource, String newDatasource) {
     Path oldPath = Paths.get(oldDatasource);
-    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).collect(Collectors.toList());
+    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).toList();
     List<MediaFile> imagesToCache = new ArrayList<>();
 
     for (Movie movie : moviesToChange) {

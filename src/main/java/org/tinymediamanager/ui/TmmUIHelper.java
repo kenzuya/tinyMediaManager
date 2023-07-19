@@ -19,9 +19,11 @@ import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.Window;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -255,7 +257,24 @@ public class TmmUIHelper {
 
   public static Path selectApplication(String title, String initialPath) {
     if (SystemUtils.IS_OS_MAC) {
-      return selectDirectory(title, initialPath);
+      try {
+        Process process = Runtime.getRuntime()
+            .exec(new String[] { //
+                "/usr/bin/osascript", //
+                "-e", //
+                "set selectedFolder to choose application as alias\n"//
+                    + "return POSIX path of selectedFolder" });
+        int result = process.waitFor();
+        if (result == 0) {
+          String selectedFolder = new BufferedReader(new InputStreamReader(process.getInputStream())).readLine();
+          return Paths.get(selectedFolder);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("could not call osascript - '{}'", e.getMessage());
+      }
+
+      return null;
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
       return selectFile(title, initialPath, new FileNameExtensionFilter(TmmResourceBundle.getString("tmm.executables"), ".exe"));

@@ -87,7 +87,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 
 /**
- * The Class TinyMediaManager.
+ * The class {@link TinyMediaManager} is the main entry point to this application.
  * 
  * @author Manuel Laggner
  */

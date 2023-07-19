@@ -58,12 +58,13 @@ import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
 import org.tinymediamanager.ui.actions.CheckForUpdateAction;
+import org.tinymediamanager.ui.actions.ClearDatabaseAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
@@ -75,6 +76,7 @@ import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
 import org.tinymediamanager.ui.actions.ForumAction;
 import org.tinymediamanager.ui.actions.HomepageAction;
+import org.tinymediamanager.ui.actions.ImportV4DataAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
@@ -428,6 +430,12 @@ public class ToolbarPanel extends JPanel {
       menu.addSeparator();
       menu.add(new CreateDesktopFileAction());
     }
+
+    menu.addSeparator();
+    menu.add(new ClearDatabaseAction());
+
+    menu.addSeparator();
+    menu.add(new ImportV4DataAction());
 
     return menu;
   }
