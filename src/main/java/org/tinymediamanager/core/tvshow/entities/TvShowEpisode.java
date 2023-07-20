@@ -897,7 +897,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void writeNFO() {
     List<TvShowEpisodeNfoNaming> nfoNamings = TvShowModuleManager.getInstance().getSettings().getEpisodeNfoFilenames();
-    if (!nfoNamings.isEmpty()) {
+    if (nfoNamings.isEmpty()) {
+      LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
