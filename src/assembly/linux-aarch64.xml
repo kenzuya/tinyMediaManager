@@ -1,4 +1,5 @@
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
     <id>linux-arm64</id>
     <formats>
         <format>tar.xz</format>
@@ -25,4 +26,10 @@
             </includes>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>AppBundler/.userdir</source>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </file>
+    </files>
 </assembly>
