@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.nio.file.Path;
 import java.util.List;
@@ -67,9 +68,15 @@ public class ImportV4DataAction extends TmmAction {
       for (Path file : files) {
         if (file.endsWith("tmm.json") && file.getParent().endsWith("data")) {
           LOGGER.debug("found v4 installation - copying data from '{}'", file.getParent());
+
+          MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           UpgradeTasks.copyV4Data(file.getParent());
         }
       }
     }
+
+    // no installation data found
+    JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.importv4.notfound"),
+        TmmResourceBundle.getString("tmm.importv4"), JOptionPane.INFORMATION_MESSAGE);
   }
 }

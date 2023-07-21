@@ -768,6 +768,7 @@ public class UpgradeTasks {
     // close tmm internals
     TinyMediaManager.shutdown();
 
+    // data
     File[] files = path.toFile().listFiles();
     if (files != null) {
       for (File file : files) {
@@ -776,6 +777,27 @@ public class UpgradeTasks {
         }
         catch (Exception e) {
           LOGGER.warn("could not copy file '{}' from v4 - '{}'", file.getName(), e.getMessage());
+        }
+      }
+    }
+
+    // try /cache too
+    Path cache = path.getParent().resolve("cache");
+    if (cache.toFile().exists() && cache.toFile().isDirectory()) {
+      files = cache.toFile().listFiles();
+      if (files != null) {
+        for (File file : files) {
+          try {
+            if (file.isFile()) {
+              Utils.copyFileSafe(file.toPath(), Paths.get(Globals.CACHE_FOLDER, file.getName()), true);
+            }
+            else if (file.isDirectory()) {
+              Utils.copyDirectoryRecursive(file.toPath(), Paths.get(Globals.CACHE_FOLDER, file.getName()));
+            }
+          }
+          catch (Exception e) {
+            LOGGER.warn("could not copy file '{}' from v4 - '{}'", file.getName(), e.getMessage());
+          }
         }
       }
     }
