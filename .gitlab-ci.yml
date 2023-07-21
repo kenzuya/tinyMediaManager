@@ -154,3 +154,15 @@ deploy:test:
   trigger:
     include: .ci/deploy_test.yml
     strategy: depend
+
+##########################################
+# V5-TEST
+##########################################
+deploy:v5:
+  stage: deploy
+  only:
+    variables:
+      - $V5_BUILD == "true"
+  trigger:
+    include: .ci/deploy_v5.yml
+    strategy: depend
