@@ -2152,12 +2152,29 @@ public class TvShow extends MediaEntity implements IMediaInformation {
             continue;
           }
 
-          // if (StringUtils.isBlank(seasonTitleMap.get(season.getSeason()))) {
-          return null;
-          // }
+          if (StringUtils.isBlank(season.getTitle())) {
+            return null;
+          }
         }
-
         return "all seasonnames found"; // dummy non-null
+
+      case SEASON_OVERVIEW:
+        // if matches, we have all season overviews
+        for (TvShowSeason season : seasons) {
+          if (season.getSeason() < 0) {
+            continue;
+          }
+
+          if (season.isDummy()
+              || season.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata()) {
+            continue;
+          }
+
+          if (StringUtils.isBlank(season.getPlot())) {
+            return null;
+          }
+        }
+        return "all seasonoverviews found"; // dummy non-null
 
       case SEASON_POSTER:
         return getMediaFiles(MediaFileType.SEASON_POSTER);
