@@ -30,4 +30,5 @@ Version 5.0
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons
 x (movie) renamer preview now shows subfolders too #2010
++ added EpisodeCount/SeasonCount filter
 x (IMDB) adapt keywords parsing to new style
