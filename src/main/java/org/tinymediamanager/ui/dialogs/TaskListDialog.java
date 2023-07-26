@@ -42,12 +42,12 @@ import org.tinymediamanager.ui.components.TaskListComponent;
 import net.miginfocom.swing.MigLayout;
 
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
-  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle               BUNDLE  = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;
 
   // a map of all active tasks
-  private final Map<TmmTaskHandle, TaskListComponent> taskMap          = new ConcurrentHashMap<>();
+  private final Map<TmmTaskHandle, TaskListComponent> taskMap = new ConcurrentHashMap<>();
   private final TaskListComponent                     noActiveTask;
 
   private final JPanel                                panelContent;
@@ -89,6 +89,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       addButton(btnAbortAll);
     }
     TmmTaskManager.getInstance().addTaskListener(this);
+    TmmUILayoutStore.getInstance().install(panelContent);
   }
 
   @Override
