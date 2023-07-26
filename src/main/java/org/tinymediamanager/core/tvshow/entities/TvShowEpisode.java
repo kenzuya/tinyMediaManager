@@ -1645,7 +1645,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     List<String> lang = new ArrayList<String>();
     lang.addAll(getMainVideoFile().getSubtitleLanguagesList());
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
       lang.addAll(mf.getSubtitleLanguagesList());
     }
     return lang;

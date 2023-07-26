@@ -2616,7 +2616,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public List<String> getMediaInfoSubtitleLanguageList() {
     List<String> lang = new ArrayList<>(getMainVideoFile().getSubtitleLanguagesList());
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
       lang.addAll(mf.getSubtitleLanguagesList());
     }
     return lang;

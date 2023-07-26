@@ -16,9 +16,6 @@
 
 package org.tinymediamanager.ui.tvshows.filters;
 
-import static org.tinymediamanager.core.MediaFileType.SUBTITLE;
-import static org.tinymediamanager.core.MediaFileType.VIDEO;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +26,6 @@ import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -69,12 +64,10 @@ public class TvShowSubtitleFormatFilter extends AbstractCheckComboBoxTvShowUIFil
     List<String> selectedItems = checkComboBox.getSelectedItems();
 
     for (TvShowEpisode episode : episodes) {
-      List<MediaFile> mfs = episode.getMediaFiles(VIDEO, SUBTITLE);
-      for (MediaFile mf : mfs) {
-        for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
-          if (invert ^ selectedItems.contains(subtitle.getCodec())) {
-            return true;
-          }
+      List<String> epLang = episode.getMediaInfoSubtitleLanguageList();
+      for (String sel : selectedItems) {
+        if (invert ^ epLang.contains(sel)) {
+          return true;
         }
       }
     }
