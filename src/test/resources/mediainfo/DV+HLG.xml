@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo xmlns="https://mediaarea.net/mediainfo"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+           version="2.0">
+	<creatingLibrary version="23.07"
+	                 url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="DV+HLG.mov">
+		<track type="General">
+			<VideoCount>1</VideoCount>
+			<AudioCount>1</AudioCount>
+			<FileExtension>mov</FileExtension>
+			<Format>MPEG-4</Format>
+			<Format_Profile>QuickTime</Format_Profile>
+			<CodecID>qt  </CodecID>
+			<CodecID_Version>0000.00</CodecID_Version>
+			<CodecID_Compatible>qt  </CodecID_Compatible>
+			<FileSize>152474459</FileSize>
+			<Duration>17.475</Duration>
+			<OverallBitRate>69802327</OverallBitRate>
+			<FrameRate>59.042</FrameRate>
+			<FrameCount>1032</FrameCount>
+			<StreamSize>8428868</StreamSize>
+			<HeaderSize>28</HeaderSize>
+			<DataSize>152454141</DataSize>
+			<FooterSize>20290</FooterSize>
+			<IsStreamable>No</IsStreamable>
+			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+			<File_Created_Date>2023-07-26 12:18:48.250 UTC</File_Created_Date>
+			<File_Created_Date_Local>2023-07-26 14:18:48.250</File_Created_Date_Local>
+			<File_Modified_Date>2023-07-26 12:19:31.798 UTC</File_Modified_Date>
+			<File_Modified_Date_Local>2023-07-26 14:19:31.798</File_Modified_Date_Local>
+			<Encoded_Library>Apple QuickTime</Encoded_Library>
+			<Encoded_Library_Name>Apple QuickTime</Encoded_Library_Name>
+			<extra>
+				<com_apple_quicktime_creationdate>2020-12-18T17:21:13-0500</com_apple_quicktime_creationdate>
+				<com_apple_quicktime_location_ISO6709>+33.4232-084.5802/</com_apple_quicktime_location_ISO6709>
+			</extra>
+		</track>
+		<track type="Video">
+			<StreamOrder>0</StreamOrder>
+			<ID>1</ID>
+			<Format>HEVC</Format>
+			<Format_Profile>Main 10</Format_Profile>
+			<Format_Level>5.1</Format_Level>
+			<Format_Tier>High</Format_Tier>
+			<HDR_Format>Dolby Vision</HDR_Format>
+			<HDR_Format_Version>1.0</HDR_Format_Version>
+			<HDR_Format_Profile>dvhe.08</HDR_Format_Profile>
+			<HDR_Format_Level>12</HDR_Format_Level>
+			<HDR_Format_Settings>BL+RPU</HDR_Format_Settings>
+			<HDR_Format_Compatibility>HLG</HDR_Format_Compatibility>
+			<CodecID>hvc1</CodecID>
+			<Duration>17.475</Duration>
+			<Source_Duration>18.478</Source_Duration>
+			<BitRate>64392547</BitRate>
+			<Width>3840</Width>
+			<Height>2160</Height>
+			<Sampled_Width>3840</Sampled_Width>
+			<Sampled_Height>2160</Sampled_Height>
+			<PixelAspectRatio>1.000</PixelAspectRatio>
+			<DisplayAspectRatio>1.778</DisplayAspectRatio>
+			<Rotation>0.000</Rotation>
+			<FrameRate_Mode>VFR</FrameRate_Mode>
+			<FrameRate>59.042</FrameRate>
+			<FrameRate_Minimum>10.000</FrameRate_Minimum>
+			<FrameRate_Maximum>60.000</FrameRate_Maximum>
+			<FrameCount>1032</FrameCount>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+			<BitDepth>10</BitDepth>
+			<StreamSize>140690331</StreamSize>
+			<Source_StreamSize>148894709</Source_StreamSize>
+			<Title>Core Media Video</Title>
+			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+			<colour_description_present>Yes</colour_description_present>
+			<colour_description_present_Source>Container / Stream</colour_description_present_Source>
+			<colour_range>Full</colour_range>
+			<colour_range_Source>Stream</colour_range_Source>
+			<colour_primaries>BT.2020</colour_primaries>
+			<colour_primaries_Source>Container / Stream</colour_primaries_Source>
+			<transfer_characteristics>HLG</transfer_characteristics>
+			<transfer_characteristics_Source>Container / Stream</transfer_characteristics_Source>
+			<matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+			<matrix_coefficients_Source>Container / Stream</matrix_coefficients_Source>
+			<extra>
+				<Source_Delay>-987</Source_Delay>
+				<Source_Delay_Source>Container</Source_Delay_Source>
+				<CodecConfigurationBox>hvcC+dvvC</CodecConfigurationBox>
+			</extra>
+		</track>
+		<track type="Audio">
+			<StreamOrder>1</StreamOrder>
+			<ID>2</ID>
+			<Format>PCM</Format>
+			<Format_Settings_Endianness>Little</Format_Settings_Endianness>
+			<Format_Settings_Sign>Signed</Format_Settings_Sign>
+			<CodecID>lpcm</CodecID>
+			<Duration>17.475</Duration>
+			<Source_Duration>18.539</Source_Duration>
+			<BitRate_Mode>CBR</BitRate_Mode>
+			<BitRate>1536000</BitRate>
+			<Channels>2</Channels>
+			<ChannelPositions>Front: L R</ChannelPositions>
+			<ChannelLayout>L R</ChannelLayout>
+			<SamplingRate>48000</SamplingRate>
+			<SamplingCount>838800</SamplingCount>
+			<BitDepth>16</BitDepth>
+			<StreamSize>3355260</StreamSize>
+			<Source_StreamSize>3559424</Source_StreamSize>
+			<Title>Core Media Audio</Title>
+			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+		</track>
+	</media>
+</MediaInfo>

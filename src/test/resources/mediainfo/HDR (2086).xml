@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo xmlns="https://mediaarea.net/mediainfo"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+           version="2.0">
+	<creatingLibrary version="23.07"
+	                 url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="HDR (2086).mkv">
+		<track type="General">
+			<UniqueID>295078782577727273296459721188633881851</UniqueID>
+			<VideoCount>1</VideoCount>
+			<AudioCount>1</AudioCount>
+			<FileExtension>mkv</FileExtension>
+			<Format>Matroska</Format>
+			<Format_Version>4</Format_Version>
+			<FileSize>238428914</FileSize>
+			<FrameRate>29.970</FrameRate>
+			<IsStreamable>Yes</IsStreamable>
+			<EncodedBy>isovideo Viarte</EncodedBy>
+			<File_Created_Date>2023-07-26 12:25:51.760 UTC</File_Created_Date>
+			<File_Created_Date_Local>2023-07-26 14:25:51.760</File_Created_Date_Local>
+			<File_Modified_Date>2023-07-26 12:27:18.533 UTC</File_Modified_Date>
+			<File_Modified_Date_Local>2023-07-26 14:27:18.533</File_Modified_Date_Local>
+			<Encoded_Application>Lavf57.83.100</Encoded_Application>
+			<Encoded_Library>Lavf57.83.100</Encoded_Library>
+			<extra>
+				<IsTruncated>Yes</IsTruncated>
+				<AUDIOSAMPLERATE>48000</AUDIOSAMPLERATE>
+				<FRAMERATE>30000/1001</FRAMERATE>
+				<HEIGHT>2160</HEIGHT>
+				<TimeCode_FirstFrame>00:00:00;00</TimeCode_FirstFrame>
+				<TimeCode_Source>Matroska tags</TimeCode_Source>
+				<WIDTH>3840</WIDTH>
+			</extra>
+		</track>
+		<track type="Video">
+			<StreamOrder>0</StreamOrder>
+			<ID>1</ID>
+			<UniqueID>1</UniqueID>
+			<Format>HEVC</Format>
+			<Format_Profile>Main 10</Format_Profile>
+			<Format_Level>5</Format_Level>
+			<Format_Tier>Main</Format_Tier>
+			<HDR_Format>SMPTE ST 2086</HDR_Format>
+			<HDR_Format_Compatibility>HDR10</HDR_Format_Compatibility>
+			<CodecID>V_MPEGH/ISO/HEVC</CodecID>
+			<Width>3840</Width>
+			<Height>2160</Height>
+			<Sampled_Width>3840</Sampled_Width>
+			<Sampled_Height>2160</Sampled_Height>
+			<PixelAspectRatio>1.000</PixelAspectRatio>
+			<DisplayAspectRatio>1.778</DisplayAspectRatio>
+			<FrameRate_Mode>CFR</FrameRate_Mode>
+			<FrameRate>29.970</FrameRate>
+			<FrameRate_Num>30000</FrameRate_Num>
+			<FrameRate_Den>1001</FrameRate_Den>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+			<BitDepth>10</BitDepth>
+			<Encoded_Library>x265 - +-:[Linux][GCC 5.4.0][64 bit] 10bit</Encoded_Library>
+			<Encoded_Library_Name>x265</Encoded_Library_Name>
+			<Encoded_Library_Version>+-:[Linux][GCC 5.4.0][64 bit] 10bit</Encoded_Library_Version>
+			<Encoded_Library_Settings>wpp / ctu=64 / min-cu-size=8 / max-tu-size=32 / tu-intra-depth=1 / tu-inter-depth=1 / me=3 / subme=3 / merange=57 / rect / no-amp / max-merge=3 / temporal-mvp / no-early-skip / rdpenalty=0 / no-tskip / no-tskip-fast / strong-intra-smoothing / no-lossless / no-cu-lossless / no-constrained-intra / no-fast-intra / open-gop / no-temporal-layers / interlace=0 / keyint=250 / min-keyint=25 / scenecut=40 / rc-lookahead=25 / lookahead-slices=4 / bframes=4 / bframe-bias=0 / b-adapt=2 / ref=4 / limit-refs=3 / limit-modes / weightp / no-weightb / aq-mode=1 / qg-size=32 / aq-strength=1.00 / cbqpoffs=0 / crqpoffs=0 / rd=4 / psy-rd=2.00 / rdoq-level=2 / psy-rdoq=1.00 / no-rd-refine / signhide / deblock / sao / no-sao-non-deblock / b-pyramid / cutree / no-intra-refresh / rc=crf / crf=18.0 / qcomp=0.60 / qpmin=0 / qpmax=51 / qpstep=4 / ipratio=1.40 / pbratio=1.30</Encoded_Library_Settings>
+			<Default>Yes</Default>
+			<Forced>No</Forced>
+			<colour_description_present>Yes</colour_description_present>
+			<colour_description_present_Source>Stream</colour_description_present_Source>
+			<colour_range>Limited</colour_range>
+			<colour_range_Source>Stream</colour_range_Source>
+			<colour_primaries>BT.2020</colour_primaries>
+			<colour_primaries_Source>Stream</colour_primaries_Source>
+			<transfer_characteristics>PQ</transfer_characteristics>
+			<transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+			<matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+			<matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+			<MasteringDisplay_ColorPrimaries>BT.2020</MasteringDisplay_ColorPrimaries>
+			<MasteringDisplay_ColorPrimaries_Source>Stream</MasteringDisplay_ColorPrimaries_Source>
+			<MasteringDisplay_Luminance>min: 0.0500 cd/m2, max: 1000 cd/m2</MasteringDisplay_Luminance>
+			<MasteringDisplay_Luminance_Source>Stream</MasteringDisplay_Luminance_Source>
+		</track>
+		<track type="Audio">
+			<StreamOrder>1</StreamOrder>
+			<ID>2</ID>
+			<UniqueID>2</UniqueID>
+			<Format>AAC</Format>
+			<Format_Settings_SBR>No (Explicit)</Format_Settings_SBR>
+			<Format_AdditionalFeatures>LC</Format_AdditionalFeatures>
+			<CodecID>A_AAC-2</CodecID>
+			<Channels>2</Channels>
+			<ChannelPositions>Front: L R</ChannelPositions>
+			<ChannelLayout>L R</ChannelLayout>
+			<SamplesPerFrame>1024</SamplesPerFrame>
+			<SamplingRate>48000</SamplingRate>
+			<FrameRate>46.875</FrameRate>
+			<Compression_Mode>Lossy</Compression_Mode>
+			<Delay>1.079</Delay>
+			<Delay_Source>Container</Delay_Source>
+			<Encoded_Library>Lavc57.107.100 aac</Encoded_Library>
+			<Default>Yes</Default>
+			<Forced>No</Forced>
+		</track>
+	</media>
+</MediaInfo>

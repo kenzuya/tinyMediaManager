@@ -21,7 +21,7 @@
         xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
         version="2.0">
     <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
-    <media ref="/home/manuel/Videos/movies/21 (2008)/21 (2008).mkv">
+    <media ref="21 (2008)/21 (2008).mkv">
         <track type="General">
             <UniqueID>39338272249145962079733342011762560068</UniqueID>
             <VideoCount>1</VideoCount>
