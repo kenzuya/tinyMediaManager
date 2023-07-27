@@ -32,7 +32,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   private final Map<String, Object> tvShowIds    = new HashMap<>();
 
-  private MediaEpisodeGroup         episodeGroup = MediaEpisodeGroup.DEFAULT;
+  private MediaEpisodeGroup         episodeGroup = MediaEpisodeGroup.DEFAULT_AIRED;
 
   /**
    * a minimal constructor for special cases. Do not forget to pass the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids via
@@ -132,6 +132,7 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
     options.setDataFromOtherOptions(this);
     // but the ids from the show
     options.setIds(tvShowIds);
+    options.setEpisodeGroup(episodeGroup);
 
     return options;
   }

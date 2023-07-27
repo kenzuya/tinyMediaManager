@@ -38,6 +38,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
@@ -369,7 +370,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
         md.setId(MediaMetadata.IMDB, result.attr("imdbID"));
       }
 
-      md.setEpisodeNumber(AIRED, season, TvUtils.getEpisodeNumber(result.attr("episode"), -1));
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, TvUtils.getEpisodeNumber(result.attr("episode"), -1));
 
       md.setTitle(result.attr("Title"));
       try {

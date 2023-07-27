@@ -153,7 +153,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private String                                country                    = "";
   @JsonProperty
-  private MediaEpisodeGroup                     episodeGroup               = MediaEpisodeGroup.DEFAULT;
+  private MediaEpisodeGroup                     episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
 
   @JsonProperty
   private final List<MediaGenres>               genres                     = new CopyOnWriteArrayList<>();
@@ -295,7 +295,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     super.merge(other, force);
 
-    setEpisodeGroup(episodeGroup == MediaEpisodeGroup.DEFAULT || force ? other.episodeGroup : episodeGroup);
+    setEpisodeGroup(episodeGroup == MediaEpisodeGroup.DEFAULT_AIRED || force ? other.episodeGroup : episodeGroup);
     setSortTitle(StringUtils.isEmpty(sortTitle) || force ? other.sortTitle : sortTitle);
     setRuntime(runtime == 0 || force ? other.runtime : runtime);
     setFirstAired(firstAired == null || force ? other.firstAired : firstAired);

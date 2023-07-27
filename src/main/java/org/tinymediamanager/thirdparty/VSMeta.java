@@ -702,7 +702,7 @@ public class VSMeta {
     TvShowEpisode ep = new TvShowEpisode();
     ep.setIds(ids);
     ep.setTitle(info.title3);
-    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, info.season, info.episode));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, info.season, info.episode));
 
     ep.setPlot(info.summary);
     ep.setFirstAired(info.releaseDate);

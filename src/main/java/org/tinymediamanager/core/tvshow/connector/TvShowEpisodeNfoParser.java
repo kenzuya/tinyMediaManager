@@ -1553,7 +1553,7 @@ public class TvShowEpisodeNfoParser {
         for (Element group : element.children()) {
           try {
             MediaEpisodeGroup.EpisodeGroup episodeGroup = MediaEpisodeGroup.EpisodeGroup.valueOf(group.attr("id"));
-            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(episodeGroup, Integer.parseInt(group.attr("season")),
+            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup, ""), Integer.parseInt(group.attr("season")),
                 Integer.parseInt(group.attr("episode")));
 
             if (episodeNumber.containsAnyNumber()) {
@@ -1586,8 +1586,8 @@ public class TvShowEpisodeNfoParser {
       }
       else {
         // no - just add the S/E from the old style NFO
-        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, this.season, this.episode));
-        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DISPLAY, displayseason, displayepisode));
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, this.season, this.episode));
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, displayseason, displayepisode));
       }
 
       for (Map.Entry<String, TvShowEpisodeNfoParser.Rating> entry : ratings.entrySet()) {

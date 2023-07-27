@@ -1255,7 +1255,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
         if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getEpisode()) {
           container.tvShowEpisode
-              .setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup().getEpisodeGroup(), container.season, container.episode));
+              .setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
           container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }

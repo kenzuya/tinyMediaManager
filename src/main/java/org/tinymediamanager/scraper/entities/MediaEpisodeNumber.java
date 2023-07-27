@@ -24,14 +24,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * the record {@link MediaEpisodeNumber} is used to hold a S/E combination for the given {@link MediaEpisodeGroup.EpisodeGroup}
  * 
  * @param episodeGroup
- *          the {@link MediaEpisodeGroup.EpisodeGroup}
+ *          the {@link MediaEpisodeGroup}
  * @param season
  *          the season number
  * @param episode
  *          the episode number
  */
-public record MediaEpisodeNumber(@JsonProperty @NotNull MediaEpisodeGroup.EpisodeGroup episodeGroup, @JsonProperty int season,
-    @JsonProperty int episode) implements Comparable<MediaEpisodeNumber> {
+public record MediaEpisodeNumber(@JsonProperty @NotNull MediaEpisodeGroup episodeGroup, @JsonProperty int season, @JsonProperty int episode)
+    implements Comparable<MediaEpisodeNumber> {
 
   /**
    * checks if that season and episode number is greater than -1

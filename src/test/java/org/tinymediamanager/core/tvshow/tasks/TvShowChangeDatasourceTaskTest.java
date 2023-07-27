@@ -59,7 +59,7 @@ public class TvShowChangeDatasourceTaskTest extends BasicTvShowTest {
     tvShow.addToMediaFiles(mf);
 
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
     episode.setPath(sourceFolder + "/Futurama (1999)/Season 1");
 
     mf = new MediaFile(Paths.get(episode.getPathNIO().toString(), "Futurama - S01E01 - Space Pilot 3000.avi"));

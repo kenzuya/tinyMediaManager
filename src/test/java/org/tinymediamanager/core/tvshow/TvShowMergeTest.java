@@ -19,12 +19,12 @@ public class TvShowMergeTest extends BasicTvShowTest {
     TvShow show = new TvShow();
 
     TvShowEpisode e1 = new TvShowEpisode();
-    e1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    e1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     e1.setTvShow(show);
 
     TvShowEpisode e2 = new TvShowEpisode();
     e2.setTitle("title2");
-    e2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 2));
+    e2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 2));
     e2.setTvShow(show);
 
     e1.merge(e2);
@@ -42,12 +42,12 @@ public class TvShowMergeTest extends BasicTvShowTest {
     show1.setYear(2009);
 
     TvShowEpisode ep1 = new TvShowEpisode();
-    ep1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    ep1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
     ep1.setTvShow(show1);
     show1.addEpisode(ep1);
 
     TvShowEpisode ep2 = new TvShowEpisode();
-    ep2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     ep2.setTvShow(show1);
     show1.addEpisode(ep2);
 
@@ -57,13 +57,13 @@ public class TvShowMergeTest extends BasicTvShowTest {
     show2.setYear(2009);
 
     TvShowEpisode ep3 = new TvShowEpisode();
-    ep3.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
-    ep3.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 1, 2)); // <-- should be merged
+    ep3.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
+    ep3.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 2)); // <-- should be merged
     ep3.setTvShow(show2);
     show2.addEpisode(ep3);
 
     TvShowEpisode ep4 = new TvShowEpisode();
-    ep4.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 3));
+    ep4.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 3));
     ep4.setTvShow(show2);
     show2.addEpisode(ep4);// <-- should be added
     // ---------------------------------------

@@ -296,7 +296,7 @@ public class ImdbTvShowParser extends ImdbParser {
       throw new MissingIdException(MediaMetadata.EPISODE_NR, MediaMetadata.SEASON_NR);
     }
     // we want this, we should set this (in case of json error)
-    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, seasonNr, episodeNr));
+    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, seasonNr, episodeNr));
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
     // only if we get a S/E number
@@ -609,7 +609,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
             // parse season and ep number
             if (season <= 0) {
-              ep.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 0, ++specialEpisodeCounter));
+              ep.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 0, ++specialEpisodeCounter));
             }
             else {
               int s = Integer.parseInt(matcher.group(1));
@@ -620,7 +620,7 @@ public class ImdbTvShowParser extends ImdbParser {
                 return false;
               }
 
-              ep.setEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, s, e);
+              ep.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, s, e);
             }
 
             // get ep title and id

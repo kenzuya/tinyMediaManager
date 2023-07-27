@@ -997,10 +997,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             for (int ep : result.episodes) {
               TvShowEpisode episode = new TvShowEpisode();
               if (result.absolute) {
-                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.ABSOLUTE, 1, ep));
+                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, ep));
               }
               else {
-                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, result.season, ep));
+                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, result.season, ep));
               }
               episode.setFirstAired(result.date);
               if (result.name.isEmpty()) {

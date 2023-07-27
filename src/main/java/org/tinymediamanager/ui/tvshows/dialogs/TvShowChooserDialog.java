@@ -569,7 +569,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             tvShowToScrape.setEpisodeGroup(episodeGroup);
           }
           else {
-            tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT);
+            tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
           }
           tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
 

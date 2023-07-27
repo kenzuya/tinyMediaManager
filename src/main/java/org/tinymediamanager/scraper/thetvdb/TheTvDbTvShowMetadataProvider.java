@@ -18,8 +18,6 @@ package org.tinymediamanager.scraper.thetvdb;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DISPLAY;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 import static org.tinymediamanager.scraper.thetvdb.entities.SeasonType.DEFAULT;
 
@@ -103,6 +101,8 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
   private static final CacheMap<String, MediaMetadata>       EPISODE_CACHE_MAP      = new CacheMap<>(600, 5);
+
+  private static final MediaEpisodeGroup                     ALTERNATE              = new MediaEpisodeGroup(MediaEpisodeGroup.EpisodeGroup.ALTERNATE);
 
   @Override
   protected MediaProviderInfo createMediaProviderInfo() {
@@ -444,7 +444,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     MediaMetadata md = new MediaMetadata(getId());
     md.setScrapeOptions(options);
     md.setId(getId(), episode.id);
-    md.setEpisodeNumber(AIRED, episode.seasonNumber, episode.episodeNumber);
+    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.seasonNumber, episode.episodeNumber));
     if (foundEpisode.getEpisodeNumber(DVD) != null) {
       md.setEpisodeNumber(foundEpisode.getEpisodeNumber(DVD));
     }
@@ -453,10 +453,11 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
 
     if (MetadataUtil.unboxInteger(episode.airsBeforeSeason, -1) > -1 || MetadataUtil.unboxInteger(episode.airsBeforeEpisode, -1) > -1) {
-      md.setEpisodeNumber(DISPLAY, MetadataUtil.unboxInteger(episode.airsBeforeSeason), MetadataUtil.unboxInteger(episode.airsBeforeEpisode));
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, MetadataUtil.unboxInteger(episode.airsBeforeSeason),
+          MetadataUtil.unboxInteger(episode.airsBeforeEpisode));
     }
     if (MetadataUtil.unboxInteger(episode.airsAfterSeason, -1) > -1) {
-      md.setEpisodeNumber(DISPLAY, MetadataUtil.unboxInteger(episode.airsAfterSeason), 4096); // like emm
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, MetadataUtil.unboxInteger(episode.airsAfterSeason), 4096); // like emm
     }
 
     // we get all translations from the episodelist
@@ -988,10 +989,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
   private void setEpisodeNumber(MediaMetadata md, EpisodeBaseRecord ep, SeasonType seasonType) {
     switch (seasonType) {
-      case DEFAULT -> md.setEpisodeNumber(AIRED, ep.seasonNumber, ep.episodeNumber);
-      case DVD -> md.setEpisodeNumber(DVD, ep.seasonNumber, ep.episodeNumber);
+      case DEFAULT -> md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.seasonNumber, ep.episodeNumber);
+      case DVD -> md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, ep.seasonNumber, ep.episodeNumber);
       case ALTERNATE -> md.setEpisodeNumber(ALTERNATE, ep.seasonNumber, ep.episodeNumber);
-      case ABSOLUTE -> md.setEpisodeNumber(ABSOLUTE, ep.seasonNumber, ep.episodeNumber); // tvdb marks them as S01
+      case ABSOLUTE -> md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, ep.seasonNumber, ep.episodeNumber); // tvdb marks them as S01
     }
   }
 
@@ -1007,10 +1008,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
   private MediaEpisodeGroup.EpisodeGroup mapEpisodeGroup(SeasonType type) {
     return switch (type) {
-      case DEFAULT, OFFICIAL -> AIRED;
-      case ABSOLUTE -> ABSOLUTE;
-      case DVD -> DVD;
-      case ALTERNATE -> ALTERNATE;
+      case DEFAULT, OFFICIAL -> MediaEpisodeGroup.EpisodeGroup.AIRED;
+      case ABSOLUTE -> MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
+      case DVD -> MediaEpisodeGroup.EpisodeGroup.DVD;
+      case ALTERNATE -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
       default -> null;
     };
   }

@@ -90,14 +90,14 @@ public class TvShowTest extends BasicTvShowTest {
 
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("episodetitle2");
-    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(show);
     show.addEpisode(ep);
 
     ep = new TvShowEpisode();
     ep.setTitle("3rd episodetitle");
-    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 3));
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 3));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(show);
     show.addEpisode(ep);
@@ -358,31 +358,31 @@ public class TvShowTest extends BasicTvShowTest {
 
     // Season 1: 80% of the episodes are in the subfolder "Season 01"
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
     MediaFile mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep2/s01e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 3));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 3));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep3/extract/s01e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 4));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 4));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 1/s01e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 5));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 5));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
@@ -391,31 +391,31 @@ public class TvShowTest extends BasicTvShowTest {
 
     // Season 2: every EP is in another subfolder
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 1));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 1));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 2/s02e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 2));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 2));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 02/ep2/s02e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 3));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 3));
     mf = new MediaFile(getWorkFolder().resolve("show/S2/ep3/extract/s02e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 4));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 4));
     mf = new MediaFile(getWorkFolder().resolve("show/s02e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 2, 5));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 5));
     mf = new MediaFile(getWorkFolder().resolve("show/s02e05/s02e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);

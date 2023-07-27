@@ -86,8 +86,9 @@ public class TvShowEpisodeNumberEditorPanel extends JPanel implements IModalPopu
 
         btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
         btnClose.addActionListener(e -> {
-          if (cbEpisodeGroup.getSelectedItem()instanceof MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-            this.episodeNumber = new MediaEpisodeNumber(episodeGroup, (Integer) spSeason.getValue(), (Integer) spEpisode.getValue());
+          if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup.EpisodeGroup episodeGroup) {
+            this.episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), (Integer) spSeason.getValue(),
+                (Integer) spEpisode.getValue());
           }
 
           setVisible(false);

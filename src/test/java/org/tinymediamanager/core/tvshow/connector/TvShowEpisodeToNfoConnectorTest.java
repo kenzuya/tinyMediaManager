@@ -187,8 +187,8 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
     episode1.setTvShow(tvShow);
     episode1.setPath(tvShow.getPathNIO().toString());
     episode1.setTitle("Pilot (1)");
-    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 1));
-    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DISPLAY, 1, 1));
+    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
+    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, 1, 1));
     episode1.setId(MediaMetadata.TVDB, 1234);
     episode1.setPlot(
         "Hanson gets assigned to the Jump Street unit, a special division of the police force which uses young cops to go undercover and stop juvenile crime, when his youthful appearance causes him to be underestimated while on patrol. His first case involves catching drug dealers.");
@@ -235,8 +235,8 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
       TvShowEpisode episode2 = new TvShowEpisode();
       episode2.setTvShow(tvShow);
       episode2.setTitle("Pilot (2)");
-      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
-      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DISPLAY, 1, 2));
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, 1, 2));
       episode2.setId(MediaMetadata.TVDB, 2345);
       episode2.setPlot(
           "Hanson gets assigned to the Jump Street unit, a special division of the police force which uses young cops to go undercover and stop juvenile crime, when his youthful appearance causes him to be underestimated while on patrol. His first case involves catching drug dealers.");

@@ -22,10 +22,6 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 import static org.tinymediamanager.scraper.util.MediaIdUtil.isValidImdbId;
 
 import java.io.IOException;
@@ -34,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -325,7 +320,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       }
 
       // get episode group data
-      Map<MediaEpisodeGroup.EpisodeGroup, List<TvEpisodeGroup>> episodeGroups = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
+      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups = new HashMap<>();
       for (EpisodeGroup episodeGroup : ListUtils.nullSafe(showResponse.body().episodeGroups.episodeGroups)) {
         if (episodeGroup.episodeCount == 0) {
           continue;
@@ -333,13 +328,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
         try {
           Response<TvEpisodeGroups> episodeGroupsResponse = api.tvEpisodeGroupsService().episodeGroup(episodeGroup.id, language).execute();
-          if (!episodeGroupsResponse.isSuccessful()) {
+          if (!episodeGroupsResponse.isSuccessful() || episodeGroupsResponse.body() == null) {
             throw new HttpException(episodeGroupsResponse.code(), episodeGroupsResponse.message());
           }
 
           MediaEpisodeGroup.EpisodeGroup eg = mapEpisodeGroup(episodeGroup.type);
           if (eg != null) {
-            episodeGroups.put(eg, episodeGroupsResponse.body().groups);
+            episodeGroups.put(new MediaEpisodeGroup(eg, episodeGroup.name), episodeGroupsResponse.body().groups);
           }
         }
         catch (Exception e) {
@@ -369,7 +364,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   }
 
   private List<MediaMetadata> getSeasonEpisodes(int tmdbId, Integer seasonNumber, TvShowSearchAndScrapeOptions options, String originalLanguage,
-      Map<MediaEpisodeGroup.EpisodeGroup, List<TvEpisodeGroup>> episodeGroups) throws IOException {
+      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups) throws IOException {
     Map<Integer, MediaMetadata> episodesInRequestedLanguage = new TreeMap<>();
     Map<Integer, MediaMetadata> episodesInFallbackLanguage = new TreeMap<>();
     Map<Integer, MediaMetadata> episodesInOriginalLanguage = new TreeMap<>();
@@ -422,7 +417,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // build up all episodes
     List<MediaMetadata> episodes = new ArrayList<>();
     for (MediaMetadata md : episodesInRequestedLanguage.values()) {
-      int episode = md.getEpisodeNumber(AIRED).episode();
+      int episode = md.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).episode();
       MediaMetadata fallback = episodesInFallbackLanguage.get(episode);
       MediaMetadata original = episodesInOriginalLanguage.get(episode);
 
@@ -631,7 +626,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     // episode groups
     // aired date is default
-    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT);
 
     if (complete.episodeGroups != null) {
       for (EpisodeGroup episodeGroup : ListUtils.nullSafe(complete.episodeGroups.episodeGroups)) {
@@ -769,7 +763,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // match by S/E
     if (episodeMediaMetadata == null && seasonNr > -1 && episodeNr > -1) {
       for (MediaMetadata episode : episodes) {
-        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
+        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(options.getEpisodeGroup());
         if (episodeNumber == null) {
           continue;
         }
@@ -809,8 +803,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     String language = getRequestLanguage(options.getLanguage());
-    seasonNr = episodeMediaMetadata.getEpisodeNumber(AIRED).season();
-    episodeNr = episodeMediaMetadata.getEpisodeNumber(AIRED).episode();
+    seasonNr = episodeMediaMetadata.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).season();
+    episodeNr = episodeMediaMetadata.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).episode();
 
     // get the data from tmdb
     TvEpisode episode;
@@ -1135,7 +1129,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (episodeFromListing == null) {
       // match by aired S/E
       for (MediaMetadata episode : episodes) {
-        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
+        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED);
         if (episodeNumber == null) {
           continue;
         }
@@ -1331,24 +1325,25 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   }
 
   private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode, TvSeason tvSeason,
-      Map<MediaEpisodeGroup.EpisodeGroup, List<TvEpisodeGroup>> episodeGroups, MediaSearchAndScrapeOptions options) {
+      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups, MediaSearchAndScrapeOptions options) {
     MediaMetadata ep = new MediaMetadata(getId());
     ep.setScrapeOptions(options);
     ep.setId(getProviderInfo().getId(), episode.id);
-    ep.setEpisodeNumber(AIRED, episode.season_number, episode.episode_number);
+    ep.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.season_number, episode.episode_number);
+    ep.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
     ep.setTitle(episode.name);
     ep.setPlot(episode.overview);
 
     // mix in episode groups
     if (episodeGroups != null) {
-      for (Map.Entry<MediaEpisodeGroup.EpisodeGroup, List<TvEpisodeGroup>> entry : episodeGroups.entrySet()) {
+      for (Map.Entry<MediaEpisodeGroup, List<TvEpisodeGroup>> entry : episodeGroups.entrySet()) {
         boolean found = false;
 
         for (TvEpisodeGroup episodeGroup : entry.getValue()) {
           for (TvEpisodeGroupEpisode episodeInGroup : ListUtils.nullSafe(episodeGroup.episodes)) {
-            if (Objects.equals(episode.season_number, episodeInGroup.season_number)
-                && Objects.equals(episode.episode_number, episodeInGroup.season_number)) {
+            if (Objects.equals(episode.id, episodeInGroup.id)) {
               ep.setEpisodeNumber(entry.getKey(), episodeGroup.order, episodeInGroup.order);
+              ep.addEpisodeGroup(entry.getKey());
               found = true;
               break;
             }
@@ -1456,22 +1451,12 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     return result;
   }
 
-  private int mapEpisodeGroup(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-    return switch (episodeGroup) {
-      case AIRED -> 1;
-      case ABSOLUTE -> 2;
-      case DVD -> 3;
-      case ALTERNATE -> 4;
-      case DISPLAY -> -1;
-    };
-  }
-
   private MediaEpisodeGroup.EpisodeGroup mapEpisodeGroup(int type) {
     return switch (type) {
-      case 1 -> AIRED;
-      case 2 -> ABSOLUTE;
-      case 3 -> DVD;
-      case 4 -> ALTERNATE;
+      case 1 -> MediaEpisodeGroup.EpisodeGroup.AIRED;
+      case 2 -> MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
+      case 3 -> MediaEpisodeGroup.EpisodeGroup.DVD;
+      case 4, 5, 6, 7 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
       default -> null;
     };
   }

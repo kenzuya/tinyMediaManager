@@ -510,10 +510,10 @@ public class TvShowBulkEditorDialog extends TmmDialog {
             if (episodeGroup != null) {
               MediaEpisodeNumber existingEpisodeNumber = episode.getEpisodeNumber(episodeGroup);
               if (existingEpisodeNumber != null) {
-                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, existingEpisodeNumber.episode()));
+                episode.setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), season, existingEpisodeNumber.episode()));
               }
               else {
-                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, -1));
+                episode.setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), season, -1));
               }
             }
           }

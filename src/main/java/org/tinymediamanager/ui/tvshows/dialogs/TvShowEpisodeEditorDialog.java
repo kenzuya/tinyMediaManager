@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -30,7 +29,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -782,7 +780,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       episodeToEdit.setTitle(tfTitle.getText());
       episodeToEdit.setOriginalTitle(tfOriginalTitle.getText());
 
-      Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> epNumbers = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
+      Map<MediaEpisodeGroup, MediaEpisodeNumber> epNumbers = new HashMap<>();
       for (MediaEpisodeNumber episodeNumber : episodeNumbers) {
         if (episodeNumber.containsAnyNumber()) {
           epNumbers.put(episodeNumber.episodeGroup(), episodeNumber);
@@ -1116,7 +1114,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       ModalPopupPanel popupPanel = createModalPopupPanel();
       popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.add"));
 
-      TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(new MediaEpisodeNumber(AIRED, -1, -1));
+      TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(
+          new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, -1, -1));
       popupPanel.setContent(episodeNumberEditorPanel);
       popupPanel.setOnCloseHandler(() -> {
         MediaEpisodeNumber episodeNumber = episodeNumberEditorPanel.getEpisodeNumber();

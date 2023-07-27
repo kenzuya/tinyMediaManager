@@ -270,8 +270,8 @@ public abstract class BasicITest {
     TvShowEpisode episode = new TvShowEpisode();
     episode.setTvShow(tvShow);
     episode.setTitle(title + "-EP");
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, 1, 2));
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.DVD, 3, 4));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 3, 4));
     episode.setTitle("Don't Pet the Teacher");
     episode.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
     episode.setFirstAired(getRandomDate());

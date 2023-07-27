@@ -39,7 +39,6 @@ import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DISPLAY;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 
@@ -307,7 +306,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     setActors(other.actors);
     setDirectors(other.directors);
     setWriters(other.writers);
-    setEpisodeNumbers(other.episodeNumbers);
+
+    episodeNumbers.clear();
+    other.episodeNumbers.forEach((group, episodeNumber) -> setEpisode(episodeNumber));
   }
 
   @Override
@@ -482,7 +483,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return Collections.unmodifiableMap(episodeNumbers);
   }
 
-  public void setEpisodeNumbers(Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> newValues) {
+  public void setEpisodeNumbers(Map<MediaEpisodeGroup, MediaEpisodeNumber> newValues) {
     episodeNumbers.clear();
 
     if (newValues != null) {
@@ -495,7 +496,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       return getTvShow().getEpisodeGroup();
     }
     else {
-      return MediaEpisodeGroup.DEFAULT;
+      return MediaEpisodeGroup.DEFAULT_AIRED;
     }
   }
 
@@ -558,7 +559,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    episodeNumbers.put(episode.episodeGroup(), episode);
+    episodeNumbers.put(episode.episodeGroup().getEpisodeGroup(), episode);
     firePropertyChange(EPISODE, -1, episode.episode());
     firePropertyChange(SEASON, -1, episode.episode());
     firePropertyChange(TITLE_FOR_UI, -1, episode.episode());
@@ -570,7 +571,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the episode number (if found) or -1
    */
   public int getAiredEpisode() {
-    return getEpisode(AIRED);
+    return getEpisode(MediaEpisodeGroup.DEFAULT_AIRED);
   }
 
   @Override
@@ -643,7 +644,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the season number (if found) or -1
    */
   public int getAiredSeason() {
-    return getSeason(AIRED);
+    return getSeason(MediaEpisodeGroup.DEFAULT_AIRED);
   }
 
   /**
@@ -1336,7 +1337,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         String s = mediaFile.getExtraData().get("season");
         if (StringUtils.isNoneBlank(e, s)) {
           try {
-            setEpisode(new MediaEpisodeNumber(AIRED, Integer.parseInt(s), Integer.parseInt(e)));
+            setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, Integer.parseInt(s), Integer.parseInt(e)));
             dirty = true;
           }
           catch (Exception ignored) {
@@ -1944,62 +1945,62 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (value instanceof Integer integer && integer > -1) {
       switch (property) {
         case "episode" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(AIRED);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.AIRED);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(AIRED, foundEpisodeNumber.season(), integer));
+            setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, foundEpisodeNumber.season(), integer));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(AIRED, -1, integer));
+            setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, -1, integer));
           }
         }
 
         case "season" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(AIRED);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.AIRED);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(AIRED, integer, foundEpisodeNumber.episode()));
+            setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, integer, foundEpisodeNumber.episode()));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(AIRED, integer, -1));
+            setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, integer, -1));
           }
         }
 
         case "dvdEpisode" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(DVD);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.DVD);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(DVD, foundEpisodeNumber.season(), integer));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DVD), foundEpisodeNumber.season(), integer));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(DVD, -1, integer));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DVD), -1, integer));
           }
         }
 
         case "dvdSeason" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(DVD);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.DVD);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(DVD, integer, foundEpisodeNumber.episode()));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DVD), integer, foundEpisodeNumber.episode()));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(DVD, integer, -1));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DVD), integer, -1));
           }
         }
 
         case "displayEpisode" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(DISPLAY);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.DISPLAY);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(DISPLAY, foundEpisodeNumber.season(), integer));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DISPLAY), foundEpisodeNumber.season(), integer));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(DISPLAY, -1, integer));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DISPLAY), -1, integer));
           }
         }
 
         case "displaySeason" -> {
-          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(DISPLAY);
+          MediaEpisodeNumber foundEpisodeNumber = episodeNumbers.get(MediaEpisodeGroup.EpisodeGroup.DISPLAY);
           if (foundEpisodeNumber != null) {
-            setEpisode(new MediaEpisodeNumber(DISPLAY, integer, foundEpisodeNumber.episode()));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DISPLAY), integer, foundEpisodeNumber.episode()));
           }
           else {
-            setEpisode(new MediaEpisodeNumber(DISPLAY, integer, -1));
+            setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(DISPLAY), integer, -1));
           }
         }
       }

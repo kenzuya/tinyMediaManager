@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.scraper.kodi;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -32,6 +30,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -157,7 +156,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
       Element epXmlEl = epDetailXml.getDocumentElement();
 
       addMetadata(md, epXmlEl);
-      md.setEpisodeNumber(AIRED, season, ep);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, ep);
       LOGGER.trace("MetaData: {}", md);
 
       // cache EPISODE MetaData as provideId_S00_E00
@@ -273,7 +272,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
         MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
         md.setScrapeOptions(options);
-        md.setEpisodeNumber(AIRED, season, ep);
+        md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, ep);
         md.setTitle(DOMUtils.getElementValue(el, "title"));
         md.setId(scraper.getProviderInfo().getId(), DOMUtils.getElementValue(el, "id"));
         // String epUrl = DOMUtils.getElementValue(el, "url"); // cannot save in ME!!!

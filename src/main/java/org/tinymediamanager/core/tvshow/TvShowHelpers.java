@@ -189,7 +189,7 @@ public class TvShowHelpers {
     // just fake an episode here, since the real foldername can only be generated out of the episode
     // create a dummy episode to inject the season number
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, season, -1));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, -1));
 
     return TvShowRenamer.getSeasonFoldername(tvShow, episode);
   }

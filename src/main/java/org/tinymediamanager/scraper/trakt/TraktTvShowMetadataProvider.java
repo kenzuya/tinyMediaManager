@@ -22,8 +22,6 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -46,6 +44,7 @@ import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -159,7 +158,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
         MediaMetadata ep = new MediaMetadata(getId());
         ep.setScrapeOptions(options);
-        ep.setEpisodeNumber(AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
+        ep.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
         ep.setTitle(episode.title);
 
         if (episode.rating != null && episode.votes != null) {
@@ -424,8 +423,8 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       throw new NothingFoundException();
     }
 
-    md.setEpisodeNumber(AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
-    md.setEpisodeNumber(ABSOLUTE, 1, TvUtils.getEpisodeNumber(episode.number_abs)); // fixate to S01 like others do
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, TvUtils.getEpisodeNumber(episode.number_abs)); // fixate to S01 like others do
 
     if (episode.ids != null) {
       md.setId(getId(), episode.ids.trakt);

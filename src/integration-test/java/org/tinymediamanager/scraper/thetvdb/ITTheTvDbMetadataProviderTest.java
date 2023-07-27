@@ -589,7 +589,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(mediaMetadata.getEpisodeGroups())
           .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == MediaEpisodeGroup.EpisodeGroup.ALTERNATE);
 
-      options.setEpisodeGroup(AIRED);
+      options.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
       List<MediaMetadata> episodesInAiredOrder = mp.getEpisodeList(options);
 
     }

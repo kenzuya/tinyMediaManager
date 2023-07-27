@@ -18,9 +18,9 @@ package org.tinymediamanager.scraper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,67 +52,67 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MediaMetadata {
   // some well known ids
-  public static final String                                            IMDB                = "imdb";
-  public static final String                                            TMDB                = "tmdb";
-  public static final String                                            TVDB                = "tvdb";
-  public static final String                                            TMDB_SET            = "tmdbSet";
-  public static final String                                            TRAKT_TV            = "trakt";
+  public static final String                               IMDB                = "imdb";
+  public static final String                               TMDB                = "tmdb";
+  public static final String                               TVDB                = "tvdb";
+  public static final String                               TMDB_SET            = "tmdbSet";
+  public static final String                               TRAKT_TV            = "trakt";
 
   // some meta ids for TV show scraping
-  public static final String                                            TVSHOW_IDS          = "tvShowIds";
-  public static final String                                            EPISODE_NR          = "episodeNr";
+  public static final String                               TVSHOW_IDS          = "tvShowIds";
+  public static final String                               EPISODE_NR          = "episodeNr";
   @Deprecated
-  public static final String                                            SEASON_NR           = "seasonNr";
+  public static final String                               SEASON_NR           = "seasonNr";
   @Deprecated
-  public static final String                                            EPISODE_NR_DVD      = "dvdEpisodeNr";
+  public static final String                               EPISODE_NR_DVD      = "dvdEpisodeNr";
   @Deprecated
-  public static final String                                            SEASON_NR_DVD       = "dvdSeasonNr";
+  public static final String                               SEASON_NR_DVD       = "dvdSeasonNr";
 
   // the "empty" rating
-  public static final MediaRating                                       EMPTY_RATING        = new MediaRating("", 0);
+  public static final MediaRating                          EMPTY_RATING        = new MediaRating("", 0);
 
-  private final String                                                  providerId;
+  private final String                                     providerId;
 
   // this map contains all set ids
-  private final Map<String, Object>                                     ids                 = new HashMap<>();
+  private final Map<String, Object>                        ids                 = new HashMap<>();
 
   // multi value
-  private final List<MediaRating>                                       ratings             = new ArrayList<>();
-  private final List<Person>                                            castMembers         = new ArrayList<>();
-  private final List<MediaArtwork>                                      artwork             = new ArrayList<>();
-  private final List<MediaGenres>                                       genres              = new ArrayList<>();
-  private final List<MediaCertification>                                certifications      = new ArrayList<>();
-  private final List<String>                                            productionCompanies = new ArrayList<>();
-  private final List<String>                                            spokenLanguages     = new ArrayList<>();
-  private final List<String>                                            countries           = new ArrayList<>();
-  private final List<MediaTrailer>                                      trailers            = new ArrayList<>();
-  private final List<MediaMetadata>                                     subItems            = new ArrayList<>();
-  private final List<String>                                            tags                = new ArrayList<>();
+  private final List<MediaRating>                          ratings             = new ArrayList<>();
+  private final List<Person>                               castMembers         = new ArrayList<>();
+  private final List<MediaArtwork>                         artwork             = new ArrayList<>();
+  private final List<MediaGenres>                          genres              = new ArrayList<>();
+  private final List<MediaCertification>                   certifications      = new ArrayList<>();
+  private final List<String>                               productionCompanies = new ArrayList<>();
+  private final List<String>                               spokenLanguages     = new ArrayList<>();
+  private final List<String>                               countries           = new ArrayList<>();
+  private final List<MediaTrailer>                         trailers            = new ArrayList<>();
+  private final List<MediaMetadata>                        subItems            = new ArrayList<>();
+  private final List<String>                               tags                = new ArrayList<>();
 
   // general media entity
-  private String                                                        title               = "";
-  private String                                                        originalTitle       = "";
-  private String                                                        originalLanguage    = "";
-  private int                                                           year                = 0;
-  private Date                                                          releaseDate         = null;
-  private String                                                        plot                = "";
-  private String                                                        tagline             = "";
-  private int                                                           runtime             = 0;
+  private String                                           title               = "";
+  private String                                           originalTitle       = "";
+  private String                                           originalLanguage    = "";
+  private int                                              year                = 0;
+  private Date                                             releaseDate         = null;
+  private String                                           plot                = "";
+  private String                                           tagline             = "";
+  private int                                              runtime             = 0;
 
   // movie
-  private String                                                        collectionName      = "";
-  private int                                                           top250              = 0;
+  private String                                           collectionName      = "";
+  private int                                              top250              = 0;
 
   // tv show
-  private final Set<MediaEpisodeGroup>                                  episodeGroups       = new HashSet<>();
-  private final Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
-  private MediaAiredStatus                                              status              = MediaAiredStatus.UNKNOWN;
-  private final Map<Integer, String>                                    seasonNames         = new HashMap<>();
-  private final Map<Integer, String>                                    seasonOveriew       = new HashMap<>();
+  private final Set<MediaEpisodeGroup>                     episodeGroups       = new HashSet<>();
+  private final Map<MediaEpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new LinkedHashMap<>();
+  private MediaAiredStatus                                 status              = MediaAiredStatus.UNKNOWN;
+  private final Map<Integer, String>                       seasonNames         = new HashMap<>();
+  private final Map<Integer, String>                       seasonOveriew       = new HashMap<>();
 
   // extra data
-  private final Map<String, Object>                                     extraData           = new HashMap<>();
-  private MediaSearchAndScrapeOptions                                   scrapeOptions       = null;
+  private final Map<String, Object>                        extraData           = new HashMap<>();
+  private MediaSearchAndScrapeOptions                      scrapeOptions       = null;
 
   /**
    * Instantiates a new media metadata for the given provider.
@@ -1022,7 +1022,7 @@ public class MediaMetadata {
    *
    * @return a {@link Map} with all available {@link MediaEpisodeNumber}s
    */
-  public Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> getEpisodeNumbers() {
+  public Map<MediaEpisodeGroup, MediaEpisodeNumber> getEpisodeNumbers() {
     return Collections.unmodifiableMap(episodeNumbers);
   }
 
@@ -1032,7 +1032,7 @@ public class MediaMetadata {
    * @param eps
    *          a {@link Map} containing all {@link MediaEpisodeNumber}s
    */
-  public void setEpisodeNumbers(Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> eps) {
+  public void setEpisodeNumbers(Map<MediaEpisodeGroup, MediaEpisodeNumber> eps) {
     if (eps != null) {
       episodeNumbers.clear();
       episodeNumbers.putAll(eps);
@@ -1047,7 +1047,7 @@ public class MediaMetadata {
    * @return the {@link MediaEpisodeNumber} or null
    */
   public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup) {
-    return getEpisodeNumber(episodeGroup.getEpisodeGroup());
+    return episodeNumbers.get(episodeGroup);
   }
 
   /**
@@ -1058,7 +1058,14 @@ public class MediaMetadata {
    * @return the {@link MediaEpisodeNumber} or null
    */
   public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-    return episodeNumbers.get(episodeGroup);
+    // match the first available episode group
+    for (Map.Entry<MediaEpisodeGroup, MediaEpisodeNumber> entry : episodeNumbers.entrySet()) {
+      if (entry.getKey().getEpisodeGroup() == episodeGroup) {
+        return entry.getValue();
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -1071,7 +1078,7 @@ public class MediaMetadata {
    * @param episode
    *          the episode
    */
-  public void setEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroup episodeGroup, int season, int episode) {
+  public void setEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup, int season, int episode) {
     setEpisodeNumber(new MediaEpisodeNumber(episodeGroup, season, episode));
   }
 

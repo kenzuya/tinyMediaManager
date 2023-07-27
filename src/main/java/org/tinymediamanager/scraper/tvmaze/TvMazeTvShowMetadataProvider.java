@@ -1,7 +1,5 @@
 package org.tinymediamanager.scraper.tvmaze;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +24,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -184,7 +183,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     md.setId("tvmaze", episode.id);
     md.setTitle(episode.name);
     md.setPlot(Jsoup.parse(episode.summary).text());
-    md.setEpisodeNumber(AIRED, episode.season, episode.episode);
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.season, episode.episode);
     md.setRuntime(episode.runtime);
     try {
       md.setReleaseDate(premieredFormat.parse(episode.airdate));
@@ -331,7 +330,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       // found the correct episode
       md.setTitle(episode.name);
       md.setPlot(Jsoup.parse(episode.summary).text());
-      md.setEpisodeNumber(AIRED, episode.season, episode.episode);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.season, episode.episode);
       md.setRuntime(episode.runtime);
       try {
         md.setReleaseDate(premieredFormat.parse(episode.airdate));

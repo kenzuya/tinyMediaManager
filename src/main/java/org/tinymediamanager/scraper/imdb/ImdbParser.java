@@ -1014,7 +1014,7 @@ public abstract class ImdbParser {
       JsonNode epNode = node.at("/props/pageProps/aboveTheFoldData/series/episodeNumber");
       ImdbEpisodeNumber ep = JsonUtils.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
       if (ep != null) {
-        md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED, ep.seasonNumber, ep.episodeNumber));
+        md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.seasonNumber, ep.episodeNumber));
       }
 
       // ***** MAIN column *****

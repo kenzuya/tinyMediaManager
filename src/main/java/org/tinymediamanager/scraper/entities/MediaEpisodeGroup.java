@@ -41,7 +41,10 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
     DISPLAY
   }
 
-  public static final MediaEpisodeGroup DEFAULT = new MediaEpisodeGroup(EpisodeGroup.AIRED, "");
+  public static final MediaEpisodeGroup DEFAULT_AIRED    = new MediaEpisodeGroup(EpisodeGroup.AIRED);
+  public static final MediaEpisodeGroup DEFAULT_DVD      = new MediaEpisodeGroup(EpisodeGroup.DVD);
+  public static final MediaEpisodeGroup DEFAULT_ABSOLUTE = new MediaEpisodeGroup(EpisodeGroup.ABSOLUTE);
+  public static final MediaEpisodeGroup DEFAULT_DISPLAY  = new MediaEpisodeGroup(EpisodeGroup.DISPLAY);
 
   @JsonProperty
   private final EpisodeGroup            episodeGroup;
@@ -50,6 +53,10 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
 
   public MediaEpisodeGroup(String name) {
     this(EpisodeGroup.AIRED, name);
+  }
+
+  public MediaEpisodeGroup(EpisodeGroup episodeGroup) {
+    this(episodeGroup, "");
   }
 
   @JsonCreator
@@ -82,20 +89,28 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
     if (this == o) {
       return true;
     }
+
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+
     MediaEpisodeGroup that = (MediaEpisodeGroup) o;
-    return episodeGroup == that.episodeGroup;
+    return episodeGroup == that.episodeGroup && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(episodeGroup);
+    return Objects.hash(episodeGroup, name);
   }
 
   @Override
   public int compareTo(@NotNull MediaEpisodeGroup o) {
-    return Integer.compare(episodeGroup.ordinal(), o.episodeGroup.ordinal());
+    int result = Integer.compare(episodeGroup.ordinal(), o.episodeGroup.ordinal());
+
+    if (result == 0) {
+      result = name.compareTo(o.name);
+    }
+
+    return result;
   }
 }

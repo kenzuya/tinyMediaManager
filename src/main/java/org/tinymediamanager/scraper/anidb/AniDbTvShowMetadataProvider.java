@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.scraper.anidb;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -151,8 +151,8 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
       md.setScrapeOptions(options);
       md.setTitle(ep.titles.get(language));
       // basically only absolute order is supported by anidb. we add aired as backwards compatibility
-      md.setEpisodeNumber(AIRED, ep.season, ep.episode);
-      md.setEpisodeNumber(ABSOLUTE, ep.season, ep.episode);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.season, ep.episode);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, ep.season, ep.episode);
 
       if (StringUtils.isBlank(md.getTitle())) {
         md.setTitle(ep.titles.get("en"));
