@@ -142,14 +142,14 @@ public final class TvShowList extends AbstractModelObject {
     // the tag listener: it's used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShow tvShow) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow tvShow) {
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShowEpisode episode) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode episode) {
         updateEpisodeTags(Collections.singleton(episode));
       }
       if ((MEDIA_FILES.equals(evt.getPropertyName()) || MEDIA_INFORMATION.equals(evt.getPropertyName()))
-          && evt.getSource()instanceof TvShowEpisode episode) {
+          && evt.getSource() instanceof TvShowEpisode episode) {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
@@ -1436,7 +1436,7 @@ public final class TvShowList extends AbstractModelObject {
         if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
-        String id = entry.getKey() + String.valueOf(entry.getValue());
+        String id = entry.getKey() + entry.getValue();
 
         if (showMap.containsKey(id)) {
           // yes - set duplicate flag on both tvShows
@@ -1504,6 +1504,21 @@ public final class TvShowList extends AbstractModelObject {
     }
 
     return missingMetadata;
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingMetadata(TvShowSeason season) {
+    if (season.isDummy()) {
+      return Collections.emptyList();
+    }
+
+    List<TvShowScraperMetadataConfig> seasonValues = new ArrayList<>();
+    for (TvShowScraperMetadataConfig config : TvShowModuleManager.getInstance().getSettings().getTvShowCheckMetadata()) {
+      if (config.isMetaData() && config.name().startsWith("SEASON")) {
+        seasonValues.add(config);
+      }
+    }
+
+    return detectMissingFields(season, seasonValues);
   }
 
   public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShowSeason season) {

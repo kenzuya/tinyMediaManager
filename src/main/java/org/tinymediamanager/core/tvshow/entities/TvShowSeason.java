@@ -442,7 +442,8 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
 
   public Object getValueForMetadata(TvShowScraperMetadataConfig metadataConfig) {
     return switch (metadataConfig) {
-      case TITLE -> getTitle();
+      case TITLE, SEASON_NAMES -> getTitle();
+      case SEASON_OVERVIEW -> getPlot();
       case SEASON_POSTER -> getArtworkFilename(MediaFileType.SEASON_POSTER);
       case SEASON_FANART -> getArtworkFilename(MediaFileType.SEASON_FANART);
       case SEASON_BANNER -> getArtworkFilename(MediaFileType.SEASON_BANNER);

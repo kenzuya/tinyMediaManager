@@ -220,6 +220,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
     }
     catch (Exception ignored) {
+      // ignored
     }
     col.setColumnComparator(dateTimeComparator);
     addColumn(col);
@@ -237,6 +238,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
     }
     catch (Exception ignored) {
+      // ignored
     }
     col.setColumnComparator(dateTimeComparator);
     addColumn(col);
@@ -398,15 +400,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      int year = ((TvShow) userObject).getYear();
+    if (userObject instanceof TvShow tvShow) {
+      int year = tvShow.getYear();
       if (year > 0) {
         return String.valueOf(year);
       }
       return null;
     }
-    else if (userObject instanceof TvShowSeason) {
-      Date firstAired = ((TvShowSeason) userObject).getFirstAired();
+    else if (userObject instanceof TvShowSeason season) {
+      Date firstAired = season.getFirstAired();
       if (firstAired != null) {
         calendar.setTime(firstAired);
         return String.valueOf(calendar.get(Calendar.YEAR));
@@ -418,19 +420,19 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getSeasons(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return String.valueOf(((TvShow) userObject).getSeasonCount());
+    if (userObject instanceof TvShow tvShow) {
+      return String.valueOf(tvShow.getSeasonCount());
     }
     return null;
   }
 
   private String getEpisodes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return String.valueOf(((TvShow) userObject).getEpisodeCount());
+    if (userObject instanceof TvShow tvShow) {
+      return String.valueOf(tvShow.getEpisodeCount());
     }
-    if (userObject instanceof TvShowSeason) {
-      if (!((TvShowSeason) userObject).getEpisodes().isEmpty()) {
+    if (userObject instanceof TvShowSeason season) {
+      if (!season.getEpisodes().isEmpty()) {
         return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
       }
     }
@@ -439,12 +441,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getFolderPath(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      TvShow tvShow = (TvShow) userObject;
+    if (userObject instanceof TvShow tvShow) {
       return tvShow.getPathNIO().toAbsolutePath().toString();
     }
-    else if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) userObject;
+    else if (userObject instanceof TvShowEpisode episode) {
       if (episode.getPathNIO() != null) {
         return episode.getPathNIO().toAbsolutePath().toString();
       }
@@ -454,16 +454,13 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon getNewIcon(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      TvShow tvShow = (TvShow) userObject;
+    if (userObject instanceof TvShow tvShow) {
       return getNewIcon(tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes());
     }
-    else if (userObject instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) userObject;
+    else if (userObject instanceof TvShowSeason season) {
       return getNewIcon(season.isNewlyAdded());
     }
-    else if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) userObject;
+    else if (userObject instanceof TvShowEpisode episode) {
       return getNewIcon(episode.isNewlyAdded());
     }
     return null;
@@ -504,25 +501,24 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private Date getAiredDate(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return ((TvShow) userObject).getFirstAired();
+    if (userObject instanceof TvShow tvShow) {
+      return tvShow.getFirstAired();
     }
-    if (userObject instanceof TvShowSeason) {
-      return ((TvShowSeason) userObject).getFirstAired();
+    if (userObject instanceof TvShowSeason season) {
+      return season.getFirstAired();
     }
-    if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getFirstAired();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getFirstAired();
     }
     return null;
   }
 
   private Date getDateAdded(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return ((TvShow) userObject).getDateAddedForUi();
+    if (userObject instanceof TvShow tvShow) {
+      return tvShow.getDateAddedForUi();
     }
-    if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) userObject;
+    if (userObject instanceof TvShowEpisode episode) {
       if (!episode.isDummy()) {
         return episode.getDateAddedForUi();
       }
@@ -532,8 +528,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private Date getFileCreationDate(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) userObject;
+    if (userObject instanceof TvShowEpisode episode) {
       if (!episode.isDummy()) {
         return episode.getMainVideoFile().getDateCreated();
       }
@@ -543,40 +538,40 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getFormat(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getMediaInfoVideoFormat();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaInfoVideoFormat();
     }
     return "";
   }
 
   private String getVideoCodec(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getMediaInfoVideoCodec();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaInfoVideoCodec();
     }
     return "";
   }
 
   private Integer getVideoBitrate(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getMediaInfoVideoBitrate();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaInfoVideoBitrate();
     }
     return null;
   }
 
   private String getVideoFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      long size = ((TvShow) userObject).getVideoFilesize();
+    if (userObject instanceof TvShow tvShow) {
+      long size = tvShow.getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
-    if (userObject instanceof TvShowSeason) {
-      long size = ((TvShowSeason) userObject).getVideoFilesize();
+    if (userObject instanceof TvShowSeason season) {
+      long size = season.getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
-    if (userObject instanceof TvShowEpisode) {
-      long size = ((TvShowEpisode) userObject).getVideoFilesize();
+    if (userObject instanceof TvShowEpisode episode) {
+      long size = episode.getVideoFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
@@ -584,16 +579,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getTotalFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      long size = ((TvShow) userObject).getTotalFilesize();
+    if (userObject instanceof TvShow tvShow) {
+      long size = tvShow.getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
-    if (userObject instanceof TvShowSeason) {
-      long size = ((TvShowSeason) userObject).getTotalFilesize();
+    if (userObject instanceof TvShowSeason season) {
+      long size = season.getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
-    if (userObject instanceof TvShowEpisode) {
-      long size = ((TvShowEpisode) userObject).getTotalFilesize();
+    if (userObject instanceof TvShowEpisode episode) {
+      long size = episode.getTotalFilesize();
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
@@ -601,16 +596,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private Float getAspectRatio(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getMediaInfoAspectRatio();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaInfoAspectRatio();
     }
     return null;
   }
 
   private ImageIcon isHDR(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = ((TvShowEpisode) userObject);
+    if (userObject instanceof TvShowEpisode episode) {
       return getCheckIcon(StringUtils.isNotEmpty(episode.getVideoHDRFormat()));
     }
     return null;
@@ -618,16 +612,13 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon hasMetadata(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      TvShow tvShow = (TvShow) userObject;
+    if (userObject instanceof TvShow tvShow) {
       return getTriStateIcon(TRI_STATE.getState(tvShowList.detectMissingMetadata(tvShow).isEmpty(), tvShow.getHasEpisodeMetadata()));
     }
-    else if (userObject instanceof TvShowSeason) {
-      TvShowSeason season = ((TvShowSeason) userObject);
-      return getCheckIcon(season.getHasEpisodeMetadata());
+    else if (userObject instanceof TvShowSeason season) {
+      return getTriStateIcon(TRI_STATE.getState(tvShowList.detectMissingMetadata(season).isEmpty(), season.getHasEpisodeMetadata()));
     }
-    else if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = ((TvShowEpisode) userObject);
+    else if (userObject instanceof TvShowEpisode episode) {
       return getCheckIcon(tvShowList.detectMissingMetadata(episode).isEmpty());
     }
     return null;
@@ -635,16 +626,13 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon hasArtwork(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      TvShow tvShow = (TvShow) userObject;
+    if (userObject instanceof TvShow tvShow) {
       return getTriStateIcon(TRI_STATE.getState(tvShowList.detectMissingArtwork(tvShow).isEmpty(), tvShow.getHasSeasonAndEpisodeImages()));
     }
-    else if (userObject instanceof TvShowSeason) {
-      TvShowSeason season = ((TvShowSeason) userObject);
+    else if (userObject instanceof TvShowSeason season) {
       return getTriStateIcon(TRI_STATE.getState(tvShowList.detectMissingArtwork(season).isEmpty(), season.getHasEpisodeImages()));
     }
-    else if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = ((TvShowEpisode) userObject);
+    else if (userObject instanceof TvShowEpisode episode) {
       return getCheckIcon(tvShowList.detectMissingArtwork(episode).isEmpty());
     }
     return null;
@@ -652,16 +640,13 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon hasSubtitles(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      TvShow tvShow = (TvShow) userObject;
+    if (userObject instanceof TvShow tvShow) {
       return getCheckIcon(tvShow.hasEpisodeSubtitles());
     }
-    else if (userObject instanceof TvShowSeason) {
-      TvShowSeason season = ((TvShowSeason) userObject);
+    else if (userObject instanceof TvShowSeason season) {
       return getCheckIcon(season.hasEpisodeSubtitles());
     }
-    else if (userObject instanceof TvShowEpisode) {
-      TvShowEpisode episode = ((TvShowEpisode) userObject);
+    else if (userObject instanceof TvShowEpisode episode) {
       return getCheckIcon(episode.getHasSubtitles());
     }
     return null;
@@ -669,14 +654,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon isWatched(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return getCheckIcon(((TvShow) userObject).isWatched());
+    if (userObject instanceof TvShow tvShow) {
+      return getCheckIcon(tvShow.isWatched());
     }
-    else if (userObject instanceof TvShowSeason) {
-      return getCheckIcon(((TvShowSeason) userObject).isWatched());
+    else if (userObject instanceof TvShowSeason season) {
+      return getCheckIcon(season.isWatched());
     }
-    else if (userObject instanceof TvShowEpisode) {
-      return getCheckIcon(((TvShowEpisode) userObject).isWatched());
+    else if (userObject instanceof TvShowEpisode episode) {
+      return getCheckIcon(episode.isWatched());
     }
     return null;
   }
@@ -698,6 +683,22 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       tvShowValues.addAll(settings.getTvShowCheckMetadata());
     }
 
+    List<TvShowScraperMetadataConfig> seasonValues = new ArrayList<>();
+    if (settings.isTvShowDisplayAllMissingMetadata()) {
+      for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
+        if (config.isMetaData() && config.name().startsWith("SEASON")) {
+          seasonValues.add(config);
+        }
+      }
+    }
+    else {
+      for (TvShowScraperMetadataConfig config : settings.getTvShowCheckMetadata()) {
+        if (config.isMetaData() && config.name().startsWith("SEASON")) {
+          seasonValues.add(config);
+        }
+      }
+    }
+
     List<TvShowEpisodeScraperMetadataConfig> episodeValues = new ArrayList<>();
     if (settings.isEpisodeDisplayAllMissingMetadata()) {
       for (TvShowEpisodeScraperMetadataConfig config : TvShowEpisodeScraperMetadataConfig.values()) {
@@ -710,9 +711,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       episodeValues.addAll(settings.getEpisodeCheckMetadata());
     }
 
-    if (node.getUserObject() instanceof TvShow) {
-      TvShow tvShow = (TvShow) node.getUserObject();
-
+    if (node.getUserObject() instanceof TvShow tvShow) {
       List<TvShowScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(tvShow, tvShowValues);
       boolean missingEpisodeData = false;
 
@@ -749,18 +748,44 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return text;
       }
     }
-    else if (node.getUserObject() instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) node.getUserObject();
+    else if (node.getUserObject() instanceof TvShowSeason season) {
+      List<TvShowScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(season, seasonValues);
+      boolean missingEpisodeData = false;
 
       for (TvShowEpisode episode : season.getEpisodes()) {
-        if (!episode.isDummy() && !tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
-          return TmmResourceBundle.getString("tvshow.tree.episode.metadata.problem");
+        if (episode.isDummy()
+            || (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isEpisodeSpecialsCheckMissingMetadata())) {
+          continue;
+        }
+        if (!tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
+          missingEpisodeData = true;
+          break;
         }
       }
-    }
-    else if (node.getUserObject() instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) node.getUserObject();
 
+      String text = "";
+
+      if (!missingMetadata.isEmpty()) {
+        StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
+        for (TvShowScraperMetadataConfig metadataConfig : missingMetadata) {
+          missing.append("\n").append(metadataConfig.getDescription());
+        }
+
+        text = missing.toString();
+      }
+
+      if (missingEpisodeData) {
+        if (StringUtils.isNotBlank(text)) {
+          text += "\n\n";
+        }
+        text += TmmResourceBundle.getString("tvshow.tree.episode.metadata.problem");
+      }
+
+      if (StringUtils.isNotBlank(text)) {
+        return text;
+      }
+    }
+    else if (node.getUserObject() instanceof TvShowEpisode episode) {
       List<TvShowEpisodeScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(episode, episodeValues);
       if (!missingMetadata.isEmpty()) {
         StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
@@ -815,9 +840,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       episodeValues.addAll(settings.getEpisodeCheckArtwork());
     }
 
-    if (node.getUserObject() instanceof TvShow) {
-      TvShow tvShow = (TvShow) node.getUserObject();
-
+    if (node.getUserObject() instanceof TvShow tvShow) {
       List<TvShowScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(tvShow, tvShowValues);
       boolean missingSeasonEpisodeData = false;
 
@@ -864,9 +887,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return text;
       }
     }
-    else if (node.getUserObject() instanceof TvShowSeason) {
-      TvShowSeason season = (TvShowSeason) node.getUserObject();
-
+    else if (node.getUserObject() instanceof TvShowSeason season) {
       List<TvShowScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(season, seasonValues);
       boolean missingEpisodeData = false;
 
@@ -899,9 +920,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return text;
       }
     }
-    else if (node.getUserObject() instanceof TvShowEpisode) {
-      TvShowEpisode episode = (TvShowEpisode) node.getUserObject();
-
+    else if (node.getUserObject() instanceof TvShowEpisode episode) {
       List<TvShowEpisodeScraperMetadataConfig> missingMetadata = tvShowList.detectMissingFields(episode, episodeValues);
       if (!missingMetadata.isEmpty()) {
         StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
@@ -917,30 +936,30 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getOriginialTitle(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return ((TvShow) userObject).getOriginalTitle();
+    if (userObject instanceof TvShow tvShow) {
+      return tvShow.getOriginalTitle();
     }
-    else if (userObject instanceof TvShowEpisode) {
-      return ((TvShowEpisode) userObject).getOriginalTitle();
+    else if (userObject instanceof TvShowEpisode episode) {
+      return episode.getOriginalTitle();
     }
     return null;
   }
 
   private ImageIcon hasDownloadedMusicTheme(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return getCheckIcon(((TvShow) userObject).getHasMusicTheme());
+    if (userObject instanceof TvShow tvShow) {
+      return getCheckIcon(tvShow.getHasMusicTheme());
     }
     return null;
   }
 
   private ImageIcon hasNote(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof TvShow) {
-      return getCheckIcon(((TvShow) userObject).getHasNote());
+    if (userObject instanceof TvShow tvShow) {
+      return getCheckIcon(tvShow.getHasNote());
     }
-    else if (userObject instanceof TvShowEpisode) {
-      return getCheckIcon(((TvShowEpisode) userObject).getHasNote());
+    else if (userObject instanceof TvShowEpisode episode) {
+      return getCheckIcon(episode.getHasNote());
     }
     return null;
   }
