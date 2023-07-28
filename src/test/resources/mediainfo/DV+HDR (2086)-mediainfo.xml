@@ -1,77 +1,160 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MediaInfo xmlns="https://mediaarea.net/mediainfo"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<MediaInfo xmlns="https://mediaarea.net/mediainfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
            version="2.0">
-	<creatingLibrary version="23.07"
-	                 url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
-	<media ref="DV+HDR (2086).mp4">
-		<track type="General">
-			<VideoCount>1</VideoCount>
-			<AudioCount>1</AudioCount>
-			<FileExtension>mp4</FileExtension>
-			<Format>MPEG-4</Format>
-			<Format_Profile>Base Media / Version 2</Format_Profile>
-			<CodecID>mp42</CodecID>
-			<CodecID_Compatible>mp42/isom/iso5</CodecID_Compatible>
-			<FileSize>345554811</FileSize>
-			<Duration>178.112</Duration>
-			<OverallBitRate>15520787</OverallBitRate>
-			<FrameRate>59.940</FrameRate>
-			<FrameCount>10490</FrameCount>
-			<StreamSize>128572</StreamSize>
-			<HeaderSize>2206</HeaderSize>
-			<DataSize>60019</DataSize>
-			<FooterSize>345492586</FooterSize>
-			<IsStreamable>Yes</IsStreamable>
-			<Encoded_Date>2020-10-06 22:55:34 UTC</Encoded_Date>
-			<Tagged_Date>2020-10-06 22:55:34 UTC</Tagged_Date>
-			<File_Created_Date>2023-07-26 11:46:06.220 UTC</File_Created_Date>
-			<File_Created_Date_Local>2023-07-26 13:46:06.220</File_Created_Date_Local>
-			<File_Modified_Date>2023-07-26 11:50:59.123 UTC</File_Modified_Date>
-			<File_Modified_Date_Local>2023-07-26 13:50:59.123</File_Modified_Date_Local>
-		</track>
-		<track type="Video">
-			<StreamOrder>0</StreamOrder>
-			<ID>1</ID>
-			<Format>HEVC</Format>
-			<Format_Profile>Main 10</Format_Profile>
-			<Format_Level>5.1</Format_Level>
-			<Format_Tier>Main</Format_Tier>
-			<HDR_Format>Dolby Vision / SMPTE ST 2086</HDR_Format>
-			<HDR_Format_Version>1.0 / </HDR_Format_Version>
-			<HDR_Format_Profile>dvhe.08 / </HDR_Format_Profile>
-			<HDR_Format_Level>09 / </HDR_Format_Level>
-			<HDR_Format_Settings>BL+RPU / </HDR_Format_Settings>
-			<HDR_Format_Compatibility>HDR10 / HDR10</HDR_Format_Compatibility>
-			<CodecID>hev1</CodecID>
-			<Duration>175.008</Duration>
-			<BitRate>15138811</BitRate>
-			<Width>3840</Width>
-			<Height>2160</Height>
-			<Sampled_Width>3840</Sampled_Width>
-			<Sampled_Height>2160</Sampled_Height>
-			<PixelAspectRatio>1.000</PixelAspectRatio>
-			<DisplayAspectRatio>1.778</DisplayAspectRatio>
+    <creatingLibrary version="23.07" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="DV+HDR (2086).mp4">
+        <track type="General">
+            <Count>348</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>General</StreamKind>
+            <StreamKind_String>Allgemein</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <Video_Format_List>HEVC</Video_Format_List>
+            <Video_Format_WithHint_List>HEVC</Video_Format_WithHint_List>
+            <Video_Codec_List>HEVC</Video_Codec_List>
+            <Audio_Format_List>E-AC-3 JOC</Audio_Format_List>
+            <Audio_Format_WithHint_List>E-AC-3 JOC</Audio_Format_WithHint_List>
+            <Audio_Codec_List>E-AC-3 JOC</Audio_Codec_List>
+            <Audio_Channels_Total>6</Audio_Channels_Total>
+            <CompleteName>DV+HDR (2086).mp4</CompleteName>
+            <FolderName>Video Test Files</FolderName>
+            <FileNameExtension>DV+HDR (2086).mp4</FileNameExtension>
+            <FileName>DV+HDR (2086)</FileName>
+            <FileExtension>mp4</FileExtension>
+            <Format>MPEG-4</Format>
+            <Format_String>MPEG-4</Format_String>
+            <Format_Extensions>braw mov mp4 m4v m4a m4b m4p m4r 3ga 3gpa 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv ismv isma
+                ismt f4a f4b f4v
+            </Format_Extensions>
+            <Format_Commercial>MPEG-4</Format_Commercial>
+            <Format_Profile>Base Media / Version 2</Format_Profile>
+            <InternetMediaType>video/mp4</InternetMediaType>
+            <CodecID>mp42</CodecID>
+            <CodecID_String>mp42 (mp42/isom/iso5)</CodecID_String>
+            <CodecID_Url>http://www.apple.com/quicktime/download/standalone.html</CodecID_Url>
+            <CodecID_Compatible>mp42/isom/iso5</CodecID_Compatible>
+            <FileSize>345554811</FileSize>
+            <FileSize_String>330 MiB</FileSize_String>
+            <FileSize_String1>330 MiB</FileSize_String1>
+            <FileSize_String2>330 MiB</FileSize_String2>
+            <FileSize_String3>330 MiB</FileSize_String3>
+            <FileSize_String4>329,5 MiB</FileSize_String4>
+            <Duration>178.112</Duration>
+            <Duration_String>2 min 58s</Duration_String>
+            <Duration_String1>2 min 58s 112 ms</Duration_String1>
+            <Duration_String2>2 min 58s</Duration_String2>
+            <Duration_String3>00:02:58.112</Duration_String3>
+            <Duration_String4>00:02:54;58</Duration_String4>
+            <Duration_String5>00:02:58.112 (00:02:54;58)</Duration_String5>
+            <OverallBitRate>15520787</OverallBitRate>
+            <OverallBitRate_String>15,5 Mb/s</OverallBitRate_String>
+            <FrameRate>59.940</FrameRate>
+            <FrameRate_String>59,940 FPS</FrameRate_String>
+            <FrameCount>10490</FrameCount>
+            <StreamSize>128572</StreamSize>
+            <StreamSize_String>126 KiB (0%)</StreamSize_String>
+            <StreamSize_String1>126 KiB</StreamSize_String1>
+            <StreamSize_String2>126 KiB</StreamSize_String2>
+            <StreamSize_String3>126 KiB</StreamSize_String3>
+            <StreamSize_String4>125,6 KiB</StreamSize_String4>
+            <StreamSize_String5>126 KiB (0%)</StreamSize_String5>
+            <StreamSize_Proportion>0.00037</StreamSize_Proportion>
+            <HeaderSize>2206</HeaderSize>
+            <DataSize>60019</DataSize>
+            <FooterSize>345492586</FooterSize>
+            <IsStreamable>Yes</IsStreamable>
+            <Encoded_Date>2020-10-06 22:55:34 UTC</Encoded_Date>
+            <Tagged_Date>2020-10-06 22:55:34 UTC</Tagged_Date>
+            <File_Created_Date>2023-07-26 13:28:59.330 UTC</File_Created_Date>
+            <File_Created_Date_Local>2023-07-26 15:28:59.330</File_Created_Date_Local>
+            <File_Modified_Date>2023-07-26 11:50:59.123 UTC</File_Modified_Date>
+            <File_Modified_Date_Local>2023-07-26 13:50:59.123</File_Modified_Date_Local>
+        </track>
+        <track type="Video">
+            <Count>382</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Video</StreamKind>
+            <StreamKind_String>Video</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <ID_String>1</ID_String>
+            <Format>HEVC</Format>
+            <Format_String>HEVC</Format_String>
+            <Format_Info>High Efficiency Video Coding</Format_Info>
+            <Format_Url>http://www.itu.int</Format_Url>
+            <Format_Commercial>HEVC</Format_Commercial>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>Main</Format_Tier>
+            <HDR_Format>Dolby Vision / SMPTE ST 2086</HDR_Format>
+            <HDR_Format_String>Dolby Vision, Version 1.0, dvhe.08.09, BL+RPU, HDR10 compatible / SMPTE ST 2086, HDR10
+                compatible
+            </HDR_Format_String>
+            <HDR_Format_Commercial>HDR10 / HDR10</HDR_Format_Commercial>
+            <HDR_Format_Version>1.0 /</HDR_Format_Version>
+            <HDR_Format_Profile>dvhe.08 /</HDR_Format_Profile>
+            <HDR_Format_Level>09 /</HDR_Format_Level>
+            <HDR_Format_Settings>BL+RPU /</HDR_Format_Settings>
+            <HDR_Format_Compatibility>HDR10 / HDR10</HDR_Format_Compatibility>
+            <InternetMediaType>video/H265</InternetMediaType>
+            <CodecID>hev1</CodecID>
+            <CodecID_Info>High Efficiency Video Coding</CodecID_Info>
+            <CodecID_Url>http://www.itu.int/</CodecID_Url>
+            <Duration>175.008</Duration>
+            <Duration_String>2 min 55s</Duration_String>
+            <Duration_String1>2 min 55s 8 ms</Duration_String1>
+            <Duration_String2>2 min 55s</Duration_String2>
+            <Duration_String3>00:02:55.008</Duration_String3>
+            <Duration_String4>00:02:54;58</Duration_String4>
+            <Duration_String5>00:02:55.008 (00:02:54;58)</Duration_String5>
+            <BitRate>15138811</BitRate>
+            <BitRate_String>15,1 Mb/s</BitRate_String>
+            <Width>3840</Width>
+            <Width_String>3 840 Pixel</Width_String>
+            <Height>2160</Height>
+            <Height_String>2 160 Pixel</Height_String>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <DisplayAspectRatio_String>16:9</DisplayAspectRatio_String>
 			<Rotation>0.000</Rotation>
 			<FrameRate_Mode>CFR</FrameRate_Mode>
-			<FrameRate>59.940</FrameRate>
-			<FrameRate_Num>60000</FrameRate_Num>
-			<FrameRate_Den>1001</FrameRate_Den>
-			<FrameCount>10490</FrameCount>
-			<ColorSpace>YUV</ColorSpace>
-			<ChromaSubsampling>4:2:0</ChromaSubsampling>
-			<ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
-			<BitDepth>10</BitDepth>
-			<StreamSize>331177279</StreamSize>
-			<Default>Yes</Default>
-			<AlternateGroup>1</AlternateGroup>
-			<colour_description_present>Yes</colour_description_present>
-			<colour_description_present_Source>Stream</colour_description_present_Source>
-			<colour_range>Limited</colour_range>
-			<colour_range_Source>Stream</colour_range_Source>
-			<colour_primaries>BT.2020</colour_primaries>
-			<colour_primaries_Source>Stream</colour_primaries_Source>
+            <FrameRate_Mode_String>konstant</FrameRate_Mode_String>
+            <FrameRate>59.940</FrameRate>
+            <FrameRate_String>59,940 (60000/1001) FPS</FrameRate_String>
+            <FrameRate_Num>60000</FrameRate_Num>
+            <FrameRate_Den>1001</FrameRate_Den>
+            <FrameCount>10490</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_String>4:2:0 (Type 2)</ChromaSubsampling_String>
+            <ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
+            <BitDepth>10</BitDepth>
+            <BitDepth_String>10 bits</BitDepth_String>
+            <BitsPixel_Frame>0.030</BitsPixel_Frame>
+            <StreamSize>331177279</StreamSize>
+            <StreamSize_String>316 MiB (96%)</StreamSize_String>
+            <StreamSize_String1>316 MiB</StreamSize_String1>
+            <StreamSize_String2>316 MiB</StreamSize_String2>
+            <StreamSize_String3>316 MiB</StreamSize_String3>
+            <StreamSize_String4>315,8 MiB</StreamSize_String4>
+            <StreamSize_String5>316 MiB (96%)</StreamSize_String5>
+            <StreamSize_Proportion>0.95839</StreamSize_Proportion>
+            <Default>Yes</Default>
+            <Default_String>Ja</Default_String>
+            <AlternateGroup>1</AlternateGroup>
+            <AlternateGroup_String>1</AlternateGroup_String>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Stream</colour_primaries_Source>
 			<transfer_characteristics>PQ</transfer_characteristics>
 			<transfer_characteristics_Source>Stream</transfer_characteristics_Source>
 			<matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
@@ -84,48 +167,93 @@
 				<CodecConfigurationBox>hvcC+dvvC</CodecConfigurationBox>
 			</extra>
 		</track>
-		<track type="Audio">
-			<StreamOrder>1</StreamOrder>
-			<ID>2</ID>
-			<Format>E-AC-3</Format>
-			<Format_Commercial_IfAny>Dolby Digital Plus with Dolby Atmos</Format_Commercial_IfAny>
-			<Format_Settings_Mode>Dolby Surround EX</Format_Settings_Mode>
-			<Format_Settings_Endianness>Big</Format_Settings_Endianness>
-			<Format_AdditionalFeatures>JOC</Format_AdditionalFeatures>
-			<CodecID>ec-3</CodecID>
-			<Duration>178.112</Duration>
-			<BitRate_Mode>CBR</BitRate_Mode>
-			<BitRate>640000</BitRate>
-			<Channels>6</Channels>
-			<ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
-			<ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
-			<SamplesPerFrame>1536</SamplesPerFrame>
-			<SamplingRate>48000</SamplingRate>
-			<SamplingCount>8549376</SamplingCount>
-			<FrameRate>31.250</FrameRate>
-			<FrameCount>5566</FrameCount>
-			<Compression_Mode>Lossy</Compression_Mode>
-			<StreamSize>14248960</StreamSize>
-			<ServiceKind>CM</ServiceKind>
-			<Default>Yes</Default>
-			<AlternateGroup>2</AlternateGroup>
-			<extra>
-				<ComplexityIndex>16</ComplexityIndex>
-				<NumberOfDynamicObjects>15</NumberOfDynamicObjects>
-				<BedChannelCount>1</BedChannelCount>
+        <track type="Audio">
+            <Count>311</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Audio</StreamKind>
+            <StreamKind_String>Audio</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <ID_String>2</ID_String>
+            <Format>E-AC-3</Format>
+            <Format_String>E-AC-3 JOC</Format_String>
+            <Format_Info>Enhanced AC-3 with Joint Object Coding</Format_Info>
+            <Format_Url>https://en.wikipedia.org/wiki/Dolby_Digital_Plus</Format_Url>
+            <Format_Commercial>Dolby Digital Plus with Dolby Atmos</Format_Commercial>
+            <Format_Commercial_IfAny>Dolby Digital Plus with Dolby Atmos</Format_Commercial_IfAny>
+            <Format_Settings>Dolby Surround EX</Format_Settings>
+            <Format_Settings_Mode>Dolby Surround EX</Format_Settings_Mode>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <Format_AdditionalFeatures>JOC</Format_AdditionalFeatures>
+            <InternetMediaType>audio/eac3</InternetMediaType>
+            <CodecID>ec-3</CodecID>
+            <Duration>178.112</Duration>
+            <Duration_String>2 min 58s</Duration_String>
+            <Duration_String1>2 min 58s 112 ms</Duration_String1>
+            <Duration_String2>2 min 58s</Duration_String2>
+            <Duration_String3>00:02:58.112</Duration_String3>
+            <Duration_String5>00:02:58.112</Duration_String5>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate_Mode_String>konstant</BitRate_Mode_String>
+            <BitRate>640000</BitRate>
+            <BitRate_String>640 kb/s</BitRate_String>
+            <Channels>6</Channels>
+            <Channels_String>6 Kanäle</Channels_String>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelPositions_String2>3/2/0.1</ChannelPositions_String2>
+            <ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingRate_String>48,0 kHz</SamplingRate_String>
+            <SamplingCount>8549376</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameRate_String>31,250 FPS (1536 SPF)</FrameRate_String>
+            <FrameCount>5566</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Compression_Mode_String>Lossy</Compression_Mode_String>
+            <StreamSize>14248960</StreamSize>
+            <StreamSize_String>13,6 MiB (4%)</StreamSize_String>
+            <StreamSize_String1>14 MiB</StreamSize_String1>
+            <StreamSize_String2>14 MiB</StreamSize_String2>
+            <StreamSize_String3>13,6 MiB</StreamSize_String3>
+            <StreamSize_String4>13,59 MiB</StreamSize_String4>
+            <StreamSize_String5>13,6 MiB (4%)</StreamSize_String5>
+            <StreamSize_Proportion>0.04124</StreamSize_Proportion>
+            <ServiceKind>CM</ServiceKind>
+            <ServiceKind_String>Complete Main</ServiceKind_String>
+            <Default>Yes</Default>
+            <Default_String>Ja</Default_String>
+            <AlternateGroup>2</AlternateGroup>
+            <AlternateGroup_String>2</AlternateGroup_String>
+            <extra>
+                <ComplexityIndex>16</ComplexityIndex>
+                <NumberOfDynamicObjects>15</NumberOfDynamicObjects>
+                <BedChannelCount>1</BedChannelCount>
+                <BedChannelCount_String>1 Kanal</BedChannelCount_String>
 				<BedChannelConfiguration>LFE</BedChannelConfiguration>
-				<bsid>16</bsid>
-				<dialnorm>-28</dialnorm>
-				<compr>-0.28</compr>
-				<acmod>7</acmod>
-				<lfeon>1</lfeon>
-				<dialnorm_Average>-28</dialnorm_Average>
-				<dialnorm_Minimum>-28</dialnorm_Minimum>
-				<compr_Average>1.10</compr_Average>
-				<compr_Minimum>0.53</compr_Minimum>
-				<compr_Maximum>1.94</compr_Maximum>
-				<compr_Count>30</compr_Count>
-			</extra>
+                <bsid>16</bsid>
+                <dialnorm>-28</dialnorm>
+                <dialnorm_String>-28 dB</dialnorm_String>
+                <compr>-0.28</compr>
+                <compr_String>-0.28 dB</compr_String>
+                <acmod>7</acmod>
+                <lfeon>1</lfeon>
+                <dialnorm_Average>-28</dialnorm_Average>
+                <dialnorm_Average_String>-28 dB</dialnorm_Average_String>
+                <dialnorm_Minimum>-28</dialnorm_Minimum>
+                <dialnorm_Minimum_String>-28 dB</dialnorm_Minimum_String>
+                <dialnorm_Maximum>-28</dialnorm_Maximum>
+                <dialnorm_Maximum_String>-28 dB</dialnorm_Maximum_String>
+                <dialnorm_Count>32</dialnorm_Count>
+                <compr_Average>1.10</compr_Average>
+                <compr_Average_String>1.10 dB</compr_Average_String>
+                <compr_Minimum>0.53</compr_Minimum>
+                <compr_Minimum_String>0.53 dB</compr_Minimum_String>
+                <compr_Maximum>1.94</compr_Maximum>
+                <compr_Maximum_String>1.94 dB</compr_Maximum_String>
+                <compr_Count>30</compr_Count>
+            </extra>
 		</track>
 	</media>
 </MediaInfo>

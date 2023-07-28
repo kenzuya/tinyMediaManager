@@ -2488,16 +2488,15 @@ public class MediaFileHelper {
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));
 
     // prefer official HDR namings (see https://de.wikipedia.org/wiki/High_Dynamic_Range_Video) over technical
-    String hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
-    if (StringUtils.isBlank(hdrFormat)) {
-      // no HDR format found? try another mediainfo field
-      hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
-    }
+    String hdrFormat = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_String", "HDR_Format");
+    String hdrCompat = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility");
+    // detect them combined!
+    hdrFormat = detectHdrFormat(hdrFormat + " / " + hdrCompat);
+
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
       hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
-
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check color space
       String col = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "colour_primaries");
@@ -2523,20 +2522,22 @@ public class MediaFileHelper {
   // MediaInfo values: https://github.com/MediaArea/MediaInfoLib/blob/master/Source/MediaInfo/Video/File_Mpegv.cpp#L34
   private static String detectHdrFormat(String source) {
     source = source.toLowerCase(Locale.ROOT);
+    ArrayList<String> ret = new ArrayList<>();
 
     if (source.contains("dolby vision")) {
-      return "Dolby Vision";
+      ret.add("Dolby Vision");
     }
-    else if (source.contains("hlg")) {
-      return "HLG";
+    if (source.contains("hlg")) {
+      ret.add("HLG");
     }
-    else if (source.contains("2094")) { // according to wiki this is SMPTE 2094
-      return "HDR10+";
+    if (source.contains("2094") || source.contains("hdr10+")) {
+      ret.add("HDR10+");
     }
-    else if (source.contains("hdr10")) {
-      return "HDR10";
+    source = source.replaceAll("hdr10\\+", "");
+    if ((source.contains("2086") || source.contains("hdr10"))) {
+      ret.add("HDR10");
     }
-    return "";
+    return String.join(", ", ret);
   }
 
   /**

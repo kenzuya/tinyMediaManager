@@ -1194,9 +1194,12 @@ public final class MovieList extends AbstractModelObject {
           audioLanguages.addAll(mf.getAudioLanguagesList());
         }
 
-        // HDR Format
+        // HDR Format (comma separated)
         if (!mf.getHdrFormat().isEmpty()) {
-          hdrFormat.add(mf.getHdrFormat());
+          String[] hdrs = mf.getHdrFormat().split(", ");
+          for (String hdr : hdrs) {
+            hdrFormat.add(hdr);
+          }
         }
 
         // Audio Titles

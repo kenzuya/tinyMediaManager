@@ -1087,7 +1087,12 @@ public final class TvShowList extends AbstractModelObject {
           subtitleCount = mf.getSubtitles().size();
 
           // HDR Format
-          hdrFormat.add(mf.getHdrFormat());
+          if (!mf.getHdrFormat().isEmpty()) {
+            String[] hdrs = mf.getHdrFormat().split(", ");
+            for (String hdr : hdrs) {
+              hdrFormat.add(hdr);
+            }
+          }
         }
 
         first = false;

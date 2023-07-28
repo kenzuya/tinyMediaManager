@@ -604,15 +604,36 @@ public class MediaInfoTest extends BasicTest {
   public void testHdrDetection() throws Exception {
     copyResourceFolderToWorkFolder("mediainfo");
     Path mediainfoFolder = getWorkFolder().resolve("mediainfo");
+    MediaFile mf = null;
+
+    // DV+HDR
+    mf = new MediaFile(mediainfoFolder.resolve("DV+HDR (2086).mp4"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10");
+
+    // DV+HLG
+    mf = new MediaFile(mediainfoFolder.resolve("DV+HLG.mov"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HLG");
+
+    // HDR
+    mf = new MediaFile(mediainfoFolder.resolve("HDR (2086).mkv"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    // HDR10+
+    mf = new MediaFile(mediainfoFolder.resolve("HDR10+ (2094).mkv"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
 
     // Dolby Vision
-    MediaFile mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10+, HDR10");
 
     mf = new MediaFile(mediainfoFolder.resolve("dolby_vision2.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10+, HDR10");
 
     // HDR10
     mf = new MediaFile(mediainfoFolder.resolve("hdr10.avi"));
@@ -626,7 +647,7 @@ public class MediaInfoTest extends BasicTest {
     // HDR10+
     mf = new MediaFile(mediainfoFolder.resolve("hdr10plus.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+, HDR10");
 
     // HLG
     mf = new MediaFile(mediainfoFolder.resolve("hlg.avi"));

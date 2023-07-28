@@ -1,87 +1,183 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MediaInfo xmlns="https://mediaarea.net/mediainfo"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<MediaInfo xmlns="https://mediaarea.net/mediainfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
            version="2.0">
-	<creatingLibrary version="23.07"
-	                 url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
-	<media ref="DV+HLG.mov">
-		<track type="General">
-			<VideoCount>1</VideoCount>
-			<AudioCount>1</AudioCount>
-			<FileExtension>mov</FileExtension>
-			<Format>MPEG-4</Format>
-			<Format_Profile>QuickTime</Format_Profile>
-			<CodecID>qt  </CodecID>
-			<CodecID_Version>0000.00</CodecID_Version>
-			<CodecID_Compatible>qt  </CodecID_Compatible>
-			<FileSize>152474459</FileSize>
-			<Duration>17.475</Duration>
-			<OverallBitRate>69802327</OverallBitRate>
-			<FrameRate>59.042</FrameRate>
-			<FrameCount>1032</FrameCount>
-			<StreamSize>8428868</StreamSize>
-			<HeaderSize>28</HeaderSize>
-			<DataSize>152454141</DataSize>
-			<FooterSize>20290</FooterSize>
-			<IsStreamable>No</IsStreamable>
-			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
-			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
-			<File_Created_Date>2023-07-26 12:18:48.250 UTC</File_Created_Date>
-			<File_Created_Date_Local>2023-07-26 14:18:48.250</File_Created_Date_Local>
-			<File_Modified_Date>2023-07-26 12:19:31.798 UTC</File_Modified_Date>
-			<File_Modified_Date_Local>2023-07-26 14:19:31.798</File_Modified_Date_Local>
-			<Encoded_Library>Apple QuickTime</Encoded_Library>
-			<Encoded_Library_Name>Apple QuickTime</Encoded_Library_Name>
-			<extra>
-				<com_apple_quicktime_creationdate>2020-12-18T17:21:13-0500</com_apple_quicktime_creationdate>
-				<com_apple_quicktime_location_ISO6709>+33.4232-084.5802/</com_apple_quicktime_location_ISO6709>
-			</extra>
-		</track>
-		<track type="Video">
-			<StreamOrder>0</StreamOrder>
-			<ID>1</ID>
-			<Format>HEVC</Format>
-			<Format_Profile>Main 10</Format_Profile>
-			<Format_Level>5.1</Format_Level>
-			<Format_Tier>High</Format_Tier>
-			<HDR_Format>Dolby Vision</HDR_Format>
-			<HDR_Format_Version>1.0</HDR_Format_Version>
-			<HDR_Format_Profile>dvhe.08</HDR_Format_Profile>
-			<HDR_Format_Level>12</HDR_Format_Level>
-			<HDR_Format_Settings>BL+RPU</HDR_Format_Settings>
-			<HDR_Format_Compatibility>HLG</HDR_Format_Compatibility>
-			<CodecID>hvc1</CodecID>
-			<Duration>17.475</Duration>
-			<Source_Duration>18.478</Source_Duration>
-			<BitRate>64392547</BitRate>
-			<Width>3840</Width>
-			<Height>2160</Height>
-			<Sampled_Width>3840</Sampled_Width>
-			<Sampled_Height>2160</Sampled_Height>
-			<PixelAspectRatio>1.000</PixelAspectRatio>
-			<DisplayAspectRatio>1.778</DisplayAspectRatio>
+    <creatingLibrary version="23.07" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="DV+HLG.mov">
+        <track type="General">
+            <Count>350</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>General</StreamKind>
+            <StreamKind_String>Allgemein</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <Video_Format_List>HEVC</Video_Format_List>
+            <Video_Format_WithHint_List>HEVC</Video_Format_WithHint_List>
+            <Video_Codec_List>HEVC</Video_Codec_List>
+            <Audio_Format_List>PCM</Audio_Format_List>
+            <Audio_Format_WithHint_List>PCM</Audio_Format_WithHint_List>
+            <Audio_Codec_List>PCM</Audio_Codec_List>
+            <Audio_Channels_Total>2</Audio_Channels_Total>
+            <CompleteName>DV+HLG.mov</CompleteName>
+            <FolderName>Video Test Files</FolderName>
+            <FileNameExtension>DV+HLG.mov</FileNameExtension>
+            <FileName>DV+HLG</FileName>
+            <FileExtension>mov</FileExtension>
+            <Format>MPEG-4</Format>
+            <Format_String>MPEG-4</Format_String>
+            <Format_Extensions>braw mov mp4 m4v m4a m4b m4p m4r 3ga 3gpa 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv ismv isma
+                ismt f4a f4b f4v
+            </Format_Extensions>
+            <Format_Commercial>MPEG-4</Format_Commercial>
+            <Format_Profile>QuickTime</Format_Profile>
+            <InternetMediaType>video/mp4</InternetMediaType>
+            <CodecID>qt</CodecID>
+            <CodecID_String>qt 0000.00 (qt )</CodecID_String>
+            <CodecID_Url>http://www.apple.com/quicktime/download/standalone.html</CodecID_Url>
+            <CodecID_Version>0000.00</CodecID_Version>
+            <CodecID_Compatible>qt</CodecID_Compatible>
+            <FileSize>152474459</FileSize>
+            <FileSize_String>145 MiB</FileSize_String>
+            <FileSize_String1>145 MiB</FileSize_String1>
+            <FileSize_String2>145 MiB</FileSize_String2>
+            <FileSize_String3>145 MiB</FileSize_String3>
+            <FileSize_String4>145,4 MiB</FileSize_String4>
+            <Duration>17.475</Duration>
+            <Duration_String>17s 475 ms</Duration_String>
+            <Duration_String1>17s 475 ms</Duration_String1>
+            <Duration_String2>17s 475 ms</Duration_String2>
+            <Duration_String3>00:00:17.475</Duration_String3>
+            <Duration_String4>00:00:17:29</Duration_String4>
+            <Duration_String5>00:00:17.475 (00:00:17:29)</Duration_String5>
+            <OverallBitRate>69802327</OverallBitRate>
+            <OverallBitRate_String>69,8 Mb/s</OverallBitRate_String>
+            <FrameRate>59.042</FrameRate>
+            <FrameRate_String>59,042 FPS</FrameRate_String>
+            <FrameCount>1032</FrameCount>
+            <StreamSize>8428868</StreamSize>
+            <StreamSize_String>8,04 MiB (6%)</StreamSize_String>
+            <StreamSize_String1>8 MiB</StreamSize_String1>
+            <StreamSize_String2>8,0 MiB</StreamSize_String2>
+            <StreamSize_String3>8,04 MiB</StreamSize_String3>
+            <StreamSize_String4>8,038 MiB</StreamSize_String4>
+            <StreamSize_String5>8,04 MiB (6%)</StreamSize_String5>
+            <StreamSize_Proportion>0.05528</StreamSize_Proportion>
+            <HeaderSize>28</HeaderSize>
+            <DataSize>152454141</DataSize>
+            <FooterSize>20290</FooterSize>
+            <IsStreamable>No</IsStreamable>
+            <Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+            <Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+            <File_Created_Date>2023-07-26 13:28:59.426 UTC</File_Created_Date>
+            <File_Created_Date_Local>2023-07-26 15:28:59.426</File_Created_Date_Local>
+            <File_Modified_Date>2023-07-26 12:19:31.798 UTC</File_Modified_Date>
+            <File_Modified_Date_Local>2023-07-26 14:19:31.798</File_Modified_Date_Local>
+            <Encoded_Library>Apple QuickTime</Encoded_Library>
+            <Encoded_Library_String>Apple QuickTime</Encoded_Library_String>
+            <Encoded_Library_Name>Apple QuickTime</Encoded_Library_Name>
+            <extra>
+                <com_apple_quicktime_creationdate>2020-12-18T17:21:13-0500</com_apple_quicktime_creationdate>
+                <com_apple_quicktime_location_ISO6709>+33.4232-084.5802/</com_apple_quicktime_location_ISO6709>
+            </extra>
+        </track>
+        <track type="Video">
+            <Count>384</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Video</StreamKind>
+            <StreamKind_String>Video</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <ID_String>1</ID_String>
+            <Format>HEVC</Format>
+            <Format_String>HEVC</Format_String>
+            <Format_Info>High Efficiency Video Coding</Format_Info>
+            <Format_Url>http://www.itu.int</Format_Url>
+            <Format_Commercial>HEVC</Format_Commercial>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>High</Format_Tier>
+            <HDR_Format>Dolby Vision</HDR_Format>
+            <HDR_Format_String>Dolby Vision, Version 1.0, dvhe.08.12, BL+RPU, HLG compatible</HDR_Format_String>
+            <HDR_Format_Commercial>HLG</HDR_Format_Commercial>
+            <HDR_Format_Version>1.0</HDR_Format_Version>
+            <HDR_Format_Profile>dvhe.08</HDR_Format_Profile>
+            <HDR_Format_Level>12</HDR_Format_Level>
+            <HDR_Format_Settings>BL+RPU</HDR_Format_Settings>
+            <HDR_Format_Compatibility>HLG</HDR_Format_Compatibility>
+            <InternetMediaType>video/H265</InternetMediaType>
+            <CodecID>hvc1</CodecID>
+            <CodecID_Info>High Efficiency Video Coding</CodecID_Info>
+            <CodecID_Url>http://www.itu.int/</CodecID_Url>
+            <Duration>17.475</Duration>
+            <Duration_String>17s 475 ms</Duration_String>
+            <Duration_String1>17s 475 ms</Duration_String1>
+            <Duration_String2>17s 475 ms</Duration_String2>
+            <Duration_String3>00:00:17.475</Duration_String3>
+            <Duration_String4>00:00:17:29</Duration_String4>
+            <Duration_String5>00:00:17.475 (00:00:17:29)</Duration_String5>
+            <Source_Duration>18.478</Source_Duration>
+            <Source_Duration_String>18s 478 ms</Source_Duration_String>
+            <Source_Duration_String1>18s 478 ms</Source_Duration_String1>
+            <Source_Duration_String2>18s 478 ms</Source_Duration_String2>
+            <Source_Duration_String3>00:00:18.478</Source_Duration_String3>
+            <Source_Duration_String4>00:00:18:29</Source_Duration_String4>
+            <Source_Duration_String5>00:00:18.478 (00:00:18:29)</Source_Duration_String5>
+            <BitRate>64392547</BitRate>
+            <BitRate_String>64,4 Mb/s</BitRate_String>
+            <Width>3840</Width>
+            <Width_String>3 840 Pixel</Width_String>
+            <Height>2160</Height>
+            <Height_String>2 160 Pixel</Height_String>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <DisplayAspectRatio_String>16:9</DisplayAspectRatio_String>
 			<Rotation>0.000</Rotation>
 			<FrameRate_Mode>VFR</FrameRate_Mode>
+            <FrameRate_Mode_String>variabel</FrameRate_Mode_String>
 			<FrameRate>59.042</FrameRate>
-			<FrameRate_Minimum>10.000</FrameRate_Minimum>
-			<FrameRate_Maximum>60.000</FrameRate_Maximum>
-			<FrameCount>1032</FrameCount>
-			<ColorSpace>YUV</ColorSpace>
-			<ChromaSubsampling>4:2:0</ChromaSubsampling>
-			<BitDepth>10</BitDepth>
-			<StreamSize>140690331</StreamSize>
-			<Source_StreamSize>148894709</Source_StreamSize>
-			<Title>Core Media Video</Title>
-			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
-			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
-			<colour_description_present>Yes</colour_description_present>
-			<colour_description_present_Source>Container / Stream</colour_description_present_Source>
-			<colour_range>Full</colour_range>
-			<colour_range_Source>Stream</colour_range_Source>
-			<colour_primaries>BT.2020</colour_primaries>
-			<colour_primaries_Source>Container / Stream</colour_primaries_Source>
-			<transfer_characteristics>HLG</transfer_characteristics>
+            <FrameRate_String>59,042 FPS</FrameRate_String>
+            <FrameRate_Minimum>10.000</FrameRate_Minimum>
+            <FrameRate_Minimum_String>10,000 FPS</FrameRate_Minimum_String>
+            <FrameRate_Maximum>60.000</FrameRate_Maximum>
+            <FrameRate_Maximum_String>60,000 FPS</FrameRate_Maximum_String>
+            <FrameCount>1032</FrameCount>
+            <Source_FrameCount>1091</Source_FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_String>4:2:0</ChromaSubsampling_String>
+            <BitDepth>10</BitDepth>
+            <BitDepth_String>10 bits</BitDepth_String>
+            <BitsPixel_Frame>0.131</BitsPixel_Frame>
+            <StreamSize>140690331</StreamSize>
+            <StreamSize_String>134 MiB (92%)</StreamSize_String>
+            <StreamSize_String1>134 MiB</StreamSize_String1>
+            <StreamSize_String2>134 MiB</StreamSize_String2>
+            <StreamSize_String3>134 MiB</StreamSize_String3>
+            <StreamSize_String4>134,2 MiB</StreamSize_String4>
+            <StreamSize_String5>134 MiB (92%)</StreamSize_String5>
+            <StreamSize_Proportion>0.92271</StreamSize_Proportion>
+            <Source_StreamSize>148894709</Source_StreamSize>
+            <Source_StreamSize_String>142 MiB (98%)</Source_StreamSize_String>
+            <Source_StreamSize_String1>142 MiB</Source_StreamSize_String1>
+            <Source_StreamSize_String2>142 MiB</Source_StreamSize_String2>
+            <Source_StreamSize_String3>142 MiB</Source_StreamSize_String3>
+            <Source_StreamSize_String4>142,0 MiB</Source_StreamSize_String4>
+            <Source_StreamSize_String5>142 MiB (98%)</Source_StreamSize_String5>
+            <Source_StreamSize_Proportion>0.97652</Source_StreamSize_Proportion>
+            <Title>Core Media Video</Title>
+            <Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+            <Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Container / Stream</colour_description_present_Source>
+            <colour_range>Full</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Container / Stream</colour_primaries_Source>
+            <transfer_characteristics>HLG</transfer_characteristics>
 			<transfer_characteristics_Source>Container / Stream</transfer_characteristics_Source>
 			<matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
 			<matrix_coefficients_Source>Container / Stream</matrix_coefficients_Source>
@@ -91,28 +187,66 @@
 				<CodecConfigurationBox>hvcC+dvvC</CodecConfigurationBox>
 			</extra>
 		</track>
-		<track type="Audio">
-			<StreamOrder>1</StreamOrder>
-			<ID>2</ID>
-			<Format>PCM</Format>
-			<Format_Settings_Endianness>Little</Format_Settings_Endianness>
-			<Format_Settings_Sign>Signed</Format_Settings_Sign>
-			<CodecID>lpcm</CodecID>
-			<Duration>17.475</Duration>
-			<Source_Duration>18.539</Source_Duration>
-			<BitRate_Mode>CBR</BitRate_Mode>
-			<BitRate>1536000</BitRate>
-			<Channels>2</Channels>
-			<ChannelPositions>Front: L R</ChannelPositions>
-			<ChannelLayout>L R</ChannelLayout>
-			<SamplingRate>48000</SamplingRate>
-			<SamplingCount>838800</SamplingCount>
-			<BitDepth>16</BitDepth>
-			<StreamSize>3355260</StreamSize>
-			<Source_StreamSize>3559424</Source_StreamSize>
-			<Title>Core Media Audio</Title>
-			<Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
-			<Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
-		</track>
+        <track type="Audio">
+            <Count>285</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Audio</StreamKind>
+            <StreamKind_String>Audio</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <ID_String>2</ID_String>
+            <Format>PCM</Format>
+            <Format_String>PCM</Format_String>
+            <Format_Commercial>PCM</Format_Commercial>
+            <Format_Settings>Little / Signed</Format_Settings>
+            <Format_Settings_Endianness>Little</Format_Settings_Endianness>
+            <Format_Settings_Sign>Signed</Format_Settings_Sign>
+            <CodecID>lpcm</CodecID>
+            <Duration>17.475</Duration>
+            <Duration_String>17s 475 ms</Duration_String>
+            <Duration_String1>17s 475 ms</Duration_String1>
+            <Duration_String2>17s 475 ms</Duration_String2>
+            <Duration_String3>00:00:17.475</Duration_String3>
+            <Duration_String5>00:00:17.475</Duration_String5>
+            <Source_Duration>18.539</Source_Duration>
+            <Source_Duration_String>18s 539 ms</Source_Duration_String>
+            <Source_Duration_String1>18s 539 ms</Source_Duration_String1>
+            <Source_Duration_String2>18s 539 ms</Source_Duration_String2>
+            <Source_Duration_String3>00:00:18.539</Source_Duration_String3>
+            <Source_Duration_String5>00:00:18.539</Source_Duration_String5>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate_Mode_String>konstant</BitRate_Mode_String>
+            <BitRate>1536000</BitRate>
+            <BitRate_String>1 536 kb/s</BitRate_String>
+            <Channels>2</Channels>
+            <Channels_String>2 Kanäle</Channels_String>
+            <ChannelPositions>Front: L R</ChannelPositions>
+            <ChannelLayout>L R</ChannelLayout>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingRate_String>48,0 kHz</SamplingRate_String>
+            <SamplingCount>838800</SamplingCount>
+            <BitDepth>16</BitDepth>
+            <BitDepth_String>16 bits</BitDepth_String>
+            <StreamSize>3355260</StreamSize>
+            <StreamSize_String>3,20 MiB (2%)</StreamSize_String>
+            <StreamSize_String1>3 MiB</StreamSize_String1>
+            <StreamSize_String2>3,2 MiB</StreamSize_String2>
+            <StreamSize_String3>3,20 MiB</StreamSize_String3>
+            <StreamSize_String4>3,200 MiB</StreamSize_String4>
+            <StreamSize_String5>3,20 MiB (2%)</StreamSize_String5>
+            <StreamSize_Proportion>0.02201</StreamSize_Proportion>
+            <Source_StreamSize>3559424</Source_StreamSize>
+            <Source_StreamSize_String>3,39 MiB (2%)</Source_StreamSize_String>
+            <Source_StreamSize_String1>3 MiB</Source_StreamSize_String1>
+            <Source_StreamSize_String2>3,4 MiB</Source_StreamSize_String2>
+            <Source_StreamSize_String3>3,39 MiB</Source_StreamSize_String3>
+            <Source_StreamSize_String4>3,395 MiB</Source_StreamSize_String4>
+            <Source_StreamSize_String5>3,39 MiB (2%)</Source_StreamSize_String5>
+            <Source_StreamSize_Proportion>0.02334</Source_StreamSize_Proportion>
+            <Title>Core Media Audio</Title>
+            <Encoded_Date>2020-12-18 22:21:13 UTC</Encoded_Date>
+            <Tagged_Date>2020-12-18 22:21:32 UTC</Tagged_Date>
+        </track>
 	</media>
 </MediaInfo>

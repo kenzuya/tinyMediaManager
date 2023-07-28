@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.filters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -41,7 +40,7 @@ public class MovieHDRFormatFilter extends AbstractCheckComboBoxMovieUIFilter<Str
   public MovieHDRFormatFilter() {
 
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).contains(s2));
     buildHdrFormatArray();
     movieList.addPropertyChangeListener(Constants.HDR_FORMAT, evt -> SwingUtilities.invokeLater(this::buildHdrFormatArray));
 
@@ -60,7 +59,15 @@ public class MovieHDRFormatFilter extends AbstractCheckComboBoxMovieUIFilter<Str
   @Override
   public boolean accept(Movie movie) {
     List<String> selectedItems = checkComboBox.getSelectedItems();
-    return selectedItems.contains(movie.getVideoHDRFormat());
+    if (selectedItems.isEmpty() && movie.getVideoHDRFormat().isEmpty()) {
+      return true;
+    }
+    for (String sel : selectedItems) {
+      if (!movie.getVideoHDRFormat().contains(sel)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

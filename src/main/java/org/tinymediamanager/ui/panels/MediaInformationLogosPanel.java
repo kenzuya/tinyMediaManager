@@ -44,7 +44,9 @@ public class MediaInformationLogosPanel extends JPanel {
   private final JLabel      lblAspectRatio;
   private final JLabel      lblVideoCodec;
   private final JLabel      lblVideo3d;
-  private final JLabel      lblVideoHdr;
+  private final JLabel      lblVideoHdr1;
+  private final JLabel      lblVideoHdr2;
+  private final JLabel      lblVideoHdr3;
   private final JLabel      lblAudioCodec;
   private final JLabel      lblAudioChannels;
   private final JLabel      lblSource;
@@ -60,8 +62,12 @@ public class MediaInformationLogosPanel extends JPanel {
     add(lblVideoCodec, "cell 2 0, bottom");
     lblVideo3d = new JLabel();
     add(lblVideo3d, "cell 3 0, bottom");
-    lblVideoHdr = new JLabel();
-    add(lblVideoHdr, "cell 4 0, bottom");
+    lblVideoHdr1 = new JLabel();
+    add(lblVideoHdr1, "cell 4 0, bottom");
+    lblVideoHdr2 = new JLabel();
+    add(lblVideoHdr2, "cell 4 0, bottom");
+    lblVideoHdr3 = new JLabel();
+    add(lblVideoHdr1, "cell 4 0, bottom");
 
     lblAudioChannels = new JLabel();
     add(lblAudioChannels, "cell 6 0, bottom");
@@ -93,7 +99,9 @@ public class MediaInformationLogosPanel extends JPanel {
     setIcon(lblAspectRatio, getAspectRatioIcon());
     setIcon(lblVideoCodec, getVideoCodecIcon());
     setIcon(lblVideo3d, getVideo3dIcon());
-    setIcon(lblVideoHdr, getVideoHdrIcon());
+    setIcon(lblVideoHdr1, getVideoHdrIcon(0));
+    setIcon(lblVideoHdr2, getVideoHdrIcon(1));
+    setIcon(lblVideoHdr3, getVideoHdrIcon(2));
     setIcon(lblAudioCodec, getAudioCodecIcon());
     setIcon(lblAudioChannels, getAudioChannelsIcon());
     setIcon(lblSource, getSourceIcon());
@@ -249,19 +257,33 @@ public class MediaInformationLogosPanel extends JPanel {
    *
    * @return the icon or null
    */
-  private Icon getVideoHdrIcon() {
+  private Icon getVideoHdrIcon(int num) {
     String hdrFormat = mediaInformationSource.getVideoHDRFormat();
     // a) return null if the video is not in 3D
     if (StringUtils.isBlank(hdrFormat)) {
       return null;
     }
 
-    try {
-      return new MediaInfoIcon("video/" + hdrFormat.toLowerCase(Locale.ROOT).replace(" ", "_") + ".svg");
+    String[] split = hdrFormat.split(", ");
+    int i = 0;
+    for (String hdr : split) {
+      if (num == i) {
+        try {
+          return new MediaInfoIcon("video/" + hdr.toLowerCase(Locale.ROOT).replace(" ", "_") + ".svg");
+        }
+        catch (Exception e) {
+          try {
+            return new GenericVideoCodecIcon(hdr);
+          }
+          catch (Exception e1) {
+            return null;
+          }
+        }
+      }
+      i++;
     }
-    catch (Exception e) {
-      return null;
-    }
+
+    return null;
   }
 
   /**

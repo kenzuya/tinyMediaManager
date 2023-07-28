@@ -20,14 +20,11 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -44,7 +41,7 @@ public class TvShowHDRFormatFilter extends AbstractCheckComboBoxTvShowUIFilter<S
 
   public TvShowHDRFormatFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> s.contains(s2));
     buildHdrArray();
     PropertyChangeListener propertyChangeListener = evt -> buildHdrArray();
     tvShowList.addPropertyChangeListener(Constants.HDR_FORMAT, propertyChangeListener);
@@ -73,17 +70,15 @@ public class TvShowHDRFormatFilter extends AbstractCheckComboBoxTvShowUIFilter<S
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
 
-    List<String> hdrformat = checkComboBox.getSelectedItems();
+    List<String> selectedItems = checkComboBox.getSelectedItems();
 
     for (TvShowEpisode episode : episodes) {
-      List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
-      for (MediaFile mf : mfs) {
-        if (invert ^ hdrformat.contains(mf.getHdrFormat())) {
+      for (String sel : selectedItems) {
+        if (invert ^ episode.getVideoHDRFormat().contains(sel)) {
           return true;
         }
       }
     }
-
     return false;
   }
 

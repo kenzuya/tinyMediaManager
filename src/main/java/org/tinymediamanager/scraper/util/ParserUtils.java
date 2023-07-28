@@ -48,7 +48,7 @@ public class ParserUtils {
       "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "dd20", "dd51", "disc1", "disc2", "disc3", "disc4", "disc5",
       "disc6", "disc7", "disc8", "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3",
       "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264",
-      "h265", "hd", "hddvd", "hdr", "hdr10", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd",
+      "h265", "hd", "hddvd", "hdr", "hdr10", "hdr10+", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd",
       "multisubs", "mp3", "netflixhd", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "remastered", "repack",
       "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd",
       "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264", "x265", "xf", "xvid", "xvidvd", "8bit",
