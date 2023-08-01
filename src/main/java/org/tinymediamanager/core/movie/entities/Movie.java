@@ -2623,6 +2623,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public List<String> getMediaInfoSubtitleCodecList() {
+    List<String> codecs = new ArrayList<>(getMainVideoFile().getSubtitleCodecList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
+      codecs.addAll(mf.getSubtitleCodecList());
+    }
+    return codecs;
+  }
+
+  @Override
   public String getMediaInfoContainerFormat() {
     return getMainVideoFile().getContainerFormat();
   }

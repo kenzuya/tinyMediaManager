@@ -64,9 +64,9 @@ public class TvShowSubtitleFormatFilter extends AbstractCheckComboBoxTvShowUIFil
     List<String> selectedItems = checkComboBox.getSelectedItems();
 
     for (TvShowEpisode episode : episodes) {
-      List<String> epLang = episode.getMediaInfoSubtitleLanguageList();
+      List<String> epCodecs = episode.getMediaInfoSubtitleCodecList();
       for (String sel : selectedItems) {
-        if (invert ^ epLang.contains(sel)) {
+        if (invert ^ epCodecs.contains(sel)) {
           return true;
         }
       }

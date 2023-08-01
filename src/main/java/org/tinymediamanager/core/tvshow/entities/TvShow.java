@@ -1976,6 +1976,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public List<String> getMediaInfoSubtitleCodecList() {
+    return Collections.emptyList();
+  }
+
+  @Override
   public String getMediaInfoContainerFormat() {
     return "";
   }

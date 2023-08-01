@@ -70,9 +70,9 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
   public boolean accept(Movie movie) {
 
     List<String> selectedItems = checkComboBox.getSelectedItems();
-    List<String> epLang = movie.getMediaInfoSubtitleLanguageList();
+    List<String> lang = movie.getMediaInfoSubtitleLanguageList();
     for (String sel : selectedItems) {
-      if (epLang.contains(sel)) {
+      if (lang.contains(sel)) {
         return true;
       }
     }

@@ -176,6 +176,13 @@ public interface IMediaInformation {
   List<String> getMediaInfoSubtitleLanguageList();
 
   /**
+   * gets all subtitle languages (e.g, de) from the subtitle streams as List
+   *
+   * @return the subtitle languages from all streams
+   */
+  List<String> getMediaInfoSubtitleCodecList();
+
+  /**
    * gets the container format
    * 
    * @return the container format

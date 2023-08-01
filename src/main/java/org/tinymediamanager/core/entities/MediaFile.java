@@ -670,6 +670,25 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return subtitleLanguages;
   }
 
+  /**
+   * gets the subtitle codec from all streams as List
+   *
+   * @return the subtitle languages as List
+   */
+  public List<String> getSubtitleCodecList() {
+    List<String> subtitleLanguages = new ArrayList<>();
+
+    for (MediaFileSubtitle stream : ListUtils.nullSafe(subtitles)) {
+
+      // just in case we couldn't detect the codec name
+      if (StringUtils.isBlank(stream.getCodec())) {
+        continue;
+      }
+      subtitleLanguages.add(stream.getCodec());
+    }
+    return subtitleLanguages;
+  }
+
   public String getSubtitlesAsString() {
 
     if (this.subtitles == null) {
