@@ -220,7 +220,7 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
     }
 
     if (column.getHeaderRenderer()instanceof JComponent headerRenderer) {
-      headerRenderer.setToolTipText(getHeaderTooltip(columnIndex));
+      headerRenderer.setToolTipText(getHeaderTooltip(columnIndex + 1)); // because inside the method an explicit -1 is already done as above
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));
