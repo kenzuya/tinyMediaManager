@@ -579,7 +579,11 @@ public class MovieSetArtworkHelper {
 
     // should we fall back to _any_ artwork?
     if (MovieModuleManager.getInstance().getSettings().isImageScraperFallback()) {
-      sortedArtwork.add(artwork.get(0));
+      for (MediaArtwork art : artwork) {
+        if (!sortedArtwork.contains(art) && art.getType() == type) {
+          sortedArtwork.add(art);
+        }
+      }
     }
 
     return sortedArtwork;

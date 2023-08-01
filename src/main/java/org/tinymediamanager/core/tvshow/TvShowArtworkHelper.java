@@ -70,7 +70,7 @@ public class TvShowArtworkHelper {
   private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private TvShowArtworkHelper() {
-    // use private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**

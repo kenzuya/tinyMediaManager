@@ -61,7 +61,7 @@ public class MovieArtworkHelper {
   private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private MovieArtworkHelper() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -989,7 +989,11 @@ public class MovieArtworkHelper {
 
     // should we fall back to _any_ artwork?
     if (MovieModuleManager.getInstance().getSettings().isImageScraperFallback()) {
-      sortedArtwork.add(artwork.get(0));
+      for (MediaArtwork art : artwork) {
+        if (!sortedArtwork.contains(art) && art.getType() == type) {
+          sortedArtwork.add(art);
+        }
+      }
     }
 
     return sortedArtwork;
