@@ -365,7 +365,7 @@ public class StrgUtils {
       }
       else {
         char c = target[i];
-        if ((c > 0x20 && c < 0x40) || (c > 0x7a && c < 0xc0) || (c > 0x5a && c < 0x61) || (c > 0x79 && c < 0xc0) || c == 0xd7 || c == 0xf7) {
+        if ((c > 0x20 && c < 0x40) || (c > 0x7a && c < 0xc0) || (c > 0x5a && c < 0x61) || c == 0xd7 || c == 0xf7) {
           result.append(c);
         }
         else if (Character.isDigit(c) || Character.isISOControl(c)) {
