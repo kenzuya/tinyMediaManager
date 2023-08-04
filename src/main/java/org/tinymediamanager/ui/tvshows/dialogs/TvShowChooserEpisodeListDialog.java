@@ -113,7 +113,7 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
       if (episodeGroup != null) {
         // try to find the best matching episode in the given episode group
         for (MediaMetadata md : tvShowChooserModel.getEpisodeList()) {
-          MediaEpisodeNumber episodeNumber = md.getEpisodeNumber(episodeGroup.getEpisodeGroup());
+          MediaEpisodeNumber episodeNumber = md.getEpisodeNumber(episodeGroup);
           if (episodeNumber == null) {
             continue;
           }

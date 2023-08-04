@@ -722,6 +722,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     for (var entry : episode.getEpisodeNumbers().entrySet()) {
       Element group = document.createElement("group");
       group.setAttribute("id", entry.getKey().name());
+      group.setAttribute("name", entry.getValue().episodeGroup().getName());
       group.setAttribute("season", String.valueOf(entry.getValue().season()));
       group.setAttribute("episode", String.valueOf(entry.getValue().episode()));
       episodeGroups.appendChild(group);

@@ -999,9 +999,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               if (result.absolute) {
                 episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, ep));
               }
+              else if (tvShow.getEpisodeGroup() != null) {
+                // the TV show already has an assigned episode group - assign the S/E to the same group
+                episode.setEpisode(new MediaEpisodeNumber(tvShow.getEpisodeGroup(), result.season, ep));
+              }
               else {
                 episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, result.season, ep));
               }
+
               episode.setFirstAired(result.date);
               if (result.name.isEmpty()) {
                 result.name = FilenameUtils.getBaseName(vid.getFilename());

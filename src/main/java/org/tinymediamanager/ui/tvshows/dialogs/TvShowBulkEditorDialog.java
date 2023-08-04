@@ -506,14 +506,23 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
             Integer season = (Integer) spSeason.getValue();
-            MediaEpisodeGroup.EpisodeGroup episodeGroup = (MediaEpisodeGroup.EpisodeGroup) cbEpisodeGroup.getSelectedItem();
+            MediaEpisodeGroup.EpisodeGroup eg = (MediaEpisodeGroup.EpisodeGroup) cbEpisodeGroup.getSelectedItem();
+            MediaEpisodeGroup episodeGroup = null;
+
+            for (MediaEpisodeGroup meg : episode.getTvShow().getEpisodeGroups()) {
+              if (meg.getEpisodeGroup() == eg) {
+                episodeGroup = meg;
+                break;
+              }
+            }
+
             if (episodeGroup != null) {
               MediaEpisodeNumber existingEpisodeNumber = episode.getEpisodeNumber(episodeGroup);
               if (existingEpisodeNumber != null) {
-                episode.setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), season, existingEpisodeNumber.episode()));
+                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, existingEpisodeNumber.episode()));
               }
               else {
-                episode.setEpisode(new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), season, -1));
+                episode.setEpisode(new MediaEpisodeNumber(episodeGroup, season, -1));
               }
             }
           }

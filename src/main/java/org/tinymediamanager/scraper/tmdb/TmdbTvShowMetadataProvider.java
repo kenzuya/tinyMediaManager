@@ -626,6 +626,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     // episode groups
     // aired date is default
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
     if (complete.episodeGroups != null) {
       for (EpisodeGroup episodeGroup : ListUtils.nullSafe(complete.episodeGroups.episodeGroups)) {
@@ -1342,7 +1343,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         for (TvEpisodeGroup episodeGroup : entry.getValue()) {
           for (TvEpisodeGroupEpisode episodeInGroup : ListUtils.nullSafe(episodeGroup.episodes)) {
             if (Objects.equals(episode.id, episodeInGroup.id)) {
-              ep.setEpisodeNumber(entry.getKey(), episodeGroup.order, episodeInGroup.order);
+              ep.setEpisodeNumber(entry.getKey(), episodeGroup.order, episodeInGroup.order + 1); // +1 because TMDB counts episodes from zero!
               ep.addEpisodeGroup(entry.getKey());
               found = true;
               break;

@@ -57,6 +57,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -133,51 +134,52 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public class TvShow extends MediaEntity implements IMediaInformation {
-  private static final Logger                   LOGGER                     = LoggerFactory.getLogger(TvShow.class);
-  private static final Comparator<MediaFile>    MEDIA_FILE_COMPARATOR      = new TvShowMediaFileComparator();
+  private static final Logger                                          LOGGER                     = LoggerFactory.getLogger(TvShow.class);
+  private static final Comparator<MediaFile>                           MEDIA_FILE_COMPARATOR      = new TvShowMediaFileComparator();
 
-  public static final Pattern                   SEASON_ONLY_PATTERN        = Pattern.compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$",
-      Pattern.CASE_INSENSITIVE);
+  public static final Pattern                                          SEASON_ONLY_PATTERN        = Pattern
+      .compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$", Pattern.CASE_INSENSITIVE);
 
   @JsonProperty
-  private int                                   runtime                    = 0;
+  private int                                                          runtime                    = 0;
   @JsonProperty
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-  private Date                                  firstAired                 = null;
+  private Date                                                         firstAired                 = null;
   @JsonProperty
-  private MediaAiredStatus                      status                     = MediaAiredStatus.UNKNOWN;
+  private MediaAiredStatus                                             status                     = MediaAiredStatus.UNKNOWN;
   @JsonProperty
-  private String                                sortTitle                  = "";
+  private String                                                       sortTitle                  = "";
   @JsonProperty
-  private MediaCertification                    certification              = MediaCertification.UNKNOWN;
+  private MediaCertification                                           certification              = MediaCertification.UNKNOWN;
   @JsonProperty
-  private String                                country                    = "";
+  private String                                                       country                    = "";
   @JsonProperty
-  private MediaEpisodeGroup                     episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
+  private MediaEpisodeGroup                                            episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
 
   @JsonProperty
-  private final List<MediaGenres>               genres                     = new CopyOnWriteArrayList<>();
+  private final List<MediaGenres>                                      genres                     = new CopyOnWriteArrayList<>();
 
   @JsonProperty
-  private final List<Person>                    actors                     = new CopyOnWriteArrayList<>();
+  private final List<Person>                                           actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<TvShowEpisode>             dummyEpisodes              = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>                                    dummyEpisodes              = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<String>                    extraFanartUrls            = new CopyOnWriteArrayList<>();
+  private final List<String>                                           extraFanartUrls            = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<MediaTrailer>              trailer                    = new CopyOnWriteArrayList<>();
+  private final List<MediaTrailer>                                     trailer                    = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<MediaEpisodeGroup>         episodeGroups              = new CopyOnWriteArrayList<>();
+  private final Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeGroup> episodeGroups              = new EnumMap<>(
+      MediaEpisodeGroup.EpisodeGroup.class);
 
-  private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
-  private final List<TvShowEpisode>             episodes                   = new CopyOnWriteArrayList<>();
-  private String                                titleSortable              = "";
-  private String                                otherIds                   = "";
-  private Date                                  lastWatched                = null;
+  private final List<TvShowSeason>                                     seasons                    = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>                                    episodes                   = new CopyOnWriteArrayList<>();
+  private String                                                       titleSortable              = "";
+  private String                                                       otherIds                   = "";
+  private Date                                                         lastWatched                = null;
 
-  private final PropertyChangeListener          propertyChangeListener;
+  private final PropertyChangeListener                                 propertyChangeListener;
 
-  private static final Comparator<MediaTrailer> TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
+  private static final Comparator<MediaTrailer>                        TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
 
   /**
    * Instantiates a tv show. To initialize the propertychangesupport after loading
@@ -314,7 +316,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     setGenres(other.genres);
     setActors(other.actors);
     setExtraFanartUrls(other.extraFanartUrls);
-    setEpisodeGroups(other.episodeGroups);
+    setEpisodeGroups(other.episodeGroups.values());
 
     // seasons
     for (TvShowSeason otherSeason : other.getSeasons()) {
@@ -438,7 +440,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return a {@link List} of all names {@link MediaEpisodeGroup}s
    */
   public List<MediaEpisodeGroup> getEpisodeGroups() {
-    return Collections.unmodifiableList(episodeGroups);
+    return new ArrayList<>(episodeGroups.values());
   }
 
   /**
@@ -447,9 +449,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @param newValue
    *          the {@link List} of all named {@link MediaEpisodeGroup}s
    */
-  public void setEpisodeGroups(List<MediaEpisodeGroup> newValue) {
+  public void setEpisodeGroups(Collection<MediaEpisodeGroup> newValue) {
     episodeGroups.clear();
-    episodeGroups.addAll(newValue);
+    for (MediaEpisodeGroup eg : newValue) {
+      episodeGroups.putIfAbsent(eg.getEpisodeGroup(), eg);
+    }
     firePropertyChange("episodeGroups", null, episodeGroups);
   }
 

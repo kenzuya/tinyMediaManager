@@ -374,7 +374,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public Date getReleaseDate() {
-    return firstAired;
+    return getFirstAired();
   }
 
   public TvShowSeason getTvShowSeason() {
@@ -500,8 +500,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
   }
 
-  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-    return episodeNumbers.get(episodeGroup);
+  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup) {
+    return episodeNumbers.get(episodeGroup.getEpisodeGroup());
   }
 
   /**
@@ -512,7 +512,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the episode number in the given {@link MediaEpisodeGroup.EpisodeGroup} or -1
    */
   public int getEpisode(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-    MediaEpisodeNumber episodeNumber = episodeNumbers.get(episodeGroup);
+    MediaEpisodeNumber episodeNumber = null;
+    if (getTvShow() != null) {
+      episodeNumber = episodeNumbers.get(episodeGroup);
+    }
+
     if (episodeNumber != null) {
       return episodeNumber.episode();
     }
@@ -550,7 +554,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   public void setEpisode(@NotNull MediaEpisodeNumber episode) {
     if (!episode.containsAnyNumber()) {
-      MediaEpisodeNumber removed = episodeNumbers.remove(episode.episodeGroup());
+      MediaEpisodeNumber removed = episodeNumbers.remove(episode.episodeGroup().getEpisodeGroup());
       if (removed != null) {
         firePropertyChange(EPISODE, 0, -1);
         firePropertyChange(SEASON, 0, -1);
@@ -593,7 +597,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the season number in the given {@link MediaEpisodeGroup.EpisodeGroup} or -1
    */
   public int getSeason(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-    MediaEpisodeNumber episodeNumber = episodeNumbers.get(episodeGroup);
+    MediaEpisodeNumber episodeNumber = null;
+    if (getTvShow() != null) {
+      episodeNumber = episodeNumbers.get(episodeGroup);
+    }
+
     if (episodeNumber != null) {
       return episodeNumber.season();
     }

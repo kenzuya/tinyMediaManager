@@ -36,7 +36,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -293,25 +292,19 @@ public class TvShowEditorDialog extends TmmDialog {
       }
       cbCertification.setSelectedItem(tvShowToEdit.getCertification());
 
-      buildEpisodeContainer(tvShow.getEpisodeGroup().getEpisodeGroup());
+      buildEpisodeContainer(tvShow.getEpisodeGroup());
 
       // calculate distribution of the episodes over episode groups
       EpisodeGroupContainer selectedEpisodeGroup = null;
-      Map<MediaEpisodeGroup.EpisodeGroup, EpisodeGroupContainer> episodeGroups = new EnumMap<>(MediaEpisodeGroup.EpisodeGroup.class);
+      Map<MediaEpisodeGroup.EpisodeGroup, EpisodeGroupContainer> episodeGroups = new HashMap<>();
       for (TvShowEpisode episode : tvShowToEdit.getEpisodes()) {
         for (Map.Entry<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> entry : episode.getEpisodeNumbers().entrySet()) {
           if (entry.getValue().containsAnyNumber()) {
             EpisodeGroupContainer container = episodeGroups.get(entry.getKey());
             if (container == null) {
-              container = new EpisodeGroupContainer(entry.getKey());
-              // look if there is a named episode group
-              for (MediaEpisodeGroup mediaEpisodeGroup : tvShowToEdit.getEpisodeGroups()) {
-                if (mediaEpisodeGroup.getEpisodeGroup() == entry.getKey()) {
-                  container.mediaEpisodeGroup = mediaEpisodeGroup;
-                  break;
-                }
-              }
-              if (tvShowToEdit.getEpisodeGroup().getEpisodeGroup() == entry.getKey()) {
+              container = new EpisodeGroupContainer(entry.getValue().episodeGroup());
+
+              if (tvShowToEdit.getEpisodeGroup() == entry.getValue().episodeGroup()) {
                 selectedEpisodeGroup = container;
               }
               episodeGroups.put(entry.getKey(), container);
@@ -375,7 +368,7 @@ public class TvShowEditorDialog extends TmmDialog {
     return tabbedPane.getSelectedIndex();
   }
 
-  private void buildEpisodeContainer(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
+  private void buildEpisodeContainer(MediaEpisodeGroup episodeGroup) {
     episodes.clear();
 
     for (TvShowEpisode episode : tvShowToEdit.getEpisodes()) {
@@ -1202,12 +1195,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
       Object obj = cbEpisodeOrder.getSelectedItem();
       if (obj instanceof EpisodeGroupContainer episodeGroupContainer) {
-        if (episodeGroupContainer.mediaEpisodeGroup != null) {
-          tvShowToEdit.setEpisodeGroup(episodeGroupContainer.mediaEpisodeGroup);
-        }
-        else {
-          tvShowToEdit.setEpisodeGroup(new MediaEpisodeGroup(episodeGroupContainer.episodeGroup, ""));
-        }
+        tvShowToEdit.setEpisodeGroup(episodeGroupContainer.episodeGroup);
       }
 
       // user rating
@@ -1254,8 +1242,7 @@ public class TvShowEditorDialog extends TmmDialog {
         boolean shouldStore = false;
 
         if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getEpisode()) {
-          container.tvShowEpisode
-              .setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
+          container.tvShowEpisode.setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
           container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
@@ -1983,20 +1970,19 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private static class EpisodeGroupContainer {
-    private final MediaEpisodeGroup.EpisodeGroup episodeGroup;
-    private int                                  numberOfEpisodes;
-    private MediaEpisodeGroup                    mediaEpisodeGroup;
+    private final MediaEpisodeGroup episodeGroup;
+    private int                     numberOfEpisodes;
 
-    EpisodeGroupContainer(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
+    EpisodeGroupContainer(MediaEpisodeGroup episodeGroup) {
       this.episodeGroup = episodeGroup;
     }
 
     @Override
     public String toString() {
-      String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroup.name().toLowerCase(Locale.ROOT));
+      String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroup.getEpisodeGroup().name().toLowerCase(Locale.ROOT));
       String episodeGroupName;
-      if (mediaEpisodeGroup != null && StringUtils.isNotBlank(mediaEpisodeGroup.getName())) {
-        episodeGroupName = mediaEpisodeGroup.getName() + " (" + localizedEnumName + ")";
+      if (StringUtils.isNotBlank(episodeGroup.getName())) {
+        episodeGroupName = episodeGroup.getName() + " (" + localizedEnumName + ")";
       }
       else {
         episodeGroupName = localizedEnumName;

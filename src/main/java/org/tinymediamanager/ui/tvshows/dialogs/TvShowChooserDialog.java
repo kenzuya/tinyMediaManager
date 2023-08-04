@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static ca.odell.glazedlists.gui.AbstractTableComparatorChooser.SINGLE_COLUMN;
 import static java.util.Locale.ROOT;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
@@ -431,7 +432,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
 
     // install and save the comparator on the Table
-    TableComparatorChooser.install(tableSearchResults, searchResultEventList, TableComparatorChooser.SINGLE_COLUMN);
+    TableComparatorChooser.install(tableSearchResults, searchResultEventList, SINGLE_COLUMN);
 
     // double click to take the result
     tableSearchResults.addMouseListener(new MouseAdapter() {
@@ -443,7 +444,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       }
     });
 
-    // add a change listener for the async loaded meta data
+    // add a change listener for the async loaded metadata
     PropertyChangeListener listener = evt -> {
       String property = evt.getPropertyName();
       if ("scraped".equals(property)) {
