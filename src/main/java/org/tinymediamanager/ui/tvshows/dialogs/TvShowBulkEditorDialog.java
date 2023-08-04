@@ -49,6 +49,7 @@ import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -157,7 +158,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
        * TVShow Tab - simple
        ********************/
       JPanel panelContent = new JPanel();
-      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][]"));
+      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][][]"));
       tabbedPane.add(TmmResourceBundle.getString("metatag.tvshow"), panelContent);
       {
         JLabel lblGenres = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
@@ -298,7 +299,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         JLabel lblCertificationT = new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
         panelContent.add(lblCertificationT, "cell 0 5, alignx right");
 
-        JComboBox cbCertification = new JComboBox();
+        JComboBox<MediaCertification> cbCertification = new JComboBox<>();
         for (MediaCertification cert : MediaCertification
             .getCertificationsforCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry())) {
           cbCertification.addItem(cert);
@@ -318,8 +319,30 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         panelContent.add(btnCertification, "cell 2 5");
       }
       {
+        JLabel lblStatus = new TmmLabel(TmmResourceBundle.getString("metatag.status"));
+        panelContent.add(lblStatus, "cell 0 6,alignx right");
+
+        JComboBox<MediaAiredStatus> cbStatus = new JComboBox<>();
+        for (MediaAiredStatus s : MediaAiredStatus.values()) {
+          cbStatus.addItem(s);
+        }
+        panelContent.add(cbStatus, "cell 1 6,growx");
+
+        JButton btnStatus = new SquareIconButton(IconManager.APPLY_INV);
+        panelContent.add(btnStatus, "cell 2 6");
+        btnStatus.addActionListener(e -> {
+          tvShowsChanged = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MediaAiredStatus status = (MediaAiredStatus) cbStatus.getSelectedItem();
+          for (TvShow tvShow : tvShowsToEdit) {
+            tvShow.setStatus(status);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+      }
+      {
         JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
-        panelContent.add(btnAddRating, "cell 1 6");
+        panelContent.add(btnAddRating, "cell 1 7");
         btnAddRating.addActionListener(e -> {
           tvShowsChanged = true;
           // Open Rating Dialog
