@@ -513,7 +513,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public int getEpisode(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
     MediaEpisodeNumber episodeNumber = null;
-    if (getTvShow() != null) {
+    if (episodeGroup != null) {
       episodeNumber = episodeNumbers.get(episodeGroup);
     }
 
@@ -565,7 +565,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     episodeNumbers.put(episode.episodeGroup().getEpisodeGroup(), episode);
     firePropertyChange(EPISODE, -1, episode.episode());
-    firePropertyChange(SEASON, -1, episode.episode());
+    firePropertyChange(SEASON, -1, episode.season());
     firePropertyChange(TITLE_FOR_UI, -1, episode.episode());
   }
 
@@ -598,7 +598,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public int getSeason(MediaEpisodeGroup.EpisodeGroup episodeGroup) {
     MediaEpisodeNumber episodeNumber = null;
-    if (getTvShow() != null) {
+    if (episodeGroup != null) {
       episodeNumber = episodeNumbers.get(episodeGroup);
     }
 
