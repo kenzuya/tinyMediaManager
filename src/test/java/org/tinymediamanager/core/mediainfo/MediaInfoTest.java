@@ -498,6 +498,8 @@ public class MediaInfoTest extends BasicTest {
     check("moviename-eng-hi-cc-forced-my title", "eng", "my title");
     check("moviename-eng-cc-hi-forced-my title", "eng", "my title"); // cc is no language - here IS flag!
     check("moviename.pt-BR", "pt-BR");
+    check("moviename.zh_hAnS", "zh_hAnS");
+    check("moviename.zh-HaNt", "zh-HaNt");
     check("en", "en");
     check("eng_sdh", "eng");
     check("moviename.en", "en");

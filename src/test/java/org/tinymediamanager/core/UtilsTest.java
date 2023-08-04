@@ -290,9 +290,10 @@ public class UtilsTest extends BasicTest {
 
   @Test
   public void locale() {
-    // for (String s : LanguageUtils.KEY_TO_LOCALE_MAP.keySet()) {
-    // System.out.println(s + " - " + LanguageUtils.KEY_TO_LOCALE_MAP.get(s));
-    // }
+    for (String s : LanguageUtils.KEY_TO_LOCALE_MAP.keySet()) {
+      if (s.startsWith("zh"))
+        System.out.println(s + " - " + LanguageUtils.KEY_TO_LOCALE_MAP.get(s));
+    }
 
     assertEqual(LanguageUtils.KEY_TO_LOCALE_MAP.get("tur").getISO3Language(), new Locale("tr").getISO3Language());
   }
