@@ -3087,7 +3087,12 @@ public class MediaFileHelper {
       // now?
       if (token.matches("[a-zA-Z][a-zA-Z][_-].*")) {
         // if WE dont have it in our array, it is some xx_YY locale, but not valid
-        if (LanguageUtils.KEY_TO_LOCALE_MAP.containsKey(token.toLowerCase())) {
+        if (LanguageUtils.KEY_TO_LOCALE_MAP.containsKey(token)) {
+          language = token;
+          break; // step out
+        }
+        // try with replace (zh_hant -> zh-hant)
+        if (LanguageUtils.KEY_TO_LOCALE_MAP.containsKey(token.replace("_", "-"))) {
           language = token;
           break; // step out
         }
