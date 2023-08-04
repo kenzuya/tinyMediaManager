@@ -61,7 +61,7 @@ public class TvShowEpisodeAndSeasonParser {
   private static final Pattern EPISODE_PATTERN          = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern EPISODE_PATTERN_2        = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static final Pattern ROMAN_PATTERN            = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);
-  private static final Pattern SEASON_MULTI_EP          = Pattern.compile("s(\\d{1,4})[ ]?((?:([epx_.-]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
+  private static final Pattern SEASON_MULTI_EP          = Pattern.compile("s(\\d{1,4})[ ]?((?:([epx.-]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
   private static final Pattern SEASON_MULTI_EP_2        = Pattern.compile("(\\d{1,4})(?=x)((?:([epx]+\\d{1,4})+))", Pattern.CASE_INSENSITIVE);
   private static final Pattern NUMBERS_2_PATTERN        = Pattern.compile("([0-9]{2})", Pattern.CASE_INSENSITIVE);
   private static final Pattern NUMBERS_3_PATTERN        = Pattern.compile("([0-9])([0-9]{2})", Pattern.CASE_INSENSITIVE);
@@ -288,6 +288,7 @@ public class TvShowEpisodeAndSeasonParser {
         basename = basename.replaceAll("(?i)" + SEASON_ONLY.toString(), "");
       }
     }
+
     // parse episode short (EP 01), but only if we do not have already one!
     if (result.episodes.isEmpty()) {
       result = parseEpisodeOnly(result, basename);
@@ -547,7 +548,6 @@ public class TvShowEpisodeAndSeasonParser {
     // parse SxxEPyy 1-N
     regex = SEASON_MULTI_EP;
     m = regex.matcher(name);
-    int lastFoundEpisode = 0;
     while (m.find()) {
       int s = -1;
       try {
@@ -565,9 +565,7 @@ public class TvShowEpisodeAndSeasonParser {
             // can not happen from regex since we only come here with max 2 numeric chars
           }
           // check if the found episode is not -1 (0 allowed!), not already in the list and if multi episode
-          // it has to be the next number than the previous found one
-          if (ep > -1 && !result.episodes.contains(ep) && (lastFoundEpisode == 0 || lastFoundEpisode + 1 == ep)) {
-            lastFoundEpisode = ep;
+          if (ep > -1 && !result.episodes.contains(ep)) {
             result.episodes.add(ep);
             LOGGER.trace("add found EP '{}'", ep);
           }

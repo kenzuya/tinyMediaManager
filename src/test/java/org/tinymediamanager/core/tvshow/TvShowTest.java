@@ -252,20 +252,22 @@ public class TvShowTest extends BasicTvShowTest {
 
     // multi episode
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01.s01e02.ext"));
-    assertEqual("S:1 E:1", detectEpisode("name.s01e01.s01e03.ext")); // second EP must be subsequent number (ascending)!
-    assertEqual("S:1 E:2", detectEpisode("name.s01e02.s01e01.ext")); // second EP must be subsequent number (ascending)!
+    assertEqual("S:1 E:1 E:3", detectEpisode("name.s01e01.s01e03.ext"));// second EP must NOT be subsequent number (ascending)!
+    assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e02.s01e01.ext"));// second EP must NOT be subsequent number (ascending)!
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01.episode1.title.s01e02.episode2.title.ext"));
     assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01.s01e02.s01e03.ext"));
     assertEqual("S:1 E:1 E:2", detectEpisode("name.1x01_1x02.ext")); // works but shouldn't ;) _1 is detected as e1
     assertEqual("S:2 E:11 E:12 E:13", detectEpisode("name.2x11_2x12_2x13.ext")); // worst case: _2 is always being detected as e2
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01 1x02.ext"));
     assertEqual("S:-1 E:1 E:2", detectEpisode("name.ep01.ep02.ext"));
+    assertEqual("S:1 E:2 E:4 E:345", detectEpisode("name.s01e02e04ep345.ext")); // non consecutive episodes
 
     // multi episode short
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01e02.ext"));
+    assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01e02e03.ext"));
     assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01-02-03.ext"));
     assertEqual("S:1 E:1 E:2", detectEpisode("name.1x01x02.ext"));
-    // assertEqual("S:-1 E:1 E:2", detectEpisode("name.ep01_02.ext"));
+    assertEqual("S:-1 E:1", detectEpisode("name.ep01_02.ext"));
 
     // multi episode mixed; weird, but valid :p - we won't detect that now because the
     // regexp would cause too much false positives
