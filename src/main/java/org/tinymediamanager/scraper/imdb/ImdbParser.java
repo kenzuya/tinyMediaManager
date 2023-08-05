@@ -30,8 +30,10 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -68,6 +70,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
+import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
@@ -1880,6 +1883,30 @@ public abstract class ImdbParser {
       getLogger().trace("could not parse date: {}", e.getMessage());
     }
     return null;
+  }
+
+  protected Map<String, Integer> parseTop250(String url) {
+    Map<String, Integer> titles = new HashMap<>();
+
+    try {
+      Callable<Document> worker = new ImdbWorker(constructUrl(url), "en", "US", true); // don't care about lang, since we only get IDs
+      Future<Document> futureTop250 = executor.submit(worker);
+      Document doc = futureTop250.get();
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      if (!json.isEmpty()) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(json);
+        JsonNode chartNode = node.at("/props/pageProps/pageData/chartTitles/edges");
+        for (ImdbChartTitleEdge ch : JsonUtils.parseList(mapper, chartNode, ImdbChartTitleEdge.class)) {
+          titles.put(ch.node.id, ch.currentRank);
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Could not get TOP250 listing - '{}'", e.getMessage());
+    }
+
+    return titles;
   }
 
   /****************************************************************************

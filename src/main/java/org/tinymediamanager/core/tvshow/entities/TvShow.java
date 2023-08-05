@@ -39,6 +39,7 @@ import static org.tinymediamanager.core.Constants.SUBTITLES;
 import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
+import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
 import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
@@ -304,6 +305,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     setStatus(status == MediaAiredStatus.UNKNOWN || force ? other.status : status);
     setCertification(certification == MediaCertification.NOT_RATED || force ? other.certification : certification);
     setCountry(StringUtils.isEmpty(country) || force ? other.country : country);
+    setTop250(top250 == 0 || force ? other.top250 : top250);
 
     // when force is set, clear the lists/maps and add all other values
     if (force) {
@@ -779,6 +781,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return Collections.unmodifiableList(seasons);
   }
 
+  public int getTop250() {
+    return top250;
+  }
+
+  public void setTop250(int newValue) {
+    int oldValue = this.top250;
+    this.top250 = newValue;
+    firePropertyChange(TOP250, oldValue, newValue);
+  }
+
   /**
    * Gets the genres.
    *
@@ -978,6 +990,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.AIRED) && (overwriteExistingItems || getFirstAired() == null)) {
       setFirstAired(metadata.getReleaseDate());
+    }
+
+    if (config.contains(TvShowScraperMetadataConfig.TOP250) && (overwriteExistingItems || getTop250() <= 0)) {
+      setTop250(metadata.getTop250());
     }
 
     if (config.contains(TvShowScraperMetadataConfig.STATUS)

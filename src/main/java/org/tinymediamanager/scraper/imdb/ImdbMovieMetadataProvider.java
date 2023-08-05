@@ -113,4 +113,13 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
 
     return (new ImdbMovieParser(this, EXECUTOR)).getRatings(ids);
   }
+
+  public Map<String, Integer> getTop250() throws ScrapeException {
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbMovieParser(this, EXECUTOR)).getMovieTop250();
+  }
+
 }

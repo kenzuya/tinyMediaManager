@@ -72,6 +72,7 @@ public class TvShowNfoParser {
   public String                     sortTitle           = "";
   public String                     showTitle           = "";
   public int                        year                = -1;
+  public int                        top250              = 0;
   public String                     plot                = "";
   public int                        runtime             = 0;
   public MediaCertification         certification       = MediaCertification.UNKNOWN;
@@ -109,7 +110,6 @@ public class TvShowNfoParser {
   /* some xbmc related tags we parse, but do not use internally */
   public String                     outline             = "";
   public String                     tagline             = "";
-  public int                        top250              = 0;
   public String                     trailer             = "";
   public Date                       lastplayed          = null;
   public String                     code                = "";

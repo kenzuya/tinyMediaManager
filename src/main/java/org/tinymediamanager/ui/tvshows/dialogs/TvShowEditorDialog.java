@@ -183,6 +183,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private AutoCompleteSupport<String>              cbTagsAutoCompleteSupport;
   private JList<String>                            listTags;
   private JSpinner                                 spDateAdded;
+  private JSpinner                                 spTop250;
   private DatePicker                               dpPremiered;
   private JComboBox<EpisodeGroupContainer>         cbEpisodeOrder;
   private TmmTable                                 tableEpisodes;
@@ -267,6 +268,7 @@ public class TvShowEditorDialog extends TmmDialog {
       taNote.setText(tvShow.getNote());
       cbStatus.setSelectedItem(tvShow.getStatus());
       spRuntime.setValue(tvShow.getRuntime());
+      spTop250.setValue(tvShow.getTop250());
       int year = tvShow.getYear();
       spYear.setValue(year);
       spDateAdded.setValue(tvShow.getDateAdded());
@@ -523,6 +525,13 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblUserRatingHint = new JLabel(IconManager.HINT);
         lblUserRatingHint.setToolTipText(TmmResourceBundle.getString("edit.userrating.hint"));
         details1Panel.add(lblUserRatingHint, "cell 2 9");
+      }
+      {
+        JLabel lblTop = new TmmLabel(TmmResourceBundle.getString("metatag.top250"));
+        details1Panel.add(lblTop, "cell 3 9,alignx right");
+
+        spTop250 = new JSpinner();
+        details1Panel.add(spTop250, "cell 4 9,growx");
       }
       {
         JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
@@ -1116,6 +1125,7 @@ public class TvShowEditorDialog extends TmmDialog {
       tvShowToEdit.setYear((Integer) spYear.getValue());
       tvShowToEdit.setPlot(taPlot.getText());
       tvShowToEdit.setRuntime((Integer) spRuntime.getValue());
+      tvShowToEdit.setTop250((Integer) spTop250.getValue());
 
       // sync of media ids
       // first round -> add existing ids

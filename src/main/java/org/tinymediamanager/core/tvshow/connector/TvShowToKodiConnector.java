@@ -146,7 +146,17 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
 
   @Override
   protected void addOwnTags() {
-    // nothing here for now
+    addTop250();
+  }
+
+  /**
+   * add the <top250>xxx</top250> just before the <ratings>xxx</ratings>
+   */
+  protected void addTop250() {
+    Element top250 = document.createElement("top250");
+    top250.setTextContent(Integer.toString(tvShow.getTop250()));
+    Element set = getSingleElementByTag("ratings");
+    root.insertBefore(top250, set);
   }
 
   @Override

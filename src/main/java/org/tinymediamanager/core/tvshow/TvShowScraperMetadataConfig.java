@@ -39,6 +39,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   AIRED(Type.METADATA, "metatag.aired"),
   STATUS(Type.METADATA),
   RATING(Type.METADATA),
+  TOP250(Type.METADATA),
   RUNTIME(Type.METADATA),
   CERTIFICATION(Type.METADATA),
   GENRES(Type.METADATA, "metatag.genre"),
