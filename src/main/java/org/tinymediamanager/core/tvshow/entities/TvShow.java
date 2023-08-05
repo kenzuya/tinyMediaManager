@@ -156,10 +156,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   private String                                                       country                    = "";
   @JsonProperty
   private MediaEpisodeGroup                                            episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
-
   @JsonProperty
   private final List<MediaGenres>                                      genres                     = new CopyOnWriteArrayList<>();
-
+  @JsonProperty
+  private int                                                          top250                     = 0;
   @JsonProperty
   private final List<Person>                                           actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty

@@ -78,6 +78,15 @@ public class MovieFetchImdbTop250 extends TmmAction {
                     movie.saveToDb();
                     movie.writeNFO();
                   }
+                  else {
+                    // not there any longer? invalidate
+                    int current = movie.getTop250();
+                    if (current > 0) {
+                      movie.setTop250(0);
+                      movie.saveToDb();
+                      movie.writeNFO();
+                    }
+                  }
                 }
               }
 

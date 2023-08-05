@@ -83,6 +83,15 @@ public class TvShowFetchImdbTop250 extends TmmAction {
                     show.saveToDb();
                     show.writeNFO();
                   }
+                  else {
+                    // not there any longer? invalidate
+                    int current = show.getTop250();
+                    if (current > 0) {
+                      show.setTop250(0);
+                      show.saveToDb();
+                      show.writeNFO();
+                    }
+                  }
                 }
               }
 
@@ -99,6 +108,15 @@ public class TvShowFetchImdbTop250 extends TmmAction {
                       show.setTop250(top.intValue());
                       show.saveToDb();
                       show.writeNFO();
+                    }
+                    else {
+                      // not there any longer? invalidate
+                      int current = show.getTop250();
+                      if (current > 0) {
+                        show.setTop250(0);
+                        show.saveToDb();
+                        show.writeNFO();
+                      }
                     }
                   }
                 }
