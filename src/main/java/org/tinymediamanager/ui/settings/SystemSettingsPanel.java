@@ -351,7 +351,7 @@ class SystemSettingsPanel extends JPanel {
   }
 
   private void initMemorySlider() {
-    Path file = Paths.get(LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+    Path file = Paths.get(Globals.DATA_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
     int maxMemory = 512;
     if (Files.exists(file)) {
       // parse out memory option from extra.txt
