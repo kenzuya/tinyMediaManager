@@ -262,6 +262,10 @@ public class LanguageUtils {
    */
   public static String getIso3LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       // special handling for pt-BR since Java handles this is por instead of pob
       if ("pt-BR".equals(l.toLanguageTag())) {
@@ -301,6 +305,10 @@ public class LanguageUtils {
    */
   public static String getIso3BLanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       return getIso3BLanguage(l);
     }
@@ -317,6 +325,10 @@ public class LanguageUtils {
    */
   public static String getIso2LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       // special handling for pt-BR since Java handles this is por instead of pob
       if ("pt-BR".equals(l.toLanguageTag())) {
@@ -337,6 +349,10 @@ public class LanguageUtils {
    */
   public static String getEnglishLanguageNameFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       return l.getDisplayLanguage(Locale.ENGLISH);
     }
@@ -372,6 +388,10 @@ public class LanguageUtils {
     }
     for (String s : text) {
       Locale l = KEY_TO_LOCALE_MAP.get(s.toLowerCase(Locale.ROOT));
+      if (l == null) {
+        // fallback; on filesystem you might have underscores, but our map has them with dash
+        l = KEY_TO_LOCALE_MAP.get(s.replace("_", "-").toLowerCase(Locale.ROOT));
+      }
       if (l != null) {
         ret = l.getDisplayLanguage(language); // auto fallback to english
         if (!ret.isEmpty()) {
@@ -405,7 +425,12 @@ public class LanguageUtils {
    */
   public static String getLocalizedCountryForLanguage(String language, String... countries) {
     // KEY_TO_LOCALE_MAP is correct here, we want to get the language locale!!!
-    return getLocalizedCountryForLanguage(KEY_TO_LOCALE_MAP.get(language.toLowerCase(Locale.ROOT)), countries);
+    Locale l = KEY_TO_LOCALE_MAP.get(language.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(language.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
+    return getLocalizedCountryForLanguage(l, countries);
   }
 
   /**
@@ -422,6 +447,10 @@ public class LanguageUtils {
     }
     for (String c : countries) {
       Locale l = KEY_TO_COUNTRY_LOCALE_MAP.get(c.toLowerCase(Locale.ROOT));
+      if (l == null) {
+        // fallback; on filesystem you might have underscores, but our map has them with dash
+        l = KEY_TO_LOCALE_MAP.get(c.replace("_", "-").toLowerCase(Locale.ROOT));
+      }
       if (l != null) {
         ret = l.getDisplayCountry(language); // auto fallback to english
         if (!ret.isEmpty()) {
