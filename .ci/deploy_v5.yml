@@ -25,7 +25,8 @@ build:
     - sh generate_changelog.sh
 
     # package archives
-    - mvn $MAVEN_CLI_OPTS -U -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-v5.txt -Dtier=test -Dthread_pool_size=1 clean package
+    - echo -n "$CODE_SIGN_CERT" | base64 -d > "code-sign-cert.p12"
+    - mvn $MAVEN_CLI_OPTS -U -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -DskipSign=false -Dgetdown=getdown-v5.txt -Dtier=test -Dthread_pool_size=1 clean package
 
     # build Windows installer
     - chmod 777 . dist

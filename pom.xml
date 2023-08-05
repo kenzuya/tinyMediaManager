@@ -79,6 +79,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <skipTests>true</skipTests> <!-- to override on command line -->
         <skipITests>true</skipITests> <!-- to override on command line -->
+        <skipSign>true</skipSign> <!-- to override on command line -->
         <tier>GIT</tier> <!-- we replace this with nightly/prerel, but if not set, keep snapshot -->
 
         <jar.version>3.3.0</jar.version>
@@ -813,6 +814,30 @@
                                 <phase>prepare-package</phase>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>sign</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>prepare-package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <skip>${skipSign}</skip>
+                            <storetype>pkcs12</storetype>
+                            <keystore>code-sign-cert.p12</keystore>
+                            <alias>${CODE_SIGN_ALIAS}</alias>
+                            <sigfile>tmm</sigfile>
+                            <keypass>${CODE_SIGN_PASS}</keypass>
+                            <storepass>${CODE_SIGN_PASS}</storepass>
+                            <tsa>http://timestamp.sectigo.com</tsa>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>net.nicoulaj.maven.plugins</groupId>
