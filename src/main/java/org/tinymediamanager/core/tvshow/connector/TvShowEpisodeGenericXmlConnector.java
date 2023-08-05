@@ -273,7 +273,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addSeason(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element season = document.createElement("season");
-    season.setTextContent(Integer.toString(episode.getAiredSeason()));
+    season.setTextContent(Integer.toString(episode.getSeason()));
     root.appendChild(season);
   }
 
@@ -282,7 +282,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addEpisode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element episode1 = document.createElement("episode");
-    episode1.setTextContent(Integer.toString(episode.getAiredEpisode()));
+    episode1.setTextContent(Integer.toString(episode.getEpisode()));
     root.appendChild(episode1);
   }
 
