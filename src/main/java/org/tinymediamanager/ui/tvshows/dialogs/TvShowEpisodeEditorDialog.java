@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
@@ -746,6 +747,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         // force copy constructors here
         for (Person member : metadata.getCastMembers()) {
           switch (member.getType()) {
+            case GUEST -> guests.add(new Person(member));
             case ACTOR -> guests.add(new Person(member));
             case DIRECTOR -> directors.add(new Person(member));
             case WRITER -> writers.add(new Person(member));
@@ -1042,6 +1044,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         for (Person member : metadata.getCastMembers()) {
           switch (member.getType()) {
             case ACTOR -> guests.add(new Person(member));
+            case GUEST -> guests.add(new Person(member));
             case DIRECTOR -> directors.add(new Person(member));
             case WRITER -> writers.add(new Person(member));
           }
@@ -1347,7 +1350,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      tableGuests.addPerson(Person.Type.ACTOR);
+      tableGuests.addPerson(GUEST);
     }
   }
 

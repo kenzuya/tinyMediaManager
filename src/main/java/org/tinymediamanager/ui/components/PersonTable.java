@@ -240,6 +240,10 @@ public class PersonTable extends TmmEditorTable {
         defaultName = TmmResourceBundle.getString("cast.actor.unknown");
         defaultRole = TmmResourceBundle.getString("cast.role.unknown");
       }
+      case GUEST -> {
+        defaultName = TmmResourceBundle.getString("cast.actor.unknown");
+        defaultRole = TmmResourceBundle.getString("cast.role.unknown");
+      }
       case DIRECTOR -> {
         defaultName = TmmResourceBundle.getString("director.name.unknown");
         defaultRole = "Director";

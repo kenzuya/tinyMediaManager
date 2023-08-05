@@ -1202,6 +1202,12 @@ public class TvShowEpisodeNfoParser {
               actor.imdbId = child.ownText();
               break;
 
+            case "type":
+              if (child.ownText().equals("GuestStar")) {
+                actor.guestStar = true;
+              }
+              break;
+
             default:
               break;
           }
@@ -1626,7 +1632,10 @@ public class TvShowEpisodeNfoParser {
 
       List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
       for (Person actor : actors) {
-        newActors.add(morphPerson(ACTOR, actor));
+        org.tinymediamanager.core.entities.Person tmmActor = morphPerson(ACTOR, actor);
+        if (!newActors.contains(tmmActor)) {
+          newActors.add(tmmActor);
+        }
       }
       episode.addToActors(newActors);
 
@@ -1664,6 +1673,10 @@ public class TvShowEpisodeNfoParser {
       person.setThumbUrl(nfoPerson.thumb);
       person.setProfileUrl(nfoPerson.profile);
 
+      if (nfoPerson.guestStar) {
+        person.setType(org.tinymediamanager.core.entities.Person.Type.GUEST);
+      }
+
       int tmdbId = MetadataUtil.parseInt(nfoPerson.tmdbId, 0);
       if (tmdbId > 0) {
         person.setId(MediaMetadata.TMDB, tmdbId);
@@ -1696,13 +1709,14 @@ public class TvShowEpisodeNfoParser {
   }
 
   public static class Person {
-    public String name    = "";
-    public String role    = "";
-    public String thumb   = "";
-    public String profile = "";
-    public String tmdbId  = "";
-    public String imdbId  = "";
-    public String tvdbId  = "";
+    public String  name      = "";
+    public String  role      = "";
+    public String  thumb     = "";
+    public boolean guestStar = false;
+    public String  profile   = "";
+    public String  tmdbId    = "";
+    public String  imdbId    = "";
+    public String  tvdbId    = "";
   }
 
   public static class Fileinfo {

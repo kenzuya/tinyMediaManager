@@ -49,6 +49,7 @@ public class Person extends AbstractModelObject implements IPrintable {
     DIRECTOR,
     WRITER,
     PRODUCER,
+    GUEST, // guest actor on episode level
     OTHER
   }
 
@@ -339,7 +340,8 @@ public class Person extends AbstractModelObject implements IPrintable {
       return false;
     }
     Person person = (Person) o;
-    return type == person.type && Objects.equals(name, person.name);
+    return (type == person.type || (type == Type.ACTOR && person.type == Type.GUEST) || (type == Type.GUEST && person.type == Type.ACTOR))
+        && Objects.equals(name, person.name);
   }
 
   @Override

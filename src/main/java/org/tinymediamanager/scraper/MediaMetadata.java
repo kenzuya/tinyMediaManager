@@ -270,7 +270,13 @@ public class MediaMetadata {
    */
   public List<Person> getCastMembers(Person.Type type) {
     // get all cast members for the given type
-    return castMembers.stream().filter(person -> person.getType() == type).toList();
+    List<Person> ret = new ArrayList<>();
+    ret.addAll(castMembers.stream().filter(person -> person.getType() == type).toList());
+    if (type == Person.Type.ACTOR) {
+      // if we want actors, add all guest stars too!
+      ret.addAll(castMembers.stream().filter(person -> person.getType() == Person.Type.GUEST).toList());
+    }
+    return ret;
   }
 
   /**

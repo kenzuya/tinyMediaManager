@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.tvdbv3;
 
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
@@ -570,7 +571,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
         for (String guest : ep.guestStars) {
           String[] multiple = guest.split(",");
           for (String g2 : multiple) {
-            Person cm = new Person(ACTOR);
+            Person cm = new Person(GUEST);
             cm.setName(g2.trim());
             episode.addCastMember(cm);
           }

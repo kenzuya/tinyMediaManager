@@ -875,6 +875,14 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       actor.appendChild(profile);
     }
 
+    // save GuestStar information to NFO
+    // https://emby.media/community/index.php?/topic/89268-actor-metadata-is-downloaded-only-for-the-people-that-tmdb-has-as-series-regulars/&do=findComment&comment=923528
+    if (tvShowActor.getType() == Person.Type.GUEST) {
+      Element profile = document.createElement("type");
+      profile.setTextContent("GuestStar");
+      actor.appendChild(profile);
+    }
+
     addPersonIdsAsChildren(actor, tvShowActor);
 
     root.appendChild(actor);

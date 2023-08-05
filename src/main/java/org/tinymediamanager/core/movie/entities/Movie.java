@@ -2083,7 +2083,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       if (person == null || actors.contains(person)) {
         continue;
       }
-      if (person.getType() != Person.Type.ACTOR) {
+      if (person.getType() != Person.Type.ACTOR && person.getType() != Person.Type.GUEST) {
         return;
       }
 

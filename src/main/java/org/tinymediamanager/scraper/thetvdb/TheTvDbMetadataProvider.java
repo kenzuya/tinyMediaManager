@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.thetvdb;
 
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
@@ -244,8 +245,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           break;
 
         case 3:
-        case 4:
           member = new Person(ACTOR);
+          member.setRole(character.name);
+          break;
+
+        case 4:
+          member = new Person(GUEST);
           member.setRole(character.name);
           break;
 

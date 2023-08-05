@@ -869,7 +869,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     // episode guests
     for (CastMember castMember : ListUtils.nullSafe(episode.guest_stars)) {
-      Person cm = new Person(ACTOR);
+      Person cm = new Person(Person.Type.GUEST);
       cm.setId(getProviderInfo().getId(), castMember.id);
       cm.setName(castMember.name);
       cm.setRole(castMember.character);
