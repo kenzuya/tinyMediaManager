@@ -385,7 +385,7 @@ public final class TvShowModuleManager implements ITmmModule {
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
         if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
-            if (entry.getKey()instanceof TvShow tvShow) {
+            if (entry.getKey() instanceof TvShow tvShow) {
               // store TV show
               // only diffs
               String oldValue = tvShowMap.get(tvShow.getDbId());
@@ -394,7 +394,7 @@ public final class TvShowModuleManager implements ITmmModule {
                 tvShowMap.put(tvShow.getDbId(), newValue);
               }
             }
-            else if (entry.getKey()instanceof TvShowSeason season) {
+            else if (entry.getKey() instanceof TvShowSeason season) {
               // store season
               // only diffs
               String oldValue = seasonMap.get(season.getDbId());
@@ -403,7 +403,7 @@ public final class TvShowModuleManager implements ITmmModule {
                 seasonMap.put(season.getDbId(), newValue);
               }
             }
-            else if (entry.getKey()instanceof TvShowEpisode episode) {
+            else if (entry.getKey() instanceof TvShowEpisode episode) {
               // store episode
               // only diffs
               String oldValue = episodeMap.get(episode.getDbId());
@@ -442,18 +442,67 @@ public final class TvShowModuleManager implements ITmmModule {
   public void dump(TvShow tvshow) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      ObjectNode node = mapper.readValue(tvShowMap.get(tvshow.getDbId()), ObjectNode.class);
+      ObjectNode showNode = mapper.readValue(tvShowMap.get(tvshow.getDbId()), ObjectNode.class);
 
+      ArrayNode seasons = JsonNodeFactory.instance.arrayNode();
+      for (TvShowSeason se : tvshow.getSeasons()) {
+        ObjectNode seasonNode = mapper.readValue(seasonMap.get(se.getDbId()), ObjectNode.class);
+
+        ArrayNode episodes = JsonNodeFactory.instance.arrayNode();
+        for (TvShowEpisode ep : se.getEpisodes()) {
+          ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+          episodes.add(epNode);
+        }
+
+        seasonNode.set("episodes", episodes);
+        seasons.add(seasonNode);
+      }
+      showNode.set("seasons", seasons);
+
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(showNode);
+      LOGGER.info("Dumping TvShow: {}\n{}", tvshow.getDbId(), s);
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot parse JSON!", e);
+    }
+  }
+
+  /**
+   * dumps a whole season to logfile
+   * 
+   * @param tvshow
+   *          the TV show to dump the data for
+   */
+  public void dump(TvShowSeason season) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectNode seasonNode = mapper.readValue(seasonMap.get(season.getDbId()), ObjectNode.class);
       ArrayNode episodes = JsonNodeFactory.instance.arrayNode();
-      for (TvShowEpisode ep : tvshow.getEpisodes()) {
+      for (TvShowEpisode ep : season.getEpisodes()) {
         ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
         episodes.add(epNode);
-        // TODO: dump EP IDs !!!
       }
-      node.set("episodes", episodes);
+      seasonNode.set("episodes", episodes);
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(seasonNode);
+      LOGGER.info("Dumping TvShowSeason: {}\n{}", season.getDbId(), s);
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot parse JSON!", e);
+    }
+  }
 
-      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-      LOGGER.info("Dumping TvShow: {}\n{}", tvshow.getDbId(), s);
+  /**
+   * dumps a single episode to logfile
+   * 
+   * @param tvshow
+   *          the TV show to dump the data for
+   */
+  public void dump(TvShowEpisode ep) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(epNode);
+      LOGGER.info("Dumping TvShowEpisode: {}\n{}", ep.getDbId(), s);
     }
     catch (Exception e) {
       LOGGER.error("Cannot parse JSON!", e);
