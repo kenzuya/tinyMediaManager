@@ -813,7 +813,7 @@ public class TvShowRenamer {
       return;
     }
 
-    LOGGER.debug("Renaming TvShow '{}', Episode {}", episode.getTvShow().getTitle(), episode.getEpisode());
+    LOGGER.debug("Renaming TvShow '{}', S{} E{}", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode());
 
     if (episode.isDisc()) {
       renameEpisodeAsDisc(episode);
