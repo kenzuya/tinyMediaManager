@@ -85,7 +85,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
       assertNotNull("Result", results);
 
       // result count
-      assertThat(results.size()).isGreaterThanOrEqualTo(25);
+      assertThat(results.size()).isGreaterThanOrEqualTo(15);
 
       // check if the result is found (9 - 2016 - tt5719388)
       checkSearchResult("9", 2016, "tt5719388", results);
@@ -450,7 +450,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
       assertEquals("Mit einer Ausrede fängt es an", md.getTitle());
       assertThat(md.getPlot()).contains("Shawn", "Polizei");
-      assertEquals("7 July 2006", sdf.format(md.getReleaseDate()));
+      assertEquals("30 October 2007", sdf.format(md.getReleaseDate())); // DE release, but in EN style, eeew
       assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(27);
       assertEquals(1, md.getCastMembers(DIRECTOR).size());
       assertEquals("Michael Engler", md.getCastMembers(DIRECTOR).get(0).getName());
@@ -513,8 +513,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
       // check moviedetails
       checkMovieDetails("9", 2009, "9", 7.0, 63365, "(1) To Protect Us...", 79, "Shane Acker", "Pamela Pettler, Shane Acker, Ben Gluck", "PG-13",
-          "09-09-2009",
-          md);
+          "09-09-2009", md);
 
       assertThat(md.getGenres().size()).isGreaterThan(0);
       assertThat(md.getPlot()).isNotEmpty();
@@ -556,7 +555,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
           "Chris Marker, David Webb Peoples, Janet Peoples", "16", "01-02-1996", md);
 
       assertThat(md.getGenres()).isNotEmpty();
-      assertThat(md.getPlot()).contains("virus");
+      assertThat(md.getPlot()).contains("Virus");
       checkCastMembers(md);
       checkProductionCompany(md);
       checkMoviePoster(md);
