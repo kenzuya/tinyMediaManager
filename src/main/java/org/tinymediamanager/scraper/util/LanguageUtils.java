@@ -40,14 +40,14 @@ public class LanguageUtils {
   // Map of all known English/UserLocalized String to base locale, key is LOWERCASE
   public static final Map<String, Locale>  KEY_TO_LOCALE_MAP;
   public static final Map<String, Locale>  KEY_TO_COUNTRY_LOCALE_MAP;
-  public static final Map<String, Integer> MONTH_SHORT_TO_NUM;
+  public static final Map<String, Integer> MONTH_REGIONAL_TO_NUM;
   private static final Map<Locale, String> ISO_639_2B_EXCEPTIONS;
 
   static {
     ISO_639_2B_EXCEPTIONS = createIso6392BExceptions();
     KEY_TO_LOCALE_MAP = generateLanguageArray();
     KEY_TO_COUNTRY_LOCALE_MAP = generateCountryArray();
-    MONTH_SHORT_TO_NUM = generateMonthNameArray();
+    MONTH_REGIONAL_TO_NUM = generateMonthNameArray();
   }
 
   private LanguageUtils() {
@@ -211,12 +211,14 @@ public class LanguageUtils {
     Calendar cal = Calendar.getInstance();
     for (Locale loc : Locale.getAvailableLocales()) {
       DateFormat df = new SimpleDateFormat("MMM", loc);
+      DateFormat df2 = new SimpleDateFormat("MMMM", loc);
       for (int i = 0; i < 12; i++) {
         cal.set(Calendar.MONTH, i);
         String monthShort = df.format(cal.getTime());
         months.put(monthShort, i + 1);
+        String monthLong = df2.format(cal.getTime());
+        months.put(monthLong, i + 1);
       }
-
     }
     return months;
   }
@@ -262,6 +264,10 @@ public class LanguageUtils {
    */
   public static String getIso3LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       // special handling for pt-BR since Java handles this is por instead of pob
       if ("pt-BR".equals(l.toLanguageTag())) {
@@ -301,6 +307,10 @@ public class LanguageUtils {
    */
   public static String getIso3BLanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       return getIso3BLanguage(l);
     }
@@ -317,6 +327,10 @@ public class LanguageUtils {
    */
   public static String getIso2LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       // special handling for pt-BR since Java handles this is por instead of pob
       if ("pt-BR".equals(l.toLanguageTag())) {
@@ -337,6 +351,10 @@ public class LanguageUtils {
    */
   public static String getEnglishLanguageNameFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(text.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
     if (l != null) {
       return l.getDisplayLanguage(Locale.ENGLISH);
     }
@@ -372,6 +390,10 @@ public class LanguageUtils {
     }
     for (String s : text) {
       Locale l = KEY_TO_LOCALE_MAP.get(s.toLowerCase(Locale.ROOT));
+      if (l == null) {
+        // fallback; on filesystem you might have underscores, but our map has them with dash
+        l = KEY_TO_LOCALE_MAP.get(s.replace("_", "-").toLowerCase(Locale.ROOT));
+      }
       if (l != null) {
         ret = l.getDisplayLanguage(language); // auto fallback to english
         if (!ret.isEmpty()) {
@@ -405,7 +427,12 @@ public class LanguageUtils {
    */
   public static String getLocalizedCountryForLanguage(String language, String... countries) {
     // KEY_TO_LOCALE_MAP is correct here, we want to get the language locale!!!
-    return getLocalizedCountryForLanguage(KEY_TO_LOCALE_MAP.get(language.toLowerCase(Locale.ROOT)), countries);
+    Locale l = KEY_TO_LOCALE_MAP.get(language.toLowerCase(Locale.ROOT));
+    if (l == null) {
+      // fallback; on filesystem you might have underscores, but our map has them with dash
+      l = KEY_TO_LOCALE_MAP.get(language.replace("_", "-").toLowerCase(Locale.ROOT));
+    }
+    return getLocalizedCountryForLanguage(l, countries);
   }
 
   /**
@@ -422,6 +449,10 @@ public class LanguageUtils {
     }
     for (String c : countries) {
       Locale l = KEY_TO_COUNTRY_LOCALE_MAP.get(c.toLowerCase(Locale.ROOT));
+      if (l == null) {
+        // fallback; on filesystem you might have underscores, but our map has them with dash
+        l = KEY_TO_LOCALE_MAP.get(c.replace("_", "-").toLowerCase(Locale.ROOT));
+      }
       if (l != null) {
         ret = l.getDisplayCountry(language); // auto fallback to english
         if (!ret.isEmpty()) {
@@ -459,7 +490,7 @@ public class LanguageUtils {
     String result = findLanguageInString(string);
 
     if (StringUtils.isNotBlank(result)) {
-      return LanguageUtils.getIso3LanguageFromLocalizedString(result);
+      return getIso3LanguageFromLocalizedString(result);
 
     }
 
@@ -478,12 +509,13 @@ public class LanguageUtils {
       return "";
     }
 
-    Set<String> langArray = LanguageUtils.KEY_TO_LOCALE_MAP.keySet();
+    Set<String> langArray = KEY_TO_LOCALE_MAP.keySet();
     string = string.replaceAll("(?i)Part [Ii]+", ""); // hardcoded; remove Part II which is no stacking marker; b/c II is a valid iso code :p
+    string = string.toLowerCase(Locale.ROOT); // lang array is lowercase only!
     string = StringUtils.split(string, '/')[0].trim(); // possibly "de / de" - just take first
     for (String s : langArray) {
       try {
-        if (LanguageUtils.doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
+        if (doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
           return s;
         }
       }

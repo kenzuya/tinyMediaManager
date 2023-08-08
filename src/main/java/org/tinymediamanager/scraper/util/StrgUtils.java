@@ -51,6 +51,8 @@ public class StrgUtils {
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\.\\s\\d{4}$", "dd MMM. yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
+    DATE_FORMAT_REGEXPS.put("^[a-z]{3,}\\s\\d{1,2},\\s\\d{4}$", "MMMMM dd, yyyy"); // IMDB
+    DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\.\\s[a-z]{3,}\\s\\d{4}$", "dd. MMMMM yyyy"); // IMDB
     DATE_FORMAT_REGEXPS.put("^\\d{12}$", "yyyyMMddHHmm");
     DATE_FORMAT_REGEXPS.put("^\\d{8}\\s\\d{4}$", "yyyyMMdd HHmm");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}$", "dd-MM-yyyy HH:mm");
@@ -275,10 +277,10 @@ public class StrgUtils {
         // see https://stackoverflow.com/q/69860992
         // so we try to remove them, to normalize the string again for parsing...
 
-        for (String mon : LanguageUtils.MONTH_SHORT_TO_NUM.keySet()) {
+        for (String mon : LanguageUtils.MONTH_REGIONAL_TO_NUM.keySet()) {
           if (dateAsString.matches(".*\\W" + mon + "\\W.*")) { // non-word must be around!
             // we have a match to replace!
-            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_SHORT_TO_NUM.get(mon)));
+            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_REGIONAL_TO_NUM.get(mon)));
             format = determineDateFormat(dateAsString); // do we now get a known format?
             if (format == null) {
               dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters
@@ -365,7 +367,7 @@ public class StrgUtils {
       }
       else {
         char c = target[i];
-        if ((c > 0x20 && c < 0x40) || (c > 0x7a && c < 0xc0) || (c > 0x5a && c < 0x61) || (c > 0x79 && c < 0xc0) || c == 0xd7 || c == 0xf7) {
+        if ((c > 0x20 && c < 0x40) || (c > 0x7a && c < 0xc0) || (c > 0x5a && c < 0x61) || c == 0xd7 || c == 0xf7) {
           result.append(c);
         }
         else if (Character.isDigit(c) || Character.isISOControl(c)) {
