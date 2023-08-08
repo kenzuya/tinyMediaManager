@@ -276,10 +276,10 @@ public class StrgUtils {
         // see https://stackoverflow.com/q/69860992
         // so we try to remove them, to normalize the string again for parsing...
 
-        for (String mon : LanguageUtils.MONTH_SHORT_TO_NUM.keySet()) {
+        for (String mon : LanguageUtils.MONTH_REGIONAL_TO_NUM.keySet()) {
           if (dateAsString.matches(".*\\W" + mon + "\\W.*")) { // non-word must be around!
             // we have a match to replace!
-            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_SHORT_TO_NUM.get(mon)));
+            dateAsString = dateAsString.replaceAll(mon, String.valueOf(LanguageUtils.MONTH_REGIONAL_TO_NUM.get(mon)));
             format = determineDateFormat(dateAsString); // do we now get a known format?
             if (format == null) {
               dateAsString = dateAsString.replaceAll(" ", "."); // add delimiters

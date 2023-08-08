@@ -40,14 +40,14 @@ public class LanguageUtils {
   // Map of all known English/UserLocalized String to base locale, key is LOWERCASE
   public static final Map<String, Locale>  KEY_TO_LOCALE_MAP;
   public static final Map<String, Locale>  KEY_TO_COUNTRY_LOCALE_MAP;
-  public static final Map<String, Integer> MONTH_SHORT_TO_NUM;
+  public static final Map<String, Integer> MONTH_REGIONAL_TO_NUM;
   private static final Map<Locale, String> ISO_639_2B_EXCEPTIONS;
 
   static {
     ISO_639_2B_EXCEPTIONS = createIso6392BExceptions();
     KEY_TO_LOCALE_MAP = generateLanguageArray();
     KEY_TO_COUNTRY_LOCALE_MAP = generateCountryArray();
-    MONTH_SHORT_TO_NUM = generateMonthNameArray();
+    MONTH_REGIONAL_TO_NUM = generateMonthNameArray();
   }
 
   private LanguageUtils() {
@@ -211,12 +211,14 @@ public class LanguageUtils {
     Calendar cal = Calendar.getInstance();
     for (Locale loc : Locale.getAvailableLocales()) {
       DateFormat df = new SimpleDateFormat("MMM", loc);
+      DateFormat df2 = new SimpleDateFormat("MMMM", loc);
       for (int i = 0; i < 12; i++) {
         cal.set(Calendar.MONTH, i);
         String monthShort = df.format(cal.getTime());
         months.put(monthShort, i + 1);
+        String monthLong = df2.format(cal.getTime());
+        months.put(monthLong, i + 1);
       }
-
     }
     return months;
   }
