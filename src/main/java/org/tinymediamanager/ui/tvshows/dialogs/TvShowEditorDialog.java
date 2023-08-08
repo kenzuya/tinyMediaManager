@@ -1251,7 +1251,7 @@ public class TvShowEditorDialog extends TmmDialog {
         boolean found = false;
         boolean shouldStore = false;
 
-        if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getEpisode()) {
+        if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getSeason()) {
           container.tvShowEpisode.setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
           container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
