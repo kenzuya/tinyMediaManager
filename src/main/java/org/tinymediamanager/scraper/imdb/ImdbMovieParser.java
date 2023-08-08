@@ -431,6 +431,10 @@ public class ImdbMovieParser extends ImdbParser {
     return Collections.emptyList();
   }
 
+  public Map<String, Integer> getMovieTop250() {
+    return parseTop250("/chart/top/");
+  }
+
   private static class TmdbMovieWorker implements Callable<MediaMetadata> {
     private final MovieSearchAndScrapeOptions options;
 

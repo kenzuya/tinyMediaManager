@@ -25,6 +25,7 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_UNCREDITED_ACT
 import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_TV_SHOWS;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.tinymediamanager.core.FeatureNotEnabledException;
@@ -110,4 +111,13 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
 
     return new ImdbTvShowParser(this, EXECUTOR).getEpisodeList(options);
   }
+
+  public Map<String, Integer> getTop250() throws ScrapeException {
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbTvShowParser(this, EXECUTOR)).getTvShowTop250();
+  }
+
 }

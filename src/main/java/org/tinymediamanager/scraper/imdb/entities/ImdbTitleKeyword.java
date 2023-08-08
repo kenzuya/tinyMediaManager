@@ -10,11 +10,12 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * keywords on detail page
+ * keywords page
  */
-public class ImdbKeyword {
+public class ImdbTitleKeyword {
+  public String               id                   = "";
+  public String               rowTitle             = "";
 
-  public ImdbTextType         node                 = null;
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<>();
 

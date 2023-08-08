@@ -9,12 +9,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * keywords on detail page
- */
-public class ImdbKeyword {
+public class ImdbChartTitleEdge {
 
-  public ImdbTextType         node                 = null;
+  public int                  currentRank          = 0;
+  public ImdbId               node                 = null;
+
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<>();
 
