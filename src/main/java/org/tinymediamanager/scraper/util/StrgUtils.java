@@ -51,7 +51,8 @@ public class StrgUtils {
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\.\\s\\d{4}$", "dd MMM. yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
-    DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\.\\s[a-z]{4,}\\s\\d{4}$", "dd. MMMMM yyyy"); // IMDB
+    DATE_FORMAT_REGEXPS.put("^[a-z]{3,}\\s\\d{1,2},\\s\\d{4}$", "MMMMM dd, yyyy"); // IMDB
+    DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\.\\s[a-z]{3,}\\s\\d{4}$", "dd. MMMMM yyyy"); // IMDB
     DATE_FORMAT_REGEXPS.put("^\\d{12}$", "yyyyMMddHHmm");
     DATE_FORMAT_REGEXPS.put("^\\d{8}\\s\\d{4}$", "yyyyMMdd HHmm");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}$", "dd-MM-yyyy HH:mm");
