@@ -1243,7 +1243,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
             filename = FilenameUtils.removeExtension(findDiscMainFile());
           }
           else {
-            filename = "movie.nfo";
+            filename = "movie";
           }
         }
         else {

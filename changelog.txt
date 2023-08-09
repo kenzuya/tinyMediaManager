@@ -1,6 +1,7 @@
 Version 4.3.13
 =======================
 x backport IMDB fixes
+x fix NFO naming for disc style movies #2252
 
 
 Version 4.3.12
