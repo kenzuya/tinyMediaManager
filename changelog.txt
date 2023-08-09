@@ -1,8 +1,13 @@
 Version 4.3.13
 =======================
++ MediaInfo: also support their sidecar file naming
++ improve ID detection from file/foldername
 x backport IMDB fixes
 x fix NFO naming for disc style movies #2252
 x fix reordering of TvShow datasources #2251
+x fixed wrong translation for reading TV show nfo files #2250
+x adapt CLI help dialog for resized window
+
 
 
 Version 4.3.12
