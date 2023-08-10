@@ -29,6 +29,7 @@ import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -44,6 +45,7 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
+import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
 
 /**
  * The class TvShowTableFormat is used to define the columns for the TV show tree table
@@ -146,6 +148,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * file name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getFileName, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * folder name (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getFolderPath, String.class);
@@ -208,6 +219,18 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * top 250 (hidden per default)
+     */
+    col = new Column("T250", "top250", this::getTop250, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderTooltip(TmmResourceBundle.getString("metatag.top250"));
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("250") * 1.2f + 5));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * date added (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
@@ -244,6 +267,30 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * runtime (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * runtime HH:MM (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * video format (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.format"), "format", this::getFormat, String.class);
@@ -253,6 +300,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setDefaultHidden(true);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnComparator(videoFormatComparator);
+    addColumn(col);
+
+    /*
+     * HDR (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.hdr"), "hdr", this::isHDR, ImageIcon.class);
+    col.setHeaderIcon(IconManager.HDR);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -271,6 +328,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getVideoBitrate, Integer.class);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
     col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * audio codec and channels(hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudio, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.AUDIO);
+    col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -311,13 +378,12 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * HDR (hidden per default)
+     * Source (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.hdr"), "hdr", this::isHDR, ImageIcon.class);
-    col.setHeaderIcon(IconManager.HDR);
-    col.setColumnResizeable(false);
+    col = new Column(TmmResourceBundle.getString("metatag.source"), "mediaSource", this::getMediaSource, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.SOURCE);
     col.setDefaultHidden(true);
-    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -374,6 +440,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.MUSIC_HEADER);
     col.setColumnResizeable(false);
     col.setDefaultHidden(true);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -435,6 +502,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       if (!season.getEpisodes().isEmpty()) {
         return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
       }
+    }
+    return null;
+  }
+
+  private String getFileName(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMainVideoFile().getFilename();
     }
     return null;
   }
@@ -556,6 +631,42 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getMediaInfoVideoBitrate();
+    }
+    return null;
+  }
+
+  private String getAudio(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaInfoAudioCodec();
+    }
+    return null;
+  }
+
+  private MediaSource getMediaSource(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getMediaSource();
+    }
+    return null;
+  }
+
+  private Integer getRuntime(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode episode) {
+      return episode.getRuntimeFromMediaFilesInMinutes();
+    }
+    // TODO: runtime of show should aggregate?
+    // else if (userObject instanceof TvShow show) {
+    // return show.getRuntime();
+    // }
+    return null;
+  }
+
+  private Integer getTop250(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow show) {
+      return show.getTop250() > 0 ? show.getTop250() : null; // mostly 0, do not show
     }
     return null;
   }
