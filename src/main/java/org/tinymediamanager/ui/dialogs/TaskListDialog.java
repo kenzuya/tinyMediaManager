@@ -91,6 +91,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       addButton(btnAbortAll);
     }
     TmmTaskManager.getInstance().addTaskListener(this);
+    TmmUILayoutStore.getInstance().install(panelContent);
   }
 
   @Override
