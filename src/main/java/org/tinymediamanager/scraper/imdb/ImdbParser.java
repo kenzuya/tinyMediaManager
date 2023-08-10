@@ -1360,7 +1360,7 @@ public abstract class ImdbParser {
             if (certification != null) {
               md.addCertification(certification);
               done = true;
-              break;
+              // break; // might be multiple, like US!
             }
           }
 
