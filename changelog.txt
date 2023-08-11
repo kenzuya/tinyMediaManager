@@ -7,7 +7,7 @@ x fix NFO naming for disc style movies #2252
 x fix reordering of TvShow datasources #2251
 x fixed wrong translation for reading TV show nfo files #2250
 x adapt CLI help dialog for resized window
-
+x (Trakt.tv) fixed refreshing the access token #2253
 
 
 Version 4.3.12
