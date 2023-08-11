@@ -26,7 +26,8 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "tinyMediaManager",
         mixinStandardHelpOptions = true,
-        version = "tinyMediaManager CLI 4.2",
+        usageHelpAutoWidth = true,
+        version = "tinyMediaManager CLI",
         synopsisHeading = "%nUsage:%n  ",
         optionListHeading = "%n",
         commandListHeading = "%nCommands:%n",

@@ -52,7 +52,7 @@ public class TvShowReadNfoAction extends TmmAction {
 
     // rewrite selected NFOs
     TmmTaskManager.getInstance()
-        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.readnfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
           @Override
           protected void doInBackground() {
             int i = 0;

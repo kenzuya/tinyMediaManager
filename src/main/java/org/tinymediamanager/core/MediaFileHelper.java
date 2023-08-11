@@ -313,6 +313,9 @@ public class MediaFileHelper {
     if (basename.endsWith("-mediainfo") && "xml".equalsIgnoreCase(ext)) {
       return MediaFileType.MEDIAINFO;
     }
+    if (filename.endsWith(".mediainfo.xml")) { // MI export sidecar file naming
+      return MediaFileType.MEDIAINFO;
+    }
 
     if (SUPPORTED_ARTWORK_FILETYPES.contains(ext)) {
       return parseImageType(pathToFile);

@@ -1,6 +1,7 @@
 package org.tinymediamanager.scraper.imdb.entities;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -9,14 +10,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * keywords on detail page
- */
-public class ImdbKeyword {
+public class ImdbEpisodeListEpisodes {
 
-  public ImdbTextType         node                 = null;
+  public int                          total                = 0;
+  public List<ImdbEpisodeListEpisode> items                = null;
+
   @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<>();
+  private Map<String, Object>         additionalProperties = new HashMap<>();
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {

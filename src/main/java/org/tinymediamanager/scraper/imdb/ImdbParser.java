@@ -30,8 +30,10 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -66,6 +68,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
+import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCrew;
@@ -77,6 +80,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.JsonUtils;
@@ -1356,7 +1360,7 @@ public abstract class ImdbParser {
             if (certification != null) {
               md.addCertification(certification);
               done = true;
-              break;
+              // break; // might be multiple, like US!
             }
           }
 
@@ -1529,28 +1533,73 @@ public abstract class ImdbParser {
   }
 
   protected void parseKeywordsPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
-    Element div = doc.getElementById("keywords_content");
-    if (div == null) {
-      return;
-    }
-
     int maxKeywordCount = getMaxKeywordCount();
-    int counter = 0;
+    int counter = md.getTags().size(); // initialize with already scraped ones
 
-    Elements keywords = div.getElementsByClass("sodatext");
-    for (Element keyword : keywords) {
-      if (StringUtils.isNotBlank(keyword.text())) {
-        md.addTag(keyword.text());
+    // new style via JSON
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      // System.out.println(json);
+      JsonNode node = mapper.readTree(json);
+      JsonNode keywordsNode = node.at("/props/pageProps/contentData/section/items");
+      for (ImdbTitleKeyword kw : JsonUtils.parseList(mapper, keywordsNode, ImdbTitleKeyword.class)) {
+        md.addTag(kw.rowTitle);
         counter++;
-
         if (counter >= maxKeywordCount) {
           break;
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing JSON: '{}'", e);
+    }
+
+    // new style as of may 2023
+    if (md.getTags().size() < maxKeywordCount) {
+      counter = 0;
+      Elements keywords = doc.getElementsByClass("ipc-metadata-list-summary-item__t");
+      for (Element keyword : keywords) {
+        if (StringUtils.isNotBlank(keyword.text())) {
+          md.addTag(keyword.text());
+          counter++;
+          if (counter >= maxKeywordCount) {
+            break;
+          }
+        }
+      }
+    }
+
+    // old style
+    if (md.getTags().size() < maxKeywordCount) {
+      counter = 0;
+      Element div = doc.getElementById("keywords_content");
+      if (div != null) {
+        Elements keywords = div.getElementsByClass("sodatext");
+        for (Element keyword : keywords) {
+          if (StringUtils.isNotBlank(keyword.text())) {
+            md.addTag(keyword.text());
+            counter++;
+            if (counter >= maxKeywordCount) {
+              break;
+            }
+          }
         }
       }
     }
   }
 
   protected void parsePlotsummaryPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+
+    // NEW style as of may 2023
+    // JSON is weird - do not do that
+    // just take first summary
+    if (md.getPlot().isEmpty()) {
+      Elements sum = doc.getElementsByClass("ipc-html-content-inner-div");
+      String plot = cleanString(sum.text());
+      md.setPlot(plot);
+    }
+
+    // OLD style
     // just take first summary
     // <li class="ipl-zebra-list__item" id="summary-ps21700000">
     // <p>text text text text </p>
@@ -1558,21 +1607,23 @@ public abstract class ImdbParser {
     // <em>&mdash;<a href="/search/title?plot_author=author">Author Name</a></em>
     // </div>
     // </li>
-    Element zebraList = doc.getElementById("plot-summaries-content");
-    if (zebraList != null) {
-      Elements p = zebraList.getElementsByClass("ipl-zebra-list__item");
-      if (!p.isEmpty()) {
-        Element em = p.get(0);
+    if (md.getPlot().isEmpty()) {
+      Element zebraList = doc.getElementById("plot-summaries-content");
+      if (zebraList != null) {
+        Elements p = zebraList.getElementsByClass("ipl-zebra-list__item");
+        if (!p.isEmpty()) {
+          Element em = p.get(0);
 
-        // remove author
-        Elements authors = em.getElementsByClass("author-container");
-        if (!authors.isEmpty()) {
-          authors.get(0).remove();
-        }
+          // remove author
+          Elements authors = em.getElementsByClass("author-container");
+          if (!authors.isEmpty()) {
+            authors.get(0).remove();
+          }
 
-        if (!"no-summary-content".equals(em.id())) {
-          String plot = cleanString(em.text());
-          md.setPlot(plot);
+          if (!"no-summary-content".equals(em.id())) {
+            String plot = cleanString(em.text());
+            md.setPlot(plot);
+          }
         }
       }
     }
@@ -1599,10 +1650,12 @@ public abstract class ImdbParser {
         if (!parseLocalReleaseDate) {
           // global first release
           Element column = row.getElementsByClass("release_date").first();
-          Date parsedDate = parseDate(column.text());
-          if (parsedDate != null) {
-            releaseDate = parsedDate;
-            break;
+          if (column != null) {
+            Date parsedDate = parseDate(column.text());
+            if (parsedDate != null) {
+              releaseDate = parsedDate;
+              break;
+            }
           }
         }
         else {
@@ -1682,6 +1735,24 @@ public abstract class ImdbParser {
 
         // global first release
         Element column = row.getElementsByClass("release_date").first();
+        Date parsedDate = parseDate(column.text());
+        if (parsedDate != null) {
+          releaseDate = parsedDate;
+          break;
+        }
+      }
+    }
+
+    if (releaseDate == null) {
+      Elements rows = doc.getElementsByClass("release-date-item");
+      for (Element row : rows) {
+        // check if we want premiere dates
+        if (row.text().contains("(premiere)") && !includePremiereDate) {
+          continue;
+        }
+
+        // global first release
+        Element column = row.getElementsByClass("release-date-item__date").first();
         Date parsedDate = parseDate(column.text());
         if (parsedDate != null) {
           releaseDate = parsedDate;
@@ -1811,6 +1882,30 @@ public abstract class ImdbParser {
       getLogger().trace("could not parse date: {}", e.getMessage());
     }
     return null;
+  }
+
+  protected Map<String, Integer> parseTop250(String url) {
+    Map<String, Integer> titles = new HashMap<>();
+
+    try {
+      Callable<Document> worker = new ImdbWorker(constructUrl(url), "en", "US", true); // don't care about lang, since we only get IDs
+      Future<Document> futureTop250 = executor.submit(worker);
+      Document doc = futureTop250.get();
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      if (!json.isEmpty()) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(json);
+        JsonNode chartNode = node.at("/props/pageProps/pageData/chartTitles/edges");
+        for (ImdbChartTitleEdge ch : JsonUtils.parseList(mapper, chartNode, ImdbChartTitleEdge.class)) {
+          titles.put(ch.node.id, ch.currentRank);
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Could not get TOP250 listing - '{}'", e.getMessage());
+    }
+
+    return titles;
   }
 
   /****************************************************************************

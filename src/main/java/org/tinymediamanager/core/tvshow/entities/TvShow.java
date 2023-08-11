@@ -1025,7 +1025,21 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (config.contains(TvShowScraperMetadataConfig.CERTIFICATION)
         && (overwriteExistingItems || getCertification() == null || getCertification() == MediaCertification.UNKNOWN)) {
       if (!metadata.getCertifications().isEmpty()) {
-        setCertification(metadata.getCertifications().get(0));
+        if (metadata.getCertifications().size() > 1) {
+          // US has 2 rating systems - MPAA, Parental TV guide - see tt0092644
+          // we take the MPAA for movies.
+          // movie even has 4 different ratings for Canada ... wuah
+          // simple approach
+          if (!metadata.getCertifications().get(0).name().startsWith("US_TV")) {
+            setCertification(metadata.getCertifications().get(1));
+          }
+          else {
+            setCertification(metadata.getCertifications().get(0));
+          }
+        }
+        else {
+          setCertification(metadata.getCertifications().get(0));
+        }
       }
     }
 

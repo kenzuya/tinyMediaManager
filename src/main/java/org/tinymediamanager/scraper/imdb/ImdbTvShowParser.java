@@ -58,12 +58,18 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeList;
+import org.tinymediamanager.scraper.imdb.entities.ImdbIdValueType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
+import org.tinymediamanager.scraper.util.JsonUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The class ImdbTvShowParser is used to parse TV show site of imdb.com
@@ -392,6 +398,7 @@ public class ImdbTvShowParser extends ImdbParser {
             md.setTagline(md2.getTagline());
             md.setCastMembers(md2.getCastMembers()); // overwrite all
             md.setTop250(md2.getTop250());
+            md2.getCertifications().forEach(md::addCertification); // reference page has more certifications
           }
 
           if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
@@ -516,15 +523,28 @@ public class ImdbTvShowParser extends ImdbParser {
     try (InputStream is = url.getInputStream()) {
       doc = Jsoup.parse(is, "UTF-8", "");
       if (doc != null) {
-        parseEpisodeList(1, episodes, doc);
+        ImdbEpisodeList epList = parseEpisodeListJSON(doc);
+        if (epList != null) {
+          // JSON parsing worked
+          episodes.addAll(epList.getEpisodes());
+          for (ImdbIdValueType season : ListUtils.nullSafe(epList.seasons)) {
+            if (!"1".equals(season.value)) {
+              availableSeasons.add(season.value);
+            }
+          }
+        }
 
-        // get the other seasons out of the select option
-        Element select = doc.getElementById("bySeason");
-        if (select != null) {
-          for (Element option : select.getElementsByTag("option")) {
-            String value = option.attr("value");
-            if (StringUtils.isNotBlank(value) && !"1".equals(value)) {
-              availableSeasons.add(value);
+        // no results via JSON? use old style...
+        if (availableSeasons.isEmpty() || episodes.isEmpty()) {
+          parseEpisodeList(1, episodes, doc);
+          // get the other seasons out of the select option
+          Element select = doc.getElementById("bySeason");
+          if (select != null) {
+            for (Element option : select.getElementsByTag("option")) {
+              String value = option.attr("value");
+              if (StringUtils.isNotBlank(value) && !"1".equals(value)) {
+                availableSeasons.add(value);
+              }
             }
           }
         }
@@ -541,12 +561,9 @@ public class ImdbTvShowParser extends ImdbParser {
 
     // then parse every season
     for (String seasonAsString : availableSeasons) {
-      int season;
-      try {
-        season = Integer.parseInt(seasonAsString);
-      }
-      catch (Exception e) {
-        LOGGER.debug("could not parse season number - {}", e.getMessage());
+      int season = MetadataUtil.parseInt(seasonAsString, -1);
+      if (season < 0) {
+        LOGGER.debug("could not parse season number - {}", seasonAsString);
         continue;
       }
 
@@ -562,9 +579,16 @@ public class ImdbTvShowParser extends ImdbParser {
 
       try (InputStream is = seasonUrl.getInputStream()) {
         doc = Jsoup.parse(is, "UTF-8", "");
-        // if the given season number and the parsed one does not match, break here
-        if (!parseEpisodeList(season, episodes, doc)) {
-          break;
+
+        ImdbEpisodeList epList = parseEpisodeListJSON(doc);
+        if (epList != null && !epList.getEpisodes().isEmpty()) {
+          episodes.addAll(epList.getEpisodes());
+        }
+        else {
+          // if the given season number and the parsed one does not match, break here
+          if (!parseEpisodeList(season, episodes, doc)) {
+            break;
+          }
         }
       }
       catch (InterruptedException | InterruptedIOException e) {
@@ -582,6 +606,27 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     return episodes;
+  }
+
+  private ImdbEpisodeList parseEpisodeListJSON(Document doc) {
+    try {
+      Element jsonNode = doc.getElementById("__NEXT_DATA__");
+      if (jsonNode == null) {
+        return null;
+      }
+      String json = jsonNode.data();
+      // System.out.println(json);
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode node = mapper.readTree(json);
+
+      JsonNode epListNode = node.at("/props/pageProps/contentData/section");
+      ImdbEpisodeList epList = JsonUtils.parseObject(mapper, epListNode, ImdbEpisodeList.class);
+      return epList;
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing JSON: '{}'", e);
+    }
+    return null;
   }
 
   private boolean parseEpisodeList(int season, List<MediaMetadata> episodes, Document doc) {
@@ -916,6 +961,10 @@ public class ImdbTvShowParser extends ImdbParser {
     }
 
     return Collections.emptyList();
+  }
+
+  public Map<String, Integer> getTvShowTop250() {
+    return parseTop250("/chart/toptv/");
   }
 
   private static class TmdbTvShowWorker implements Callable<MediaMetadata> {

@@ -501,6 +501,8 @@ public final class TvShowSettings extends AbstractSettings {
     String tmp = tvShowDataSources.get(pos1);
     tvShowDataSources.set(pos1, tvShowDataSources.get(pos2));
     tvShowDataSources.set(pos2, tmp);
+    firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
   }
 
   public String getScraper() {
