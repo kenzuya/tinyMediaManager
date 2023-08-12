@@ -46,7 +46,8 @@ public final class Globals {
     // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
     if (StringUtils.isBlank(contentFolder)) {
-      if (Files.exists(Paths.get(".userdir")) || !isTmmDirWritable()) {
+      // when .userdir exists and data not exists OR tmm folder is not writable we can use the local userdir
+      if ((Files.exists(Paths.get(".userdir")) && Files.notExists(Paths.get("data"))) || !isTmmDirWritable()) {
         // userdir
         contentFolder = TmmOsUtils.getUserDir().toString();
       }
