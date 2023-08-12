@@ -214,6 +214,9 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
 
     @Override
     public int compare(String arg0, String arg1) {
+      if (StringUtils.isAllBlank(arg0, arg1)) {
+        return 0;
+      }
       if (StringUtils.isBlank(arg0)) {
         return -1;
       }
