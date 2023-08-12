@@ -170,6 +170,11 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
     informListeners();
   }
 
+  protected void publishState(String taskDescription) {
+    this.taskDescription = taskDescription;
+    publishState();
+  }
+
   protected void publishState() {
     informListeners();
   }

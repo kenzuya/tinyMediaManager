@@ -63,6 +63,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
@@ -591,13 +592,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     // get mediainfo for tv show (fanart/poster..)
     for (MediaFile mf : tvShow.getMediaFiles()) {
       if (StringUtils.isBlank(mf.getContainerFormat())) {
-        submitTask(new MediaFileInformationFetcherTask(mf, tvShow, false));
+        submitTask(new TvShowMediaFileInformationFetcherTask(mf, tvShow, false));
       }
       else {
         // // did the file dates/size change?
         if (MediaFileHelper.gatherFileInformation(mf)) {
           // okay, something changed with that movie file - force fetching mediainfo
-          submitTask(new MediaFileInformationFetcherTask(mf, tvShow, true));
+          submitTask(new TvShowMediaFileInformationFetcherTask(mf, tvShow, true));
         }
       }
     }
@@ -606,13 +607,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
       for (MediaFile mf : episode.getMediaFiles()) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
-          submitTask(new MediaFileInformationFetcherTask(mf, episode, false));
+          submitTask(new TvShowMediaFileInformationFetcherTask(mf, episode, false));
         }
         else {
           // at least update the file dates
           if (MediaFileHelper.gatherFileInformation(mf)) {
             // okay, something changed with that movie file - force fetching mediainfo
-            submitTask(new MediaFileInformationFetcherTask(mf, episode, true));
+            submitTask(new TvShowMediaFileInformationFetcherTask(mf, episode, true));
           }
         }
       }
@@ -668,6 +669,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
 
       LOGGER.debug("start parsing {}", showDir);
+      publishState(showDir.toString());
 
       fileLock.writeLock().lock();
       filesFound.add(showDir.toAbsolutePath()); // our global cache
@@ -1409,6 +1411,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       LOGGER.debug("falling back to the alternate coding");
       fileNames = listFilesAndDirs2(directory);
     }
+
+    // return sorted
+    Collections.sort(fileNames);
+
     return fileNames;
   }
 
@@ -1477,6 +1483,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     catch (Exception e) {
       LOGGER.error("error on listFilesAndDirs2", e);
     }
+
+    // return sorted
+    Collections.sort(fileNames);
+
     return fileNames;
   }
 
@@ -1599,5 +1609,21 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    */
   private static synchronized void incPostDir() {
     postDir++;
+  }
+
+  /**
+   * helper class just do inject the file name in the task description
+   */
+  private class TvShowMediaFileInformationFetcherTask extends MediaFileInformationFetcherTask {
+    public TvShowMediaFileInformationFetcherTask(MediaFile mediaFile, MediaEntity mediaEntity, boolean forceUpdate) {
+      super(mediaFile, mediaEntity, forceUpdate);
+    }
+
+    @Override
+    public void run() {
+      // pass the filename to the task description
+      publishState(mediaEntity.getTitle() + " - " + mediaFile.getFilename());
+      super.run();
+    }
   }
 }
