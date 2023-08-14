@@ -77,7 +77,7 @@ public class TmmRoundTextAreaUI extends FlatTextAreaUI {
 
   @Override
   protected void paintSafely(Graphics g) {
-    paintBackground(g, getComponent(), isIntelliJTheme, focusedBackground);
+    paintBackground(g, getComponent(), focusedBackground);
     super.paintSafely(g);
   }
 
@@ -86,7 +86,7 @@ public class TmmRoundTextAreaUI extends FlatTextAreaUI {
     // painted somehere else
   }
 
-  static void paintBackground(Graphics g, JTextComponent c, boolean isIntelliJTheme, Color focusedBackground) {
+  static void paintBackground(Graphics g, JTextComponent c, Color focusedBackground) {
     // do not paint background if:
     // - not opaque and
     // - border is not a flat border and
@@ -109,7 +109,7 @@ public class TmmRoundTextAreaUI extends FlatTextAreaUI {
     try {
       FlatUIUtils.setRenderingHints(g2);
 
-      g2.setColor(getBackground(c, isIntelliJTheme, focusedBackground));
+      g2.setColor(getBackground(c, focusedBackground));
       FlatUIUtils.paintComponentBackground(g2, 0, 0, c.getWidth(), c.getHeight(), focusWidth, arc);
     }
     finally {
@@ -117,7 +117,7 @@ public class TmmRoundTextAreaUI extends FlatTextAreaUI {
     }
   }
 
-  private static Color getBackground(JTextComponent c, boolean isIntelliJTheme, Color focusedBackground) {
+  private static Color getBackground(JTextComponent c, Color focusedBackground) {
     Color background = c.getBackground();
 
     // always use explicitly set color
@@ -128,11 +128,6 @@ public class TmmRoundTextAreaUI extends FlatTextAreaUI {
     // focused
     if (focusedBackground != null && FlatUIUtils.isPermanentFocusOwner(c)) {
       return focusedBackground;
-    }
-
-    // for compatibility with IntelliJ themes
-    if (isIntelliJTheme && (!c.isEnabled() || !c.isEditable())) {
-      return FlatUIUtils.getParentBackground(c);
     }
 
     return background;

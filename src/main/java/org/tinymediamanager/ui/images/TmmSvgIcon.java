@@ -34,7 +34,7 @@ import com.kitfox.svg.app.beans.SVGIcon;
 public class TmmSvgIcon extends SVGIcon {
 
   /**
-   * Convenience-Constructor to set the {@link URI} afterwards
+   * Convenience-Constructor to set the {@link URI} afterward
    */
   protected TmmSvgIcon() {
     // create new SVG universe to suppress caching of loaded SVGs
