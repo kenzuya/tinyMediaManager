@@ -141,8 +141,11 @@ public class MediaTrailerTable extends TmmEditorTable {
    * @return true if a download url is available, false otherwise
    */
   private boolean isDownloadUrlAvailable(int row) {
-    String url = getTrailer(row).getUrl();
-    return url != null && url.startsWith("http");
+    if (row >= 0 && row < trailerEventList.size()) {
+      String url = getTrailer(row).getUrl();
+      return url != null && url.startsWith("http");
+    }
+    return false;
   }
 
   /**
