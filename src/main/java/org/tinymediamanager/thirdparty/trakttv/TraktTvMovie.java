@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,8 +77,8 @@ class TraktTvMovie {
   private <T> T executeCall(Call<T> call) throws IOException {
     Response<T> response = call.execute();
     if (!response.isSuccessful() && response.code() == 401) {
-      api.refreshToken();
-      response = call.execute(); // retry
+      api.refreshAccessToken(Objects.requireNonNull(api.refreshToken()));
+      response = call.clone().execute(); // retry
     }
     if (!response.isSuccessful()) {
       String message = "Request failed: " + response.code() + " " + response.message();

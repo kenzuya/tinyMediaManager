@@ -15,15 +15,22 @@
  */
 package org.tinymediamanager;
 
+import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -134,7 +141,53 @@ public class TmmOsUtils {
 
     pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
     pb.redirectOutput(new File(SystemUtils.IS_OS_WINDOWS ? "NUL" : "/dev/null")).redirectErrorStream(true);
+
+    RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+    List<String> arguments = runtimeMxBean.getInputArguments();
+    for (String a : arguments) {
+      LOGGER.info("ARGS: {}", a);
+    }
+    Map<String, String> env = pb.environment();
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      LOGGER.info("PB: " + entry.getKey() + ":" + entry.getValue());
+    }
+
     return pb;
+  }
+
+  public static void restartJava() {
+    boolean restart = false;
+    StringBuilder cmd = new StringBuilder();
+    cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
+    for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+      String a = jvmArg.toLowerCase(Locale.ROOT);
+      if (!a.contains("javaagent") && !a.contains("add-opens") && !a.contains("agentlib") && !a.contains("-disableattachmechanism")) {
+        LOGGER.info("adding {}", jvmArg);
+        cmd.append(jvmArg + " ");
+      }
+      else {
+        LOGGER.info("NOT adding {} ;)", jvmArg);
+        restart = true;
+      }
+    }
+    cmd.append("-XX:+DisableAttachMechanism "); // better safe, than sorry
+    cmd.append("-splash:splashscreen.png "); // for some unknown reason this is not there...?
+    cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
+    cmd.append(TinyMediaManager.class.getName()).append(" ");
+
+    if (restart) {
+      try {
+        LOGGER.info("Running {}", cmd.toString());
+        TinyMediaManager.shutdown();
+        shutdownLogger();
+        Runtime.getRuntime().exec(cmd.toString());
+        System.exit(0);
+      }
+      catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
   }
 
   /**

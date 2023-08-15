@@ -906,7 +906,26 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (config.contains(MovieScraperMetadataConfig.CERTIFICATION)
         && (overwriteExistingItems || getCertification() == null || getCertification() == MediaCertification.UNKNOWN)) {
       if (!metadata.getCertifications().isEmpty()) {
-        setCertification(metadata.getCertifications().get(0));
+        if (metadata.getCertifications().size() > 1) {
+          // US has 2 rating systems - MPAA, Parental TV guide - see tt0092644
+          // try to find MPAA first...
+          MediaCertification mpaa = null;
+          for (MediaCertification cert : metadata.getCertifications()) {
+            if (!cert.name().startsWith("US_TV")) {
+              mpaa = cert;
+              break;
+            }
+          }
+          if (mpaa != null) {
+            setCertification(mpaa);
+          }
+          else {
+            setCertification(metadata.getCertifications().get(0));
+          }
+        }
+        else {
+          setCertification(metadata.getCertifications().get(0));
+        }
       }
     }
 
@@ -1243,7 +1262,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
             filename = FilenameUtils.removeExtension(findDiscMainFile());
           }
           else {
-            filename = "movie.nfo";
+            filename = "movie";
           }
         }
         else {

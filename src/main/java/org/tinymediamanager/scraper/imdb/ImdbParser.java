@@ -1361,7 +1361,7 @@ public abstract class ImdbParser {
             if (certification != null) {
               md.addCertification(certification);
               done = true;
-              break;
+              // break; // might be multiple, like US!
             }
           }
 
@@ -1535,7 +1535,7 @@ public abstract class ImdbParser {
 
   protected void parseKeywordsPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
     int maxKeywordCount = getMaxKeywordCount();
-    int counter = 0;
+    int counter = md.getTags().size(); // initialize with already scraped ones
 
     // new style via JSON
     try {
