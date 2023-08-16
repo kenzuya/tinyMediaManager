@@ -12,6 +12,7 @@ x fixed sorting of movies without a movie set #2247
 x fixed HTTP 403 errors from YT
 x do not drop audio channels with empty bitrate #2262
 x do not write NFO files on "update data sources"
+x fixed rebuilding image cache #2268
 
 
 Version 4.3.12
