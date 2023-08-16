@@ -36,3 +36,4 @@ x (movie) renamer preview now shows subfolders too #2010
 x (IMDB) adapt keywords parsing to new style
 + (IMDB) added action to fetch Top 250 numbers; add support for TvShows
 x fixed displaying missing season metadata #2238
+x fixed downloading of season artwork #2258

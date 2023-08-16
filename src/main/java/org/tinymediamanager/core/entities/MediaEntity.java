@@ -562,6 +562,10 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       case CLEARLOGO:
       case CHARACTERART:
       case KEYART:
+      case SEASON_BANNER:
+      case SEASON_FANART:
+      case SEASON_POSTER:
+      case SEASON_THUMB:
         if (StringUtils.isBlank(url)) {
           artworkUrlMap.remove(type);
         }
