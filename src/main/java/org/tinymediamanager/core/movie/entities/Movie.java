@@ -908,11 +908,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
       if (!metadata.getCertifications().isEmpty()) {
         if (metadata.getCertifications().size() > 1) {
           // US has 2 rating systems - MPAA, Parental TV guide - see tt0092644
-          // we take the MPAA for movies.
-          // movie even has 4 different ratings for Canada ... wuah
-          // simple approach
-          if (metadata.getCertifications().get(0).name().startsWith("US_TV")) {
-            setCertification(metadata.getCertifications().get(1));
+          // try to find MPAA first...
+          MediaCertification mpaa = null;
+          for (MediaCertification cert : metadata.getCertifications()) {
+            if (!cert.name().startsWith("US_TV")) {
+              mpaa = cert;
+              break;
+            }
+          }
+          if (mpaa != null) {
+            setCertification(mpaa);
           }
           else {
             setCertification(metadata.getCertifications().get(0));
