@@ -2864,11 +2864,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
-
-    // only write updated data to the NFO file if there is already an NFO file
-    // if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
-    // writeNFO();
-    // }
   }
 
   public Object getValueForMetadata(MovieScraperMetadataConfig metadataConfig) {
