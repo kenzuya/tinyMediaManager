@@ -73,6 +73,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRemoveAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenameAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenamePreviewAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowResetNewFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteEpisodeNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeEpisodesAction;
@@ -329,6 +330,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
 
     editPopupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
@@ -424,6 +426,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
     popupMenu.add(enhancedEditMenu);
 
     JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));

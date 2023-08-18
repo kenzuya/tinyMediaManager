@@ -28,12 +28,13 @@ Version 5.0
 + added an option to control how the "new" flag should be cleared
 + added a logo for HDR/Dolby Vision #2191
 + (movie/TV shows) added templates for exporting XML files for tagging *.mkv using mkvtoolnix suite. thx @curious_ralf
++ added EpisodeCount/SeasonCount filter
++ able to identify multiple HDR streams and fallbacks #2213
++ (IMDB) added action to fetch Top 250 numbers; add support for TvShows
++ added an action to reset the "new" flag
+x fixed displaying missing season metadata #2238
+x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
 x added an option to write season data (NFO/artwork) for unavailable seasons
 x (movie) renamer preview now shows subfolders too #2010
-+ added EpisodeCount/SeasonCount filter
-+ able to identify multiple HDR streams and fallbacks #2213
 x (IMDB) adapt keywords parsing to new style
-+ (IMDB) added action to fetch Top 250 numbers; add support for TvShows
-x fixed displaying missing season metadata #2238
-x fixed downloading of season artwork #2258
