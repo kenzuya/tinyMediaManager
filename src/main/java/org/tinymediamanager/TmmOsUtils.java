@@ -222,7 +222,7 @@ public class TmmOsUtils {
     }
     else if (SystemUtils.IS_OS_LINUX) {
       userDir = Paths.get(System.getProperty("user.home"), ".local", "share", "tinyMediaManager");
-      if (Files.exists(Paths.get("/.dockerenv"))) {
+      if (Globals.isDocker()) {
         userDir = Paths.get("/data");
       }
     }

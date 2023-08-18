@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -284,6 +285,23 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.3.4") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.3.4");
       Utils.deleteFileSafely(Paths.get(Globals.LOG_FOLDER).resolve("trace.log"));
+    }
+
+    /*
+     * V5
+     */
+    if (StrgUtils.compareVersion(v, "5.0") < 0) {
+      // migrate wrong launcher-extra.yml
+      Path wrongExtra = Paths.get(Globals.DATA_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+      if (Files.exists(wrongExtra)) {
+        Path correctExtra = Paths.get(Globals.CONTENT_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+        try {
+          Files.move(wrongExtra, correctExtra, StandardCopyOption.REPLACE_EXISTING);
+        }
+        catch (IOException e) {
+          LOGGER.warn("Could not move launcher-extra.yml from {} to {}", wrongExtra, correctExtra);
+        }
+      }
     }
   }
 

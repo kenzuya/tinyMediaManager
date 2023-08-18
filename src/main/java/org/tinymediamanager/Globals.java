@@ -29,6 +29,9 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public final class Globals {
   private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean READ_ONLY;
+
+  public static final String   CONTENT_FOLDER;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
@@ -43,11 +46,13 @@ public final class Globals {
     String backupFolder = System.getProperty("tmm.backupfolder");
     String logFolder = System.getProperty("tmm.logfolder");
 
+    READ_ONLY = !isTmmDirWritable();
+
     // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
     if (StringUtils.isBlank(contentFolder)) {
       // when .userdir exists and data not exists OR tmm folder is not writable we can use the local userdir
-      if ((Files.exists(Paths.get(".userdir")) && Files.notExists(Paths.get("data"))) || !isTmmDirWritable()) {
+      if ((Files.exists(Paths.get(".userdir")) && Files.notExists(Paths.get("data"))) || isReadOnly()) {
         // userdir
         contentFolder = TmmOsUtils.getUserDir().toString();
       }
@@ -56,6 +61,7 @@ public final class Globals {
         contentFolder = ".";
       }
     }
+    CONTENT_FOLDER = contentFolder;
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {
@@ -117,6 +123,15 @@ public final class Globals {
   }
 
   /**
+   * ReadOnly TMM instance? cannot write to TMM dir...
+   * 
+   * @return
+   */
+  public static boolean isReadOnly() {
+    return READ_ONLY;
+  }
+
+  /**
    * checks, if we are within a dockerized environment<br>
    * not 100% accurate!
    *
@@ -172,7 +187,7 @@ public final class Globals {
     }
 
     // tmm folder is not even writable
-    if (!isTmmDirWritable()) {
+    if (isReadOnly()) {
       return false;
     }
 
