@@ -26,6 +26,8 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -64,24 +66,31 @@ public class TvShowRebuildImageCacheAction extends TmmAction {
       return;
     }
 
-    Set<MediaFile> imageFiles = new HashSet<>();
+    TmmTask task = new TmmTask(TmmResourceBundle.getString("tmm.rebuildimagecache"), 0, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+      @Override
+      protected void doInBackground() {
+        Set<MediaFile> imageFiles = new HashSet<>();
 
-    // get data of all files within all selected TV shows/episodes
-    for (TvShow tvShow : selectedObjects.getTvShows()) {
-      imageFiles.addAll(tvShow.getImagesToCache());
-    }
+        // get data of all files within all selected TV shows/episodes
+        for (TvShow tvShow : selectedObjects.getTvShows()) {
+          imageFiles.addAll(tvShow.getImagesToCache());
+        }
 
-    for (TvShowSeason season : selectedObjects.getSeasonsRecursive()) {
-      imageFiles.addAll(season.getImagesToCache());
-    }
+        for (TvShowSeason season : selectedObjects.getSeasonsRecursive()) {
+          imageFiles.addAll(season.getImagesToCache());
+        }
 
-    for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
-      imageFiles.addAll(episode.getImagesToCache());
-    }
+        for (TvShowEpisode episode : selectedObjects.getEpisodesRecursive()) {
+          imageFiles.addAll(episode.getImagesToCache());
+        }
 
-    ImageCache.clearImageCache(imageFiles);
+        ImageCache.clearImageCache(imageFiles);
 
-    ImageCacheTask task = new ImageCacheTask(imageFiles);
+        ImageCacheTask task = new ImageCacheTask(imageFiles);
+        TmmTaskManager.getInstance().addUnnamedTask(task);
+      }
+    };
+
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

@@ -1369,11 +1369,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (dirty) {
       saveToDb();
     }
-
-    // only write updated data to the NFO file if there is already an NFO file
-    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
-      writeNFO();
-    }
   }
 
   @Override

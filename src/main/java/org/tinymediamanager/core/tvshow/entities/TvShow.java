@@ -2184,6 +2184,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       filesToCache.addAll(listActorFiles());
     }
 
+    for (TvShowSeason season : new ArrayList<>(getSeasons())) {
+      filesToCache.addAll(season.getImagesToCache());
+    }
+
     for (TvShowEpisode episode : new ArrayList<>(this.episodes)) {
       filesToCache.addAll(episode.getImagesToCache());
     }
