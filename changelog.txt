@@ -1,3 +1,7 @@
+Version 4.3.14
+=======================
+
+
 Version 4.3.13
 =======================
 + MediaInfo: also support their sidecar file naming
