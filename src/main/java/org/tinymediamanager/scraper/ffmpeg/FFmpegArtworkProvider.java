@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -86,22 +87,30 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
 
     // the file must be available
-    Object mf = options.getIds().get("mediaFile");
-    if (!(mf instanceof MediaFile)) {
-      throw new ScrapeException(new FileNotFoundException());
+    Object obj = options.getIds().get("mediaFile");
+    if (obj instanceof MediaFile) {
+      // single file
+      MediaFile mediaFile = (MediaFile) obj;
+      if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
+        return Collections.emptyList();
+      }
+      else if (mediaFile.isDiscFile()) {
+        // need to get the thumbs from the various disc files
+        return createStillsFromDiscFiles(mediaFile);
+      }
+      else {
+        // plain file - just need to get the stills from there
+        return createStillsFromPlainFile(mediaFile);
+      }
     }
-
-    MediaFile mediaFile = (MediaFile) mf;
-    if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
-      return Collections.emptyList();
-    }
-    else if (mediaFile.isDiscFile()) {
-      // need to get the thumbs from the various disc files
-      return createStillsFromDiscFiles(mediaFile);
+    else if (obj instanceof List) {
+      // stacked
+      ArrayList<MediaFile> mfs = (ArrayList<MediaFile>) obj;
+      return createStillsFromStackedFiles(mfs);
     }
     else {
-      // plain file - just need to get the stills from there
-      return createStillsFromPlainFile(mediaFile);
+      // unknown, error
+      throw new ScrapeException(new FileNotFoundException());
     }
   }
 
@@ -187,6 +196,96 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         // has already been logged in FFmpeg
       }
     }
+
+    return artworks;
+  }
+
+  private List<MediaArtwork> createStillsFromStackedFiles(List<MediaFile> mediaFiles) {
+    List<MediaArtwork> artworks = new ArrayList<>();
+
+    // create up to {count} stills between {start}% and {end}% of the runtime
+    int count = providerInfo.getConfig().getValueAsInteger("count");
+    int start = providerInfo.getConfig().getValueAsInteger("start");
+    int end = providerInfo.getConfig().getValueAsInteger("end");
+    // add some mitigations for wrong values (since the UI cannot handle this better)
+    if (start <= 0) {
+      start = 1;
+    }
+    else if (start >= 100) {
+      start = 99;
+    }
+
+    if (end <= 0) {
+      end = 1;
+    }
+    else if (end >= 100) {
+      end = 99;
+    }
+    if (start > end) {
+      int temp = start;
+      start = end;
+      end = temp;
+    }
+    if (count <= 0) {
+      count = 1;
+    }
+
+    int durMax = mediaFiles.stream().collect(Collectors.summingInt(MediaFile::getDuration));
+    for (MediaFile mf : mediaFiles) {
+      // percentage duration of whole
+      float perc = mf.getDuration() * 100 / durMax;
+      int stillsForThisFile = Math.round(count * perc / 100);
+
+      // take the runtime
+      int duration = mf.getDuration();
+
+      float increment = (end - start) / (100f * stillsForThisFile);
+
+      Random random = new Random(System.nanoTime());
+
+      for (int i = 0; i < stillsForThisFile; i++) {
+        int second = (int) (duration * (start / 100f + i * increment));
+
+        // add some variance to produce different stills every time (-0.5 * increment ... +0.5 * increment)
+        int variance = (int) (duration * increment * (-0.5 + random.nextDouble())); // NOSONAR
+        if (second + variance <= 0 || second + variance > duration) {
+          variance = 0;
+        }
+
+        try {
+          Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
+          FFmpeg.createStill(mf.getFile(), tempFile, second + variance);
+
+          // set the artwork type depending on the configured type
+          int width = mf.getVideoWidth();
+          int height = mf.getVideoHeight();
+          int artworkSizeOrder = detectArtworkSizeOrder(width);
+
+          if (isFanartEnabled()) {
+            MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
+            still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+            still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            still.setSizeOrder(artworkSizeOrder);
+            still.setLanguage("-");
+            artworks.add(still);
+          }
+          if (isThumbEnabled()) {
+            MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
+            still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+            still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
+            still.setSizeOrder(artworkSizeOrder);
+            still.setLanguage("-");
+            artworks.add(still);
+          }
+
+        }
+        catch (Exception e) {
+          // has already been logged in FFmpeg
+        }
+      }
+    } // end foreach MF
 
     return artworks;
   }

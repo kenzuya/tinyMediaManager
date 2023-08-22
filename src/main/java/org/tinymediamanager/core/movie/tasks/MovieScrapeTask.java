@@ -23,11 +23,13 @@ import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -304,7 +306,14 @@ public class MovieScrapeTask extends TmmThreadPool {
       if (metadata != null) {
         options.setIds(metadata.getIds());
       }
-      options.setId("mediaFile", movie.getMainFile());
+      if (movie.isStacked()) {
+        ArrayList<MediaFile> mfs = new ArrayList<>();
+        mfs.addAll(movie.getMediaFiles(MediaFileType.VIDEO));
+        options.setId("mediaFile", mfs);
+      }
+      else {
+        options.setId("mediaFile", movie.getMainFile());
+      }
       options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());

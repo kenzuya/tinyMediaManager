@@ -32,6 +32,7 @@ Version 5.0
 + able to identify multiple HDR streams and fallbacks #2213
 + (IMDB) added action to fetch Top 250 numbers; add support for TvShows
 + added an action to reset the "new" flag
++ (FFmpeg) support stacked movies for generating previews #2271
 x fixed displaying missing season metadata #2238
 x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
