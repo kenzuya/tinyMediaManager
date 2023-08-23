@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGro
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,6 +33,7 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -152,20 +154,18 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     Translation baseTranslation = null;
     Translation fallbackTranslation = null;
 
+    // language in 3 char
+    String baseLanguage = LanguageUtils.getIso3Language(options.getLanguage().toLocale());
+    String fallbackLanguage = LanguageUtils.getIso3Language(MediaLanguages.get(getProviderInfo().getConfig().getValue(FALLBACK_LANGUAGE)).toLocale());
+    // pt-BR is pt at tvdb...
+    if ("pob".equals(baseLanguage)) {
+      baseLanguage = "pt";
+    }
+    if ("pob".equals(fallbackLanguage)) {
+      fallbackLanguage = "pt";
+    }
+
     try {
-      // language in 3 char
-      String baseLanguage = LanguageUtils.getIso3Language(options.getLanguage().toLocale());
-      String fallbackLanguage = LanguageUtils
-          .getIso3Language(MediaLanguages.get(getProviderInfo().getConfig().getValue(FALLBACK_LANGUAGE)).toLocale());
-
-      // pt-BR is pt at tvdb...
-      if ("pob".equals(baseLanguage)) {
-        baseLanguage = "pt";
-      }
-      if ("pob".equals(fallbackLanguage)) {
-        fallbackLanguage = "pt";
-      }
-
       Response<SeriesExtendedResponse> httpResponse = tvdb.getSeriesService().getSeriesExtended(id).execute();
       if (!httpResponse.isSuccessful()) {
         throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -232,6 +232,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
           }
           break;
 
+        case "TMS (Zap2It)":
         case "Zap2It":
           md.setId("zap2it", remoteID.id);
           break;
@@ -306,6 +307,49 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       }
     }
 
+    // season names/plot
+    for (SeasonBaseRecord season : show.seasons) {
+      baseTranslation = null;
+      fallbackTranslation = null;
+      try {
+        Response<TranslationResponse> translationResponse = null;
+        if (fakeListToList(season.nameTranslations).contains(baseLanguage) || fakeListToList(season.overviewTranslations).contains(baseLanguage)) {
+          translationResponse = tvdb.getSeasonsService().getSeasonTranslation(season.id, baseLanguage).execute();
+          if (translationResponse.isSuccessful()) {
+            baseTranslation = translationResponse.body().data;
+          }
+        }
+        // also get fallback is either title or overview of the base translation is missing
+        if ((baseTranslation == null || StringUtils.isAnyBlank(baseTranslation.name, baseTranslation.overview))
+            && (fakeListToList(season.nameTranslations).contains(fallbackLanguage)
+                || fakeListToList(season.overviewTranslations).contains(fallbackLanguage))) {
+          translationResponse = tvdb.getSeasonsService().getSeasonTranslation(season.id, fallbackLanguage).execute();
+          if (translationResponse.isSuccessful()) {
+            fallbackTranslation = translationResponse.body().data;
+          }
+        }
+        // season title
+        if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.name)) {
+          md.addSeasonName(season.number, baseTranslation.name);
+        }
+        else if (fallbackTranslation != null && StringUtils.isNotBlank(fallbackTranslation.overview)) {
+          md.addSeasonName(season.number, fallbackTranslation.name);
+        }
+        // season overview
+        if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.overview)) {
+          md.addSeasonOverview(season.number, baseTranslation.overview);
+        }
+        else if (fallbackTranslation != null && StringUtils.isNotBlank(fallbackTranslation.overview)) {
+          md.addSeasonOverview(season.number, fallbackTranslation.overview);
+        }
+      }
+      catch (IOException e) {
+        LOGGER.error("failed to get season meta data: {}", e.getMessage());
+        throw new ScrapeException(e);
+      }
+
+    }
+
     // episode groups
     for (SeasonTypeRecord seasonTypeRecord : ListUtils.nullSafe(show.seasonTypes)) {
       boolean seasonAvailable = false;
@@ -335,6 +379,23 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
 
     return md;
+  }
+
+  /**
+   * TVDB does return season translations, as a list with ONE entry, comma separated. W.T.F.?!???
+   * 
+   * @param entries
+   * @return
+   */
+  private List<String> fakeListToList(List<String> entries) {
+    ArrayList<String> ret = new ArrayList<>();
+    if (entries == null) {
+      return ret;
+    }
+    for (String entry : entries) {
+      ret.addAll(Stream.of(entry.split(",", -1)).collect(Collectors.toList()));
+    }
+    return ret;
   }
 
   @Override
@@ -479,6 +540,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
           }
           break;
 
+        case "TMS (Zap2It)":
         case "Zap2It":
           md.setId("zap2it", remoteID.id);
           break;
@@ -848,6 +910,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
           }
           break;
 
+        case "TMS (Zap2It)":
         case "Zap2It":
           showIds.put("zap2it", remoteID.id);
           break;
