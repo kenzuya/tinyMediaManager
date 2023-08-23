@@ -386,7 +386,7 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
         lblTvshowTitle, jLabelBeanProperty);
     autoBinding.bind();
     //
-    Property tvShowSeasonSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShowSeason.tvShow.plot");
+    Property tvShowSeasonSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShowSeason.plot");
     Property readOnlyTextPaneHTMLBeanProperty = BeanProperty.create("text");
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSeasonSelectionModel, tvShowSeasonSelectionModelBeanProperty_1,
         taOverview, readOnlyTextPaneHTMLBeanProperty);
