@@ -107,8 +107,8 @@ public class MediaMetadata {
   private final Set<MediaEpisodeGroup>                     episodeGroups       = new HashSet<>();
   private final Map<MediaEpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new LinkedHashMap<>();
   private MediaAiredStatus                                 status              = MediaAiredStatus.UNKNOWN;
-  private final Map<Integer, String>                       seasonNames         = new HashMap<>();
-  private final Map<Integer, String>                       seasonOveriew       = new HashMap<>();
+  private Map<Integer, String>                             seasonNames         = new HashMap<>();
+  private Map<Integer, String>                             seasonOverview      = new HashMap<>();
 
   // extra data
   private final Map<String, Object>                        extraData           = new HashMap<>();
@@ -197,8 +197,8 @@ public class MediaMetadata {
     seasonNames.keySet().removeAll(md.getSeasonNames().keySet());
     seasonNames.putAll(md.seasonNames);
 
-    seasonOveriew.keySet().removeAll(md.getSeasonOveriew().keySet());
-    seasonOveriew.putAll(md.seasonOveriew);
+    seasonOverview.keySet().removeAll(md.getSeasonOveriew().keySet());
+    seasonOverview.putAll(md.seasonOverview);
 
     delta = md.getExtraData();
     delta.keySet().removeAll(extraData.keySet());
@@ -1237,6 +1237,13 @@ public class MediaMetadata {
   }
 
   /**
+   * for introspection on universal scraper
+   */
+  public void setSeasonNames(Map<Integer, String> map) {
+    this.seasonNames = map;
+  }
+
+  /**
    * add a season overview
    *
    * @param seasonNumber
@@ -1246,7 +1253,7 @@ public class MediaMetadata {
    */
   public void addSeasonOverview(int seasonNumber, String overview) {
     if (seasonNumber > -1 && StringUtils.isNotBlank(overview)) {
-      seasonOveriew.put(seasonNumber, overview);
+      seasonOverview.put(seasonNumber, overview);
     }
   }
 
@@ -1256,7 +1263,14 @@ public class MediaMetadata {
    * @return the season overview/plot
    */
   public Map<Integer, String> getSeasonOveriew() {
-    return seasonOveriew;
+    return seasonOverview;
+  }
+
+  /**
+   * for introspection on universal scraper
+   */
+  public void setSeasonOverview(Map<Integer, String> map) {
+    this.seasonOverview = map;
   }
 
   /**

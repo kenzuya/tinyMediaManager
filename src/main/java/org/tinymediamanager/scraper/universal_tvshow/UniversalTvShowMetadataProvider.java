@@ -133,6 +133,10 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("tags", "metatag.tags", compatibleScraperIds, UNDEFINED);
     config.addSelect("status", "metatag.status", compatibleScraperIds, UNDEFINED);
 
+    config.addLabel("seasonLabel", "metatag.season");
+    config.addSelect("seasonNames", "metatag.seasonname", only(MediaMetadata.TVDB, MediaMetadata.TMDB), UNDEFINED);
+    config.addSelect("seasonOverview", "metatag.seasonoverview", only(MediaMetadata.TVDB, MediaMetadata.TMDB), UNDEFINED);
+
     config.addLabel("episodeLabel", "metatag.episode");
     config.addSelect("episodes", "metatag.episodes", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeTitle", "metatag.title", compatibleScraperIds, UNDEFINED);
@@ -151,6 +155,17 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
     for (String scraperToExclude : excludes) {
       newScrapers.remove(scraperToExclude);
+    }
+
+    return newScrapers;
+  }
+
+  private List<String> only(String... includes) {
+    List<String> newScrapers = new ArrayList<>();
+
+    newScrapers.add(UNDEFINED);
+    for (String scraperToInclude : includes) {
+      newScrapers.add(scraperToInclude);
     }
 
     return newScrapers;
@@ -484,6 +499,9 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
     else if (value instanceof Collection) {
       return !((Collection<?>) value).isEmpty();
+    }
+    else if (value instanceof Map) {
+      return !((Map<?, ?>) value).isEmpty();
     }
     else if (value instanceof Date) {
       return true; // already checked with != null
