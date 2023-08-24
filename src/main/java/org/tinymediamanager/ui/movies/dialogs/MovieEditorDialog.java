@@ -1257,7 +1257,14 @@ public class MovieEditorDialog extends TmmDialog {
 
   private Map<String, Object> createIdsForImageChooser() {
     Map<String, Object> newIds = new HashMap<>(movieToEdit.getIds());
-    newIds.put("mediaFile", movieToEdit.getMainFile());
+    if (movieToEdit.isStacked()) {
+      ArrayList<MediaFile> mfs = new ArrayList<>();
+      mfs.addAll(movieToEdit.getMediaFiles(MediaFileType.VIDEO));
+      newIds.put("mediaFile", mfs);
+    }
+    else {
+      newIds.put("mediaFile", movieToEdit.getMainFile());
+    }
     return newIds;
   }
 

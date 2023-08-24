@@ -670,7 +670,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     }
 
     Map<String, Object> newIds = new HashMap<>(movieToScrape.getIds());
-    newIds.put("mediaFile", movieToScrape.getMainFile());
+    if (movieToScrape.isStacked()) {
+      ArrayList<MediaFile> mfs = new ArrayList<>();
+      mfs.addAll(movieToScrape.getMediaFiles(MediaFileType.VIDEO));
+      newIds.put("mediaFile", mfs);
+    }
+    else {
+      newIds.put("mediaFile", movieToScrape.getMainFile());
+    }
 
     String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, artworkScrapers, extrathumbs, extrafanarts, MediaType.MOVIE,
         movieToScrape.getPathNIO().toAbsolutePath().toString());
