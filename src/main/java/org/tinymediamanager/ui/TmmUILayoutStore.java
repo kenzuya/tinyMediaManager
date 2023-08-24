@@ -131,14 +131,6 @@ public class TmmUILayoutStore {
    *          the frame
    */
   public void loadSettings(JFrame frame) {
-    if (!Settings.getInstance().isStoreWindowPreferences()) {
-      // at least display the main frame centered
-      if ("mainWindow".equals(frame.getName())) {
-        frame.setLocationRelativeTo(null);
-      }
-      return;
-    }
-
     // settings for main window
     if ("mainWindow".equals(frame.getName())) {
       // only set location/size if something was stored
@@ -173,13 +165,7 @@ public class TmmUILayoutStore {
    *          the dialog
    */
   public void loadSettings(JDialog dialog) {
-    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
-      dialog.pack();
-      dialog.setLocationRelativeTo(dialog.getParent());
-      return;
-    }
-
-    if (!dialog.getName().contains("dialog")) {
+    if (!StringUtils.isBlank(dialog.getName()) && !dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
 
       if (rect.width == 0 && rect.height == 0) {
