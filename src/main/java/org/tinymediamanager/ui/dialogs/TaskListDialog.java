@@ -92,12 +92,6 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     TmmUILayoutStore.getInstance().install(panelContent);
   }
 
-  @Override
-  public void dispose() {
-    // do not dispose (singleton), but save the size/position
-    TmmUILayoutStore.getInstance().saveSettings(this);
-  }
-
   public static TaskListDialog getInstance() {
     if (instance == null) {
       instance = new TaskListDialog();
