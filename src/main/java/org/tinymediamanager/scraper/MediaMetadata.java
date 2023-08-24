@@ -197,7 +197,7 @@ public class MediaMetadata {
     seasonNames.keySet().removeAll(md.getSeasonNames().keySet());
     seasonNames.putAll(md.seasonNames);
 
-    seasonOverview.keySet().removeAll(md.getSeasonOveriew().keySet());
+    seasonOverview.keySet().removeAll(md.getSeasonOverview().keySet());
     seasonOverview.putAll(md.seasonOverview);
 
     delta = md.getExtraData();
@@ -1262,7 +1262,7 @@ public class MediaMetadata {
    *
    * @return the season overview/plot
    */
-  public Map<Integer, String> getSeasonOveriew() {
+  public Map<Integer, String> getSeasonOverview() {
     return seasonOverview;
   }
 

@@ -1074,7 +1074,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.SEASON_OVERVIEW)) {
-      for (var entry : metadata.getSeasonOveriew().entrySet()) {
+      for (var entry : metadata.getSeasonOverview().entrySet()) {
         TvShowSeason season = getOrCreateSeason(entry.getKey());
         if (overwriteExistingItems || StringUtils.isBlank(season.getPlot())) {
           season.setPlot(entry.getValue());
