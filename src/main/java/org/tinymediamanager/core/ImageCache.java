@@ -577,7 +577,6 @@ public class ImageCache {
    */
   public static void clearImageCacheForMediaEntity(MediaEntity entity) {
     clearImageCache(entity.getMediaFiles());
-
   }
 
   /**

@@ -16,8 +16,9 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -27,6 +28,8 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -57,15 +60,23 @@ public class MovieRebuildImageCacheAction extends TmmAction {
       return;
     }
 
-    List<MediaFile> imageFiles = new ArrayList<>();
+    TmmTask task = new TmmTask(TmmResourceBundle.getString("tmm.rebuildimagecache"), 0, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+      @Override
+      protected void doInBackground() {
+        Set<MediaFile> imageFiles = new HashSet<>();
 
-    // get data of all files within all selected movies
-    for (Movie movie : selectedMovies) {
-      imageFiles.addAll(movie.getImagesToCache());
-      ImageCache.clearImageCacheForMediaEntity(movie);
-    }
+        // get data of all files within all selected movies
+        for (Movie movie : selectedMovies) {
+          imageFiles.addAll(movie.getImagesToCache());
+        }
 
-    ImageCacheTask task = new ImageCacheTask(imageFiles);
+        ImageCache.clearImageCache(imageFiles);
+
+        ImageCacheTask task = new ImageCacheTask(imageFiles);
+        TmmTaskManager.getInstance().addUnnamedTask(task);
+      }
+    };
+
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

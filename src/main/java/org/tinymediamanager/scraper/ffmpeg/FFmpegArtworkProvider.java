@@ -96,17 +96,17 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       }
       else if (mediaFile.isDiscFile()) {
         // need to get the thumbs from the various disc files
-        return createStillsFromDiscFiles(mediaFile);
+        return createStillsFromDiscFiles(mediaFile, options);
       }
       else {
         // plain file - just need to get the stills from there
-        return createStillsFromPlainFile(mediaFile);
+        return createStillsFromPlainFile(mediaFile, options);
       }
     }
     else if (obj instanceof List) {
       // stacked
       ArrayList<MediaFile> mfs = (ArrayList<MediaFile>) obj;
-      return createStillsFromStackedFiles(mfs);
+      return createStillsFromStackedFiles(mfs, options);
     }
     else {
       // unknown, error
@@ -114,7 +114,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
   }
 
-  private List<MediaArtwork> createStillsFromPlainFile(MediaFile mediaFile) {
+  private List<MediaArtwork> createStillsFromPlainFile(MediaFile mediaFile, ArtworkSearchAndScrapeOptions options) {
     // take the runtime
     int duration = mediaFile.getDuration();
 
@@ -172,7 +172,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         int height = mediaFile.getVideoHeight();
         int artworkSizeOrder = detectArtworkSizeOrder(width);
 
-        if (isFanartEnabled()) {
+        if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
+            || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
           still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
           still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
@@ -181,7 +182,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           still.setLanguage("-");
           artworks.add(still);
         }
-        if (isThumbEnabled()) {
+        if (isThumbEnabled()
+            && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
           still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
           still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
@@ -200,7 +202,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     return artworks;
   }
 
-  private List<MediaArtwork> createStillsFromStackedFiles(List<MediaFile> mediaFiles) {
+  private List<MediaArtwork> createStillsFromStackedFiles(List<MediaFile> mediaFiles, ArtworkSearchAndScrapeOptions options) {
     List<MediaArtwork> artworks = new ArrayList<>();
 
     // create up to {count} stills between {start}% and {end}% of the runtime
@@ -261,7 +263,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           int height = mf.getVideoHeight();
           int artworkSizeOrder = detectArtworkSizeOrder(width);
 
-          if (isFanartEnabled()) {
+          if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
+              || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
@@ -270,7 +273,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setLanguage("-");
             artworks.add(still);
           }
-          if (isThumbEnabled()) {
+          if (isThumbEnabled()
+              && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
@@ -290,7 +294,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     return artworks;
   }
 
-  private List<MediaArtwork> createStillsFromDiscFiles(MediaFile mediaFile) throws ScrapeException {
+  private List<MediaArtwork> createStillsFromDiscFiles(MediaFile mediaFile, ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     // take the runtime
     int duration = mediaFile.getDuration();
 
@@ -339,7 +343,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           int height = mediaFile.getVideoHeight();
           int artworkSizeOrder = detectArtworkSizeOrder(width);
 
-          if (isFanartEnabled()) {
+          if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
+              || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
@@ -348,7 +353,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setLanguage("-");
             artworks.add(still);
           }
-          if (isThumbEnabled()) {
+          if (isThumbEnabled()
+              && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath());
             still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());

@@ -579,7 +579,7 @@ public class MediaFileEditorPanel extends JPanel {
           // audio streams and subtitles will be completely set (except empty ones)
           List<MediaFileAudioStream> audioStreams = new ArrayList<>();
           for (MediaFileAudioStream audioStream : mfEditor.getAudioStreams()) {
-            if (StringUtils.isBlank(audioStream.getCodec()) || audioStream.getBitrate() == 0 || audioStream.getAudioChannels() == 0) {
+            if (StringUtils.isBlank(audioStream.getCodec()) || audioStream.getAudioChannels() == 0) {
               continue;
             }
             audioStreams.add(audioStream);

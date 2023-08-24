@@ -214,6 +214,16 @@ public class ImageChooserDialog extends TmmDialog {
         }
         break;
 
+      case SEASON_FANART:
+        season = ids.get("tvShowSeason");
+        if (season != null) {
+          setTitle(TmmResourceBundle.getString("image.choose.season.fanart") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
+        }
+        else {
+          setTitle(TmmResourceBundle.getString("image.choose.season.fanart"));
+        }
+        break;
+
       case SEASON_BANNER:
         season = ids.get("tvShowSeason");
         if (season != null) {
