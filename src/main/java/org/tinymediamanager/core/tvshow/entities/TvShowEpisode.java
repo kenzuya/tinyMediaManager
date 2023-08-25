@@ -39,6 +39,8 @@ import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DISPLAY;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
 
@@ -487,7 +489,36 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     episodeNumbers.clear();
 
     if (newValues != null) {
-      newValues.forEach((group, episodeNumber) -> setEpisode(episodeNumber));
+      // now we must not (over)write episode groups from the _same_ type
+      // AIRED, ABSOLUTE and DISPLAY are seen as unique: just add them directly
+      newValues.forEach((group, episodeNumber) -> {
+        if (group.getEpisodeGroup() == AIRED || group.getEpisodeGroup() == ABSOLUTE || group.getEpisodeGroup() == DISPLAY) {
+          setEpisode(episodeNumber);
+        }
+      });
+
+      // DVD could be duplicated (DVD and BR), so we add the desired one (if chosen) or the first one
+      if (getTvShow() != null && getTvShow().getEpisodeGroup().getEpisodeGroup() == DVD) {
+        MediaEpisodeNumber episodeNumber = newValues.get(getTvShow().getEpisodeGroup());
+        if (episodeNumber != null) {
+          setEpisode(episodeNumber);
+        }
+      } else {
+        for (Map.Entry<MediaEpisodeGroup, MediaEpisodeNumber> entry : newValues.entrySet()) {
+          if (entry.getKey().getEpisodeGroup() == DVD) {
+            setEpisode(entry.getValue());
+            break;
+          }
+        }
+      }
+
+      // write ALTERNATIVE only on demand
+      if (getTvShow() != null && getTvShow().getEpisodeGroup().getEpisodeGroup() == ALTERNATE) {
+        MediaEpisodeNumber episodeNumber = newValues.get(getTvShow().getEpisodeGroup());
+        if (episodeNumber != null) {
+          setEpisode(episodeNumber);
+        }
+      }
     }
   }
 
