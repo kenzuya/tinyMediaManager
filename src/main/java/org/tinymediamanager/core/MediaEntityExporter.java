@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
@@ -163,13 +165,38 @@ public abstract class MediaEntityExporter {
     List<ExportTemplate> templatesFound = new ArrayList<>();
 
     // search in template folder for templates
-    Path root = Paths.get(TEMPLATE_DIRECTORY);
-    if (!Files.isDirectory(root)) {
-      return templatesFound;
+    // first in tmm dir
+    Path templateInTmmDir = Paths.get(TEMPLATE_DIRECTORY);
+    templatesFound.addAll(findTemplatesInFolder(templateInTmmDir, type));
+
+    // and on content dir
+    Path templateInContentDir = Paths.get(Globals.CONTENT_FOLDER, TEMPLATE_DIRECTORY);
+    if (!templateInContentDir.equals(templateInTmmDir)) {
+      templatesFound.addAll(findTemplatesInFolder(templateInContentDir, type));
     }
 
+    // sort by title
+    templatesFound.sort((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+
+    return templatesFound;
+  }
+
+  /**
+   * search for {@link ExportTemplate}s in the given {@link Path}
+   *
+   * @param folder the {@link Path} to search templates for
+   * @param type   the {@link TemplateType}
+   * @return a {@link List} of found {@link ExportTemplate}s
+   */
+  private static List<ExportTemplate> findTemplatesInFolder(Path folder, TemplateType type) {
+    if (!Files.isDirectory(folder)) {
+      return Collections.emptyList();
+    }
+
+    List<ExportTemplate> templatesFound = new ArrayList<>();
+
     // search ever subdir
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(root)) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(folder)) {
       for (Path path : directoryStream) {
         if (Files.isDirectory(path)) {
 
@@ -217,9 +244,6 @@ public abstract class MediaEntityExporter {
     catch (IOException ignored) {
       // nothing to do
     }
-
-    // sort by title
-    templatesFound.sort((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
 
     return templatesFound;
   }
