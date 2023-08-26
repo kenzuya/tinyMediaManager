@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -86,6 +85,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -623,7 +623,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               for (TvShowSeason season : tvShowToScrape.getSeasons()
                   .stream()
                   .sorted(Comparator.comparingInt(TvShowSeason::getSeason))
-                  .collect(Collectors.toList())) {
+                      .toList()) {
                 // relevant for v5
                 // if (season.isDummy()) {
                 // continue;
@@ -684,6 +684,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
+
+            // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
+            if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+                TmmTaskManager.getInstance().addUnnamedTask(new TvShowRenameTask(Collections.singletonList(tvShowToScrape), null));
+            }
 
           setVisible(false);
         }

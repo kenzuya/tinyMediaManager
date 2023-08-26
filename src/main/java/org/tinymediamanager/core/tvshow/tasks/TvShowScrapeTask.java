@@ -303,6 +303,17 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 task.run();
               }
             }
+
+            if (cancel) {
+              return;
+            }
+
+            // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
+            if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+              TvShowRenameTask task = new TvShowRenameTask(Collections.singletonList(tvShow), null);
+              // start this task embedded (to the abortable)
+              task.run();
+            }
           }
           catch (MissingIdException e) {
             LOGGER.warn("missing id for scrape");

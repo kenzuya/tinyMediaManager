@@ -374,22 +374,18 @@ class TvShowCommand implements Runnable {
     else if (rename.renameAll) {
       LOGGER.info("renaming ALL tv shows...");
       tvShowsToRename.addAll(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
+      episodesToRename.addAll(TvShowModuleManager.getInstance().getTvShowList().getEpisodes());
     }
 
-    if (!tvShowsToRename.isEmpty()) {
+    if (!tvShowsToRename.isEmpty() || !episodesToRename.isEmpty()) {
       // rename tvShows
-      Runnable task = new TvShowRenameTask(tvShowsToRename, null, true);
-      task.run(); // blocking
-    }
-
-    if (!episodesToRename.isEmpty()) {
-      Runnable task = new TvShowRenameTask(null, episodesToRename, true); // just rename new EPs AND root folder
+      Runnable task = new TvShowRenameTask(tvShowsToRename, episodesToRename);
       task.run(); // blocking
     }
   }
 
   private void exportTvShows() {
-    for (ExportTemplate exportTemplate : TvShowExporter.findTemplates(MediaEntityExporter.TemplateType.TV_SHOW)) {
+    for (ExportTemplate exportTemplate : MediaEntityExporter.findTemplates(MediaEntityExporter.TemplateType.TV_SHOW)) {
       if (exportTemplate.getPath().endsWith(export.template)) {
         // ok, our template has been found under templates
         LOGGER.info("exporting tv shows...");

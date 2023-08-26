@@ -1949,7 +1949,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this), false));
+      taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this)));
     }
 
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {

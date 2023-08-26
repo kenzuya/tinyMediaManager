@@ -42,6 +42,7 @@ import org.tinymediamanager.core.tvshow.TvShowComparator;
 import org.tinymediamanager.core.tvshow.TvShowRenamerPreview;
 import org.tinymediamanager.core.tvshow.TvShowRenamerPreviewContainer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -186,13 +187,15 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       btnRename.setToolTipText(TmmResourceBundle.getString("movie.rename"));
       btnRename.addActionListener(arg0 -> {
         List<TvShow> selectedTvShows1 = new ArrayList<>();
+        List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
         List<TvShowRenamerPreviewContainer> selectedResults = new ArrayList<>(resultSelectionModel.selectedResults);
         for (TvShowRenamerPreviewContainer result : selectedResults) {
           selectedTvShows1.add(result.getTvShow());
+          selectedEpisodes.addAll(result.getTvShow().getEpisodes());
         }
 
         // rename
-        TmmThreadPool renameTask = new TvShowRenameTask(selectedTvShows1, null, true);
+        TmmThreadPool renameTask = new TvShowRenameTask(selectedTvShows1, selectedEpisodes);
         TmmTaskManager.getInstance().addMainTask(renameTask);
         results.removeAll(selectedResults);
       });
