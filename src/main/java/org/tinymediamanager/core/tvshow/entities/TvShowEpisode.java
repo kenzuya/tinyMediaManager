@@ -1345,6 +1345,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       runtime += mf.getDuration();
     }
+
+    // this EP is in a multi EP file, we calculate the avg. runtime
+    if (isMultiEpisode()) {
+      List<TvShowEpisode> eps = TvShowList.getTvEpisodesByFile(tvShow, getMainVideoFile().getFile());
+      if (!eps.isEmpty()) {
+        runtime = (int) (runtime / (float) eps.size());
+      }
+    }
+
     return runtime;
   }
 

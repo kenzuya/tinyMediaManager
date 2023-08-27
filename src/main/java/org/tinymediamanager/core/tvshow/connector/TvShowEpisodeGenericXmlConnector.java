@@ -419,7 +419,15 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addRuntime(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element runtime = document.createElement("runtime");
-    runtime.setTextContent(Integer.toString(episode.getRuntime()));
+
+    // try to calculate the runtime from media files
+    int runtimeInMinutes = episode.getRuntimeFromMediaFilesInMinutes();
+    if (runtimeInMinutes == 0) {
+      // fallback to runtime on TV show level
+      runtimeInMinutes = episode.getRuntime();
+    }
+
+    runtime.setTextContent(Integer.toString(runtimeInMinutes));
     root.appendChild(runtime);
   }
 
