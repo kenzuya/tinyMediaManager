@@ -333,9 +333,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * Exchanges the beginning path from oldPath with newPath<br>
    */
   public void replacePathForRenamedFolder(Path oldPath, Path newPath) {
-    String p = getPathNIO().toAbsolutePath().toString();
-    p = p.replace(oldPath.toAbsolutePath().toString(), newPath.toAbsolutePath().toString());
-    setPath(p);
+    if (oldPath == null || newPath == null) {
+      return;
+    }
+    int oldCnt = oldPath.getNameCount();
+    Path remaining = getPathNIO().subpath(oldCnt, getPathNIO().getNameCount());
+    Path newPathToSet = newPath.resolve(remaining);
+    LOGGER.trace("EP replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
+    setPath(newPathToSet.toAbsolutePath().toString());
   }
 
   /**
@@ -503,7 +508,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         if (episodeNumber != null) {
           setEpisode(episodeNumber);
         }
-      } else {
+      }
+      else {
         for (Map.Entry<MediaEpisodeGroup, MediaEpisodeNumber> entry : newValues.entrySet()) {
           if (entry.getKey().getEpisodeGroup() == DVD) {
             setEpisode(entry.getValue());

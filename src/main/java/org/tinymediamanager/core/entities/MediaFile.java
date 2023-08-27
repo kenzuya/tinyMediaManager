@@ -509,10 +509,11 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     if (oldPath == null || newPath == null) {
       return;
     }
-
-    String p = getPath();
-    p = p.replace(oldPath.toAbsolutePath().toString(), newPath.toAbsolutePath().toString());
-    setPath(p);
+    int oldCnt = oldPath.getNameCount();
+    Path remaining = getFileAsPath().subpath(oldCnt, getFileAsPath().getNameCount());
+    Path newPathToSet = newPath.resolve(remaining).getParent();
+    LOGGER.trace("MF replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
+    setPath(newPathToSet.toAbsolutePath().toString());
   }
 
   public String getFilename() {
