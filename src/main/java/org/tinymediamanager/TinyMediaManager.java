@@ -504,10 +504,9 @@ public final class TinyMediaManager {
 
   private void doPostStartupTasks() {
     // do upgrade tasks after database loading
-    if (newVersion) {
       updateProgress("splash.upgrade2", 80);
-      UpgradeTasks.performUpgradeTasksAfterDatabaseLoading();
-    }
+      UpgradeTasks.performDbUpgradesForMovies();
+      UpgradeTasks.performDbUpgradesForShows();
   }
 
   /**

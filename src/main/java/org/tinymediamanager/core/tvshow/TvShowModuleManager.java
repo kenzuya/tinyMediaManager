@@ -47,6 +47,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.http.TvShowCommandHandler;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -72,6 +73,8 @@ public final class TvShowModuleManager implements ITmmModule {
   private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowModuleManager.class);
   private static final int             COMMIT_DELAY         = 2000;
 
+    private static final String METADATA_VERSION = "VERSION";
+
   private static TvShowModuleManager   instance;
 
   private final List<String>           startupMessages;
@@ -91,6 +94,7 @@ public final class TvShowModuleManager implements ITmmModule {
   private MVMap<UUID, String>          tvShowMap;
   private MVMap<UUID, String>          seasonMap;
   private MVMap<UUID, String>          episodeMap;
+    private MVMap<String, String> metadataMap;
 
   private Timer                        databaseTimer;
 
@@ -298,6 +302,7 @@ public final class TvShowModuleManager implements ITmmModule {
           tvShowMap = mvStore.openMap("tvshows");
           seasonMap = mvStore.openMap("seasons");
           episodeMap = mvStore.openMap("episodes");
+            metadataMap = mvStore.openMap("metadata");
 
           for (TvShow tvShow : getTvShowList().getTvShows()) {
             persistTvShow(tvShow);
@@ -329,6 +334,7 @@ public final class TvShowModuleManager implements ITmmModule {
     tvShowMap = mvStore.openMap("tvshows");
     seasonMap = mvStore.openMap("seasons");
     episodeMap = mvStore.openMap("episodes");
+      metadataMap = mvStore.openMap("metadata");
 
     getTvShowList().loadTvShowsFromDatabase(tvShowMap, seasonMap, episodeMap);
     getTvShowList().initDataAfterLoading();
@@ -599,4 +605,13 @@ public final class TvShowModuleManager implements ITmmModule {
   public ObjectReader getSeasonObjectReader() {
     return seasonObjectReader;
   }
+
+    public int getDbVersion() {
+        return MetadataUtil.parseInt(metadataMap.get(METADATA_VERSION), 0);
+    }
+
+    public void setDbVersion(int ver) {
+        metadataMap.put(METADATA_VERSION, String.valueOf(ver));
+    }
+
 }

@@ -316,11 +316,123 @@ public class UpgradeTasks {
   }
 
   /**
+   * Each DB version can only be executed once!<br>
+   * Do not make changes to existing versions, use a new number!
+   */
+  public static void performDbUpgradesForMovies() {
+    MovieModuleManager module = MovieModuleManager.getInstance();
+    MovieList movieList = module.getMovieList();
+    if (module.getDbVersion() == 0) {
+      module.setDbVersion(5000);
+    }
+    LOGGER.info("Current movie DB version: {}", module.getDbVersion());
+
+    if (module.getDbVersion() < 5001) {
+      LOGGER.info("performing upgrade to ver: {}", 5001);
+      for (Movie movie : movieList.getMovies()) {
+        // migrate logo to clearlogo
+        for (MediaFile mf : movie.getMediaFiles(MediaFileType.LOGO)) {
+          // remove
+          movie.removeFromMediaFiles(mf);
+
+          // change type
+          mf.setType(MediaFileType.CLEARLOGO);
+
+          // and add ad the end
+          movie.addToMediaFiles(mf);
+        }
+
+        String logoUrl = movie.getArtworkUrl(MediaFileType.LOGO);
+        if (StringUtils.isNotBlank(logoUrl)) {
+          movie.removeArtworkUrl(MediaFileType.LOGO);
+          String clearlogoUrl = movie.getArtworkUrl(MediaFileType.CLEARLOGO);
+          if (StringUtils.isBlank(clearlogoUrl)) {
+            movie.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
+          }
+        }
+
+        movie.saveToDb();
+      }
+
+      module.setDbVersion(5001);
+    }
+  }
+
+  /**
+   * Each DB version can only be executed once!<br>
+   * Do not make changes to existing versions, use a new number!
+   */
+  public static void performDbUpgradesForShows() {
+    TvShowModuleManager module = TvShowModuleManager.getInstance();
+    TvShowList tvShowList = module.getTvShowList();
+    if (module.getDbVersion() == 0) {
+      module.setDbVersion(5000);
+    }
+    LOGGER.info("Current tvshow DB version: {}", module.getDbVersion());
+
+    if (module.getDbVersion() < 5001) {
+      LOGGER.info("performing upgrade to ver: {}", 5001);
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        // migrate logo to clearlogo
+        for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.LOGO)) {
+          // remove
+          tvShow.removeFromMediaFiles(mf);
+
+          // change type
+          mf.setType(MediaFileType.CLEARLOGO);
+
+          // and add ad the end
+          tvShow.addToMediaFiles(mf);
+        }
+
+        String logoUrl = tvShow.getArtworkUrl(MediaFileType.LOGO);
+        if (StringUtils.isNotBlank(logoUrl)) {
+          tvShow.removeArtworkUrl(MediaFileType.LOGO);
+          String clearlogoUrl = tvShow.getArtworkUrl(MediaFileType.CLEARLOGO);
+          if (StringUtils.isBlank(clearlogoUrl)) {
+            tvShow.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
+          }
+        }
+
+        // migrate season artwork to the seasons
+        List<MediaFile> seasonMediaFiles = tvShow.getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
+                MediaFileType.SEASON_FANART);
+        for (MediaFile mf : seasonMediaFiles) {
+          if (mf.getFilesize() != 0) {
+            String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+            int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+
+            if (season != Integer.MIN_VALUE) {
+              TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
+              tvShowSeason.addToMediaFiles(mf);
+            }
+          }
+          tvShow.removeFromMediaFiles(mf);
+        }
+
+        // link TV shows and seasons once again
+        for (TvShowSeason season : tvShow.getSeasons()) {
+          season.setTvShow(tvShow);
+        }
+
+        // save episodes (they are migrated while loading from database)
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          episode.saveToDb();
+        }
+
+        tvShow.saveToDb();
+      }
+
+      module.setDbVersion(5001);
+    }
+  }
+
+  /**
    * performs some upgrade tasks from one version to another<br>
    * <b>make sure, this upgrade can run multiple times (= needed for nightlies!!!)
    *
    */
-  public static void performUpgradeTasksAfterDatabaseLoading() {
+  public static void performUpgradeTasksAfterDatabaseLoadingV4() {
     MovieList movieList = MovieModuleManager.getInstance().getMovieList();
     TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
@@ -570,86 +682,6 @@ public class UpgradeTasks {
             movie.firePropertyChange(MEDIA_INFORMATION, false, true);
           }
         }
-      }
-    }
-
-    /*
-     * V5
-     */
-    if (StrgUtils.compareVersion(v, "5.0") < 0) {
-      // upgrade movies
-      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
-        // migrate logo to clearlogo
-        for (MediaFile mf : movie.getMediaFiles(MediaFileType.LOGO)) {
-          // remove
-          movie.removeFromMediaFiles(mf);
-
-          // change type
-          mf.setType(MediaFileType.CLEARLOGO);
-
-          // and add ad the end
-          movie.addToMediaFiles(mf);
-        }
-
-        String logoUrl = movie.getArtworkUrl(MediaFileType.LOGO);
-        if (StringUtils.isNotBlank(logoUrl)) {
-          movie.removeArtworkUrl(MediaFileType.LOGO);
-          String clearlogoUrl = movie.getArtworkUrl(MediaFileType.CLEARLOGO);
-          if (StringUtils.isBlank(clearlogoUrl)) {
-            movie.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
-          }
-        }
-      }
-
-      // upgrade TV shows
-      for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
-        // migrate logo to clearlogo
-        for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.LOGO)) {
-          // remove
-          tvShow.removeFromMediaFiles(mf);
-
-          // change type
-          mf.setType(MediaFileType.CLEARLOGO);
-
-          // and add ad the end
-          tvShow.addToMediaFiles(mf);
-        }
-
-        String logoUrl = tvShow.getArtworkUrl(MediaFileType.LOGO);
-        if (StringUtils.isNotBlank(logoUrl)) {
-          tvShow.removeArtworkUrl(MediaFileType.LOGO);
-          String clearlogoUrl = tvShow.getArtworkUrl(MediaFileType.CLEARLOGO);
-          if (StringUtils.isBlank(clearlogoUrl)) {
-            tvShow.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
-          }
-        }
-
-        // migrate season artwork to the seasons
-        List<MediaFile> seasonMediaFiles = tvShow.getMediaFiles(MediaFileType.SEASON_POSTER, MediaFileType.SEASON_BANNER, MediaFileType.SEASON_THUMB,
-            MediaFileType.SEASON_FANART);
-        for (MediaFile mf : seasonMediaFiles) {
-          if (mf.getFilesize() != 0) {
-            String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
-            int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
-
-            if (season != Integer.MIN_VALUE) {
-              TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
-              tvShowSeason.addToMediaFiles(mf);
-            }
-          }
-          tvShow.removeFromMediaFiles(mf);
-        }
-
-        // link TV shows and seasons once again
-        for (TvShowSeason season : tvShow.getSeasons()) {
-          season.setTvShow(tvShow);
-        }
-
-        // save episodes (they are migrated while loading from database)
-        for (TvShowEpisode episode : tvShow.getEpisodes()) {
-          episode.saveToDb();
-        }
-        tvShow.saveToDb();
       }
     }
   }
