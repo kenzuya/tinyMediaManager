@@ -790,6 +790,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           TvShowSeasonNfoParser parser = TvShowSeasonNfoParser.parseNfo(mf.getFileAsPath());
           if (parser.season > -1) {
             TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(parser.season);
+            tvShowSeason.merge(parser.toTvShowSeason());
             tvShowSeason.addToMediaFiles(mf);
           }
         }
