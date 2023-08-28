@@ -114,7 +114,7 @@ public class TmmUILayoutStore {
       List<String> hiddenColumns = Arrays.asList(hiddenColumnsAsString.split(","));
       table.readHiddenColumns(hiddenColumns);
 
-      if (table.getTableComparatorChooser() != null) {
+      if (table.getTableComparatorChooser() != null && StringUtils.isNotBlank(properties.getProperty(componentName + ".sortState"))) {
         table.getTableComparatorChooser().fromString(properties.getProperty(componentName + ".sortState"));
       }
     }
