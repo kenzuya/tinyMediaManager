@@ -39,11 +39,5 @@
             <destName>tmm.jar</destName>
             <outputDirectory>/</outputDirectory>
         </file>
-        <!-- TEMPLATES from former assembly -->
-        <file>
-            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2</source>
-            <destName>templates.tar.bz2</destName>
-            <outputDirectory>/templates</outputDirectory>
-        </file>
     </files>
 </assembly>

@@ -37,10 +37,18 @@
             <outputDirectory>/jre</outputDirectory>
             <excludes>
                 <exclude>macos-*/**</exclude>
+                <exclude>**/*.sha256</exclude>
             </excludes>
         </fileSet>
     </fileSets>
     <files>
+        <!-- TEMPLATES from former assembly -->
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2</source>
+            <destName>templates.tar.bz2</destName>
+            <outputDirectory>/templates</outputDirectory>
+        </file>
+
         <!-- ADDONS -->
         <file>
             <source>${project.build.directory}/addons/ffmpeg-linux_aarch64.tar.xz</source>

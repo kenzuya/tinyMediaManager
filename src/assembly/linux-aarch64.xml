@@ -12,6 +12,11 @@
             <outputDirectory>/tinyMediaManager</outputDirectory>
         </fileSet>
         <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
             <!-- and just windows stuff from GD -->
             <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
             <outputDirectory>/tinyMediaManager</outputDirectory>
@@ -21,12 +26,30 @@
                 <include>version</include>
 
                 <include>tinyMediaManager-arm</include>
-                <include>jre/*linux_aarch64*</include>
-                <include>native/arm/**</include>
+                <include>native/arm/*</include><!-- no subfolders! -->
             </includes>
+        </fileSet>
+        <fileSet>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/linux-aarch64</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
         </fileSet>
     </fileSets>
     <files>
+        <file>
+            <source>${project.build.directory}/jre/linux_aarch64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/jre</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-linux_aarch64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/native/arm/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
+        </file>
         <file>
             <source>AppBundler/.userdir</source>
             <outputDirectory>/tinyMediaManager</outputDirectory>

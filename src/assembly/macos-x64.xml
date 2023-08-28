@@ -12,6 +12,11 @@
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
         </fileSet>
         <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.build.directory}/${project.artifactId}-getdown/macOS</directory>
             <outputDirectory>tinyMediaManager.app/Contents</outputDirectory>
         </fileSet>
@@ -35,19 +40,9 @@
             <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac</outputDirectory>
         </fileSet>
         <fileSet>
-            <!-- extracted templates -->
-            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
-            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <!-- JRE -->
-            <directory>${project.build.directory}/jre/macos-x64/</directory>
-            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/jre</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <!-- FFmpeg -->
-            <directory>${project.build.directory}/addons/ffmpeg-macos-x64/</directory>
-            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/macos-x64</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
         </fileSet>
     </fileSets>
     <files>
@@ -55,6 +50,16 @@
             <source>${project.build.directory}/launcher/macos_x64/tinyMediaManager</source>
             <outputDirectory>tinyMediaManager.app/Contents/MacOS</outputDirectory>
             <destName>tinyMediaManager</destName>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-macos_x64.tar.xz.sha256</source>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
         </file>
     </files>
 </assembly>

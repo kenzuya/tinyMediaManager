@@ -11,6 +11,11 @@
             <outputDirectory>/tinyMediaManager</outputDirectory>
         </fileSet>
         <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
             <!-- and just windows stuff from GD -->
             <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
             <outputDirectory>/tinyMediaManager</outputDirectory>
@@ -20,9 +25,29 @@
                 <include>version</include>
 
                 <include>*.exe</include>
-                <include>jre/*windows*</include>
-                <include>native/windows/**</include>
+                <include>native/windows/*</include><!-- no subfolders! -->
             </includes>
         </fileSet>
+        <fileSet>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/windows-x64</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/jre/windows_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/jre</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-windows_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/native/windows/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
+        </file>
+    </files>
 </assembly>
