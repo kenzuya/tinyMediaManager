@@ -179,6 +179,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
           still.setSizeOrder(artworkSizeOrder);
           still.setLanguage("-");
+          still.setLikes(count - i);
           artworks.add(still);
         }
         if (isThumbEnabled()
@@ -189,6 +190,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
           still.setSizeOrder(artworkSizeOrder);
           still.setLanguage("-");
+          still.setLikes(count - i);
           artworks.add(still);
         }
 
@@ -328,6 +330,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
 
     int countPerFile = (int) Math.ceil(count / (double) files.size());
+    int stillCounter = 0;
+
     int fileDuration = duration / files.size();
     List<MediaArtwork> artworks = new ArrayList<>();
 
@@ -355,6 +359,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setSizeOrder(artworkSizeOrder);
             still.setLanguage("-");
+            still.setLikes(count - stillCounter);
             artworks.add(still);
           }
           if (isThumbEnabled()
@@ -365,8 +370,11 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setSizeOrder(artworkSizeOrder);
             still.setLanguage("-");
+            still.setLikes(count - stillCounter);
             artworks.add(still);
           }
+
+          stillCounter++;
         }
         catch (Exception e) {
           // has already been logged in FFmpeg
