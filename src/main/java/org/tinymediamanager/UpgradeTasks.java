@@ -818,6 +818,9 @@ public class UpgradeTasks {
     // close tmm internals
     TinyMediaManager.shutdown();
 
+    // remove shutdown hook
+    TmmUILayoutStore.getInstance().setSkipSaving(true);
+
     // data
     File[] files = path.toFile().listFiles();
     if (files != null) {

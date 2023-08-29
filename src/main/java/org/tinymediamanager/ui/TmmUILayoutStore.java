@@ -53,6 +53,8 @@ public class TmmUILayoutStore {
   private final TmmProperties     properties;
   private final Set<String>       componentSet;
 
+  private boolean skipSaving = false;
+
   private TmmUILayoutStore() {
     properties = TmmProperties.getInstance();
     componentSet = new HashSet<>();
@@ -84,11 +86,10 @@ public class TmmUILayoutStore {
       return;
     }
 
-    if (component instanceof JSplitPane) {
-      installJSplitPane((JSplitPane) component);
-    }
-    else if (component instanceof TmmTable) {
-      installTmmTable((TmmTable) component);
+    if (component instanceof JSplitPane splitPane) {
+      installJSplitPane(splitPane);
+    } else if (component instanceof TmmTable tmmTable) {
+      installTmmTable(tmmTable);
     }
 
   }
@@ -229,7 +230,7 @@ public class TmmUILayoutStore {
    *          the frame
    */
   public void saveSettings(JFrame frame) {
-    if (!Settings.getInstance().isStoreWindowPreferences()) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || skipSaving) {
       return;
     }
 
@@ -260,17 +261,16 @@ public class TmmUILayoutStore {
         }
       }
 
-      if (comp instanceof Container)
-        saveChildren((Container) comp);
+      if (comp instanceof Container container1)
+        saveChildren(container1);
     }
   }
 
   private void saveComponent(Component component) {
-    if (component instanceof JSplitPane) {
-      saveJSplitPane((JSplitPane) component);
-    }
-    else if (component instanceof TmmTable) {
-      saveTmmTable((TmmTable) component);
+    if (component instanceof JSplitPane splitPane) {
+      saveJSplitPane(splitPane);
+    } else if (component instanceof TmmTable tmmTable) {
+      saveTmmTable(tmmTable);
     }
   }
 
@@ -313,13 +313,22 @@ public class TmmUILayoutStore {
   }
 
   /**
+   * general purpose flag to skip saving
+   *
+   * @param skipSaving true/false
+   */
+  public void setSkipSaving(boolean skipSaving) {
+    this.skipSaving = skipSaving;
+  }
+
+  /**
    * Save settings for a dialog
    * 
    * @param dialog
    *          the dialog
    */
   public void saveSettings(JDialog dialog) {
-    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName()) || skipSaving) {
       return;
     }
 
