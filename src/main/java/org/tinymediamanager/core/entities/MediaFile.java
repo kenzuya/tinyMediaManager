@@ -518,7 +518,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     else {
       newPathToSet = newPath;
     }
-    LOGGER.trace("MF replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
+    // LOGGER.trace("MF replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
     setPath(newPathToSet.toAbsolutePath().toString());
   }
 
