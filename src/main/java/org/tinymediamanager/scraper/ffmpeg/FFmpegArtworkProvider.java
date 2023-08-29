@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -232,10 +231,12 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       count = 1;
     }
 
-    int durMax = mediaFiles.stream().collect(Collectors.summingInt(MediaFile::getDuration));
+    int stillCounter = 0;
+
+    int durMax = mediaFiles.stream().mapToInt(MediaFile::getDuration).sum();
     for (MediaFile mf : mediaFiles) {
       // percentage duration of whole
-      float perc = mf.getDuration() * 100 / durMax;
+      float perc = mf.getDuration() * 100f / durMax;
       int stillsForThisFile = Math.round(count * perc / 100);
 
       // take the runtime
@@ -271,6 +272,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setSizeOrder(artworkSizeOrder);
             still.setLanguage("-");
+            still.setLikes(count - stillCounter);
             artworks.add(still);
           }
           if (isThumbEnabled()
@@ -281,9 +283,11 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setSizeOrder(artworkSizeOrder);
             still.setLanguage("-");
+            still.setLikes(count - stillCounter);
             artworks.add(still);
           }
 
+          stillCounter++;
         }
         catch (Exception e) {
           // has already been logged in FFmpeg

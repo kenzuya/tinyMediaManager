@@ -654,7 +654,14 @@ public class ImageChooserDialog extends TmmDialog {
         return 0;
       }
 
-      return artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
+      int result = artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
+      if (result == 0) {
+        // same size
+        // sort by likes descending
+        result = Integer.compare(artwork2.getLikes(), artwork1.getLikes());
+      }
+
+      return result;
     });
 
     // update filters
