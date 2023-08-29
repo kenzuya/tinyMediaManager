@@ -929,12 +929,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 if (vid.isDiscFile()) {
                   episode.setDisc(true);
 
-                  // set correct EP path in case of disc files
-                  Path discRoot = vid.getFileAsPath().toAbsolutePath(); // folder
-                  if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                  // disc files should be inside a discFolder - if we have one, set the path a level higher:
+                  Path discRoot = vid.getFileAsPath().toAbsolutePath();
+                  if (discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                    // name of video file matches a disc folder? (eg when having already a virtual one)
                     discRoot = discRoot.getParent();
+                    episode.setPath(discRoot.toString());
                   }
-                  episode.setPath(discRoot.getParent().toString());
+                  else if (discRoot.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                    // video file not in its dedicated folder
+                    discRoot = discRoot.getParent();
+                    episode.setPath(discRoot.toString());
+                  }
+                  // else keep the current video path as episode root (set above)
                 }
 
                 if (episodesInNfo.size() > 1) {
@@ -1043,12 +1050,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               if (vid.isDiscFile()) {
                 episode.setDisc(true);
 
-                // set correct EP path in case of disc files
-                Path discRoot = vid.getFileAsPath().toAbsolutePath(); // folder
-                if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                // disc files should be inside a discFolder - if we have one, set the path a level higher:
+                Path discRoot = vid.getFileAsPath().toAbsolutePath();
+                if (discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                  // name of video file matches a disc folder? (eg when having already a virtual one)
                   discRoot = discRoot.getParent();
+                  episode.setPath(discRoot.toString());
                 }
-                episode.setPath(discRoot.getParent().toString());
+                else if (discRoot.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                  // video file not in its dedicated folder
+                  discRoot = discRoot.getParent();
+                  episode.setPath(discRoot.toString());
+                }
+                // else keep the current video path as episode root (set above)
               }
 
               if (result.episodes.size() > 1) {
@@ -1080,12 +1094,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             if (vid.isDiscFile()) {
               episode.setDisc(true);
 
-              // set correct EP path in case of disc files
-              Path discRoot = vid.getFileAsPath().toAbsolutePath(); // folder
-              if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+              // disc files should be inside a discFolder - if we have one, set the path a level higher:
+              Path discRoot = vid.getFileAsPath().toAbsolutePath();
+              if (discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                // name of video file matches a disc folder? (eg when having already a virtual one)
                 discRoot = discRoot.getParent();
+                episode.setPath(discRoot.toString());
               }
-              episode.setPath(discRoot.getParent().toString());
+              else if (discRoot.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+                // video file not in its dedicated folder
+                discRoot = discRoot.getParent();
+                episode.setPath(discRoot.toString());
+              }
+              // else keep the current video path as episode root (set above)
             }
 
             episode.setTitle(TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(FilenameUtils.getBaseName(vid.getFilename()), tvShow.getTitle()));
