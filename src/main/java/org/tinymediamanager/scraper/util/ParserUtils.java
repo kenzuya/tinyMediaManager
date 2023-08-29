@@ -369,7 +369,7 @@ public class ParserUtils {
         before = basename;
       }
     }
-    return basename + "." + extension;
+    return basename + (extension.isBlank() ? "" : "." + extension);
   }
 
   /**
