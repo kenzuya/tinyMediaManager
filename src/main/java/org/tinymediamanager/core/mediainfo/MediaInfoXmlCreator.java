@@ -39,6 +39,7 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.MediaInfo;
+import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -81,6 +82,9 @@ public class MediaInfoXmlCreator {
     creatingLibrary.setTextContent("tinyMediaManager");
     mediaInfo.appendChild(creatingLibrary);
 
+    // if we have no video/audio track, and ONLY a general track, it is not valid!!!
+    boolean hasValidTracks = false;
+
     for (MediaInfoFile mediaInfoFile : mediaInfoFiles) {
       Element media = document.createElement("media");
       File file = new File(mediaInfoFile.getPath(), mediaInfoFile.getFilename());
@@ -90,6 +94,16 @@ public class MediaInfoXmlCreator {
         for (Map<String, String> map : entry.getValue()) {
           Element track = document.createElement("track");
           track.setAttribute("type", entry.getKey().name());
+
+          switch (StreamKind.valueOf(entry.getKey().name())) {
+            case Audio:
+            case Video:
+            case Text:
+              hasValidTracks = true;
+            default:
+              break;
+          }
+
           String streamKindPos = map.get("StreamKindPos");
           if (StringUtils.isNotBlank(streamKindPos)) {
             track.setAttribute("typeorder", streamKindPos);
@@ -101,6 +115,9 @@ public class MediaInfoXmlCreator {
       }
 
       mediaInfo.appendChild(media);
+    }
+    if (!hasValidTracks) {
+      return;
     }
     File file = new File(mediaFile.getPath(), mediaFile.getBasename() + "-mediainfo.xml");
     try (FileWriter out = new FileWriter(file)) {
