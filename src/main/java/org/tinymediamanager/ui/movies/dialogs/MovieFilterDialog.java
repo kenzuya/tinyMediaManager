@@ -76,6 +76,7 @@ import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
 import org.tinymediamanager.ui.movies.filters.MovieHDRFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
+import org.tinymediamanager.ui.movies.filters.MovieLockedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaFilesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaSourceFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMissingArtworkFilter;
@@ -164,6 +165,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieNewMoviesFilter(), panelMain);
         addFilter(new MovieDatasourceFilter(), panelMain);
         addFilter(new MovieWatchedFilter(), panelMain);
+        addFilter(new MovieLockedFilter(), panelMain);
         addFilter(new MovieDateAddedFilter(), panelMain);
         addFilter(new MovieDuplicateFilter(), panelMain);
         addFilter(new MovieInMovieSetFilter(), panelMain);

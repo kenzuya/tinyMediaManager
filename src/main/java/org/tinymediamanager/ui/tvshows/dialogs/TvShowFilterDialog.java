@@ -76,6 +76,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFrameRateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowGenreFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowHDRFormatFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowLockedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaFilesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaSourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingArtworkFilter;
@@ -159,6 +160,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowNewEpisodesFilter(), panelMain);
         addFilter(new TvShowDatasourceFilter(), panelMain);
         addFilter(new TvShowWatchedFilter(), panelMain);
+        addFilter(new TvShowLockedFilter(), panelMain);
         addFilter(new TvShowDateAddedFilter(), panelMain);
         addFilter(new TvShowDuplicateEpisodesFilter(), panelMain);
         addFilter(new TvShowStatusFilter(), panelMain);
