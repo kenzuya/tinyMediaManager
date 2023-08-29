@@ -1080,6 +1080,9 @@ public class TvShowRenamer {
       epFolder = disc.getParent();
     }
     else {
+      // invalid/no structure - what to do with em? renaming EP folder might work/be enough...
+      // \Season 1\S01E02E03\VIDEO_TS.VOB
+      // ........ \epFolder \mf
       LOGGER.error("Episode is labeled as 'on BD/DVD', but structure seems not to match. Better exit and do nothing... o_O");
       return;
     }
@@ -1734,14 +1737,19 @@ public class TvShowRenamer {
       // foreach episode, replace and append pattern:
       if (StringUtils.isNotBlank(loopTitles)) {
         episodeParts = new StringBuilder();
+        String previous = "";
         for (TvShowEpisode episode : episodes) {
           String episodePart = getTokenValue(episode.getTvShow(), episode, loopTitles);
 
-          // separate multiple titles via -
-          if (StringUtils.isNotBlank(episodeParts.toString())) {
-            episodeParts.append(" -");
+          // do not add the same title twice!
+          if (!episodePart.equals(previous)) {
+            // separate multiple titles via -
+            if (StringUtils.isNotBlank(episodeParts.toString())) {
+              episodeParts.append(" -");
+            }
+            episodeParts.append(" ").append(episodePart);
           }
-          episodeParts.append(" ").append(episodePart);
+          previous = episodePart;
         }
 
         newDestination = newDestination.replace(loopTitles, episodeParts.toString());
