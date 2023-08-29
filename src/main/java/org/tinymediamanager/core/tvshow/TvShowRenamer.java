@@ -1716,7 +1716,7 @@ public class TvShowRenamer {
 
       // replace original pattern, with our combined
       if (StringUtils.isNotBlank(loopNumbers)) {
-        newDestination = newDestination.replace(loopNumbers, episodeParts.toString());
+        newDestination = newDestination.replace(loopNumbers, episodeParts.toString().strip());
       }
 
       // *******************
@@ -1752,7 +1752,7 @@ public class TvShowRenamer {
           previous = episodePart;
         }
 
-        newDestination = newDestination.replace(loopTitles, episodeParts.toString());
+        newDestination = newDestination.replace(loopTitles, episodeParts.toString().strip());
       }
 
       // *******************
@@ -1783,7 +1783,7 @@ public class TvShowRenamer {
           episodeParts.append(" ").append(episodePart);
         }
 
-        newDestination = newDestination.replace(loopAired, episodeParts.toString());
+        newDestination = newDestination.replace(loopAired, episodeParts.toString().strip());
       }
 
       newDestination = getTokenValue(firstEp.getTvShow(), firstEp, newDestination);
