@@ -1083,8 +1083,10 @@ public class TvShowRenamer {
       // invalid/no structure - what to do with em? renaming EP folder might work/be enough...
       // \Season 1\S01E02E03\VIDEO_TS.VOB
       // ........ \epFolder \mf
-      LOGGER.error("Episode is labeled as 'on BD/DVD', but structure seems not to match. Better exit and do nothing... o_O");
-      return;
+      LOGGER.warn("Episode is labeled as 'on BD/DVD', but structure seems not to match. Try our best to get this right... o_O");
+      disc = mf.getFileAsPath().getParent();
+      epFolder = disc;
+      // return;
     }
 
     // create SeasonDir
