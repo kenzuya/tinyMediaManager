@@ -448,6 +448,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     if (foundEpisode == null) {
       for (MediaMetadata episode : episodes) {
         MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(episodeGroup);
+        if (episodeNumber == null && episodeGroup.getEpisodeGroup() == AIRED) {
+          // legacy
+          episodeNumber = episode.getEpisodeNumber(AIRED);
+        }
         if (episodeNumber != null && episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
           foundEpisode = episode;
           break;

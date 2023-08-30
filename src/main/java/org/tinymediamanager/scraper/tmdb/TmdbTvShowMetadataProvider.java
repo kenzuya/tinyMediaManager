@@ -22,6 +22,7 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 import static org.tinymediamanager.scraper.util.MediaIdUtil.isValidImdbId;
 
 import java.io.IOException;
@@ -417,7 +418,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // build up all episodes
     List<MediaMetadata> episodes = new ArrayList<>();
     for (MediaMetadata md : episodesInRequestedLanguage.values()) {
-      int episode = md.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).episode();
+      int episode = md.getEpisodeNumber(AIRED).episode();
       MediaMetadata fallback = episodesInFallbackLanguage.get(episode);
       MediaMetadata original = episodesInOriginalLanguage.get(episode);
 
@@ -765,6 +766,10 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (episodeMediaMetadata == null && seasonNr > -1 && episodeNr > -1) {
       for (MediaMetadata episode : episodes) {
         MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(options.getEpisodeGroup());
+        if (episodeNumber == null && options.getEpisodeGroup().getEpisodeGroup() == AIRED) {
+          // legacy
+          episodeNumber = episode.getEpisodeNumber(AIRED);
+        }
         if (episodeNumber == null) {
           continue;
         }
@@ -804,8 +809,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     String language = getRequestLanguage(options.getLanguage());
-    seasonNr = episodeMediaMetadata.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).season();
-    episodeNr = episodeMediaMetadata.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED).episode();
+    seasonNr = episodeMediaMetadata.getEpisodeNumber(AIRED).season();
+    episodeNr = episodeMediaMetadata.getEpisodeNumber(AIRED).episode();
 
     // get the data from tmdb
     TvEpisode episode;
@@ -1130,7 +1135,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (episodeFromListing == null) {
       // match by aired S/E
       for (MediaMetadata episode : episodes) {
-        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED);
+        MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
         if (episodeNumber == null) {
           continue;
         }
@@ -1454,7 +1459,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
   private MediaEpisodeGroup.EpisodeGroup mapEpisodeGroup(int type) {
     return switch (type) {
-      case 1 -> MediaEpisodeGroup.EpisodeGroup.AIRED;
+      case 1 -> AIRED;
       case 2 -> MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
       case 3 -> MediaEpisodeGroup.EpisodeGroup.DVD;
       case 4, 5, 6, 7 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
