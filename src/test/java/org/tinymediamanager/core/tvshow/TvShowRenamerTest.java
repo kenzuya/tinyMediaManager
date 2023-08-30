@@ -176,7 +176,7 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     // assertEqual(p("multishow (2009)/Season 01/102 103 3x04 - multiEP2 - multiEP3.avi"),
     // gen(multi, "${showTitle} (${showYear})", "Season ${seasonNr2}", "${seasonNr}${episodeNr2} ${seasonNrDvd}x${episodeNrDvd2} - ${title}", false));
     assertEqual(p("multishow (2009)/multiEP2 - multiEP3.avi"), gen(multi, "${showTitle} (${showYear})", "", "${title}", false));
-    assertEqual(p("multishow (2009)/multiEP2 - multiEP3 multiEP2 - multiEP3.avi"),
+    assertEqual(p("multishow (2009)/multiEP2 - multiEP3multiEP2 - multiEP3.avi"),
         gen(multi, "${showTitle} (${showYear})", "", "${title}${title}", false));
     assertEqual(p("multishow (2009)/multishow - S101E02 - multiEP2 - multiEP3.avi"),
         gen(multi, "${showTitle} (${showYear})", "", "${showTitle} - S${seasonNr}${seasonNr2}E${episodeNr2} - ${title}", false)); // double
