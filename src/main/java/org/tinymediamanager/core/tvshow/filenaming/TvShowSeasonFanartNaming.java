@@ -80,7 +80,7 @@ public enum TvShowSeasonFanartNaming implements ITvShowSeasonFileNaming {
         filename += "season-specials-fanart." + extension;
       }
       else if (tvShowSeason.getSeason() > -1) {
-        filename += String.format("season%02d-fanart.%s", tvShowSeason.getSeason());
+        filename += String.format("season%02d-fanart.%s", tvShowSeason.getSeason(), extension);
       }
       else {
         filename = "";

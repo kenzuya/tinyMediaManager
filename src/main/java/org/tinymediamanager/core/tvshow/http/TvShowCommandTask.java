@@ -396,7 +396,7 @@ class TvShowCommandTask extends TmmThreadPool {
       setTaskName(TmmResourceBundle.getString("tvshow.rename"));
       publishState(TmmResourceBundle.getString("tvshow.rename"), getProgressDone());
 
-      activeTask = new TvShowRenameTask(tvShowsToRename, episodesToRename, true);
+      activeTask = new TvShowRenameTask(tvShowsToRename, episodesToRename);
       activeTask.run(); // blocking
 
       // done
@@ -509,8 +509,8 @@ class TvShowCommandTask extends TmmThreadPool {
 
           for (TvShow tvShow : tvShowList.getTvShows()
               .stream()
-              .filter(movie -> paths.contains(movie.getPathNIO().toAbsolutePath()))
-              .collect(Collectors.toList())) {
+                  .filter(tvShow -> paths.contains(tvShow.getPathNIO().toAbsolutePath()))
+                  .toList()) {
             episodesToProcess.addAll(tvShow.getEpisodes());
           }
         }
@@ -522,8 +522,8 @@ class TvShowCommandTask extends TmmThreadPool {
 
           for (TvShow tvShow : tvShowList.getTvShows()
               .stream()
-              .filter(movie -> dataSources.contains(movie.getDataSource()))
-              .collect(Collectors.toList())) {
+                  .filter(tvShow -> dataSources.contains(tvShow.getDataSource()))
+                  .toList()) {
             episodesToProcess.addAll(tvShow.getEpisodes());
           }
         }

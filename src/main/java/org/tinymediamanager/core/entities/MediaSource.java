@@ -162,6 +162,11 @@ public class MediaSource extends DynaEnum<MediaSource> {
           if (mediaSource.patternWoDelim != null && mediaSource.patternWoDelim.matcher(name).find()) {
             return mediaSource;
           }
+          // maybe file? try w/o extension to better match woDelims ;)
+          name = FilenameUtils.getBaseName(name);
+          if (name != null && mediaSource.patternWoDelim != null && mediaSource.patternWoDelim.matcher(name).find()) {
+            return mediaSource;
+          }
           work = work.getParent();
         }
       }

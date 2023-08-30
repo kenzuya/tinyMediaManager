@@ -777,7 +777,7 @@ public class TvShowRenamerTest extends BasicTvShowTest {
   }
 
   private void renameTvShow(TvShow tvShow) {
-    TvShowRenameTask task = new TvShowRenameTask(Collections.singletonList(tvShow), null, true);
+    TvShowRenameTask task = new TvShowRenameTask(Collections.singletonList(tvShow), tvShow.getEpisodes());
     task.run(); // blocking
   }
 }

@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -179,7 +178,7 @@ public class TvShowHelpers {
     Map<String, Long> subPathCounts = subPaths.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
 
     // take the highest count
-    Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get(); // NOSONAR
+      Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Map.Entry.comparingByValue()).get(); // NOSONAR
 
     // if there are at least 80% of all episodes having this subfolder, take it
     if (entry.getValue() >= 0.8 * episodes.size()) {

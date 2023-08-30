@@ -1080,8 +1080,13 @@ public class TvShowRenamer {
       epFolder = disc.getParent();
     }
     else {
-      LOGGER.error("Episode is labeled as 'on BD/DVD', but structure seems not to match. Better exit and do nothing... o_O");
-      return;
+      // invalid/no structure - what to do with em? renaming EP folder might work/be enough...
+      // \Season 1\S01E02E03\VIDEO_TS.VOB
+      // ........ \epFolder \mf
+      LOGGER.warn("Episode is labeled as 'on BD/DVD', but structure seems not to match. Try our best to get this right... o_O");
+      disc = mf.getFileAsPath().getParent();
+      epFolder = disc;
+      // return;
     }
 
     // create SeasonDir
@@ -1127,7 +1132,7 @@ public class TvShowRenamer {
           // iterate over all EPs & MFs and fix new path
           LOGGER.debug("updating *all* MFs for new path -> {}", newEpFolder);
           for (TvShowEpisode e : eps) {
-            e.updateMediaFilePath(disc, newDisc);
+            e.updateMediaFilePath(epFolder, newEpFolder);
             e.setPath(newEpFolder.toAbsolutePath().toString());
             e.saveToDb();
           }
@@ -1713,7 +1718,7 @@ public class TvShowRenamer {
 
       // replace original pattern, with our combined
       if (StringUtils.isNotBlank(loopNumbers)) {
-        newDestination = newDestination.replace(loopNumbers, episodeParts.toString());
+        newDestination = newDestination.replace(loopNumbers, episodeParts.toString().strip());
       }
 
       // *******************
@@ -1734,17 +1739,22 @@ public class TvShowRenamer {
       // foreach episode, replace and append pattern:
       if (StringUtils.isNotBlank(loopTitles)) {
         episodeParts = new StringBuilder();
+        String previous = "";
         for (TvShowEpisode episode : episodes) {
           String episodePart = getTokenValue(episode.getTvShow(), episode, loopTitles);
 
-          // separate multiple titles via -
-          if (StringUtils.isNotBlank(episodeParts.toString())) {
-            episodeParts.append(" -");
+          // do not add the same title twice!
+          if (!episodePart.equals(previous)) {
+            // separate multiple titles via -
+            if (StringUtils.isNotBlank(episodeParts.toString())) {
+              episodeParts.append(" -");
+            }
+            episodeParts.append(" ").append(episodePart);
           }
-          episodeParts.append(" ").append(episodePart);
+          previous = episodePart;
         }
 
-        newDestination = newDestination.replace(loopTitles, episodeParts.toString());
+        newDestination = newDestination.replace(loopTitles, episodeParts.toString().strip());
       }
 
       // *******************
@@ -1775,7 +1785,7 @@ public class TvShowRenamer {
           episodeParts.append(" ").append(episodePart);
         }
 
-        newDestination = newDestination.replace(loopAired, episodeParts.toString());
+        newDestination = newDestination.replace(loopAired, episodeParts.toString().strip());
       }
 
       newDestination = getTokenValue(firstEp.getTvShow(), firstEp, newDestination);

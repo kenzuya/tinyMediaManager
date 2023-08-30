@@ -82,7 +82,7 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     // rename
-    TmmThreadPool renameTask = new TvShowRenameTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive(), true);
+    TmmThreadPool renameTask = new TvShowRenameTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive());
     TmmTaskManager.getInstance().addMainTask(renameTask);
   }
 }

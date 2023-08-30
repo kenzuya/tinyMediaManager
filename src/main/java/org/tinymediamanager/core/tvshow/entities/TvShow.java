@@ -1147,7 +1147,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null, true));
+      taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null));
     }
 
     // write actor images after possible rename (to have a good folder structure)
