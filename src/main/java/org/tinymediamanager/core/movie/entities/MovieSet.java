@@ -648,6 +648,8 @@ public class MovieSet extends MediaEntity {
    * @return the cleaned movie set title
    */
   public String getTitleForStorage() {
+    // Note- Illegal characters in the movie set name are replaced with an underscore _ eg Mission: Impossible Collection becomes Mission_ Impossible Collection
+    // https://kodi.wiki/view/Movie_set_information_folder
     String result = title.replace('/', '_');
     result = result.replace('\\', '_');
     result = result.replace('?', '_');
