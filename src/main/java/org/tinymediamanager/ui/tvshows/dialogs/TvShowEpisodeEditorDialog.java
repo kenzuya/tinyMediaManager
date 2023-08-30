@@ -970,6 +970,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
 
         // also inject other ids
+        metadata.setId(MediaMetadata.TVSHOW_IDS, options.getTvShowIds());
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
 
         // also fill other ratings if ratings are requested
@@ -995,6 +996,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         message = TmmResourceBundle.getString("message.scrape.tvshowepisodefailed");
       }
       finally {
+        metadata.removeId(MediaMetadata.TVSHOW_IDS);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       }
 

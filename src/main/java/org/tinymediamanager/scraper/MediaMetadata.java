@@ -514,6 +514,15 @@ public class MediaMetadata {
   }
 
   /**
+   * remove the given key from the ids table
+   *
+   * @param key the key to remove
+   */
+  public void removeId(String key) {
+    ids.remove(key);
+  }
+
+  /**
    * Gets an ID.
    * 
    * @param key

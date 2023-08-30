@@ -18,10 +18,8 @@ package org.tinymediamanager.core.tvshow.tasks;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -137,19 +135,19 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
 
         // also inject other ids
+        metadata.setId(MediaMetadata.TVSHOW_IDS, options.getTvShowIds());
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
 
         // also fill other ratings if ratings are requested
         if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings() && config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
-          Map<String, Object> ids = new HashMap<>(metadata.getIds());
-          ids.put(MediaMetadata.TVSHOW_IDS, new HashMap<>(episode.getTvShow().getIds()));
-
-          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(ids, MediaType.TV_EPISODE))) {
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
             if (!metadata.getRatings().contains(rating)) {
               metadata.addRating(rating);
             }
           }
         }
+
+        metadata.removeId(MediaMetadata.TVSHOW_IDS);
 
         if (StringUtils.isNotBlank(metadata.getTitle())) {
           episode.setMetadata(metadata, config, overwrite);

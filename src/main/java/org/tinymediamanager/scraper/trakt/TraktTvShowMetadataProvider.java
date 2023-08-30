@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
+import static org.tinymediamanager.scraper.MediaMetadata.TRAKT_TV;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.text.Format;
@@ -427,7 +428,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, TvUtils.getEpisodeNumber(episode.number_abs)); // fixate to S01 like others do
 
     if (episode.ids != null) {
-      md.setId(getId(), episode.ids.trakt);
+      md.setId(TRAKT_TV, episode.ids.trakt);
       if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
         md.setId(TVDB, episode.ids.tvdb);
       }
@@ -446,7 +447,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     md.setPlot(episode.overview);
 
     if (episode.rating != null && episode.votes != null) {
-      MediaRating rating = new MediaRating("trakt");
+      MediaRating rating = new MediaRating(TRAKT_TV);
       rating.setRating(episode.rating);
       rating.setVotes(episode.votes);
       rating.setMaxValue(10);
@@ -533,6 +534,10 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
           episode = ep;
           break;
         }
+      }
+
+      if (episode != null) {
+        break;
       }
     }
 
@@ -666,7 +671,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     Map<String, Object> scrapedIds = new HashMap<>();
     if (show.ids != null) {
-      scrapedIds.put(getId(), show.ids.trakt);
+      scrapedIds.put(TRAKT_TV, show.ids.trakt);
       if (show.ids.tvdb != null && show.ids.tvdb > 0) {
         scrapedIds.put(TVDB, show.ids.tvdb);
       }
