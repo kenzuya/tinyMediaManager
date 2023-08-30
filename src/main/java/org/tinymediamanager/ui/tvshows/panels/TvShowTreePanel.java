@@ -252,7 +252,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     });
 
     tree.getSelectionModel().addListSelectionListener(arg0 -> {
-      if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
+      if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel) || tree.isAdjusting()) {
         return;
       }
 

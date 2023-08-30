@@ -720,6 +720,10 @@ public class TmmTreeTable extends TmmTable {
     }
   }
 
+  public boolean isAdjusting() {
+    return ((TmmTreeModel) treeTableModel.getTreeModel()).isAdjusting();
+  }
+
   private class TmmTreeModelConnector<E extends TmmTreeNode> extends TmmTreeModel {
 
     /**
@@ -753,6 +757,8 @@ public class TmmTreeTable extends TmmTable {
           for (int row : selectedRows) {
             getSelectionModel().addSelectionInterval(row, row);
           }
+        } else {
+          setAdjusting(false);
         }
         long end = System.currentTimeMillis();
 
