@@ -122,6 +122,8 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:4 E:11", detectEpisode("TV French\\Unite 9\\Season 04\\S04E11 - Episode 84.mkv"));
+    assertEqual("S:-1 E:1", detectEpisode("[DB]Haven't You Heard I'm Sakamoto_-_01_(Dual Audio_10bit_BD1080p_x265).mkv"));
     assertEqual("S:3 E:50", detectEpisode("[HorribleSubs] Shingeki no Kyojin S3 - 50 [1080p].mkv"));
     assertEqual("S:5 E:22", detectEpisode("Quincy.S05E22.Gefaehrlicher.Krankentransport.GERMAN.FS.dTV.X264-SQUiZZiEs\\s-quincy-s0522.mkv"));
     assertEqual("S:-1", detectEpisode("Specials\\Bye.Bye.Big.Bang.Theory.Das.Special.GERMAN.1080p.HDTV.x264-VoDTv.mkv"));

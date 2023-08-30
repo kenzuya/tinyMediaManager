@@ -922,16 +922,16 @@ public class ImdbTvShowParser extends ImdbParser {
   }
 
   public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    String imdbId = "";
-
-    // imdbid from scraper option
-    if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      imdbId = options.getImdbId();
-    }
+    String imdbId = options.getImdbId();
 
     // imdbid via tmdbid
     if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
       imdbId = MediaIdUtil.getTvShowImdbIdViaTmdbId(options.getTmdbId());
+    }
+
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
+      LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
+      throw new MissingIdException(MediaMetadata.IMDB);
     }
 
     // just get the MediaMetadata via normal scrape and pick the poster from the result

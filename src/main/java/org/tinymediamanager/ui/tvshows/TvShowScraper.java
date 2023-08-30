@@ -27,7 +27,7 @@ import org.tinymediamanager.ui.ScraperInTable;
  * @author Manuel Laggner
  */
 public class TvShowScraper extends ScraperInTable implements Comparable<TvShowScraper> {
-  private boolean defaultScraper;
+  private boolean defaultScraper = false;
 
   public TvShowScraper(MediaScraper scraper) {
     super(scraper);
@@ -42,9 +42,11 @@ public class TvShowScraper extends ScraperInTable implements Comparable<TvShowSc
   }
 
   public void setDefaultScraper(Boolean newValue) {
-    Boolean oldValue = this.defaultScraper;
-    this.defaultScraper = newValue;
-    firePropertyChange("defaultScraper", oldValue, newValue);
+    if (isEnabled()) {
+      Boolean oldValue = this.defaultScraper;
+      this.defaultScraper = newValue;
+      firePropertyChange("defaultScraper", oldValue, newValue);
+    }
   }
 
   public MediaScraper getMediaScraper() {
@@ -56,6 +58,7 @@ public class TvShowScraper extends ScraperInTable implements Comparable<TvShowSc
     if (isKodiScraper() && !o.isKodiScraper()) {
       return 1;
     }
+
     if (!isKodiScraper() && o.isKodiScraper()) {
       return -1;
     }

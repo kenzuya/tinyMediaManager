@@ -391,12 +391,7 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    String imdbId = "";
-
-    // imdbid from scraper option
-    if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      imdbId = options.getImdbId();
-    }
+    String imdbId = options.getImdbId();
 
     // imdbid via tmdbid
     if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
@@ -404,7 +399,7 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      LOGGER.warn("not possible to scrape from IMDB - imdbId found");
+      LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
 
