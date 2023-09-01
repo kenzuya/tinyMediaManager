@@ -30,7 +30,9 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Myron Boyle
  */
 public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
-  private static final Document.OutputSettings NO_PRETTYPRINT = new Document.OutputSettings().prettyPrint(false);
+
+  private static final long                    serialVersionUID = 1L;
+  private static final Document.OutputSettings NO_PRETTYPRINT   = new Document.OutputSettings().prettyPrint(false);
 
   public ReadOnlyTextPaneHTML() {
     super();
@@ -65,7 +67,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
           // remove all existing href tags, to not reHTMLify existing ones
           t = Jsoup.clean(t, "", Safelist.simpleText(), NO_PRETTYPRINT);
 
-          t = t.replace("\\n", " <br/> ");
+          t = t.replaceAll("\\n", " <br/> ");
 
           // with space around, so a line concatenating has a whitespace delimiter
           t = t.replaceAll("(?:https|http)://([^\\s]+)", "<a href=\"$0\">$1</a>");
@@ -76,7 +78,7 @@ public class ReadOnlyTextPaneHTML extends ReadOnlyTextPane {
         }
         else {
           // no HTML links found to upgrade
-          t = t.replace("\\n", " <br/> ");
+          t = t.replaceAll("\\n", " <br/> ");
           super.setText(t);
         }
       }

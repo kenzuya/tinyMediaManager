@@ -45,3 +45,5 @@ x do not write NFO files on "update data sources"
 x fixed rebuilding image cache #2268
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 + added locked filter for movies and tv shows
+x fix plot formatting with linebreaks #2286
+
