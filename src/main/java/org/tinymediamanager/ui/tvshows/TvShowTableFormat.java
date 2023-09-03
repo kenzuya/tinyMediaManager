@@ -670,8 +670,28 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getMediaSource();
+    } else if (userObject instanceof TvShowSeason season) {
+      return detectUniqueSource(season.getEpisodes());
+    } else if (userObject instanceof TvShow tvShow) {
+      return detectUniqueSource(tvShow.getEpisodes());
     }
     return null;
+  }
+
+  private MediaSource detectUniqueSource(List<TvShowEpisode> episodes) {
+    if (episodes.isEmpty()) {
+      return null;
+    }
+
+    // return the source only if _all_ episode have the same source
+    MediaSource source = episodes.get(0).getMediaSource();
+    for (TvShowEpisode episode : episodes) {
+      if (source != episode.getMediaSource()) {
+        return null;
+      }
+    }
+
+    return source;
   }
 
   private Integer getRuntime(TmmTreeNode node) {
