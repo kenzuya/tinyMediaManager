@@ -191,12 +191,24 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * user rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, Float.class);
     col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
     col.setColumnComparator(floatComparator);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * imdb rating (hidden per default)
+     */
+    col = new Column("IMDb", "imdb", this::getImdbRating, Float.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - IMDb");
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -567,6 +579,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
       MediaRating mediaRating = ((MediaEntity) userObject).getUserRating();
+      if (mediaRating != null && mediaRating.getRating() > 0) {
+        return String.valueOf(mediaRating.getRating());
+      }
+    }
+    return null;
+  }
+
+  private String getImdbRating(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
+      MediaRating mediaRating = ((MediaEntity) userObject).getRating(MediaMetadata.IMDB);
       if (mediaRating != null && mediaRating.getRating() > 0) {
         return String.valueOf(mediaRating.getRating());
       }
