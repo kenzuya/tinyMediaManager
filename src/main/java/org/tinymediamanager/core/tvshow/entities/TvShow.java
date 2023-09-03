@@ -1143,11 +1143,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   private void postProcess(List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
-    TmmTaskChain taskChain = new TmmTaskChain();
+    TmmTaskChain taskChain = TmmTaskChain.getInstance(this);
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null));
+      taskChain.add(new TvShowRenameTask(this));
     }
 
     // write actor images after possible rename (to have a good folder structure)
@@ -1159,8 +1159,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         }
       });
     }
-
-    taskChain.run();
   }
 
   /**

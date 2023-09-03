@@ -50,7 +50,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.filenaming.IMovieSetFileNaming;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -190,8 +189,7 @@ public class MovieSetArtworkHelper {
 
     // re-create the image cache on all new files
     if (!needed.isEmpty() && Settings.getInstance().isImageCache()) {
-      ImageCacheTask task = new ImageCacheTask(new ArrayList<>(needed));
-      TmmTaskManager.getInstance().addUnnamedTask(task);
+        needed.forEach(ImageCache::cacheImageAsync);
     }
 
     // and assign it to the movie set

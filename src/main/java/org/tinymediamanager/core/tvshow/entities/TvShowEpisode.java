@@ -85,7 +85,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
@@ -102,7 +101,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
-import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
@@ -1961,18 +1959,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   protected void postProcess(List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
-    TmmTaskChain taskChain = new TmmTaskChain();
-
-    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      taskChain.add(new TvShowRenameTask(Collections.emptyList(), Collections.singletonList(this)));
-    }
-
-    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-      List<MediaFile> imageFiles = getImagesToCache();
-      if (!imageFiles.isEmpty()) {
-        taskChain.add(new ImageCacheTask(imageFiles));
-      }
-    }
+    TmmTaskChain taskChain = TmmTaskChain.getInstance(tvShow != null ? tvShow : this);
 
     // write actor images after possible rename (to have a good folder structure)
     if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
@@ -1983,8 +1970,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         }
       });
     }
-
-    taskChain.run();
   }
 
   /**

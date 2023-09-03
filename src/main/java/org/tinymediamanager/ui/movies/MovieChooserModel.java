@@ -41,7 +41,7 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -358,12 +358,12 @@ public class MovieChooserModel extends AbstractModelObject {
     return tagline;
   }
 
-  public void startArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movie, config, overwrite));
+  public void startArtworkScrapeTask(List<MovieScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskChain.getInstance(movieToScrape).add(new ArtworkScrapeTask(movieToScrape, config, overwrite));
   }
 
-  public void startTrailerScrapeTask(Movie movie, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(movie, overwrite));
+  public void startTrailerScrapeTask(boolean overwrite) {
+    TmmTaskChain.getInstance(movieToScrape).add(new TrailerScrapeTask(movieToScrape, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {

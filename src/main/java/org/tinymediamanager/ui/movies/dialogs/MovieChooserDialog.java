@@ -78,7 +78,7 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -553,13 +553,13 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
             }
             else {
               // get artwork asynchronous
-              model.startArtworkScrapeTask(movieToScrape, scraperConfig, overwrite);
+              model.startArtworkScrapeTask(scraperConfig, overwrite);
             }
           }
 
           // get trailers?
           if (scraperConfig.contains(MovieScraperMetadataConfig.TRAILER)) {
-            model.startTrailerScrapeTask(movieToScrape, overwrite);
+            model.startTrailerScrapeTask(overwrite);
           }
 
           // if configured - sync with trakt.tv
@@ -569,7 +569,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
             task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
             task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
-            TmmTaskManager.getInstance().addUnnamedTask(task);
+            TmmTaskChain.getInstance(movieToScrape).add(task);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

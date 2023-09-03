@@ -74,7 +74,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -620,10 +620,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               }
 
               // season artwork
-              for (TvShowSeason season : tvShowToScrape.getSeasons()
-                  .stream()
-                  .sorted(Comparator.comparingInt(TvShowSeason::getSeason))
-                      .toList()) {
+              for (TvShowSeason season : tvShowToScrape.getSeasons().stream().sorted(Comparator.comparingInt(TvShowSeason::getSeason)).toList()) {
                 // relevant for v5
                 // if (season.isDummy()) {
                 // continue;
@@ -644,7 +641,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             }
             else {
               // get artwork asynchronous
-              model.startArtworkScrapeTask(tvShowToScrape, tvShowScraperMetadataConfig, overwrite);
+              model.startArtworkScrapeTask(tvShowScraperMetadataConfig, overwrite);
             }
           }
 
@@ -659,19 +656,19 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               scrapeOptions.setArtworkScraper(model.getArtworkScrapers());
               scrapeOptions.setLanguage(model.getLanguage());
 
-              TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite);
-              TmmTaskManager.getInstance().addUnnamedTask(task);
+              TmmTaskChain.getInstance(tvShowToScrape)
+                      .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
             }
           }
 
           // get trailers?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
-            model.startTrailerScrapeTask(tvShowToScrape, overwrite);
+            model.startTrailerScrapeTask(overwrite);
           }
 
           // get theme?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
-            model.startThemeDownloadTask(tvShowToScrape, overwrite);
+            model.startThemeDownloadTask(overwrite);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -682,13 +679,13 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
             task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
-            TmmTaskManager.getInstance().addUnnamedTask(task);
+            TmmTaskChain.getInstance(tvShowToScrape).add(task);
           }
 
-            // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
-            if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
-                TmmTaskManager.getInstance().addUnnamedTask(new TvShowRenameTask(Collections.singletonList(tvShowToScrape), null));
-            }
+          // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
+          if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+            TmmTaskChain.getInstance(tvShowToScrape).add(new TvShowRenameTask(tvShowToScrape));
+          }
 
           setVisible(false);
         }

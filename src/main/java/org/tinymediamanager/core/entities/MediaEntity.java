@@ -67,7 +67,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -80,8 +79,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -1330,17 +1327,14 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
   public void cacheImages() {
     // re-build the image cache afterwards in an own thread
     List<MediaFile> imageFiles = getImagesToCache();
-    if (!imageFiles.isEmpty()) {
-      ImageCacheTask task = new ImageCacheTask(imageFiles);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
-    }
+    imageFiles.forEach(ImageCache::cacheImageAsync);
   }
 
   public List<MediaFile> getImagesToCache() {
     if (!Settings.getInstance().isImageCache()) {
       return Collections.emptyList();
     }
-    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).toList();
   }
 
   public void gatherMediaFileInformation(boolean force) {

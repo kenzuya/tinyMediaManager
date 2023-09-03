@@ -32,7 +32,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -220,12 +220,12 @@ public class TvShowChooserModel extends AbstractModelObject {
     return artworkScrapers;
   }
 
-  public void startTrailerScrapeTask(TvShow tvShow, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow, overwrite));
+  public void startTrailerScrapeTask(boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new TrailerScrapeTask(tvShow, overwrite));
   }
 
-  public void startThemeDownloadTask(TvShow tvShow, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
+  public void startThemeDownloadTask(boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
   }
 
   /**
@@ -383,8 +383,8 @@ public class TvShowChooserModel extends AbstractModelObject {
     return episodeList;
   }
 
-  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config, overwrite));
+  public void startArtworkScrapeTask(List<TvShowScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new ArtworkScrapeTask(tvShow, config, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {

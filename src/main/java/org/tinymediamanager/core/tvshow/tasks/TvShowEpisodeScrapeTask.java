@@ -36,6 +36,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -182,6 +183,11 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
 
         if (cancel) {
           return;
+        }
+
+        // rename on the fly if needed
+        if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+          TvShowRenamer.renameEpisode(episode);
         }
       }
       catch (MissingIdException e) {

@@ -70,8 +70,6 @@ import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -287,8 +285,7 @@ public final class MovieList extends AbstractModelObject {
     }
 
     if (!imagesToCache.isEmpty()) {
-      ImageCacheTask task = new ImageCacheTask(imagesToCache);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
+        imagesToCache.forEach(ImageCache::cacheImageAsync);
     }
   }
 

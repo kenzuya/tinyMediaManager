@@ -17,6 +17,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -43,8 +44,26 @@ public class TvShowRenameTask extends TmmThreadPool {
   private final List<TvShowEpisode> episodesToRename = new ArrayList<>();
 
   /**
-   * Instantiates a new tv show rename task.
-   * 
+   * Rename just the given {@link TvShow} root (and {@link org.tinymediamanager.core.entities.MediaFile}s)
+   *
+   * @param tvShowToRename the {@link TvShow} to rename
+   */
+  public TvShowRenameTask(TvShow tvShowToRename) {
+    this(Collections.singletonList(tvShowToRename), null);
+  }
+
+  /**
+   * Rename just the given {@link TvShow} roots (and {@link org.tinymediamanager.core.entities.MediaFile}s)
+   *
+   * @param tvShowsToRename the {@link TvShow}s to rename
+   */
+  public TvShowRenameTask(Collection<TvShow> tvShowsToRename) {
+    this(tvShowsToRename, null);
+  }
+
+  /**
+   * Rename {@link TvShow}s and {@link TvShowEpisode}s together
+   *
    * @param tvShowsToRename
    *          the {@link TvShow}s to rename (only TV show MFs and root folder)
    * @param episodesToRename

@@ -398,7 +398,7 @@ public class MovieRenamer {
               Files.copy(oldCache, newCache);
             }
             catch (IOException e) {
-              LOGGER.warn("Error moving cached file", e.getMessage());
+                LOGGER.warn("Error moving cached file - '{}'", e.getMessage());
             }
           }
         }

@@ -62,8 +62,6 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -366,8 +364,7 @@ public final class TvShowList extends AbstractModelObject {
     }
 
     if (!imagesToCache.isEmpty()) {
-      ImageCacheTask task = new ImageCacheTask(imagesToCache);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
+        imagesToCache.forEach(ImageCache::cacheImageAsync);
     }
   }
 

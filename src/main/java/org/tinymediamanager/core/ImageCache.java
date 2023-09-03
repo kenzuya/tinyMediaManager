@@ -42,7 +42,9 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.ThreadUtils;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -170,6 +172,20 @@ public class ImageCache {
   public static Path cacheImage(MediaFile mediaFile) throws Exception {
     return cacheImage(mediaFile, false);
   }
+
+    /**
+     * cache the given {@link MediaFile} in an own thread
+     *
+     * @param mediaFile the {@link MediaFile} to cache
+     */
+    public static void cacheImageAsync(MediaFile mediaFile) {
+        if (!Settings.getInstance().isImageCache() || !mediaFile.isGraphic()) {
+            // we can only cache when the cache is enabled AND this is an image
+            return;
+        }
+
+        TmmTaskManager.getInstance().addImageCacheTask(new ImageCacheTask(mediaFile));
+    }
 
   /**
    * Cache image.

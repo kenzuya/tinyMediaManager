@@ -115,7 +115,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
@@ -2980,15 +2979,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   protected void postProcess(List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
-    TmmTaskChain taskChain = new TmmTaskChain();
+    TmmTaskChain taskChain = TmmTaskChain.getInstance(this);
 
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
-
-      List<MediaFile> imageFiles = getImagesToCache();
-      if (!imageFiles.isEmpty()) {
-        taskChain.add(new ImageCacheTask(imageFiles));
-      }
     }
 
     // write actor images after possible rename (to have a good folder structure)
@@ -3000,8 +2994,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
         }
       });
     }
-
-    taskChain.run();
   }
 
   @Override
