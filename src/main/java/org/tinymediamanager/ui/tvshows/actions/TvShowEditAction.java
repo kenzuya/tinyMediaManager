@@ -120,8 +120,7 @@ public class TvShowEditAction extends TmmAction {
       }
 
       // display tv episode editor
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
+      if (obj instanceof TvShowEpisode tvShowEpisode) {
         TvShowEpisodeEditorDialog editor = new TvShowEpisodeEditorDialog(tvShowEpisode, index, selectedCount, selectedEpisodeTab);
         editor.setVisible(true);
         selectedEpisodeTab = editor.getSelectedTab();

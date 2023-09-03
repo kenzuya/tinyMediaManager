@@ -732,7 +732,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         episodeNumbers.clear();
         for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
           MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
-          if (episodeNumber.isValid()) {
+          if (episodeNumber != null && episodeNumber.isValid()) {
             episodeNumbers.add(episodeNumber);
           }
         }
