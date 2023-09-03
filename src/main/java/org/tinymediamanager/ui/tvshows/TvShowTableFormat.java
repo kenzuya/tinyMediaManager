@@ -678,11 +678,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getRuntimeFromMediaFilesInMinutes();
+    } else if (userObject instanceof TvShow show) {
+      // show the scraped runtime here
+      return show.getRuntime();
     }
-    // TODO: runtime of show should aggregate?
-    // else if (userObject instanceof TvShow show) {
-    // return show.getRuntime();
-    // }
     return null;
   }
 
