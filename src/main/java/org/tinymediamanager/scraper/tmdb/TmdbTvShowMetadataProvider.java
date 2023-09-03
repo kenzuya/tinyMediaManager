@@ -83,6 +83,7 @@ import org.tinymediamanager.scraper.tmdb.entities.FindResults;
 import org.tinymediamanager.scraper.tmdb.entities.Genre;
 import org.tinymediamanager.scraper.tmdb.entities.Image;
 import org.tinymediamanager.scraper.tmdb.entities.Network;
+import org.tinymediamanager.scraper.tmdb.entities.Translations;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisode;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroup;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroupEpisode;
@@ -496,7 +497,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     String language = getRequestLanguage(options.getLanguage());
 
-    TvShow complete = null;
+    TvShow complete;
     try {
       // when changing this call/params, be sure to change on line 307 too!
       Response<TvShow> httpResponse = api.tvService()
@@ -644,7 +645,20 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     // season titles
     for (TvSeason season : ListUtils.nullSafe(complete.seasons)) {
-      if (season.season_number != null && StringUtils.isNotBlank(season.name)) {
+      if (season.season_number != null) {
+        if (StringUtils.isAnyBlank(season.name, season.overview)) {
+          // either one (or both) missing, fetch the translation endpoint to get all translations
+          try {
+            Response<Translations> translationsResponse = api.tvSeasonsService().translations(tmdbId, season.season_number).execute();
+            if (!translationsResponse.isSuccessful()) {
+              throw new HttpException(translationsResponse.code(), translationsResponse.message());
+            }
+            injectTranslations(Locale.forLanguageTag(language), complete, season, translationsResponse.body());
+          } catch (Exception e) {
+            LOGGER.debug("Could not get season translations - '{}'", e.getMessage());
+          }
+        }
+
         md.addSeasonName(season.season_number, season.name);
         md.addSeasonOverview(season.season_number, season.overview);
       }
@@ -1277,6 +1291,41 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       }
       if (StringUtils.isNotBlank(val[1])) {
         show.overview = val[1];
+      }
+    }
+  }
+
+  /**
+   * Fallback Language Mechanism - for direct TMDB lookup<br>
+   * Title/Overview always gets returned in the original language, if translation has not been found.<br>
+   * So we never know exactly what is missing.. so we just inject everything here by hand if a fallback language has been found
+   */
+  private void injectTranslations(Locale language, TvShow tvShow, TvSeason tvSeason, Translations translations) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
+      Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
+      // get in desired localization
+      String[] val = getValuesFromTranslation(translations, language);
+
+      // if the search language equals the original language of the movie, there may be no translation
+      if (StringUtils.isBlank(val[0]) && language.getLanguage().equals(tvShow.original_language)) {
+        val[0] = tvSeason.name;
+      }
+
+      // merge empty ones with fallback
+      String[] temp = getValuesFromTranslation(translations, fallbackLanguage);
+      if (StringUtils.isBlank(val[0])) {
+        val[0] = temp[0];
+      }
+      if (StringUtils.isBlank(val[1])) {
+        val[1] = temp[1];
+      }
+
+      // finally SET the values
+      if (StringUtils.isNotBlank(val[0])) {
+        tvSeason.name = val[0];
+      }
+      if (StringUtils.isNotBlank(val[1])) {
+        tvSeason.overview = val[1];
       }
     }
   }

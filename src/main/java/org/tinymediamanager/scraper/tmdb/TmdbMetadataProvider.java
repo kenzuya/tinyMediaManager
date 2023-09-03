@@ -419,7 +419,8 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
     }
 
     if (locale == null) {
-      return null;
+      // fallback - should never be reached, but...
+      locale = Locale.getDefault();
     }
 
     return locale.toLanguageTag();

@@ -19,7 +19,7 @@ public class Translations {
        */
       public String title;
       /**
-       * Title for tvshows/episodes
+       * Title for TV vshows/seasons/episodes
        */
       public String name;
       public String overview;
