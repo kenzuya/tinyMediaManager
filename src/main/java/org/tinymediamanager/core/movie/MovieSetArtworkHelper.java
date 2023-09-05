@@ -189,7 +189,7 @@ public class MovieSetArtworkHelper {
 
     // re-create the image cache on all new files
     if (!needed.isEmpty() && Settings.getInstance().isImageCache()) {
-        needed.forEach(ImageCache::cacheImageAsync);
+      needed.forEach(ImageCache::cacheImageAsync);
     }
 
     // and assign it to the movie set
@@ -254,7 +254,7 @@ public class MovieSetArtworkHelper {
     }
 
     List<Path> paths = new ArrayList<>();
-    String movieSetName = movieSet.getTitleForStorage();
+    String movieSetName = getMovieSetTitleForStorage(movieSet);
 
     for (IMovieSetFileNaming fileNaming : filenamings) {
       if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
@@ -304,7 +304,14 @@ public class MovieSetArtworkHelper {
           }
 
           // second, try the Kodi style
-          movieSetName = movieSet.getTitleForStorage();
+          movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+
+          if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
+            return mediaFile;
+          }
+
+          // third, try the Emby style
+          movieSetName = getMovieSetTitleForStorage(movieSet, " ");
 
           if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
             return mediaFile;
@@ -378,7 +385,19 @@ public class MovieSetArtworkHelper {
         }
 
         // Kodi style
-        movieSetName = movieSet.getTitleForStorage();
+        movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+
+        artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        artworkFile = Paths.get(artworkFolder, artworkFileName);
+        if (Files.exists(artworkFile)) {
+          // add this artwork to the media files
+          MediaFile mediaFile = new MediaFile(artworkFile, type);
+          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
+          movieSet.addToMediaFiles(mediaFile);
+        }
+
+        // Emby style
+        movieSetName = getMovieSetTitleForStorage(movieSet, " ");
 
         artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         artworkFile = Paths.get(artworkFolder, artworkFileName);
@@ -413,7 +432,19 @@ public class MovieSetArtworkHelper {
         }
 
         // Kodi style
-        movieSetName = movieSet.getTitleForStorage();
+        movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+
+        artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
+        if (Files.exists(artworkFile)) {
+          // add this artwork to the media files
+          MediaFile mediaFile = new MediaFile(artworkFile, type);
+          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
+          movieSet.addToMediaFiles(mediaFile);
+        }
+
+        // Emby style
+        movieSetName = getMovieSetTitleForStorage(movieSet, " ");
 
         artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
@@ -1102,5 +1133,43 @@ public class MovieSetArtworkHelper {
     }
 
     return fileNamings;
+  }
+
+  /**
+   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
+   *
+   * @param movieSet the {@link MovieSet}
+   * @return the cleaned movie set title
+   */
+  public static String getMovieSetTitleForStorage(MovieSet movieSet) {
+    return getMovieSetTitleForStorage(movieSet, MovieModuleManager.getInstance().getSettings().getMovieSetTitleCharacterReplacement());
+  }
+
+  /**
+   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
+   *
+   * @param movieSet    the {@link MovieSet}
+   * @param replacement the replacement token
+   * @return the cleaned movie set title
+   */
+  public static String getMovieSetTitleForStorage(MovieSet movieSet, String replacement) {
+    // Note- Illegal characters in the movie set name are replaced with the chosen replacement
+    // eg "Mission: Impossible Collection" becomes "Mission_ Impossible Collection" (Kodi style)
+    // https://kodi.wiki/view/Movie_set_information_folder
+    String result = movieSet.getTitle();
+    result = result.replace("/", replacement);
+    result = result.replace("\\", replacement);
+    result = result.replace("?", replacement);
+    result = result.replace(":", replacement);
+    result = result.replace("*", replacement);
+    result = result.replace("\"", replacement);
+    result = result.replace("<", replacement);
+    result = result.replace(">", replacement);
+    result = result.replace("|", replacement);
+
+    // replace multiple spaces with a single one (and remove trailing ones)
+    result = result.replaceAll(" +", " ").trim();
+
+    return result;
   }
 }

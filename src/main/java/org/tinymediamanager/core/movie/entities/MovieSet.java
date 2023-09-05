@@ -642,27 +642,6 @@ public class MovieSet extends MediaEntity {
     }
   }
 
-  /**
-   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
-   *
-   * @return the cleaned movie set title
-   */
-  public String getTitleForStorage() {
-    // Note- Illegal characters in the movie set name are replaced with an underscore _ eg Mission: Impossible Collection becomes Mission_ Impossible Collection
-    // https://kodi.wiki/view/Movie_set_information_folder
-    String result = title.replace('/', '_');
-    result = result.replace('\\', '_');
-    result = result.replace('?', '_');
-    result = result.replace(':', '_');
-    result = result.replace('*', '_');
-    result = result.replace('\"', '_');
-    result = result.replace('<', '_');
-    result = result.replace('>', '_');
-    result = result.replace('|', '_');
-
-    return result;
-  }
-
   public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
     this.dummyMovies.clear();
     dummyMovies.forEach(dummy -> {

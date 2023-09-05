@@ -103,7 +103,6 @@ public final class MovieSettings extends AbstractSettings {
   static final String                       MOVIE_SET_BANNER_FILENAME              = "movieSetBannerFilename";
   static final String                       MOVIE_SET_CLEARART_FILENAME            = "movieSetClearartFilename";
   static final String                       MOVIE_SET_THUMB_FILENAME               = "movieSetThumbFilename";
-  static final String                       MOVIE_SET_LOGO_FILENAME                = "movieSetLogoFilename";
   static final String                       MOVIE_SET_CLEARLOGO_FILENAME           = "movieSetClearlogoFilename";
   static final String                       MOVIE_SET_DISCART_FILENAME             = "movieSetDiscartFilename";
   static final String                       TRAILER_FILENAME                       = "trailerFilename";
@@ -253,6 +252,7 @@ public final class MovieSettings extends AbstractSettings {
   @JsonAlias("movieSetArtworkFolder")
   String                                    movieSetDataFolder                     = "";
   boolean                                   scrapeBestImageMovieSet                = true;
+  String movieSetTitleCharacterReplacement = "_";
 
   // movie set artwork
   final List<MovieSetPosterNaming>          movieSetPosterFilenames                = new ArrayList<>();
@@ -1084,6 +1084,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.scrapeBestImageMovieSet;
     this.scrapeBestImageMovieSet = newValue;
     firePropertyChange("scrapeBestImageMovieSet", oldValue, newValue);
+  }
+
+  public String getMovieSetTitleCharacterReplacement() {
+    return movieSetTitleCharacterReplacement;
+  }
+
+  public void setMovieSetTitleCharacterReplacement(String newValue) {
+    String oldValue = this.movieSetTitleCharacterReplacement;
+    this.movieSetTitleCharacterReplacement = newValue;
+    firePropertyChange("movieSetTitleCharacterReplacement", oldValue, newValue);
   }
 
   public void addMovieTrailerScraper(String newValue) {

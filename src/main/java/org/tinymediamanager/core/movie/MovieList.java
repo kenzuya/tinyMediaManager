@@ -1466,7 +1466,7 @@ public final class MovieList extends AbstractModelObject {
 
       // remove any empty movie set data folder
       if (StringUtils.isNotBlank(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder())) {
-        String movieSetName = movieSet.getTitleForStorage();
+        String movieSetName = MovieSetArtworkHelper.getMovieSetTitleForStorage(movieSet);
         Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder(), movieSetName));
       }
 
