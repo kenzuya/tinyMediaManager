@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.anidb.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
-import org.tinymediamanager.scraper.davestrailer.DavesTrailerPageProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
 import org.tinymediamanager.scraper.ffmpeg.FFmpegMovieArtworkProvider;
@@ -166,7 +165,6 @@ public class MediaProviders {
     loadProvider(TmdbMovieTrailerProvider.class);
     loadProvider(HdTrailersNetMovieTrailerProvider.class);
     loadProvider(OfdbMovieTrailerProvider.class);
-    loadProvider(DavesTrailerPageProvider.class);
     loadProvider(ImdbMovieTrailerProvider.class);
 
     // addons
