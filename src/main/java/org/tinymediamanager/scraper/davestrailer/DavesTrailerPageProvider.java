@@ -33,9 +33,11 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
  * The Class DavesTrailerPage. A trailer provider for the site davestrailerpage.co.uk
@@ -83,6 +85,10 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
       return Collections.emptyList();
     }
 
+    if (!MediaIdUtil.isValidImdbId(options.getImdbId())) {
+      throw new MissingIdException();
+    }
+
     // 1. search with title
     String title = md.getOriginalTitle();
     if (title.isEmpty()) {
@@ -115,16 +121,31 @@ public class DavesTrailerPageProvider implements IMovieTrailerProvider {
             Element li = anchor.parent();
             if (li != null) {
               // as long as there are new rows with trailer information :)
-              while (li.nextElementSibling() != null) {
+              while (true) {
                 Element nextLi = li.nextElementSibling();
-                String trailerName = nextLi.select("b").first().text();
+                if (nextLi == null) {
+                  break;
+                }
+
+                String trailerName = "";
+                Elements elements = nextLi.select("b");
+                if (elements.isEmpty()) {
+                  elements = nextLi.select("a");
+                }
+                if (!elements.isEmpty()) {
+                  trailerName = elements.first().text();
+                }
                 // loop 2: get all available trailer anchors and the
                 // corresponding information
                 for (Element trailerAnchor : nextLi.getElementsByTag("a")) {
                   MediaTrailer trailer = new MediaTrailer();
                   trailer.setName(trailerName);
                   trailer.setUrl(trailerAnchor.attr("href"));
-                  trailer.setQuality(trailerAnchor.childNode(0).toString());
+                  if (trailerAnchor.childrenSize() > 0) {
+                    trailer.setQuality(trailerAnchor.childNode(0).toString());
+                  } else {
+                    trailer.setQuality(nextLi.ownText());
+                  }
                   trailer.setProvider(getProviderFromUrl(trailerAnchor.attr("href")));
                   trailer.setScrapedBy(providerInfo.getId());
                   trailers.add(trailer);
