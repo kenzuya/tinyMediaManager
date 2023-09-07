@@ -44,6 +44,7 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
  *
  * @author Wolfgang Janes
  */
+@Deprecated
 public class DavesTrailerPageProvider implements IMovieTrailerProvider {
 
   private static final String     ID     = "davesTrailer";

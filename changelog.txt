@@ -1,5 +1,6 @@
 Version 4.3.14
 =======================
+x dropping DavesTrailerPage scraper, since Apple closed their trailer site
 
 
 Version 4.3.13
