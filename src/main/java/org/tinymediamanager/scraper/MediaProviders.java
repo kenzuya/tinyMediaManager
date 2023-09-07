@@ -77,7 +77,6 @@ import org.tinymediamanager.scraper.tmdb.TmdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.trakt.TraktMovieMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowArtworkProvider;
-import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvmaze.TvMazeTvShowMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
 import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
@@ -189,7 +188,7 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
-    loadProvider(TvdbV3TvShowMetadataProvider.class);
+    //loadProvider(TvdbV3TvShowMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
