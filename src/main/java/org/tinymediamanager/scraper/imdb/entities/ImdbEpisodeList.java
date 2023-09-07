@@ -78,12 +78,7 @@ public class ImdbEpisodeList {
 
         md.setYear(ep.releaseYear);
         if (ep.releaseDate != null) {
-          try {
-            md.setReleaseDate(ep.releaseDate.toDate());
-          }
-          catch (Exception e1) {
-            LOGGER.warn("Could not parse date: {}", ep.releaseDate);
-          }
+          md.setReleaseDate(ep.releaseDate.toDate());
         }
 
         eps.add(md);
