@@ -43,11 +43,7 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
-import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
-import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
-import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
-import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
+import org.tinymediamanager.core.movie.tasks.*;
 import org.tinymediamanager.core.tasks.ExportTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -96,6 +92,12 @@ class MovieCommandTask extends TmmThreadPool {
 
     // 6. export
     export();
+
+    // 7. reload Mediainfo
+    reloadMediaInfo();
+
+    // 8. Aspect Ratio Detection
+    ard();
   }
 
   private void updateDataSources() {
@@ -375,6 +377,41 @@ class MovieCommandTask extends TmmThreadPool {
 
         // done
         activeTask = null;
+      }
+    }
+  }
+
+  private void reloadMediaInfo() {
+    for (AbstractCommandHandler.Command command : commands) {
+      if ("reloadMediaInfo".equals(command.action)) {
+        LOGGER.info("reload media info... - {}", command);
+        List<Movie> movies =  getMoviesForScope(command.scope);
+        if (!movies.isEmpty()) {
+          setTaskName(TmmResourceBundle.getString("movie.reloadMediaInfo"));
+          publishState(TmmResourceBundle.getString("movie.reloadMediaInfo"), getProgressDone());
+          activeTask = new MovieReloadMediaInformationTask(movies);
+          activeTask.run();
+
+          activeTask = null;
+        }
+      }
+    }
+  }
+
+  private void ard() {
+    for (AbstractCommandHandler.Command command : commands) {
+      if ("ard".equals(command.action)) {
+        LOGGER.info("detecting aspect ratio... - {}", command);
+        List<Movie> movies =  getMoviesForScope(command.scope);
+        if (!movies.isEmpty()) {
+          setTaskName(TmmResourceBundle.getString("movie.ard"));
+          publishState(TmmResourceBundle.getString("movie.ard"), getProgressDone());
+
+          activeTask = new MovieARDetectorTask(movies);
+          activeTask.run();
+
+          activeTask = null;
+        }
       }
     }
   }
