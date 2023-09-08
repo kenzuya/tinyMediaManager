@@ -26,5 +26,12 @@
   		<true/>
   	<key>CFBundleDevelopmentRegion</key>
   		<string>English</string>
+  	<key>LSEnvironment</key>
+    	<dict>
+    		<key>LC_ALL</key>
+    		<string>en_US.UTF-8</string>
+    		<key>LC_CTYPE</key>
+    		<string>en_US.UTF-8</string>
+    	</dict>
   </dict>
 </plist>

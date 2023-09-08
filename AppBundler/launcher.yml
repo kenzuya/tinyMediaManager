@@ -26,3 +26,4 @@ jvmOpts:
   - '[linux] -Dswing.aatext=true'
 env:
   - '[macos] LC_ALL=en_US.UTF-8'
+  - '[macos] LANG=en_US.UTF-8'
