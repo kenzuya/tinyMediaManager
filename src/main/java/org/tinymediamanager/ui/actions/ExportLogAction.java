@@ -64,7 +64,7 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
  * @author Manuel Laggner
  */
 public class ExportLogAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExportLogAction.class);
 
   public ExportLogAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
@@ -142,6 +142,17 @@ public class ExportLogAction extends TmmAction {
       catch (Exception e) {
         LOGGER.warn("unable to attach install.txt - {}", e.getMessage());
       }
+
+      // write environment file
+      try (InputStream in = dumpEnvironmentVariables()) {
+        zipParameters.setFileNameInZip("env.txt");
+
+        zos.putNextEntry(zipParameters);
+        IOUtils.copy(in, zos);
+        zos.closeEntry();
+      } catch (Exception e) {
+        LOGGER.warn("unable to attach env.txt - {}", e.getMessage());
+      }
     }
   }
 
@@ -184,6 +195,19 @@ public class ExportLogAction extends TmmAction {
       sb.append(path.toFile().length());
       sb.append("\n");
     }
+
+    return new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
+  }
+
+  private InputStream dumpEnvironmentVariables() {
+    StringBuilder sb = new StringBuilder();
+
+    System.getenv().forEach((key, value) -> {
+      sb.append(key);
+      sb.append("=");
+      sb.append(value);
+      sb.append("\n");
+    });
 
     return new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
   }
