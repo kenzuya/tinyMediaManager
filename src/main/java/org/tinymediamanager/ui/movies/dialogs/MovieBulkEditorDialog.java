@@ -31,18 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -476,12 +465,31 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnNote, "cell 2 11");
       }
       {
+        JLabel lblDateAddedT = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
+        panelContent.add(lblDateAddedT,"cell 0 12,alignx trailing");
+
+        JSpinner spDateAdded = new JSpinner(new SpinnerDateModel());
+        panelContent.add(spDateAdded, "cell 1 12");
+
+        JButton btnDateAdded = new SquareIconButton(IconManager.APPLY_INV);
+        btnDateAdded.addActionListener(e -> {
+          changed = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (Movie movie : moviesToEdit) {
+            movie.setDateAdded((Date) spDateAdded.getValue());
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnDateAdded, "cell 2 12");
+
+      }
+      {
         JLabel lblSorttitleT = new TmmLabel(TmmResourceBundle.getString("metatag.sorttitle"));
-        panelContent.add(lblSorttitleT, "flowx,cell 0 12,alignx right");
+        panelContent.add(lblSorttitleT, "flowx,cell 0 13,alignx right");
 
         JLabel lblSorttitleInfo = new JLabel(IconManager.HINT);
         lblSorttitleInfo.setToolTipText(TmmResourceBundle.getString("edit.setsorttitle.desc"));
-        panelContent.add(lblSorttitleInfo, "cell 0 12");
+        panelContent.add(lblSorttitleInfo, "cell 0 13");
 
         JButton btnSetSorttitle = new JButton(TmmResourceBundle.getString("edit.setsorttitle"));
         btnSetSorttitle.addActionListener(e -> {
@@ -492,11 +500,11 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnSetSorttitle, "flowx,cell 1 12 4 1");
+        panelContent.add(btnSetSorttitle, "flowx,cell 1 13 4 1");
       }
       {
         JLabel lblSpokenLanguages = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
-        panelContent.add(lblSpokenLanguages, "cell 0 13,alignx right");
+        panelContent.add(lblSpokenLanguages, "cell 0 14,alignx right");
 
         JButton btnFirstAudioStream = new JButton(TmmResourceBundle.getString("edit.audio.first"));
         btnFirstAudioStream.setToolTipText(TmmResourceBundle.getString("edit.audio.first.desc"));
@@ -508,7 +516,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnFirstAudioStream, "flowx,cell 1 13 4 1");
+        panelContent.add(btnFirstAudioStream, "flowx,cell 1 14 4 1");
 
         JButton btnBestAudioStream = new JButton(TmmResourceBundle.getString("edit.audio.best"));
         btnBestAudioStream.setToolTipText(TmmResourceBundle.getString("edit.audio.best.desc"));
@@ -520,7 +528,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnBestAudioStream, "cell 1 13");
+        panelContent.add(btnBestAudioStream, "cell 1 14");
 
         JButton btnAllAudioStreams = new JButton(TmmResourceBundle.getString("edit.audio.all"));
         btnAllAudioStreams.setToolTipText(TmmResourceBundle.getString("edit.audio.all.desc"));
@@ -532,7 +540,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnAllAudioStreams, "cell 1 13");
+        panelContent.add(btnAllAudioStreams, "cell 1 14");
       }
 
       JButton btnClearSorttitle = new JButton(TmmResourceBundle.getString("edit.clearsorttitle"));
@@ -544,7 +552,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       });
-      panelContent.add(btnClearSorttitle, "cell 1 12 4 1");
+      panelContent.add(btnClearSorttitle, "cell 1 13 4 1");
     }
 
     /*

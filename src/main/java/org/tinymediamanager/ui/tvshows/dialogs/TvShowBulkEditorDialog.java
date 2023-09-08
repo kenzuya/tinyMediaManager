@@ -32,18 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -341,8 +330,26 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         });
       }
       {
+        JLabel lblDateAddedT = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
+        panelContent.add(lblDateAddedT, "cell 0 7,alignx right");
+
+        JSpinner spDateAdded = new JSpinner(new SpinnerDateModel());
+        panelContent.add(spDateAdded, "cell 1 7");
+
+        JButton btnDateAdded = new SquareIconButton(IconManager.APPLY_INV);
+        btnDateAdded.addActionListener(e -> {
+          tvShowsChanged = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShow tvShow : tvShowsToEdit) {
+            tvShow.setDateAdded((Date) spDateAdded.getValue());
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnDateAdded, "cell 2 7");
+      }
+      {
         JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
-        panelContent.add(btnAddRating, "cell 1 7");
+        panelContent.add(btnAddRating, "cell 1 8");
         btnAddRating.addActionListener(e -> {
           tvShowsChanged = true;
           // Open Rating Dialog
@@ -644,10 +651,28 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnEpisodePlot, "cell 2 8");
       }
+      {
+        JLabel lblDateAdded = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
+        panelContent.add(lblDateAdded,"cell 0 9,alignx right");
 
+        JSpinner spDateAdded = new JSpinner(new SpinnerDateModel());
+        panelContent.add(spDateAdded, "cell 1 9");
+
+        JButton btnDateAdded = new SquareIconButton(IconManager.APPLY_INV);
+        btnDateAdded.addActionListener(e -> {
+          episodesChanged = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+            episode.setDateAdded((Date)spDateAdded.getValue());
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnDateAdded, "cell 2 9");
+
+      }
       {
         JButton btnAddActors = new JButton(TmmResourceBundle.getString("cast.actor.add"));
-        panelContent.add(btnAddActors, "cell 1 9");
+        panelContent.add(btnAddActors, "cell 1 10");
         btnAddActors.addActionListener(e -> {
           episodesChanged = true;
           // Open Person Dialog
@@ -682,7 +707,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
       {
         JButton btnAddDirectors = new JButton(TmmResourceBundle.getString("cast.director.add"));
-        panelContent.add(btnAddDirectors, "cell 1 9");
+        panelContent.add(btnAddDirectors, "cell 1 10");
         btnAddDirectors.addActionListener(e -> {
           episodesChanged = true;
           // Open Director Dialog
@@ -716,7 +741,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
       {
         JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
-        panelContent.add(btnAddRating, "cell 1 10");
+        panelContent.add(btnAddRating, "cell 1 11");
         btnAddRating.addActionListener(e -> {
           // Open Rating Dialog
           MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
@@ -747,7 +772,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
       {
         JButton btnAddSubtitle = new JButton(TmmResourceBundle.getString("subtitle.add"));
-        panelContent.add(btnAddSubtitle, "cell 1 10");
+        panelContent.add(btnAddSubtitle, "cell 1 11");
         btnAddSubtitle.addActionListener(e -> {
           MediaFileSubtitle subtitle = new MediaFileSubtitle();
 
