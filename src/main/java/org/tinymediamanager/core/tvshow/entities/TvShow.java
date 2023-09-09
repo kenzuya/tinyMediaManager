@@ -1210,6 +1210,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public Boolean getHasSeasonAndEpisodeImages() {
     TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     for (TvShowSeason season : seasons) {
+      if (season.isDummy()) {
+        continue;
+      }
       if (!tvShowList.detectMissingArtwork(season).isEmpty() || !season.getHasEpisodeImages()) {
         return false;
       }
