@@ -1508,7 +1508,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
   private MediaEpisodeGroup.EpisodeGroup mapEpisodeGroup(int type) {
     return switch (type) {
-      case 1 -> AIRED;
+      // originally aired, but this results in a _second_ aired order which we cannot handle. We morph this is to alternate
+      case 1 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
       case 2 -> MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
       case 3 -> MediaEpisodeGroup.EpisodeGroup.DVD;
       case 4, 5, 6, 7 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
