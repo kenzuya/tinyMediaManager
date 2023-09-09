@@ -2,6 +2,7 @@ Version 4.3.14
 =======================
 x adapt IMDB parsing due to changed site 
 x dropping DavesTrailerPage scraper, since Apple closed their trailer site
+x removed Apple trailers from hd-trailers.net and TMDB scraper
 
 
 Version 4.3.13
