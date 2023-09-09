@@ -34,7 +34,6 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -737,74 +736,6 @@ public class UpgradeTasks {
 
     if (dirty) {
       entity.saveToDb();
-    }
-  }
-
-  /**
-   * rename downloaded files (getdown.jar, ...)
-   */
-  public static void renameDownloadedFiles() {
-    // OSX launcher
-    if (SystemUtils.IS_OS_MAC) {
-      File file = new File("macOS/MacOS/tinyMediaManager");
-      if (file.exists() && file.length() > 0) {
-        File cur = new File("../../MacOS/tinyMediaManager");
-        try {
-          FileUtils.copyFile(file, cur);
-          cur.setExecutable(true);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update MacOS/tinyMediaManager");
-        }
-      }
-
-      // legacy OSX launcher (need for a smooth transition from v3)
-      file = new File("macOS/MacOS/JavaApplicationStub");
-      if (file.exists() && file.length() > 0) {
-        File cur = new File("../../MacOS/JavaApplicationStub");
-        try {
-          FileUtils.copyFile(file, cur);
-          cur.setExecutable(true);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update MacOS/JavaApplicationStub");
-        }
-      }
-
-      // OSX Info.plist
-      file = new File("macOS/Info.plist");
-      if (file.exists() && file.length() > 0) {
-        File cur = new File("../../Info.plist");
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update Info.plist");
-        }
-      }
-
-      // OSX tmm.icns
-      file = new File("macOS/Resources/tmm.icns");
-      if (file.exists() && file.length() > 0) {
-        File cur = new File("../tmm.icns");
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update tmm.icns");
-        }
-      }
-
-      // remove macOS folder
-      Path macOS = Paths.get("macOS");
-      if (Files.exists(macOS)) {
-        try {
-          Utils.deleteDirectoryRecursive(macOS);
-        }
-        catch (Exception e) {
-          LOGGER.error("could not delete macOS folder - {}", e.getMessage());
-        }
-      }
     }
   }
 

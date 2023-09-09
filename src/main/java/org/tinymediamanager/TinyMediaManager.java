@@ -477,9 +477,6 @@ public final class TinyMediaManager {
   }
 
   private void doPreStartupTasks() {
-    // rename downloaded files
-    UpgradeTasks.renameDownloadedFiles();
-
     // clean old log files
     Utils.cleanOldLogs();
 
