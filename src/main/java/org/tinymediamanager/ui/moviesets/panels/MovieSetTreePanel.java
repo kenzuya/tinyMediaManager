@@ -85,6 +85,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetTreeCellRenderer;
 import org.tinymediamanager.ui.moviesets.MovieSetTreeDataProvider;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -255,6 +256,17 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     tree.getSelectionModel().addListSelectionListener(arg0 -> {
       if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
+        return;
+      }
+
+      // if nothing is in the tree, set the initial movie set
+      if (tree.getModel().getRowCount() == 0) {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+        return;
+      }
+
+      if (tree.isAdjusting()) {
+        // prevent flickering
         return;
       }
 

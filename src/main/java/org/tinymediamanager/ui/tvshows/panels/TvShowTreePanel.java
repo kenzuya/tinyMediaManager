@@ -130,8 +130,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     });
     TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
       switch (e.getPropertyName()) {
-        case "tvShowCheckMetadata", "tvShowCheckArtwork", "seasonCheckArtwork", "episodeCheckMetadata", "episodeCheckArtwork", "episodeSpecialsCheckMissingMetadata", "episodeSpecialsCheckMissingArtwork" -> tree
-            .invalidate();
+        case "tvShowCheckMetadata", "tvShowCheckArtwork", "seasonCheckArtwork", "episodeCheckMetadata", "episodeCheckArtwork",
+                "episodeSpecialsCheckMissingMetadata", "episodeSpecialsCheckMissingArtwork" -> tree.invalidate();
       }
     });
   }
@@ -252,7 +252,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     });
 
     tree.getSelectionModel().addListSelectionListener(arg0 -> {
-      if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel) || tree.isAdjusting()) {
+      if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
         return;
       }
 
@@ -262,21 +262,26 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         return;
       }
 
+      if (tree.isAdjusting()) {
+        // prevent flickering
+        return;
+      }
+
       int index = ((DefaultListSelectionModel) arg0.getSource()).getMinSelectionIndex();
       DefaultMutableTreeNode node = tree.getTreeNode(index);
       if (node != null) {
         // click on a tv show
-        if (node.getUserObject()instanceof TvShow tvShow) {
+        if (node.getUserObject() instanceof TvShow tvShow) {
           TvShowUIModule.getInstance().setSelectedTvShow(tvShow);
         }
 
         // click on a season
-        if (node.getUserObject()instanceof TvShowSeason tvShowSeason) {
+        if (node.getUserObject() instanceof TvShowSeason tvShowSeason) {
           TvShowUIModule.getInstance().setSelectedTvShowSeason(tvShowSeason);
         }
 
         // click on an episode
-        if (node.getUserObject()instanceof TvShowEpisode tvShowEpisode) {
+        if (node.getUserObject() instanceof TvShowEpisode tvShowEpisode) {
           TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
         }
       }
@@ -345,7 +350,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           TableModel model = tree.getModel();
 
           for (int i = 0; i < model.getRowCount(); i++) {
-            if (model.getValueAt(i, 0)instanceof TvShowTreeDataProvider.TvShowTreeNode node) {
+            if (model.getValueAt(i, 0) instanceof TvShowTreeDataProvider.TvShowTreeNode node) {
               // search in the title
               String title = node.toString().toLowerCase(Locale.ROOT);
               if (title.startsWith(searchTerm)) {
