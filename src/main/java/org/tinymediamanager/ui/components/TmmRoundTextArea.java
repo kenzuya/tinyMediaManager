@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.components;
 
+import java.awt.KeyboardFocusManager;
 import java.beans.BeanProperty;
 
 import javax.swing.JComponent;
@@ -53,6 +54,9 @@ public class TmmRoundTextArea extends JTextArea {
     setWrapStyleWord(true);
 
     getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "doNothing");
+
+    setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+    setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
   }
 
   /**
