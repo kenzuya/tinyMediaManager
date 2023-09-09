@@ -47,4 +47,6 @@ x fixed rebuilding image cache #2268
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 + added locked filter for movies and tv shows
 x fix plot formatting with linebreaks #2286
++ added bulk edit option for "Date Added" (movies / tv-shows) #2013
++ added HFR(Higher Frame Rate) Logo if mediafile has more or equal 48 fps #1376
 

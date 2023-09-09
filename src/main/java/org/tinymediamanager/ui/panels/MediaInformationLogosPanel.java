@@ -50,9 +50,10 @@ public class MediaInformationLogosPanel extends JPanel {
   private final JLabel      lblAudioCodec;
   private final JLabel      lblAudioChannels;
   private final JLabel      lblSource;
+  private final JLabel      lblHfr;
 
   public MediaInformationLogosPanel() {
-    setLayout(new MigLayout("hidemode 3", "[][][][][][10lp][][][10lp][]", "[]"));
+    setLayout(new MigLayout("hidemode 3", "[][][][][][10lp][][][10lp][][]", "[]"));
 
     lblVideoFormat = new JLabel();
     add(lblVideoFormat, "cell 0 0, bottom");
@@ -76,6 +77,9 @@ public class MediaInformationLogosPanel extends JPanel {
 
     lblSource = new JLabel();
     add(lblSource, "cell 9 0, bottom");
+
+    lblHfr = new JLabel();
+    add(lblHfr, "cell 10 0, bottom");
 
     // listen to UI changes to re-set the icons
   }
@@ -105,6 +109,7 @@ public class MediaInformationLogosPanel extends JPanel {
     setIcon(lblAudioCodec, getAudioCodecIcon());
     setIcon(lblAudioChannels, getAudioChannelsIcon());
     setIcon(lblSource, getSourceIcon());
+    setIcon(lblHfr, getHfrIcon());
   }
 
   private void setIcon(JLabel label, Icon icon) {
@@ -119,7 +124,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for the video format
-   * 
+   *
    * @return the icon or null
    */
   private Icon getVideoFormatIcon() {
@@ -140,7 +145,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for the aspect ratio
-   * 
+   *
    * @return the icon or null
    */
   private Icon getAspectRatioIcon() {
@@ -160,7 +165,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for the video codec
-   * 
+   *
    * @return the icon or null
    */
   private Icon getVideoCodecIcon() {
@@ -187,7 +192,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for the audio codec
-   * 
+   *
    * @return the icon or null
    */
   private Icon getAudioCodecIcon() {
@@ -208,15 +213,14 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for the audio channels
-   * 
+   *
    * @return the icon or null
    */
   private Icon getAudioChannelsIcon() {
     int audioChannelsInt;
     try {
       audioChannelsInt = Integer.parseInt(mediaInformationSource.getMediaInfoAudioChannels().replace("ch", ""));
-    }
-    catch (NumberFormatException ignored) {
+    } catch (NumberFormatException ignored) {
       return null;
     }
 
@@ -235,7 +239,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the right icon for 3D
-   * 
+   *
    * @return the icon or null
    */
   private Icon getVideo3dIcon() {
@@ -288,7 +292,7 @@ public class MediaInformationLogosPanel extends JPanel {
 
   /**
    * get the media source
-   * 
+   *
    * @return the icon or null
    */
   private Icon getSourceIcon() {
@@ -306,4 +310,13 @@ public class MediaInformationLogosPanel extends JPanel {
       return null;
     }
   }
-}
+
+  private Icon getHfrIcon() {
+    double framerate = mediaInformationSource.getMediaInfoFrameRate();
+    try {
+      return ( framerate >= 48.0 ) ? new MediaInfoIcon("video/hfr.svg") : null;
+    } catch (Exception e) {
+      return null;
+      }
+    }
+  }
