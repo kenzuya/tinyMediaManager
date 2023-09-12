@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 /**
  * The Class Globals. used to hold global information/fields for the whole application
@@ -208,11 +207,11 @@ public final class Globals {
       return true;
     }
 
-    if (SystemUtils.IS_OS_MAC || isDocker()) {
-      // macOS/docker is not self-updatable, but we should check for updates
-      return true;
+    // no update is forced
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      return false;
     }
 
-    return false;
+    return true;
   }
 }

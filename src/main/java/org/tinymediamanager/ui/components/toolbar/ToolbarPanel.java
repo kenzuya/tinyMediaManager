@@ -240,8 +240,7 @@ public class ToolbarPanel extends JPanel {
     if (!Settings.getInstance().isNewConfig()) {
       // if the wizard is not run, check for an update
       // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is
-      // showing, the
-      // wizard will no more appear
+      // showing, the wizard will no more appear
       // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
       // next startup
       if (Globals.canCheckForUpdates()) {

@@ -760,8 +760,7 @@ public class TmmUIHelper {
             if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
               UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog(), updateCheck.getBaseUrl());
               dialog.setVisible(true);
-            }
-            else {
+            } else if (Globals.isSelfUpdatable()) {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
               int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
