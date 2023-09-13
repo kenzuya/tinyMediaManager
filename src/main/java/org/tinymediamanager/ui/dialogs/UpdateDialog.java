@@ -114,7 +114,7 @@ public class UpdateDialog extends TmmDialog {
       });
 
       // deactivate the update button if we cannot self update and we do have a base url
-      if (!Globals.isSelfUpdatable() || StringUtils.isBlank(baseurl)) {
+      if (!Globals.isSelfUpdatable() && StringUtils.isBlank(baseurl)) {
         btnUpdate.setEnabled(false);
       }
 
