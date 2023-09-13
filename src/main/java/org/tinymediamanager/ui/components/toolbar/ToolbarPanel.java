@@ -387,11 +387,11 @@ public class ToolbarPanel extends JPanel {
       }
     });
 
-    if (Globals.isSelfUpdatable() || Globals.isDebug()) {
+    if (Globals.canCheckForUpdates() || Globals.isDebug()) {
       menu.addSeparator();
     }
 
-    if (Globals.isSelfUpdatable()) {
+    if (Globals.canCheckForUpdates()) {
       menu.add(new CheckForUpdateAction());
     }
 

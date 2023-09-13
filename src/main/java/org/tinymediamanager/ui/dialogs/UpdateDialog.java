@@ -114,7 +114,7 @@ public class UpdateDialog extends TmmDialog {
       });
 
       // deactivate the update button if we cannot self update and we do have a base url
-      if (!Globals.isSelfUpdatable() && StringUtils.isBlank(baseurl)) {
+      if (!Globals.isSelfUpdatable() || StringUtils.isBlank(baseurl)) {
         btnUpdate.setEnabled(false);
       }
 
@@ -145,7 +145,7 @@ public class UpdateDialog extends TmmDialog {
     matcher = pattern.matcher(originalText);
     while (matcher.find()) {
       originalText = originalText.replace(matcher.group(1), "<a href=\"https://gitlab.com/tinyMediaManager/tinyMediaManager/-/issues/"
-              + matcher.group(1).replace("#", "") + "\">" + matcher.group(1) + "</a>");
+          + matcher.group(1).replace("#", "") + "\">" + matcher.group(1) + "</a>");
     }
 
     // set the foreground color of the content
