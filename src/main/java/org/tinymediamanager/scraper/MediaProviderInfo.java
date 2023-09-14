@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
@@ -29,6 +30,7 @@ import org.tinymediamanager.scraper.config.MediaProviderConfig;
  * @since 1.0
  */
 public class MediaProviderInfo {
+  public static final String API_KEY = "apiKey";
   private static final URL          EMPTY_LOGO     = MediaProviderInfo.class.getResource("emtpyLogo.png");
 
   private final String              id;
@@ -167,5 +169,19 @@ public class MediaProviderInfo {
    */
   public MediaProviderConfig getConfig() {
     return config;
+  }
+
+  /**
+   * Handy method to get the user entered API key from the {@link org.tinymediamanager.scraper.config.MediaProviderConfigObject}
+   *
+   * @return the API key or an empty string
+   */
+  public String getUserApiKey() {
+    String apiKey = config.getValue(API_KEY);
+    if (StringUtils.isBlank(apiKey)) {
+      return "";
+    }
+
+    return apiKey.trim();
   }
 }

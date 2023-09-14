@@ -76,7 +76,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   // thread safe initialization of the API
@@ -84,7 +84,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
     // check if the API should change from current key to another
     if (api != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      String userApiKey = providerInfo.getUserApiKey();
       if (StringUtils.isNotBlank(userApiKey) && !userApiKey.equals(api.apiKey())) {
         // force re-initialization with new key
         api = null;
@@ -102,7 +102,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
       }
 
       try {
-        String userApiKey = providerInfo.getConfig().getValue("apiKey");
+        String userApiKey = providerInfo.getUserApiKey();
         api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey());
         Response<Configuration> response = api.configurationService().configuration().execute();
         if (response.code() == 401) {

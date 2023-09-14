@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -81,6 +80,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbImage;
 import org.tinymediamanager.scraper.imdb.entities.ImdbKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
+import org.tinymediamanager.scraper.imdb.entities.ImdbReleaseDate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
@@ -929,11 +929,9 @@ public abstract class ImdbParser {
         md.setPlot(plot.plainText);
       }
 
-      int y = node.at("/props/pageProps/aboveTheFoldData/releaseDate/year").asInt(0);
-      int m = node.at("/props/pageProps/aboveTheFoldData/releaseDate/month").asInt(0);
-      int d = node.at("/props/pageProps/aboveTheFoldData/releaseDate/day").asInt(0);
-      Date date = new GregorianCalendar(y, m - 1, d).getTime();
-      md.setReleaseDate(date);
+      JsonNode releaseDateNode = node.at("/props/pageProps/aboveTheFoldData/releaseDate");
+      ImdbReleaseDate relDate = JsonUtils.parseObject(mapper, releaseDateNode, ImdbReleaseDate.class);
+      md.setReleaseDate(relDate.toDate());
 
       md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
 

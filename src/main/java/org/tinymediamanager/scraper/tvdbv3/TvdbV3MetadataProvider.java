@@ -80,7 +80,7 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   protected synchronized void initAPI() throws ScrapeException {
@@ -125,7 +125,7 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       }
     }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey)) {

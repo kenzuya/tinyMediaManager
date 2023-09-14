@@ -2,9 +2,7 @@ package org.tinymediamanager.scraper.imdb.entities;
 
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +20,6 @@ import org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -83,12 +80,8 @@ public class ImdbEpisodeList {
         }
 
         md.setYear(ep.releaseYear);
-        try {
-          Date rel = StrgUtils.parseDate(ep.releaseDate);
-          md.setReleaseDate(rel);
-        }
-        catch (ParseException e1) {
-          LOGGER.warn("Could not parse date: {}", ep.releaseDate);
+        if (ep.releaseDate != null) {
+          md.setReleaseDate(ep.releaseDate.toDate());
         }
 
         eps.add(md);

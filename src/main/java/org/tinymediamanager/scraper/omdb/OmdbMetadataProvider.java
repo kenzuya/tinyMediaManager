@@ -88,12 +88,12 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
 
   @Override
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   @Override
   public String getApiKey() {
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
     if (StringUtils.isNotBlank(userApiKey)) {
       return userApiKey;
     }

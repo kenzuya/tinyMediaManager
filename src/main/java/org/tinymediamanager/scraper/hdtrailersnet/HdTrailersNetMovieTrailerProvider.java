@@ -136,6 +136,11 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
             trailer.setUrl(url);
 
             trailer.setProvider(getProviderFromUrl(url));
+            //do not use apple trailers anymore - closed since 2023-09-01
+            if ("Apple".equalsIgnoreCase(trailer.getProvider())) {
+              continue;
+            }
+
             trailer.setScrapedBy(providerInfo.getId());
             if (!trailer.getUrl().isEmpty() && !trailer.getName().isEmpty()) {
               LOGGER.trace("found trailer: {}", trailer);
