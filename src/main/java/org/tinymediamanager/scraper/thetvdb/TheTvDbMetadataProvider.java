@@ -98,11 +98,11 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   String getAuthToken() {
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
     String userPin = providerInfo.getConfig().getValue("pin");
 
     if (StringUtils.isNotBlank(userApiKey)) {
@@ -125,7 +125,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
     // check if the API should change from current key to another
     if (tvdb != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      String userApiKey = providerInfo.getUserApiKey();
       String userPin = providerInfo.getConfig().getValue("pin");
       if (StringUtils.isNotBlank(userApiKey) && (!userApiKey.equals(tvdb.getUserApiKey()) || !userPin.equals(tvdb.getUserPin()))) {
         // force re-initialization with new key

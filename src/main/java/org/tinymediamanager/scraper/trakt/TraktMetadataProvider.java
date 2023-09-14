@@ -81,7 +81,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(null);
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   protected abstract Logger getLogger();
@@ -114,7 +114,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
       }
     }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey)) {
