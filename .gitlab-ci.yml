@@ -106,7 +106,7 @@ deploy:nightly:
 deploy:PRE-RELEASE:
   stage: deploy
   only:
-    - main@tinyMediaManager/tinyMediaManager
+    - v4@tinyMediaManager/tinyMediaManager
   when: manual
   trigger:
     include: .ci/deploy_prerelease.yml
@@ -118,7 +118,7 @@ deploy:PRE-RELEASE:
 deploy:RELEASE:
   stage: deploy
   only:
-    - main@tinyMediaManager/tinyMediaManager
+    - v4@tinyMediaManager/tinyMediaManager
   when: manual
   trigger:
     include: .ci/deploy_release.yml
