@@ -45,6 +45,9 @@ build:
 
 build-mac:
   stage: build
+  environment:
+    name: nightly
+    url: https://nightly.tinymediamanager.org
   needs:
     - build
   dependencies:
@@ -154,7 +157,7 @@ deploy:
   stage: deploy
   image: curlimages/curl:7.85.0
   environment:
-    name: v5
+    name: nightly
     url: https://nightly.tinymediamanager.org
   dependencies: [ ]  # do not download any artifacts
   tags:

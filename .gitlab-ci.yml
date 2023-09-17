@@ -22,7 +22,6 @@ test:jdk17:
     - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
       when: never
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
@@ -38,7 +37,6 @@ test:jdk18:
     - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
       when: never
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
@@ -54,7 +52,6 @@ test:jdk19:
     - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
       when: never
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "v5"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners

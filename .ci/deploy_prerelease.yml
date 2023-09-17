@@ -37,6 +37,9 @@ build:
 
 build-mac:
   stage: build
+  environment:
+    name: prerelease
+    url: https://prerelease.tinymediamanager.org
   needs:
     - build
   dependencies:
@@ -146,7 +149,7 @@ deploy:
   stage: deploy
   image: curlimages/curl:7.85.0
   environment:
-    name: test
+    name: prerelease
     url: https://prerelease.tinymediamanager.org
   tags:
     - tmm # force running on own runners

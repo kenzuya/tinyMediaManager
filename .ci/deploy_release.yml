@@ -83,6 +83,9 @@ build:
 
 build-mac:
   stage: build
+  environment:
+    name: release
+    url: https://release.tinymediamanager.org
   needs:
     - build
   dependencies:
@@ -193,7 +196,7 @@ deploy:
   stage: deploy
   image: curlimages/curl:7.85.0
   environment:
-    name: v5
+    name: release
     url: https://release.tinymediamanager.org
   dependencies: [ ]  # do not download any artifacts
   tags:
