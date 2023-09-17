@@ -47,7 +47,15 @@ public abstract class TrailerDownloadTask extends DownloadTask {
     if (!isFeatureEnabled()) {
       return;
     }
+
     String url = mediaTrailer.getUrl();
+
+    // we cannot download from Apple Trailer anymore (closed on 01.09.2023)
+    if (url.contains("trailers.apple.com")) {
+      LOGGER.error("Could not download trailer: Apple Trailers has been shut down on 01.09.2023");
+      return;
+    }
+
     if (!url.startsWith("http")) {
       // we have an ID - lets check if it is a known one:
       String id = mediaTrailer.getId();
