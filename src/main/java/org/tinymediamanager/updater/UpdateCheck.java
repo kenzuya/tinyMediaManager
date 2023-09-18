@@ -154,13 +154,13 @@ public class UpdateCheck {
         LOGGER.info("Trying fallback...");
         String fallback = "https://www.tinymediamanager.org";
         if (ReleaseInfo.isPreRelease()) {
-          fallback += "/getdown_prerelease_v4.txt";
+          fallback += "/getdown_prerelease_v5.txt";
         }
         else if (ReleaseInfo.isNightly()) {
-          fallback += "/getdown_nightly_v4.txt";
+          fallback += "/getdown_nightly_v5.txt";
         }
         else {
-          fallback += "/getdown_v4.txt";
+          fallback += "/getdown_v5.txt";
         }
 
         String gd = UrlUtil.getStringFromUrl(fallback);
