@@ -156,6 +156,8 @@ deploy:
   script:
     # and publish the files on the webserver
     - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+    - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX}
+    - curl https://prerelease.tinymediamanager.org/${CREATE_INDEX_V5}
 
     # purge CF cache
     - 'eval "$PURGE_CF_CACHE"'

@@ -165,3 +165,5 @@ deploy:
   script:
     # and publish the files on the webserver
     - curl https://nightly.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
+    - curl https://nightly.tinymediamanager.org/${CREATE_INDEX}
+    - curl https://nightly.tinymediamanager.org/${CREATE_INDEX_V5}
