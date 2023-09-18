@@ -34,6 +34,10 @@ Version 5.0
 + added an action to reset the "new" flag
 + (FFmpeg) support stacked movies for generating previews #2271
 + Added an option to write the movie set folder/artwork in Emby style
++ added mdblist.com as new rating source #2276
++ added locked filter for movies and tv shows
++ added bulk edit option for "Date Added" (movies / tv-shows) #2013
++ added HFR(Higher Frame Rate) Logo if mediafile has more or equal 48 fps #1376
 x fixed displaying missing season metadata #2238
 x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
@@ -45,8 +49,4 @@ x do not drop audio channels with empty bitrate #2262
 x do not write NFO files on "update data sources"
 x fixed rebuilding image cache #2268
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
-+ added mdblist.com as new rating source #2276
-+ added locked filter for movies and tv shows
-x fix plot formatting with linebreaks #2286
-+ added bulk edit option for "Date Added" (movies / tv-shows) #2013
-+ added HFR(Higher Frame Rate) Logo if mediafile has more or equal 48 fps #1376
+x fix plot formatting with line-breaks #2286
