@@ -149,6 +149,7 @@ public final class Settings extends AbstractSettings {
 
   private boolean                                          enableAutomaticUpdate       = true;
   private int                                              automaticUpdateInterval     = 1;
+  private String                                           mdbListApiKey               = "";
 
   /**
    * Instantiates a new settings.
@@ -1382,5 +1383,20 @@ public final class Settings extends AbstractSettings {
     int oldValue = this.automaticUpdateInterval;
     this.automaticUpdateInterval = newValue;
     firePropertyChange("automaticUpdateInterval", oldValue, newValue);
+  }
+
+  /**
+   * gets saved Kodi HTTP port, or default
+   *
+   * @return the Kodi HTTP port
+   */
+  public String getMdbListApiKey() {
+    return mdbListApiKey;
+  }
+
+  public void setMdbListApiKey(String mdbListApiKey) {
+    String oldValue = this.mdbListApiKey;
+    this.mdbListApiKey = mdbListApiKey;
+    firePropertyChange("mdbListApiKey", oldValue, mdbListApiKey);
   }
 }

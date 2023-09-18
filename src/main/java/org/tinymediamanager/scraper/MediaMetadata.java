@@ -57,6 +57,10 @@ public class MediaMetadata {
   public static final String                               TVDB                = "tvdb";
   public static final String                               TMDB_SET            = "tmdbSet";
   public static final String                               TRAKT_TV            = "trakt";
+  public static final String                               METACRITIC          = "metacritic";
+  public static final String                               LETTERBOXD          = "letterboxd";
+  public static final String                               MAL                 = "myanimelist";
+  public static final String                               ROGER_EBERT         = "rogerebert";
 
   // some meta ids for TV show scraping
   public static final String                               TVSHOW_IDS          = "tvShowIds";
