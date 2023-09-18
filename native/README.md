@@ -4,6 +4,7 @@
 
 * Windows - Windows 7 - 11, 64bit, https://mediaarea.net/en/MediaInfo/Download/Windows
 * Linux - Ubuntu 20.04 (for best compatibility), 64 bit, https://mediaarea.net/en/MediaInfo/Download/Ubuntu
+* Linux - RAspbian 10 (for best compatibility), arm 64 bit, https://mediaarea.net/de/MediaInfo/Download/Raspbian
 * macOS - macOS 10.10 - 12, https://mediaarea.net/en/MediaInfo/Download/Mac_OS
 
 ## libtinyfiledialogs
