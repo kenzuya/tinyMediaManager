@@ -83,6 +83,10 @@ public class IconManager {
   public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(53, 36), true);
   public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_LETTERBOXD            = createSVGIcon("rating-letterboxd.svg", new Dimension(53,36),true);
+  public static final ImageIcon              RATING_MAL                   = createSVGIcon("rating-myanimelist.svg", new Dimension(53,36),true);
+  public static final ImageIcon              RATING_ROGEREBERT            = createSVGIcon("rating-roger_ebert.svg", new Dimension(53,36),true);
+
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");

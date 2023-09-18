@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.tmdb.entities.Media;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 
@@ -108,14 +109,35 @@ public class RatingPanel extends JPanel {
       add(new RatingContainer(rating));
     }
 
-    // 6. the custom rating (if it has not been added yet)
+    // 8. Letterboxd rating
+    rating = ratings.get(MediaMetadata.LETTERBOXD);
+    if (rating != null) {
+      addedRatings.add(rating);
+      add(new RatingContainer(rating));
+    }
+
+    // 9. MyAnimeList rating
+    rating = ratings.get(MediaMetadata.MAL);
+    if (rating != null) {
+      addedRatings.add(rating);
+      add(new RatingContainer(rating));
+    }
+
+    // 10. Roger Ebert rating
+    rating = ratings.get(MediaMetadata.ROGER_EBERT);
+    if (rating != null) {
+      addedRatings.add(rating);
+      add(new RatingContainer(rating));
+    }
+
+    // 11. the custom rating (if it has not been added yet)
     rating = ratings.get("custom");
     if (rating != null && !addedRatings.contains(rating)) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));
     }
 
-    // 7. last but not least NFO/Default if none has been added yet
+    // 12. last but not least NFO/Default if none has been added yet
     if (addedRatings.isEmpty()) {
       rating = ratings.get(MediaRating.DEFAULT);
       if (rating == null) {
@@ -127,7 +149,7 @@ public class RatingPanel extends JPanel {
       }
     }
 
-    // 8. no one added yet? just add the empty rating logo
+    // 13. no one added yet? just add the empty rating logo
     if (addedRatings.isEmpty()) {
       add(new RatingContainer(MediaMetadata.EMPTY_RATING));
     }
@@ -178,6 +200,21 @@ public class RatingPanel extends JPanel {
 
         case MediaMetadata.TRAKT_TV:
           logo = new JLabel(IconManager.RATING_TRAKTTV);
+          value = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
+        case MediaMetadata.LETTERBOXD:
+          logo = new JLabel(IconManager.RATING_LETTERBOXD);
+          value = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
+        case MediaMetadata.MAL:
+          logo = new JLabel(IconManager.RATING_MAL);
+          value = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
+        case MediaMetadata.ROGER_EBERT:
+          logo = new JLabel(IconManager.RATING_ROGEREBERT);
           value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 

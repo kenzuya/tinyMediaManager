@@ -48,7 +48,10 @@ public class RatingProvider {
     METACRITIC("Metacritic"),
     ROTTEN_TOMATOES_TOMATOMETER("Rotten Tomatoes - Tomatometer"),
     ROTTEN_TOMATOES_AVG_RATING("Rotten Tomatoes - Audience Score"),
-    TRAKT_TV("Trakt.tv");
+    TRAKT_TV("Trakt.tv"),
+    LETTERBOXD("Letterboxd"),
+    MAL("MyAnimeList"),
+    ROGER_EBERT("RogerEbert.com");
 
     private final String title;
 
@@ -108,6 +111,10 @@ public class RatingProvider {
     return null;
   }
 
+  public static List<MediaRating> getRatingsFromMdbList(Map<String, Object> ids) {
+    return new MdbListRating().getRatings(ids);
+  }
+
   /**
    * get a {@link List} of all supported rating sources
    * 
@@ -152,6 +159,19 @@ public class RatingProvider {
       }
     }
 
+    if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
+            RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.LETTERBOXD,RatingSource.MAL, RatingSource.ROGER_EBERT)) {
+      List<MediaRating> ratingsFromMdblist = new MdbListRating().getRatings(ids);
+
+      for (MediaRating rating : ratingsFromMdblist) {
+        RatingSource source = parseRatingSource(rating.getId());
+        if (missingRatings.contains(source) && !ratings.contains(rating)) {
+          ratings.add(rating);
+          missingRatings.remove(source);
+        }
+      }
+    }
+
     // Metacritic can be fetched from the IMDB scraper
     if (missingRatings.contains(RatingSource.METACRITIC)) {
       callScraper(MediaMetadata.IMDB, mediaType, missingRatings, ids, ratings);
@@ -159,13 +179,13 @@ public class RatingProvider {
 
     // OMDB offers Rotten Tomatoes
     if (ListUtils.containsAny(missingRatings, RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.ROTTEN_TOMATOES_AVG_RATING)
-        && MediaIdUtil.isValidImdbId(imdbId)) {
+            && MediaIdUtil.isValidImdbId(imdbId)) {
       callScraper("omdbapi", mediaType, missingRatings, ids, ratings);
     }
 
     // Wikidata offers Metacritic, Rotten Tomatoes and IMDB
     if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
-        RatingSource.ROTTEN_TOMATOES_AVG_RATING) && MediaIdUtil.isValidImdbId(imdbId)) {
+            RatingSource.ROTTEN_TOMATOES_AVG_RATING) && MediaIdUtil.isValidImdbId(imdbId)) {
       List<MediaRating> ratingsFromWikidata = new WikidataRating().getRatings(imdbId);
 
       for (MediaRating rating : ratingsFromWikidata) {
@@ -193,7 +213,7 @@ public class RatingProvider {
   private static void callScraper(String scraperId, MediaType mediaType, List<RatingSource> sources, Map<String, Object> ids,
       List<MediaRating> ratings) {
     MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, MediaType.getScraperTypeForMediaType(mediaType));
-    if (scraper != null && scraper.getMediaProvider()instanceof IRatingProvider ratingProvider && scraper.isEnabled()) {
+    if (scraper != null && scraper.getMediaProvider() instanceof IRatingProvider ratingProvider && scraper.isEnabled()) {
       try {
         List<MediaRating> ratingsFromScraper = ratingProvider.getRatings(ids, mediaType);
 
@@ -237,6 +257,9 @@ public class RatingProvider {
       case "tomatometerallcritics" -> RatingSource.ROTTEN_TOMATOES_TOMATOMETER;
       case "tomatometeravgcritics" -> RatingSource.ROTTEN_TOMATOES_AVG_RATING;
       case "trakt" -> RatingSource.TRAKT_TV;
+      case "letterboxd" -> RatingSource.LETTERBOXD;
+      case "myanimelist" -> RatingSource.MAL;
+      case "rogerebert" ->RatingSource.ROGER_EBERT;
       default -> null;
     };
   }
@@ -256,6 +279,9 @@ public class RatingProvider {
       case ROTTEN_TOMATOES_TOMATOMETER -> "tomatometerallcritics";
       case ROTTEN_TOMATOES_AVG_RATING -> "tomatometeravgcritics";
       case TRAKT_TV -> "trakt";
+      case LETTERBOXD -> "letterboxd";
+      case MAL -> "myanimelist";
+      case ROGER_EBERT -> "rogerebert";
     };
   }
 }
