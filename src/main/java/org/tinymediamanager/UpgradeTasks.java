@@ -44,11 +44,13 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -301,6 +303,10 @@ public class UpgradeTasks {
           LOGGER.warn("Could not move launcher-extra.yml from {} to {}", wrongExtra, correctExtra);
         }
       }
+
+      // remove LOGO from check artwork
+      MovieModuleManager.getInstance().getSettings().removeMovieCheckArtwork(MovieScraperMetadataConfig.LOGO);
+      TvShowModuleManager.getInstance().getSettings().removeTvShowCheckArtwork(TvShowScraperMetadataConfig.LOGO);
     }
   }
 

@@ -731,6 +731,12 @@ public final class MovieSettings extends AbstractSettings {
     }
   }
 
+  public void removeMovieCheckArtwork(MovieScraperMetadataConfig config) {
+    if (movieCheckArtwork.remove(config)) {
+      firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
+    }
+  }
+
   public void setMovieDisplayAllMissingArtwork(boolean newValue) {
     boolean oldValue = movieDisplayAllMissingArtwork;
     movieDisplayAllMissingArtwork = newValue;

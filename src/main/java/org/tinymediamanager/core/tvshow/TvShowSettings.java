@@ -341,7 +341,6 @@ public final class TvShowSettings extends AbstractSettings {
     addShowSeasonArtworkTypes(MediaFileType.SEASON_BANNER);
 
     showEpisodeArtworkTypes.clear();
-    addShowEpisodeArtworkTypes(MediaFileType.SEASON_POSTER);
     addShowEpisodeArtworkTypes(MediaFileType.THUMB);
 
     tvShowCheckMetadata.clear();
@@ -1472,6 +1471,12 @@ public final class TvShowSettings extends AbstractSettings {
   public void addTvShowCheckArtwork(TvShowScraperMetadataConfig config) {
     if (!tvShowCheckArtwork.contains(config)) {
       tvShowCheckArtwork.add(config);
+      firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
+    }
+  }
+
+  public void removeTvShowCheckArtwork(TvShowScraperMetadataConfig config) {
+    if (tvShowCheckArtwork.remove(config)) {
       firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
     }
   }
