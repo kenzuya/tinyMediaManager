@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * The Class Globals. used to hold global information/fields for the whole application
@@ -177,6 +178,11 @@ public final class Globals {
   public static boolean isSelfUpdatable() {
     // env param -Dtmm.noupdate=true has been set
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      return false;
+    }
+
+    // no on macOS (would destroy the signature)
+    if (SystemUtils.IS_OS_MAC) {
       return false;
     }
 
