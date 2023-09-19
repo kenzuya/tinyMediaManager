@@ -2,6 +2,7 @@ package org.tinymediamanager.core.movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.tinymediamanager.core.movie.MovieEdition.COLLECTORS_EDITION;
+import static org.tinymediamanager.core.movie.MovieEdition.CRITERION_COLLECTION;
 import static org.tinymediamanager.core.movie.MovieEdition.DIRECTORS_CUT;
 import static org.tinymediamanager.core.movie.MovieEdition.EXTENDED_EDITION;
 import static org.tinymediamanager.core.movie.MovieEdition.FINAL_CUT;
@@ -81,6 +82,11 @@ public class MovieEditionTest extends BasicMovieTest {
     // PLEX filename style
     assertThat(parse("Boomerang.1992.Incl.{edition-My cool Edition}.DVDRip.x264-xyz").getName().equals("My cool Edition"));
     assertThat(parse("Boomerang.1992.Incl.{edition-Theatrical Cut}.DVDRip.x264-xyz")).isEqualTo(THEATRICAL_EDITION);
+
+    // CRITERION Collection
+    assertThat(parse("some.movie name.1977.criterion.iNTERNAL.1080p.BluRay.x264-EwDp")).isEqualTo(CRITERION_COLLECTION);
+    assertThat(parse("some.movie name.1977.criterion.edition-iNTERNAL.1080p.BluRay.x264-EwDp")).isEqualTo(CRITERION_COLLECTION);
+    assertThat(parse("some.movie name.1977.criterion-collection-iNTERNAL.1080p.BluRay.x264-EwDp")).isEqualTo(CRITERION_COLLECTION);
 
     // NORMAL
     assertThat(parse("Boomerang.1992.Incl.Directors.Commentary.DVDRip.x264-xyz")).isEqualTo(NONE);

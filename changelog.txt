@@ -38,6 +38,7 @@ Version 5.0
 + added locked filter for movies and tv shows
 + added bulk edit option for "Date Added" (movies / tv-shows) #2013
 + added HFR(Higher Frame Rate) Logo if mediafile has more or equal 48 fps #1376
++ added "Criterion Collection" as known edition #2295
 x fixed displaying missing season metadata #2238
 x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
