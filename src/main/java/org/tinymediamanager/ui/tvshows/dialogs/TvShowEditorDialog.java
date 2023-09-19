@@ -410,6 +410,8 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), POSTER,
                 tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
 
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -551,6 +553,8 @@ public class TvShowEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BACKGROUND,
                 tvShowList.getDefaultArtworkScrapers(), lblFanart, MediaType.TV_SHOW);
+
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
 
             dialog.bindExtraFanarts(extrafanarts);
 
@@ -750,6 +754,8 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARLOGO,
                 tvShowList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.TV_SHOW);
 
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -785,6 +791,8 @@ public class TvShowEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
                 tvShowList.getDefaultArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
+
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -822,6 +830,8 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
                 tvShowList.getDefaultArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
 
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -857,6 +867,8 @@ public class TvShowEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BANNER,
                 tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
+
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -895,6 +907,8 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), THUMB,
                 tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
 
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -930,6 +944,8 @@ public class TvShowEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CHARACTERART,
                 tvShowList.getDefaultArtworkScrapers(), lblCharacterart, MediaType.TV_SHOW);
+
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());

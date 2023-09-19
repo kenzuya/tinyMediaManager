@@ -232,7 +232,7 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       // not anymore - keep url, and just exchange the fanart to /preview/ (Discord Feb 2022)
       ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/"));
 
-      if ("OO".equals(image.lang)) {
+      if ("00".equals(image.lang) || StringUtils.isBlank(image.lang)) {
         // no text
         ma.setLanguage("-");
       }

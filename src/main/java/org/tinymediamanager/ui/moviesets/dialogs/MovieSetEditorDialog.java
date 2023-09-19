@@ -69,6 +69,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -173,6 +174,11 @@ public class MovieSetEditorDialog extends TmmDialog {
         public void mouseClicked(MouseEvent e) {
           ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), POSTER, artworkScrapers, lblPoster,
               MediaType.MOVIE_SET);
+
+          dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+          MediaArtwork.PosterSizes posterSize = MovieModuleManager.getInstance().getSettings().getImagePosterSize();
+          dialog.setImageSizeFilter(posterSize.getWidth(), posterSize.getHeight());
+
           dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblPoster, tfPoster);
@@ -241,6 +247,11 @@ public class MovieSetEditorDialog extends TmmDialog {
         public void mouseClicked(MouseEvent e) {
           ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), BACKGROUND, artworkScrapers, lblFanart,
               MediaType.MOVIE_SET);
+
+          dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+          MediaArtwork.FanartSizes fanartSizes = MovieModuleManager.getInstance().getSettings().getImageFanartSize();
+          dialog.setImageSizeFilter(fanartSizes.getWidth(), fanartSizes.getHeight());
+
           dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblFanart, tfFanart);
@@ -298,6 +309,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), CLEARLOGO,
                   movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE_SET);
+
+              dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblClearlogo, tfClearLogo);
@@ -329,6 +343,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), BANNER,
                   movieList.getDefaultArtworkScrapers(), lblBanner, MediaType.MOVIE_SET);
+
+              dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblBanner, tfBanner);
@@ -359,6 +376,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), CLEARART,
                   movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE_SET);
+
+              dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblClearart, tfClearArt);
@@ -390,6 +410,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), THUMB,
                   movieList.getDefaultArtworkScrapers(), lblThumb, MediaType.MOVIE_SET);
+
+              dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblThumb, tfThumb);
@@ -420,6 +443,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), DISC, movieList.getDefaultArtworkScrapers(),
                   lblDisc, MediaType.MOVIE_SET);
+
+              dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblDisc, tfDisc);

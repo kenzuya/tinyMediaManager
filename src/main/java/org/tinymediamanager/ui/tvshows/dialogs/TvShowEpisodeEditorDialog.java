@@ -387,6 +387,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
                 lblThumb, MediaType.TV_EPISODE);
 
+            dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(episodeToEdit.getPathNIO().toAbsolutePath().toString());
             }

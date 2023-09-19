@@ -72,17 +72,21 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum PosterSizes {
-    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~2000x3000px", 16),
-    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1000x1500px", 8),
-    BIG(TmmResourceBundle.getString("Settings.image.big") + ": ~500x750px", 4),
-    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~342x513px", 2),
-    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~185x277px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 2000, 3000, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1000, 1500, 8),
+    BIG(TmmResourceBundle.getString("Settings.image.big"), 500, 750, 4),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 342, 513, 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 185, 278, 1);
 
     private final String text;
+    private final int width;
+    private final int height;
     private final int    order;
 
-    PosterSizes(String text, int order) {
-      this.text = text;
+    PosterSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
       this.order = order;
     }
 
@@ -93,6 +97,14 @@ public class MediaArtwork {
 
     public int getOrder() {
       return order;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
     }
   }
 
@@ -103,16 +115,20 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum FanartSizes {
-    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~3840x2160px", 16),
-    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1920x1080px", 8),
-    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~1280x720px", 2),
-    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~300x168px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 3840, 2160, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1920, 1080, 8),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 1280, 720, 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
 
     private final String text;
+    private final int width;
+    private final int height;
     private final int    order;
 
-    FanartSizes(String text, int order) {
-      this.text = text;
+    FanartSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
       this.order = order;
     }
 
@@ -123,6 +139,14 @@ public class MediaArtwork {
 
     public int getOrder() {
       return order;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
     }
   }
 

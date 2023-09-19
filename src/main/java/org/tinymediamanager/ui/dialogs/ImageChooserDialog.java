@@ -169,7 +169,7 @@ public class ImageChooserDialog extends TmmDialog {
    * @param imageLabel
    *          the image label
    * @param mediaType
-   *          the media for for which artwork has to be chosen
+   *          the media for which artwork has to be chosen
    */
   public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
       ImageLabel imageLabel, MediaType mediaType) {
@@ -722,6 +722,9 @@ public class ImageChooserDialog extends TmmDialog {
     // and add them in the right order
     List<MediaLanguages> newValues = new ArrayList<>();
 
+    // add none in the front - this will come from MediaLanguages.valuesSorted()
+    newValues.add(MediaLanguages.none);
+
     for (MediaLanguages mediaLanguages : MediaLanguages.valuesSorted()) {
       if (allItems.contains(mediaLanguages)) {
         newValues.add(mediaLanguages);
@@ -791,6 +794,7 @@ public class ImageChooserDialog extends TmmDialog {
 
           for (MediaLanguages mediaLanguages : cbLanguage.getSelectedItems()) {
             if (mediaLanguages == MediaLanguages.none) {
+              languages.add("-");
               languages.add("");
             }
             else {
@@ -900,6 +904,31 @@ public class ImageChooserDialog extends TmmDialog {
       }
     };
     task.run();
+  }
+
+  /**
+   * pre-set the artwork size filter to initially show only a part of the results
+   *
+   * @param width  the image width
+   * @param height the image height
+   */
+  public void setImageSizeFilter(int width, int height) {
+    ImageSizeAndUrl imageSizeAndUrl = new ImageSizeAndUrl(width, height, "");
+    List<ImageSizeAndUrl> items = new ArrayList<>();
+    items.add(imageSizeAndUrl);
+    cbSize.setItems(items);
+    cbSize.setSelectedItems(items);
+  }
+
+  /**
+   * pre-set the language filter to initially show only a part of the results
+   *
+   * @param languages the languages
+   */
+  public void setImageLanguageFilter(List<MediaLanguages> languages) {
+    List<MediaLanguages> items = new ArrayList<>(languages);
+    cbLanguage.setItems(items);
+    cbLanguage.setSelectedItems(items);
   }
 
   /**
