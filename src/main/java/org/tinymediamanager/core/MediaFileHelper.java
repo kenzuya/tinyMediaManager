@@ -3131,14 +3131,31 @@ public class MediaFileHelper {
         }
         if (hicc) {
           if (!language.equalsIgnoreCase("hi")) {
-            // we found them, but it is not langu - remove from title
+
+            // remove CC
+            int poscc = chunks.indexOf("cc");
+            if (poscc > 0 && poscc < languageIndex) {
+              languageIndex--; // just decrement by one, since we removed a former tag
+            }
             chunks.remove("cc");
+
+            // remove HI
+            int poshi = chunks.indexOf("hi");
+            if (poshi > 0 && poshi < languageIndex) {
+              languageIndex--; // just decrement by one, since we removed a former tag
+            }
             chunks.remove("hi");
+
+            // set flag
             flags.add(Flags.FLAG_HEARING_IMPAIRED);
+
+            languageIndex++; // increment index to be after langu
           }
           else {
             // HI langu
-            if (chunks.indexOf("cc") > languageIndex) {
+            chunks.remove("hi");
+            if (chunks.indexOf("cc") >= languageIndex) {
+              languageIndex = chunks.indexOf("cc"); // for title
               // CC is no language code, but a country!
               // if CC present and AFTER language, it is a flag to be removed.
               // if it is BEFORE language, it might be from filename/movie title - keep
@@ -3147,9 +3164,15 @@ public class MediaFileHelper {
             }
           }
         }
-        if (languageIndex > 0 && languageIndex < chunks.size() - 1) {
+        else {
+          // no hicc found - increment to next pos
+          if (languageIndex > 0) {
+            languageIndex++;
+          }
+        }
+        if (languageIndex > 0 && languageIndex < chunks.size()) {
           // the language index was not the last chunk. Save the part between the language index and the last chunk as title
-          title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+          title = String.join(" ", chunks.subList(languageIndex, chunks.size()));
         }
       }
     }

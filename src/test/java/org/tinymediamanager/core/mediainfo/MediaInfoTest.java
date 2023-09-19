@@ -526,8 +526,8 @@ public class MediaInfoTest extends BasicTest {
 
   private void check(String basename, String expectedLanguage, String expectedTitle) {
     MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(basename);
-    assertThat(info.getLanguage()).isEqualTo(expectedLanguage);
-    assertThat(info.getTitle()).isEqualTo(expectedTitle);
+    assertThat(expectedLanguage).isEqualTo(info.getLanguage());
+    assertThat(expectedTitle).isEqualTo(info.getTitle());
   }
 
   @Test
