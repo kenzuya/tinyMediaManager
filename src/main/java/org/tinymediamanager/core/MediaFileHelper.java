@@ -3147,7 +3147,7 @@ public class MediaFileHelper {
             }
           }
         }
-        if (languageIndex < chunks.size() - 1) {
+        if (languageIndex > 0 && languageIndex < chunks.size() - 1) {
           // the language index was not the last chunk. Save the part between the language index and the last chunk as title
           title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
         }
