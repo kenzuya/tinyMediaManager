@@ -1924,7 +1924,8 @@ public class MediaFileHelper {
         sub.setLanguage(file.getLanguage());
       }
     }
-    if (sub.getTitle().isEmpty()) {
+    // only set filename detected "title" on external file!
+    if (mediaFile.getType() == MediaFileType.SUBTITLE && sub.getTitle().isEmpty()) {
       sub.setTitle(file.getTitle());
     }
     sub.set(file.getFlags());
@@ -2204,7 +2205,8 @@ public class MediaFileHelper {
         audio.setLanguage(info.getLanguage());
       }
 
-      if (StringUtils.isBlank(audio.getTitle())) {
+      // only set filename detected "title" on external file!
+      if (mediaFile.getType() == MediaFileType.AUDIO && StringUtils.isBlank(audio.getTitle())) {
         audio.setTitle(info.getTitle());
       }
     }
@@ -3123,6 +3125,12 @@ public class MediaFileHelper {
         int languageIndex = 0;
         // parse forward, since language is more significant
         for (int i = 0; i < chunks.size(); i++) {
+          if (chunks.get(i).equalsIgnoreCase("und")) {
+            // we need to keep "und" as undefined, but valid language within our array.
+            // but we must ignore that at some places, since this is a very common German word
+            // FIXME: there are more tokens, like "xxx Die_Tam-Turbulenzen.mp4 -> tam no langu!
+            continue;
+          }
           language = LanguageUtils.findLanguageInString(chunks.get(i));
           if (StringUtils.isNotBlank(language)) {
             languageIndex = i;
