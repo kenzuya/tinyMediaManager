@@ -916,7 +916,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setTvShow(tvShow);
 
                 if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-                  episode.setMediaSource(MediaSource.parseMediaSource(vid.getFilename()));
+                  episode.setMediaSource(MediaSource.parseMediaSource(vid.getBasename()));
                 }
                 episode.setNewlyAdded(true);
 
@@ -982,7 +982,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
                 if (episodeBasenameWoStackingMarker.equals(mfBasenameWoStackingMarker)) {
                   if (ep.getMediaSource() == MediaSource.UNKNOWN) {
-                    ep.setMediaSource(MediaSource.parseMediaSource(ep.getMainVideoFile().getFilename()));
+                    ep.setMediaSource(MediaSource.parseMediaSource(ep.getMainVideoFile().getBasename()));
                   }
 
                   ep.setNewlyAdded(true);
@@ -1039,7 +1039,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-                episode.setMediaSource(MediaSource.parseMediaSource(vid.getFilename()));
+                episode.setMediaSource(MediaSource.parseMediaSource(vid.getBasename()));
               }
               episode.setNewlyAdded(true);
 
@@ -1128,7 +1128,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             if (episode.getMediaSource() == MediaSource.UNKNOWN) {
-              episode.setMediaSource(MediaSource.parseMediaSource(vid.getFilename()));
+              episode.setMediaSource(MediaSource.parseMediaSource(vid.getBasename()));
             }
             episode.setNewlyAdded(true);
 
