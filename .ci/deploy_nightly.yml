@@ -92,7 +92,7 @@ deploy-docker-amd64:
       --context "${CI_PROJECT_DIR}/target/docker" \
       --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
       --custom-platform=linux/amd64/ \
-      --destination "${IMAGE_NAME}:4-nightly-amd64"
+      --destination "${IMAGE_NAME}:5-nightly-amd64"
 
     #--destination "${IMAGE_NAME}:${$VERSION}" \
 
@@ -123,7 +123,7 @@ deploy-docker-arm64:
       --context "${CI_PROJECT_DIR}/target/docker" \
       --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
       --custom-platform=linux/arm64/ \
-      --destination "${IMAGE_NAME}:4-nightly-arm64"
+      --destination "${IMAGE_NAME}:5-nightly-arm64"
 
     #--destination "${IMAGE_NAME}:${$VERSION}" \
 
@@ -146,11 +146,11 @@ deploy-docker:
     # create the manifest for multiarch tag
     - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
       --platforms linux/amd64,linux/arm64
-      --template tinymediamanager/tinymediamanager:4-nightly-ARCH
-      --target tinymediamanager/tinymediamanager:4-nightly
+      --template tinymediamanager/tinymediamanager:5-nightly-ARCH
+      --target tinymediamanager/tinymediamanager:5-nightly
     - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
       --platforms linux/amd64,linux/arm64
-      --template tinymediamanager/tinymediamanager:4-nightly-ARCH
+      --template tinymediamanager/tinymediamanager:5-nightly-ARCH
       --target tinymediamanager/tinymediamanager:latest-nightly
 
 deploy:
