@@ -21,6 +21,7 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -532,9 +533,13 @@ public abstract class YTDownloadTask extends TmmTask {
 
         }
         rangeStart = rangeStart + chunkSize + 1;
-
       }
       Utils.flushFileOutputStreamToDisk(fileOutputStream);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (writing trailer) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
     }
 
     return outputFile;

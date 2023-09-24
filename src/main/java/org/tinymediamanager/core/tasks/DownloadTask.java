@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -267,6 +268,11 @@ public abstract class DownloadTask extends TmmTask {
           }
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (trailer download) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
     }
 
     // we must not close the input stream on cancel(the rest will be downloaded if we close it on cancel)

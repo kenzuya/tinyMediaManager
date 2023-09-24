@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -358,6 +359,11 @@ public class ImageUtils {
 
       // give it a few milliseconds to finish writing on the file system
       Thread.sleep(150);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (download artwork) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
     }
     finally {
       // remove temp file
