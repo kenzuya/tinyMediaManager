@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -72,7 +73,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -574,7 +574,7 @@ public class Utils {
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
-    List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
+    List<String> toFilter = list.stream().filter(StringUtils::isBlank).toList();
     list.removeAll(toFilter);
   }
 
@@ -672,7 +672,7 @@ public class Utils {
         throw new FileNotFoundException("Source '{}" + srcDir + "' does not exist, or is not a directory"); // NOSONAR
       }
       if (Files.exists(destDir) && !Files.isSameFile(destDir, srcDir)) {
-        // extra check for Windows/OSX, where the File.equals is case insensitive
+        // extra check for Windows/OSX, where the File.equals is case-insensitive
         // so we know now, that the Dir is the same, but the absolute name does not match
         throw new FileExistsException("Destination '" + destDir + "' already exists"); // NOSONAR
       }
@@ -681,6 +681,10 @@ public class Utils {
         // NULL parent means, that we just have one relative folder like Paths.get("bla") - no need to create anything
         try {
           Files.createDirectories(destDir.getParent());
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (create folder) - '{}'", e.getMessage());
+          // but we try a move anyway...
         }
         catch (Exception e) {
           LOGGER.error("could not create directory structure {}", destDir.getParent());
@@ -695,6 +699,10 @@ public class Utils {
           // need atomic fs move for changing cASE
           Files.move(srcDir, destDir, StandardCopyOption.ATOMIC_MOVE);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+          break;
         }
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that; original documentation
@@ -727,6 +735,10 @@ public class Utils {
             // delete source files
             Utils.deleteDirectoryRecursive(srcDir);
             rename = true;
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("rename problem (fallback): {}", e.getMessage()); // NOSONAR
@@ -837,6 +849,10 @@ public class Utils {
           // need atomic fs move for changing cASE
           Files.move(srcFile, destFile, StandardCopyOption.ATOMIC_MOVE);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (move file) - '{}'", e.getMessage());
+          break;
         }
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that
@@ -845,6 +861,10 @@ public class Utils {
             fixDateAttributes(srcFile, destFile);
             Files.delete(srcFile);
             rename = true; // no exception
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (move file) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("rename problem (fallback): '{}' - '{}'", e.getClass().getSimpleName(), e.getMessage()); // NOSONAR
@@ -958,6 +978,10 @@ public class Utils {
           Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
           fixDateAttributes(srcFile, destFile);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (copy file) - '{}'", e.getMessage());
+          break;
         }
         catch (UnsupportedOperationException u) {
           // maybe copy with attributes does not work here (across file systems), just try without file attributes
@@ -966,6 +990,10 @@ public class Utils {
             Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(srcFile, destFile);
             rename = true;// no exception
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (copy file) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("copy did not work (fallback): {}", e.getMessage());
@@ -1033,7 +1061,7 @@ public class Utils {
         return false;
       }
 
-      // check if the file exists; if it does not exist any more we won't need to delete it ;)
+      // check if the file exists; if it does not exist anymore we won't need to delete it ;)
       if (!Files.exists(file)) {
         // this file is no more here - just return "true"
         return true;
@@ -1048,6 +1076,9 @@ public class Utils {
         if (!Files.exists(backup.resolve(".nomedia"))) {
           Files.createFile(backup.resolve(".nomedia"));
         }
+      } catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (create folder) - '{}'", e.getMessage());
       }
       catch (Exception e) {
         // ignore
@@ -1063,6 +1094,10 @@ public class Utils {
         // overwrite backup file by deletion prior
         Files.deleteIfExists(backup);
         return moveFileSafe(file, backup);
+      } catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (delete file) - '{}'", e.getMessage());
+        return false;
       }
       catch (IOException e) {
         LOGGER.warn("Could not delete file: {}", e.getMessage());
@@ -1087,6 +1122,10 @@ public class Utils {
     }
     try {
       Files.deleteIfExists(file);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete file) - '{}'", e.getMessage());
+      return false;
     }
     catch (Exception e) {
       LOGGER.warn("Could not delete file: {}", e.getMessage());
@@ -1128,6 +1167,9 @@ public class Utils {
       if (!Files.exists(backup.resolve(".nomedia"))) {
         Files.createFile(backup.resolve(".nomedia"));
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       // ignore
@@ -1145,6 +1187,10 @@ public class Utils {
       // overwrite backup file by deletion prior
       // deleteDirectoryRecursive(backup); // we timestamped our folder - no need for it
       return moveDirectorySafe(folder, backup);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+      return false;
     }
     catch (IOException e) {
       LOGGER.warn("could not delete directory: {}", e.getMessage());
@@ -1305,6 +1351,9 @@ public class Utils {
       if (!Files.exists(backup) || overwrite) {
         createZip(backup, file); // just put in main dir
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (create backup file) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("Could not backup file {}: {}", file, e.getMessage());
@@ -1330,6 +1379,9 @@ public class Utils {
           al.add(path);
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (listing old backups) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("could not list files from the backup folder: {}", e.getMessage());
@@ -1400,32 +1452,39 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<>() {
+    try {
+      Files.walkFileTree(dir, new FileVisitor<>() {
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        Files.delete(dir);
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+          Files.delete(dir);
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        Files.delete(file);
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          Files.delete(file);
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        LOGGER.warn("Could not delete {} - {}", file, exc.getMessage());
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+          LOGGER.warn("Could not delete {} - {}", file, exc.getMessage());
+          return FileVisitResult.CONTINUE;
+        }
 
-    });
+      });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete complete directory) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
+    }
   }
 
   /**
@@ -1441,31 +1500,38 @@ public class Utils {
     }
 
     LOGGER.info("Deleting empty directories in: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<>() {
+    try {
+      Files.walkFileTree(dir, new FileVisitor<>() {
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        if (isFolderEmpty(dir)) {
-          Files.delete(dir);
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+          if (isFolderEmpty(dir)) {
+            Files.delete(dir);
+          }
+          return FileVisitResult.CONTINUE;
         }
-        return FileVisitResult.CONTINUE;
-      }
 
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        return FileVisitResult.CONTINUE;
-      }
-    });
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete empty directories) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
+    }
   }
 
   /**
@@ -1479,6 +1545,11 @@ public class Utils {
   public static boolean isFolderEmpty(final Path folder) throws IOException {
     try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder)) {
       return !dirStream.iterator().hasNext();
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (checking for empty folders) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
     }
   }
 
@@ -1512,6 +1583,9 @@ public class Utils {
         archive.closeArchiveEntry();
       }
       archive.finish();
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (creating .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1543,7 +1617,6 @@ public class Utils {
    *          the name of the zip file to extract
    * @param destDir
    *          the directory to unzip to
-   * @throws IOException
    */
   public static void unzip(final Path zipFile, final Path destDir) {
     Map<String, String> env = new HashMap<>();
@@ -1589,6 +1662,9 @@ public class Utils {
           }
         });
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (extracting .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1645,6 +1721,9 @@ public class Utils {
           }
         });
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (extracting .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1662,17 +1741,19 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static void writeStringToFile(Path file, String text) throws IOException {
-    // pre-delete existing file. this will be needed for CaSe insensitive file systems, because truncating the existing one may result to a false
-    // filename
     try {
+      // pre-delete existing file. this will be needed for CaSe insensitive file systems,
+      // because truncating the existing one may result to a false filename
       Files.deleteIfExists(file);
-    }
-    catch (Exception e) {
-      LOGGER.debug("could not delete existing file - '{}'", e.getMessage());
-    }
 
-    // write the file
-    Files.writeString(file, text);
+      // write the file
+      Files.writeString(file, text);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete/write file) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1685,8 +1766,14 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static String readFileToString(Path file) throws IOException {
-    byte[] fileArray = Files.readAllBytes(file);
-    return new String(fileArray, StandardCharsets.UTF_8);
+    try {
+      return Files.readString(file);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1701,7 +1788,14 @@ public class Utils {
    */
   public static void copyDirectoryRecursive(Path from, Path to) throws IOException {
     LOGGER.info("Copying complete directory from {} to {}", from, to);
-    Files.walkFileTree(from, new CopyFileVisitor(to));
+    try {
+      Files.walkFileTree(from, new CopyFileVisitor(to));
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (copy directory) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1729,6 +1823,9 @@ public class Utils {
           }
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete old logs) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.debug("could not clean old logs: {}", e.getMessage());
@@ -1741,7 +1838,6 @@ public class Utils {
     for (int i = 0; i < traces.size() - 3; i++) {
       Utils.deleteFileSafely(traces.get(i));
     }
-
   }
 
   /**
@@ -1846,6 +1942,9 @@ public class Utils {
           filesFound.add(path);
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.warn("could not get a file listing: {}", e.getMessage());
@@ -1876,6 +1975,9 @@ public class Utils {
           return FileVisitResult.CONTINUE;
         }
       });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.warn("could not get a file listing: {}", e.getMessage());
@@ -1912,6 +2014,9 @@ public class Utils {
           })
           .sum();
 
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (calculate folder size) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.warn("Coule not get folder size: ", e);
@@ -1999,6 +2104,9 @@ public class Utils {
 
     try {
       Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("could not get unknown files: {}", e.getMessage());
@@ -2145,6 +2253,9 @@ public class Utils {
   public static void clearTempFolder() {
     try {
       deleteDirectoryRecursive(Paths.get(tempFolder));
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete temp folder) - '{}'", e.getMessage());
     }
     catch (Exception ignored) {
       // just ignore
