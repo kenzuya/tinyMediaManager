@@ -46,11 +46,6 @@ public class TmmGetdownResource extends Resource {
     if (unpack && _isZip) {
       _unpacked = _localNew.getParentFile();
     }
-    else if (unpack && _isPacked200Jar) {
-      String dotJar = ".jar", lname = _localNew.getName();
-      String uname = lname.substring(0, lname.lastIndexOf(dotJar) + dotJar.length());
-      _unpacked = new File(_localNew.getParent(), uname);
-    }
   }
 
   @Override
@@ -93,7 +88,7 @@ public class TmmGetdownResource extends Resource {
   @Override
   public void unpack() throws IOException {
     // sanity check
-    if (!_isZip && !_isPacked200Jar) {
+    if (!_isZip) {
       throw new IOException("Requested to unpack not supported archive file '" + _localNew + "'.");
     }
 
@@ -106,9 +101,6 @@ public class TmmGetdownResource extends Resource {
       try (ZipFile jar = new ZipFile(_localNew)) {
         FileUtil.unpackJar(jar, _unpacked, _attrs.contains(Attr.CLEAN));
       }
-    }
-    else if (_isPacked200Jar) {
-      FileUtil.unpackPacked200Jar(_localNew, _unpacked);
     }
   }
 }
