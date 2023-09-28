@@ -476,7 +476,7 @@ public abstract class ImdbParser {
       String json = doc.getElementById("__NEXT_DATA__").data();
       if (!json.isEmpty()) {
         JsonNode node = mapper.readTree(json);
-        JsonNode resultsNode = node.at("/props/pageProps/titleResults/results");
+        JsonNode resultsNode = JsonUtils.at(node, "/props/pageProps/titleResults/results");
 
         // check if we were redirected to detail page directly (when searching with id)
         if (resultsNode.isMissingNode()) {
@@ -905,9 +905,9 @@ public abstract class ImdbParser {
 
       // ***** REQ/RESP column *****
       String certCountry = "";
-      String responseLangu = node.at("/props/pageProps/requestContext/sidecar/localizationResponse/languageForTranslations").asText();
+      String responseLangu = JsonUtils.at(node, "/props/pageProps/requestContext/sidecar/localizationResponse/languageForTranslations").asText();
       if (responseLangu.isEmpty()) {
-        responseLangu = node.at("/props/pageProps/requestContext/sidecar/localizationResponse/userLanguage").asText();
+        responseLangu = JsonUtils.at(node, "/props/pageProps/requestContext/sidecar/localizationResponse/userLanguage").asText();
       }
       if (!responseLangu.isEmpty()) {
         Locale l = Locale.forLanguageTag(responseLangu);
@@ -915,31 +915,31 @@ public abstract class ImdbParser {
       }
 
       // ***** TOP column *****
-      md.setId(ImdbMetadataProvider.ID, node.at("/props/pageProps/aboveTheFoldData/id").asText());
-      md.setTitle(node.at("/props/pageProps/aboveTheFoldData/titleText/text").asText());
-      md.setOriginalTitle(node.at("/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
+      md.setId(ImdbMetadataProvider.ID, JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/id").asText());
+      md.setTitle(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/titleText/text").asText());
+      md.setOriginalTitle(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/originalTitleText/text").asText());
       if (md.getOriginalTitle().isEmpty()) {
         md.setOriginalTitle(md.getTitle());
       }
-      md.setYear(node.at("/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
+      md.setYear(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/releaseYear/year").asInt(0));
 
-      JsonNode plotNode = node.at("/props/pageProps/aboveTheFoldData/plot/plotText");
+      JsonNode plotNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/plot/plotText");
       ImdbPlaintext plot = JsonUtils.parseObject(mapper, plotNode, ImdbPlaintext.class);
       if (plot != null) {
         md.setPlot(plot.plainText);
       }
 
-      JsonNode releaseDateNode = node.at("/props/pageProps/aboveTheFoldData/releaseDate");
+      JsonNode releaseDateNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/releaseDate");
       ImdbReleaseDate relDate = JsonUtils.parseObject(mapper, releaseDateNode, ImdbReleaseDate.class);
       md.setReleaseDate(relDate.toDate());
 
-      md.setRuntime(node.at("/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+      md.setRuntime(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
 
-      JsonNode agg = node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
+      JsonNode agg = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
       if (!agg.isMissingNode()) {
         MediaRating rating = new MediaRating("imdb");
         rating.setRating(agg.floatValue());
-        rating.setVotes(node.at("/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
+        rating.setVotes(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
         rating.setMaxValue(10);
         if (rating.getRating() > 0) {
           md.addRating(rating);
@@ -947,7 +947,7 @@ public abstract class ImdbParser {
       }
       if (isScrapeMetacriticRatings()) {
         MediaRating rating = new MediaRating("metacritic");
-        rating.setRating(node.at("/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
+        rating.setRating(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
         rating.setMaxValue(100);
         if (rating.getRating() > 0) {
           md.addRating(rating);
@@ -955,27 +955,27 @@ public abstract class ImdbParser {
       }
 
       // skip certification for now because this probably returns the wrong certification
-      // JsonNode certNode = node.at("/props/pageProps/aboveTheFoldData/certificate");
+      // JsonNode certNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/certificate");
       // ImdbCertificate certificate = ImdbJsonHelper.parseObject(mapper, certNode, ImdbCertificate.class);
       // if (!certCountry.isEmpty() && certificate != null) {
       // md.addCertification(MediaCertification.getCertification(certCountry, certificate.rating));
       // // TODO: parse from reference page and add all?!
       // }
 
-      JsonNode genreNode = node.at("/props/pageProps/aboveTheFoldData/genres/genres");
+      JsonNode genreNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/genres/genres");
       for (ImdbGenre genre : JsonUtils.parseList(mapper, genreNode, ImdbGenre.class)) {
         md.addGenre(genre.toTmm());
       }
 
       if (isScrapeKeywordsPage()) {
-        JsonNode keywordsNode = node.at("/props/pageProps/aboveTheFoldData/keywords/edges");
+        JsonNode keywordsNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/keywords/edges");
         for (ImdbKeyword kw : JsonUtils.parseList(mapper, keywordsNode, ImdbKeyword.class)) {
           md.addTag(kw.node.text);
         }
       }
 
       // poster
-      JsonNode primaryImage = node.at("/props/pageProps/aboveTheFoldData/primaryImage");
+      JsonNode primaryImage = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/primaryImage");
       ImdbImage img = JsonUtils.parseObject(mapper, primaryImage, ImdbImage.class);
       if (img != null) {
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
@@ -990,7 +990,7 @@ public abstract class ImdbParser {
       }
 
       // primaryVideos for all trailers
-      JsonNode primaryTrailers = node.at("/props/pageProps/aboveTheFoldData/primaryVideos/edges");
+      JsonNode primaryTrailers = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/primaryVideos/edges");
       for (JsonNode vid : ListUtils.nullSafe(primaryTrailers)) {
         ImdbVideo video = JsonUtils.parseObject(mapper, vid.get("node"), ImdbVideo.class);
         for (ImdbPlaybackUrl vidurl : ListUtils.nullSafe(video.playbackURLs)) {
@@ -1009,17 +1009,17 @@ public abstract class ImdbParser {
         }
       }
 
-      // JsonNode ttype = node.at("/props/pageProps/aboveTheFoldData/titleType");
+      // JsonNode ttype = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/titleType");
       // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
 
-      JsonNode epNode = node.at("/props/pageProps/aboveTheFoldData/series/episodeNumber");
+      JsonNode epNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/series/episodeNumber");
       ImdbEpisodeNumber ep = JsonUtils.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
       if (ep != null) {
         md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.seasonNumber, ep.episodeNumber));
       }
 
       // ***** MAIN column *****
-      JsonNode titleMainImages = node.at("/props/pageProps/mainColumnData/titleMainImages/edges");
+      JsonNode titleMainImages = JsonUtils.at(node, "/props/pageProps/mainColumnData/titleMainImages/edges");
       for (JsonNode fanart : ListUtils.nullSafe(titleMainImages)) {
         ImdbImage i = JsonUtils.parseObject(mapper, fanart.get("node"), ImdbImage.class);
         // only parse landscape ones as fanarts
@@ -1033,7 +1033,7 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode directorsNode = node.at("/props/pageProps/mainColumnData/directors");
+      JsonNode directorsNode = JsonUtils.at(node, "/props/pageProps/mainColumnData/directors");
       for (ImdbCredits directors : JsonUtils.parseList(mapper, directorsNode, ImdbCredits.class)) {
         for (ImdbCrew crew : directors.credits) {
           Person p = crew.toTmm(Person.Type.DIRECTOR);
@@ -1042,7 +1042,7 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode writersNode = node.at("/props/pageProps/mainColumnData/writers");
+      JsonNode writersNode = JsonUtils.at(node, "/props/pageProps/mainColumnData/writers");
       for (ImdbCredits writers : JsonUtils.parseList(mapper, writersNode, ImdbCredits.class)) {
         for (ImdbCrew crew : writers.credits) {
           Person p = crew.toTmm(Person.Type.WRITER);
@@ -1051,13 +1051,13 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode arr = node.at("/props/pageProps/mainColumnData/cast/edges");
+      JsonNode arr = JsonUtils.at(node, "/props/pageProps/mainColumnData/cast/edges");
       for (JsonNode actors : ListUtils.nullSafe(arr)) {
         ImdbCast c = JsonUtils.parseObject(mapper, actors.get("node"), ImdbCast.class);
         md.addCastMember(c.toTmm(Person.Type.ACTOR));
       }
 
-      JsonNode spokenNode = node.at("/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
+      JsonNode spokenNode = JsonUtils.at(node, "/props/pageProps/mainColumnData/spokenLanguages/spokenLanguages");
       for (ImdbIdTextType lang : JsonUtils.parseList(mapper, spokenNode, ImdbIdTextType.class)) {
         if (isScrapeLanguageNames()) {
           md.addSpokenLanguage(lang.text);
@@ -1067,7 +1067,7 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode countriesNode = node.at("/props/pageProps/mainColumnData/countriesOfOrigin/countries");
+      JsonNode countriesNode = JsonUtils.at(node, "/props/pageProps/mainColumnData/countriesOfOrigin/countries");
       for (ImdbCountry country : JsonUtils.parseList(mapper, countriesNode, ImdbCountry.class)) {
         if (isScrapeLanguageNames()) {
           md.addCountry(country.text);
@@ -1077,7 +1077,7 @@ public abstract class ImdbParser {
         }
       }
 
-      JsonNode prods = node.at("/props/pageProps/mainColumnData/production/edges");
+      JsonNode prods = JsonUtils.at(node, "/props/pageProps/mainColumnData/production/edges");
       for (JsonNode p : ListUtils.nullSafe(prods)) {
         md.addProductionCompany(p.at("/node/company/companyText/text").asText());
       }
@@ -1102,7 +1102,7 @@ public abstract class ImdbParser {
 
     String json = doc.getElementById("__NEXT_DATA__").data();
     JsonNode node = mapper.readTree(json);
-    JsonNode vidNode = node.at("/props/pageProps/videoPlaybackData/video");
+    JsonNode vidNode = JsonUtils.at(node, "/props/pageProps/videoPlaybackData/video");
     if (!vidNode.isMissingNode()) {
       ImdbVideo video = JsonUtils.parseObject(mapper, vidNode, ImdbVideo.class);
       for (ImdbPlaybackUrl vid : ListUtils.nullSafe(video.playbackURLs)) {
@@ -1540,7 +1540,7 @@ public abstract class ImdbParser {
       String json = doc.getElementById("__NEXT_DATA__").data();
       // System.out.println(json);
       JsonNode node = mapper.readTree(json);
-      JsonNode keywordsNode = node.at("/props/pageProps/contentData/section/items");
+      JsonNode keywordsNode = JsonUtils.at(node, "/props/pageProps/contentData/section/items");
       for (ImdbTitleKeyword kw : JsonUtils.parseList(mapper, keywordsNode, ImdbTitleKeyword.class)) {
         md.addTag(kw.rowTitle);
         counter++;
@@ -1894,7 +1894,7 @@ public abstract class ImdbParser {
       if (!json.isEmpty()) {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(json);
-        JsonNode chartNode = node.at("/props/pageProps/pageData/chartTitles/edges");
+        JsonNode chartNode = JsonUtils.at(node, "/props/pageProps/pageData/chartTitles/edges");
         for (ImdbChartTitleEdge ch : JsonUtils.parseList(mapper, chartNode, ImdbChartTitleEdge.class)) {
           titles.put(ch.node.id, ch.currentRank);
         }

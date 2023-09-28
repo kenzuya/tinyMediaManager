@@ -621,7 +621,7 @@ public class ImdbTvShowParser extends ImdbParser {
       ObjectMapper mapper = new ObjectMapper();
       JsonNode node = mapper.readTree(json);
 
-      JsonNode epListNode = node.at("/props/pageProps/contentData/section");
+      JsonNode epListNode = JsonUtils.at(node, "/props/pageProps/contentData/section");
       ImdbEpisodeList epList = JsonUtils.parseObject(mapper, epListNode, ImdbEpisodeList.class);
       return epList;
     }
