@@ -83,6 +83,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbReleaseDate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
+import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.JsonUtils;
@@ -1009,13 +1010,15 @@ public abstract class ImdbParser {
         }
       }
 
-      // JsonNode ttype = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/titleType");
-      // ImdbTitleType type = ImdbJsonHelper.parseObject(mapper, ttype, ImdbTitleType.class);
+      JsonNode ttype = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/titleType");
+      ImdbTitleType type = JsonUtils.parseObject(mapper, ttype, ImdbTitleType.class);
 
-      JsonNode epNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/series/episodeNumber");
-      ImdbEpisodeNumber ep = JsonUtils.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
-      if (ep != null) {
-        md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.seasonNumber, ep.episodeNumber));
+      if (type != null && type.isEpisode) {
+        JsonNode epNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/series/episodeNumber");
+        ImdbEpisodeNumber ep = JsonUtils.parseObject(mapper, epNode, ImdbEpisodeNumber.class);
+        if (ep != null) {
+          md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.seasonNumber, ep.episodeNumber));
+        }
       }
 
       // ***** MAIN column *****
