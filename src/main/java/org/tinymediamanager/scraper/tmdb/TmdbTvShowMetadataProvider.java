@@ -796,7 +796,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     // match by first aired
-    if (episodeMediaMetadata == null && options.getMetadata().getReleaseDate() != null) {
+    if (episodeMediaMetadata == null && options.getMetadata() != null && options.getMetadata().getReleaseDate() != null) {
       try {
         Format formatter = new SimpleDateFormat("yyyy-MM-dd");
         String aired = formatter.format(options.getMetadata().getReleaseDate());
