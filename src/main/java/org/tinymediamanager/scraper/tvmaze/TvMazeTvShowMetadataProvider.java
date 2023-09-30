@@ -84,64 +84,66 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       LOGGER.trace("could not get Main TvShow information: {}", e.getMessage());
     }
 
-    if (show != null) {
-      md.setId("tvmaze", show.id);
-      md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
-      md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
-      md.setId("tvrage", show.tvShowIds.tvrage);
+    if (show == null) {
+      throw new NothingFoundException();
+    }
 
-      md.setTitle(show.title);
+    md.setId("tvmaze", show.id);
+    md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
+    md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
+    md.setId("tvrage", show.tvShowIds.tvrage);
 
-      try {
-        md.setYear(parseYear(show.premiered));
-      }
-      catch (ParseException e) {
-        LOGGER.trace("could not parse year: {}", e.getMessage());
-      }
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
-      try {
-        md.setReleaseDate(premieredFormat.parse(show.premiered));
-      }
-      catch (ParseException e) {
-        LOGGER.trace("could not parse releasedate: {}", e.getMessage());
-      }
+    md.setTitle(show.title);
 
-      md.setRuntime(show.runtime);
+    try {
+      md.setYear(parseYear(show.premiered));
+    } catch (ParseException e) {
+      LOGGER.trace("could not parse year: {}", e.getMessage());
+    }
 
-      for (String gen : show.genres) {
-        MediaGenres genre = MediaGenres.getGenre(gen);
-        md.addGenre(genre);
-      }
+    try {
+      md.setReleaseDate(premieredFormat.parse(show.premiered));
+    } catch (ParseException e) {
+      LOGGER.trace("could not parse releasedate: {}", e.getMessage());
+    }
 
-      md.setPlot(Jsoup.parse(show.summary).text());
-      md.setOriginalLanguage(show.language);
+    md.setRuntime(show.runtime);
 
-      MediaRating rating = new MediaRating("tvmaze");
-      rating.setRating(show.rating.average);
-      rating.setMaxValue(10);
-      md.addRating(rating);
+    for (String gen : show.genres) {
+      MediaGenres genre = MediaGenres.getGenre(gen);
+      md.addGenre(genre);
+    }
 
-      // Get Cast
-      try {
-        castList = controller.getCast(tvMazeId);
+    md.setPlot(Jsoup.parse(show.summary).text());
+    md.setOriginalLanguage(show.language);
 
-        if (!castList.isEmpty()) {
+    MediaRating rating = new MediaRating("tvmaze");
+    rating.setRating(show.rating.average);
+    rating.setMaxValue(10);
+    md.addRating(rating);
 
-          for (Cast cast : castList) {
-            Person person = new Person(Person.Type.ACTOR);
-            person.setName(cast.person.name);
-            person.setProfileUrl(cast.person.image.original);
-            person.setThumbUrl(cast.person.image.medium);
-            md.addCastMember(person);
-          }
+    // Get Cast
+    try {
+      castList = controller.getCast(tvMazeId);
 
+      if (!castList.isEmpty()) {
+
+        for (Cast cast : castList) {
+          Person person = new Person(Person.Type.ACTOR);
+          person.setName(cast.person.name);
+          person.setProfileUrl(cast.person.image.original);
+          person.setThumbUrl(cast.person.image.medium);
+          md.addCastMember(person);
         }
 
       }
-      catch (IOException e) {
-        LOGGER.trace("could not get cast information: {}", e.getMessage());
-      }
+
+    } catch (IOException e) {
+      LOGGER.trace("could not get cast information: {}", e.getMessage());
     }
+
     return md;
   }
 

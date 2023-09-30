@@ -198,7 +198,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
@@ -257,6 +257,8 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         md.setId(IMDB, show.ids.imdb);
       }
     }
+
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
     // if foreign language, get new values and overwrite
     Translation trans = translations == null || translations.isEmpty() ? null : translations.get(0);

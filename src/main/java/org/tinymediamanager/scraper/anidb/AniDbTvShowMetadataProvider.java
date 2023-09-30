@@ -18,15 +18,10 @@ package org.tinymediamanager.scraper.anidb;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -146,7 +141,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     }
 
     // filter out the episode
-    for (Episode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
+    for (AniDbEpisode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
       MediaMetadata md = new MediaMetadata(providerInfo.getId());
       md.setScrapeOptions(options);
       md.setTitle(ep.titles.get(language));
@@ -284,113 +279,11 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     String language = options.getLanguage().getLanguage();
     String id = options.getIdAsString(providerInfo.getId());
     md.setId(providerInfo.getId(), id);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_ABSOLUTE);
 
     AniDbMetadataParser.fillAnimeMetadata(md, language, doc.child(0), providerInfo);
 
     return md;
-  }
-
-  /****************************************************************************
-   * helper class for episode extraction
-   ****************************************************************************/
-  static class Episode {
-    int                 id;
-    int                 episode = -1;
-    int                 season  = -1;
-    int                 runtime = 0;
-    Date                airdate = null;
-    float               rating  = 0;
-    int                 votes   = 0;
-    String              summary = "";
-    Map<String, String> titles;
-
-    private Episode(Builder builder) {
-      id = builder.id;
-      episode = builder.episode;
-      season = builder.season;
-      runtime = builder.runtime;
-      airdate = builder.airdate;
-      rating = builder.rating;
-      votes = builder.votes;
-      summary = builder.summary;
-      titles = builder.titles;
-    }
-
-    public static final class Builder {
-      private int                 id      = -1;
-      private int                 episode = -1;
-      private int                 season  = -1;
-      private int                 runtime = 0;
-      private Date                airdate = null;
-      private float               rating  = 0;
-      private int                 votes   = 0;
-      private String              summary = "";
-      private Map<String, String> titles  = new HashMap<>();
-
-      @Nonnull
-      public Builder id(int val) {
-        id = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder episode(int val) {
-        episode = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder season(int val) {
-        season = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder runtime(int val) {
-        runtime = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder airdate(@Nonnull Date val) {
-        airdate = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder rating(float val) {
-        rating = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder votes(int val) {
-        votes = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder summary(@Nonnull String val) {
-        summary = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder titles(@Nonnull Map<String, String> val) {
-        titles = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder titles(@Nonnull String language, @Nonnull String title) {
-        titles.put(language, title);
-        return this;
-      }
-
-      @Nonnull
-      public Episode build() {
-        return new Episode(this);
-      }
-    }
   }
 }

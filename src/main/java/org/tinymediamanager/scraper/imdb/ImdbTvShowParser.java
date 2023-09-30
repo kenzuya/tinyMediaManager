@@ -135,6 +135,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
     // default workers which always run
     Document doc = null;

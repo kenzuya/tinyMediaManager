@@ -65,7 +65,6 @@ public class MediaMetadata {
   // some meta ids for TV show scraping
   public static final String                               TVSHOW_IDS          = "tvShowIds";
   public static final String                               EPISODE_NR          = "episodeNr";
-  @Deprecated
   public static final String                               SEASON_NR           = "seasonNr";
   @Deprecated
   public static final String                               EPISODE_NR_DVD      = "dvdEpisodeNr";
