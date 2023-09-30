@@ -76,11 +76,10 @@ public class TmmTableColumnSelectionPopup {
       String columnName = null;
 
       // tooltip text
-      if (table.getModel()instanceof TmmTableModel<?> tmmTableModel && StringUtils.isNotBlank(tmmTableModel.getHeaderTooltip(i))) {
-        columnName = tmmTableModel.getHeaderTooltip(i);
-      }
-      else if (table.getModel()instanceof TmmTreeTableModel tmmTreeTableModel && StringUtils.isNotBlank(tmmTreeTableModel.getHeaderTooltip(i))) {
-        columnName = tmmTreeTableModel.getHeaderTooltip(i);
+      if (table.getModel() instanceof TmmTableModel<?> tmmTableModel && StringUtils.isNotBlank(tmmTableModel.getHeaderTooltip(etc.getModelIndex()))) {
+        columnName = tmmTableModel.getHeaderTooltip(etc.getModelIndex());
+      } else if (table.getModel() instanceof TmmTreeTableModel tmmTreeTableModel && StringUtils.isNotBlank(tmmTreeTableModel.getHeaderTooltip(etc.getModelIndex()))) {
+        columnName = tmmTreeTableModel.getHeaderTooltip(etc.getModelIndex());
       }
 
       // column name
