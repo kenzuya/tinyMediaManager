@@ -906,7 +906,7 @@ public class MovieArtworkHelper {
 
     if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
       for (MediaArtwork art : artwork) {
-        if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("") && art.getSizeOrder() == preferredSizeOrder) {
+        if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("-") && art.getSizeOrder() == preferredSizeOrder) {
           fanartWoText = art;
           break;
         }
@@ -1165,6 +1165,7 @@ public class MovieArtworkHelper {
    * If found, copy the bluray metadata poster files into movieDir and add them as MF
    * 
    * @param movie
+   *          the movie to extract BluRay posters
    * @return true if ok or none found, false otherwise
    */
   public static boolean extractBlurayPosters(Movie movie) {

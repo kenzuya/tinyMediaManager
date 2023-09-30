@@ -17,230 +17,201 @@ package org.tinymediamanager.ui.tvshows.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
-import java.awt.Dimension;
-import java.awt.event.ItemListener;
-
-import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.jdesktop.swingbinding.JListBinding;
+import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
-import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The class {@link TvShowScraperSettingsPanel} shows scraper options for the meta data scraper.
+ * The class {@link TvShowImageOptionsSettingsPanel} shows scraper options for artwork scraper
  * 
  * @author Manuel Laggner
  */
 class TvShowImageOptionsSettingsPanel extends JPanel {
   private final TvShowSettings      settings = TvShowModuleManager.getInstance().getSettings();
 
-  private final ItemListener        checkBoxListener;
-
-  private JCheckBox                 cbActorImages;
-  private JSpinner                  spDownloadCountExtrafanart;
-  private JCheckBox                 chckbxEnableExtrafanart;
-  private JComboBox<MediaLanguages> cbScraperLanguage;
   private JComboBox                 cbImagePosterSize;
   private JComboBox                 cbImageFanartSize;
-  private JCheckBox                 chckbxExtraFanart1;
-  private JCheckBox                 chckbxExtraFanart2;
-  private JCheckBox                 chckbxPreferLanguage;
 
-  /**
-   * Instantiates a new movie artwork options settings panel.
-   */
+    private JComboBox<MediaLanguages> cbScraperLanguage;
+
+    private JList listLanguages;
+    private JButton btnAddLanguage;
+    private JButton btnRemoveLanguage;
+    private JButton btnMoveLanguageUp;
+    private JButton btnMoveLanguageDown;
+    private JCheckBox chckbxResolutions;
+    private JCheckBox chckbxFallback;
+    private JCheckBox chckbxFanartWoText;
+
   TvShowImageOptionsSettingsPanel() {
-    checkBoxListener = e -> checkChanges();
-
     // UI init
     initComponents();
     initDataBindings();
 
-    // further init
-    ButtonGroup buttonGroup = new ButtonGroup();
-    buttonGroup.add(chckbxExtraFanart1);
-    buttonGroup.add(chckbxExtraFanart2);
+      // logic initializations
+      btnAddLanguage.addActionListener(arg0 -> {
+          Object selectedItem = cbScraperLanguage.getSelectedItem();
 
-    settings.addPropertyChangeListener(evt -> {
-      if ("preset".equals(evt.getPropertyName())) {
-        buildCheckBoxes();
+          if (selectedItem instanceof MediaLanguages language) {
+              TvShowModuleManager.getInstance().getSettings().addImageScraperLanguage(language);
       }
     });
 
-    buildCheckBoxes();
-  }
+      btnRemoveLanguage.addActionListener(arg0 -> {
+          int row = listLanguages.getSelectedIndex();
+          if (row != -1) { // nothing selected
+              MediaLanguages language = settings.getImageScraperLanguages().get(row);
+              TvShowModuleManager.getInstance().getSettings().removeImageScraperLanguage(language);
+          }
+      });
 
-  private void buildCheckBoxes() {
-    // initialize
-    clearSelection(chckbxExtraFanart1, chckbxExtraFanart2);
-
-    // extrafanart filenames
-    for (TvShowExtraFanartNaming fanart : settings.getExtraFanartFilenames()) {
-      switch (fanart) {
-        case EXTRAFANART:
-          chckbxExtraFanart1.setSelected(true);
-          break;
-
-        case FOLDER_EXTRAFANART:
-          chckbxExtraFanart2.setSelected(true);
+      btnMoveLanguageUp.addActionListener(arg0 -> {
+          int row = listLanguages.getSelectedIndex();
+          if (row != -1 && row != 0) {
+              settings.swapImageScraperLanguage(row, row - 1);
+              row = row - 1;
+              listLanguages.setSelectedIndex(row);
+              listLanguages.updateUI();
       }
-    }
+      });
 
-    // listen to changes of the checkboxes
-    chckbxExtraFanart1.addItemListener(checkBoxListener);
-    chckbxExtraFanart2.addItemListener(checkBoxListener);
-  }
-
-  private void clearSelection(JCheckBox... checkBoxes) {
-    for (JCheckBox checkBox : checkBoxes) {
-      checkBox.removeItemListener(checkBoxListener);
-      checkBox.setSelected(false);
-    }
-  }
-
-  /**
-   * Check changes.
-   */
-  private void checkChanges() {
-    // set poster filenames
-    settings.clearExtraFanartFilenames();
-
-    if (chckbxExtraFanart1.isSelected()) {
-      settings.addExtraFanartFilename(TvShowExtraFanartNaming.EXTRAFANART);
-    }
-    if (chckbxExtraFanart2.isSelected()) {
-      settings.addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
-    }
+      btnMoveLanguageDown.addActionListener(arg0 -> {
+          int row = listLanguages.getSelectedIndex();
+          if (row != -1 && row < listLanguages.getModel().getSize() - 1) {
+              settings.swapImageScraperLanguage(row, row + 1);
+              row = row + 1;
+              listLanguages.setSelectedIndex(row);
+              listLanguages.updateUI();
+          }
+      });
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[]"));
+      setLayout(new MigLayout("", "[700lp,grow]", "[]"));
+
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][15lp!][][][grow][]")); // 16lp ~ width
-      // of the
+        panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][15lp!][][][][15lp!][][]")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-1"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
-        panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
-
-        cbScraperLanguage = new JComboBox(MediaLanguages.allValuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
         JLabel lblImageTmdbPosterSize = new JLabel(TmmResourceBundle.getString("image.poster.size"));
-        panelOptions.add(lblImageTmdbPosterSize, "cell 1 1 2 1");
+          panelOptions.add(lblImageTmdbPosterSize, "cell 1 0 2 1");
 
         cbImagePosterSize = new JComboBox(MediaArtwork.PosterSizes.values());
-        panelOptions.add(cbImagePosterSize, "cell 1 1 2 1");
+          panelOptions.add(cbImagePosterSize, "cell 1 0 2 1");
 
         JLabel lblImageTmdbFanartSize = new JLabel(TmmResourceBundle.getString("image.fanart.size"));
-        panelOptions.add(lblImageTmdbFanartSize, "cell 1 2 2 1");
+          panelOptions.add(lblImageTmdbFanartSize, "cell 1 1 2 1");
 
         cbImageFanartSize = new JComboBox(MediaArtwork.FanartSizes.values());
-        panelOptions.add(cbImageFanartSize, "cell 1 2 2 1");
-
-        chckbxPreferLanguage = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.language"));
-        panelOptions.add(chckbxPreferLanguage, "cell 1 3 2 1");
-
-        cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
-        panelOptions.add(cbActorImages, "cell 1 5 2 1");
-
-        chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
-        panelOptions.add(chckbxEnableExtrafanart, "cell 1 6 2 1");
-
-        JPanel panel = new JPanel();
-        panelOptions.add(panel, "cell 2 7,growx");
-        panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
-
-        chckbxExtraFanart1 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panel.add(chckbxExtraFanart1, "cell 0 0");
-
-        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panel.add(chckbxExtraFanart2, "cell 2 0");
-
-        JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
-        panelOptions.add(lblDownloadCount, "cell 2 8");
-
-        spDownloadCountExtrafanart = new JSpinner();
-        spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelOptions.add(spDownloadCountExtrafanart, "cell 2 8");
+          panelOptions.add(cbImageFanartSize, "cell 1 1 2 1");
       }
+        {
+            JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
+            panelOptions.add(lblScraperLanguage, "cell 1 3 2 1");
+
+            JPanel panelLanguagegSource = new JPanel();
+            panelOptions.add(panelLanguagegSource, "cell 2 4,grow");
+            panelLanguagegSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
+
+            listLanguages = new JList();
+            listLanguages.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setViewportView(listLanguages);
+            panelLanguagegSource.add(scrollPane, "cell 0 0,grow");
+
+            btnMoveLanguageUp = new SquareIconButton(IconManager.ARROW_UP_INV);
+            btnMoveLanguageUp.setToolTipText(TmmResourceBundle.getString("Button.moveup"));
+            panelLanguagegSource.add(btnMoveLanguageUp, "flowy,cell 1 0,aligny bottom");
+
+            btnMoveLanguageDown = new SquareIconButton(IconManager.ARROW_DOWN_INV);
+            btnMoveLanguageDown.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
+            panelLanguagegSource.add(btnMoveLanguageDown, "cell 1 0,aligny bottom");
+
+            cbScraperLanguage = new JComboBox(MediaLanguages.allValuesSorted());
+            panelLanguagegSource.add(cbScraperLanguage, "cell 0 1,growx");
+
+            btnRemoveLanguage = new SquareIconButton(IconManager.REMOVE_INV);
+            btnRemoveLanguage.setToolTipText(TmmResourceBundle.getString("Button.remove"));
+            panelLanguagegSource.add(btnRemoveLanguage, "cell 1 0");
+
+            btnAddLanguage = new SquareIconButton(IconManager.ADD_INV);
+            btnAddLanguage.setToolTipText(TmmResourceBundle.getString("Button.add"));
+            panelLanguagegSource.add(btnAddLanguage, "cell 1 1");
+      }
+
+        chckbxFanartWoText = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.fanartwotext"));
+        panelOptions.add(chckbxFanartWoText, "cell 1 5 2 1");
+
+        chckbxResolutions = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.resolutions"));
+        panelOptions.add(chckbxResolutions, "cell 1 7 2 1");
+
+        chckbxFallback = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.fallback"));
+        panelOptions.add(chckbxFallback, "cell 1 8 2 1");
     }
   }
 
   protected void initDataBindings() {
-    Property tvShowSettingsBeanProperty = BeanProperty.create("writeActorImages");
+      Property settingsBeanProperty_5 = BeanProperty.create("imagePosterSize");
+      Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+      AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_5, cbImagePosterSize,
+              jComboBoxBeanProperty);
+      autoBinding_4.bind();
+      //
+      Property settingsBeanProperty_6 = BeanProperty.create("imageFanartSize");
+      AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_6, cbImageFanartSize,
+              jComboBoxBeanProperty);
+      autoBinding_5.bind();
+      //
+      Property tvShowSettingsBeanProperty = BeanProperty.create("imageScraperLanguages");
+      JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, listLanguages);
+      jListBinding.bind();
+      //
+      Property tvShowSettingsBeanProperty_1 = BeanProperty.create("imageScraperPreferFanartWoText");
     Property jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbActorImages,
+      AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, chckbxFanartWoText,
         jCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("imageExtraFanartCount");
-    Property jSpinnerBeanProperty_1 = BeanProperty.create("value");
-    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
-        spDownloadCountExtrafanart, jSpinnerBeanProperty_1);
-    autoBinding_3.bind();
-    //
-    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("imageExtraFanart");
-    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, chckbxEnableExtrafanart,
+      Property tvShowSettingsBeanProperty_2 = BeanProperty.create("imageScraperOtherResolutions");
+      AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, chckbxResolutions,
         jCheckBoxBeanProperty);
-    autoBinding_4.bind();
+      autoBinding_1.bind();
     //
-    Property jSpinnerBeanProperty = BeanProperty.create("enabled");
-    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, chckbxEnableExtrafanart, jCheckBoxBeanProperty,
-        spDownloadCountExtrafanart, jSpinnerBeanProperty);
+      Property tvShowSettingsBeanProperty_3 = BeanProperty.create("imageScraperFallback");
+      AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, chckbxFallback,
+              jCheckBoxBeanProperty);
     autoBinding_2.bind();
-    //
-    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("imageScraperLanguage");
-    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbScraperLanguage,
-        jComboBoxBeanProperty);
-    autoBinding_5.bind();
-    //
-    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("imagePosterSize");
-    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, cbImagePosterSize,
-        jComboBoxBeanProperty);
-    autoBinding_6.bind();
-    //
-    Property tvShowSettingsBeanProperty_5 = BeanProperty.create("imageFanartSize");
-    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, cbImageFanartSize,
-        jComboBoxBeanProperty);
-    autoBinding_7.bind();
-    //
-    Property jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
-    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart1,
-        jCheckBoxBeanProperty_2);
-    autoBinding_9.bind();
-    //
-    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart2,
-        jCheckBoxBeanProperty_2);
-    autoBinding_10.bind();
-    //
-    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("imageLanguagePriority");
-    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxPreferLanguage,
-        jCheckBoxBeanProperty);
-    autoBinding_11.bind();
   }
 }

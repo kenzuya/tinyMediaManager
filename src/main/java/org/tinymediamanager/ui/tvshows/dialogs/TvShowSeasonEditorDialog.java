@@ -29,7 +29,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -374,7 +373,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, artworkType, tvShowList.getDefaultArtworkScrapers(), label,
         MediaType.TV_SHOW);
 
-    dialog.setImageLanguageFilter(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage()));
+    dialog.setImageLanguageFilter(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguages());
 
     if (Settings.getInstance().isImageChooserUseEntityFolder()) {
       TvShow tvShow = tvShowSeasonToEdit.getTvShow();

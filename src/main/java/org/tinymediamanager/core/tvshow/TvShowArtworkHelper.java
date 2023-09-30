@@ -58,6 +58,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowExtraImageFetcherTask;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 /**
@@ -242,10 +243,9 @@ public class TvShowArtworkHelper {
 
   private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {
     int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
-    String preferredLanguage = TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtworkType.POSTER, preferredSizeOrder, preferredLanguage);
+    List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
 
     // assign and download the poster
     if (!sortedPosters.isEmpty()) {
@@ -270,60 +270,47 @@ public class TvShowArtworkHelper {
    *          the artwork type
    * @param sizeOrder
    *          the preferred size
-   * @param language
-   *          the preferred language
    * @return the found artwork or null
    */
-  private static List<MediaArtwork> sortArtwork(List<MediaArtwork> artwork, MediaArtworkType type, int sizeOrder, String language) {
+  private static List<MediaArtwork> sortArtwork(List<MediaArtwork> artwork, MediaArtworkType type, int sizeOrder) {
     List<MediaArtwork> sortedArtwork = new ArrayList<>();
 
-    // the right language and the right resolution
-    for (MediaArtwork art : artwork) {
-      if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == sizeOrder) {
-        sortedArtwork.add(art);
-      }
+    if (artwork.isEmpty()) {
+      return sortedArtwork;
     }
 
-    // the right language and down to 2 resolutions lower (if language has priority)
-    if (TvShowModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
-      int counter = 1;
-      int newOrder = sizeOrder;
-      while (counter <= 2) {
-        newOrder = newOrder / 2;
+    List<MediaLanguages> languages = TvShowModuleManager.getInstance().getSettings().getImageScraperLanguages();
 
-        for (MediaArtwork art : artwork) {
-          if (art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
-          }
-        }
-        counter++;
-      }
-    }
-
-    // the right resolution
-    for (MediaArtwork art : artwork) {
-      // only get artwork in desired resolution
-      if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == sizeOrder) {
-        sortedArtwork.add(art);
-      }
-    }
-
-    // down to 2 resolutions lower
-    int counter = 1;
-    int newOrder = sizeOrder;
-    while (counter <= 2) {
-      newOrder = newOrder / 2;
-
+    // get the artwork in the chosen language priority
+    for (MediaLanguages language : languages) {
+      // the right language and the right resolution
       for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
+        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language.getLanguage())
+                && art.getSizeOrder() == sizeOrder) {
           sortedArtwork.add(art);
         }
       }
-      counter++;
     }
 
-    // the first we find
-    if (sortedArtwork.isEmpty() && !artwork.isEmpty()) {
+    // do we want to take other resolution artwork?
+    if (TvShowModuleManager.getInstance().getSettings().isImageScraperOtherResolutions()) {
+      int newOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER;
+      while (newOrder > 1) {
+        newOrder = newOrder / 2;
+        for (MediaLanguages language : languages) {
+          // the right language and the right resolution
+          for (MediaArtwork art : artwork) {
+            if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language.getLanguage())
+                    && art.getSizeOrder() == sizeOrder) {
+              sortedArtwork.add(art);
+            }
+          }
+        }
+      }
+    }
+
+    // should we fall back to _any_ artwork?
+    if (TvShowModuleManager.getInstance().getSettings().isImageScraperFallback()) {
       for (MediaArtwork art : artwork) {
         if (!sortedArtwork.contains(art) && art.getType() == type) {
           sortedArtwork.add(art);
@@ -364,7 +351,6 @@ public class TvShowArtworkHelper {
    */
   private static void setBestFanart(TvShow tvShow, List<MediaArtwork> artwork) {
     int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
-    String preferredLanguage = TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // sort artwork due to our preferences
     List<MediaArtwork> sortedArtwork = new ArrayList<>(artwork);
@@ -374,14 +360,14 @@ public class TvShowArtworkHelper {
     // https://kodi.wiki/view/Artwork_types#fanart
     MediaArtwork fanartWoText = null;
     for (MediaArtwork art : sortedArtwork) {
-      if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("")) {
+      if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("-")) {
         fanartWoText = art;
         break;
       }
     }
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder, preferredLanguage);
+    List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder);
 
     if (fanartWoText != null) {
       sortedFanarts.add(0, fanartWoText);
@@ -601,7 +587,7 @@ public class TvShowArtworkHelper {
         Thread.currentThread().interrupt();
       }
       catch (Exception e) {
-        LOGGER.error("fetch image {} - {}", this.url, e);
+        LOGGER.error("fetch image {} - {}", this.url, e.getMessage());
         // fallback
         if (!oldFilename.isEmpty()) {
           tvShowSeason.setArtwork(oldFile, mediaFileType);

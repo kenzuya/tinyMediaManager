@@ -409,10 +409,9 @@ public class TvShowChooserModel extends AbstractModelObject {
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);
       options.setArtworkType(MediaArtworkType.ALL);
-      options.setLanguage(language);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage());
+        options.setLanguage(TvShowModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
 
