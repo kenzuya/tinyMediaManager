@@ -265,6 +265,15 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
       }
     }
+
+    // sort by size descending
+    artwork.sort((o1, o2) -> {
+      if (o1.getBiggestArtwork() == null || o2.getBiggestArtwork() == null) {
+        return 0;
+      }
+      return Integer.compare(o2.getBiggestArtwork().getWidth(), o1.getBiggestArtwork().getWidth());
+    });
+
     return artwork;
   }
 }
