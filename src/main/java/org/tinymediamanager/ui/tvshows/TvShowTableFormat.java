@@ -39,6 +39,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -63,6 +64,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     settings = TvShowModuleManager.getInstance().getSettings();
     FontMetrics fontMetrics = getFontMetrics();
 
+    Comparator<MediaCertification> certificationComparator = new CertificationComparator();
     Comparator<String> stringComparator = new StringComparator();
     Comparator<String> integerComparator = (o1, o2) -> {
       int value1 = 0;
@@ -239,6 +241,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("250") * 1.2f + 5));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * certification (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.certification"),"certification",this::getCertification, MediaCertification.class);
+    col.setColumnComparator(certificationComparator);
+    col.setHeaderIcon(IconManager.CERTIFICATION);
+    col.setColumnResizeable(true);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -815,6 +827,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     else if (userObject instanceof TvShowEpisode episode) {
       return getCheckIcon(episode.isWatched());
+    }
+    return null;
+  }
+
+  private MediaCertification getCertification(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow tvShow) {
+      return tvShow.getCertification();
     }
     return null;
   }
