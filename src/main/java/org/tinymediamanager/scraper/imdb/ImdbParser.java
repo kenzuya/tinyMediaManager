@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
 
 import java.io.InputStream;
@@ -150,7 +151,7 @@ public abstract class ImdbParser {
 
   /**
    * should we include movie results
-   * 
+   *
    * @return true/false
    */
   protected boolean isIncludeMovieResults() {
@@ -231,7 +232,7 @@ public abstract class ImdbParser {
 
   /**
    * should we scrape uncredited actors
-   * 
+   *
    * @return true/false
    */
   protected boolean isScrapeUncreditedActors() {
@@ -240,7 +241,7 @@ public abstract class ImdbParser {
 
   /**
    * should we scrape language names rather than the iso codes
-   * 
+   *
    * @return true/false
    */
   protected boolean isScrapeLanguageNames() {
@@ -276,7 +277,7 @@ public abstract class ImdbParser {
 
   /**
    * get the maximum amount of keywords we should get from the keywords page
-   * 
+   *
    * @return the configured numer or {@link Integer}.MAX_VALUE
    */
   protected int getMaxKeywordCount() {
@@ -824,10 +825,8 @@ public abstract class ImdbParser {
   /**
    * generates the accept-language http header for imdb
    *
-   * @param language
-   *          the language code to be used
-   * @param country
-   *          the country to be used
+   * @param language the language code to be used
+   * @param country  the country to be used
    * @return the Accept-Language string
    */
   protected static String getAcceptLanguage(String language, String country) {
@@ -891,12 +890,10 @@ public abstract class ImdbParser {
   }
 
   /**
-   * 
    * @param doc
    * @param options
    * @param md
-   * @throws Exception
-   *           on JSON parsing errors
+   * @throws Exception on JSON parsing errors
    */
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
@@ -981,7 +978,7 @@ public abstract class ImdbParser {
       if (img != null) {
         MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
         if (options.getMediaType() == MediaType.TV_EPISODE) {
-          poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.THUMB);
+          poster = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
         }
         poster.setOriginalUrl(img.url);
         poster.setPreviewUrl(img.url); // well, yes
@@ -1093,7 +1090,7 @@ public abstract class ImdbParser {
 
   /**
    * parses the video page directly, and gets fresh encoded urls (they have an expiry in them!)
-   * 
+   *
    * @param trailer
    * @return
    * @throws Exception
@@ -1982,63 +1979,48 @@ public abstract class ImdbParser {
   }
 
   protected void adoptArtworkToOptions(MediaArtwork artwork, ArtworkSearchAndScrapeOptions options) {
-    int width = 0;
-    int height = 0;
-
-    switch (options.getPosterSize()) {
-      case SMALL:
-        width = 185;
-        height = 277;
+    switch (options.getArtworkType()) {
+      case POSTER:
+        for (MediaArtwork.PosterSizes posterSizes : MediaArtwork.PosterSizes.values()) {
+          addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight());
+          if (options.getPosterSize() == posterSizes) {
+            artwork.setSizeOrder(options.getPosterSize().getOrder());
+          }
+        }
         break;
 
-      case MEDIUM:
-        width = 342;
-        height = 513;
-        break;
-
-      case BIG:
-        width = 500;
-        height = 750;
-        break;
-
-      case LARGE:
-        width = 1000;
-        height = 1500;
-        break;
-
-      case XLARGE:
-        width = 2000;
-        height = 3000;
+      case THUMB:
+        addArtworkSize(artwork, 3840, 2160);
+        addArtworkSize(artwork, 1920, 1080);
+        addArtworkSize(artwork, 1280, 720);
+        addArtworkSize(artwork, 960, 540); // Kodi preference
         break;
     }
+  }
 
-    if (width > 0 && height > 0) {
-      // get the highest artwork size (from scraper)
-      ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
-      if (originalSize != null) {
-        if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
-          // only downscale
-          String image = artwork.getDefaultUrl();
-          String extension = FilenameUtils.getExtension(image);
-          // https://stackoverflow.com/a/73501833
-          String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
-          artwork.setDefaultUrl(defaultUrl);
-          artwork.setSizeOrder(options.getPosterSize().getOrder());
-          artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
-          artwork.addImageSize(width, height, defaultUrl);
-        }
-      }
-      else {
-        // no size provided by scraper, just scale it
+  private void addArtworkSize(MediaArtwork artwork, int width, int height) {
+    // get the highest artwork size (from scraper)
+    ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
+    if (originalSize != null) {
+      if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
+        // only downscale
         String image = artwork.getDefaultUrl();
         String extension = FilenameUtils.getExtension(image);
         // https://stackoverflow.com/a/73501833
         String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
         artwork.setDefaultUrl(defaultUrl);
-        artwork.setSizeOrder(options.getPosterSize().getOrder());
         artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
         artwork.addImageSize(width, height, defaultUrl);
       }
+    } else {
+      // no size provided by scraper, just scale it
+      String image = artwork.getDefaultUrl();
+      String extension = FilenameUtils.getExtension(image);
+      // https://stackoverflow.com/a/73501833
+      String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+      artwork.setDefaultUrl(defaultUrl);
+      artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
+      artwork.addImageSize(width, height, defaultUrl);
     }
   }
 
