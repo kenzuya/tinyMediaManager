@@ -23,12 +23,10 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
-import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -117,8 +115,8 @@ import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.datepicker.YearSpinner;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.dialogs.AbstractEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
@@ -135,7 +133,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MovieEditorDialog extends TmmDialog {
+public class MovieEditorDialog extends AbstractEditorDialog {
   private static final Logger                      LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
@@ -150,8 +148,7 @@ public class MovieEditorDialog extends TmmDialog {
   private final EventList<MediaId>                 ids;
   private final EventList<MediaRatingTable.Rating> ratings;
   private final List<MediaFile>                    mediaFiles          = new ArrayList<>();
-  private final int                                queueIndex;
-  private final int                                queueSize;
+
   private final EventList<Person>                  cast;
   private final EventList<Person>                  producers;
   private final EventList<Person>                  directors;
@@ -159,8 +156,6 @@ public class MovieEditorDialog extends TmmDialog {
 
   private List<String>                             extrathumbs         = null;
   private List<String>                             extrafanarts        = null;
-  private boolean                                  continueQueue       = true;
-  private boolean                                  navigateBack        = false;
 
   private JTextArea                                tfTitle;
   private JTextArea                                tfOriginalTitle;
@@ -233,7 +228,7 @@ public class MovieEditorDialog extends TmmDialog {
    */
   public MovieEditorDialog(Movie movie, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("movie.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + movie.getPathNIO()
-        + " >", "movieEditor");
+            + " >", "movieEditor", movie);
 
     // creation of lists
     cast = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -1258,7 +1253,7 @@ public class MovieEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       if (queueSize > 1) {
-        JButton btnAbort = new JButton(new AbortQueueAction());
+        JButton btnAbort = new JButton(new AbortQueueAction(TmmResourceBundle.getString("movie.edit.abortqueue.desc")));
         addButton(btnAbort);
         if (queueIndex > 0) {
           JButton backButton = new JButton(new NavigateBackAction());
@@ -1293,14 +1288,6 @@ public class MovieEditorDialog extends TmmDialog {
     if (StringUtils.isNotBlank(imageLabel.getImageUrl())) {
       textField.setText(imageLabel.getImageUrl());
     }
-  }
-
-  public boolean isContinueQueue() {
-    return continueQueue;
-  }
-
-  public boolean isNavigateBack() {
-    return navigateBack;
   }
 
   private class ChangeMovieAction extends AbstractAction {
@@ -1790,17 +1777,6 @@ public class MovieEditorDialog extends TmmDialog {
     }
   }
 
-  /**
-   * Shows the dialog and returns whether the work on the queue should be continued.
-   * 
-   * @return true, if successful
-   */
-  public boolean showDialog() {
-    setLocationRelativeTo(MainWindow.getInstance());
-    setVisible(true);
-    return continueQueue;
-  }
-
   private class AddTagAction extends AbstractAction {
     public AddTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.add"));
@@ -1891,32 +1867,6 @@ public class MovieEditorDialog extends TmmDialog {
       for (String showlink : selectedShowlinks) {
         showlinks.remove(showlink);
       }
-    }
-  }
-
-  private class AbortQueueAction extends AbstractAction {
-    public AbortQueueAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.abortqueue.desc"));
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      continueQueue = false;
-      setVisible(false);
-    }
-  }
-
-  private class NavigateBackAction extends AbstractAction {
-    public NavigateBackAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.back"));
-      putValue(SMALL_ICON, IconManager.BACK_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      navigateBack = true;
-      setVisible(false);
     }
   }
 
@@ -2186,37 +2136,5 @@ public class MovieEditorDialog extends TmmDialog {
     bindingGroup.addBinding(jListBinding);
     bindingGroup.addBinding(jListBinding_1);
     return bindingGroup;
-  }
-
-  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, JButton buttonDelete, MediaFileType type) {
-    createLinkForImage(lblSize, imageLabel);
-
-    // image has been deleted
-    if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
-      lblSize.setText("");
-      lblSize.setVisible(false);
-      buttonDelete.setVisible(false);
-      return;
-    }
-
-    Dimension dimension;
-
-    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
-    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(movieToEdit.getArtworkUrl(type))) {
-      dimension = imageLabel.getOriginalImageSize();
-    }
-    else {
-      // take from the existing artwork
-      dimension = movieToEdit.getArtworkDimension(type);
-    }
-
-    if (dimension.width == 0 && dimension.height == 0) {
-      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
-    } else {
-      lblSize.setText(dimension.width + "x" + dimension.height);
-    }
-
-    lblSize.setVisible(true);
-    buttonDelete.setVisible(true);
   }
 }

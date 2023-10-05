@@ -17,12 +17,10 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
-import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -115,8 +113,8 @@ import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.dialogs.AbstractEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
@@ -135,7 +133,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowEpisodeEditorDialog extends TmmDialog {
+public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
   private static final Logger                      LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String                      DIALOG_ID           = "tvShowEpisodeEditor";
@@ -146,18 +144,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private final List<MediaFile>                    mediaFiles          = new ArrayList<>();
 
-  private final int                                queueIndex;
-  private final int                                queueSize;
-
   private final EventList<MediaEpisodeNumber>      episodeNumbers;
   private final EventList<MediaIdTable.MediaId>    ids;
   private final EventList<MediaRatingTable.Rating> ratings;
   private final EventList<Person>                  guests;
   private final EventList<Person>                  directors;
   private final EventList<Person>                  writers;
-
-  private boolean                                  continueQueue       = true;
-  private boolean                                  navigateBack        = false;
 
   private JTextArea                                tfTitle;
   private JSpinner                                 spRating;
@@ -196,7 +188,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
    *          the queue size
    */
   public TvShowEpisodeEditorDialog(TvShowEpisode episode, int queueIndex, int queueSize, int selectedTab) {
-    super(TmmResourceBundle.getString("tvshowepisode.edit") + "  < " + episode.getMainVideoFile().getFilename() + " >", DIALOG_ID);
+    super(TmmResourceBundle.getString("tvshowepisode.edit") + "  < " + episode.getMainVideoFile().getFilename() + " >", DIALOG_ID, episode);
 
     // creation of lists
     episodeNumbers = GlazedLists.threadSafeList(new BasicEventList<>());
@@ -216,7 +208,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     MediaRating userMediaRating = episodeToEdit.getRating(MediaRating.USER);
 
     initComponents();
-    bindingGroup = initDataBindings();
+    initDataBindings();
 
     // fill data
     {
@@ -682,16 +674,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     }
   }
 
-  /**
-   * Shows the dialog and returns whether the work on the queue should be continued.
-   * 
-   * @return true, if successful
-   */
-  public boolean showDialog() {
-    setVisible(true);
-    return continueQueue;
-  }
-
   private void cancelScrapeTask() {
     if (scrapeTask != null && !scrapeTask.isDone()) {
       scrapeTask.cancel(true);
@@ -1064,15 +1046,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     }
   }
 
-  protected BindingGroup initDataBindings() {
+  protected void initDataBindings() {
     JListBinding<String, List<String>, JList> jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ, tags, listTags);
     jListBinding.bind();
     //
-    BindingGroup bindingGroup = new BindingGroup();
+    bindingGroup = new BindingGroup();
     //
     bindingGroup.addBinding(jListBinding);
-    //
-    return bindingGroup;
   }
 
   @Override
@@ -1085,38 +1065,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     }
 
     super.dispose();
-  }
-
-  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, JButton buttonDelete, MediaFileType type) {
-    createLinkForImage(lblSize, imageLabel);
-
-    // image has been deleted
-    if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
-      lblSize.setText("");
-      lblSize.setVisible(false);
-      buttonDelete.setVisible(false);
-      return;
-    }
-
-    Dimension dimension;
-
-    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
-    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(episodeToEdit.getArtworkUrl(type))) {
-      dimension = imageLabel.getOriginalImageSize();
-    } else {
-      // take from the existing artwork
-      dimension = episodeToEdit.getArtworkDimension(type);
-    }
-
-    if (dimension.width == 0 && dimension.height == 0) {
-      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
-    }
-    else {
-      lblSize.setText(dimension.width + "x" + dimension.height);
-    }
-
-    lblSize.setVisible(true);
-    buttonDelete.setVisible(true);
   }
 
   private class AddEpisodeNumberAction extends AbstractAction {
@@ -1522,26 +1470,5 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         tableWriters.getSelectionModel().setSelectionInterval(row + 1, row + 1);
       }
     }
-  }
-
-  private class NavigateBackAction extends AbstractAction {
-    public NavigateBackAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.back"));
-      putValue(SMALL_ICON, IconManager.BACK_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      navigateBack = true;
-      setVisible(false);
-    }
-  }
-
-  public boolean isContinueQueue() {
-    return continueQueue;
-  }
-
-  public boolean isNavigateBack() {
-    return navigateBack;
   }
 }

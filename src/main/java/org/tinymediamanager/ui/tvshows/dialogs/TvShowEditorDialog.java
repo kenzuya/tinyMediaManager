@@ -23,12 +23,10 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
-import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -120,8 +118,8 @@ import org.tinymediamanager.ui.components.table.MouseKeyboardSortingStrategy;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.dialogs.AbstractEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.RatingEditorPanel;
@@ -140,7 +138,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowEditorDialog extends TmmDialog {
+public class TvShowEditorDialog extends AbstractEditorDialog {
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
   private final TvShow                             tvShowToEdit;
@@ -153,12 +151,8 @@ public class TvShowEditorDialog extends TmmDialog {
   private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private final SortedList<EpisodeEditorContainer> episodes;
   private final EventList<MediaTrailer>            trailers;
-  private final int                                queueIndex;
-  private final int                                queueSize;
 
   private List<String>                             extrafanarts        = null;
-  private boolean                                  continueQueue       = true;
-  private boolean                                  navigateBack        = false;
 
   /**
    * UI elements
@@ -223,7 +217,7 @@ public class TvShowEditorDialog extends TmmDialog {
    */
   public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO()
-        + " >", "tvShowEditor");
+            + " >", "tvShowEditor", tvShow);
 
     this.tvShowToEdit = tvShow;
     this.queueIndex = queueIndex;
@@ -239,7 +233,7 @@ public class TvShowEditorDialog extends TmmDialog {
     trailers = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class));
 
     initComponents();
-    bindingGroup = initDataBindings();
+    initDataBindings();
 
     {
       tfTitle.setText(tvShow.getTitle());
@@ -1098,7 +1092,7 @@ public class TvShowEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       if (queueSize > 1) {
-        JButton btnAbort = new JButton(new AbortAction());
+        JButton btnAbort = new JButton(new AbortQueueAction(TmmResourceBundle.getString("tvshow.edit.abortqueue.desc")));
         addButton(btnAbort);
         if (queueIndex > 0) {
           JButton backButton = new JButton(new NavigateBackAction());
@@ -1540,16 +1534,6 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  /**
-   * Shows the dialog and returns whether the work on the queue should be continued.
-   *
-   * @return true, if successful
-   */
-  public boolean showDialog() {
-    setVisible(true);
-    return continueQueue;
-  }
-
   private class AddTagAction extends AbstractAction {
     AddTagAction() {
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.add"));
@@ -1566,8 +1550,7 @@ public class TvShowEditorDialog extends TmmDialog {
       // check, if text is selected (from auto completion), in this case we just
       // remove the selection
       Component editorComponent = cbTags.getEditor().getEditorComponent();
-      if (editorComponent instanceof JTextField) {
-        JTextField tf = (JTextField) editorComponent;
+      if (editorComponent instanceof JTextField tf) {
         String selectedText = tf.getSelectedText();
         if (selectedText != null) {
           tf.setSelectionStart(0);
@@ -1687,34 +1670,6 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  private class AbortAction extends AbstractAction {
-    AbortAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));
-      putValue(SMALL_ICON, IconManager.STOP_INV);
-      putValue(LARGE_ICON_KEY, IconManager.STOP_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      continueQueue = false;
-      setVisible(false);
-    }
-  }
-
-  private class NavigateBackAction extends AbstractAction {
-    private NavigateBackAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.back"));
-      putValue(SMALL_ICON, IconManager.BACK_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      navigateBack = true;
-      setVisible(false);
-    }
-  }
-
   private static class EpisodeEditorContainer extends AbstractModelObject implements Comparable<EpisodeEditorContainer> {
     final TvShowEpisode tvShowEpisode;
     int                 season;
@@ -1790,14 +1745,6 @@ public class TvShowEditorDialog extends TmmDialog {
     }
 
     super.dispose();
-  }
-
-  public boolean isContinueQueue() {
-    return continueQueue;
-  }
-
-  public boolean isNavigateBack() {
-    return navigateBack;
   }
 
   private class CloneEpisodeAction extends AbstractAction {
@@ -1896,51 +1843,17 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  protected BindingGroup initDataBindings() {
+  protected void initDataBindings() {
     JListBinding<MediaGenres, List<MediaGenres>, JList> jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ, genres, listGenres);
     jListBinding.bind();
     //
     JListBinding<String, List<String>, JList> jListBinding_1 = SwingBindings.createJListBinding(UpdateStrategy.READ, tags, listTags);
     jListBinding_1.bind();
     //
-    BindingGroup bindingGroup = new BindingGroup();
+    bindingGroup = new BindingGroup();
     //
     bindingGroup.addBinding(jListBinding);
     bindingGroup.addBinding(jListBinding_1);
-
-    return bindingGroup;
-  }
-
-  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, JButton buttonDelete, MediaFileType type) {
-    createLinkForImage(lblSize, imageLabel);
-
-    // image has been deleted
-    if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
-      lblSize.setText("");
-      lblSize.setVisible(false);
-      buttonDelete.setVisible(false);
-      return;
-    }
-
-    Dimension dimension;
-
-    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
-    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(tvShowToEdit.getArtworkUrl(type))) {
-      dimension = imageLabel.getOriginalImageSize();
-    } else {
-      // take from the existing artwork
-      dimension = tvShowToEdit.getArtworkDimension(type);
-    }
-
-    if (dimension.width == 0 && dimension.height == 0) {
-      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
-    }
-    else {
-      lblSize.setText(dimension.width + "x" + dimension.height);
-    }
-
-    lblSize.setVisible(true);
-    buttonDelete.setVisible(true);
   }
 
   private class AddTrailerAction extends AbstractAction {

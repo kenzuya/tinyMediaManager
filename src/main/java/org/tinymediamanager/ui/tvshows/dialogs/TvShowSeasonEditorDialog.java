@@ -19,11 +19,9 @@ import static org.tinymediamanager.core.MediaFileType.SEASON_BANNER;
 import static org.tinymediamanager.core.MediaFileType.SEASON_FANART;
 import static org.tinymediamanager.core.MediaFileType.SEASON_POSTER;
 import static org.tinymediamanager.core.MediaFileType.SEASON_THUMB;
-import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -64,8 +62,8 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
+import org.tinymediamanager.ui.dialogs.AbstractEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -74,18 +72,13 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowSeasonEditorDialog extends TmmDialog {
+public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
   private final TvShowSeason  tvShowSeasonToEdit;
   private final TvShowList    tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
   private final JTabbedPane   tabbedPane          = new TmmTabbedPane();
-
-  private boolean             continueQueue       = true;
-  private boolean             navigateBack        = false;
-  private final int           queueIndex;
-  private final int           queueSize;
 
   /**
    * UI elements
@@ -114,7 +107,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
    *          the queue size
    */
   public TvShowSeasonEditorDialog(TvShowSeason tvShowSeason, int queueIndex, int queueSize, int selectedTab) {
-    super(TmmResourceBundle.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor");
+    super(TmmResourceBundle.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor",
+            tvShowSeason);
 
     this.tvShowSeasonToEdit = tvShowSeason;
     this.queueIndex = queueIndex;
@@ -207,7 +201,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         });
 
         detailsPanel.add(lblPoster, "cell 3 1,grow");
-        lblPoster.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, SEASON_POSTER));
+        lblPoster.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+                e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, btnDeletePoster, SEASON_POSTER));
       }
     }
 
@@ -244,7 +239,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         });
 
         artworkPanel.add(lblFanart, "cell 1 1,grow");
-        lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, SEASON_FANART));
+        lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+                e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, SEASON_FANART));
       }
       {
         JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
@@ -271,7 +267,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         });
 
         artworkPanel.add(lblThumb, "cell 3 1,grow");
-        lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, SEASON_THUMB));
+        lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, btnDeleteThumb, SEASON_THUMB));
       }
       {
 
@@ -299,7 +295,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
         });
         artworkPanel.add(btnDeleteBanner, "cell 1 3");
 
-        lblBanner.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, SEASON_BANNER));
+        lblBanner.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+                e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, btnDeleteBanner, SEASON_BANNER));
       }
     }
 
@@ -345,7 +342,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       if (queueSize > 1) {
-        JButton btnAbort = new JButton(new AbortAction());
+        JButton btnAbort = new JButton(new AbortQueueAction(TmmResourceBundle.getString("tvshow.edit.abortqueue.desc")));
         addButton(btnAbort);
         if (queueIndex > 0) {
           JButton backButton = new JButton(new NavigateBackAction());
@@ -387,35 +384,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     updateArtworkUrl(label, textField);
-  }
-
-  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, MediaFileType type) {
-    createLinkForImage(lblSize, imageLabel);
-    // image has been deleted
-    if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
-      lblSize.setText("");
-      lblSize.setVisible(false);
-      return;
-    }
-
-    Dimension dimension;
-
-    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
-    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(tvShowSeasonToEdit.getArtworkUrl(type))) {
-      dimension = imageLabel.getOriginalImageSize();
-    } else {
-      // take from the existing artwork
-      dimension = tvShowSeasonToEdit.getArtworkDimension(type);
-    }
-
-    if (dimension.width == 0 && dimension.height == 0) {
-      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
-    }
-    else {
-      lblSize.setText(dimension.width + "x" + dimension.height);
-    }
-
-    lblSize.setVisible(true);
   }
 
   private void processArtwork(MediaFileType type, ImageLabel imageLabel, JTextField textField) {
@@ -478,52 +446,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      setVisible(false);
-    }
-  }
-
-  private class NavigateBackAction extends AbstractAction {
-    public NavigateBackAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.back"));
-      putValue(SMALL_ICON, IconManager.BACK_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      navigateBack = true;
-      setVisible(false);
-    }
-  }
-
-  /**
-   * Shows the dialog and returns whether the work on the queue should be continued.
-   * 
-   * @return true, if successful
-   */
-  public boolean showDialog() {
-    setVisible(true);
-    return continueQueue;
-  }
-
-  public boolean isContinueQueue() {
-    return continueQueue;
-  }
-
-  public boolean isNavigateBack() {
-    return navigateBack;
-  }
-
-  private class AbortAction extends AbstractAction {
-    AbortAction() {
-      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));
-      putValue(SMALL_ICON, IconManager.STOP_INV);
-      putValue(LARGE_ICON_KEY, IconManager.STOP_INV);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      continueQueue = false;
       setVisible(false);
     }
   }
