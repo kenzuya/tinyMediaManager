@@ -1922,7 +1922,16 @@ public class TvShowEditorDialog extends TmmDialog {
       return;
     }
 
-    Dimension dimension = tvShowToEdit.getArtworkDimension(type);
+    Dimension dimension;
+
+    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
+    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(tvShowToEdit.getArtworkUrl(type))) {
+      dimension = imageLabel.getOriginalImageSize();
+    } else {
+      // take from the existing artwork
+      dimension = tvShowToEdit.getArtworkDimension(type);
+    }
+
     if (dimension.width == 0 && dimension.height == 0) {
       lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
     }

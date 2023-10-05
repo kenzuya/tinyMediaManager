@@ -2199,11 +2199,20 @@ public class MovieEditorDialog extends TmmDialog {
       return;
     }
 
-    Dimension dimension = movieToEdit.getArtworkDimension(type);
-    if (dimension.width == 0 && dimension.height == 0) {
-      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
+    Dimension dimension;
+
+    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
+    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(movieToEdit.getArtworkUrl(type))) {
+      dimension = imageLabel.getOriginalImageSize();
     }
     else {
+      // take from the existing artwork
+      dimension = movieToEdit.getArtworkDimension(type);
+    }
+
+    if (dimension.width == 0 && dimension.height == 0) {
+      lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
+    } else {
       lblSize.setText(dimension.width + "x" + dimension.height);
     }
 

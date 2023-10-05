@@ -394,16 +394,28 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     // image has been deleted
     if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
       lblSize.setText("");
+      lblSize.setVisible(false);
       return;
     }
 
-    Dimension dimension = tvShowSeasonToEdit.getArtworkDimension(type);
+    Dimension dimension;
+
+    // check if there is a change in the artwork - in this case take the dimension from the imagelabel
+    if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(tvShowSeasonToEdit.getArtworkUrl(type))) {
+      dimension = imageLabel.getOriginalImageSize();
+    } else {
+      // take from the existing artwork
+      dimension = tvShowSeasonToEdit.getArtworkDimension(type);
+    }
+
     if (dimension.width == 0 && dimension.height == 0) {
       lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
     }
     else {
       lblSize.setText(dimension.width + "x" + dimension.height);
     }
+
+    lblSize.setVisible(true);
   }
 
   private void processArtwork(MediaFileType type, ImageLabel imageLabel, JTextField textField) {
