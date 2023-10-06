@@ -917,6 +917,10 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             if (mpFromResult == null) {
               mpFromResult = tvShowList.getMediaScraperById(result.getProviderId());
             }
+            if (mpFromResult == null) {
+              // still null? maybe we have a Kodi scraper here where the getProdiverId comes from the sub-scraper; take the scraper from the dropdown
+              mpFromResult = (MediaScraper) cbScraper.getSelectedItem();
+            }
             searchResultEventList.add(new TvShowChooserModel(tvShowToScrape, mpFromResult, artworkScrapers, trailerScrapers, result, language));
           }
         }

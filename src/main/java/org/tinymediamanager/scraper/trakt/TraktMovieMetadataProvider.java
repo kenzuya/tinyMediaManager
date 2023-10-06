@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -85,8 +86,6 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     // lazy initialization of the api
     initAPI();
 
-    TmdbMovieArtworkProvider tmdb = new TmdbMovieArtworkProvider();
-
     String searchString = "";
     if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
@@ -95,8 +94,23 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchResult> searchResults = null;
 
-    // pass NO language here since trakt.tv returns less results when passing a language :(
+    // if we have a Trakt ID, try to get result direct - no need to search...
+    String id = options.getIdAsString(Constants.TRAKT);
+    if (id != null) {
+      try {
+        MediaMetadata md = getMetadata(options);
+        MediaSearchResult msr = new MediaSearchResult(id, options.getMediaType());
+        msr.mergeFrom(md);
+        results.add(msr);
+        return results;
+      }
+      catch (Exception e) {
+        LOGGER.error("Problem scraping for {} - {}", searchString, e.getMessage());
+        // throw new ScrapeException(e); // continue
+      }
+    }
 
+    // pass NO language here since trakt.tv returns less results when passing a language :(
     try {
       searchResults = executeCall(api.search().textQueryMovie(searchString, null, null, null, null, null, null, null, Extended.FULL, 1, 25));
     }
@@ -112,24 +126,6 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
-
-      // also try to get the poster url from tmdb
-      if (tmdb.isActive() && MediaIdUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
-        try {
-          ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
-          tmdbOptions.setIds(m.getIds());
-          tmdbOptions.setLanguage(options.getLanguage());
-          tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
-          List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
-          if (ListUtils.isNotEmpty(artworks)) {
-            m.setPosterUrl(artworks.get(0).getPreviewUrl());
-          }
-        }
-        catch (Exception e) {
-          LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
-        }
-      }
-
       results.add(m);
     }
 
@@ -245,6 +241,26 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
         for (CrewMember crew : ListUtils.nullSafe(credits.crew.writing)) {
           md.addCastMember(TraktUtils.toTmmCast(crew, WRITER));
         }
+      }
+    }
+
+    // Trakt API has no images, and they state to search any of theirs IDs provider.
+    // So try to get the poster url from tmdb
+    TmdbMovieArtworkProvider tmdb = new TmdbMovieArtworkProvider();
+    if (tmdb.isActive() && (MediaIdUtil.isValidImdbId(movie.ids.imdb) || movie.ids.tmdb > 0)) {
+      try {
+        ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(options.getMediaType());
+        tmdbOptions.setImdbId(movie.ids.imdb);
+        tmdbOptions.setTmdbId(movie.ids.tmdb);
+        tmdbOptions.setLanguage(options.getLanguage());
+        tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
+        List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
+        if (ListUtils.isNotEmpty(artworks)) {
+          md.addMediaArt(artworks.get(0));
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
       }
     }
 

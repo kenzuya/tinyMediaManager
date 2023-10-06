@@ -38,12 +38,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -54,6 +57,7 @@ import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -101,6 +105,22 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchResult> searchResults = null;
+
+    // if we have a Trakt ID, try to get result direct - no need to search...
+    String id = options.getIdAsString(Constants.TRAKT);
+    if (id != null) {
+      try {
+        MediaMetadata md = getMetadata(options);
+        MediaSearchResult msr = new MediaSearchResult(id, options.getMediaType());
+        msr.mergeFrom(md);
+        results.add(msr);
+        return results;
+      }
+      catch (Exception e) {
+        LOGGER.error("Problem scraping for {} - {}", searchString, e.getMessage());
+        // throw new ScrapeException(e); // continue
+      }
+    }
 
     // pass NO language here since trakt.tv returns less results when passing a language :(
     try {
@@ -309,6 +329,26 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         for (CrewMember crew : ListUtils.nullSafe(credits.crew.writing)) {
           md.addCastMember(TraktUtils.toTmmCast(crew, WRITER));
         }
+      }
+    }
+
+    // Trakt API has no images, and they state to search any of theirs IDs provider.
+    // So try to get the poster url from tmdb
+    TmdbTvShowArtworkProvider tmdb = new TmdbTvShowArtworkProvider();
+    if (tmdb.isActive() && (MediaIdUtil.isValidImdbId(show.ids.imdb) || show.ids.tmdb > 0)) {
+      try {
+        ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(options.getMediaType());
+        tmdbOptions.setImdbId(show.ids.imdb);
+        tmdbOptions.setTmdbId(show.ids.tmdb);
+        tmdbOptions.setLanguage(options.getLanguage());
+        tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
+        List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
+        if (ListUtils.isNotEmpty(artworks)) {
+          md.addMediaArt(artworks.get(0));
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
       }
     }
 

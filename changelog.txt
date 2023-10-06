@@ -52,3 +52,4 @@ x fixed rebuilding image cache #2268
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 x fix plot formatting with line-breaks #2286
 + added certification column (tv show) #2317
++ (TRAKT) improve search performance, fixed TV poster
