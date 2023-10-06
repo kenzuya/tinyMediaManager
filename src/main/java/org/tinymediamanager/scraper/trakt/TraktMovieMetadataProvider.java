@@ -126,6 +126,18 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
+
+      // calculate score
+      if ((StringUtils.isNotBlank(options.getImdbId()) && options.getImdbId().equals(m.getIMDBId()))
+          || String.valueOf(options.getTmdbId()).equals(m.getId()) || (id != null && id.equals(m.getId()))) {
+        LOGGER.debug("perfect match by ID - set score to 1");
+        m.setScore(1);
+      }
+      else {
+        // calculate the score by comparing the search result with the search options
+        m.calculateScore(options);
+      }
+
       results.add(m);
     }
 
