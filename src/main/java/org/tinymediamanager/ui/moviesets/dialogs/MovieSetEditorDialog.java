@@ -111,6 +111,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
   private ImageLabel               lblFanart;
   private JTextArea                taPlot;
   private JTextField               tfTmdbId;
+  private JTextField               tfsortTitle;
 
   private ImageLabel               lblClearlogo;
   private ImageLabel               lblBanner;
@@ -224,6 +225,14 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       taNote.setWrapStyleWord(true);
       taNote.setForeground(UIManager.getColor("TextField.foreground"));
       scrollPane.setViewportView(taNote);
+
+      JLabel lblsortTitle = new TmmLabel(TmmResourceBundle.getString("metatag.sorttitle"));
+      panelContent.add(lblsortTitle,"cell 0 4,alignx right, aligny top");
+
+      tfsortTitle = new JTextField();
+      panelContent.add(tfsortTitle, "cell 1 4,growx,aligny top, wmin 0");
+      tfsortTitle.setColumns(10);
+
 
       JLabel lblMovies = new TmmLabel(TmmResourceBundle.getString("tmm.movies"));
       panelContent.add(lblMovies, "flowy,cell 0 5,alignx right,aligny top");
@@ -538,6 +547,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       tfTmdbId.setText(String.valueOf(movieSetToEdit.getTmdbId()));
       taPlot.setText(movieSetToEdit.getPlot());
       taNote.setText(movieSetToEdit.getNote());
+      tfsortTitle.setText(movieSetToEdit.getMovieSetSortTitle());
       moviesInSet.addAll(movieSetToEdit.getMovies());
 
       setArtworkPath(MediaFileType.POSTER, lblPoster);
@@ -662,6 +672,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       movieSetToEdit.setTitle(tfName.getText());
       movieSetToEdit.setPlot(taPlot.getText());
       movieSetToEdit.setNote(taNote.getText());
+      movieSetToEdit.setMovieSetSortTitle(tfsortTitle.getText());
 
       // process artwork
       processArtwork(MediaFileType.POSTER, lblPoster, tfPoster);

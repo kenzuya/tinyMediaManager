@@ -56,6 +56,7 @@ public class MovieSetNfoParser {
   public String               title               = "";
   public String               plot                = "";
   public String               userNote            = "";
+  public String               sortTitle           = "";
 
   public Map<String, Object>  ids                 = new HashMap<>();
   public List<String>         tags                = new ArrayList<>();
@@ -94,6 +95,7 @@ public class MovieSetNfoParser {
     parseTag(MovieSetNfoParser::parseIds);
     parseTag(MovieSetNfoParser::parseTags);
     parseTag(MovieSetNfoParser::parseUserNote);
+    parseTag(MovieSetNfoParser::parseSortTitle);
 
     parseTag(MovieSetNfoParser::parseGenres);
     parseTag(MovieSetNfoParser::parseStudios);
@@ -288,6 +290,19 @@ public class MovieSetNfoParser {
   }
 
   /**
+   * movie set sort title
+   */
+  private Void parseSortTitle() {
+    supportedElements.add("sort_title");
+
+    Element element = getSingleElement(root,"sort_title");
+    if (element != null) {
+      sortTitle = element.ownText();
+    }
+    return null;
+  }
+
+  /**
    * parse the genres tags<br />
    * - kodi has multiple genre tags<br />
    * - mediaportal as a nested genres tag
@@ -389,6 +404,7 @@ public class MovieSetNfoParser {
 
     movieSet.addToTags(tags);
     movieSet.setNote(userNote);
+    movieSet.setMovieSetSortTitle(sortTitle);
 
     return movieSet;
   }

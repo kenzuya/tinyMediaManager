@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.movie.entities;
 
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
+import static org.tinymediamanager.core.Constants.MOVIESET_SORTTITLE;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
@@ -83,6 +84,7 @@ public class MovieSet extends MediaEntity {
 
   private final List<Movie>                  movies                = new CopyOnWriteArrayList<>();
   private String                             titleSortable         = "";
+  private String                             sortTitle             = "";
 
   /**
    * Instantiates a new movieset. To initialize the propertychangesupport after loading
@@ -166,6 +168,27 @@ public class MovieSet extends MediaEntity {
       titleSortable = Utils.getSortableName(this.getTitle());
     }
     return titleSortable;
+  }
+
+  /**
+   * Sets the sort title.
+   *
+   * @param newValue
+   *          the new sort title
+   */
+  public void setMovieSetSortTitle(String newValue) {
+    String oldValue = this.sortTitle;
+    this.sortTitle = newValue;
+    firePropertyChange(MOVIESET_SORTTITLE, oldValue, newValue);
+  }
+
+  /**
+   * Gets the sort title.
+   *
+   * @return the sort title
+   */
+  public String getMovieSetSortTitle() {
+    return sortTitle;
   }
 
   public int getTmdbId() {

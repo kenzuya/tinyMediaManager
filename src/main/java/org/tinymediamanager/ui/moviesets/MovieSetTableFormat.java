@@ -315,6 +315,16 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
     addColumn(col);
+
+    /*
+    * sort title
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.sorttitle"), "sortTitle", this::getSortTitle, ImageIcon.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setCellTooltip(this::getSortTitle);
+    col.setDefaultHidden(true);
+    addColumn(col);
   }
 
   @Override
@@ -663,6 +673,15 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return ((Movie) userObject).getMainVideoFile().getFilename();
     }
 
+    return null;
+  }
+
+  private String getSortTitle(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet) {
+      return ((MovieSet) userObject).getMovieSetSortTitle();
+    }
     return null;
   }
 

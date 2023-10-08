@@ -482,6 +482,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
   protected void addTinyMediaManagerTags() {
     root.appendChild(document.createComment("tinyMediaManager meta data"));
     addUserNote();
+    addSortTitle();
   }
 
   /**
@@ -491,6 +492,15 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
     Element userNote = document.createElement("user_note");
     userNote.setTextContent(movieSet.getNote());
     root.appendChild(userNote);
+  }
+
+  /**
+   * add the sort title in <sort_title>xxx</sort_title>
+   */
+  protected void addSortTitle() {
+    Element sortTitle = document.createElement("sort_title");
+    sortTitle.setTextContent(movieSet.getMovieSetSortTitle());
+    root.appendChild(sortTitle);
   }
 
   /**
