@@ -131,6 +131,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       for (Map.Entry<String, Object> entry : tvShow.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
       }
@@ -189,6 +190,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
       options.setId("mediaFile", episode.getMainFile());
 

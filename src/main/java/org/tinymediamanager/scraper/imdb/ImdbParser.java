@@ -1990,10 +1990,12 @@ public abstract class ImdbParser {
         break;
 
       case THUMB:
-        addArtworkSize(artwork, 3840, 2160);
-        addArtworkSize(artwork, 1920, 1080);
-        addArtworkSize(artwork, 1280, 720);
-        addArtworkSize(artwork, 960, 540); // Kodi preference
+        for (MediaArtwork.ThumbSizes thumbSizes : MediaArtwork.ThumbSizes.values()) {
+          addArtworkSize(artwork, thumbSizes.getWidth(), thumbSizes.getHeight());
+          if (options.getThumbSize() == thumbSizes) {
+            artwork.setSizeOrder(options.getThumbSize().getOrder());
+          }
+        }
         break;
     }
   }

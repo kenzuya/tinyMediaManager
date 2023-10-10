@@ -1190,6 +1190,7 @@ public class ImageChooserDialog extends TmmDialog {
             options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
             options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
             options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+            options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
           }
           else {
             continue;

@@ -26,6 +26,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
+import org.tinymediamanager.scraper.entities.MediaArtwork.ThumbSizes;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Image;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
@@ -265,9 +266,9 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
     // @formatter:off
     HDMOVIECLEARART(1000, 562, MediaArtworkType.CLEARART, FanartSizes.MEDIUM.getOrder()),
     HDCLEARART(1000, 562, MediaArtworkType.CLEARART, FanartSizes.MEDIUM.getOrder()),
-    MOVIETHUMB(1000, 562, MediaArtworkType.THUMB, FanartSizes.MEDIUM.getOrder()),
-    SEASONTHUMB(1000, 562, MediaArtworkType.SEASON_THUMB, FanartSizes.MEDIUM.getOrder()),
-    TVTHUMB(500, 281, MediaArtworkType.THUMB, FanartSizes.MEDIUM.getOrder()),
+    MOVIETHUMB(1000, 562, MediaArtworkType.THUMB, ThumbSizes.MEDIUM.getOrder()),
+    SEASONTHUMB(1000, 562, MediaArtworkType.SEASON_THUMB, ThumbSizes.MEDIUM.getOrder()),
+    TVTHUMB(500, 281, MediaArtworkType.THUMB, ThumbSizes.MEDIUM.getOrder()),
     MOVIEBACKGROUND(1920, 1080, MediaArtworkType.BACKGROUND, FanartSizes.LARGE.getOrder()),
     SHOWBACKGROUND(1920, 1080, MediaArtworkType.BACKGROUND, FanartSizes.LARGE.getOrder()),
     MOVIEPOSTER(1000, 1426, MediaArtworkType.POSTER, PosterSizes.LARGE.getOrder()),

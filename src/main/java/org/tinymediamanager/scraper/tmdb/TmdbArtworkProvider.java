@@ -283,6 +283,9 @@ class TmdbArtworkProvider {
           ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path);
         }
 
+        // categorize image size and write default url
+        prepareDefaultThumb(ma, options);
+
         artwork.add(ma);
       }
     }
@@ -401,6 +404,56 @@ class TmdbArtworkProvider {
         if (options.getFanartSize().getOrder() >= MediaArtwork.FanartSizes.SMALL.getOrder()) {
           ma.setDefaultUrl(image.getUrl());
           ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
+          break;
+        }
+        continue;
+      }
+    }
+  }
+
+  private void prepareDefaultThumb(MediaArtwork ma, ArtworkSearchAndScrapeOptions options) {
+    for (MediaArtwork.ImageSizeAndUrl image : ma.getImageSizes()) {
+      // X-LARGE
+      if (image.getWidth() >= 3840) {
+        if (options.getFanartSize().getOrder() >= MediaArtwork.ThumbSizes.XLARGE.getOrder()) {
+          ma.setDefaultUrl(image.getUrl());
+          ma.setSizeOrder(MediaArtwork.ThumbSizes.XLARGE.getOrder());
+          break;
+        }
+        continue;
+      }
+      // LARGE
+      if (image.getWidth() >= 1920) {
+        if (options.getFanartSize().getOrder() >= MediaArtwork.ThumbSizes.LARGE.getOrder()) {
+          ma.setDefaultUrl(image.getUrl());
+          ma.setSizeOrder(MediaArtwork.ThumbSizes.LARGE.getOrder());
+          break;
+        }
+        continue;
+      }
+      // BIG
+      if (image.getWidth() >= 1280) {
+        if (options.getFanartSize().getOrder() >= MediaArtwork.ThumbSizes.BIG.getOrder()) {
+          ma.setDefaultUrl(image.getUrl());
+          ma.setSizeOrder(MediaArtwork.ThumbSizes.BIG.getOrder());
+          break;
+        }
+        continue;
+      }
+      // MEDIUM
+      if (image.getWidth() >= 960) {
+        if (options.getFanartSize().getOrder() >= MediaArtwork.ThumbSizes.MEDIUM.getOrder()) {
+          ma.setDefaultUrl(image.getUrl());
+          ma.setSizeOrder(MediaArtwork.ThumbSizes.MEDIUM.getOrder());
+          break;
+        }
+        continue;
+      }
+      // SMALL
+      if (image.getWidth() >= 300) {
+        if (options.getFanartSize().getOrder() >= MediaArtwork.ThumbSizes.SMALL.getOrder()) {
+          ma.setDefaultUrl(image.getUrl());
+          ma.setSizeOrder(MediaArtwork.ThumbSizes.SMALL.getOrder());
           break;
         }
         continue;

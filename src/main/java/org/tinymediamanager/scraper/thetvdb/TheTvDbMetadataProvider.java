@@ -369,6 +369,21 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           }
           break;
 
+        case THUMB:
+          if (width >= 3840) {
+            ma.setSizeOrder(MediaArtwork.ThumbSizes.XLARGE.getOrder());
+          }
+          if (width >= 1920) {
+            ma.setSizeOrder(MediaArtwork.ThumbSizes.LARGE.getOrder());
+          } else if (width >= 1280) {
+            ma.setSizeOrder(MediaArtwork.ThumbSizes.BIG.getOrder());
+          } else if (width >= 960) {
+            ma.setSizeOrder(MediaArtwork.ThumbSizes.MEDIUM.getOrder());
+          } else {
+            ma.setSizeOrder(MediaArtwork.ThumbSizes.SMALL.getOrder());
+          }
+          break;
+
         default:
           break;
       }

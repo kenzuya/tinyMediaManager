@@ -354,6 +354,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       options.setMetadata(metadata);
 
       for (Entry<String, Object> entry : tvShow.getIds().entrySet()) {

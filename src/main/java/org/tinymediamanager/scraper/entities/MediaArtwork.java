@@ -150,6 +150,49 @@ public class MediaArtwork {
     }
   }
 
+  /**
+   * All available thumb sizes
+   *
+   * @author Manuel Laggner
+   * @since 1.0
+   */
+  public enum ThumbSizes {
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 3840, 2160, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1920, 1080, 8),
+    BIG(TmmResourceBundle.getString("Settings.image.big"), 1280, 720, 4),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 960, 540, 2), // kodi preference
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
+
+    private final String text;
+    private final int width;
+    private final int height;
+    private final int order;
+
+    ThumbSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
+      this.order = order;
+    }
+
+    @Override
+    public String toString() {
+      return text;
+    }
+
+    public int getOrder() {
+      return order;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+  }
+
   private final String                providerId;
   private final MediaArtworkType      type;
 

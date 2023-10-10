@@ -198,7 +198,7 @@ public class TvShowArtworkHelper {
 
     // thumb
     if (tvShow.getMediaFiles(MediaFileType.THUMB).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.THUMB);
+      setBestThumb(tvShow, artwork);
     }
 
     // discart
@@ -381,6 +381,21 @@ public class TvShowArtworkHelper {
     }
   }
 
+  private static void setBestThumb(TvShow tvShow, List<MediaArtwork> artwork) {
+    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+
+    // sort artwork due to our preferences
+    List<MediaArtwork> sortedPosters = sortArtwork(artwork, THUMB, preferredSizeOrder);
+
+    // assign and download the poster
+    if (!sortedPosters.isEmpty()) {
+      MediaArtwork foundThumb = sortedPosters.get(0);
+      tvShow.setArtworkUrl(foundThumb.getDefaultUrl(), MediaFileType.THUMB);
+
+      downloadArtwork(tvShow, MediaFileType.THUMB);
+    }
+  }
+
   /**
    * detect if there is missing artwork for the given TV show
    * 
@@ -482,13 +497,17 @@ public class TvShowArtworkHelper {
   public static void downloadSeasonArtwork(TvShowSeason tvShowSeason, MediaFileType artworkType) {
     switch (artworkType) {
       case SEASON_POSTER ->
-        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(), artworkType);
+              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(),
+                      artworkType);
       case SEASON_FANART ->
-        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(), artworkType);
+              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(),
+                      artworkType);
       case SEASON_BANNER ->
-        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), artworkType);
+              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(),
+                      artworkType);
       case SEASON_THUMB ->
-        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(), artworkType);
+              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(),
+                      artworkType);
     }
   }
 
