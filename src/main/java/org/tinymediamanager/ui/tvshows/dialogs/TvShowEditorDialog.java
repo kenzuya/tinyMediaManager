@@ -1263,9 +1263,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
 
         if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getSeason()) {
           container.tvShowEpisode.setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
-          if (!container.isCloned()) {
-            container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs, if not cloned!
-          }
+          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
 
@@ -1676,7 +1674,6 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     final TvShowEpisode tvShowEpisode;
     int                 season;
     int                 episode;
-    private boolean     cloned = false;
 
     EpisodeEditorContainer(TvShowEpisode episode) {
       this.tvShowEpisode = episode;
@@ -1739,14 +1736,6 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     public int hashCode() {
       return Objects.hash(tvShowEpisode);
     }
-
-    public boolean isCloned() {
-      return cloned;
-    }
-
-    public void setCloned(boolean cloned) {
-      this.cloned = cloned;
-    }
   }
 
   @Override
@@ -1774,7 +1763,6 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         origContainer.tvShowEpisode.setMultiEpisode(true); // we clone, so the source is now multi
         TvShowEpisode clone = new TvShowEpisode(origContainer.tvShowEpisode);
         EpisodeEditorContainer newContainer = new EpisodeEditorContainer(clone);
-        newContainer.setCloned(true);
         newContainer.tvShowEpisode.setTitle(origContainer.tvShowEpisode.getTitle() + " (clone)");
         newContainer.episode = -1;
         newContainer.season = newContainer.tvShowEpisode.getSeason();
