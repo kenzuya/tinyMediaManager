@@ -226,6 +226,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     tags.addAll(source.tags);
     originalFilename = source.originalFilename;
+    productionCompany = source.productionCompany;
     dummy = source.dummy;
   }
 

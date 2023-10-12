@@ -48,6 +48,7 @@ x (IMDB) adapt keywords parsing to new style
 x (TVDB) also scrape season overview/names #2275
 x do not drop audio channels with empty bitrate #2262
 x do not write NFO files on "update data sources"
+x fix cloning of TV episodes #2309
 x fixed rebuilding image cache #2268
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 x fix plot formatting with line-breaks #2286

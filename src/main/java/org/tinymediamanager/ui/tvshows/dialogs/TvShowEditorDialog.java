@@ -217,7 +217,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
    */
   public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO()
-            + " >", "tvShowEditor", tvShow);
+        + " >", "tvShowEditor", tvShow);
 
     this.tvShowToEdit = tvShow;
     this.queueIndex = queueIndex;
@@ -1263,7 +1263,9 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
 
         if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getSeason()) {
           container.tvShowEpisode.setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
-          container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
+          if (!container.isCloned()) {
+            container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs, if not cloned!
+          }
           shouldStore = true;
         }
 
@@ -1674,6 +1676,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     final TvShowEpisode tvShowEpisode;
     int                 season;
     int                 episode;
+    private boolean     cloned = false;
 
     EpisodeEditorContainer(TvShowEpisode episode) {
       this.tvShowEpisode = episode;
@@ -1736,6 +1739,14 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     public int hashCode() {
       return Objects.hash(tvShowEpisode);
     }
+
+    public boolean isCloned() {
+      return cloned;
+    }
+
+    public void setCloned(boolean cloned) {
+      this.cloned = cloned;
+    }
   }
 
   @Override
@@ -1760,7 +1771,10 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       if (row > -1) {
         row = tableEpisodes.convertRowIndexToModel(row);
         EpisodeEditorContainer origContainer = episodes.get(row);
-        EpisodeEditorContainer newContainer = new EpisodeEditorContainer(origContainer.tvShowEpisode);
+        origContainer.tvShowEpisode.setMultiEpisode(true); // we clone, so the source is now multi
+        TvShowEpisode clone = new TvShowEpisode(origContainer.tvShowEpisode);
+        EpisodeEditorContainer newContainer = new EpisodeEditorContainer(clone);
+        newContainer.setCloned(true);
         newContainer.tvShowEpisode.setTitle(origContainer.tvShowEpisode.getTitle() + " (clone)");
         newContainer.episode = -1;
         newContainer.season = newContainer.tvShowEpisode.getSeason();
