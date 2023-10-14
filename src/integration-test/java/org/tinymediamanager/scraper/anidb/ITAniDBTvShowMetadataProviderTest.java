@@ -87,7 +87,7 @@ public class ITAniDBTvShowMetadataProviderTest extends BasicITest {
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);
       assertThat(mediaRating.getVotes()).isGreaterThanOrEqualTo(56);
-      assertEquals("http://img7.anidb.net/pics/anime/11059.jpg", md.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl());
+      assertEquals("http://img7.anidb.net/pics/anime/11059.jpg", md.getMediaArt(MediaArtworkType.POSTER).get(0).getBiggestArtwork().getUrl());
       assertEquals("Anime", md.getGenres().get(0).toString());
 
       // first actor

@@ -121,7 +121,6 @@ public class FanartTvTvShowArtworkProvider extends FanartTvMetadataProvider impl
     }
 
     returnArtwork = getArtwork(images.body(), artworkType);
-    returnArtwork.sort(new MediaArtwork.MediaArtworkComparator(language));
 
     // buffer the artwork
     MediaMetadata md = options.getMetadata();

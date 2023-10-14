@@ -225,7 +225,6 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       }
 
       MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type.type);
-      ma.setDefaultUrl(image.url);
       ma.setOriginalUrl(image.url);
 
       // replace the url to get the preview AND switch to assetcache.fanart.tv (as suggested in discord)
@@ -241,8 +240,7 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
         ma.setLanguage(image.lang);
       }
       ma.setLikes(image.likes);
-      ma.addImageSize(type.width, type.height, image.url);
-      ma.setSizeOrder(type.sizeOrder);
+      ma.addImageSize(type.width, type.height, image.url, type.sizeOrder);
 
       if ("all".equals(image.season)) {
         ma.setSeason(0);

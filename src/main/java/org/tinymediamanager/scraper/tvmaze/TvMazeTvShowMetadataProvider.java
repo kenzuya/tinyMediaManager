@@ -214,19 +214,27 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       switch (image.type) {
         case "poster":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setPreviewUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
+                  MediaArtwork.PosterSizes.getSizeOrder(image.resolutions.original.width));
           md.addMediaArt(ma);
           break;
 
         case "background":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
+                  MediaArtwork.FanartSizes.getSizeOrder(image.resolutions.original.width));
           md.addMediaArt(ma);
           break;
 
         case "banner":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BANNER);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url, 0);
           md.addMediaArt(ma);
           break;
       }

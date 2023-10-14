@@ -424,8 +424,9 @@ public class MovieChooserModel extends AbstractModelObject {
       // at last take the poster from the result
       if (StringUtils.isNotBlank(getPosterUrl())) {
         MediaArtwork ma = new MediaArtwork(result.getProviderId(), MediaArtworkType.POSTER);
-        ma.setDefaultUrl(getPosterUrl());
+        ma.setOriginalUrl(getPosterUrl());
         ma.setPreviewUrl(getPosterUrl());
+        ma.addImageSize(0, 0, getPosterUrl(), 0);
         artwork.add(ma);
       }
 

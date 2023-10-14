@@ -569,11 +569,18 @@ public class MovieSetArtworkHelper {
    *          the preferred size
    * @return the found artwork or null
    */
-  private static List<MediaArtwork> sortArtwork(List<MediaArtwork> artwork, MediaArtwork.MediaArtworkType type, int sizeOrder) {
-    List<MediaArtwork> sortedArtwork = new ArrayList<>();
+  private static List<MediaArtwork.ImageSizeAndUrl> sortArtworkUrls(List<MediaArtwork> artwork, MediaArtwork.MediaArtworkType type, int sizeOrder) {
+    List<MediaArtwork> artworkForType = new ArrayList<>(artwork.stream().filter(art -> art.getType() == type).toList());
 
-    if (artwork.isEmpty()) {
-      return sortedArtwork;
+    if (artworkForType.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<MediaArtwork.ImageSizeAndUrl> sortedArtwork = new ArrayList<>();
+
+    if (sizeOrder == 0) {
+      // we do not have any sizeOrder -> we're sorting an artwork without a setting. So pre-sort by biggest artwork first
+      artworkForType.sort((o1, o2) -> Integer.compare(o2.getBiggestArtwork().getWidth(), o1.getBiggestArtwork().getWidth()));
     }
 
     List<MediaLanguages> languages = MovieSettings.getInstance().getImageScraperLanguages();
@@ -581,10 +588,11 @@ public class MovieSetArtworkHelper {
     // get the artwork in the chosen language priority
     for (MediaLanguages language : languages) {
       // the right language and the right resolution
-      for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language.getLanguage())
-            && art.getSizeOrder() == sizeOrder) {
-          sortedArtwork.add(art);
+      for (MediaArtwork art : artwork.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (imageSizeAndUrl.getSizeOrder() == sizeOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
+            sortedArtwork.add(imageSizeAndUrl);
+          }
         }
       }
     }
@@ -596,10 +604,12 @@ public class MovieSetArtworkHelper {
         newOrder = newOrder / 2;
         for (MediaLanguages language : languages) {
           // the right language and the right resolution
-          for (MediaArtwork art : artwork) {
-            if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language.getLanguage())
-                && art.getSizeOrder() == sizeOrder) {
-              sortedArtwork.add(art);
+          // the right language and the right resolution
+          for (MediaArtwork art : artworkForType.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
+            for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+              if (imageSizeAndUrl.getSizeOrder() == newOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
+                sortedArtwork.add(imageSizeAndUrl);
+              }
             }
           }
         }
@@ -608,9 +618,11 @@ public class MovieSetArtworkHelper {
 
     // should we fall back to _any_ artwork?
     if (MovieModuleManager.getInstance().getSettings().isImageScraperFallback()) {
-      for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type) {
-          sortedArtwork.add(art);
+      for (MediaArtwork art : artworkForType) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (!sortedArtwork.contains(imageSizeAndUrl)) {
+            sortedArtwork.add(imageSizeAndUrl);
+          }
         }
       }
     }
@@ -625,12 +637,12 @@ public class MovieSetArtworkHelper {
     int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtwork.MediaArtworkType.POSTER, preferredSizeOrder);
+    List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtwork.MediaArtworkType.POSTER, preferredSizeOrder);
 
     // assign and download the poster
     if (!sortedPosters.isEmpty()) {
-      MediaArtwork foundPoster = sortedPosters.get(0);
-      movieSet.setArtworkUrl(foundPoster.getDefaultUrl(), MediaFileType.POSTER);
+      MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
+      movieSet.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
     }
   }
 
@@ -643,19 +655,25 @@ public class MovieSetArtworkHelper {
     // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
     // resolution) first
     // https://kodi.wiki/view/Artwork_types#fanart
-    MediaArtwork fanartWoText = null;
+    MediaArtwork.ImageSizeAndUrl fanartWoText = null;
 
     if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
       for (MediaArtwork art : artwork) {
-        if (art.getType() == MediaArtwork.MediaArtworkType.BACKGROUND && art.getLanguage().equals("") && art.getSizeOrder() == preferredSizeOrder) {
-          fanartWoText = art;
-          break;
+        if (art.getType() == MediaArtwork.MediaArtworkType.BACKGROUND && art.getLanguage().equals("-")) {
+          // right type
+          for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+            // right size
+            if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
+              fanartWoText = imageSizeAndUrl;
+              break;
+            }
+          }
         }
       }
     }
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtwork.MediaArtworkType.BACKGROUND, preferredSizeOrder);
+    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtwork.MediaArtworkType.BACKGROUND, preferredSizeOrder);
 
     // and insert the text-less in the front
     if (fanartWoText != null) {
@@ -664,8 +682,8 @@ public class MovieSetArtworkHelper {
 
     // assign and download the fanart
     if (!sortedFanarts.isEmpty()) {
-      MediaArtwork foundfanart = sortedFanarts.get(0);
-      movieSet.setArtworkUrl(foundfanart.getDefaultUrl(), MediaFileType.FANART);
+      MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
+      movieSet.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
     }
   }
 
@@ -683,13 +701,11 @@ public class MovieSetArtworkHelper {
     // sort artwork due to our preferences
     int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
 
-    List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder);
+    List<MediaArtwork.ImageSizeAndUrl> sortedArtworks = sortArtworkUrls(artwork, type, preferredSizeOrder);
 
-    for (MediaArtwork art : sortedArtworks) {
-      if (art.getType() == type) {
-        movieSet.setArtworkUrl(art.getDefaultUrl(), MediaFileType.getMediaFileType(type));
-        break;
-      }
+    if (!sortedArtworks.isEmpty()) {
+      MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtworks.get(0);
+      movieSet.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
     }
   }
 
@@ -1138,7 +1154,8 @@ public class MovieSetArtworkHelper {
   /**
    * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
    *
-   * @param movieSet the {@link MovieSet}
+   * @param movieSet
+   *          the {@link MovieSet}
    * @return the cleaned movie set title
    */
   public static String getMovieSetTitleForStorage(MovieSet movieSet) {
@@ -1148,8 +1165,10 @@ public class MovieSetArtworkHelper {
   /**
    * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
    *
-   * @param movieSet    the {@link MovieSet}
-   * @param replacement the replacement token
+   * @param movieSet
+   *          the {@link MovieSet}
+   * @param replacement
+   *          the replacement token
    * @return the cleaned movie set title
    */
   public static String getMovieSetTitleForStorage(MovieSet movieSet, String replacement) {

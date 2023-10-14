@@ -499,7 +499,8 @@ public class VSMeta {
                 String value = reader.nextString();
                 LOGGER.trace("SYNO: found backdrop: " + value);
                 MediaArtwork ma = new MediaArtwork("com.synology", MediaArtworkType.BACKGROUND);
-                ma.setDefaultUrl(value);
+                ma.setOriginalUrl(value);
+                ma.addImageSize(0, 0, value, 0);
                 artworks.add(ma);
               }
               reader.endArray();
@@ -510,7 +511,8 @@ public class VSMeta {
                 String value = reader.nextString();
                 LOGGER.trace("SYNO: found poster: " + value);
                 MediaArtwork ma = new MediaArtwork("com.synology", MediaArtworkType.POSTER);
-                ma.setDefaultUrl(value);
+                ma.setOriginalUrl(value);
+                ma.addImageSize(0, 0, value, 0);
                 artworks.add(ma);
               }
               reader.endArray();
@@ -662,7 +664,7 @@ public class VSMeta {
     }
 
     for (MediaArtwork ma : artworks) {
-      m.setArtworkUrl(ma.getDefaultUrl(), MediaFileType.getMediaFileType(ma.getType()));
+      m.setArtworkUrl(ma.getOriginalUrl(), MediaFileType.getMediaFileType(ma.getType()));
     }
 
     Set<MediaGenres> genres = new LinkedHashSet<>();
@@ -720,7 +722,7 @@ public class VSMeta {
     // tv.setCertification(certification);
 
     for (MediaArtwork ma : artworks) {
-      ep.setArtworkUrl(ma.getDefaultUrl(), MediaFileType.getMediaFileType(ma.getType()));
+      ep.setArtworkUrl(ma.getOriginalUrl(), MediaFileType.getMediaFileType(ma.getType()));
     }
 
     List<Person> actors = new ArrayList<>();

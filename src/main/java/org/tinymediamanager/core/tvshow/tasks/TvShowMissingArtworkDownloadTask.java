@@ -229,8 +229,12 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           }
         }
 
-        if (!artwork.isEmpty()) {
-          episode.setArtworkUrl(artwork.get(0).getDefaultUrl(), MediaFileType.THUMB);
+        int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+        List<MediaArtwork.ImageSizeAndUrl> sortedThumbs = TvShowArtworkHelper.sortArtworkUrls(artwork, MediaArtwork.MediaArtworkType.THUMB,
+                preferredSizeOrder);
+
+        if (!sortedThumbs.isEmpty()) {
+          episode.setArtworkUrl(sortedThumbs.get(0).getUrl(), MediaFileType.THUMB);
           episode.downloadArtwork(MediaFileType.THUMB);
         }
       }

@@ -749,7 +749,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
   private void checkMoviePoster(MediaMetadata md) {
     assertThat(md.getMediaArt()).isNotEmpty();
-    assertThat(md.getMediaArt().get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(md.getMediaArt().get(0).getImageSizes()).isNotEmpty();
   }
 
   private void checkCastMembers(MediaMetadata md) {
@@ -778,7 +778,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
     assertThat(artworks).isNotEmpty();
     assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
-    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getImageSizes()).isNotEmpty();
     assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
   }
 
@@ -794,7 +794,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
     assertThat(artworks).isNotEmpty();
     assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
-    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getImageSizes()).isNotEmpty();
     assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
   }
 
@@ -810,7 +810,7 @@ public class ITImdbMetadataProviderTest extends BasicITest {
 
     assertThat(artworks).isNotEmpty();
     assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
-    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getImageSizes()).isNotEmpty();
     assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
   }
 }

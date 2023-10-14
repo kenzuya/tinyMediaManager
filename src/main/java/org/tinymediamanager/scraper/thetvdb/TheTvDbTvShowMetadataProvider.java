@@ -581,12 +581,14 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     if (StringUtils.isNotBlank(episode.image)) {
       MediaArtwork ma = new MediaArtwork(getProviderInfo().getId(), MediaArtwork.MediaArtworkType.THUMB);
       ma.setPreviewUrl(episode.image);
-      ma.setDefaultUrl(episode.image);
       ma.setOriginalUrl(episode.image);
 
       ArtworkTypeRecord artworkTypeRecord = getArtworkType(episode.imageType);
       if (artworkTypeRecord != null) {
-        ma.addImageSize(artworkTypeRecord.width, artworkTypeRecord.height, episode.image);
+        int sizeOrder = getSizeOrder(ma.getType(), artworkTypeRecord.width);
+        ma.addImageSize(artworkTypeRecord.width, artworkTypeRecord.height, episode.image, sizeOrder);
+      } else {
+        ma.addImageSize(0, 0, episode.image, 0);
       }
 
       md.addMediaArt(ma);

@@ -554,10 +554,10 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (StringUtils.isNotBlank(complete.poster_path)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(artworkBaseUrl + "w342" + complete.poster_path);
-      ma.setDefaultUrl(artworkBaseUrl + "original" + complete.poster_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + complete.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(complete.id);
+      ma.addImageSize(0, 0, artworkBaseUrl + "original" + complete.poster_path, 0);
       md.addMediaArt(ma);
     }
 
@@ -936,19 +936,20 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       for (Image image : episode.images.stills) {
         MediaArtwork ma = new MediaArtwork(getId(), MediaArtworkType.THUMB);
         ma.setPreviewUrl(artworkBaseUrl + "w300" + image.file_path);
-        ma.setDefaultUrl(artworkBaseUrl + "original" + image.file_path);
         ma.setOriginalUrl(artworkBaseUrl + "original" + image.file_path);
 
         // add different sizes
         // original (most of the time 1920x1080)
-        ma.addImageSize(image.width, image.height, artworkBaseUrl + "original" + image.file_path);
+        ma.addImageSize(image.width, image.height, artworkBaseUrl + "original" + image.file_path, MediaArtwork.ThumbSizes.getSizeOrder(image.width));
         // 1280x720
         if (1280 < image.width) {
-          ma.addImageSize(1280, image.height * 1280 / image.width, artworkBaseUrl + "w1280" + image.file_path);
+          ma.addImageSize(1280, image.height * 1280 / image.width, artworkBaseUrl + "w1280" + image.file_path,
+                  MediaArtwork.ThumbSizes.getSizeOrder(1280));
         }
         // w300
         if (300 < image.width) {
-          ma.addImageSize(300, image.height * 300 / image.width, artworkBaseUrl + "w300" + image.file_path);
+          ma.addImageSize(300, image.height * 300 / image.width, artworkBaseUrl + "w300" + image.file_path,
+                  MediaArtwork.ThumbSizes.getSizeOrder(300));
         }
 
         md.addMediaArt(ma);
@@ -957,9 +958,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     else if (StringUtils.isNotBlank(episode.still_path)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtworkType.THUMB);
       ma.setPreviewUrl(artworkBaseUrl + "w300" + episode.still_path);
-      ma.setDefaultUrl(artworkBaseUrl + "original" + episode.still_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + episode.still_path);
-      ma.addImageSize(1920, 1080, artworkBaseUrl + "original" + episode.still_path);
+      ma.addImageSize(0, 0, artworkBaseUrl + "original" + episode.still_path, 0);
       md.addMediaArt(ma);
     }
 

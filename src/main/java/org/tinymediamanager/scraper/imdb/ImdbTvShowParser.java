@@ -734,7 +734,6 @@ public class ImdbTvShowParser extends ImdbParser {
               if (StringUtils.isNotBlank(posterUrl)) {
                 MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
                 ma.setPreviewUrl(thumb);
-                ma.setDefaultUrl(posterUrl);
                 ma.setOriginalUrl(posterUrl);
                 ep.addMediaArt(ma);
               }
@@ -955,7 +954,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
-        adoptArtworkToOptions(artwork, options);
+        adoptArtworkSizes(artwork);
       }
 
       return artworks;

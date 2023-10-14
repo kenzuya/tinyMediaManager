@@ -335,75 +335,17 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     if (artworkType != null) {
       int width = artworkType.width;
       int height = artworkType.height;
-      ma.addImageSize(width, height, image.image);
+      int sizeOrder = getSizeOrder(ma.getType(), width);
 
-      // set image size
-      switch (ma.getType()) {
-        case POSTER:
-          if (width >= 1000) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.LARGE.getOrder());
-          }
-          else if (width >= 500) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.BIG.getOrder());
-          }
-          else if (width >= 342) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.MEDIUM.getOrder());
-          }
-          else {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.SMALL.getOrder());
-          }
-          break;
-
-        case BACKGROUND:
-          if (width >= 3840) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.XLARGE.getOrder());
-          }
-          if (width >= 1920) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-          }
-          else if (width >= 1280) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-          }
-          else {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
-          }
-          break;
-
-        case THUMB:
-          if (width >= 3840) {
-            ma.setSizeOrder(MediaArtwork.ThumbSizes.XLARGE.getOrder());
-          }
-          if (width >= 1920) {
-            ma.setSizeOrder(MediaArtwork.ThumbSizes.LARGE.getOrder());
-          } else if (width >= 1280) {
-            ma.setSizeOrder(MediaArtwork.ThumbSizes.BIG.getOrder());
-          } else if (width >= 960) {
-            ma.setSizeOrder(MediaArtwork.ThumbSizes.MEDIUM.getOrder());
-          } else {
-            ma.setSizeOrder(MediaArtwork.ThumbSizes.SMALL.getOrder());
-          }
-          break;
-
-        default:
-          break;
-      }
+      ma.addImageSize(width, height, image.image, sizeOrder);
     }
 
-    // set size for banner & season poster (resolution not in api)
-    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER) {
-      ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-    }
-    else if (ma.getType() == BANNER) {
-      ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-    }
-
-    ma.setDefaultUrl(image.image);
     ma.setOriginalUrl(image.image);
     if (StringUtils.isNotBlank(image.thumbnail)) {
       ma.setPreviewUrl(image.thumbnail);
     }
     else {
-      ma.setPreviewUrl(ma.getDefaultUrl());
+      ma.setPreviewUrl(ma.getOriginalUrl());
     }
 
     if (StringUtils.isBlank(image.language)) {
@@ -430,7 +372,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     searchResult.setMetadata(md);
     for (MediaArtwork artwork : md.getMediaArt()) {
       if (artwork.getType() == MediaArtwork.MediaArtworkType.POSTER) {
-        searchResult.setPosterUrl(artwork.getDefaultUrl());
+        searchResult.setPosterUrl(artwork.getPreviewUrl());
         break;
       }
     }
@@ -452,5 +394,69 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     return 0;
+  }
+
+  /**
+   * get the size order of the given artwork
+   *
+   * @param type  the {@link MediaArtwork.MediaArtworkType}
+   * @param width the width
+   * @return the size order
+   */
+  protected int getSizeOrder(MediaArtwork.MediaArtworkType type, int width) {
+    int sizeOrder = 0;
+
+    // set image size
+    switch (type) {
+      case POSTER:
+        if (width >= 1000) {
+          sizeOrder = MediaArtwork.PosterSizes.LARGE.getOrder();
+        } else if (width >= 500) {
+          sizeOrder = MediaArtwork.PosterSizes.BIG.getOrder();
+        } else if (width >= 342) {
+          sizeOrder = MediaArtwork.PosterSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.PosterSizes.SMALL.getOrder();
+        }
+        break;
+
+      case BACKGROUND:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder();
+        } else if (width >= 1920) {
+          sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+        } else if (width >= 1280) {
+          sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.FanartSizes.SMALL.getOrder();
+        }
+        break;
+
+      case THUMB:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.ThumbSizes.XLARGE.getOrder();
+        } else if (width >= 1920) {
+          sizeOrder = MediaArtwork.ThumbSizes.LARGE.getOrder();
+        } else if (width >= 1280) {
+          sizeOrder = MediaArtwork.ThumbSizes.BIG.getOrder();
+        } else if (width >= 960) {
+          sizeOrder = MediaArtwork.ThumbSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.ThumbSizes.SMALL.getOrder();
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // set size for banner & season poster (resolution not in api)
+    if (type == SEASON_BANNER || type == SEASON_POSTER) {
+      sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+    } else if (type == BANNER) {
+      sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+    }
+
+    return sizeOrder;
   }
 }

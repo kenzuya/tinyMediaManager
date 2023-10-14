@@ -740,8 +740,8 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
 
         MediaArtwork ma = metadata.getMediaArt(MediaArtworkType.THUMB).stream().findFirst().orElse(null);
         if (ma != null) {
-          tfThumb.setText(ma.getDefaultUrl());
-          lblThumb.setImageUrl(ma.getDefaultUrl());
+          tfThumb.setText(ma.getOriginalUrl());
+          lblThumb.setImageUrl(ma.getOriginalUrl());
         }
       }
     }
@@ -1039,8 +1039,8 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
         // artwork
         MediaArtwork ma = metadata.getMediaArt(MediaArtworkType.THUMB).stream().findFirst().orElse(null);
         if (ma != null) {
-          lblThumb.setImageUrl(ma.getDefaultUrl());
-          tfThumb.setText(ma.getDefaultUrl());
+          lblThumb.setImageUrl(ma.getOriginalUrl());
+          tfThumb.setText(ma.getOriginalUrl());
         }
       }
     }

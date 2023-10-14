@@ -296,7 +296,8 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
 
     if (StringUtils.isNotBlank(movie.attr("poster"))) {
       MediaArtwork artwork = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-      artwork.setDefaultUrl(movie.attr("poster"));
+      artwork.setOriginalUrl(movie.attr("poster"));
+      artwork.addImageSize(300, 445, movie.attr("poster"), MediaArtwork.PosterSizes.getSizeOrder(300));
       md.addMediaArt(artwork);
     }
 

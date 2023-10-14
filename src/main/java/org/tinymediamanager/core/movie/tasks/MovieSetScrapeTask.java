@@ -27,6 +27,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
@@ -172,12 +173,22 @@ public class MovieSetScrapeTask extends TmmThreadPool {
 
         // POSTER
         if (!item.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).isEmpty()) {
-          movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
+          int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+          List<MediaArtwork.ImageSizeAndUrl> sortedPosters = MovieArtworkHelper.sortArtworkUrls(item.getMediaArt(),
+                  MediaArtwork.MediaArtworkType.POSTER, preferredSizeOrder);
+          if (!sortedPosters.isEmpty()) {
+            movieSetMovie.setArtworkUrl(sortedPosters.get(0).getUrl(), MediaFileType.POSTER);
+          }
         }
 
         // FANART
         if (!item.getMediaArt(MediaArtwork.MediaArtworkType.BACKGROUND).isEmpty()) {
-          movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtwork.MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
+          int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+          List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = MovieArtworkHelper.sortArtworkUrls(item.getMediaArt(),
+                  MediaArtwork.MediaArtworkType.BACKGROUND, preferredSizeOrder);
+          if (!sortedFanarts.isEmpty()) {
+            movieSetMovie.setArtworkUrl(sortedFanarts.get(0).getUrl(), MediaFileType.FANART);
+          }
         }
 
         movieSetMovies.add(movieSetMovie);

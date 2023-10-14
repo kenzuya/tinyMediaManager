@@ -322,7 +322,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       MediaArtwork ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isIn(MediaArtwork.MediaArtworkType.BANNER, MediaArtwork.MediaArtworkType.POSTER,
           MediaArtwork.MediaArtworkType.BACKGROUND, MediaArtwork.MediaArtworkType.SEASON_POSTER, MediaArtwork.MediaArtworkType.SEASON_BANNER,
           MediaArtwork.MediaArtworkType.SEASON_THUMB);
@@ -335,7 +335,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_POSTER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
 
@@ -346,7 +346,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_BANNER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
     }

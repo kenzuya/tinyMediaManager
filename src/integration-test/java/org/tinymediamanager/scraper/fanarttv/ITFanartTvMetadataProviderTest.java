@@ -34,7 +34,7 @@ public class ITFanartTvMetadataProviderTest extends BasicITest {
   public void testFanartTvMetadataProvider() {
     IMovieArtworkProvider artworkProvider;
 
-    /**
+    /*
      * Test movie artwork
      */
     try {
@@ -48,7 +48,6 @@ public class ITFanartTvMetadataProviderTest extends BasicITest {
       List<MediaArtwork> images = artworkProvider.getArtwork(options);
       assertThat(images).isNotNull().isNotEmpty();
       assertThat(images.size()).isGreaterThan(0);
-      assertThat(images.get(0).getSizeOrder()).isEqualTo(MediaArtwork.PosterSizes.LARGE.getOrder());
       assertThat(images.get(0).getImageSizes()).isNotNull().isNotEmpty();
       assertThat(images.get(0).getImageSizes().get(0).getHeight()).isGreaterThan(images.get(0).getImageSizes().get(0).getWidth());
       assertThat(images.get(0).getImageSizes().get(0).getWidth()).isLessThan(images.get(0).getImageSizes().get(0).getHeight());

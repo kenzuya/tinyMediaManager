@@ -31,24 +31,24 @@ public class Image {
     public Original original;
     @SerializedName("medium")
     public Medium medium;
-    @SerializedName("large")
-    public Large large;
 
   }
 
   public static class Original {
     @SerializedName("url")
     public String url;
+    @SerializedName("width")
+    public int width;
+    @SerializedName("height")
+    public int height;
   }
 
   public static class Medium {
     @SerializedName("url")
     public String url;
+    @SerializedName("width")
+    public int width;
+    @SerializedName("height")
+    public int height;
   }
-
-  public static class Large {
-    @SerializedName("url")
-    public String url;
-  }
-
 }

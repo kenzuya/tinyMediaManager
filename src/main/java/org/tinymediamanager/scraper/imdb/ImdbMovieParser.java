@@ -413,7 +413,7 @@ public class ImdbMovieParser extends ImdbParser {
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
         if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
-          adoptArtworkToOptions(artwork, options);
+            adoptArtworkSizes(artwork);
         }
       }
 

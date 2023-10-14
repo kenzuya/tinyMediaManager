@@ -473,7 +473,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     if (StringUtils.isNotBlank(movie.image)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setOriginalUrl(movie.image);
-      ma.setDefaultUrl(movie.image);
+      ma.addImageSize(0, 0, movie.image, 0);
       md.addMediaArt(ma);
     }
 

@@ -213,9 +213,10 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     // Poster
     MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
     ma.setPreviewUrl(fd.posters.small);
-    ma.setDefaultUrl(fd.posters.large);
     ma.setOriginalUrl(fd.posters.large);
     ma.setLanguage(options.getLanguage().getLanguage());
+    ma.addImageSize(300, 470, fd.posters.small, MediaArtwork.PosterSizes.getSizeOrder(300));
+    ma.addImageSize(580, 908, fd.posters.small, MediaArtwork.PosterSizes.getSizeOrder(580));
     md.addMediaArt(ma);
 
     for (String country : fd.countries) {

@@ -26,6 +26,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -36,6 +37,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -121,10 +123,20 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
                 movieSet.setTitle(info.getTitle());
                 movieSet.setPlot(info.getPlot());
                 if (!info.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
+                  int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+                  List<MediaArtwork.ImageSizeAndUrl> sortedPosters = MovieArtworkHelper.sortArtworkUrls(info.getMediaArt(), MediaArtworkType.POSTER,
+                          preferredSizeOrder);
+                  if (!sortedPosters.isEmpty()) {
+                    movieSet.setArtworkUrl(sortedPosters.get(0).getUrl(), MediaFileType.POSTER);
+                  }
                 }
                 if (!info.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
+                  int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+                  List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = MovieArtworkHelper.sortArtworkUrls(info.getMediaArt(),
+                          MediaArtworkType.BACKGROUND, preferredSizeOrder);
+                  if (!sortedFanarts.isEmpty()) {
+                    movieSet.setArtworkUrl(sortedFanarts.get(0).getUrl(), MediaFileType.FANART);
+                  }
                 }
               }
             }

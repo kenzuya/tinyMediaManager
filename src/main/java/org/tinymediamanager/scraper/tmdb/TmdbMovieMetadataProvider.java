@@ -465,10 +465,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     if (StringUtils.isNotBlank(collection.poster_path)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(artworkBaseUrl + "w185" + collection.poster_path);
-      ma.setDefaultUrl(artworkBaseUrl + "original" + collection.poster_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + collection.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(tmdbId);
+      ma.addImageSize(0, 0, artworkBaseUrl + "original" + collection.poster_path, 0);
       md.addMediaArt(ma);
     }
 
@@ -476,10 +476,11 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     if (StringUtils.isNotBlank(collection.backdrop_path)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
       ma.setPreviewUrl(artworkBaseUrl + "w300" + collection.backdrop_path);
-      ma.setDefaultUrl(artworkBaseUrl + "original" + collection.backdrop_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + collection.backdrop_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(tmdbId);
+      ma.addImageSize(0, 0, artworkBaseUrl + "original" + collection.backdrop_path, 0);
+
       md.addMediaArt(ma);
     }
 
@@ -503,10 +504,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         if (StringUtils.isNotBlank(part.poster_path)) {
           MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
           ma.setPreviewUrl(artworkBaseUrl + "w185" + part.poster_path);
-          ma.setDefaultUrl(artworkBaseUrl + "original" + part.poster_path);
           ma.setOriginalUrl(artworkBaseUrl + "original" + part.poster_path);
           ma.setLanguage(options.getLanguage().getLanguage());
           ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          ma.addImageSize(0, 0, artworkBaseUrl + "original" + part.poster_path, 0);
           mdSubItem.addMediaArt(ma);
         }
 
@@ -514,10 +515,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         if (StringUtils.isNotBlank(part.backdrop_path)) {
           MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
           ma.setPreviewUrl(artworkBaseUrl + "w300" + part.backdrop_path);
-          ma.setDefaultUrl(artworkBaseUrl + "original" + part.backdrop_path);
           ma.setOriginalUrl(artworkBaseUrl + "original" + part.backdrop_path);
           ma.setLanguage(options.getLanguage().getLanguage());
           ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          ma.addImageSize(0, 0, artworkBaseUrl + "original" + part.backdrop_path, 0);
           mdSubItem.addMediaArt(ma);
         }
 
@@ -555,10 +556,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         if (StringUtils.isNotBlank(part.poster_path)) {
           MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
           ma.setPreviewUrl(artworkBaseUrl + "w185" + part.poster_path);
-          ma.setDefaultUrl(artworkBaseUrl + "original" + part.poster_path);
           ma.setOriginalUrl(artworkBaseUrl + "original" + part.poster_path);
           ma.setLanguage(options.getLanguage().getLanguage());
           ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          ma.addImageSize(0, 0, artworkBaseUrl + "original" + part.poster_path, 0);
           mdSubItem.addMediaArt(ma);
         }
 
@@ -566,10 +567,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         if (StringUtils.isNotBlank(part.backdrop_path)) {
           MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
           ma.setPreviewUrl(artworkBaseUrl + "w300" + part.backdrop_path);
-          ma.setDefaultUrl(artworkBaseUrl + "original" + part.backdrop_path);
           ma.setOriginalUrl(artworkBaseUrl + "original" + part.backdrop_path);
           ma.setLanguage(options.getLanguage().getLanguage());
           ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          ma.addImageSize(0, 0, artworkBaseUrl + "original" + part.backdrop_path, 0);
           mdSubItem.addMediaArt(ma);
         }
 
@@ -796,10 +797,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     if (StringUtils.isNotBlank(movie.poster_path)) {
       MediaArtwork ma = new MediaArtwork(getProviderInfo().getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(artworkBaseUrl + "w342" + movie.poster_path);
-      ma.setDefaultUrl(artworkBaseUrl + "original" + movie.poster_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + movie.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(movie.id);
+      ma.addImageSize(0, 0, artworkBaseUrl + "original" + movie.poster_path, 0);
       md.addMediaArt(ma);
     }
 
