@@ -762,8 +762,10 @@ public class TvShowArtworkHelper {
           List<MediaArtwork> seasonArtwork = artwork.stream().filter(mediaArtwork -> mediaArtwork.getSeason() == season.getSeason()).toList();
           List<MediaArtwork.ImageSizeAndUrl> sortedArtwork = sortArtworkUrls(seasonArtwork, SEASON_BANNER, preferredSizeOrder);
 
-          season.setArtworkUrl(sortedArtwork.get(0).getUrl(), MediaFileType.SEASON_BANNER);
-          downloadSeasonArtwork(season, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), MediaFileType.SEASON_BANNER);
+          if (!sortedArtwork.isEmpty()) {
+            season.setArtworkUrl(sortedArtwork.get(0).getUrl(), MediaFileType.SEASON_BANNER);
+            downloadSeasonArtwork(season, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), MediaFileType.SEASON_BANNER);
+          }
         }
       }
     }
