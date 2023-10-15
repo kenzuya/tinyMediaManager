@@ -40,7 +40,6 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
-import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowChooserDialog;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
 
@@ -62,12 +61,9 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
     List<TvShow> newTvShows = new ArrayList<>();
     Map<TvShow, List<TvShowEpisode>> newEpisodes = new HashMap<>();
 
-    boolean lockedFound = false;
-
     // all new TV shows
     for (TvShow tvShow : new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows())) {
       if (tvShow.isLocked()) {
-        lockedFound = true;
         continue;
       }
 
@@ -84,10 +80,6 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
           episodes.add(episode);
         }
       }
-    }
-
-    if (lockedFound) {
-      TvShowSelectionModel.showLockedInformation();
     }
 
     // whereas tv show scraping has to run in foreground
