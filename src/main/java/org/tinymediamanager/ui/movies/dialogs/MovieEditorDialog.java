@@ -1393,14 +1393,16 @@ public class MovieEditorDialog extends AbstractEditorDialog {
       processArtwork(MediaFileType.KEYART, lblKeyart, tfKeyart);
 
       // set extrathumbs
-      if (extrathumbs != null && (extrathumbs.size() != movieToEdit.getExtraThumbs().size() || !extrathumbs.containsAll(movieToEdit.getExtraThumbs())
-          || !movieToEdit.getExtraThumbs().containsAll(extrathumbs))) {
+      // the list may be empty if just the thumb has been exchanged
+      if (extrathumbs != null && !extrathumbs.isEmpty() && (extrathumbs.size() != movieToEdit.getExtraThumbs().size()
+              || !extrathumbs.containsAll(movieToEdit.getExtraThumbs()) || !movieToEdit.getExtraThumbs().containsAll(extrathumbs))) {
         movieToEdit.setExtraThumbs(extrathumbs);
         movieToEdit.downloadArtwork(MediaFileType.EXTRATHUMB);
       }
 
       // set extrafanarts
-      if (extrafanarts != null && (extrafanarts.size() != movieToEdit.getExtraFanarts().size()
+      // the list may be empty if just the fanart has been exchanged
+      if (extrafanarts != null && !extrafanarts.isEmpty() && (extrafanarts.size() != movieToEdit.getExtraFanarts().size()
           || !extrafanarts.containsAll(movieToEdit.getExtraFanarts()) || !movieToEdit.getExtraFanarts().containsAll(extrafanarts))) {
         movieToEdit.setExtraFanarts(extrafanarts);
         movieToEdit.downloadArtwork(MediaFileType.EXTRAFANART);
