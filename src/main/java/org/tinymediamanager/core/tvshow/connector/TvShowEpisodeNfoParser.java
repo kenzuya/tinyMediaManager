@@ -1304,6 +1304,10 @@ public class TvShowEpisodeNfoParser {
             }
             break;
 
+          case "hdrtype":
+            video.hdrtype = child.ownText();
+            break;
+
           case "stereomode":
             video.stereomode = child.ownText();
             break;
@@ -1731,6 +1735,7 @@ public class TvShowEpisodeNfoParser {
     public int    width      = 0;
     public int    height     = 0;
     public int    durationinseconds;
+    public String hdrtype    = "";
     public String stereomode = "";
   }
 

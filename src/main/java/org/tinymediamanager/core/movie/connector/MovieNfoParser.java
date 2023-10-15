@@ -1419,6 +1419,10 @@ public class MovieNfoParser {
           }
           break;
 
+        case "hdrtype":
+          video.hdrtype = child.ownText();
+          break;
+
         case "stereomode":
           video.stereomode = child.ownText();
           break;
@@ -1978,6 +1982,7 @@ public class MovieNfoParser {
     int    width      = 0;
     int    height     = 0;
     int    durationinseconds;
+    String hdrtype    = "";
     String stereomode = "";
   }
 

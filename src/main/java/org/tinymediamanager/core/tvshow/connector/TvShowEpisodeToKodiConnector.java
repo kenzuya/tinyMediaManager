@@ -153,6 +153,21 @@ public class TvShowEpisodeToKodiConnector extends TvShowEpisodeGenericXmlConnect
       height.setTextContent(String.valueOf(videoFile.getVideoHeight()));
       video.appendChild(height);
 
+      if (episode.isVideoInHDR()) {
+        // basically a TMM string to Kodi skin mapping, but only one
+        Element hdr = document.createElement("hdrtype");
+        if (videoFile.getHdrFormat().contains("Dolby Vision")) {
+          hdr.setTextContent("dolbyvision");
+        }
+        else if (videoFile.getHdrFormat().contains("HLG")) {
+          hdr.setTextContent("hlg");
+        }
+        else if (videoFile.getHdrFormat().contains("HDR10")) {
+          hdr.setTextContent("hdr10");
+        }
+        video.appendChild(hdr);
+      }
+
       // does not work reliable for disc style movies, MediaInfo and even Kodi write weird values in there
       if (!episode.isDisc() && !episode.getMainVideoFile().getExtension().equalsIgnoreCase("iso")) {
         Element durationinseconds = document.createElement("durationinseconds");
