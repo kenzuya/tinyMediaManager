@@ -721,7 +721,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[25%:35%:35%,grow][20lp:n][15%:25%:25%,grow][20lp:n][15%:25%:25%,grow]",
+      artworkPanel.setLayout(new MigLayout("", "[25%:35%:35%,grow][20lp:n][25%:35%:35%,grow][20lp:n][15%:30%:30%,grow]",
           "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow]"));
 
       {

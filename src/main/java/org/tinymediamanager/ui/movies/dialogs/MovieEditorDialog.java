@@ -919,8 +919,8 @@ public class MovieEditorDialog extends AbstractEditorDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[20%:35%:35%,grow][20lp:n][20%:35%:35%,grow][20lp:n][15%:20%:20%,grow]",
-          "[][150lp:35%:35%,grow][20lp:n][][100lp:20%:20%,grow][20lp:n][][150lp:35%:35%,grow]"));
+      artworkPanel.setLayout(new MigLayout("", "[20%:35%:35%,grow][20lp:n][20%:35%:35%,grow][20lp:n][15%:30%:30%,grow]",
+              "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][150lp:30%:30%,grow]"));
       {
         JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
         artworkPanel.add(lblKeyartT, "cell 4 0");
@@ -998,6 +998,45 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             e -> setImageSizeAndCreateLink(lblClearlogoSize, lblClearlogo, btnDeleteClearLogo, MediaFileType.CLEARLOGO));
       }
       {
+        JLabel lblClearartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
+        artworkPanel.add(lblClearartT, "cell 2 0");
+
+        LinkLabel lblClearartSize = new LinkLabel();
+        artworkPanel.add(lblClearartSize, "cell 2 0");
+
+        JButton btnDeleteClearart = new FlatButton(IconManager.DELETE_GRAY);
+        btnDeleteClearart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
+        btnDeleteClearart.addActionListener(e -> {
+          lblClearart.clearImage();
+          tfClearArt.setText("");
+        });
+        artworkPanel.add(btnDeleteClearart, "cell 2 0");
+
+        lblClearart = new ImageLabel();
+        lblClearart.addMouseListener(new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
+                    movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
+
+            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
+
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
+            dialog.setVisible(true);
+            updateArtworkUrl(lblClearart, tfClearArt);
+          }
+        });
+        lblClearart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        artworkPanel.add(lblClearart, "cell 2 1,grow");
+        lblClearart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+                e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
+
+      }
+      {
         JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
         artworkPanel.add(lblBannerT, "cell 0 3");
 
@@ -1036,50 +1075,11 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, btnDeleteBanner, MediaFileType.BANNER));
       }
       {
-        JLabel lblClearartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
-        artworkPanel.add(lblClearartT, "cell 0 6");
-
-        LinkLabel lblClearartSize = new LinkLabel();
-        artworkPanel.add(lblClearartSize, "cell 0 6");
-
-        JButton btnDeleteClearart = new FlatButton(IconManager.DELETE_GRAY);
-        btnDeleteClearart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
-        btnDeleteClearart.addActionListener(e -> {
-          lblClearart.clearImage();
-          tfClearArt.setText("");
-        });
-        artworkPanel.add(btnDeleteClearart, "cell 0 6");
-
-        lblClearart = new ImageLabel();
-        lblClearart.addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
-                movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
-
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
-            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
-              dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
-            }
-
-            dialog.setLocationRelativeTo(MainWindow.getInstance());
-            dialog.setVisible(true);
-            updateArtworkUrl(lblClearart, tfClearArt);
-          }
-        });
-        lblClearart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        artworkPanel.add(lblClearart, "cell 0 7,grow");
-        lblClearart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-            e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
-
-      }
-      {
         JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
-        artworkPanel.add(lblThumbT, "cell 2 6");
+        artworkPanel.add(lblThumbT, "cell 0 6");
 
         LinkLabel lblThumbSize = new LinkLabel();
-        artworkPanel.add(lblThumbSize, "cell 2 6");
+        artworkPanel.add(lblThumbSize, "cell 0 6");
 
         JButton btnDeleteThumb = new FlatButton(IconManager.DELETE_GRAY);
         btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
@@ -1087,7 +1087,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           lblThumb.clearImage();
           tfThumb.setText("");
         });
-        artworkPanel.add(btnDeleteThumb, "cell 2 6");
+        artworkPanel.add(btnDeleteThumb, "cell 0 6");
 
         lblThumb = new ImageLabel();
         lblThumb.addMouseListener(new MouseAdapter() {
@@ -1110,16 +1110,16 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           }
         });
         lblThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        artworkPanel.add(lblThumb, "cell 2 7,grow");
+        artworkPanel.add(lblThumb, "cell 0 7,grow");
         lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
             e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, btnDeleteThumb, MediaFileType.THUMB));
       }
       {
         JLabel lblDiscT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.disc"));
-        artworkPanel.add(lblDiscT, "cell 4 6");
+        artworkPanel.add(lblDiscT, "cell 2 6");
 
         LinkLabel lblDiscSize = new LinkLabel();
-        artworkPanel.add(lblDiscSize, "cell 4 6");
+        artworkPanel.add(lblDiscSize, "cell 2 6");
 
         JButton btnDeleteDisc = new FlatButton(IconManager.DELETE_GRAY);
         btnDeleteDisc.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
@@ -1127,7 +1127,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           lblDisc.clearImage();
           tfDisc.setText("");
         });
-        artworkPanel.add(btnDeleteDisc, "cell 4 6");
+        artworkPanel.add(btnDeleteDisc, "cell 2 6");
 
         lblDisc = new ImageLabel();
         lblDisc.addMouseListener(new MouseAdapter() {
@@ -1148,7 +1148,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           }
         });
         lblDisc.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        artworkPanel.add(lblDisc, "cell 4 7,grow");
+        artworkPanel.add(lblDisc, "cell 2 7,grow");
         lblDisc.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
             e -> setImageSizeAndCreateLink(lblDiscSize, lblDisc, btnDeleteDisc, MediaFileType.DISC));
       }
