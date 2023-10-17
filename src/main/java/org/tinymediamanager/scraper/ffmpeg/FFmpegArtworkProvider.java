@@ -169,12 +169,12 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         // set the artwork type depending on the configured type
         int width = mediaFile.getVideoWidth();
         int height = mediaFile.getVideoHeight();
-        int artworkSizeOrder = detectArtworkSizeOrder(width);
 
         if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
             || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+              MediaArtwork.FanartSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
           still.setLanguage("-");
           still.setLikes(count - i);
@@ -183,7 +183,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         if (isThumbEnabled()
             && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+              MediaArtwork.ThumbSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
           still.setLanguage("-");
           still.setLikes(count - i);
@@ -260,12 +261,12 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           // set the artwork type depending on the configured type
           int width = mf.getVideoWidth();
           int height = mf.getVideoHeight();
-          int artworkSizeOrder = detectArtworkSizeOrder(width);
 
           if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
               || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+                MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setLanguage("-");
             still.setLikes(count - stillCounter);
@@ -274,7 +275,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           if (isThumbEnabled()
               && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+                MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setLanguage("-");
             still.setLikes(count - stillCounter);
@@ -341,12 +343,12 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           // set the artwork type depending on the configured type
           int width = mediaFile.getVideoWidth();
           int height = mediaFile.getVideoHeight();
-          int artworkSizeOrder = detectArtworkSizeOrder(width);
 
           if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
               || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+                MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setLanguage("-");
             still.setLikes(count - stillCounter);
@@ -355,7 +357,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           if (isThumbEnabled()
               && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), artworkSizeOrder);
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
+                MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
             still.setLanguage("-");
             still.setLikes(count - stillCounter);
@@ -370,21 +373,6 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       }
     }
     return artworks;
-  }
-
-  private int detectArtworkSizeOrder(int width) {
-    if (width >= 3840) {
-      return MediaArtwork.FanartSizes.XLARGE.getOrder();
-    }
-    if (width >= 1920) {
-      return MediaArtwork.FanartSizes.LARGE.getOrder();
-    }
-    else if (width >= 1280) {
-      return MediaArtwork.FanartSizes.MEDIUM.getOrder();
-    }
-    else {
-      return MediaArtwork.FanartSizes.SMALL.getOrder();
-    }
   }
 
   /**
