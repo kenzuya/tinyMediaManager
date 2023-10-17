@@ -26,11 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -172,16 +168,18 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
           // thumb
           if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
               && (overwrite || StringUtils.isBlank(episode.getArtworkFilename(MediaFileType.THUMB)))) {
-              int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+            int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
 
-              // sort artwork due to our preferences
-              List<MediaArtwork.ImageSizeAndUrl> sortedThumbs = sortArtworkUrls(artworks, THUMB, preferredSizeOrder);
+            // sort artwork due to our preferences
+            List<MediaArtwork.ImageSizeAndUrl> sortedThumbs = sortArtworkUrls(artworks, THUMB, preferredSizeOrder);
 
-              // assign and download the poster
-              if (!sortedThumbs.isEmpty()) {
-                  MediaArtwork.ImageSizeAndUrl foundThumb = sortedThumbs.get(0);
-                  episode.setArtworkUrl(foundThumb.getUrl(), MediaFileType.THUMB);
-                  episode.downloadArtwork(MediaFileType.THUMB, false);
+            // assign and download the poster
+            if (!sortedThumbs.isEmpty()) {
+              MediaArtwork.ImageSizeAndUrl foundThumb = sortedThumbs.get(0);
+              episode.setArtworkUrl(foundThumb.getUrl(), MediaFileType.THUMB);
+              episode.downloadArtwork(MediaFileType.THUMB, false);
+              episode.saveToDb();
+              episode.writeNFO();
             }
           }
         }
@@ -251,7 +249,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
     options.setIds(episode.getIds());
     options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
     options.setId("mediaFile", episode.getMainFile());
-      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
+    options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
 
     // scrape providers till one artwork has been found
     for (MediaScraper artworkScraper : scrapeOptions.getArtworkScrapers()) {

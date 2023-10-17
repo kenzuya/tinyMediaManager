@@ -19,11 +19,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 import static org.tinymediamanager.scraper.entities.MediaType.TV_EPISODE;
 import static org.tinymediamanager.scraper.entities.MediaType.TV_SHOW;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +28,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
-import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.core.tvshow.*;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -236,6 +228,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         if (!sortedThumbs.isEmpty()) {
           episode.setArtworkUrl(sortedThumbs.get(0).getUrl(), MediaFileType.THUMB);
           episode.downloadArtwork(MediaFileType.THUMB);
+
+          episode.saveToDb();
+          episode.writeNFO();
         }
       }
       catch (Exception e) {
