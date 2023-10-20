@@ -53,8 +53,11 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
+import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import retrofit2.Response;
 
@@ -276,6 +279,76 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     return members;
+  }
+
+  /**
+   * Parses used remote IDs into our format<br>
+   * Feel free to extend this!
+   * 
+   * @param ids
+   * @return
+   */
+  protected Map<String, Object> parseRemoteIDs(List<RemoteID> ids) {
+    Map<String, Object> ret = new HashMap<>();
+
+    for (RemoteID remote : ListUtils.nullSafe(ids)) {
+      switch (remote.type) {
+        case 1: // ???
+          break;
+
+        case 2: // IMDB
+          if (MediaIdUtil.isValidImdbId(remote.id)) {
+            ret.put(MediaMetadata.IMDB, remote.id);
+          }
+          break;
+
+        case 3: // TMS (Zap2It)
+          ret.put("zap2it", remote.id);
+          break;
+
+        case 4: // Official Website
+        case 5: // Facebook
+        case 6: // Twitter
+        case 7: // Reddit
+        case 8: // Fan Site
+        case 9: // Instagram
+        case 10: // ???
+        case 11: // Youtube
+          break;
+
+        case 12: // TheMovieDB.com
+          ret.put(MediaMetadata.TMDB, remote.id);
+          break;
+
+        case 13: // EIDR
+          ret.put("eidr", remote.id);
+          break;
+
+        case 14: // ???
+        case 15: // ???
+        case 16: // ???
+        case 17: // ???
+          break;
+
+        case 18: // Wikidata
+          ret.put("wikidata", remote.id);
+          break;
+
+        case 19: // TV Maze
+          ret.put("tvmaze", remote.id);
+          break;
+
+        case 20: // ???
+        case 21: // ???
+        case 22: // ???
+        case 23: // ???
+        case 24: // Wikipedia
+        default:
+          break;
+      }
+    }
+
+    return ret;
   }
 
   /**

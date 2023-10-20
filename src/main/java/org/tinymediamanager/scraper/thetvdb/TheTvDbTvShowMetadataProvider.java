@@ -194,12 +194,11 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       throw new ScrapeException(e);
     }
 
-    if (show == null) {
-      throw new NothingFoundException();
-    }
-
     // populate metadata
     md.setId(getId(), show.id);
+    parseRemoteIDs(show.remoteIds).forEach((k, v) -> {
+      md.setId(k, v);
+    });
 
     if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.name)) {
       md.setTitle(baseTranslation.name);
@@ -218,28 +217,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
     else if (fallbackTranslation != null && StringUtils.isNotBlank(fallbackTranslation.overview)) {
       md.setPlot(fallbackTranslation.overview);
-    }
-
-    for (RemoteID remoteID : ListUtils.nullSafe(show.remoteIds)) {
-      if (StringUtils.isAnyBlank(remoteID.sourceName, remoteID.id)) {
-        continue;
-      }
-
-      switch (remoteID.sourceName) {
-        case "IMDB":
-          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
-            md.setId(MediaMetadata.IMDB, remoteID.id);
-          }
-          break;
-
-        case "TMS (Zap2It)":
-        case "Zap2It":
-          md.setId("zap2it", remoteID.id);
-          break;
-
-        case "TheMovieDB.com":
-          md.setId(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
-      }
     }
 
     try {
@@ -507,6 +484,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     MediaMetadata md = new MediaMetadata(getId());
     md.setScrapeOptions(options);
     md.setId(getId(), episode.id);
+    parseRemoteIDs(episode.remoteIDs).forEach((k, v) -> {
+      md.setId(k, v);
+    });
+
     md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.seasonNumber, episode.episodeNumber));
     if (foundEpisode.getEpisodeNumber(DVD) != null) {
       md.setEpisodeNumber(foundEpisode.getEpisodeNumber(DVD));
@@ -530,32 +511,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     if (episode.runtime != null) {
       md.setRuntime(episode.runtime.intValue());
-    }
-
-    for (RemoteID remoteID : ListUtils.nullSafe(episode.remoteIDs)) {
-      if (StringUtils.isAnyBlank(remoteID.sourceName, remoteID.id)) {
-        continue;
-      }
-
-      switch (remoteID.sourceName) {
-        case "IMDB":
-          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
-            md.setId(MediaMetadata.IMDB, remoteID.id);
-          }
-          break;
-
-        case "TMS (Zap2It)":
-        case "Zap2It":
-          md.setId("zap2it", remoteID.id);
-          break;
-
-        case "TheMovieDB.com":
-          md.setId(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
-          break;
-
-        default:
-          break;
-      }
     }
 
     try {
@@ -903,32 +858,9 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     // populate metadata
     Map<String, Object> showIds = new HashMap<>();
     showIds.put(getId(), show.id);
-
-    for (RemoteID remoteID : ListUtils.nullSafe(show.remoteIds)) {
-      if (StringUtils.isAnyBlank(remoteID.sourceName, remoteID.id)) {
-        continue;
-      }
-
-      switch (remoteID.sourceName) {
-        case "IMDB":
-          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
-            showIds.put(MediaMetadata.IMDB, remoteID.id);
-          }
-          break;
-
-        case "TMS (Zap2It)":
-        case "Zap2It":
-          showIds.put("zap2it", remoteID.id);
-          break;
-
-        case "TheMovieDB.com":
-          showIds.put(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
-          break;
-
-        default:
-          break;
-      }
-    }
+    parseRemoteIDs(show.remoteIds).forEach((k, v) -> {
+      showIds.put(k, v);
+    });
 
     return showIds;
   }
