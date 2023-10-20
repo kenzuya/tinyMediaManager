@@ -60,15 +60,14 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkExtendedRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
-import org.tinymediamanager.scraper.thetvdb.entities.CompanyBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.Company;
 import org.tinymediamanager.scraper.thetvdb.entities.ContentRating;
 import org.tinymediamanager.scraper.thetvdb.entities.EpisodeBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.EpisodeExtendedRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.EpisodeExtendedResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.GenreBaseRecord;
-import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchType;
@@ -259,7 +258,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     if (show.latestNetwork != null) {
       md.addProductionCompany(show.latestNetwork.name);
     }
-    for (CompanyBaseRecord company : ListUtils.nullSafe(show.companies)) {
+    for (Company company : ListUtils.nullSafe(show.companies)) {
       md.addProductionCompany(company.name);
     }
 
@@ -348,7 +347,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
 
     // artwork
-    for (ArtworkBaseRecord artworkBaseRecord : ListUtils.nullSafe(show.artworks)) {
+    for (ArtworkExtendedRecord artworkBaseRecord : ListUtils.nullSafe(show.artworks)) {
       MediaArtwork mediaArtwork = parseArtwork(artworkBaseRecord);
       if (mediaArtwork != null) {
         md.addMediaArt(mediaArtwork);
@@ -484,11 +483,11 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     MediaMetadata md = new MediaMetadata(getId());
     md.setScrapeOptions(options);
     md.setId(getId(), episode.id);
-    parseRemoteIDs(episode.remoteIDs).forEach((k, v) -> {
+    parseRemoteIDs(episode.remoteIds).forEach((k, v) -> {
       md.setId(k, v);
     });
 
-    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.seasonNumber, episode.episodeNumber));
+    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.seasonNumber, episode.number));
     if (foundEpisode.getEpisodeNumber(DVD) != null) {
       md.setEpisodeNumber(foundEpisode.getEpisodeNumber(DVD));
     }
@@ -542,7 +541,8 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       if (artworkTypeRecord != null) {
         int sizeOrder = getSizeOrder(ma.getType(), artworkTypeRecord.width);
         ma.addImageSize(artworkTypeRecord.width, artworkTypeRecord.height, episode.image, sizeOrder);
-      } else {
+      }
+      else {
         ma.addImageSize(0, 0, episode.image, 0);
       }
 
@@ -763,7 +763,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
             MediaMetadata episode = new MediaMetadata(getProviderInfo().getId());
             episode.setScrapeOptions(options);
             episode.setId(getProviderInfo().getId(), ep.id);
-            episode.setEpisodeNumber(episodeGroup, ep.seasonNumber, ep.episodeNumber);
+            episode.setEpisodeNumber(episodeGroup, ep.seasonNumber, ep.number);
             episode.setTitle(ep.name);
             episode.setPlot(ep.overview);
             episode.setRuntime(ep.runtime);
@@ -778,7 +778,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
             episodeMap.put(MetadataUtil.unboxInteger(ep.id), episode);
           }
           else {
-            fromMap.setEpisodeNumber(episodeGroup, ep.seasonNumber, ep.episodeNumber);
+            fromMap.setEpisodeNumber(episodeGroup, ep.seasonNumber, ep.number);
           }
         }
       }
@@ -1009,12 +1009,12 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       }
       if (StringUtils.isBlank(toInject.name)) {
         // still empty? we never got anything from TVDB, so add the same fallback as in TMDB
-        toInject.name = "Episode " + toInject.episodeNumber;
+        toInject.name = "Episode " + toInject.number;
       }
 
       if (StringUtils.isBlank(toInject.originalName)) {
         // still empty? we never got anything from TVDB, so add the same fallback as in TMDB
-        toInject.originalName = "Episode " + toInject.episodeNumber;
+        toInject.originalName = "Episode " + toInject.number;
       }
     }
   }

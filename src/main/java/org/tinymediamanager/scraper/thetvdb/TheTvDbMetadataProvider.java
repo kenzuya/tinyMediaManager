@@ -51,6 +51,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkExtendedRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
 import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
@@ -358,7 +359,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
    *          the {@link ArtworkBaseRecord} from TVDB
    * @return the parsed {@link MediaArtwork}
    */
-  protected MediaArtwork parseArtwork(ArtworkBaseRecord image) {
+  protected MediaArtwork parseArtwork(ArtworkExtendedRecord image) {
     if (image.id == null) {
       return null;
     }
@@ -430,8 +431,8 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     // get the season number
-    if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.season != null) {
-      ma.setSeason(image.season);
+    if ((ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) && image.seasonId != null) {
+      ma.setSeason(image.seasonId);
     }
 
     return ma;
@@ -472,8 +473,10 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   /**
    * get the size order of the given artwork
    *
-   * @param type  the {@link MediaArtwork.MediaArtworkType}
-   * @param width the width
+   * @param type
+   *          the {@link MediaArtwork.MediaArtworkType}
+   * @param width
+   *          the width
    * @return the size order
    */
   protected int getSizeOrder(MediaArtwork.MediaArtworkType type, int width) {
@@ -484,11 +487,14 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       case POSTER:
         if (width >= 1000) {
           sizeOrder = MediaArtwork.PosterSizes.LARGE.getOrder();
-        } else if (width >= 500) {
+        }
+        else if (width >= 500) {
           sizeOrder = MediaArtwork.PosterSizes.BIG.getOrder();
-        } else if (width >= 342) {
+        }
+        else if (width >= 342) {
           sizeOrder = MediaArtwork.PosterSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.PosterSizes.SMALL.getOrder();
         }
         break;
@@ -496,11 +502,14 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       case BACKGROUND:
         if (width >= 3840) {
           sizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder();
-        } else if (width >= 1920) {
+        }
+        else if (width >= 1920) {
           sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
-        } else if (width >= 1280) {
+        }
+        else if (width >= 1280) {
           sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.FanartSizes.SMALL.getOrder();
         }
         break;
@@ -508,13 +517,17 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       case THUMB:
         if (width >= 3840) {
           sizeOrder = MediaArtwork.ThumbSizes.XLARGE.getOrder();
-        } else if (width >= 1920) {
+        }
+        else if (width >= 1920) {
           sizeOrder = MediaArtwork.ThumbSizes.LARGE.getOrder();
-        } else if (width >= 1280) {
+        }
+        else if (width >= 1280) {
           sizeOrder = MediaArtwork.ThumbSizes.BIG.getOrder();
-        } else if (width >= 960) {
+        }
+        else if (width >= 960) {
           sizeOrder = MediaArtwork.ThumbSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.ThumbSizes.SMALL.getOrder();
         }
         break;
@@ -526,7 +539,8 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     // set size for banner & season poster (resolution not in api)
     if (type == SEASON_BANNER || type == SEASON_POSTER) {
       sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
-    } else if (type == BANNER) {
+    }
+    else if (type == BANNER) {
       sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
     }
 
