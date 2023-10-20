@@ -68,7 +68,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       LOGGER.trace(requestStartMessage);
 
       if (!hasRequestBody || bodyHasUnknownEncoding(request.headers())) {
-        LOGGER.trace("--> END {}", request.method());
+        // LOGGER.trace("--> END {}", request.method()); // senseless msg
       }
       else {
         Buffer buffer = new Buffer();
@@ -80,7 +80,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           charset = contentType.charset(UTF8);
         }
 
-        LOGGER.trace("");
         if (isPlaintext(buffer)) {
           String content = buffer.readString(charset);
           // only log the first 1k characters
@@ -90,10 +89,10 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           else {
             LOGGER.trace(content);
           }
-          LOGGER.trace("--> END {} ({}-byte body)", request.method(), requestBody.contentLength());
+          // LOGGER.trace("--> END {} ({}-byte body)", request.method(), requestBody.contentLength());
         }
         else {
-          LOGGER.trace("--> END {}", request.method());
+          // LOGGER.trace("--> END {}", request.method());
         }
       }
     }
@@ -113,14 +112,15 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
     long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
     Buffer buffer = null;
+    String cachedHit = response.cacheResponse() != null ? "[CACHE HIT] " : "";
 
     try {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
       String logUrl = prepareUrlToLog(response.request().url().toString());
-      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
-          + ", " + bodySize + " body" + ')');
+      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + cachedHit + logUrl + " ("
+          + tookMs + "ms" + ", " + bodySize + " body" + ')');
 
       if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
         LOGGER.trace("<-- END HTTP");
@@ -138,7 +138,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         }
 
         if (!isPlaintext(buffer)) {
-          LOGGER.trace("");
           LOGGER.trace("<-- END HTTP (binary {}-byte body omitted)", buffer.size());
           return response;
         }
