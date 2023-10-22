@@ -249,11 +249,6 @@
             <version>1.4.200</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.jtidy</groupId>
-            <artifactId>jtidy</artifactId>
-            <version>r938</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.stephenc.java-iso-tools</groupId>
             <artifactId>loop-fs-iso-impl</artifactId>
             <version>2.0.2-TMM-6</version>
