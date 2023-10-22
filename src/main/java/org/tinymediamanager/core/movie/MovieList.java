@@ -15,32 +15,14 @@
  */
 package org.tinymediamanager.core.movie;
 
-import static org.tinymediamanager.core.Constants.CERTIFICATION;
-import static org.tinymediamanager.core.Constants.DECADE;
-import static org.tinymediamanager.core.Constants.GENRE;
-import static org.tinymediamanager.core.Constants.MEDIA_FILES;
-import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
-import static org.tinymediamanager.core.Constants.TAGS;
-import static org.tinymediamanager.core.Constants.YEAR;
+import static org.tinymediamanager.core.Constants.*;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -52,21 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.ImageCache;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.MediaEntity;
-import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.entities.MediaFileAudioStream;
-import org.tinymediamanager.core.entities.MediaFileSubtitle;
-import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaSource;
+import org.tinymediamanager.core.entities.*;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
@@ -191,6 +161,14 @@ public final class MovieList extends AbstractModelObject {
           break;
       }
     };
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case "movieSetDataFolder":
+          movieSetList.forEach(MovieSetArtworkHelper::updateArtwork);
+          break;
+      }
+    });
   }
 
   /**
@@ -285,7 +263,7 @@ public final class MovieList extends AbstractModelObject {
     }
 
     if (!imagesToCache.isEmpty()) {
-        imagesToCache.forEach(ImageCache::cacheImageAsync);
+      imagesToCache.forEach(ImageCache::cacheImageAsync);
     }
   }
 

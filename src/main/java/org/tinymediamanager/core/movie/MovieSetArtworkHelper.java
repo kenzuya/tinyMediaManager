@@ -15,22 +15,12 @@
  */
 package org.tinymediamanager.core.movie;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,17 +29,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.IFileNaming;
-import org.tinymediamanager.core.ImageCache;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.movie.filenaming.IMovieSetFileNaming;
+import org.tinymediamanager.core.movie.filenaming.*;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -355,7 +339,7 @@ public class MovieSetArtworkHelper {
    */
   private static void findArtworkInArtworkFolder(MovieSet movieSet) {
     String artworkFolder = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
-    if (StringUtils.isBlank(artworkFolder)) {
+    if (StringUtils.isAnyBlank(artworkFolder, movieSet.getTitle())) {
       return;
     }
 
@@ -365,17 +349,69 @@ public class MovieSetArtworkHelper {
 
     // a)
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
+      // old tmm style
+      String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+
+      // also remove illegal separators
+      movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
+      // replace multiple spaces with a single one
+      movieSetName = movieSetName.replaceAll(" +", " ").trim();
+      findArtworkForType(movieSet, artworkFolder, movieSetName, type);
+
+      // Kodi style
+      movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+      findArtworkForType(movieSet, artworkFolder, movieSetName, type);
+
+      // Emby style
+      movieSetName = getMovieSetTitleForStorage(movieSet, " ");
+      findArtworkForType(movieSet, artworkFolder, movieSetName, type);
+    }
+
+    // b)
+    for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
+      // old tmm style
+      String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+
+      // also remove illegal separators
+      movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
+      // replace multiple spaces with a single one
+      movieSetName = movieSetName.replaceAll(" +", " ").trim();
+      findArtworkForType(movieSet, artworkFolder + File.separator + movieSetName, movieSetName, type);
+
+      // Kodi style
+      movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+      findArtworkForType(movieSet, artworkFolder, movieSetName, type);
+
+      // Emby style
+      movieSetName = getMovieSetTitleForStorage(movieSet, " ");
+      findArtworkForType(movieSet, artworkFolder, movieSetName, type);
+    }
+  }
+
+  /**
+   * Find all existing artworks for the given {@link MediaFileType}
+   * 
+   * @param movieSet
+   *          the {@link MovieSet} to find the artwork for
+   * @param artworkFolder
+   *          the folder to search the artwork for
+   * @param basename
+   *          the basename of the movie set
+   * @param type
+   *          the {@link MediaFileType}
+   */
+  private static void findArtworkForType(MovieSet movieSet, String artworkFolder, String basename, MediaFileType type) {
+    if (StringUtils.isAnyBlank(artworkFolder, basename)) {
+      return;
+    }
+
+    List<IMovieSetFileNaming> fileNamings = getAllowedFileNamingsForMediaFileType(type, artworkFolder.contains(basename));
+    for (IMovieSetFileNaming fileNaming : fileNamings) {
       for (String fileType : SUPPORTED_ARTWORK_FILETYPES) {
-        // old tmm style
-        String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
-        // also remove illegal separators
-        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
-
-        // replace multiple spaces with a single one
-        movieSetName = movieSetName.replaceAll(" +", " ").trim();
-
-        String artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        String artworkFileName = fileNaming.getFilename(basename, fileType);
         Path artworkFile = Paths.get(artworkFolder, artworkFileName);
         if (Files.exists(artworkFile)) {
           // add this artwork to the media files
@@ -383,79 +419,75 @@ public class MovieSetArtworkHelper {
           TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
           movieSet.addToMediaFiles(mediaFile);
         }
+      }
+    }
+  }
 
-        // Kodi style
-        movieSetName = getMovieSetTitleForStorage(movieSet, "_");
+  /**
+   * get all allowed {@link IMovieSetFileNaming}s for the given {@link MediaFileType}
+   * 
+   * @param type
+   *          the {@link MediaFileType} to get the allowed {@link IMovieSetFileNaming}s for
+   * @param inDedicatedFolder
+   *          indicator if we look for the dedicated movie set folder
+   * @return a {@link List} of all allowed {@link IMovieSetFileNaming}s
+   */
+  private static List<IMovieSetFileNaming> getAllowedFileNamingsForMediaFileType(MediaFileType type, boolean inDedicatedFolder) {
+    if (inDedicatedFolder) {
+      switch (type) {
+        case POSTER:
+          return List.of(MovieSetPosterNaming.KODI_POSTER, MovieSetPosterNaming.AUTOMATOR_POSTER);
 
-        artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
-        artworkFile = Paths.get(artworkFolder, artworkFileName);
-        if (Files.exists(artworkFile)) {
-          // add this artwork to the media files
-          MediaFile mediaFile = new MediaFile(artworkFile, type);
-          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
-          movieSet.addToMediaFiles(mediaFile);
-        }
+        case FANART:
+          return List.of(MovieSetFanartNaming.KODI_FANART, MovieSetFanartNaming.AUTOMATOR_FANART);
 
-        // Emby style
-        movieSetName = getMovieSetTitleForStorage(movieSet, " ");
+        case BANNER:
+          return List.of(MovieSetBannerNaming.KODI_BANNER, MovieSetBannerNaming.AUTOMATOR_BANNER);
 
-        artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
-        artworkFile = Paths.get(artworkFolder, artworkFileName);
-        if (Files.exists(artworkFile)) {
-          // add this artwork to the media files
-          MediaFile mediaFile = new MediaFile(artworkFile, type);
-          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
-          movieSet.addToMediaFiles(mediaFile);
-        }
+        case CLEARART:
+          return List.of(MovieSetClearartNaming.KODI_CLEARART, MovieSetClearartNaming.AUTOMATOR_CLEARART);
+
+        case CLEARLOGO:
+        case LOGO:
+          return List.of(MovieSetClearlogoNaming.KODI_CLEARLOGO, MovieSetClearlogoNaming.AUTOMATOR_CLEARLOGO, MovieSetClearlogoNaming.KODI_LOGO,
+              MovieSetClearlogoNaming.AUTOMATOR_LOGO);
+
+        case DISC:
+          return List.of(MovieSetDiscartNaming.KODI_DISCART, MovieSetDiscartNaming.AUTOMATOR_DISCART, MovieSetDiscartNaming.KODI_DISC,
+              MovieSetDiscartNaming.AUTOMATOR_DISC);
+
+        case THUMB:
+          return List.of(MovieSetThumbNaming.KODI_THUMB, MovieSetThumbNaming.AUTOMATOR_THUMB, MovieSetThumbNaming.KODI_LANDSCAPE,
+              MovieSetThumbNaming.AUTOMATOR_LANDSCAPE);
+      }
+    }
+    else {
+      switch (type) {
+        case POSTER:
+          return List.of(MovieSetPosterNaming.MOVIESET_POSTER);
+
+        case FANART:
+          return List.of(MovieSetFanartNaming.MOVIESET_FANART);
+
+        case BANNER:
+          return List.of(MovieSetBannerNaming.MOVIESET_BANNER);
+
+        case CLEARART:
+          return List.of(MovieSetClearartNaming.MOVIESET_CLEARART);
+
+        case CLEARLOGO:
+        case LOGO:
+          return List.of(MovieSetClearlogoNaming.MOVIESET_CLEARLOGO, MovieSetClearlogoNaming.MOVIESET_LOGO);
+
+        case DISC:
+          return List.of(MovieSetDiscartNaming.MOVIESET_DISCART, MovieSetDiscartNaming.MOVIESET_DISC);
+
+        case THUMB:
+          return List.of(MovieSetThumbNaming.MOVIESET_THUMB, MovieSetThumbNaming.MOVIESET_LANDSCAPE);
       }
     }
 
-    // b)
-    for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
-      for (String fileType : SUPPORTED_ARTWORK_FILETYPES) {
-        // old tmm style
-        String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
-
-        // also remove illegal separators
-        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
-
-        // replace multiple spaces with a single one
-        movieSetName = movieSetName.replaceAll(" +", " ").trim();
-
-        String artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
-        Path artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
-        if (Files.exists(artworkFile)) {
-          // add this artwork to the media files
-          MediaFile mediaFile = new MediaFile(artworkFile, type);
-          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
-          movieSet.addToMediaFiles(mediaFile);
-        }
-
-        // Kodi style
-        movieSetName = getMovieSetTitleForStorage(movieSet, "_");
-
-        artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
-        artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
-        if (Files.exists(artworkFile)) {
-          // add this artwork to the media files
-          MediaFile mediaFile = new MediaFile(artworkFile, type);
-          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
-          movieSet.addToMediaFiles(mediaFile);
-        }
-
-        // Emby style
-        movieSetName = getMovieSetTitleForStorage(movieSet, " ");
-
-        artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
-        artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
-        if (Files.exists(artworkFile)) {
-          // add this artwork to the media files
-          MediaFile mediaFile = new MediaFile(artworkFile, type);
-          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
-          movieSet.addToMediaFiles(mediaFile);
-        }
-      }
-    }
+    return Collections.emptyList();
   }
 
   /**
@@ -588,7 +620,7 @@ public class MovieSetArtworkHelper {
     // get the artwork in the chosen language priority
     for (MediaLanguages language : languages) {
       // the right language and the right resolution
-      for (MediaArtwork art : artwork.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
+      for (MediaArtwork art : artworkForType.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
         for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
           if (imageSizeAndUrl.getSizeOrder() == sizeOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
             sortedArtwork.add(imageSizeAndUrl);
@@ -1172,7 +1204,7 @@ public class MovieSetArtworkHelper {
    * @return the cleaned movie set title
    */
   public static String getMovieSetTitleForStorage(MovieSet movieSet, String replacement) {
-    // Note- Illegal characters in the movie set name are replaced with the chosen replacement
+    // Note: Illegal characters in the movie set name are replaced with the chosen replacement
     // eg "Mission: Impossible Collection" becomes "Mission_ Impossible Collection" (Kodi style)
     // https://kodi.wiki/view/Movie_set_information_folder
     String result = movieSet.getTitle();
