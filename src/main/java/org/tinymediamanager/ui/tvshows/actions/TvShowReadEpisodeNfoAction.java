@@ -16,8 +16,11 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -43,12 +46,11 @@ public class TvShowReadEpisodeNfoAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     final List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
-
     if (selectedEpisodes.isEmpty()) {
       return;
     }
 
-    // rewrite selected NFOs
+    // reload selected NFOs
     TmmTaskManager.getInstance()
         .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshowepisode.readnfo"), selectedEpisodes.size(), TaskType.BACKGROUND_TASK) {
           @Override
@@ -59,30 +61,60 @@ public class TvShowReadEpisodeNfoAction extends TmmAction {
 
               // process all registered NFOs
               for (MediaFile mf : episode.getMediaFiles(MediaFileType.NFO)) {
-                // at the first NFO we get a episode object
-                if (tempEpisode == null) {
-                  try {
-                    List<TvShowEpisode> episodesFromNfo = TvShowEpisodeNfoParser.parseNfo(mf.getFileAsPath()).toTvShowEpisodes();
+                try {
+                  List<TvShowEpisode> episodesFromNfo = TvShowEpisodeNfoParser.parseNfo(mf.getFileAsPath()).toTvShowEpisodes();
+
+                  // at the first NFO we get a episode object
+                  if (tempEpisode == null) {
+                    if (episodesFromNfo.size() == 1) {
+                      tempEpisode = episodesFromNfo.get(0);
+                    }
+                    else {
+                      for (TvShowEpisode ep : episodesFromNfo) {
+                        if (episode.getSeason() == ep.getSeason() && episode.getEpisode() == ep.getEpisode()) {
+                          tempEpisode = ep;
+                          break;
+                        }
+                      }
+                    }
+                    continue;
+                  }
+
+                  // every other NFO gets merged into that temp. episode object
+                  // but only if we have detected an episode# at first... (do not match -1 EPs)
+                  if (tempEpisode != null && episodesFromNfo.size() > 1) {
                     for (TvShowEpisode ep : episodesFromNfo) {
-                      if (episode.getSeason() == ep.getSeason() && episode.getEpisode() == ep.getEpisode()) {
-                        tempEpisode = ep;
+                      if (episode.getEpisode() > 0 && episode.getSeason() == ep.getSeason() && episode.getEpisode() == ep.getEpisode()) {
+                        tempEpisode.merge(ep);
                         break;
                       }
                     }
                   }
-                  catch (Exception ignored) {
-                  }
-                  continue;
                 }
+                catch (Exception ignored) {
+                }
+              }
 
-                // every other NFO gets merged into that temp. episode object
-                if (tempEpisode != null) {
+              // no MF (yet)? try to find NFO...
+              // it might have been added w/o UDS, and since we FORCE a read...
+              if (tempEpisode == null) {
+                MediaFile vid = episode.getMainVideoFile();
+                String name = vid.getFilenameWithoutStacking();
+                name = FilenameUtils.getBaseName(name) + ".nfo";
+                Path nfo = vid.getFileAsPath().getParent().resolve(name);
+                if (Files.exists(nfo)) {
                   try {
-                    List<TvShowEpisode> episodesFromNfo = TvShowEpisodeNfoParser.parseNfo(mf.getFileAsPath()).toTvShowEpisodes();
-                    for (TvShowEpisode ep : episodesFromNfo) {
-                      if (episode.getSeason() == ep.getSeason() && episode.getEpisode() == ep.getEpisode()) {
-                        tempEpisode.merge(ep);
-                        break;
+                    episode.addToMediaFiles(new MediaFile(nfo));
+                    List<TvShowEpisode> episodesFromNfo = TvShowEpisodeNfoParser.parseNfo(nfo).toTvShowEpisodes();
+                    if (episodesFromNfo.size() == 1) {
+                      tempEpisode = episodesFromNfo.get(0);
+                    }
+                    else {
+                      for (TvShowEpisode ep : episodesFromNfo) {
+                        if (episode.getSeason() == ep.getSeason() && episode.getEpisode() == ep.getEpisode()) {
+                          tempEpisode = ep;
+                          break;
+                        }
                       }
                     }
                   }
@@ -93,7 +125,7 @@ public class TvShowReadEpisodeNfoAction extends TmmAction {
 
               // did we get movie data from our NFOs
               if (tempEpisode != null) {
-                // force merge it to the actual movie object
+                // force merge it to the actual episode object
                 episode.forceMerge(tempEpisode);
                 episode.saveToDb();
               }

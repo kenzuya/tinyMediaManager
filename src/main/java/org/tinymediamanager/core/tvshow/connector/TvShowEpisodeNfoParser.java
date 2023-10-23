@@ -147,7 +147,8 @@ public class TvShowEpisodeNfoParser {
       return false;
     }
 
-    if (episode.episode < 0) {
+    // having multiple episodes in NFO, then the episode# IS mandatory
+    if (episodes.size() > 1 && episode.episode < 0) {
       return false;
     }
 

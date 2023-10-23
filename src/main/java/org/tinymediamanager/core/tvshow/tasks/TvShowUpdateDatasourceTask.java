@@ -76,6 +76,7 @@ import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
+import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser.Episode;
 import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.connector.TvShowSeasonNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -876,7 +877,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // meta data from XML files
           TvShowEpisode xmlEP = null;
           for (MediaFile xmlMf : epFiles) {
-            if ("xml".equalsIgnoreCase(xmlMf.getExtension())) {
+            if ("xml".equalsIgnoreCase(xmlMf.getExtension()) && !xmlMf.getFilename().endsWith("mediainfo.xml")) {
               try {
                 TvShowEpisodeNfoParser nfoParser = TvShowEpisodeNfoParser.parseNfo(xmlMf.getFileAsPath());
                 List<TvShowEpisode> epsInXml = nfoParser.toTvShowEpisodes();
@@ -900,6 +901,22 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             try {
               TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(epNfo.getFileAsPath());
+
+              // ALL episodes detected with -1? try to parse from filename...
+              boolean allUnknown = !parser.episodes.isEmpty() && parser.episodes.stream().allMatch(ep -> ep.episode == -1);
+              if (allUnknown) {
+                EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
+                    .detectEpisodeFromFilename(showDir.relativize(epNfo.getFileAsPath()).toString(), tvShow.getTitle());
+                if (parser.episodes.size() == result.episodes.size()) {
+                  int i = 0;
+                  for (Episode ep : parser.episodes) {
+                    ep.episode = result.episodes.get(i);
+                    ep.season = result.season;
+                    i++;
+                  }
+                }
+              }
+
               if (parser.isValidNfo()) {
                 episodesInNfo.addAll(parser.toTvShowEpisodes());
               }
