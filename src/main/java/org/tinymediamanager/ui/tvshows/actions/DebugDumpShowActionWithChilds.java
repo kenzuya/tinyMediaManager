@@ -27,11 +27,11 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel.SelectedObjects;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
-public class DebugDumpShowAction extends TmmAction {
+public class DebugDumpShowActionWithChilds extends TmmAction {
   private static final long serialVersionUID = 1L;
 
-  public DebugDumpShowAction() {
-    putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
+  public DebugDumpShowActionWithChilds() {
+    putValue(NAME, TmmResourceBundle.getString("debug.entity.dump") + " (with childs)");
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("debug.entity.dump.desc"));
   }
 
@@ -41,12 +41,12 @@ public class DebugDumpShowAction extends TmmAction {
 
     Set<TvShow> selectedTvShows = sel.getTvShows();
     for (TvShow tvShow : selectedTvShows) {
-      TvShowModuleManager.getInstance().dump(tvShow, false);
+      TvShowModuleManager.getInstance().dump(tvShow, true);
     }
 
     Set<TvShowSeason> selectedSeason = sel.getSeasons();
     for (TvShowSeason se : selectedSeason) {
-      TvShowModuleManager.getInstance().dump(se, false);
+      TvShowModuleManager.getInstance().dump(se, true);
     }
 
     Set<TvShowEpisode> selectedEpisodes = sel.getEpisodes();

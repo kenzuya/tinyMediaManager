@@ -67,6 +67,11 @@ public class ToolbarMenu extends ToolbarLabel {
 
       @Override
       public void mousePressed(MouseEvent e) {
+        mouseClicked(e);
+      }
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
         if (popupMenu != null) {
           int x = ToolbarMenu.this.getWidth() - (int) popupMenu.getPreferredSize().getWidth();
           // prevent the popupmenu from being displayed on another screen if x < 0

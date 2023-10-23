@@ -32,7 +32,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -522,7 +534,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
         panelContent.add(lblSeason, "cell 0 2,alignx right");
 
-        JComboBox<MediaEpisodeGroup.EpisodeGroup> cbEpisodeGroup = new JComboBox(MediaEpisodeGroup.EpisodeGroup.values());
+        JComboBox<MediaEpisodeGroup.EpisodeGroupType> cbEpisodeGroup = new JComboBox(MediaEpisodeGroup.EpisodeGroupType.values());
         panelContent.add(cbEpisodeGroup, "cell 1 2");
 
         JSpinner spSeason = new JSpinner();
@@ -536,11 +548,11 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
             Integer season = (Integer) spSeason.getValue();
-            MediaEpisodeGroup.EpisodeGroup eg = (MediaEpisodeGroup.EpisodeGroup) cbEpisodeGroup.getSelectedItem();
+            MediaEpisodeGroup.EpisodeGroupType eg = (MediaEpisodeGroup.EpisodeGroupType) cbEpisodeGroup.getSelectedItem();
             MediaEpisodeGroup episodeGroup = null;
 
             for (MediaEpisodeGroup meg : episode.getTvShow().getEpisodeGroups()) {
-              if (meg.getEpisodeGroup() == eg) {
+              if (meg.getEpisodeGroupType() == eg) {
                 episodeGroup = meg;
                 break;
               }
@@ -653,7 +665,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
       {
         JLabel lblDateAdded = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
-        panelContent.add(lblDateAdded,"cell 0 9,alignx right");
+        panelContent.add(lblDateAdded, "cell 0 9,alignx right");
 
         JSpinner spDateAdded = new JSpinner(new SpinnerDateModel());
         panelContent.add(spDateAdded, "cell 1 9");
@@ -663,7 +675,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           episodesChanged = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.setDateAdded((Date)spDateAdded.getValue());
+            episode.setDateAdded((Date) spDateAdded.getValue());
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });

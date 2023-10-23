@@ -18,14 +18,19 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
@@ -50,14 +55,25 @@ public class TvShowScrapeMissingEpisodesAction extends TmmAction {
       return;
     }
 
-    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
-    options.loadDefaults();
+    for (TvShow tvShow : selectedTvShows) {
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+      options.loadDefaults();
 
-    TvShowScrapeTask.TvShowScrapeParams tvShowScrapeParams = new TvShowScrapeTask.TvShowScrapeParams(selectedTvShows, options, new ArrayList<>(),
-        new ArrayList<>());
-    tvShowScrapeParams.setDoSearch(false);
+      String scraperId = tvShow.getLastScraperId();
+      String scraperLanguage = tvShow.getLastScrapeLanguage();
+      if (StringUtils.isNoneBlank(scraperId, scraperLanguage)) {
+        // scrape every show with the right scraper (the previous one)
+        // if it has not been scraped yet, scrape with default scraper (implicit default)
+        options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
+        options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
+      }
 
-    TmmThreadPool scrapeTask = new TvShowScrapeTask(tvShowScrapeParams);
-    TmmTaskManager.getInstance().addMainTask(scrapeTask);
+      TvShowScrapeTask.TvShowScrapeParams tvShowScrapeParams = new TvShowScrapeTask.TvShowScrapeParams(Collections.singletonList(tvShow), options,
+          new ArrayList<>(), new ArrayList<>());
+      tvShowScrapeParams.setDoSearch(false);
+
+      TmmThreadPool scrapeTask = new TvShowScrapeTask(tvShowScrapeParams);
+      TmmTaskManager.getInstance().addMainTask(scrapeTask);
+    }
   }
 }

@@ -21,6 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JTable;
+import javax.swing.table.TableModel;
 
 /**
  * The Class {@link TmmEditorTable} can be used to display the date in a table format, but offering a
@@ -35,6 +36,11 @@ public abstract class TmmEditorTable extends TmmTable {
     TableButtonListener listener = new TableButtonListener(this);
     addMouseListener(listener);
     addMouseMotionListener(listener);
+  }
+
+  public TmmEditorTable(TableModel tableModel) {
+    this();
+    setModel(tableModel);
   }
 
   /**
@@ -66,7 +72,7 @@ public abstract class TmmEditorTable extends TmmTable {
    *          the row index
    * @param column
    *          the column index
-   * @return true if the cell is contains any link
+   * @return true if the cell contains any link
    */
   protected boolean isLinkCell(int row, int column) {
     return isEditorColumn(column);
@@ -96,6 +102,15 @@ public abstract class TmmEditorTable extends TmmTable {
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
+      click(arg0);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+      click(arg0);
+    }
+
+    private void click(MouseEvent arg0) {
       int row = table.rowAtPoint(arg0.getPoint());
       int col = table.columnAtPoint(arg0.getPoint());
 

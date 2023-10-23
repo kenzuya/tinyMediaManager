@@ -225,7 +225,7 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
       cbMediaSource.setSelectedItem(episodeToEdit.getMediaSource());
       taNote.setText(episodeToEdit.getNote());
 
-      episodeNumbers.addAll(episodeToEdit.getEpisodeNumbers().values());
+      episodeNumbers.addAll(episodeToEdit.getEpisodeNumbers());
 
       for (Person origCast : episodeToEdit.getActors()) {
         guests.add(new Person(origCast));
@@ -312,7 +312,8 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
             ModalPopupPanel popupPanel = createModalPopupPanel();
             popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.edit"));
 
-            TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(episodeNumber);
+            TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(episodeNumber,
+                episodeToEdit.getTvShow().getEpisodeGroups());
             popupPanel.setContent(episodeNumberEditorPanel);
             popupPanel.setOnCloseHandler(() -> {
               MediaEpisodeNumber episodeNumber1 = episodeNumberEditorPanel.getEpisodeNumber();
@@ -714,7 +715,7 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
         taPlot.setText(metadata.getPlot());
 
         episodeNumbers.clear();
-        for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
+        for (MediaEpisodeGroup.EpisodeGroupType group : MediaEpisodeGroup.EpisodeGroupType.values()) {
           MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
           if (episodeNumber != null && episodeNumber.isValid()) {
             episodeNumbers.add(episodeNumber);
@@ -1008,7 +1009,7 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
         dpFirstAired.setDate(metadata.getReleaseDate());
 
         episodeNumbers.clear();
-        for (MediaEpisodeGroup.EpisodeGroup group : MediaEpisodeGroup.EpisodeGroup.values()) {
+        for (MediaEpisodeGroup.EpisodeGroupType group : MediaEpisodeGroup.EpisodeGroupType.values()) {
           MediaEpisodeNumber episodeNumber = metadata.getEpisodeNumber(group);
           if (episodeNumber != null && episodeNumber.isValid()) {
             episodeNumbers.add(episodeNumber);
@@ -1079,7 +1080,7 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
       popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.add"));
 
       TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(
-          new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, -1, -1));
+          new MediaEpisodeNumber(episodeToEdit.getTvShow().getEpisodeGroup(), -1, -1), episodeToEdit.getTvShow().getEpisodeGroups());
       popupPanel.setContent(episodeNumberEditorPanel);
       popupPanel.setOnCloseHandler(() -> {
         MediaEpisodeNumber episodeNumber = episodeNumberEditorPanel.getEpisodeNumber();
@@ -1094,7 +1095,10 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
 
   private void addOrEditEpisodeNumber(MediaEpisodeNumber episodeNumber) {
     // remove the old one
-    MediaEpisodeNumber existing = episodeNumbers.stream().filter(ep -> ep.episodeGroup() == episodeNumber.episodeGroup()).findFirst().orElse(null);
+    MediaEpisodeNumber existing = episodeNumbers.stream()
+        .filter(ep -> ep.episodeGroup().getEpisodeGroupType() == episodeNumber.episodeGroup().getEpisodeGroupType())
+        .findFirst()
+        .orElse(null);
     if (existing != null) {
       int index = episodeNumbers.indexOf(existing);
       episodeNumbers.remove(existing);

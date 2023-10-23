@@ -15,11 +15,10 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
-import javax.swing.JButton;
+import java.util.List;
+
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
@@ -27,7 +26,7 @@ import javax.swing.SwingUtilities;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
-import org.tinymediamanager.ui.panels.IModalPopupPanel;
+import org.tinymediamanager.ui.panels.AbstractModalInputPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -36,18 +35,14 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowEpisodeNumberEditorPanel extends JPanel implements IModalPopupPanel {
-  private final JComboBox<MediaEpisodeGroup.EpisodeGroup> cbEpisodeGroup;
-  private final JSpinner                                  spEpisode;
-  private final JSpinner                                  spSeason;
+public class TvShowEpisodeNumberEditorPanel extends AbstractModalInputPanel {
+  private final JComboBox<MediaEpisodeGroup> cbEpisodeGroup;
+  private final JSpinner                     spEpisode;
+  private final JSpinner                     spSeason;
 
-  private final JButton                                   btnClose;
-  private final JButton                                   btnCancel;
+  private MediaEpisodeNumber                 episodeNumber;
 
-  private boolean                                         cancel = false;
-  private MediaEpisodeNumber                              episodeNumber;
-
-  public TvShowEpisodeNumberEditorPanel(MediaEpisodeNumber episodeNumber) {
+  public TvShowEpisodeNumberEditorPanel(MediaEpisodeNumber episodeNumber, List<MediaEpisodeGroup> episodeGroups) {
     super();
 
     {
@@ -56,7 +51,7 @@ public class TvShowEpisodeNumberEditorPanel extends JPanel implements IModalPopu
         JLabel episodeGroupT = new JLabel(TmmResourceBundle.getString("metatag.episode.group"));
         add(episodeGroupT, "cell 0 0,alignx trailing");
 
-        cbEpisodeGroup = new JComboBox<>(MediaEpisodeGroup.EpisodeGroup.values());
+        cbEpisodeGroup = new JComboBox<>(episodeGroups.toArray(MediaEpisodeGroup[]::new));
         add(cbEpisodeGroup, "cell 1 0,growx");
       }
       {
@@ -77,23 +72,6 @@ public class TvShowEpisodeNumberEditorPanel extends JPanel implements IModalPopu
 
         add(spEpisode, "cell 1 2,growx");
       }
-      {
-        btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
-        btnCancel.addActionListener(e -> {
-          cancel = true;
-          setVisible(false);
-        });
-
-        btnClose = new JButton(TmmResourceBundle.getString("Button.save"));
-        btnClose.addActionListener(e -> {
-          if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup.EpisodeGroup episodeGroup) {
-            this.episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup), (Integer) spSeason.getValue(),
-                (Integer) spEpisode.getValue());
-          }
-
-          setVisible(false);
-        });
-      }
     }
 
     // set all existing data
@@ -105,27 +83,16 @@ public class TvShowEpisodeNumberEditorPanel extends JPanel implements IModalPopu
     SwingUtilities.invokeLater(cbEpisodeGroup::requestFocus);
   }
 
-  @Override
-  public JComponent getContent() {
-    return this;
-  }
-
-  @Override
-  public JButton getCloseButton() {
-    return btnClose;
-  }
-
-  @Override
-  public JButton getCancelButton() {
-    return btnCancel;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return cancel;
-  }
-
   public MediaEpisodeNumber getEpisodeNumber() {
     return episodeNumber;
+  }
+
+  @Override
+  protected void onClose() {
+    if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup episodeGroup) {
+      this.episodeNumber = new MediaEpisodeNumber(episodeGroup, (Integer) spSeason.getValue(), (Integer) spEpisode.getValue());
+    }
+
+    setVisible(false);
   }
 }

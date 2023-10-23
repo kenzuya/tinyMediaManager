@@ -39,5 +39,5 @@ public class TvShow extends BaseTvShow {
   public BaseTvEpisode     next_episode_to_air;
 
   @SerializedName(value = "episode_groups")
-  public EpisodeGroups     episodeGroups;
+  public EpisodeGroupsList episodeGroups;
 }

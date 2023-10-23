@@ -84,6 +84,7 @@ public final class Constants {
   public static final String REMOVED_EPISODE        = "removedEpisode";
   public static final String REMOVED_MOVIE          = "removedMovie";
   public static final String REMOVED_MOVIE_SET      = "removedMovieSet";
+  public static final String REMOVED_SEASON         = "removedSeason";
   public static final String REMOVED_TV_SHOW        = "removedTvShow";
   public static final String ROLE                   = "role";
   public static final String RUNTIME                = "runtime";

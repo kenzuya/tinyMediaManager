@@ -16,7 +16,7 @@
 
 package org.tinymediamanager.scraper.tmdb.services;
 
-import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroups;
+import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroup;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -34,5 +34,5 @@ public interface TvEpisodeGroupsService {
    *          <em>Optional.</em> ISO 639-1 code.
    */
   @GET("tv/episode_group/{id}")
-  Call<TvEpisodeGroups> episodeGroup(@Path("id") String episodeGroupId, @Query("language") String language);
+  Call<TvEpisodeGroup> episodeGroup(@Path("id") String episodeGroupId, @Query("language") String language);
 }

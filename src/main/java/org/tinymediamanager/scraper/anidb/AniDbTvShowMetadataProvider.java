@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.scraper.anidb;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.util.ArrayList;
 import java.util.List;

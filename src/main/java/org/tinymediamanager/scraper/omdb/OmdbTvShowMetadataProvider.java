@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.scraper.omdb;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.io.InterruptedIOException;
 import java.util.ArrayList;

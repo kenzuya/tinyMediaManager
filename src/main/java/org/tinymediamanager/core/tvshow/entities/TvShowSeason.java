@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.MediaFileType;
@@ -49,6 +50,7 @@ import org.tinymediamanager.core.tvshow.connector.TvShowSeasonToEmbyConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -65,8 +67,8 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   private final int                 season;
 
   private TvShow                    tvShow        = null;
-  private final List<TvShowEpisode> episodes      = new ArrayList<>();
-  private final List<TvShowEpisode> dummyEpisodes = new ArrayList<>();
+  private final List<TvShowEpisode> episodes      = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode> dummyEpisodes = new CopyOnWriteArrayList<>();
 
   private PropertyChangeListener    listener;
 
@@ -166,6 +168,24 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     return tvShowDbId;
   }
 
+  public void removeAllEpisodes() {
+    List<TvShowEpisode> removedEpisodes = new ArrayList<>(episodes);
+    removedEpisodes.addAll(dummyEpisodes);
+
+    episodes.clear();
+    dummyEpisodes.clear();
+
+    for (TvShowEpisode episode : removedEpisodes) {
+      episode.removePropertyChangeListener(listener);
+      firePropertyChange(REMOVED_EPISODE, null, episode);
+      firePropertyChange(FIRST_AIRED, null, getFirstAired());
+    }
+  }
+
+  boolean isEmpty() {
+    return episodes.isEmpty() && dummyEpisodes.isEmpty();
+  }
+
   public synchronized void addEpisode(TvShowEpisode episode) {
     // do not add twice
     if (episode == null) {
@@ -186,14 +206,14 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     }
 
     episode.addPropertyChangeListener(listener);
-    firePropertyChange(ADDED_EPISODE, null, episodes);
+    firePropertyChange(ADDED_EPISODE, null, episode);
     firePropertyChange(FIRST_AIRED, null, getFirstAired());
   }
 
   public void removeEpisode(TvShowEpisode episode) {
     episodes.remove(episode);
     episode.removePropertyChangeListener(listener);
-    firePropertyChange(REMOVED_EPISODE, null, episodes);
+    firePropertyChange(REMOVED_EPISODE, null, episode);
     firePropertyChange(FIRST_AIRED, null, getFirstAired());
   }
 
@@ -307,14 +327,12 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     // mix in unavailable episodes if the user wants to
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       // build up a set which holds a string representing the S/E indicator
-      Set<String> availableEpisodes = new HashSet<>();
+      Set<MediaEpisodeNumber> availableEpisodes = new HashSet<>();
 
       for (TvShowEpisode episode : episodes) {
-        if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
-          availableEpisodes.add("A" + episode.getSeason() + "." + episode.getEpisode());
-        }
-        if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
-          availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
+        MediaEpisodeNumber mediaEpisodeNumber = episode.getEpisodeNumber();
+        if (mediaEpisodeNumber != null) {
+          availableEpisodes.add(mediaEpisodeNumber);
         }
       }
 
@@ -324,12 +342,14 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
           continue;
         }
 
-        if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
-            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())) {
+        MediaEpisodeNumber mediaEpisodeNumber = episode.getEpisodeNumber();
+        if (mediaEpisodeNumber != null && !availableEpisodes.contains(mediaEpisodeNumber)) {
           episodes.add(episode);
         }
       }
     }
+
+    episodes.sort(Comparator.comparingInt(TvShowEpisode::getEpisode));
 
     return episodes;
   }

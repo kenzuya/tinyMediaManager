@@ -19,7 +19,16 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class EpisodeGroups {
-  @SerializedName(value = "episode_groups", alternate = { "results" })
-  public List<EpisodeGroup> episodeGroups;
+public class TvEpisodeGroupSeason {
+  @SerializedName("id")
+  public String                      id;
+
+  @SerializedName("name")
+  public String                      name;
+
+  @SerializedName("order")
+  public int                         order;
+
+  @SerializedName("episodes")
+  public List<TvEpisodeGroupEpisode> episodes;
 }

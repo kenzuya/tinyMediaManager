@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * the record {@link MediaEpisodeNumber} is used to hold a S/E combination for the given {@link MediaEpisodeGroup.EpisodeGroup}
+ * the record {@link MediaEpisodeNumber} is used to hold a S/E combination for the given {@link MediaEpisodeGroup.EpisodeGroupType}
  * 
  * @param episodeGroup
  *          the {@link MediaEpisodeGroup}

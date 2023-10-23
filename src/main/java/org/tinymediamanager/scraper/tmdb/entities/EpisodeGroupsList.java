@@ -19,28 +19,7 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TvEpisodeGroups {
-  @SerializedName("id")
-  public String               id;
-
-  @SerializedName("type")
-  public int                  type;
-
-  @SerializedName("name")
-  public String               name;
-
-  @SerializedName("description")
-  public String               description;
-
-  @SerializedName("group_count")
-  public int                  groupCount;
-
-  @SerializedName("episode_count")
-  public int                  episodeCount;
-
-  @SerializedName("network")
-  public Network              network;
-
-  @SerializedName("groups")
-  public List<TvEpisodeGroup> groups;
+public class EpisodeGroupsList {
+  @SerializedName(value = "episode_groups", alternate = { "results" })
+  public List<TvEpisodeGroup> episodeGroups;
 }

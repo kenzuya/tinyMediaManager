@@ -22,7 +22,7 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 import static org.tinymediamanager.scraper.util.MediaIdUtil.isValidImdbId;
 
 import java.io.IOException;
@@ -78,7 +78,6 @@ import org.tinymediamanager.scraper.tmdb.entities.BaseTvShow;
 import org.tinymediamanager.scraper.tmdb.entities.CastMember;
 import org.tinymediamanager.scraper.tmdb.entities.ContentRating;
 import org.tinymediamanager.scraper.tmdb.entities.CrewMember;
-import org.tinymediamanager.scraper.tmdb.entities.EpisodeGroup;
 import org.tinymediamanager.scraper.tmdb.entities.FindResults;
 import org.tinymediamanager.scraper.tmdb.entities.Genre;
 import org.tinymediamanager.scraper.tmdb.entities.Image;
@@ -87,7 +86,7 @@ import org.tinymediamanager.scraper.tmdb.entities.Translations;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisode;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroup;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroupEpisode;
-import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroups;
+import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeGroupSeason;
 import org.tinymediamanager.scraper.tmdb.entities.TvSeason;
 import org.tinymediamanager.scraper.tmdb.entities.TvShow;
 import org.tinymediamanager.scraper.tmdb.entities.TvShowResultsPage;
@@ -322,19 +321,19 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       }
 
       // get episode group data
-      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups = new HashMap<>();
-      for (EpisodeGroup episodeGroup : ListUtils.nullSafe(showResponse.body().episodeGroups.episodeGroups)) {
+      Map<MediaEpisodeGroup, List<TvEpisodeGroupSeason>> episodeGroups = new HashMap<>();
+      for (TvEpisodeGroup episodeGroup : ListUtils.nullSafe(showResponse.body().episodeGroups.episodeGroups)) {
         if (episodeGroup.episodeCount == 0) {
           continue;
         }
 
         try {
-          Response<TvEpisodeGroups> episodeGroupsResponse = api.tvEpisodeGroupsService().episodeGroup(episodeGroup.id, language).execute();
+          Response<TvEpisodeGroup> episodeGroupsResponse = api.tvEpisodeGroupsService().episodeGroup(episodeGroup.id, language).execute();
           if (!episodeGroupsResponse.isSuccessful() || episodeGroupsResponse.body() == null) {
             throw new HttpException(episodeGroupsResponse.code(), episodeGroupsResponse.message());
           }
 
-          MediaEpisodeGroup.EpisodeGroup eg = mapEpisodeGroup(episodeGroup.type);
+          MediaEpisodeGroup.EpisodeGroupType eg = mapEpisodeGroup(episodeGroup.type);
           if (eg != null) {
             episodeGroups.put(new MediaEpisodeGroup(eg, episodeGroup.name), episodeGroupsResponse.body().groups);
           }
@@ -366,7 +365,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   }
 
   private List<MediaMetadata> getSeasonEpisodes(int tmdbId, Integer seasonNumber, TvShowSearchAndScrapeOptions options, String originalLanguage,
-      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups) throws IOException {
+      Map<MediaEpisodeGroup, List<TvEpisodeGroupSeason>> episodeGroups) throws IOException {
     Map<Integer, MediaMetadata> episodesInRequestedLanguage = new TreeMap<>();
     Map<Integer, MediaMetadata> episodesInFallbackLanguage = new TreeMap<>();
     Map<Integer, MediaMetadata> episodesInOriginalLanguage = new TreeMap<>();
@@ -512,7 +511,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       injectTranslations(Locale.forLanguageTag(language), complete);
     }
     catch (Exception e) {
-      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      LOGGER.warn("failed to get meta data: {}", e.getMessage());
       throw new ScrapeException(e);
     }
 
@@ -630,15 +629,37 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     // aired date is default
     md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
+    // we only got the overview
     if (complete.episodeGroups != null) {
-      for (EpisodeGroup episodeGroup : ListUtils.nullSafe(complete.episodeGroups.episodeGroups)) {
+      for (TvEpisodeGroup episodeGroup : ListUtils.nullSafe(complete.episodeGroups.episodeGroups)) {
         if (episodeGroup.episodeCount == 0) {
           continue;
         }
 
-        MediaEpisodeGroup.EpisodeGroup eg = mapEpisodeGroup(episodeGroup.type);
+        // now get details for every EG
+        try {
+          Response<TvEpisodeGroup> httpResponse = api.tvEpisodeGroupsService().episodeGroup(episodeGroup.id, language).execute();
+          if (!httpResponse.isSuccessful()) {
+            throw new HttpException(httpResponse.code(), httpResponse.message());
+          }
+          TvEpisodeGroup fullEG = httpResponse.body();
+          episodeGroup.groups = fullEG.groups; // copy to ours, so the rest of our code works 1:1
+        }
+        catch (Exception e) {
+          LOGGER.warn("failed to get episode group details: {}", e.getMessage());
+          // throw new ScrapeException(e); // continue
+        }
+
+        MediaEpisodeGroup.EpisodeGroupType eg = mapEpisodeGroup(episodeGroup.type);
         if (eg != null) {
-          md.addEpisodeGroup(new MediaEpisodeGroup(eg, episodeGroup.name));
+          MediaEpisodeGroup mediaEpisodeGroup = new MediaEpisodeGroup(eg, episodeGroup.name);
+          md.addEpisodeGroup(mediaEpisodeGroup);
+          // season titles
+          for (TvEpisodeGroupSeason season : ListUtils.nullSafe(episodeGroup.groups)) {
+            if (StringUtils.isNotBlank(season.name)) {
+              md.addSeasonName(mediaEpisodeGroup, season.order, season.name);
+            }
+          }
         }
       }
     }
@@ -654,13 +675,14 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
               throw new HttpException(translationsResponse.code(), translationsResponse.message());
             }
             injectTranslations(Locale.forLanguageTag(language), complete, season, translationsResponse.body());
-          } catch (Exception e) {
+          }
+          catch (Exception e) {
             LOGGER.debug("Could not get season translations - '{}'", e.getMessage());
           }
         }
 
-        md.addSeasonName(season.season_number, season.name);
-        md.addSeasonOverview(season.season_number, season.overview);
+        md.addSeasonName(MediaEpisodeGroup.DEFAULT_AIRED, season.season_number, season.name);
+        md.addSeasonOverview(MediaEpisodeGroup.DEFAULT_AIRED, season.season_number, season.overview);
       }
     }
 
@@ -780,7 +802,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     if (episodeMediaMetadata == null && seasonNr > -1 && episodeNr > -1) {
       for (MediaMetadata episode : episodes) {
         MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(options.getEpisodeGroup());
-        if (episodeNumber == null && options.getEpisodeGroup().getEpisodeGroup() == AIRED) {
+        if (episodeNumber == null && options.getEpisodeGroup().getEpisodeGroupType() == AIRED) {
           // legacy
           episodeNumber = episode.getEpisodeNumber(AIRED);
         }
@@ -944,12 +966,12 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
         // 1280x720
         if (1280 < image.width) {
           ma.addImageSize(1280, image.height * 1280 / image.width, artworkBaseUrl + "w1280" + image.file_path,
-                  MediaArtwork.ThumbSizes.getSizeOrder(1280));
+              MediaArtwork.ThumbSizes.getSizeOrder(1280));
         }
         // w300
         if (300 < image.width) {
           ma.addImageSize(300, image.height * 300 / image.width, artworkBaseUrl + "w300" + image.file_path,
-                  MediaArtwork.ThumbSizes.getSizeOrder(300));
+              MediaArtwork.ThumbSizes.getSizeOrder(300));
         }
 
         md.addMediaArt(ma);
@@ -1380,7 +1402,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   }
 
   private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode, TvSeason tvSeason,
-      Map<MediaEpisodeGroup, List<TvEpisodeGroup>> episodeGroups, MediaSearchAndScrapeOptions options) {
+      Map<MediaEpisodeGroup, List<TvEpisodeGroupSeason>> episodeGroups, MediaSearchAndScrapeOptions options) {
     MediaMetadata ep = new MediaMetadata(getId());
     ep.setScrapeOptions(options);
     ep.setId(getProviderInfo().getId(), episode.id);
@@ -1391,10 +1413,10 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     // mix in episode groups
     if (episodeGroups != null) {
-      for (Map.Entry<MediaEpisodeGroup, List<TvEpisodeGroup>> entry : episodeGroups.entrySet()) {
+      for (Map.Entry<MediaEpisodeGroup, List<TvEpisodeGroupSeason>> entry : episodeGroups.entrySet()) {
         boolean found = false;
 
-        for (TvEpisodeGroup episodeGroup : entry.getValue()) {
+        for (TvEpisodeGroupSeason episodeGroup : entry.getValue()) {
           for (TvEpisodeGroupEpisode episodeInGroup : ListUtils.nullSafe(episodeGroup.episodes)) {
             if (Objects.equals(episode.id, episodeInGroup.id)) {
               ep.setEpisodeNumber(entry.getKey(), episodeGroup.order, episodeInGroup.order + 1); // +1 because TMDB counts episodes from zero!
@@ -1506,13 +1528,13 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     return result;
   }
 
-  private MediaEpisodeGroup.EpisodeGroup mapEpisodeGroup(int type) {
+  private MediaEpisodeGroup.EpisodeGroupType mapEpisodeGroup(int type) {
     return switch (type) {
       // originally aired, but this results in a _second_ aired order which we cannot handle. We morph this is to alternate
-      case 1 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
-      case 2 -> MediaEpisodeGroup.EpisodeGroup.ABSOLUTE;
-      case 3 -> MediaEpisodeGroup.EpisodeGroup.DVD;
-      case 4, 5, 6, 7 -> MediaEpisodeGroup.EpisodeGroup.ALTERNATE;
+      case 1 -> MediaEpisodeGroup.EpisodeGroupType.ALTERNATE;
+      case 2 -> MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE;
+      case 3 -> MediaEpisodeGroup.EpisodeGroupType.DVD;
+      case 4, 5, 6, 7 -> MediaEpisodeGroup.EpisodeGroupType.ALTERNATE;
       default -> null;
     };
   }

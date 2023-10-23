@@ -52,6 +52,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -735,12 +736,12 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
   protected void addEpisodeGroups(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element episodeGroups = document.createElement("episode_groups");
 
-    for (var entry : episode.getEpisodeNumbers().entrySet()) {
+    for (MediaEpisodeNumber episodeNumber : episode.getEpisodeNumbers()) {
       Element group = document.createElement("group");
-      group.setAttribute("id", entry.getKey().name());
-      group.setAttribute("name", entry.getValue().episodeGroup().getName());
-      group.setAttribute("season", String.valueOf(entry.getValue().season()));
-      group.setAttribute("episode", String.valueOf(entry.getValue().episode()));
+      group.setAttribute("id", episodeNumber.episodeGroup().getEpisodeGroupType().name());
+      group.setAttribute("name", episodeNumber.episodeGroup().getName());
+      group.setAttribute("season", String.valueOf(episodeNumber.season()));
+      group.setAttribute("episode", String.valueOf(episodeNumber.episode()));
       episodeGroups.appendChild(group);
     }
 

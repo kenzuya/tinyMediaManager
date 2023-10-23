@@ -1562,8 +1562,8 @@ public class TvShowEpisodeNfoParser {
       if (element != null) {
         for (Element group : element.children()) {
           try {
-            MediaEpisodeGroup.EpisodeGroup episodeGroup = MediaEpisodeGroup.EpisodeGroup.valueOf(group.attr("id"));
-            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup, group.attr("name")),
+            MediaEpisodeGroup.EpisodeGroupType episodeGroupType = MediaEpisodeGroup.EpisodeGroupType.valueOf(group.attr("id"));
+            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroupType, group.attr("name")),
                 Integer.parseInt(group.attr("season")), Integer.parseInt(group.attr("episode")));
 
             if (episodeNumber.containsAnyNumber()) {

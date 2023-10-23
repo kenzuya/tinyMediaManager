@@ -17,9 +17,22 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static ca.odell.glazedlists.gui.AbstractTableComparatorChooser.SINGLE_COLUMN;
 import static java.util.Locale.ROOT;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.*;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -27,18 +40,47 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.*;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskChain;
-import org.tinymediamanager.core.tvshow.*;
+import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
+import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -58,7 +100,13 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
-import org.tinymediamanager.ui.components.*;
+import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.JHintCheckBox;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
+import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
+import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -514,10 +562,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             md.clearMediaArt();
           }
 
-          // set scraped metadata
-          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
-          tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
-          tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
           if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup episodeGroup) {
             tvShowToScrape.setEpisodeGroup(episodeGroup);
           }
@@ -525,6 +569,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
           }
           tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
+
+          // set scraped metadata
+          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
+          tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
+          tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           // get the episode list for display?
           if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
@@ -592,7 +641,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               }
 
               tvShowToScrape.saveToDb();
-              tvShowToScrape.writeNFO();  // rewrite NFO to get the urls into the NFO
+              tvShowToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous
@@ -612,7 +661,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               scrapeOptions.setLanguage(model.getLanguage());
 
               TmmTaskChain.getInstance(tvShowToScrape)
-                      .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
+                  .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
             }
           }
 

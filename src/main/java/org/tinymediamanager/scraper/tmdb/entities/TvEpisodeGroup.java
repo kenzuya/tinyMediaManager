@@ -21,14 +21,26 @@ import com.google.gson.annotations.SerializedName;
 
 public class TvEpisodeGroup {
   @SerializedName("id")
-  public String                      id;
+  public String                     id;
+
+  @SerializedName("type")
+  public int                        type;
 
   @SerializedName("name")
-  public String                      name;
+  public String                     name;
 
-  @SerializedName("order")
-  public int                         order;
+  @SerializedName("description")
+  public String                     description;
 
-  @SerializedName("episodes")
-  public List<TvEpisodeGroupEpisode> episodes;
+  @SerializedName("group_count")
+  public int                        groupCount;
+
+  @SerializedName("episode_count")
+  public int                        episodeCount;
+
+  @SerializedName("network")
+  public Network                    network;
+
+  @SerializedName("groups")
+  public List<TvEpisodeGroupSeason> groups;
 }

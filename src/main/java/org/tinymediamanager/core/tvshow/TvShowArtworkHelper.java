@@ -15,7 +15,17 @@
  */
 package org.tinymediamanager.core.tvshow;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.*;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_FANART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -32,7 +42,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.*;
+import org.tinymediamanager.core.IFileNaming;
+import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
@@ -248,7 +265,7 @@ public class TvShowArtworkHelper {
 
     // update DB
     tvShow.saveToDb();
-    tvShow.writeNFO();  // rewrite NFO to get the urls into the NFO
+    tvShow.writeNFO(); // rewrite NFO to get the urls into the NFO
   }
 
   private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {
@@ -379,7 +396,7 @@ public class TvShowArtworkHelper {
     // https://kodi.wiki/view/Artwork_types#fanart
     MediaArtwork.ImageSizeAndUrl fanartWoText = null;
     for (MediaArtwork art : artwork) {
-      if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("-")) {
+      if (art.getType() == BACKGROUND && art.getLanguage().equals("-")) {
         // right type
         for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
           // right size
@@ -392,7 +409,7 @@ public class TvShowArtworkHelper {
     }
 
     // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder);
+    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, BACKGROUND, preferredSizeOrder);
 
     if (fanartWoText != null) {
       sortedFanarts.add(0, fanartWoText);
@@ -522,13 +539,13 @@ public class TvShowArtworkHelper {
   public static void downloadSeasonArtwork(TvShowSeason tvShowSeason, MediaFileType artworkType) {
     switch (artworkType) {
       case SEASON_POSTER ->
-              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(), artworkType);
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(), artworkType);
       case SEASON_FANART ->
-              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(), artworkType);
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(), artworkType);
       case SEASON_BANNER ->
-              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), artworkType);
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), artworkType);
       case SEASON_THUMB ->
-              downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(), artworkType);
+        downloadSeasonArtwork(tvShowSeason, TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames(), artworkType);
     }
   }
 

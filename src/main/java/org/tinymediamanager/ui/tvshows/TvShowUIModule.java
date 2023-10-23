@@ -47,6 +47,7 @@ import org.tinymediamanager.ui.components.MenuScroller;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
+import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowActionWithChilds;
 import org.tinymediamanager.ui.tvshows.actions.TvShowAddDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
@@ -474,6 +475,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");
       debugMenu.add(new DebugDumpShowAction());
+      debugMenu.add(new DebugDumpShowActionWithChilds());
       popupMenu.addSeparator();
       popupMenu.add(debugMenu);
     }

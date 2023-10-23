@@ -17,7 +17,7 @@
 package org.tinymediamanager.scraper.universal_tvshow;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.util.ArrayList;
 import java.util.List;

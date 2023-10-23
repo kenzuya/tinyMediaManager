@@ -26,7 +26,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.*;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -119,8 +123,8 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       }
       else {
         // not found. Fall back to the default one
-        options.setId(MediaMetadata.SEASON_NR, String.valueOf(episode.getAiredSeason()));
-        options.setId(MediaMetadata.EPISODE_NR, String.valueOf(episode.getAiredEpisode()));
+        options.setId(MediaMetadata.SEASON_NR, episode.getAiredSeason());
+        options.setId(MediaMetadata.EPISODE_NR, episode.getAiredEpisode());
       }
 
       options.setTvShowIds(episode.getTvShow().getIds());

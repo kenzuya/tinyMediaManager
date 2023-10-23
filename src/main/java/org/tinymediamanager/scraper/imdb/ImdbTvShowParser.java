@@ -329,7 +329,7 @@ public class ImdbTvShowParser extends ImdbParser {
       // search by S/E
       if (wantedEpisode == null) {
         for (MediaMetadata episode : episodes) {
-          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED);
+          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroupType.AIRED);
 
           if (episodeNumber != null && episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
             // search via season/episode number
