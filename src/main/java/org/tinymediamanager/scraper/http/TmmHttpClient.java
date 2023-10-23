@@ -68,9 +68,6 @@ public class TmmHttpClient {
     // NEEDS TO BE LAST, TO CATCH ALL THE HEADERS ADDED BY BROTLI
     builder.addInterceptor(new TmmHttpHeaderLoggerInterceptor());
 
-    // enable brotli compression
-    builder.addInterceptor(BrotliInterceptor.INSTANCE);
-
     // pool
     builder.connectionPool(new ConnectionPool(5, 5000, TimeUnit.MILLISECONDS));
 
@@ -170,9 +167,13 @@ public class TmmHttpClient {
   private static Interceptor provideCacheInterceptor(final int timeToLive, final TimeUnit timeUnit) {
     return chain -> {
       Response response = chain.proceed(chain.request());
-      CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
-
-      return response.newBuilder().header("Cache-Control", cacheControl.toString()).build();
+      // add caching header only if it is not there! (and override some no-no's)
+      String head = response.header("Cache-Control");
+      if (head == null || head.contains("no-store") || head.contains("no-cache") || head.contains("must-revalidate") || head.contains("max-age=0")) {
+        CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
+        return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", cacheControl.toString()).build();
+      }
+      return response;
     };
   }
 

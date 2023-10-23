@@ -112,15 +112,24 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
     long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
     Buffer buffer = null;
-    String cachedHit = response.cacheResponse() != null ? "[CACHE HIT] " : "";
+
+    String cached = ""; // "[CACHE MISS] ";
+    if (response.cacheResponse() != null) {
+      if (response.networkResponse() == null) {
+        cached = "[CACHE HIT] "; // inMemory or onDisk
+      }
+      else if (response.networkResponse() != null && response.networkResponse().code() == 304) {
+        cached = "[CACHE HIT 304] "; // asked server - said not modified
+      }
+    }
 
     try {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
       String logUrl = prepareUrlToLog(response.request().url().toString());
-      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + cachedHit + logUrl + " ("
-          + tookMs + "ms" + ", " + bodySize + " body" + ')');
+      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + cached + logUrl + " (" + tookMs
+          + "ms" + ", " + bodySize + " body" + ')');
 
       if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
         LOGGER.trace("<-- END HTTP");
@@ -143,7 +152,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         }
 
         if (contentLength != 0) {
-          LOGGER.trace("");
           String content = buffer.clone().readString(charset);
           // only log the first 1k characters
           if (content.length() > MAX_TEXT_BODY_LENGTH) {
