@@ -171,7 +171,12 @@ public class TmmHttpClient {
       String head = response.header("Cache-Control");
       if (head == null || head.contains("no-store") || head.contains("no-cache") || head.contains("must-revalidate") || head.contains("max-age=0")) {
         CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
-        return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", cacheControl.toString()).build();
+        return response.newBuilder()
+            .removeHeader("x-amz-cf-id") // TVDB, prevent caching (304)
+            .removeHeader("Pragma")
+            .removeHeader("Cache-Control")
+            .header("Cache-Control", cacheControl.toString())
+            .build();
       }
       return response;
     };
