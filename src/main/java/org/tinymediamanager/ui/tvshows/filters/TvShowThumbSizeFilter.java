@@ -28,12 +28,12 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * the class {@link TvShowPosterSizeFilter} provides a filter for TV show poster height
+ * the class {@link TvShowThumbSizeFilter} provides a filter for TV show thumb width
  * 
  * @author Manuel Laggner
  */
-public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
-  public TvShowPosterSizeFilter() {
+public class TvShowThumbSizeFilter extends AbstractNumberTvShowUIFilter {
+  public TvShowThumbSizeFilter() {
     super();
 
     // display the size with px at the end
@@ -52,7 +52,7 @@ public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
       // filter on the poster height of the TV shows/seasons/episodes
 
       // TV show
-      boolean foundShow = matchInt(tvShow.getArtworkDimension(MediaFileType.POSTER).height);
+      boolean foundShow = matchInt(tvShow.getArtworkDimension(MediaFileType.THUMB).height);
 
       if (!invert && foundShow) {
         return true;
@@ -63,7 +63,7 @@ public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
 
       // episode
       for (TvShowEpisode episode : episodes) {
-        boolean foundEpisode = matchInt(episode.getArtworkDimension(MediaFileType.POSTER).height);
+        boolean foundEpisode = matchInt(episode.getArtworkDimension(MediaFileType.THUMB).height);
 
         // if there is a match in this episode, we can stop
         if (invert && !foundEpisode) {
@@ -73,7 +73,7 @@ public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
           return true;
         }
 
-        boolean foundSeason = matchInt(episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_POSTER).height);
+        boolean foundSeason = matchInt(episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_THUMB).height);
         // if there is a match in this season, we can stop
         if (invert && !foundSeason) {
           return true;
@@ -94,11 +94,11 @@ public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("filter.poster.height"));
+    return new TmmLabel(TmmResourceBundle.getString("filter.thumb.width"));
   }
 
   @Override
   public String getId() {
-    return "tvShowPosterSize";
+    return "tvShowThumbSize";
   }
 }
