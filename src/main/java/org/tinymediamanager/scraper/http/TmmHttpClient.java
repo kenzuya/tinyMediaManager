@@ -168,7 +168,11 @@ public class TmmHttpClient {
     return chain -> {
       Response response = chain.proceed(chain.request());
       // add caching header only if it is not there! (and override some no-no's)
-      String head = response.header("Cache-Control");
+      String head = response.header("cache-control");
+      if (StringUtils.isBlank(head)) {
+        // try CamelCase?
+        response.header("Cache-Control");
+      }
       if (head == null || head.contains("no-store") || head.contains("no-cache") || head.contains("must-revalidate") || head.contains("max-age=0")) {
         CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
         return response.newBuilder()
