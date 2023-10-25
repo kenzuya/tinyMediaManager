@@ -341,7 +341,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
         Response<Movie> httpResponse = api.moviesService()
             .summary(tmdbId, language,
                 new AppendToResponse(AppendToResponseItem.CREDITS, AppendToResponseItem.KEYWORDS, AppendToResponseItem.RELEASE_DATES,
-                    AppendToResponseItem.TRANSLATIONS))
+                    AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.EXTERNAL_IDS))
             .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -684,7 +684,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     Movie movie;
 
     try {
-      Response<Movie> httpResponse = api.moviesService().summary(tmdbId, "en", null).execute();
+      Response<Movie> httpResponse = api.moviesService().summary(tmdbId, "en", new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS)).execute();
       if (!httpResponse.isSuccessful()) {
         throw new HttpException(httpResponse.code(), httpResponse.message());
       }
@@ -700,10 +700,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     }
 
     scrapedIds.put(TMDB, movie.id);
-
-    if (MediaIdUtil.isValidImdbId(movie.imdb_id)) {
-      scrapedIds.put(IMDB, movie.imdb_id);
-    }
+    // external IDs
+    parseExternalIDs(movie.external_ids).forEach(scrapedIds::put);
 
     return scrapedIds;
   }
@@ -822,9 +820,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
       }
     }
 
-    if (MediaIdUtil.isValidImdbId(movie.imdb_id)) {
-      md.setId(MediaMetadata.IMDB, movie.imdb_id);
-    }
+    // external IDs
+    parseExternalIDs(movie.external_ids).forEach(md::setId);
 
     // production companies
     for (BaseCompany company : ListUtils.nullSafe(movie.production_companies)) {

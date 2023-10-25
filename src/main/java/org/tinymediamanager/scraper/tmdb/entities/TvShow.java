@@ -25,7 +25,7 @@ public class TvShow extends BaseTvShow {
   // Following are used with append_to_response
   public Images            images;
   public Credits           credits;
-  public TvExternalIds     external_ids;
+  public ExternalIds       external_ids;
   public AlternativeTitles alternative_titles;
   public Changes           changes;
   public Keywords          keywords;

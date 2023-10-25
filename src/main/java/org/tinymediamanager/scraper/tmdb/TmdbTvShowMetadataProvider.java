@@ -594,17 +594,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     // external IDs
-    if (complete.external_ids != null) {
-      if (complete.external_ids.tvdb_id != null && complete.external_ids.tvdb_id > 0) {
-        md.setId(TVDB, complete.external_ids.tvdb_id);
-      }
-      if (StringUtils.isNotBlank(complete.external_ids.imdb_id)) {
-        md.setId(IMDB, complete.external_ids.imdb_id);
-      }
-      if (complete.external_ids.tvrage_id != null && complete.external_ids.tvrage_id > 0) {
-        md.setId("tvrage", complete.external_ids.tvrage_id);
-      }
-    }
+    parseExternalIDs(complete.external_ids).forEach(md::setId);
 
     // content ratings
     if (complete.content_ratings != null) {
@@ -874,18 +864,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     md.setEpisodeNumbers(episodeMediaMetadata.getEpisodeNumbers());
     md.setId(getId(), episode.id);
 
-    // external IDs
-    if (episode.external_ids != null) {
-      if (MetadataUtil.unboxInteger(episode.external_ids.tvdb_id) > 0) {
-        md.setId(TVDB, episode.external_ids.tvdb_id);
-      }
-      if (MediaIdUtil.isValidImdbId(episode.external_ids.imdb_id)) {
-        md.setId(IMDB, episode.external_ids.imdb_id);
-      }
-      if (MetadataUtil.unboxInteger(episode.external_ids.tvrage_id) > 0) {
-        md.setId("tvrage", episode.external_ids.tvrage_id);
-      }
-    }
+    parseExternalIDs(episode.external_ids).forEach(md::setId);
 
     md.setTitle(episodeMediaMetadata.getTitle());
     md.setOriginalTitle(episodeMediaMetadata.getOriginalTitle());
@@ -1247,19 +1226,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     }
 
     scrapedIds.put(TMDB, tvShow.id);
-
     // external IDs
-    if (tvShow.external_ids != null) {
-      if (tvShow.external_ids.tvdb_id != null && tvShow.external_ids.tvdb_id > 0) {
-        scrapedIds.put(TVDB, tvShow.external_ids.tvdb_id);
-      }
-      if (StringUtils.isNotBlank(tvShow.external_ids.imdb_id)) {
-        scrapedIds.put(IMDB, tvShow.external_ids.imdb_id);
-      }
-      if (tvShow.external_ids.tvrage_id != null && tvShow.external_ids.tvrage_id > 0) {
-        scrapedIds.put("tvrage", tvShow.external_ids.tvrage_id);
-      }
-    }
+    parseExternalIDs(tvShow.external_ids).forEach(scrapedIds::put);
 
     return scrapedIds;
   }
