@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +68,7 @@ import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
 import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
@@ -1941,7 +1943,7 @@ public abstract class ImdbParser {
 
       try {
         if (useCachedUrl) {
-          url = new InMemoryCachedUrl(this.pageUrl);
+          url = new OnDiskCachedUrl(this.pageUrl, 15, TimeUnit.MINUTES);
         }
         else {
           url = new Url(this.pageUrl);

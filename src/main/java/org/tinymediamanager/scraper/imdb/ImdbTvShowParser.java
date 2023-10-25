@@ -57,7 +57,6 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeList;
@@ -572,7 +571,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
       Url seasonUrl;
       try {
-        seasonUrl = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season));
+        seasonUrl = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season), 1, TimeUnit.DAYS);
         seasonUrl.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
       }
       catch (Exception e) {
