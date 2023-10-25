@@ -137,9 +137,9 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
       }
       result.setYear(entity.year);
       if (MediaIdUtil.isValidImdbId(entity.id_imdb)) {
-        result.setId("imdb_id", entity.id_imdb);
+        result.setId(MediaMetadata.IMDB, entity.id_imdb);
       }
-      result.setId("allocine_id", entity.id_allocine);
+      result.setId(MediaMetadata.ALLOCINE, entity.id_allocine);
       result.setUrl(entity.url);
       result.setPosterUrl(entity.posterUrl);
 
@@ -289,11 +289,11 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     }
 
     metadata.setId(getId(), scrapeResult.id);
-    metadata.setId("allocine", scrapeResult.idAllocine);
+    metadata.setId(MediaMetadata.ALLOCINE, scrapeResult.idAllocine);
     if (MediaIdUtil.isValidImdbId(scrapeResult.idImdb)) {
-      metadata.setId("imdb", scrapeResult.idImdb);
+      metadata.setId(MediaMetadata.IMDB, scrapeResult.idImdb);
     }
-    metadata.setId("tmdb", scrapeResult.idTmdb);
+    metadata.setId(MediaMetadata.TMDB, scrapeResult.idTmdb);
     metadata.setTagline(scrapeResult.tagline);
     metadata.setReleaseDate(new Date(scrapeResult.firstRelease));
     metadata.setTitle(scrapeResult.title);

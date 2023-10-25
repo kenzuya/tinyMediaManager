@@ -18,8 +18,6 @@ package org.tinymediamanager.core.movie.entities;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
-import static org.tinymediamanager.core.Constants.TMDB_SET;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,7 +169,7 @@ public class MovieSet extends MediaEntity {
   public int getTmdbId() {
     int id;
     try {
-      id = (Integer) ids.get(TMDB_SET);
+      id = (Integer) ids.get(MediaMetadata.TMDB_SET);
     }
     catch (Exception e) {
       return 0;
@@ -181,8 +179,8 @@ public class MovieSet extends MediaEntity {
 
   public void setTmdbId(int newValue) {
     int oldValue = getTmdbId();
-    ids.put(TMDB_SET, newValue);
-    firePropertyChange(TMDB, oldValue, newValue);
+    ids.put(MediaMetadata.TMDB_SET, newValue);
+    firePropertyChange(MediaMetadata.TMDB, oldValue, newValue);
   }
 
   /**

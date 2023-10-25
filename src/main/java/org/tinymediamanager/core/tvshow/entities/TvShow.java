@@ -26,7 +26,6 @@ import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.GENRES_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
@@ -39,11 +38,8 @@ import static org.tinymediamanager.core.Constants.STATUS;
 import static org.tinymediamanager.core.Constants.SUBTITLES;
 import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
-import static org.tinymediamanager.core.Constants.TRAKT;
-import static org.tinymediamanager.core.Constants.TVDB;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.beans.PropertyChangeListener;
@@ -1463,7 +1459,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the imdb id
    */
   public String getImdbId() {
-    return this.getIdAsString(IMDB);
+    return this.getIdAsString(MediaMetadata.IMDB);
   }
 
   /**
@@ -1473,7 +1469,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new imdb id
    */
   public void setImdbId(String newValue) {
-    this.setId(IMDB, newValue);
+    this.setId(MediaMetadata.IMDB, newValue);
   }
 
   /**
@@ -1482,7 +1478,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the tvdb id
    */
   public String getTvdbId() {
-    return this.getIdAsString(TVDB);
+    return this.getIdAsString(MediaMetadata.TVDB);
   }
 
   /**
@@ -1492,7 +1488,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new tvdb id
    */
   public void setTvdbId(String newValue) {
-    this.setId(TVDB, newValue);
+    this.setId(MediaMetadata.TVDB, newValue);
   }
 
   /**
@@ -1501,7 +1497,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the TraktTV id
    */
   public int getTraktId() {
-    return this.getIdAsInt(TRAKT);
+    return this.getIdAsInt(MediaMetadata.TRAKT_TV);
   }
 
   /**
@@ -1511,7 +1507,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new TraktTV id
    */
   public void setTraktId(int newValue) {
-    this.setId(TRAKT, newValue);
+    this.setId(MediaMetadata.TRAKT_TV, newValue);
   }
 
   /**
@@ -1520,7 +1516,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the TTMDB id
    */
   public int getTmdbId() {
-    return this.getIdAsInt(TMDB);
+    return this.getIdAsInt(MediaMetadata.TMDB);
   }
 
   /**
@@ -1530,7 +1526,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new TMDB id
    */
   public void setTmdbId(int newValue) {
-    this.setId(TMDB, newValue);
+    this.setId(MediaMetadata.TMDB, newValue);
   }
 
   /**

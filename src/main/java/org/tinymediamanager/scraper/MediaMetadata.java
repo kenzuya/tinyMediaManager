@@ -52,15 +52,26 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MediaMetadata {
   // some well known ids
+  public static final String                               ALLOCINE            = "allocine";
+  public static final String                               ANIDB               = "anidb";
   public static final String                               IMDB                = "imdb";
+  public static final String                               LETTERBOXD          = "letterboxd";
+  public static final String                               METACRITIC          = "metacritic";
+  public static final String                               MY_ANIME_LIST       = "myanimelist";
+  public static final String                               ROGER_EBERT         = "rogerebert";
   public static final String                               TMDB                = "tmdb";
-  public static final String                               TVDB                = "tvdb";
   public static final String                               TMDB_SET            = "tmdbSet";
   public static final String                               TRAKT_TV            = "trakt";
-  public static final String                               METACRITIC          = "metacritic";
-  public static final String                               LETTERBOXD          = "letterboxd";
-  public static final String                               MAL                 = "myanimelist";
-  public static final String                               ROGER_EBERT         = "rogerebert";
+  public static final String                               TVDB                = "tvdb";
+  public static final String                               TVMAZE              = "tvmaze";
+  public static final String                               TVRAGE              = "tvrage";
+  public static final String                               WIKIDATA            = "wikidata";
+  public static final String                               ZAP2IT              = "zap2it";
+  // no so well-known
+  // mptv
+  // ofdb
+  // omdb
+  // eidr
 
   // some meta ids for TV show scraping
   public static final String                               TVSHOW_IDS          = "tvShowIds";

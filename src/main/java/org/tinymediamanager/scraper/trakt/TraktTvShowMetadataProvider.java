@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -107,7 +106,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     List<SearchResult> searchResults = null;
 
     // if we have a Trakt ID, try to get result direct - no need to search...
-    String id = options.getIdAsString(Constants.TRAKT);
+    String id = options.getIdAsString(MediaMetadata.TRAKT_TV);
     if (id != null) {
       try {
         MediaMetadata md = getMetadata(options);
@@ -215,7 +214,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
             ep.setId(TMDB, episode.ids.tmdb);
           }
           if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-            ep.setId("tvrage", episode.ids.tvrage);
+            ep.setId(MediaMetadata.TVRAGE, episode.ids.tvrage);
           }
           if (StringUtils.isNotBlank(episode.ids.imdb)) {
             ep.setId(IMDB, episode.ids.imdb);
@@ -283,7 +282,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         md.setId(TMDB, show.ids.tmdb);
       }
       if (show.ids.tvrage != null && show.ids.tvrage > 0) {
-        md.setId("tvrage", show.ids.tvrage);
+        md.setId(MediaMetadata.TVRAGE, show.ids.tvrage);
       }
       if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
         md.setId(IMDB, show.ids.imdb);
@@ -306,7 +305,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     md.setYear(show.year);
 
     if (show.rating != null && show.votes != null) {
-      MediaRating rating = new MediaRating("trakt");
+      MediaRating rating = new MediaRating(MediaMetadata.TRAKT_TV);
       rating.setRating(show.rating);
       rating.setVotes(show.votes);
       rating.setMaxValue(10);
@@ -493,7 +492,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         md.setId(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-        md.setId("tvrage", episode.ids.tvrage);
+        md.setId(MediaMetadata.TVRAGE, episode.ids.tvrage);
       }
     }
 
@@ -733,7 +732,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         scrapedIds.put(TMDB, show.ids.tmdb);
       }
       if (show.ids.tvrage != null && show.ids.tvrage > 0) {
-        scrapedIds.put("tvrage", show.ids.tvrage);
+        scrapedIds.put(MediaMetadata.TVRAGE, show.ids.tvrage);
       }
       if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
         scrapedIds.put(IMDB, show.ids.imdb);
@@ -770,7 +769,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         scrapedIds.put(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-        scrapedIds.put("tvrage", episode.ids.tvrage);
+        scrapedIds.put(MediaMetadata.TVRAGE, episode.ids.tvrage);
       }
     }
 

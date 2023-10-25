@@ -941,7 +941,7 @@ public abstract class ImdbParser {
 
       JsonNode agg = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
       if (!agg.isMissingNode()) {
-        MediaRating rating = new MediaRating("imdb");
+        MediaRating rating = new MediaRating(MediaMetadata.IMDB);
         rating.setRating(agg.floatValue());
         rating.setVotes(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
         rating.setMaxValue(10);
@@ -950,7 +950,7 @@ public abstract class ImdbParser {
         }
       }
       if (isScrapeMetacriticRatings()) {
-        MediaRating rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
         rating.setRating(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
         rating.setMaxValue(100);
         if (rating.getRating() > 0) {
@@ -1204,7 +1204,7 @@ public abstract class ImdbParser {
       if (votesElement != null) {
         String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
         try {
-          MediaRating rating = new MediaRating("imdb");
+          MediaRating rating = new MediaRating(MediaMetadata.IMDB);
           rating.setRating(Float.parseFloat(ratingAsString));
           rating.setVotes(MetadataUtil.parseInt(countAsString));
           md.addRating(rating);

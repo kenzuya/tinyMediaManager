@@ -68,7 +68,7 @@ public class FanartTvTvShowArtworkProvider extends FanartTvMetadataProvider impl
     initAPI();
 
     MediaArtwork.MediaArtworkType artworkType = options.getArtworkType();
-    String language = null;
+    String language = null; // FIXME: where used?
     if (options.getLanguage() != null) {
       language = options.getLanguage().getLanguage();
       if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
@@ -82,7 +82,7 @@ public class FanartTvTvShowArtworkProvider extends FanartTvMetadataProvider impl
 
     // no ID found? try the old one
     if (tvdbId == 0) {
-      tvdbId = options.getIdAsInt("tvdb");
+      tvdbId = options.getIdAsInt("tvdb"); // FIXME: same as above?
     }
 
     if (tvdbId == 0) {

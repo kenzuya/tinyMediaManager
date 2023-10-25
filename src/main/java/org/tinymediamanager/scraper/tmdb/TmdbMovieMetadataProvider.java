@@ -633,7 +633,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
       throw new NothingFoundException();
     }
 
-    MediaRating rating = new MediaRating("tmdb");
+    MediaRating rating = new MediaRating(MediaMetadata.TMDB);
     rating.setRating(movie.vote_average.floatValue());
     rating.setVotes(movie.vote_count);
     rating.setMaxValue(10);
@@ -785,7 +785,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider implements I
     md.setTagline(movie.tagline);
     md.setRuntime(movie.runtime);
 
-    MediaRating rating = new MediaRating("tmdb");
+    MediaRating rating = new MediaRating(MediaMetadata.TMDB);
     rating.setRating(movie.vote_average.floatValue());
     rating.setVotes(movie.vote_count);
     rating.setMaxValue(10);

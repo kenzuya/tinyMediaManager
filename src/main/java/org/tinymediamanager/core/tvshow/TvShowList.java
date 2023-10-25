@@ -789,7 +789,7 @@ public final class TvShowList extends AbstractModelObject {
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.getInstance().getSettings().getScraper(), ScraperType.TV_SHOW);
     if (scraper == null || !scraper.isEnabled()) {
-      scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.TV_SHOW);
+      scraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.TV_SHOW);
     }
     return scraper;
   }
@@ -1431,7 +1431,7 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, Object> ids = tvShow.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
-        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
+        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
         String id = entry.getKey() + entry.getValue();

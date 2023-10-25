@@ -23,6 +23,7 @@ import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.license.TmmFeature;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.exceptions.HttpException;
@@ -138,7 +139,7 @@ public abstract class AniDbMetadataProvider implements TmmFeature {
     String id = options.getIdAsString(providerInfo.getId());
 
     if (StringUtils.isEmpty(id)) {
-      throw new MissingIdException("anidb");
+      throw new MissingIdException(MediaMetadata.ANIDB);
     }
 
     // call API

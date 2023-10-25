@@ -15,9 +15,6 @@
  */
 package org.tinymediamanager.scraper.tmdb;
 
-import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
-import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -400,16 +398,16 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
     Map<String, Object> ret = new HashMap<>();
     if (ids != null) {
       if (StringUtils.isNotBlank(ids.imdb_id)) {
-        ret.put(IMDB, ids.imdb_id);
+        ret.put(MediaMetadata.IMDB, ids.imdb_id);
       }
       if (StringUtils.isNotBlank(ids.wikidata_id)) {
-        ret.put("wikidata", ids.wikidata_id);
+        ret.put(MediaMetadata.WIKIDATA, ids.wikidata_id);
       }
       if (ids.tvdb_id != null && ids.tvdb_id > 0) {
-        ret.put(TVDB, ids.tvdb_id);
+        ret.put(MediaMetadata.TVDB, ids.tvdb_id);
       }
       if (ids.tvrage_id != null && ids.tvrage_id > 0) {
-        ret.put("tvrage", ids.tvrage_id);
+        ret.put(MediaMetadata.TVRAGE, ids.tvrage_id);
       }
     }
     return ret;

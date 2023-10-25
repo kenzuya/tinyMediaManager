@@ -59,6 +59,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -190,7 +191,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        createMissingSeasonItems               = false;
 
   // meta data scraper
-  String                                         scraper                                = Constants.TVDB;
+  String                                         scraper                                = MediaMetadata.TVDB;
   MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
   CountryCode                                    certificationCountry                   = CountryCode.US;
   String                                         releaseDateCountry                     = "";
@@ -520,7 +521,7 @@ public final class TvShowSettings extends AbstractSettings {
 
   public String getScraper() {
     if (StringUtils.isBlank(scraper)) {
-      return Constants.TVDB;
+      return MediaMetadata.TVDB;
     }
     return scraper;
   }

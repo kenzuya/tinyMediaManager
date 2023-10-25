@@ -11,7 +11,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -50,10 +49,10 @@ public class ImdbEpisodeList {
 
     if (episodes != null) {
       for (ImdbEpisodeListEpisode ep : ListUtils.nullSafe(episodes.items)) {
-        MediaMetadata md = new MediaMetadata(Constants.IMDB);
+        MediaMetadata md = new MediaMetadata(MediaMetadata.IMDB);
         md.setTitle(ep.titleText);
         md.setPlot(ep.plot);
-        md.setId(Constants.IMDB, ep.id);
+        md.setId(MediaMetadata.IMDB, ep.id);
 
         MediaEpisodeGroup eg = new MediaEpisodeGroup(EpisodeGroupType.AIRED);
         int s = MetadataUtil.parseInt(ep.season, -1);
@@ -64,7 +63,7 @@ public class ImdbEpisodeList {
         md.setEpisodeNumber(new MediaEpisodeNumber(eg, s, e));
 
         if (ep.image != null) {
-          MediaArtwork img = new MediaArtwork(Constants.IMDB, THUMB);
+          MediaArtwork img = new MediaArtwork(MediaMetadata.IMDB, THUMB);
           img.setOriginalUrl(ep.image.url);
           img.setSeason(s);
           // img.addImageSize(ep.image.maxWidth, ep.image.maxHeight, ep.image.url);
@@ -72,7 +71,7 @@ public class ImdbEpisodeList {
         }
 
         if (ep.aggregateRating > 0.0) {
-          MediaRating rat = new MediaRating(Constants.IMDB);
+          MediaRating rat = new MediaRating(MediaMetadata.IMDB);
           rat.setMaxValue(10);
           rat.setRating(ep.aggregateRating);
           rat.setVotes(ep.voteCount);

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.scraper.MediaMetadata;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +23,7 @@ public class ImdbCrew {
     }
 
     Person p = new Person(type);
-    p.setId("imdb", name.id);
+    p.setId(MediaMetadata.IMDB, name.id);
     p.setName(name.nameText.text);
 
     if (name.primaryImage != null) {

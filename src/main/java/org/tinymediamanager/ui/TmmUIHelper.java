@@ -51,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -62,6 +61,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.thirdparty.TinyFileDialogs;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
@@ -598,11 +598,11 @@ public class TmmUIHelper {
 
     // same url, regardless if movie or tv
     switch (id) {
-      case Constants.IMDB:
+      case MediaMetadata.IMDB:
         url = "https://www.imdb.com/title/" + value;
         break;
 
-      case "anidb":
+      case MediaMetadata.ANIDB:
         url = "https://anidb.net/anime/" + value;
         break;
 
@@ -622,7 +622,7 @@ public class TmmUIHelper {
         url = "https://www.omdb.org/movie/" + value + "-" + me.getTitle();
         break;
 
-      case "tvmaze":
+      case MediaMetadata.TVMAZE:
         url = "https://www.tvmaze.com/shows/" + value;
         break;
 
@@ -632,15 +632,15 @@ public class TmmUIHelper {
 
     if (me instanceof Movie) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=movie";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/movie/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/movie/" + value;
           break;
 
@@ -650,15 +650,15 @@ public class TmmUIHelper {
     }
     else if (me instanceof TvShow) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=show";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/tv/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/series/" + value;
           break;
 
@@ -668,15 +668,15 @@ public class TmmUIHelper {
     }
     else if (me instanceof TvShowEpisode) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=episode";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/tv/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/series/" + value;
           break;
 
@@ -760,7 +760,8 @@ public class TmmUIHelper {
             if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
               UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog(), updateCheck.getBaseUrl());
               dialog.setVisible(true);
-            } else if (Globals.isSelfUpdatable()) {
+            }
+            else if (Globals.isSelfUpdatable()) {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
               int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),

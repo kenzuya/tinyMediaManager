@@ -340,7 +340,7 @@ public class ImdbMovieParser extends ImdbParser {
       }
 
       if (value > 0) {
-        MediaRating rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
         rating.setRating(value);
         rating.setVotes(count);
         rating.setMaxValue(100);
@@ -413,7 +413,7 @@ public class ImdbMovieParser extends ImdbParser {
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
         if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
-            adoptArtworkSizes(artwork);
+          adoptArtworkSizes(artwork);
         }
       }
 

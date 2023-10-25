@@ -44,7 +44,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -56,6 +55,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
@@ -547,17 +547,17 @@ public class VSMeta {
                     break;
 
                   case "imdb":
-                    ids.put(Constants.IMDB, value);
+                    ids.put(MediaMetadata.IMDB, value);
                     break;
 
                   case "thetvdb":
-                    ids.put(Constants.TVDB, value);
+                    ids.put(MediaMetadata.TVDB, value);
                     break;
 
                   case "themoviedb":
                     try {
                       int t = Integer.parseInt(value);
-                      ids.put(Constants.TMDB, t);
+                      ids.put(MediaMetadata.TMDB, t);
                     }
                     catch (NumberFormatException ignored) {
                     }

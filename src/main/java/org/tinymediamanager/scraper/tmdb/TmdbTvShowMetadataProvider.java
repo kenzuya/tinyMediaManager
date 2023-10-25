@@ -524,7 +524,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
     md.setOriginalTitle(complete.original_name);
 
     try {
-      MediaRating rating = new MediaRating("tmdb");
+      MediaRating rating = new MediaRating(MediaMetadata.TMDB);
       rating.setRating(complete.vote_average);
       rating.setVotes(complete.vote_count);
       rating.setMaxValue(10);
@@ -872,7 +872,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     if (MetadataUtil.unboxInteger(episode.vote_count, 0) > 0) {
       try {
-        MediaRating rating = new MediaRating("tmdb");
+        MediaRating rating = new MediaRating(MediaMetadata.TMDB);
         rating.setRating(MetadataUtil.unboxDouble(episode.vote_average));
         rating.setVotes(MetadataUtil.unboxInteger(episode.vote_count));
         rating.setMaxValue(10);
@@ -1034,7 +1034,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
     if (complete.vote_average != null && complete.vote_count != null) {
       try {
-        MediaRating rating = new MediaRating("tmdb");
+        MediaRating rating = new MediaRating(MediaMetadata.TMDB);
         rating.setRating(complete.vote_average);
         rating.setVotes(complete.vote_count);
         rating.setMaxValue(10);

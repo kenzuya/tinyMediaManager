@@ -238,7 +238,7 @@ class AniDbMetadataParser {
     for (Element rating : ratings.children()) {
       if ("temporary".equalsIgnoreCase(rating.tagName())) {
         try {
-          MediaRating mediaRating = new MediaRating("anidb");
+          MediaRating mediaRating = new MediaRating(MediaMetadata.ANIDB);
           mediaRating.setRating(Float.parseFloat(rating.text()));
           mediaRating.setVotes(Integer.parseInt(rating.attr("count")));
           mediaRating.setMaxValue(10);

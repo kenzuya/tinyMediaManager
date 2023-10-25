@@ -229,7 +229,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
     }
 
     try {
-      MediaRating rating = new MediaRating("metacritic");
+      MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
       rating.setRating(Float.parseFloat(movie.attr("metascore")));
       rating.setMaxValue(100);
       md.addRating(rating);

@@ -782,7 +782,7 @@ public class UpgradeTasks {
       }
       else if ("metascore".equalsIgnoreCase(entry.getKey())) {
         entity.removeRating(entry.getKey());
-        MediaRating mediaRating = new MediaRating("metacritic", rating.getRating(), rating.getVotes(), rating.getMaxValue());
+        MediaRating mediaRating = new MediaRating(MediaMetadata.METACRITIC, rating.getRating(), rating.getVotes(), rating.getMaxValue());
         entity.setRating(mediaRating);
         dirty = true;
       }

@@ -153,7 +153,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       md.setId(MediaMetadata.IMDB, show.imdbId);
     }
     if (StringUtils.isNotBlank(show.zap2itId)) {
-      md.setId("zap2it", show.zap2itId);
+      md.setId(MediaMetadata.ZAP2IT, show.zap2itId);
     }
     md.setPlot(show.overview);
 

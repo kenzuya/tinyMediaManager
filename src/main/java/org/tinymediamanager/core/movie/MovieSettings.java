@@ -171,7 +171,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   allowMultipleMoviesInSameDir           = false;
 
   // meta data scraper
-  String                                    movieScraper                           = Constants.TMDB;
+  String                                    movieScraper                           = MediaMetadata.TMDB;
   MediaLanguages                            scraperLanguage                        = MediaLanguages.en;
   CountryCode                               certificationCountry                   = CountryCode.US;
   String                                    releaseDateCountry                     = "";
@@ -1031,7 +1031,7 @@ public final class MovieSettings extends AbstractSettings {
 
   public String getMovieScraper() {
     if (StringUtils.isBlank(movieScraper)) {
-      return Constants.TMDB;
+      return MediaMetadata.TMDB;
     }
     return movieScraper;
   }

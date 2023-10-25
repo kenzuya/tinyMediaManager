@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.tmdb.entities.Media;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 
@@ -82,7 +81,7 @@ public class RatingPanel extends JPanel {
     }
 
     // 4. metacritic rating
-    rating = ratings.get("metacritic");
+    rating = ratings.get(MediaMetadata.METACRITIC);
     if (rating != null) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));
@@ -117,7 +116,7 @@ public class RatingPanel extends JPanel {
     }
 
     // 9. MyAnimeList rating
-    rating = ratings.get(MediaMetadata.MAL);
+    rating = ratings.get(MediaMetadata.MY_ANIME_LIST);
     if (rating != null) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));
@@ -188,7 +187,7 @@ public class RatingPanel extends JPanel {
           value = new JLabel(String.format("%.0f%%", rating.getRating()));
           break;
 
-        case "metacritic":
+        case MediaMetadata.METACRITIC:
           logo = new JLabel(IconManager.RATING_METACRITIC);
           value = new JLabel(String.format("%.0f", rating.getRating()));
           break;
@@ -208,7 +207,7 @@ public class RatingPanel extends JPanel {
           value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
-        case MediaMetadata.MAL:
+        case MediaMetadata.MY_ANIME_LIST:
           logo = new JLabel(IconManager.RATING_MAL);
           value = new JLabel(String.format("%.1f", rating.getRating()));
           break;
@@ -274,7 +273,7 @@ public class RatingPanel extends JPanel {
           tooltipText = "Rotten Tomatoes: ";
           break;
 
-        case "metacritic":
+        case MediaMetadata.METACRITIC:
           tooltipText = "Metascore: ";
           break;
 

@@ -32,7 +32,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -95,7 +94,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
     List<SearchResult> searchResults = null;
 
     // if we have a Trakt ID, try to get result direct - no need to search...
-    String id = options.getIdAsString(Constants.TRAKT);
+    String id = options.getIdAsString(MediaMetadata.TRAKT_TV);
     if (id != null) {
       try {
         MediaMetadata md = getMetadata(options);
@@ -212,7 +211,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     if (movie.rating != null && movie.votes != null) {
       try {
-        MediaRating rating = new MediaRating("trakt");
+        MediaRating rating = new MediaRating(MediaMetadata.TRAKT_TV);
         rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
         rating.setVotes(movie.votes);
         rating.setMaxValue(10);
@@ -321,7 +320,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider
 
     if (movie.rating != null && movie.votes != null) {
       try {
-        MediaRating rating = new MediaRating("trakt");
+        MediaRating rating = new MediaRating(MediaMetadata.TRAKT_TV);
         rating.setRating(Math.round(movie.rating * 10.0) / 10.0); // hack to round to 1 decimal
         rating.setVotes(movie.votes);
         rating.setMaxValue(10);

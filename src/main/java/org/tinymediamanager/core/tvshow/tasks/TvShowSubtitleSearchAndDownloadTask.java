@@ -146,7 +146,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             if (MediaIdUtil.isValidImdbId(tvShowImdbId)) {
               tvShowIds.put(MediaMetadata.IMDB, tvShowImdbId);
             }
-            options.setId("tvShowIds", tvShowIds);
+            options.setId(MediaMetadata.TVSHOW_IDS, tvShowIds);
 
             List<SubtitleSearchResult> searchResults = subtitleProvider.search(options);
             if (searchResults.isEmpty()) {

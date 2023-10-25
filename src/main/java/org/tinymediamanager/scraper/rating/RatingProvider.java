@@ -160,7 +160,7 @@ public class RatingProvider {
     }
 
     if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
-            RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.LETTERBOXD,RatingSource.MAL, RatingSource.ROGER_EBERT)) {
+        RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.LETTERBOXD, RatingSource.MAL, RatingSource.ROGER_EBERT)) {
       List<MediaRating> ratingsFromMdblist = new MdbListRating().getRatings(ids);
 
       for (MediaRating rating : ratingsFromMdblist) {
@@ -179,13 +179,13 @@ public class RatingProvider {
 
     // OMDB offers Rotten Tomatoes
     if (ListUtils.containsAny(missingRatings, RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.ROTTEN_TOMATOES_AVG_RATING)
-            && MediaIdUtil.isValidImdbId(imdbId)) {
+        && MediaIdUtil.isValidImdbId(imdbId)) {
       callScraper("omdbapi", mediaType, missingRatings, ids, ratings);
     }
 
     // Wikidata offers Metacritic, Rotten Tomatoes and IMDB
     if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
-            RatingSource.ROTTEN_TOMATOES_AVG_RATING) && MediaIdUtil.isValidImdbId(imdbId)) {
+        RatingSource.ROTTEN_TOMATOES_AVG_RATING) && MediaIdUtil.isValidImdbId(imdbId)) {
       List<MediaRating> ratingsFromWikidata = new WikidataRating().getRatings(imdbId);
 
       for (MediaRating rating : ratingsFromWikidata) {
@@ -251,15 +251,15 @@ public class RatingProvider {
     }
 
     return switch (id) {
-      case "metacritic" -> RatingSource.METACRITIC;
+      case MediaMetadata.METACRITIC -> RatingSource.METACRITIC;
       case MediaMetadata.IMDB -> RatingSource.IMDB;
       case MediaMetadata.TMDB -> RatingSource.TMDB;
       case "tomatometerallcritics" -> RatingSource.ROTTEN_TOMATOES_TOMATOMETER;
       case "tomatometeravgcritics" -> RatingSource.ROTTEN_TOMATOES_AVG_RATING;
-      case "trakt" -> RatingSource.TRAKT_TV;
+      case MediaMetadata.TRAKT_TV -> RatingSource.TRAKT_TV;
       case "letterboxd" -> RatingSource.LETTERBOXD;
-      case "myanimelist" -> RatingSource.MAL;
-      case "rogerebert" ->RatingSource.ROGER_EBERT;
+      case MediaMetadata.MY_ANIME_LIST -> RatingSource.MAL;
+      case MediaMetadata.ROGER_EBERT -> RatingSource.ROGER_EBERT;
       default -> null;
     };
   }
@@ -275,13 +275,13 @@ public class RatingProvider {
     return switch (ratingSource) {
       case IMDB -> MediaMetadata.IMDB;
       case TMDB -> MediaMetadata.TMDB;
-      case METACRITIC -> "metacritic";
+      case METACRITIC -> MediaMetadata.METACRITIC;
       case ROTTEN_TOMATOES_TOMATOMETER -> "tomatometerallcritics";
       case ROTTEN_TOMATOES_AVG_RATING -> "tomatometeravgcritics";
-      case TRAKT_TV -> "trakt";
-      case LETTERBOXD -> "letterboxd";
-      case MAL -> "myanimelist";
-      case ROGER_EBERT -> "rogerebert";
+      case TRAKT_TV -> MediaMetadata.TRAKT_TV;
+      case LETTERBOXD -> MediaMetadata.LETTERBOXD;
+      case MAL -> MediaMetadata.MY_ANIME_LIST;
+      case ROGER_EBERT -> MediaMetadata.ROGER_EBERT;
     };
   }
 }

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -169,7 +170,7 @@ abstract class TraktMetadataProvider implements IMediaProvider {
     String traktId = options.getIdAsString(providerInfo.getId());
     String tmdbId = options.getIdAsString(TMDB);
     String tvdbId = options.getIdAsString(TVDB);
-    String tvrageId = options.getIdAsString("tvrage");
+    String tvrageId = options.getIdAsString(MediaMetadata.TVRAGE);
 
     // derive trakt type from ours
     Type type = null;

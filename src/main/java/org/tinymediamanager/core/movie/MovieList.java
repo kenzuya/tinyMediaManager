@@ -41,6 +41,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -852,7 +853,7 @@ public final class MovieList extends AbstractModelObject {
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(MovieModuleManager.getInstance().getSettings().getMovieScraper(), ScraperType.MOVIE);
     if (scraper == null || !scraper.isEnabled()) {
-      scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.MOVIE);
+      scraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
     }
     return scraper;
   }
@@ -1351,7 +1352,7 @@ public final class MovieList extends AbstractModelObject {
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs" (tmdbcol is from Ember)
-        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
+        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
 
