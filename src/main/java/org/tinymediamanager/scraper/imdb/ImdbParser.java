@@ -894,7 +894,8 @@ public abstract class ImdbParser {
    * @param doc
    * @param options
    * @param md
-   * @throws Exception on JSON parsing errors
+   * @throws Exception
+   *           on JSON parsing errors
    */
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
@@ -933,6 +934,10 @@ public abstract class ImdbParser {
       md.setReleaseDate(relDate.toDate());
 
       md.setRuntime(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+      // fallback
+      if (md.getRuntime() == 0) {
+        md.setRuntime(JsonUtils.at(node, "/props/pageProps/mainColumnData/series/series/runtime/seconds").asInt(0) / 60);
+      }
 
       JsonNode agg = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
       if (!agg.isMissingNode()) {
@@ -2007,7 +2012,8 @@ public abstract class ImdbParser {
         artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
         artwork.addImageSize(width, height, defaultUrl, sizeOrder);
       }
-    } else {
+    }
+    else {
       // no size provided by scraper, just scale it
       String image = artwork.getOriginalUrl();
       String extension = FilenameUtils.getExtension(image);
