@@ -650,7 +650,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       for (TvShowEpisode episode : dummyEpisodes) {
         TvShowSeason season = getSeasonForEpisode(episode);
         season.addEpisode(episode);
-        firePropertyChange(ADDED_EPISODE, null, episode);
+        if (season.getEpisodesForDisplay().contains(episode)) {
+          firePropertyChange(ADDED_EPISODE, null, episode);
+        }
       }
     }
 
@@ -683,6 +685,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
           availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
         }
+        if (episode.getAbsoluteNumber() > -1) {
+          availableEpisodes.add("ABS" + episode.getAbsoluteNumber());
+        }
       }
 
       // and now mix in unavailable ones
@@ -692,7 +697,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         }
 
         if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
-            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())) {
+            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())
+            && !availableEpisodes.contains("ABS" + episode.getAbsoluteNumber())) {
           episodes.add(episode);
         }
       }

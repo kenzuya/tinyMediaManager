@@ -50,7 +50,6 @@ import org.tinymediamanager.core.tvshow.connector.TvShowSeasonToEmbyConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
-import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -206,8 +205,12 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     }
 
     episode.addPropertyChangeListener(listener);
-    firePropertyChange(ADDED_EPISODE, null, episode);
-    firePropertyChange(FIRST_AIRED, null, getFirstAired());
+
+    // only fire the event when this episode is displayed
+    if (getEpisodesForDisplay().contains(episode)) {
+      firePropertyChange(ADDED_EPISODE, null, episode);
+      firePropertyChange(FIRST_AIRED, null, getFirstAired());
+    }
   }
 
   public void removeEpisode(TvShowEpisode episode) {
@@ -327,12 +330,17 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     // mix in unavailable episodes if the user wants to
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       // build up a set which holds a string representing the S/E indicator
-      Set<MediaEpisodeNumber> availableEpisodes = new HashSet<>();
+      Set<String> availableEpisodes = new HashSet<>();
 
       for (TvShowEpisode episode : episodes) {
-        MediaEpisodeNumber mediaEpisodeNumber = episode.getEpisodeNumber();
-        if (mediaEpisodeNumber != null) {
-          availableEpisodes.add(mediaEpisodeNumber);
+        if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+          availableEpisodes.add("A" + episode.getSeason() + "." + episode.getEpisode());
+        }
+        if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
+          availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
+        }
+        if (episode.getAbsoluteNumber() > -1) {
+          availableEpisodes.add("ABS" + episode.getAbsoluteNumber());
         }
       }
 
@@ -342,8 +350,9 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
           continue;
         }
 
-        MediaEpisodeNumber mediaEpisodeNumber = episode.getEpisodeNumber();
-        if (mediaEpisodeNumber != null && !availableEpisodes.contains(mediaEpisodeNumber)) {
+        if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
+            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())
+            && !availableEpisodes.contains("ABS" + episode.getAbsoluteNumber())) {
           episodes.add(episode);
         }
       }
