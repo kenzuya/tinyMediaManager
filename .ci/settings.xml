@@ -23,8 +23,8 @@
         </server>
         <server>
             <id>github-maven</id>
-            <username>tmmbuild</username>
-            <password>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</password>
+            <username>${env.GITHUB_REPO_USER}</username>
+            <password>${env.GITHUB_REPO_PASS}</password>
         </server>
     </servers>
 </settings>
