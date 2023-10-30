@@ -673,7 +673,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private String getAudio(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
-      return episode.getMediaInfoAudioCodec();
+      return episode.getMainVideoFile().getAudioCodec() + " " + episode.getMainVideoFile().getAudioChannels();
     }
     return null;
   }
