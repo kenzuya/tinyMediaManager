@@ -984,15 +984,15 @@ public abstract class ImdbParser {
       JsonNode primaryImage = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/primaryImage");
       ImdbImage img = JsonUtils.parseObject(mapper, primaryImage, ImdbImage.class);
       if (img != null) {
-        MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        MediaArtwork mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
         if (options.getMediaType() == MediaType.TV_EPISODE) {
-          poster = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
+          mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
         }
-        poster.setOriginalUrl(img.url);
-        poster.setPreviewUrl(img.url); // well, yes
-        poster.setImdbId(img.id);
-        adoptArtworkSizes(poster);
-        md.addMediaArt(poster);
+        mediaArtwork.setOriginalUrl(img.url);
+        mediaArtwork.setPreviewUrl(img.url); // well, yes
+        mediaArtwork.setImdbId(img.id);
+        adoptArtworkSizes(mediaArtwork, img.width);
+        md.addMediaArt(mediaArtwork);
       }
 
       // primaryVideos for all trailers
@@ -1032,12 +1032,12 @@ public abstract class ImdbParser {
         ImdbImage i = JsonUtils.parseObject(mapper, fanart.get("node"), ImdbImage.class);
         // only parse landscape ones as fanarts
         if (i != null && i.width > i.height) {
-          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
-          poster.setOriginalUrl(i.url);
-          poster.setPreviewUrl(i.url); // well, yes
-          poster.setImdbId(i.id);
-          adoptArtworkSizes(poster);
-          md.addMediaArt(poster);
+          MediaArtwork mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          mediaArtwork.setOriginalUrl(i.url);
+          mediaArtwork.setPreviewUrl(i.url); // well, yes
+          mediaArtwork.setImdbId(i.id);
+          adoptArtworkSizes(mediaArtwork, i.width);
+          md.addMediaArt(mediaArtwork);
         }
       }
 
@@ -1982,21 +1982,30 @@ public abstract class ImdbParser {
     String previewUrl = image.replace("." + extension, "_SX342." + extension);
     ma.setPreviewUrl(previewUrl);
 
+    ma.addImageSize(0, 0, image, 0); // no size available
+
     md.addMediaArt(ma);
   }
 
-  protected void adoptArtworkSizes(MediaArtwork artwork) {
+  protected void adoptArtworkSizes(MediaArtwork artwork, int width) {
     switch (artwork.getType()) {
       case POSTER:
         for (MediaArtwork.PosterSizes posterSizes : MediaArtwork.PosterSizes.values()) {
-          addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight(), posterSizes.getOrder());
+          if (width >= posterSizes.getWidth()) {
+            addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight(), posterSizes.getOrder());
+          }
         }
         break;
 
       case THUMB:
         for (MediaArtwork.ThumbSizes thumbSizes : MediaArtwork.ThumbSizes.values()) {
-          addArtworkSize(artwork, thumbSizes.getWidth(), thumbSizes.getHeight(), thumbSizes.getOrder());
+          if (width >= thumbSizes.getWidth()) {
+            addArtworkSize(artwork, thumbSizes.getWidth(), thumbSizes.getHeight(), thumbSizes.getOrder());
+          }
         }
+        break;
+
+      default:
         break;
     }
   }

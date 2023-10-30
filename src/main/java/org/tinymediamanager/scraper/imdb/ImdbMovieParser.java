@@ -408,16 +408,7 @@ public class ImdbMovieParser extends ImdbParser {
     movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
-
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
-          adoptArtworkSizes(artwork);
-        }
-      }
-
-      return artworks;
+      return getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
     }
     catch (NothingFoundException e) {
       LOGGER.debug("nothing found");

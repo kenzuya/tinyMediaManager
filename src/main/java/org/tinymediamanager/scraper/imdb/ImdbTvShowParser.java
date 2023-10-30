@@ -951,11 +951,6 @@ public class ImdbTvShowParser extends ImdbParser {
         artworks = getMetadata(op).getMediaArt(options.getArtworkType());
       }
 
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        adoptArtworkSizes(artwork);
-      }
-
       return artworks;
     }
     catch (NothingFoundException e) {
