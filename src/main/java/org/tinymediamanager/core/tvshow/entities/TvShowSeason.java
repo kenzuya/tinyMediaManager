@@ -15,14 +15,6 @@
  */
 package org.tinymediamanager.core.tvshow.entities;
 
-import static org.tinymediamanager.core.Constants.ADDED_EPISODE;
-import static org.tinymediamanager.core.Constants.FIRST_AIRED;
-import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.MEDIA_FILES;
-import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
-import static org.tinymediamanager.core.Constants.SEASON;
-import static org.tinymediamanager.core.Constants.TV_SHOW;
-
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +44,9 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.tinymediamanager.scraper.util.ListUtils;
+
+import static org.tinymediamanager.core.Constants.*;
 
 /**
  * The Class TvShowSeason.
@@ -109,7 +104,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
 
   private void init() {
     listener = evt -> {
-      if (evt.getSource() instanceof TvShowEpisode episode) {
+      if (evt.getSource()instanceof TvShowEpisode episode) {
         switch (evt.getPropertyName()) {
           case MEDIA_FILES -> firePropertyChange(MEDIA_FILES, null, evt.getNewValue());
           case SEASON -> {
@@ -186,9 +181,15 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   }
 
   public synchronized void addEpisode(TvShowEpisode episode) {
-    // do not add twice
+    // do not add empty episodes
     if (episode == null) {
       return;
+    }
+
+    // to find out the delta (dummy)
+    List<TvShowEpisode> episodesForDisplayBefore = null;
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      episodesForDisplayBefore = getEpisodesForDisplay();
     }
 
     if (episode.isDummy()) {
@@ -207,17 +208,57 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     episode.addPropertyChangeListener(listener);
 
     // only fire the event when this episode is displayed
-    if (getEpisodesForDisplay().contains(episode)) {
+    List<TvShowEpisode> episodesForDisplayNow = getEpisodesForDisplay();
+    if (episodesForDisplayNow.contains(episode)) {
+      // upon the _first_ added episode, we do add the season itself
+      if (episodesForDisplayNow.size() == 1) {
+        firePropertyChange(ADDED_SEASON, null, this);
+      }
+
       firePropertyChange(ADDED_EPISODE, null, episode);
       firePropertyChange(FIRST_AIRED, null, getFirstAired());
+    }
+
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      for (TvShowEpisode e : ListUtils.nullSafe(episodesForDisplayBefore)) {
+        if (!episodesForDisplayNow.contains(e)) {
+          firePropertyChange(REMOVED_EPISODE, null, e);
+          firePropertyChange(FIRST_AIRED, null, getFirstAired());
+        }
+      }
     }
   }
 
   public void removeEpisode(TvShowEpisode episode) {
-    episodes.remove(episode);
+    if (episode == null) {
+      return;
+    }
+
+    // to find out the delta (dummy)
+    List<TvShowEpisode> episodesForDisplayBefore = episodesForDisplayBefore = getEpisodesForDisplay();
+
+    if (episode.isDummy()) {
+      dummyEpisodes.remove(episode);
+    }
+    else {
+      episodes.remove(episode);
+    }
+
     episode.removePropertyChangeListener(listener);
-    firePropertyChange(REMOVED_EPISODE, null, episode);
-    firePropertyChange(FIRST_AIRED, null, getFirstAired());
+    if (episodesForDisplayBefore.contains(episode)) {
+      firePropertyChange(REMOVED_EPISODE, null, episode);
+      firePropertyChange(FIRST_AIRED, null, getFirstAired());
+    }
+
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      List<TvShowEpisode> episodesForDisplayNow = getEpisodesForDisplay();
+      for (TvShowEpisode e : episodesForDisplayNow) {
+        if (!episodesForDisplayBefore.contains(e)) {
+          firePropertyChange(ADDED_EPISODE, null, e);
+          firePropertyChange(FIRST_AIRED, null, getFirstAired());
+        }
+      }
+    }
   }
 
   public List<TvShowEpisode> getEpisodes() {
