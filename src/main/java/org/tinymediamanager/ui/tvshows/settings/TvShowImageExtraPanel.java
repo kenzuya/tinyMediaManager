@@ -49,13 +49,14 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageExtraPanel extends JPanel {
   private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
-  private final ItemListener checkBoxListener;
+  private final ItemListener   checkBoxListener;
 
-  private JCheckBox cbActorImages;
-  private JSpinner spDownloadCountExtrafanart;
-  private JCheckBox chckbxEnableExtrafanart;
-  private JCheckBox chckbxExtraFanart1;
-  private JCheckBox chckbxExtraFanart2;
+  private JCheckBox            cbActorImages;
+  private JSpinner             spDownloadCountExtrafanart;
+  private JCheckBox            chckbxEnableExtrafanart;
+  private JCheckBox            chckbxExtraFanart1;
+  private JCheckBox            chckbxExtraFanart2;
+  private JCheckBox            chckbxExtraFanart3;
 
   TvShowImageExtraPanel() {
     checkBoxListener = e -> checkChanges();
@@ -68,6 +69,7 @@ class TvShowImageExtraPanel extends JPanel {
     ButtonGroup buttonGroup = new ButtonGroup();
     buttonGroup.add(chckbxExtraFanart1);
     buttonGroup.add(chckbxExtraFanart2);
+    buttonGroup.add(chckbxExtraFanart3);
 
     settings.addPropertyChangeListener(evt -> {
       if ("preset".equals(evt.getPropertyName())) {
@@ -80,7 +82,7 @@ class TvShowImageExtraPanel extends JPanel {
 
   private void buildCheckBoxes() {
     // initialize
-    clearSelection(chckbxExtraFanart1, chckbxExtraFanart2);
+    clearSelection(chckbxExtraFanart1, chckbxExtraFanart2, chckbxExtraFanart3);
 
     // extrafanart filenames
     for (TvShowExtraFanartNaming fanart : settings.getExtraFanartFilenames()) {
@@ -91,12 +93,18 @@ class TvShowImageExtraPanel extends JPanel {
 
         case FOLDER_EXTRAFANART:
           chckbxExtraFanart2.setSelected(true);
+          break;
+
+        case EXTRABACKDROP:
+          chckbxExtraFanart3.setSelected(true);
+          break;
       }
     }
 
     // listen to changes of the checkboxes
     chckbxExtraFanart1.addItemListener(checkBoxListener);
     chckbxExtraFanart2.addItemListener(checkBoxListener);
+    chckbxExtraFanart3.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -119,6 +127,9 @@ class TvShowImageExtraPanel extends JPanel {
     if (chckbxExtraFanart2.isSelected()) {
       settings.addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
     }
+    if (chckbxExtraFanart3.isSelected()) {
+      settings.addExtraFanartFilename(TvShowExtraFanartNaming.EXTRABACKDROP);
+    }
   }
 
   private void initComponents() {
@@ -139,13 +150,16 @@ class TvShowImageExtraPanel extends JPanel {
 
         JPanel panel = new JPanel();
         panelOptions.add(panel, "cell 2 1,growx");
-        panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
+        panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[][]"));
 
         chckbxExtraFanart1 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart1, "cell 0 0");
 
         chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart2, "cell 2 0");
+
+        chckbxExtraFanart3 = new JCheckBox("backdropX." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panel.add(chckbxExtraFanart3, "cell 0 1");
 
         JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
         panelOptions.add(lblDownloadCount, "cell 2 3");
@@ -164,32 +178,32 @@ class TvShowImageExtraPanel extends JPanel {
     Property tvShowSettingsBeanProperty = BeanProperty.create("writeActorImages");
     Property jCheckBoxBeanProperty = BeanProperty.create("selected");
     AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbActorImages,
-            jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding.bind();
     //
     Property tvShowSettingsBeanProperty_1 = BeanProperty.create("imageExtraFanartCount");
     Property jSpinnerBeanProperty_1 = BeanProperty.create("value");
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
-            spDownloadCountExtrafanart, jSpinnerBeanProperty_1);
+        spDownloadCountExtrafanart, jSpinnerBeanProperty_1);
     autoBinding_3.bind();
     //
     Property tvShowSettingsBeanProperty_2 = BeanProperty.create("imageExtraFanart");
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, chckbxEnableExtrafanart,
-            jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
     Property jSpinnerBeanProperty = BeanProperty.create("enabled");
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, chckbxEnableExtrafanart, jCheckBoxBeanProperty,
-            spDownloadCountExtrafanart, jSpinnerBeanProperty);
+        spDownloadCountExtrafanart, jSpinnerBeanProperty);
     autoBinding_2.bind();
     //
     Property jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart1,
-            jCheckBoxBeanProperty_2);
+        jCheckBoxBeanProperty_2);
     autoBinding_9.bind();
     //
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart, jCheckBoxBeanProperty, chckbxExtraFanart2,
-            jCheckBoxBeanProperty_2);
+        jCheckBoxBeanProperty_2);
     autoBinding_10.bind();
   }
 }

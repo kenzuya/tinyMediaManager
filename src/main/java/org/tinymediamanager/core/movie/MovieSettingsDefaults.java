@@ -533,10 +533,10 @@ public class MovieSettingsDefaults {
     movieSettings.addPosterFilename(MoviePosterNaming.POSTER);
 
     movieSettings.fanartFilenames.clear();
-    movieSettings.addFanartFilename(MovieFanartNaming.FANART);
+    movieSettings.addFanartFilename(MovieFanartNaming.BACKDROP);
 
     movieSettings.extraFanartFilenames.clear();
-    movieSettings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+    movieSettings.addExtraFanartFilename(MovieExtraFanartNaming.EXTRABACKDROP);
 
     movieSettings.bannerFilenames.clear();
     movieSettings.addBannerFilename(MovieBannerNaming.BANNER);

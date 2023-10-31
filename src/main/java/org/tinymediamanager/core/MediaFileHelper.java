@@ -173,10 +173,10 @@ public class MediaFileHelper {
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
     MOVIESET_ARTWORK_PATTERN = Pattern
-        .compile("(?i)movieset-(poster|fanart|banner|disc|discart|logo|clearlogo|clearart|thumb)\\.(" + extensions + ")$");
+        .compile("(?i)movieset-(poster|fanart|backdrop|banner|disc|discart|logo|clearlogo|clearart|thumb)\\.(" + extensions + ")$");
     POSTER_PATTERN = Pattern.compile("(?i)(.*-poster|poster|folder|movie|.*-cover|cover)\\.(" + extensions + ")$");
-    FANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)\\.(" + extensions + ")$");
-    EXTRAFANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)[0-9]+\\.(" + extensions + ")$");
+    FANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)\\.(" + extensions + ")$");
+    EXTRAFANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)[0-9]+\\.(" + extensions + ")$");
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
     SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
@@ -219,7 +219,7 @@ public class MediaFileHelper {
 
   /**
    * converts audion channels to "dot" notation (6 -> 5.1)
-   * 
+   *
    * @param channels
    * @return
    */
@@ -244,7 +244,7 @@ public class MediaFileHelper {
 
   /**
    * Parses the media file type out of the given path
-   * 
+   *
    * @param pathToFile
    *          the path/file to parse
    * @return the detected media file type or MediaFileType.UNKNOWN
@@ -255,7 +255,7 @@ public class MediaFileHelper {
 
   /**
    * Parses the media file type out of the given path
-   * 
+   *
    * @param pathToFile
    *          the path/file to parse
    * @param datasource
@@ -497,7 +497,7 @@ public class MediaFileHelper {
 
   /**
    * gets the "common" video format for the given {@link MediaFile}
-   * 
+   *
    * @param mediaFile
    *          the media file to parse
    * @return 1080p 720p 480p... or SD if too small
@@ -611,7 +611,7 @@ public class MediaFileHelper {
   /**
    * get the video definition category for the given {@link MediaFile}<br/>
    * LD (<=360 lines), SD (>360 and <720 lines) or HD (720+ lines).
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @return LD, SD or HD
@@ -651,7 +651,7 @@ public class MediaFileHelper {
 
   /**
    * is that the given {@link MediaFile} a video in format LD?
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @return true/false
@@ -666,7 +666,7 @@ public class MediaFileHelper {
 
   /**
    * is that the given {@link MediaFile} a video in format SD?
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @return true/false
@@ -681,7 +681,7 @@ public class MediaFileHelper {
 
   /**
    * is that the given {@link MediaFile} a video in format HD?
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @return true/false
@@ -711,7 +711,7 @@ public class MediaFileHelper {
 
   /**
    * add 1% to the given value
-   * 
+   *
    * @param value
    *          the value to blur
    * @return the blurred value
@@ -722,7 +722,7 @@ public class MediaFileHelper {
 
   /**
    * gather basic file information like file size, creation date and last modified date
-   * 
+   *
    * @param mediaFile
    *          the {@link MediaFile} to gather the information for
    * @return true if the filesize changed, false otherwise
@@ -864,7 +864,7 @@ public class MediaFileHelper {
 
   /**
    * if you have an MI snapshot prepared, parse it
-   * 
+   *
    * @param mediaFile
    *          the {@link MediaFile} for which the snapshot should be parsed
    * @param mediaInfoFiles
@@ -900,7 +900,7 @@ public class MediaFileHelper {
 
   /**
    * is the given filename/foldername from a DVD/BR/HD-DVD "disc file/folder"?
-   * 
+   *
    * @param filename
    *          the filename to check
    * @param path
@@ -913,7 +913,7 @@ public class MediaFileHelper {
 
   /**
    * does this path end with a disc folder; so the file is within?
-   * 
+   *
    * @param folder
    * @return
    */
@@ -1016,7 +1016,7 @@ public class MediaFileHelper {
 
   /**
    * checks whether the given file is a main disc identifier file
-   * 
+   *
    * @param filename
    *          the filename to check
    * @return true/false
@@ -1354,7 +1354,7 @@ public class MediaFileHelper {
    * Everything we want to analyze somewhere should be in here,<br>
    * <br>
    * <b>YOU NEED TO FILTER FURTHER, WHAT FILES ARE INTERESTING FOR YOU!!!</b>
-   * 
+   *
    * @param mediaInfoFiles
    * @return
    */
@@ -1380,7 +1380,7 @@ public class MediaFileHelper {
    * Returns the mediafile, or, in case of a disc structure, a list of all 'relevant' files, and reduces them to only contain the 'needed' ones<br>
    * Like DVD IFO and associated VOBs, Bluray MPLS, CLPINF, SSIF, M2TS and other files.<br>
    * Everything we want to analyze somewhere should be in here
-   * 
+   *
    * @param mediaFile
    * @return
    */
@@ -1417,7 +1417,7 @@ public class MediaFileHelper {
 
   /**
    * detect all relevant DVD files for parsing
-   * 
+   *
    * @param mediaInfoFiles
    *          all found DVD files
    * @return a {@link List} of all relevant DVD files
@@ -1531,7 +1531,7 @@ public class MediaFileHelper {
 
   /**
    * detect all relevant Bluray files for parsing
-   * 
+   *
    * @param mediaInfoFiles
    *          all found Bluray files
    * @return a {@link List} of all relevant Bluray files
@@ -1654,7 +1654,7 @@ public class MediaFileHelper {
   /**
    * Some playlists have set the same streams over and over.<br>
    * This is probably not a correct one(?) (or how should a HW player play this?!
-   * 
+   *
    * @param mplsObject
    * @return true or false
    */
@@ -1832,7 +1832,7 @@ public class MediaFileHelper {
 
   /**
    * normalized the mediainfo key for better support of different sources (libmediainfo, XML from mediainfo, XML from tmm, ...)
-   * 
+   *
    * @param key
    *          the key to be normalized
    * @return the normalized key
@@ -1856,7 +1856,7 @@ public class MediaFileHelper {
   /**
    * gets a mediainfo value directly by calling libmediainfo.<br />
    * ATTENTION: this causes libmediainfo to open the file
-   * 
+   *
    * @param mediaFile
    *          the {@link MediaFile} to analyze
    * @param streamKind
@@ -1878,7 +1878,7 @@ public class MediaFileHelper {
   /**
    * gather the subtitle information for the given {@link MediaFile}, but solely from the file naming.<br />
    * usable for subtitle files
-   * 
+   *
    * @param mediaFile
    *          the media file
    */
@@ -2008,7 +2008,7 @@ public class MediaFileHelper {
 
   /**
    * gather the audio information for the given {@link MediaFile}
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @param miSnapshot
@@ -2233,7 +2233,7 @@ public class MediaFileHelper {
 
   /**
    * get the audio stream count (can be either a field in mediainfo or just the count of the streams)
-   * 
+   *
    * @param miSnapshot
    *          the snapshot to parse
    * @return the stream count
@@ -2547,7 +2547,7 @@ public class MediaFileHelper {
 
   /**
    * gather image information for the given {@link MediaFile}
-   * 
+   *
    * @param mediaFile
    *          the media file
    * @param miSnapshot
