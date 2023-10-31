@@ -984,14 +984,26 @@ public abstract class ImdbParser {
       JsonNode primaryImage = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/primaryImage");
       ImdbImage img = JsonUtils.parseObject(mapper, primaryImage, ImdbImage.class);
       if (img != null) {
-        MediaArtwork mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        MediaArtwork mediaArtwork;
+        int sizeOrder = 0;
         if (options.getMediaType() == MediaType.TV_EPISODE) {
           mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
+          sizeOrder = MediaArtwork.ThumbSizes.getSizeOrder(img.width);
         }
+        else {
+          mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+          sizeOrder = MediaArtwork.PosterSizes.getSizeOrder(img.width);
+        }
+
         mediaArtwork.setOriginalUrl(img.url);
         mediaArtwork.setPreviewUrl(img.url); // well, yes
         mediaArtwork.setImdbId(img.id);
+
+        // add original size
+        mediaArtwork.addImageSize(img.width, img.height, img.url, sizeOrder);
+        // add variants
         adoptArtworkSizes(mediaArtwork, img.width);
+
         md.addMediaArt(mediaArtwork);
       }
 
@@ -1036,7 +1048,12 @@ public abstract class ImdbParser {
           mediaArtwork.setOriginalUrl(i.url);
           mediaArtwork.setPreviewUrl(i.url); // well, yes
           mediaArtwork.setImdbId(i.id);
+
+          // add original size
+          mediaArtwork.addImageSize(i.width, i.height, i.url, MediaArtwork.FanartSizes.getSizeOrder(i.width));
+          // add variants
           adoptArtworkSizes(mediaArtwork, i.width);
+
           md.addMediaArt(mediaArtwork);
         }
       }
@@ -1991,15 +2008,23 @@ public abstract class ImdbParser {
     switch (artwork.getType()) {
       case POSTER:
         for (MediaArtwork.PosterSizes posterSizes : MediaArtwork.PosterSizes.values()) {
-          if (width >= posterSizes.getWidth()) {
+          if (width > posterSizes.getWidth()) {
             addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight(), posterSizes.getOrder());
+          }
+        }
+        break;
+
+      case BACKGROUND:
+        for (MediaArtwork.FanartSizes fanartSizes : MediaArtwork.FanartSizes.values()) {
+          if (width > fanartSizes.getWidth()) {
+            addArtworkSize(artwork, fanartSizes.getWidth(), fanartSizes.getHeight(), fanartSizes.getOrder());
           }
         }
         break;
 
       case THUMB:
         for (MediaArtwork.ThumbSizes thumbSizes : MediaArtwork.ThumbSizes.values()) {
-          if (width >= thumbSizes.getWidth()) {
+          if (width > thumbSizes.getWidth()) {
             addArtworkSize(artwork, thumbSizes.getWidth(), thumbSizes.getHeight(), thumbSizes.getOrder());
           }
         }
