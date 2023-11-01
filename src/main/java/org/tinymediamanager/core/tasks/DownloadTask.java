@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,10 +50,11 @@ import okhttp3.Headers;
  * @author Myron Boyle, Manuel Laggner
  */
 public abstract class DownloadTask extends TmmTask {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadTask.class);
+  private static final Logger LOGGER   = LoggerFactory.getLogger(DownloadTask.class);
 
   protected String            url;
   protected Path              tempFile;
+  protected String            fileType = "";
 
   /**
    * Starts the download of an url to a file
@@ -178,6 +180,8 @@ public abstract class DownloadTask extends TmmTask {
           fileExtension = "dat";
         }
 
+        fileType = fileExtension.toLowerCase(Locale.ROOT);
+
         LOGGER.debug("Downloading to '{}'", tempFile);
 
         download(u, is, resume);
@@ -264,6 +268,11 @@ public abstract class DownloadTask extends TmmTask {
           }
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (trailer download) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
     }
 
     // we must not close the input stream on cancel(the rest will be downloaded if we close it on cancel)

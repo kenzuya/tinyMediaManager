@@ -23,6 +23,7 @@ import org.tinymediamanager.core.tvshow.ITvShowSeasonFileNaming;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
  * The Enum TvShowSeasonPosterNaming.
@@ -33,61 +34,76 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
   /** seasonXX-poster.* */
   SEASON_POSTER {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == -1) {
-        return "season-all-poster." + extension;
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      String filename;
+
+      if (tvShowSeason.getSeason() == -1) {
+        filename = "season-all-poster." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        return "season-specials-poster." + extension;
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename = "season-specials-poster." + extension;
       }
-      else if (season > -1) {
-        return String.format("season%02d-poster.%s", season, extension);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename = String.format("season%02d-poster.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
+
+      return filename;
     }
   },
 
   /** season_folder/seasonXX.* */
   SEASON_FOLDER {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, season);
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      TvShow tvShow = tvShowSeason.getTvShow();
+      if (tvShow == null) {
+        return "";
+      }
+
+      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeason.getSeason());
 
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
-        // no season folder name in the templates found - fall back to the the show base filename style
-        return SEASON_POSTER.getFilename(tvShow, season, extension);
+        // no season folder name in the templates found - fall back to the show base filename style
+        return SEASON_POSTER.getFilename(tvShowSeason, extension);
       }
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == -1) {
-        filename += "season-all";
+      if (tvShowSeason.getSeason() == -1) {
+        filename += "season-all." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials";
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename += "season-specials." + extension;
       }
-      else if (season > -1) {
-        filename += String.format("season%02d", season);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename += String.format("season%02d.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
-      return filename + "." + extension;
+
+      return filename;
     }
   },
 
   /** season_folder/folder.* */
   FOLDER {
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, season);
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      TvShow tvShow = tvShowSeason.getTvShow();
+      if (tvShow == null) {
+        return "";
+      }
+
+      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeason.getSeason());
 
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
-        // no season folder name in the templates found - fall back to the the show base filename style
-        return SEASON_POSTER.getFilename(tvShow, season, extension);
+        // no season folder name in the templates found - fall back to the show base filename style
+        return SEASON_POSTER.getFilename(tvShowSeason, extension);
       }
 
       return seasonFoldername + File.separator + "folder." + extension;

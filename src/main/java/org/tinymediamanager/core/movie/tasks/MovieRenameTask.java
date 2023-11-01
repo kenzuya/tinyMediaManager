@@ -18,10 +18,10 @@ package org.tinymediamanager.core.movie.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -30,8 +30,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 
 /**
@@ -68,21 +66,20 @@ public class MovieRenameTask extends TmmThreadPool {
         if (cancel) {
           break;
         }
-
         submitTask(new RenameMovieTask(movie));
-
-        // remember all image files
-        imageFiles.addAll(movie.getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList()));
       }
       waitForCompletionOrCancel();
+
       if (cancel) {
         return;
       }
 
+      for (Movie movie : moviesToRename) {
+          imageFiles.addAll(movie.getMediaFiles().stream().filter(MediaFile::isGraphic).toList());
+      }
       // re-build the image cache afterwards in an own thread
       if (Settings.getInstance().isImageCache() && !imageFiles.isEmpty()) {
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+          imageFiles.forEach(ImageCache::cacheImageAsync);
       }
 
       LOGGER.info("Done renaming movies)");

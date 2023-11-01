@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -49,15 +50,16 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowKeyartNaming;
-import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -103,10 +105,10 @@ public final class TvShowSettings extends AbstractSettings {
   static final String                            DISCART_FILENAME                       = "discartFilename";
   static final String                            CLEARART_FILENAME                      = "clearartFilename";
   static final String                            THUMB_FILENAME                         = "thumbFilename";
-  static final String                            LOGO_FILENAME                          = "logoFilename";
   static final String                            CLEARLOGO_FILENAME                     = "clearlogoFilename";
   static final String                            CHARACTERART_FILENAME                  = "characterartFilename";
   static final String                            KEYART_FILENAME                        = "keyartFilename";
+  static final String                            SEASON_NFO_FILENAME                    = "seasonNfoFilename";
   static final String                            SEASON_POSTER_FILENAME                 = "seasonPosterFilename";
   static final String                            SEASON_FANART_FILENAME                 = "seasonFanartFilename";
   static final String                            SEASON_BANNER_FILENAME                 = "seasonBannerFilename";
@@ -141,9 +143,9 @@ public final class TvShowSettings extends AbstractSettings {
   final List<TvShowClearartNaming>               clearartFilenames                      = new ArrayList<>();
   final List<TvShowThumbNaming>                  thumbFilenames                         = new ArrayList<>();
   final List<TvShowClearlogoNaming>              clearlogoFilenames                     = new ArrayList<>();
-  final List<TvShowLogoNaming>                   logoFilenames                          = new ArrayList<>();
   final List<TvShowCharacterartNaming>           characterartFilenames                  = new ArrayList<>();
   final List<TvShowKeyartNaming>                 keyartFilenames                        = new ArrayList<>();
+  final List<TvShowSeasonNfoNaming>              seasonNfoFilenames                     = new ArrayList<>();
   final List<TvShowSeasonPosterNaming>           seasonPosterFilenames                  = new ArrayList<>();
   final List<TvShowSeasonFanartNaming>           seasonFanartFilenames                  = new ArrayList<>();
   final List<TvShowSeasonBannerNaming>           seasonBannerFilenames                  = new ArrayList<>();
@@ -186,9 +188,10 @@ public final class TvShowSettings extends AbstractSettings {
   String                                         renamerFirstCharacterNumberReplacement = "#";
   boolean                                        asciiReplacement                       = false;
   boolean                                        specialSeason                          = true;
+  boolean                                        createMissingSeasonItems               = false;
 
   // meta data scraper
-  String                                         scraper                                = Constants.TVDB;
+  String                                         scraper                                = MediaMetadata.TVDB;
   MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
   CountryCode                                    certificationCountry                   = CountryCode.US;
   String                                         releaseDateCountry                     = "";
@@ -198,10 +201,14 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        fetchAllRatings                        = false;
 
   // artwork scraper
-  MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
+  final List<MediaLanguages> imageScraperLanguages = ObservableCollections.observableList(new ArrayList<>());
+
+  boolean imageScraperOtherResolutions = true;
+  boolean imageScraperFallback = true;
+  boolean imageScraperPreferFanartWoText = true;
   MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
   MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
-  boolean                                        imageLanguagePriority                  = true;
+  MediaArtwork.ThumbSizes imageThumbSize = MediaArtwork.ThumbSizes.MEDIUM;
   boolean                                        scrapeBestImage                        = true;
   boolean                                        writeActorImages                       = false;
   boolean                                        imageExtraFanart                       = false;
@@ -224,7 +231,6 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        syncTraktCollection                    = true;
   boolean                                        syncTraktWatched                       = true;
   boolean                                        syncTraktRating                        = true;
-  boolean                                        dvdOrder                               = false;
   String                                         preferredRating                        = "tvdb";
   boolean                                        extractArtworkFromVsmeta               = false;
   boolean                                        useMediainfoMetadata                   = false;
@@ -235,13 +241,15 @@ public final class TvShowSettings extends AbstractSettings {
   final List<MediaFileType>                      showEpisodeArtworkTypes                = ObservableCollections.observableList(new ArrayList<>());
   boolean                                        displayMissingEpisodes                 = false;
   boolean                                        displayMissingSpecials                 = false;
+  boolean                                        displayMissingNotAired                 = false;
   boolean                                        capitalWordsinTitles                   = false;
   boolean                                        showTvShowTableTooltips                = true;
   boolean                                        seasonArtworkFallback                  = false;
   boolean                                        storeUiFilters                         = false;
+  boolean                                        resetNewFlagOnUds                      = true;
+
   final List<UIFilters>                          uiFilters                              = new ArrayList<>();
   final List<UniversalFilterFields>              universalFilterFields                  = new ArrayList<>();
-
   final List<TvShowScraperMetadataConfig>        tvShowCheckMetadata                    = new ArrayList<>();
   boolean                                        tvShowDisplayAllMissingMetadata        = false;
   final List<TvShowScraperMetadataConfig>        tvShowCheckArtwork                     = new ArrayList<>();
@@ -294,9 +302,6 @@ public final class TvShowSettings extends AbstractSettings {
     clearartFilenames.clear();
     addClearartFilename(TvShowClearartNaming.CLEARART);
 
-    logoFilenames.clear();
-    addLogoFilename(TvShowLogoNaming.LOGO);
-
     characterartFilenames.clear();
     addCharacterartFilename(TvShowCharacterartNaming.CHARACTERART);
 
@@ -308,6 +313,12 @@ public final class TvShowSettings extends AbstractSettings {
 
     keyartFilenames.clear();
     addKeyartFilename(TvShowKeyartNaming.KEYART);
+
+    imageScraperLanguages.clear();
+    addImageScraperLanguage(MediaLanguages.en);
+
+    seasonNfoFilenames.clear();
+    // do default for NFO file namings yet (only Emby supports that)
 
     seasonPosterFilenames.clear();
     addSeasonPosterFilename(TvShowSeasonPosterNaming.SEASON_POSTER);
@@ -338,7 +349,6 @@ public final class TvShowSettings extends AbstractSettings {
     addShowSeasonArtworkTypes(MediaFileType.SEASON_BANNER);
 
     showEpisodeArtworkTypes.clear();
-    addShowEpisodeArtworkTypes(MediaFileType.SEASON_POSTER);
     addShowEpisodeArtworkTypes(MediaFileType.THUMB);
 
     tvShowCheckMetadata.clear();
@@ -361,7 +371,7 @@ public final class TvShowSettings extends AbstractSettings {
     addSeasonCheckArtwork(TvShowScraperMetadataConfig.SEASON_THUMB);
 
     episodeCheckMetadata.clear();
-    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE);
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.SEASON_EPISODE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.TITLE);
     addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.ACTORS);
 
@@ -449,6 +459,10 @@ public final class TvShowSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
+        setNfoLanguage(ml);
+        imageScraperLanguages.clear();
+        addImageScraperLanguage(ml);
+        setSubtitleScraperLanguage(ml);
       }
     }
 
@@ -507,7 +521,7 @@ public final class TvShowSettings extends AbstractSettings {
 
   public String getScraper() {
     if (StringUtils.isBlank(scraper)) {
-      return Constants.TVDB;
+      return MediaMetadata.TVDB;
     }
     return scraper;
   }
@@ -545,7 +559,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowTrailerNaming> getTrailerFilenames() {
-    return new ArrayList<>(this.trailerFilenames);
+    return Collections.unmodifiableList(this.trailerFilenames);
   }
 
   public boolean isUseTrailerPreference() {
@@ -766,6 +780,16 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("specialSeason", oldValue, newValue);
   }
 
+  public boolean isCreateMissingSeasonItems() {
+    return createMissingSeasonItems;
+  }
+
+  public void setCreateMissingSeasonItems(boolean newValue) {
+    boolean oldValue = this.createMissingSeasonItems;
+    this.createMissingSeasonItems = newValue;
+    firePropertyChange("createMissingSeasonItems", oldValue, newValue);
+  }
+
   public String getRenamerShowPathnameSpaceReplacement() {
     return renamerShowPathnameSpaceReplacement;
   }
@@ -886,16 +910,6 @@ public final class TvShowSettings extends AbstractSettings {
     return syncTraktRating;
   }
 
-  public boolean isDvdOrder() {
-    return dvdOrder;
-  }
-
-  public void setDvdOrder(boolean newValue) {
-    boolean oldValue = this.dvdOrder;
-    this.dvdOrder = newValue;
-    firePropertyChange("dvdOrder", oldValue, newValue);
-  }
-
   @JsonSetter
   public void setSkipFolder(List<String> newValues) {
     skipFolders.clear();
@@ -954,7 +968,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowEpisodeThumbNaming> getEpisodeThumbFilenames() {
-    return new ArrayList<>(this.episodeThumbFilenames);
+    return Collections.unmodifiableList(this.episodeThumbFilenames);
   }
 
   public void addTvShowSubtitleScraper(String newValue) {
@@ -1023,6 +1037,16 @@ public final class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.displayMissingSpecials;
     this.displayMissingSpecials = newValue;
     firePropertyChange("displayMissingSpecials", oldValue, newValue);
+  }
+
+  public boolean isDisplayMissingNotAired() {
+    return displayMissingNotAired;
+  }
+
+  public void setDisplayMissingNotAired(boolean newValue) {
+    boolean oldValue = this.displayMissingNotAired;
+    this.displayMissingNotAired = newValue;
+    firePropertyChange("displayMissingNotAired", oldValue, newValue);
   }
 
   public void setNode(boolean newValue) {
@@ -1107,14 +1131,72 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("episodeScraperMetadataConfig", null, episodeScraperMetadataConfig);
   }
 
-  public MediaLanguages getImageScraperLanguage() {
-    return imageScraperLanguage;
+  public void setImageScraperLanguages(List<MediaLanguages> newValue) {
+    imageScraperLanguages.clear();
+    imageScraperLanguages.addAll(newValue);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
   }
 
-  public void setImageScraperLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = this.imageScraperLanguage;
-    this.imageScraperLanguage = newValue;
-    firePropertyChange("imageScraperLanguage", oldValue, newValue);
+  public void addImageScraperLanguage(MediaLanguages language) {
+    if (!imageScraperLanguages.contains(language)) {
+      imageScraperLanguages.add(language);
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+    }
+  }
+
+  public void removeImageScraperLanguage(MediaLanguages language) {
+    if (imageScraperLanguages.remove(language)) {
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+    }
+  }
+
+  public void swapImageScraperLanguage(int pos1, int pos2) {
+    MediaLanguages tmp = imageScraperLanguages.get(pos1);
+    imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
+    imageScraperLanguages.set(pos2, tmp);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+  }
+
+  public List<MediaLanguages> getImageScraperLanguages() {
+    return imageScraperLanguages;
+  }
+
+  public MediaLanguages getDefaultImageScraperLanguage() {
+    MediaLanguages language = scraperLanguage; // fallback
+    if (!imageScraperLanguages.isEmpty()) {
+      language = imageScraperLanguages.get(0);
+    }
+    return language;
+  }
+
+  public boolean isImageScraperOtherResolutions() {
+    return imageScraperOtherResolutions;
+  }
+
+  public void setImageScraperOtherResolutions(boolean newValue) {
+    boolean oldValue = this.imageScraperOtherResolutions;
+    this.imageScraperOtherResolutions = newValue;
+    firePropertyChange("imageScraperOtherResolutions", oldValue, newValue);
+  }
+
+  public boolean isImageScraperFallback() {
+    return imageScraperFallback;
+  }
+
+  public void setImageScraperFallback(boolean newValue) {
+    boolean oldValue = this.imageScraperFallback;
+    this.imageScraperFallback = newValue;
+    firePropertyChange("imageScraperFallback", oldValue, newValue);
+  }
+
+  public boolean isImageScraperPreferFanartWoText() {
+    return imageScraperPreferFanartWoText;
+  }
+
+  public void setImageScraperPreferFanartWoText(boolean newValue) {
+    boolean oldValue = this.imageScraperPreferFanartWoText;
+    this.imageScraperPreferFanartWoText = newValue;
+    firePropertyChange("imageScraperPreferFanartWoText", oldValue, newValue);
   }
 
   public MediaArtwork.PosterSizes getImagePosterSize() {
@@ -1137,14 +1219,14 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("imageFanartSize", oldValue, newValue);
   }
 
-  public boolean isImageLanguagePriority() {
-    return imageLanguagePriority;
+  public MediaArtwork.ThumbSizes getImageThumbSize() {
+    return imageThumbSize;
   }
 
-  public void setImageLanguagePriority(boolean newValue) {
-    boolean oldValue = this.imageLanguagePriority;
-    this.imageLanguagePriority = newValue;
-    firePropertyChange("imageLanguagePriority", oldValue, newValue);
+  public void setImageThumbSize(MediaArtwork.ThumbSizes newValue) {
+    MediaArtwork.ThumbSizes oldValue = this.imageThumbSize;
+    this.imageThumbSize = newValue;
+    firePropertyChange("imageThumbSize", oldValue, newValue);
   }
 
   public void addNfoFilename(TvShowNfoNaming filename) {
@@ -1160,7 +1242,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowNfoNaming> getNfoFilenames() {
-    return new ArrayList<>(this.nfoFilenames);
+    return Collections.unmodifiableList(this.nfoFilenames);
   }
 
   public void addPosterFilename(TvShowPosterNaming filename) {
@@ -1176,7 +1258,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowPosterNaming> getPosterFilenames() {
-    return new ArrayList<>(this.posterFilenames);
+    return Collections.unmodifiableList(this.posterFilenames);
   }
 
   public void addFanartFilename(TvShowFanartNaming filename) {
@@ -1192,7 +1274,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowFanartNaming> getFanartFilenames() {
-    return new ArrayList<>(this.fanartFilenames);
+    return Collections.unmodifiableList(this.fanartFilenames);
   }
 
   public void addExtraFanartFilename(TvShowExtraFanartNaming filename) {
@@ -1208,7 +1290,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowExtraFanartNaming> getExtraFanartFilenames() {
-    return new ArrayList<>(this.extraFanartFilenames);
+    return Collections.unmodifiableList(this.extraFanartFilenames);
   }
 
   public void addBannerFilename(TvShowBannerNaming filename) {
@@ -1224,7 +1306,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowBannerNaming> getBannerFilenames() {
-    return new ArrayList<>(this.bannerFilenames);
+    return Collections.unmodifiableList(this.bannerFilenames);
   }
 
   public void addDiscartFilename(TvShowDiscartNaming filename) {
@@ -1240,7 +1322,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowDiscartNaming> getDiscartFilenames() {
-    return new ArrayList<>(this.discartFilenames);
+    return Collections.unmodifiableList(this.discartFilenames);
   }
 
   public void addClearartFilename(TvShowClearartNaming filename) {
@@ -1256,7 +1338,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowClearartNaming> getClearartFilenames() {
-    return new ArrayList<>(this.clearartFilenames);
+    return Collections.unmodifiableList(this.clearartFilenames);
   }
 
   public void addThumbFilename(TvShowThumbNaming filename) {
@@ -1272,19 +1354,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowThumbNaming> getThumbFilenames() {
-    return new ArrayList<>(this.thumbFilenames);
-  }
-
-  public void addLogoFilename(TvShowLogoNaming filename) {
-    if (!logoFilenames.contains(filename)) {
-      logoFilenames.add(filename);
-      firePropertyChange(LOGO_FILENAME, null, logoFilenames);
-    }
-  }
-
-  public void clearLogoFilenames() {
-    logoFilenames.clear();
-    firePropertyChange(LOGO_FILENAME, null, logoFilenames);
+    return Collections.unmodifiableList(this.thumbFilenames);
   }
 
   public void addCharacterartFilename(TvShowCharacterartNaming filename) {
@@ -1318,10 +1388,6 @@ public final class TvShowSettings extends AbstractSettings {
     return keyartFilenames;
   }
 
-  public List<TvShowLogoNaming> getLogoFilenames() {
-    return new ArrayList<>(this.logoFilenames);
-  }
-
   public void addClearlogoFilename(TvShowClearlogoNaming filename) {
     if (!clearlogoFilenames.contains(filename)) {
       clearlogoFilenames.add(filename);
@@ -1335,7 +1401,23 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowClearlogoNaming> getClearlogoFilenames() {
-    return new ArrayList<>(this.clearlogoFilenames);
+    return Collections.unmodifiableList(this.clearlogoFilenames);
+  }
+
+  public void addSeasonNfoFilename(TvShowSeasonNfoNaming filename) {
+    if (!seasonNfoFilenames.contains(filename)) {
+      seasonNfoFilenames.add(filename);
+      firePropertyChange(SEASON_NFO_FILENAME, null, seasonNfoFilenames);
+    }
+  }
+
+  public void clearSeasonNfoFilenames() {
+    seasonNfoFilenames.clear();
+    firePropertyChange(SEASON_NFO_FILENAME, null, seasonNfoFilenames);
+  }
+
+  public List<TvShowSeasonNfoNaming> getSeasonNfoFilenames() {
+    return Collections.unmodifiableList(seasonNfoFilenames);
   }
 
   public void addSeasonPosterFilename(TvShowSeasonPosterNaming filename) {
@@ -1351,7 +1433,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowSeasonPosterNaming> getSeasonPosterFilenames() {
-    return new ArrayList<>(this.seasonPosterFilenames);
+    return Collections.unmodifiableList(this.seasonPosterFilenames);
   }
 
   public void addSeasonFanartFilename(TvShowSeasonFanartNaming filename) {
@@ -1367,7 +1449,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowSeasonFanartNaming> getSeasonFanartFilenames() {
-    return new ArrayList<>(this.seasonFanartFilenames);
+    return Collections.unmodifiableList(this.seasonFanartFilenames);
   }
 
   public void addSeasonBannerFilename(TvShowSeasonBannerNaming filename) {
@@ -1383,7 +1465,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowSeasonBannerNaming> getSeasonBannerFilenames() {
-    return new ArrayList<>(this.seasonBannerFilenames);
+    return Collections.unmodifiableList(this.seasonBannerFilenames);
   }
 
   public void addSeasonThumbFilename(TvShowSeasonThumbNaming filename) {
@@ -1399,7 +1481,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowSeasonThumbNaming> getSeasonThumbFilenames() {
-    return new ArrayList<>(this.seasonThumbFilenames);
+    return Collections.unmodifiableList(this.seasonThumbFilenames);
   }
 
   public void addEpisodeNfoFilename(TvShowEpisodeNfoNaming filename) {
@@ -1415,7 +1497,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowEpisodeNfoNaming> getEpisodeNfoFilenames() {
-    return new ArrayList<>(this.episodeNfoFilenames);
+    return Collections.unmodifiableList(this.episodeNfoFilenames);
   }
 
   public void clearTvShowCheckMetadata() {
@@ -1424,7 +1506,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowScraperMetadataConfig> getTvShowCheckMetadata() {
-    return new ArrayList<>(tvShowCheckMetadata);
+    return Collections.unmodifiableList(tvShowCheckMetadata);
   }
 
   public void addTvShowCheckMetadata(TvShowScraperMetadataConfig config) {
@@ -1450,12 +1532,18 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowScraperMetadataConfig> getTvShowCheckArtwork() {
-    return new ArrayList<>(tvShowCheckArtwork);
+    return Collections.unmodifiableList(tvShowCheckArtwork);
   }
 
   public void addTvShowCheckArtwork(TvShowScraperMetadataConfig config) {
     if (!tvShowCheckArtwork.contains(config)) {
       tvShowCheckArtwork.add(config);
+      firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
+    }
+  }
+
+  public void removeTvShowCheckArtwork(TvShowScraperMetadataConfig config) {
+    if (tvShowCheckArtwork.remove(config)) {
       firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
     }
   }
@@ -1476,7 +1564,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowScraperMetadataConfig> getSeasonCheckArtwork() {
-    return new ArrayList<>(seasonCheckArtwork);
+    return Collections.unmodifiableList(seasonCheckArtwork);
   }
 
   public void addSeasonCheckArtwork(TvShowScraperMetadataConfig config) {
@@ -1502,7 +1590,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowEpisodeScraperMetadataConfig> getEpisodeCheckMetadata() {
-    return new ArrayList<>(episodeCheckMetadata);
+    return Collections.unmodifiableList(episodeCheckMetadata);
   }
 
   public void addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig config) {
@@ -1538,7 +1626,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<TvShowEpisodeScraperMetadataConfig> getEpisodeCheckArtwork() {
-    return new ArrayList<>(episodeCheckArtwork);
+    return Collections.unmodifiableList(episodeCheckArtwork);
   }
 
   public void addEpisodeCheckArtwork(TvShowEpisodeScraperMetadataConfig config) {
@@ -1780,7 +1868,7 @@ public final class TvShowSettings extends AbstractSettings {
     if (storeUiFilters) {
       return uiFilters;
     }
-    return new ArrayList<>();
+    return Collections.emptyList();
   }
 
   public void setStoreUiFilters(boolean newValue) {
@@ -1877,7 +1965,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<MediaFileType> getShowTvShowArtworkTypes() {
-    return new ArrayList<>(showTvShowArtworkTypes);
+    return Collections.unmodifiableList(showTvShowArtworkTypes);
   }
 
   public void addShowSeasonArtworkTypes(MediaFileType type) {
@@ -1894,7 +1982,7 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<MediaFileType> getShowSeasonArtworkTypes() {
-    return new ArrayList<>(showSeasonArtworkTypes);
+    return Collections.unmodifiableList(showSeasonArtworkTypes);
   }
 
   public void addShowEpisodeArtworkTypes(MediaFileType type) {
@@ -1911,6 +1999,16 @@ public final class TvShowSettings extends AbstractSettings {
   }
 
   public List<MediaFileType> getShowEpisodeArtworkTypes() {
-    return new ArrayList<>(showEpisodeArtworkTypes);
+    return Collections.unmodifiableList(showEpisodeArtworkTypes);
+  }
+
+  public boolean isResetNewFlagOnUds() {
+    return resetNewFlagOnUds;
+  }
+
+  public void setResetNewFlagOnUds(boolean newValue) {
+    boolean oldValue = this.resetNewFlagOnUds;
+    this.resetNewFlagOnUds = newValue;
+    firePropertyChange("resetNewFlagOnUds", oldValue, newValue);
   }
 }

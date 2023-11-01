@@ -18,7 +18,6 @@ package org.tinymediamanager.core.mediainfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_HSBS;
-import static org.tinymediamanager.core.MediaFileHelper.gatherLanguageInformation;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +32,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
 public class MediaInfoTest extends BasicTest {
@@ -489,23 +489,65 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
+  public void testLanguageDetectionFromBasename() {
+    // no extension - just basename!!!
+    check("moviename-cc-my title", "", "my title");// cc is no language
+    check("moviename-cc-forced-my title", "", "my title");// cc is no language
+    check("moviename-hi-cc-forced-my title", "hi", "my title");
+    check("moviename-cc-hi-forced-my title", "hi", "my title"); // cc is no language - here NO flag!
+    check("moviename-eng-hi-cc-forced-my title", "eng", "my title");
+    check("moviename-eng-cc-hi-forced-my title", "eng", "my title"); // cc is no language - here IS flag!
+    check("moviename.pt-BR", "pt-BR");
+    check("moviename.zh_hAnS", "zh_hAnS");
+    check("moviename.zh-HaNt", "zh-HaNt");
+    check("en", "en");
+    check("eng_sdh", "eng");
+    check("moviename.en", "en");
+    check("moviename.en.forced", "en");
+    check("moviename.eng", "eng");
+    check("moviename.german", "german");
+    check("moviename.Deutsch", "deutsch");
+    check("moviename.eng_hi", "eng");
+    check("moviename.eng_sdh", "eng");
+    check("moviename eng_sdh", "eng");
+    check("movie.name.year.GERMAN.dTV.XViD", "german", "dTV XViD");
+    check("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk", "german", "waf com cn hk");
+    check("movie.name.year.pt-br", "pt-br");
+    check("moviename.german-director", "german", "director");
+    check("moviename.english-director", "english", "director");
+    check("moviename", "");
+    check("movie name (2023) pt-br subtitle title forced", "pt-br", "subtitle title");
+    check("movie name (2023) pt-br forced subtitle title sdh ", "pt-br", "subtitle title");
+  }
+
+  private void check(String basename, String expectedLanguage) {
+    check(basename, expectedLanguage, "");
+  }
+
+  private void check(String basename, String expectedLanguage, String expectedTitle) {
+    MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(basename);
+    assertThat(expectedLanguage).isEqualTo(info.getLanguage());
+    assertThat(expectedTitle).isEqualTo(info.getTitle());
+  }
+
+  @Test
   public void testSubtitleLanguageDetection() throws Exception {
     copyResourceFolderToWorkFolder("subtitles");
 
-    compareSubtitle("en.srt", "eng");
+    compareSubtitle("en.srt", "en");
     compareSubtitle("eng_sdh.srt", "eng");
-    compareSubtitle("moviename.en.srt", "eng");
-    compareSubtitle("moviename.en.forced.srt", "eng");
+    compareSubtitle("moviename.en.srt", "en");
+    compareSubtitle("moviename.en.forced.srt", "en");
     compareSubtitle("moviename.eng.srt", "eng");
-    compareSubtitle("moviename.german.srt", "deu");
-    compareSubtitle("moviename.Deutsch.srt", "deu");
-    compareSubtitle("moviename.eng_hi.srt", "hin"); // yeah not eng since the string ends with a valid language code :/
+    compareSubtitle("moviename.german.srt", "german");
+    compareSubtitle("moviename.Deutsch.srt", "deutsch");
+    compareSubtitle("moviename.eng_hi.srt", "eng");
     compareSubtitle("moviename.eng_sdh.srt", "eng");
-    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu", "dTV XViD"); // shit in, shit out
-    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu", "waf com cn hk"); // shit in, shit out
-    compareSubtitle("movie.name.year.pt-br.srt", "pob");
-    compareSubtitle("moviename.german-director.srt", "deu", "director");
-    compareSubtitle("moviename.english-director.srt", "eng", "director");
+    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "german", "dTV XViD"); // shit in, shit out
+    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "german", "waf com cn hk"); // shit in, shit out
+    compareSubtitle("movie.name.year.pt-br.srt", "pt-br");
+    compareSubtitle("moviename.german-director.srt", "german", "director");
+    compareSubtitle("moviename.english-director.srt", "english", "director");
     compareSubtitle("moviename.srt", "");
   }
 
@@ -518,7 +560,6 @@ public class MediaInfoTest extends BasicTest {
 
     MediaFile mf = new MediaFile(subtitlesFolder.resolve(filename));
     mf.gatherMediaInformation();
-    gatherLanguageInformation(mf, "moviename");
     assertThat(mf.getType()).isEqualTo(MediaFileType.SUBTITLE);
     assertThat(mf.getSubtitles()).isNotEmpty();
     assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo(expectedLanguage);
@@ -565,15 +606,36 @@ public class MediaInfoTest extends BasicTest {
   public void testHdrDetection() throws Exception {
     copyResourceFolderToWorkFolder("mediainfo");
     Path mediainfoFolder = getWorkFolder().resolve("mediainfo");
+    MediaFile mf = null;
+
+    // DV+HDR
+    mf = new MediaFile(mediainfoFolder.resolve("DV+HDR (2086).mp4"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10");
+
+    // DV+HLG
+    mf = new MediaFile(mediainfoFolder.resolve("DV+HLG.mov"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HLG");
+
+    // HDR
+    mf = new MediaFile(mediainfoFolder.resolve("HDR (2086).mkv"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    // HDR10+
+    mf = new MediaFile(mediainfoFolder.resolve("HDR10+ (2094).mkv"));
+    MediaFileHelper.gatherMediaInformation(mf, false);
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
 
     // Dolby Vision
-    MediaFile mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
+    mf = new MediaFile(mediainfoFolder.resolve("dolby_vision.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10+, HDR10");
 
     mf = new MediaFile(mediainfoFolder.resolve("dolby_vision2.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision, HDR10+, HDR10");
 
     // HDR10
     mf = new MediaFile(mediainfoFolder.resolve("hdr10.avi"));
@@ -587,7 +649,7 @@ public class MediaInfoTest extends BasicTest {
     // HDR10+
     mf = new MediaFile(mediainfoFolder.resolve("hdr10plus.avi"));
     MediaFileHelper.gatherMediaInformation(mf, false);
-    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+, HDR10");
 
     // HLG
     mf = new MediaFile(mediainfoFolder.resolve("hlg.avi"));

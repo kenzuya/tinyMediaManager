@@ -51,11 +51,12 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeList;
@@ -133,6 +134,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
     md.setId(ImdbMetadataProvider.ID, imdbId);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
     // default workers which always run
     Document doc = null;
@@ -300,8 +302,7 @@ public class ImdbTvShowParser extends ImdbParser {
       throw new MissingIdException(MediaMetadata.EPISODE_NR, MediaMetadata.SEASON_NR);
     }
     // we want this, we should set this (in case of json error)
-    md.setEpisodeNumber(episodeNr);
-    md.setSeasonNumber(seasonNr);
+    md.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, seasonNr, episodeNr));
 
     // first get the base episode metadata which can be gathered via getEpisodeList()
     // only if we get a S/E number
@@ -327,7 +328,9 @@ public class ImdbTvShowParser extends ImdbParser {
       // search by S/E
       if (wantedEpisode == null) {
         for (MediaMetadata episode : episodes) {
-          if (episode.getSeasonNumber() == seasonNr && episode.getEpisodeNumber() == episodeNr) {
+          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroupType.AIRED);
+
+          if (episodeNumber != null && episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
             // search via season/episode number
             wantedEpisode = episode;
             break;
@@ -349,8 +352,7 @@ public class ImdbTvShowParser extends ImdbParser {
     // match via episodelist found
     if (wantedEpisode != null && wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
       episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
-      md.setEpisodeNumber(wantedEpisode.getEpisodeNumber());
-      md.setSeasonNumber(wantedEpisode.getSeasonNumber());
+      md.setEpisodeNumbers(wantedEpisode.getEpisodeNumbers());
       md.setTitle(wantedEpisode.getTitle());
       md.setPlot(wantedEpisode.getPlot());
       md.setRatings(wantedEpisode.getRatings());
@@ -569,7 +571,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
       Url seasonUrl;
       try {
-        seasonUrl = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season));
+        seasonUrl = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season), 1, TimeUnit.DAYS);
         seasonUrl.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
       }
       catch (Exception e) {
@@ -619,7 +621,7 @@ public class ImdbTvShowParser extends ImdbParser {
       ObjectMapper mapper = new ObjectMapper();
       JsonNode node = mapper.readTree(json);
 
-      JsonNode epListNode = node.at("/props/pageProps/contentData/section");
+      JsonNode epListNode = JsonUtils.at(node, "/props/pageProps/contentData/section");
       ImdbEpisodeList epList = JsonUtils.parseObject(mapper, epListNode, ImdbEpisodeList.class);
       return epList;
     }
@@ -652,17 +654,18 @@ public class ImdbTvShowParser extends ImdbParser {
 
             // parse season and ep number
             if (season <= 0) {
-              ep.setSeasonNumber(0);
-              ep.setEpisodeNumber(++specialEpisodeCounter);
+              ep.setEpisodeNumber(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 0, ++specialEpisodeCounter));
             }
             else {
-              ep.setSeasonNumber(Integer.parseInt(matcher.group(1)));
-              ep.setEpisodeNumber(Integer.parseInt(matcher.group(2)));
-            }
+              int s = Integer.parseInt(matcher.group(1));
+              int e = Integer.parseInt(matcher.group(2));
 
-            // check if we have still valid data
-            if (season > 0 && season != ep.getSeasonNumber()) {
-              return false;
+              // check if we have still valid data
+              if (season != s) {
+                return false;
+              }
+
+              ep.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, s, e);
             }
 
             // get ep title and id
@@ -730,7 +733,6 @@ public class ImdbTvShowParser extends ImdbParser {
               if (StringUtils.isNotBlank(posterUrl)) {
                 MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
                 ma.setPreviewUrl(thumb);
-                ma.setDefaultUrl(posterUrl);
                 ma.setOriginalUrl(posterUrl);
                 ep.addMediaArt(ma);
               }
@@ -826,7 +828,7 @@ public class ImdbTvShowParser extends ImdbParser {
       if (votesElement != null) {
         String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
         try {
-          MediaRating rating = new MediaRating("imdb");
+          MediaRating rating = new MediaRating(MediaMetadata.IMDB);
           rating.setRating(Float.parseFloat(ratingAsString));
           rating.setVotes(MetadataUtil.parseInt(countAsString));
           md.addRating(rating);
@@ -919,16 +921,16 @@ public class ImdbTvShowParser extends ImdbParser {
   }
 
   public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    String imdbId = "";
-
-    // imdbid from scraper option
-    if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      imdbId = options.getImdbId();
-    }
+    String imdbId = options.getImdbId();
 
     // imdbid via tmdbid
     if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
       imdbId = MediaIdUtil.getTvShowImdbIdViaTmdbId(options.getTmdbId());
+    }
+
+    if (!MediaIdUtil.isValidImdbId(imdbId)) {
+      LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
+      throw new MissingIdException(MediaMetadata.IMDB);
     }
 
     // just get the MediaMetadata via normal scrape and pick the poster from the result
@@ -947,11 +949,6 @@ public class ImdbTvShowParser extends ImdbParser {
         TvShowSearchAndScrapeOptions op = new TvShowSearchAndScrapeOptions();
         op.setDataFromOtherOptions(options);
         artworks = getMetadata(op).getMediaArt(options.getArtworkType());
-      }
-
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        adoptArtworkToOptions(artwork, options);
       }
 
       return artworks;

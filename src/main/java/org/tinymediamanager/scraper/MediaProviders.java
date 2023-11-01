@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.anidb.AniDbMovieMetadataProvider;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
-import org.tinymediamanager.scraper.davestrailer.DavesTrailerPageProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
 import org.tinymediamanager.scraper.ffmpeg.FFmpegMovieArtworkProvider;
@@ -62,6 +61,8 @@ import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
+import org.tinymediamanager.scraper.opensubtitles_com.OpenSubtitlesComMovieSubtitleProvider;
+import org.tinymediamanager.scraper.opensubtitles_com.OpenSubtitlesComTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.spi.IAddonProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbMovieArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbMovieMetadataProvider;
@@ -75,8 +76,6 @@ import org.tinymediamanager.scraper.tmdb.TmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.trakt.TraktMovieMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktTvShowMetadataProvider;
-import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowArtworkProvider;
-import org.tinymediamanager.scraper.tvdbv3.TvdbV3TvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvmaze.TvMazeTvShowMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
 import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
@@ -164,7 +163,6 @@ public class MediaProviders {
     loadProvider(TmdbMovieTrailerProvider.class);
     loadProvider(HdTrailersNetMovieTrailerProvider.class);
     loadProvider(OfdbMovieTrailerProvider.class);
-    loadProvider(DavesTrailerPageProvider.class);
     loadProvider(ImdbMovieTrailerProvider.class);
 
     // addons
@@ -174,6 +172,7 @@ public class MediaProviders {
     // MOVIE SUBTITLES
     /////////////////////////////////////////////
     loadProvider(OpenSubtitlesMovieSubtitleProvider.class);
+    loadProvider(OpenSubtitlesComMovieSubtitleProvider.class);
 
     // addons
     loadAddonsForInterface(addons, IMovieSubtitleProvider.class);
@@ -188,7 +187,7 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
-    loadProvider(TvdbV3TvShowMetadataProvider.class);
+    //loadProvider(TvdbV3TvShowMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
@@ -221,7 +220,7 @@ public class MediaProviders {
     loadProvider(TmdbTvShowArtworkProvider.class);
     loadProvider(ImdbTvShowArtworkProvider.class);
     loadProvider(FFmpegTvShowArtworkProvider.class);
-    loadProvider(TvdbV3TvShowArtworkProvider.class);
+    //loadProvider(TvdbV3TvShowArtworkProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowArtworkProvider.class);
@@ -238,7 +237,8 @@ public class MediaProviders {
     /////////////////////////////////////////////
     // TV SHOW SUBTITLES
     /////////////////////////////////////////////
-    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class);
+    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class); // already loaded in movie section, because this scraper share its instances
+    loadProvider(OpenSubtitlesComTvShowSubtitleProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowSubtitleProvider.class);

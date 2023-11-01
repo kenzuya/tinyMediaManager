@@ -26,6 +26,8 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatc
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 /**
  * The Class TvShowTest.
@@ -88,16 +90,14 @@ public class TvShowTest extends BasicTvShowTest {
 
     TvShowEpisode ep = new TvShowEpisode();
     ep.setTitle("episodetitle2");
-    ep.setSeason(1);
-    ep.setEpisode(2);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(show);
     show.addEpisode(ep);
 
     ep = new TvShowEpisode();
     ep.setTitle("3rd episodetitle");
-    ep.setSeason(1);
-    ep.setEpisode(3);
+    ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 3));
     ep.addToMediaFiles(dmf);
     ep.setTvShow(show);
     show.addEpisode(ep);
@@ -122,6 +122,9 @@ public class TvShowTest extends BasicTvShowTest {
 
     // ************************************************************************
     // various real world examples
+    assertEqual("S:4 E:11", detectEpisode("TV French\\Unite 9\\Season 04\\S04E11 - Episode 84.mkv"));
+    assertEqual("S:-1 E:1", detectEpisode("[DB]Haven't You Heard I'm Sakamoto_-_01_(Dual Audio_10bit_BD1080p_x265).mkv"));
+    assertEqual("S:3 E:50", detectEpisode("[HorribleSubs] Shingeki no Kyojin S3 - 50 [1080p].mkv"));
     assertEqual("S:5 E:22", detectEpisode("Quincy.S05E22.Gefaehrlicher.Krankentransport.GERMAN.FS.dTV.X264-SQUiZZiEs\\s-quincy-s0522.mkv"));
     assertEqual("S:-1", detectEpisode("Specials\\Bye.Bye.Big.Bang.Theory.Das.Special.GERMAN.1080p.HDTV.x264-VoDTv.mkv"));
     assertEqual("S:1 E:11 E:12", detectEpisode(
@@ -137,9 +140,9 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:1", detectEpisode("showname S01E01\\ijfi38jsoid88939859283j.mkv"));
     assertEqual("S:8 E:4", detectEpisode("Homeland - Temporada 8 [HDTV][Cap.804][Castellano][www.descargas2020.org].avi"));
     assertEqual("S:10 E:4", detectEpisode("Homeland - Temporada 10 [HDTV][Cap.1004][Castellano][www.descargas2020.org].avi"));
-    assertEqual("S:-1 E:105", detectEpisode("EP105 The Bed of Nails.avi"));
+    assertEqual("S:-1 E:105 Absolute", detectEpisode("EP105 The Bed of Nails.avi")); // absolute
     assertEqual("S:3 E:5", detectEpisode("S03 EP05 The Bed of Nails.avi"));
-    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi"));
+    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi")); // no valid absolute marker since season is here too!
     assertEqual("S:3 E:5", detectEpisode("S03.EP05.The.Bed.of.Nails.avi"));
     assertEqual("S:1 E:101", detectEpisode("Eisenbahn-Romantik.S01.E101.mp4"));
     assertEqual("S:5 E:1001", detectEpisode("S05.E1001.El.beso.de.la.mujer.veneno.mp4"));
@@ -198,6 +201,10 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:24", detectEpisode("24 Season 1 Episode 24 1080p BluRay.mkv", "24"));
     assertEqual("S:24 E:1", detectEpisode("24 Season 24 Episode 1 1080p BluRay.mkv", "24"));
 
+    // subtitles in folder, named with numbers
+    assertEqual("S:1 E:1", detectEpisode("Subs/subtitle folder for S01E01 and so/1_german.srt"));
+    assertEqual("S:1 E:1", detectEpisode("Subs/subtitle folder for S01E01 and so/23_german.srt"));
+
     // ************************************************************************
     // 1-3 chars, if they are the ONLY numbers in file
     assertEqual("S:-1 E:2", detectEpisode("2.mkv"));
@@ -247,20 +254,22 @@ public class TvShowTest extends BasicTvShowTest {
 
     // multi episode
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01.s01e02.ext"));
-    assertEqual("S:1 E:1", detectEpisode("name.s01e01.s01e03.ext")); // second EP must be subsequent number (ascending)!
-    assertEqual("S:1 E:2", detectEpisode("name.s01e02.s01e01.ext")); // second EP must be subsequent number (ascending)!
+    assertEqual("S:1 E:1 E:3", detectEpisode("name.s01e01.s01e03.ext"));// second EP must NOT be subsequent number (ascending)!
+    assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e02.s01e01.ext"));// second EP must NOT be subsequent number (ascending)!
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01.episode1.title.s01e02.episode2.title.ext"));
     assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01.s01e02.s01e03.ext"));
     assertEqual("S:1 E:1 E:2", detectEpisode("name.1x01_1x02.ext")); // works but shouldn't ;) _1 is detected as e1
     assertEqual("S:2 E:11 E:12 E:13", detectEpisode("name.2x11_2x12_2x13.ext")); // worst case: _2 is always being detected as e2
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01 1x02.ext"));
     assertEqual("S:-1 E:1 E:2", detectEpisode("name.ep01.ep02.ext"));
+    assertEqual("S:1 E:2 E:4 E:345", detectEpisode("name.s01e02e04ep345.ext")); // non consecutive episodes
 
     // multi episode short
     assertEqual("S:1 E:1 E:2", detectEpisode("name.s01e01e02.ext"));
+    assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01e02e03.ext"));
     assertEqual("S:1 E:1 E:2 E:3", detectEpisode("name.s01e01-02-03.ext"));
     assertEqual("S:1 E:1 E:2", detectEpisode("name.1x01x02.ext"));
-    // assertEqual("S:-1 E:1 E:2", detectEpisode("name.ep01_02.ext"));
+    assertEqual("S:-1 E:1", detectEpisode("name.ep01_02.ext"));
 
     // multi episode mixed; weird, but valid :p - we won't detect that now because the
     // regexp would cause too much false positives
@@ -292,7 +301,7 @@ public class TvShowTest extends BasicTvShowTest {
 
   /**
    * Detect episode.
-   * 
+   *
    * @param name
    *          the name
    * @return the string
@@ -300,12 +309,15 @@ public class TvShowTest extends BasicTvShowTest {
   private String detectEpisode(String name, String show) {
     StringBuilder sb = new StringBuilder();
     // EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(new File(name));
-    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(name, show);
+    EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilename(name, show);
     sb.append("S:");
     sb.append(result.season);
     for (int ep : result.episodes) {
       sb.append(" E:");
       sb.append(ep);
+    }
+    if (result.absolute) {
+      sb.append(" Absolute");
     }
     if (result.stackingMarkerFound) {
       sb.append(" Split");
@@ -350,36 +362,31 @@ public class TvShowTest extends BasicTvShowTest {
 
     // Season 1: 80% of the episodes are in the subfolder "Season 01"
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(1);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
     MediaFile mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(2);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep2/s01e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(3);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 3));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/ep3/extract/s01e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(4);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 4));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 1/s01e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(5);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 5));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 01/s01e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
@@ -388,36 +395,31 @@ public class TvShowTest extends BasicTvShowTest {
 
     // Season 2: every EP is in another subfolder
     episode = new TvShowEpisode();
-    episode.setSeason(2);
-    episode.setEpisode(1);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 1));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 2/s02e01.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(2);
-    episode.setEpisode(2);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 2));
     mf = new MediaFile(getWorkFolder().resolve("show/Season 02/ep2/s02e02.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(2);
-    episode.setEpisode(3);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 3));
     mf = new MediaFile(getWorkFolder().resolve("show/S2/ep3/extract/s02e03.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(2);
-    episode.setEpisode(4);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 4));
     mf = new MediaFile(getWorkFolder().resolve("show/s02e04.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
     episode = new TvShowEpisode();
-    episode.setSeason(2);
-    episode.setEpisode(5);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 2, 5));
     mf = new MediaFile(getWorkFolder().resolve("show/s02e05/s02e05.avi"));
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);

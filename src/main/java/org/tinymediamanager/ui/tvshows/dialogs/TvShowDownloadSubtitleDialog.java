@@ -45,8 +45,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowDownloadSubtitleDialog extends TmmDialog {
-  private static final long                      serialVersionUID = 3826984454317879241L;
-
   private final MediaScraperCheckComboBox        cbSubtitleScraper;
   private final TmmCheckComboBox<MediaLanguages> cbLanguage;
   private final JCheckBox                        chckbxForceBestSubtitle;

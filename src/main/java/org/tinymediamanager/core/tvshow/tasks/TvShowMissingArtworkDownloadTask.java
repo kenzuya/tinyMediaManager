@@ -19,11 +19,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 import static org.tinymediamanager.scraper.entities.MediaType.TV_EPISODE;
 import static org.tinymediamanager.scraper.entities.MediaType.TV_SHOW;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +28,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
-import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.core.tvshow.*;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -131,6 +123,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       for (Map.Entry<String, Object> entry : tvShow.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
       }
@@ -189,20 +182,15 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
       options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
       options.setId("mediaFile", episode.getMainFile());
+
       for (Map.Entry<String, Object> entry : episode.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
       }
 
-      if (episode.isDvdOrder()) {
-        options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
-        options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));
-      }
-      else {
-        options.setId(MediaMetadata.SEASON_NR, String.valueOf(episode.getAiredSeason()));
-        options.setId(MediaMetadata.EPISODE_NR, String.valueOf(episode.getAiredEpisode()));
-      }
+      options.setId(MediaMetadata.EPISODE_NR, episode.getEpisodeNumbers());
       options.setArtworkType(MediaArtwork.MediaArtworkType.THUMB);
     }
 
@@ -233,9 +221,16 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           }
         }
 
-        if (!artwork.isEmpty()) {
-          episode.setArtworkUrl(artwork.get(0).getDefaultUrl(), MediaFileType.THUMB);
+        int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+        List<MediaArtwork.ImageSizeAndUrl> sortedThumbs = TvShowArtworkHelper.sortArtworkUrls(artwork, MediaArtwork.MediaArtworkType.THUMB,
+                preferredSizeOrder);
+
+        if (!sortedThumbs.isEmpty()) {
+          episode.setArtworkUrl(sortedThumbs.get(0).getUrl(), MediaFileType.THUMB);
           episode.downloadArtwork(MediaFileType.THUMB);
+
+          episode.saveToDb();
+          episode.writeNFO();
         }
       }
       catch (Exception e) {

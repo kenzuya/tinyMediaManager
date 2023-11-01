@@ -15,9 +15,6 @@
  */
 package org.tinymediamanager.core;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +26,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
@@ -153,6 +149,7 @@ public final class Settings extends AbstractSettings {
 
   private boolean                                          enableAutomaticUpdate       = true;
   private int                                              automaticUpdateInterval     = 1;
+  private String                                           mdbListApiKey               = "";
 
   /**
    * Instantiates a new settings.
@@ -244,31 +241,14 @@ public final class Settings extends AbstractSettings {
     addCleanupFileType(".txt$");
     addCleanupFileType(".url$");
     addCleanupFileType(".html$");
+    addCleanupFileType(".sfv$");
     Collections.sort(cleanupFileTypes);
 
     ardSampleSettings = ArdSettings.defaultSampleSettings();
 
     setProxyFromSystem();
 
-    // set FFmpeg from the system
-    findFfmpegPath();
-
     saveSettings();
-  }
-
-  private void findFfmpegPath() {
-    if (SystemUtils.IS_OS_LINUX) {
-      Path ffmpeg = Paths.get("/usr/bin/ffmpeg");
-      if (Files.exists(ffmpeg) && Files.isExecutable(ffmpeg)) {
-        mediaFramework = ffmpeg.toString();
-      }
-      else {
-        ffmpeg = Paths.get("/usr/local/bin/ffmpeg");
-        if (Files.exists(ffmpeg) && Files.isExecutable(ffmpeg)) {
-          mediaFramework = ffmpeg.toString();
-        }
-      }
-    }
   }
 
   /**
@@ -1403,5 +1383,20 @@ public final class Settings extends AbstractSettings {
     int oldValue = this.automaticUpdateInterval;
     this.automaticUpdateInterval = newValue;
     firePropertyChange("automaticUpdateInterval", oldValue, newValue);
+  }
+
+  /**
+   * gets saved Kodi HTTP port, or default
+   *
+   * @return the Kodi HTTP port
+   */
+  public String getMdbListApiKey() {
+    return mdbListApiKey;
+  }
+
+  public void setMdbListApiKey(String mdbListApiKey) {
+    String oldValue = this.mdbListApiKey;
+    this.mdbListApiKey = mdbListApiKey;
+    firePropertyChange("mdbListApiKey", oldValue, mdbListApiKey);
   }
 }

@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
 
 public class ToolbarMenu extends ToolbarLabel {
-  public static Color  COLOR       = Color.GRAY;
-  public static Color  COLOR_HOVER = Color.WHITE;
+  public static final Color COLOR       = Color.GRAY;
+  public static final Color COLOR_HOVER = Color.WHITE;
 
-  protected JPopupMenu popupMenu   = null;
+  protected JPopupMenu      popupMenu   = null;
 
   public ToolbarMenu(String text) {
     super(text);
@@ -67,6 +67,11 @@ public class ToolbarMenu extends ToolbarLabel {
 
       @Override
       public void mousePressed(MouseEvent e) {
+        mouseClicked(e);
+      }
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
         if (popupMenu != null) {
           int x = ToolbarMenu.this.getWidth() - (int) popupMenu.getPreferredSize().getWidth();
           // prevent the popupmenu from being displayed on another screen if x < 0
@@ -82,6 +87,9 @@ public class ToolbarMenu extends ToolbarLabel {
 
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
 
     if (popupMenu == null || StringUtils.isBlank(popupMenu.getLabel())) {
       setText(defaultText);
@@ -96,5 +104,9 @@ public class ToolbarMenu extends ToolbarLabel {
     else {
       setIcon(null);
     }
+  }
+
+  public JPopupMenu getPopupMenu() {
+    return popupMenu;
   }
 }

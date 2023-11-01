@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movies>${foreach movies movie}
+  <movie>
+    <title>${movie.title}</title>
+    ${foreach movie.mediaFiles media}${if media.type = "VIDEO"}<filename>${media.filename}</filename>${end}${if media.type = "POSTER"}
+    <postername>${media.filename}</postername>${end}${end}
+    <mkvxml>${movie;filename}.xml</mkvxml>
+  </movie>${end}
+</movies>

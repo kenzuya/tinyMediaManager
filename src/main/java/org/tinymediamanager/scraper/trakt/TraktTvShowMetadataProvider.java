@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
+import static org.tinymediamanager.scraper.MediaMetadata.TRAKT_TV;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.text.Format;
@@ -34,15 +35,19 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -51,6 +56,7 @@ import org.tinymediamanager.scraper.interfaces.IMediaIdProvider;
 import org.tinymediamanager.scraper.interfaces.IRatingProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -85,7 +91,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search() - {}", options);
 
     // lazy initialization of the api
@@ -98,6 +104,22 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchResult> searchResults = null;
+
+    // if we have a Trakt ID, try to get result direct - no need to search...
+    String id = options.getIdAsString(MediaMetadata.TRAKT_TV);
+    if (id != null) {
+      try {
+        MediaMetadata md = getMetadata(options);
+        MediaSearchResult msr = new MediaSearchResult(id, options.getMediaType());
+        msr.mergeFrom(md);
+        results.add(msr);
+        return results;
+      }
+      catch (Exception e) {
+        LOGGER.error("Problem scraping for {} - {}", searchString, e.getMessage());
+        // throw new ScrapeException(e); // continue
+      }
+    }
 
     // pass NO language here since trakt.tv returns less results when passing a language :(
     try {
@@ -116,6 +138,18 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
+
+      // calculate score
+      if ((StringUtils.isNotBlank(options.getImdbId()) && options.getImdbId().equals(m.getIMDBId()))
+          || String.valueOf(options.getTmdbId()).equals(m.getId()) || (id != null && id.equals(m.getId()))) {
+        LOGGER.debug("perfect match by ID - set score to 1");
+        m.setScore(1);
+      }
+      else {
+        // calculate the score by comparing the search result with the search options
+        m.calculateScore(options);
+      }
+
       results.add(m);
     }
 
@@ -123,7 +157,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public List<MediaMetadata> getEpisodeList(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList(): {}", options);
 
     // lazy initialization of the api
@@ -156,8 +190,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
         MediaMetadata ep = new MediaMetadata(getId());
         ep.setScrapeOptions(options);
-        ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
-        ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
+        ep.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
         ep.setTitle(episode.title);
 
         if (episode.rating != null && episode.votes != null) {
@@ -181,7 +214,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
             ep.setId(TMDB, episode.ids.tmdb);
           }
           if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-            ep.setId("tvrage", episode.ids.tvrage);
+            ep.setId(MediaMetadata.TVRAGE, episode.ids.tvrage);
           }
           if (StringUtils.isNotBlank(episode.ids.imdb)) {
             ep.setId(IMDB, episode.ids.imdb);
@@ -196,7 +229,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
@@ -249,12 +282,14 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         md.setId(TMDB, show.ids.tmdb);
       }
       if (show.ids.tvrage != null && show.ids.tvrage > 0) {
-        md.setId("tvrage", show.ids.tvrage);
+        md.setId(MediaMetadata.TVRAGE, show.ids.tvrage);
       }
       if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
         md.setId(IMDB, show.ids.imdb);
       }
     }
+
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
     // if foreign language, get new values and overwrite
     Translation trans = translations == null || translations.isEmpty() ? null : translations.get(0);
@@ -270,7 +305,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     md.setYear(show.year);
 
     if (show.rating != null && show.votes != null) {
-      MediaRating rating = new MediaRating("trakt");
+      MediaRating rating = new MediaRating(MediaMetadata.TRAKT_TV);
       rating.setRating(show.rating);
       rating.setVotes(show.votes);
       rating.setMaxValue(10);
@@ -305,6 +340,26 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         for (CrewMember crew : ListUtils.nullSafe(credits.crew.writing)) {
           md.addCastMember(TraktUtils.toTmmCast(crew, WRITER));
         }
+      }
+    }
+
+    // Trakt API has no images, and they state to search any of theirs IDs provider.
+    // So try to get the poster url from tmdb
+    TmdbTvShowArtworkProvider tmdb = new TmdbTvShowArtworkProvider();
+    if (tmdb.isActive() && (MediaIdUtil.isValidImdbId(show.ids.imdb) || show.ids.tmdb > 0)) {
+      try {
+        ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(options.getMediaType());
+        tmdbOptions.setImdbId(show.ids.imdb);
+        tmdbOptions.setTmdbId(show.ids.tmdb);
+        tmdbOptions.setLanguage(options.getLanguage());
+        tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
+        List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
+        if (ListUtils.isNotEmpty(artworks)) {
+          md.addMediaArt(artworks.get(0));
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
       }
     }
 
@@ -422,12 +477,11 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
       throw new NothingFoundException();
     }
 
-    md.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
-    md.setAbsoluteNumber(TvUtils.getEpisodeNumber(episode.number_abs));
-    md.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, TvUtils.getSeasonNumber(episode.season), TvUtils.getEpisodeNumber(episode.number));
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, TvUtils.getEpisodeNumber(episode.number_abs)); // fixate to S01 like others do
 
     if (episode.ids != null) {
-      md.setId(getId(), episode.ids.trakt);
+      md.setId(TRAKT_TV, episode.ids.trakt);
       if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
         md.setId(TVDB, episode.ids.tvdb);
       }
@@ -438,7 +492,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         md.setId(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-        md.setId("tvrage", episode.ids.tvrage);
+        md.setId(MediaMetadata.TVRAGE, episode.ids.tvrage);
       }
     }
 
@@ -446,7 +500,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
     md.setPlot(episode.overview);
 
     if (episode.rating != null && episode.votes != null) {
-      MediaRating rating = new MediaRating("trakt");
+      MediaRating rating = new MediaRating(TRAKT_TV);
       rating.setRating(episode.rating);
       rating.setVotes(episode.votes);
       rating.setMaxValue(10);
@@ -533,6 +587,10 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
           episode = ep;
           break;
         }
+      }
+
+      if (episode != null) {
+        break;
       }
     }
 
@@ -666,7 +724,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
 
     Map<String, Object> scrapedIds = new HashMap<>();
     if (show.ids != null) {
-      scrapedIds.put(getId(), show.ids.trakt);
+      scrapedIds.put(TRAKT_TV, show.ids.trakt);
       if (show.ids.tvdb != null && show.ids.tvdb > 0) {
         scrapedIds.put(TVDB, show.ids.tvdb);
       }
@@ -674,7 +732,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         scrapedIds.put(TMDB, show.ids.tmdb);
       }
       if (show.ids.tvrage != null && show.ids.tvrage > 0) {
-        scrapedIds.put("tvrage", show.ids.tvrage);
+        scrapedIds.put(MediaMetadata.TVRAGE, show.ids.tvrage);
       }
       if (MediaIdUtil.isValidImdbId(show.ids.imdb)) {
         scrapedIds.put(IMDB, show.ids.imdb);
@@ -711,7 +769,7 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider
         scrapedIds.put(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {
-        scrapedIds.put("tvrage", episode.ids.tvrage);
+        scrapedIds.put(MediaMetadata.TVRAGE, episode.ids.tvrage);
       }
     }
 

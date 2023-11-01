@@ -78,7 +78,7 @@ public class SubtitleDownloadTask extends DownloadTask {
 
     MediaFile tempMediaFile = new MediaFile(tempFile);
 
-    if (tempMediaFile.getType() == MediaFileType.SUBTITLE) {
+    if (tempMediaFile.getType() == MediaFileType.SUBTITLE || Settings.getInstance().getSubtitleFileType().contains("." + fileExtension)) {
       // a direct subtitle download - we can just move it an add it to the movie
       Utils.deleteFileSafely(destination); // delete existing file
       boolean ok = Utils.moveFileSafe(tempFile, destination);

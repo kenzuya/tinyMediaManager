@@ -15,19 +15,14 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
-import org.tinymediamanager.core.Constants;
+import org.joda.time.DateTime;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
@@ -35,21 +30,14 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class MovieYearFilter extends AbstractCheckComboBoxMovieUIFilter<Integer> {
-  private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
+public class MovieYearFilter extends AbstractNumberMovieFilter {
 
   public MovieYearFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-    buildAndInstallYears();
-    PropertyChangeListener propertyChangeListener = evt -> buildAndInstallYears();
-    movieList.addPropertyChangeListener(Constants.YEAR, propertyChangeListener);
-  }
 
-  private void buildAndInstallYears() {
-    List<Integer> years = new ArrayList<>(movieList.getYearsInMovies());
-    Collections.sort(years);
-    setValues(years);
+    // display the year without any formatting
+    spinnerLow.setEditor(new JSpinner.NumberEditor(spinnerLow, "###0"));
+    spinnerHigh.setEditor(new JSpinner.NumberEditor(spinnerHigh, "###0"));
   }
 
   @Override
@@ -58,23 +46,34 @@ public class MovieYearFilter extends AbstractCheckComboBoxMovieUIFilter<Integer>
   }
 
   @Override
+  public void clearFilter() {
+    spinnerLow.setValue(DateTime.now().year().get());
+    spinnerHigh.setValue(DateTime.now().year().get());
+  }
+
+  @Override
+  public void setFilterValue(Object value) {
+    String[] values = value.toString().split(",");
+    if (values.length > 0) {
+      spinnerLow.setValue(MetadataUtil.parseInt(values[0], DateTime.now().year().get()));
+    }
+    if (values.length > 1) {
+      spinnerHigh.setValue(MetadataUtil.parseInt(values[1], DateTime.now().year().get()));
+    }
+  }
+
+  @Override
+  protected SpinnerNumberModel getNumberModel() {
+    return new SpinnerNumberModel(DateTime.now().year().get(), 1800, 2100, 1);
+  }
+
+  @Override
   public boolean accept(Movie movie) {
-    List<Integer> selectedItems = checkComboBox.getSelectedItems();
-    return selectedItems.contains(movie.getYear());
+    return matchInt(movie.getYear());
   }
 
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(TmmResourceBundle.getString("metatag.year"));
-  }
-
-  @Override
-  protected String parseTypeToString(Integer type) throws Exception {
-    return type.toString();
-  }
-
-  @Override
-  protected Integer parseStringToType(String string) throws Exception {
-    return Integer.parseInt(string);
   }
 }

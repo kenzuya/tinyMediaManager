@@ -52,6 +52,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -419,7 +420,15 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addRuntime(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element runtime = document.createElement("runtime");
-    runtime.setTextContent(Integer.toString(episode.getRuntime()));
+
+    // try to calculate the runtime from media files
+    int runtimeInMinutes = episode.getRuntimeFromMediaFilesInMinutes();
+    if (runtimeInMinutes == 0) {
+      // fallback to runtime on TV show level
+      runtimeInMinutes = episode.getRuntime();
+    }
+
+    runtime.setTextContent(Integer.toString(runtimeInMinutes));
     root.appendChild(runtime);
   }
 
@@ -658,6 +667,14 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
         actor.appendChild(profile);
       }
 
+      // save GuestStar information to NFO
+      // https://emby.media/community/index.php?/topic/89268-actor-metadata-is-downloaded-only-for-the-people-that-tmdb-has-as-series-regulars/&do=findComment&comment=923528
+      if (tvShowActor.getType() == Person.Type.GUEST) {
+        Element profile = document.createElement("type");
+        profile.setTextContent("GuestStar");
+        actor.appendChild(profile);
+      }
+
       addPersonIdsAsChildren(actor, tvShowActor);
 
       root.appendChild(actor);
@@ -683,6 +700,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     addSource(episode, parser);
     addOriginalFilename(episode, parser);
     addUserNote(episode, parser);
+    addEpisodeGroups(episode, parser);
   }
 
   /**
@@ -710,6 +728,24 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     Element userNote = document.createElement("user_note");
     userNote.setTextContent(episode.getNote());
     root.appendChild(userNote);
+  }
+
+  /**
+   * add the episode group information <episode_groups>xxx</episode_groups>
+   */
+  protected void addEpisodeGroups(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element episodeGroups = document.createElement("episode_groups");
+
+    for (MediaEpisodeNumber episodeNumber : episode.getEpisodeNumbers()) {
+      Element group = document.createElement("group");
+      group.setAttribute("id", episodeNumber.episodeGroup().getEpisodeGroupType().name());
+      group.setAttribute("name", episodeNumber.episodeGroup().getName());
+      group.setAttribute("season", String.valueOf(episodeNumber.season()));
+      group.setAttribute("episode", String.valueOf(episodeNumber.episode()));
+      episodeGroups.appendChild(group);
+    }
+
+    root.appendChild(episodeGroups);
   }
 
   /**

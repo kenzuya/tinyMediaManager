@@ -90,16 +90,23 @@ class TmdbTrailerProvider {
         Videos tmdbVideos = api.moviesService().videos(tmdbId, language).execute().body();
         Videos tmdbVideosWoLang = api.moviesService().videos(tmdbId, "").execute().body();
 
-        videos.addAll(tmdbVideos.results);
-        videos.addAll(tmdbVideosWoLang.results);
-
+        if (tmdbVideos != null && tmdbVideos.results != null) {
+          videos.addAll(tmdbVideos.results);
+        }
+        if (tmdbVideosWoLang != null && tmdbVideosWoLang.results != null) {
+          videos.addAll(tmdbVideosWoLang.results);
+        }
       }
       else if (options.getMediaType() == MediaType.TV_SHOW) {
         Videos tmdbVideos = api.tvService().videos(tmdbId, language).execute().body();
         Videos tmdbVideosWoLang = api.tvService().videos(tmdbId, "").execute().body();
 
-        videos.addAll(tmdbVideos.results);
-        videos.addAll(tmdbVideosWoLang.results);
+        if (tmdbVideos != null && tmdbVideos.results != null) {
+          videos.addAll(tmdbVideos.results);
+        }
+        if (tmdbVideosWoLang != null && tmdbVideosWoLang.results != null) {
+          videos.addAll(tmdbVideosWoLang.results);
+        }
       }
     }
     catch (Exception e) {
@@ -111,10 +118,17 @@ class TmdbTrailerProvider {
       if (VideoType.TRAILER != video.type) {
         continue;
       }
+
       MediaTrailer trailer = new MediaTrailer();
       trailer.setName(video.name);
       trailer.setQuality(video.size + "p");
       trailer.setProvider(video.site);
+
+      // do not use apple trailers anymore - closed since 2023-09-01
+      if ("Apple".equalsIgnoreCase(trailer.getProvider())) {
+        continue;
+      }
+
       trailer.setScrapedBy(TmdbMetadataProvider.ID);
       trailer.setUrl(video.key);
 

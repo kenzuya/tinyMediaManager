@@ -35,8 +35,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowArtworkPanel extends JPanel {
-  private static final long     serialVersionUID = -8105505340634141604L;
-
   private final List<MediaFile> mediaFiles;
   private ImagePanel            imagePanel;
 

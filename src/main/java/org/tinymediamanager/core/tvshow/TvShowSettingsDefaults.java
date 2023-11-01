@@ -27,11 +27,11 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowKeyartNaming;
-import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonFanartNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
@@ -75,9 +75,6 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
 
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
@@ -142,9 +139,6 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
 
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
@@ -211,9 +205,6 @@ public class TvShowSettingsDefaults {
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
 
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
-
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
 
@@ -278,9 +269,6 @@ public class TvShowSettingsDefaults {
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
 
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
-
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
 
@@ -331,10 +319,10 @@ public class TvShowSettingsDefaults {
     tvShowSettings.posterFilenames.add(TvShowPosterNaming.POSTER);
 
     tvShowSettings.fanartFilenames.clear();
-    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.FANART);
+    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.BACKDROP);
 
     tvShowSettings.extraFanartFilenames.clear();
-    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
+    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRABACKDROP);
 
     tvShowSettings.bannerFilenames.clear();
     tvShowSettings.bannerFilenames.add(TvShowBannerNaming.BANNER);
@@ -344,9 +332,6 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
 
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
@@ -412,9 +397,6 @@ public class TvShowSettingsDefaults {
     tvShowSettings.clearartFilenames.clear();
     tvShowSettings.clearartFilenames.add(TvShowClearartNaming.CLEARART);
 
-    tvShowSettings.logoFilenames.clear();
-    tvShowSettings.logoFilenames.add(TvShowLogoNaming.LOGO);
-
     tvShowSettings.clearlogoFilenames.clear();
     tvShowSettings.clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
 
@@ -426,6 +408,9 @@ public class TvShowSettingsDefaults {
 
     tvShowSettings.keyartFilenames.clear();
     tvShowSettings.keyartFilenames.add(TvShowKeyartNaming.KEYART);
+
+    tvShowSettings.seasonNfoFilenames.clear();
+    tvShowSettings.seasonNfoFilenames.add(TvShowSeasonNfoNaming.SEASON_FOLDER);
 
     tvShowSettings.seasonPosterFilenames.clear();
     tvShowSettings.seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);

@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,7 +41,10 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
 
 /**
@@ -51,7 +53,7 @@ import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
  * @author Manuel Laggner
  */
 public class TvShowHelpers {
-  private static final Logger  LOGGER               = LoggerFactory.getLogger(TvShow.class);
+  private static final Logger  LOGGER               = LoggerFactory.getLogger(TvShowHelpers.class);
 
   private static final Pattern SEASON_NUMBER        = Pattern.compile("(?i)season(\\d+).*");
   private static final Pattern SEASON_FOLDER_NUMBER = Pattern.compile("(?i).*(\\d+).*");
@@ -176,7 +178,7 @@ public class TvShowHelpers {
     Map<String, Long> subPathCounts = subPaths.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
 
     // take the highest count
-    Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get(); // NOSONAR
+      Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Map.Entry.comparingByValue()).get(); // NOSONAR
 
     // if there are at least 80% of all episodes having this subfolder, take it
     if (entry.getValue() >= 0.8 * episodes.size()) {
@@ -186,7 +188,7 @@ public class TvShowHelpers {
     // just fake an episode here, since the real foldername can only be generated out of the episode
     // create a dummy episode to inject the season number
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setSeason(season);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, -1));
 
     return TvShowRenamer.getSeasonFoldername(tvShow, episode);
   }
@@ -304,7 +306,7 @@ public class TvShowHelpers {
 
   /**
    * detect the season number of season-xxx named files
-   * 
+   *
    * @param filename
    *          the filename
    * @param foldername
@@ -348,5 +350,40 @@ public class TvShowHelpers {
     }
 
     return season;
+  }
+
+  /**
+   * attempt to find the best matching episode group for the given {@link TvShow}
+   *
+   * @param tvShow
+   *          the {@link TvShow} to find the match for
+   * @param episodeGroups
+   *          a {@link List} with all available {@link MediaEpisodeGroup}s
+   * @param episodeList
+   *          the episode list from the scraper
+   * @return the best matching {@link MediaEpisodeGroup} or null (if nothing matches)
+   */
+  public static MediaEpisodeGroup findBestMatchingEpisodeGroup(TvShow tvShow, List<MediaEpisodeGroup> episodeGroups,
+      List<MediaMetadata> episodeList) {
+    // FIXME find a good algorithm to detect the episode group
+    return null;
+  }
+
+  /**
+   * should we add this dummy episode to the {@link TvShow}?
+   * 
+   * @param episode
+   *          the dummy episode to add
+   * @return true/false
+   */
+  public static boolean shouldAddDummyEpisode(TvShowEpisode episode) {
+    TvShowEpisodeType episodeType = TvShowEpisodeType.getTypeForEpisode(episode);
+
+    return switch (episodeType) {
+      case DUMMY_NORMAL -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes();
+      case DUMMY_SPECIAL -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials();
+      case DUMMY_NOT_AIRED -> TvShowModuleManager.getInstance().getSettings().isDisplayMissingNotAired();
+      default -> false;
+    };
   }
 }

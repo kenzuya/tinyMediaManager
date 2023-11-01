@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -45,7 +48,10 @@ public class RatingProvider {
     METACRITIC("Metacritic"),
     ROTTEN_TOMATOES_TOMATOMETER("Rotten Tomatoes - Tomatometer"),
     ROTTEN_TOMATOES_AVG_RATING("Rotten Tomatoes - Audience Score"),
-    TRAKT_TV("Trakt.tv");
+    TRAKT_TV("Trakt.tv"),
+    LETTERBOXD("Letterboxd"),
+    MAL("MyAnimeList"),
+    ROGER_EBERT("RogerEbert.com");
 
     private final String title;
 
@@ -105,6 +111,10 @@ public class RatingProvider {
     return null;
   }
 
+  public static List<MediaRating> getRatingsFromMdbList(Map<String, Object> ids) {
+    return new MdbListRating().getRatings(ids);
+  }
+
   /**
    * get a {@link List} of all supported rating sources
    * 
@@ -149,6 +159,19 @@ public class RatingProvider {
       }
     }
 
+    if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
+        RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.LETTERBOXD, RatingSource.MAL, RatingSource.ROGER_EBERT)) {
+      List<MediaRating> ratingsFromMdblist = new MdbListRating().getRatings(ids);
+
+      for (MediaRating rating : ratingsFromMdblist) {
+        RatingSource source = parseRatingSource(rating.getId());
+        if (missingRatings.contains(source) && !ratings.contains(rating)) {
+          ratings.add(rating);
+          missingRatings.remove(source);
+        }
+      }
+    }
+
     // Metacritic can be fetched from the IMDB scraper
     if (missingRatings.contains(RatingSource.METACRITIC)) {
       callScraper(MediaMetadata.IMDB, mediaType, missingRatings, ids, ratings);
@@ -190,9 +213,9 @@ public class RatingProvider {
   private static void callScraper(String scraperId, MediaType mediaType, List<RatingSource> sources, Map<String, Object> ids,
       List<MediaRating> ratings) {
     MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, MediaType.getScraperTypeForMediaType(mediaType));
-    if (scraper != null && scraper.isEnabled() && scraper.getMediaProvider() instanceof IRatingProvider) {
+    if (scraper != null && scraper.getMediaProvider() instanceof IRatingProvider ratingProvider && scraper.isEnabled()) {
       try {
-        List<MediaRating> ratingsFromScraper = ((IRatingProvider) scraper.getMediaProvider()).getRatings(ids, mediaType);
+        List<MediaRating> ratingsFromScraper = ratingProvider.getRatings(ids, mediaType);
 
         for (MediaRating rating : ratingsFromScraper) {
           RatingSource source = parseRatingSource(rating.getId());
@@ -215,28 +238,50 @@ public class RatingProvider {
     ImdbRating.shutdown();
   }
 
-  private static RatingSource parseRatingSource(String id) {
-    switch (id) {
-      case "metacritic":
-        return RatingSource.METACRITIC;
-
-      case MediaMetadata.IMDB:
-        return RatingSource.IMDB;
-
-      case MediaMetadata.TMDB:
-        return RatingSource.TMDB;
-
-      case "tomatometerallcritics":
-        return RatingSource.ROTTEN_TOMATOES_TOMATOMETER;
-
-      case "tomatometeravgcritics":
-        return RatingSource.ROTTEN_TOMATOES_AVG_RATING;
-
-      case "trakt":
-        return RatingSource.TRAKT_TV;
-
-      default:
-        return null;
+  /**
+   * get the {@link RatingSource} from the given {@link String}
+   * 
+   * @param id
+   *          the {@link String} to get the {@link RatingSource} for
+   * @return the corresponding {@link RatingSource} or null
+   */
+  public static RatingSource parseRatingSource(String id) {
+    if (StringUtils.isBlank(id)) {
+      return null;
     }
+
+    return switch (id) {
+      case MediaMetadata.METACRITIC -> RatingSource.METACRITIC;
+      case MediaMetadata.IMDB -> RatingSource.IMDB;
+      case MediaMetadata.TMDB -> RatingSource.TMDB;
+      case "tomatometerallcritics" -> RatingSource.ROTTEN_TOMATOES_TOMATOMETER;
+      case "tomatometeravgcritics" -> RatingSource.ROTTEN_TOMATOES_AVG_RATING;
+      case MediaMetadata.TRAKT_TV -> RatingSource.TRAKT_TV;
+      case "letterboxd" -> RatingSource.LETTERBOXD;
+      case MediaMetadata.MY_ANIME_LIST -> RatingSource.MAL;
+      case MediaMetadata.ROGER_EBERT -> RatingSource.ROGER_EBERT;
+      default -> null;
+    };
+  }
+
+  /**
+   * get the string representation for the given {@link RatingSource}
+   * 
+   * @param ratingSource
+   *          the {@link RatingSource} to get the string representation for
+   * @return the string representation
+   */
+  public static String getRatingSourceId(@Nonnull RatingSource ratingSource) {
+    return switch (ratingSource) {
+      case IMDB -> MediaMetadata.IMDB;
+      case TMDB -> MediaMetadata.TMDB;
+      case METACRITIC -> MediaMetadata.METACRITIC;
+      case ROTTEN_TOMATOES_TOMATOMETER -> "tomatometerallcritics";
+      case ROTTEN_TOMATOES_AVG_RATING -> "tomatometeravgcritics";
+      case TRAKT_TV -> MediaMetadata.TRAKT_TV;
+      case LETTERBOXD -> MediaMetadata.LETTERBOXD;
+      case MAL -> MediaMetadata.MY_ANIME_LIST;
+      case ROGER_EBERT -> MediaMetadata.ROGER_EBERT;
+    };
   }
 }

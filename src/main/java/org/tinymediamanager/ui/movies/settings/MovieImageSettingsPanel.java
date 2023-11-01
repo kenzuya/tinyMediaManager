@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -48,9 +46,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
-import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
-import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -69,18 +64,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieImageSettingsPanel extends JPanel {
-  private static final long          serialVersionUID = 7312645402037806284L;
+  private final MovieSettings        settings = MovieModuleManager.getInstance().getSettings();
+  private final List<ScraperInTable> scrapers = new ArrayList<>();
 
-  private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
-  private final List<ScraperInTable> scrapers         = new ArrayList<>();
-
-  private JComboBox                  cbImagePosterSize;
-  private JComboBox                  cbImageFanartSize;
   private TmmTable                   tableScraper;
   private JTextPane                  tpScraperDescription;
   private JPanel                     panelScraperOptions;
-  private JComboBox<MediaLanguages>  cbScraperLanguage;
-  private JCheckBox                  chckbxPreferLanguage;
 
   /**
    * Instantiates a new movie image settings panel.
@@ -113,20 +102,19 @@ class MovieImageSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            ScraperInTable changedScraper = scrapers.get(row);
-            if (changedScraper.getActive() && changedScraper.isEnabled()) {
-              settings.addMovieArtworkScraper(changedScraper.getScraperId());
-            }
-            else {
-              settings.removeMovieArtworkScraper(changedScraper.getScraperId());
-            }
-          }
-        });
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive() && changedScraper.isEnabled()) {
+          settings.addMovieArtworkScraper(changedScraper.getScraperId());
+        }
+        else {
+          settings.removeMovieArtworkScraper(changedScraper.getScraperId());
+        }
+      }
+    });
 
     // implement selection checkBoxListener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -159,7 +147,7 @@ class MovieImageSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[grow]"));
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
@@ -197,52 +185,10 @@ class MovieImageSettingsPanel extends JPanel {
         panelScraperDetails.add(panelScraperOptions, "cell 0 1,grow");
       }
     }
-    {
-      JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
-      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
-      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#advanced-options-1"));
-      add(collapsiblePanel, "cell 0 2,growx, wmin 0");
-      {
-        JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
-        panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
-
-        cbScraperLanguage = new JComboBox(MediaLanguages.allValuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0");
-
-        JLabel lblImageTmdbPosterSize = new JLabel(TmmResourceBundle.getString("image.poster.size"));
-        panelOptions.add(lblImageTmdbPosterSize, "cell 1 1 2 1");
-
-        cbImagePosterSize = new JComboBox(PosterSizes.values());
-        panelOptions.add(cbImagePosterSize, "cell 1 1");
-
-        JLabel lblImageTmdbFanartSize = new JLabel(TmmResourceBundle.getString("image.fanart.size"));
-        panelOptions.add(lblImageTmdbFanartSize, "cell 1 2 2 1");
-
-        cbImageFanartSize = new JComboBox(FanartSizes.values());
-        panelOptions.add(cbImageFanartSize, "cell 1 2");
-
-        chckbxPreferLanguage = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape.language"));
-        panelOptions.add(chckbxPreferLanguage, "cell 1 3 2 1");
-      }
-    }
   }
 
   protected void initDataBindings() {
-    BeanProperty<MovieSettings, PosterSizes> settingsBeanProperty_5 = BeanProperty.create("imagePosterSize");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, PosterSizes, JComboBox, Object> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_5, cbImagePosterSize, jComboBoxBeanProperty);
-    autoBinding_4.bind();
-    //
-    BeanProperty<MovieSettings, FanartSizes> settingsBeanProperty_6 = BeanProperty.create("imageFanartSize");
-    AutoBinding<MovieSettings, FanartSizes, JComboBox, Object> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_6, cbImageFanartSize, jComboBoxBeanProperty);
-    autoBinding_5.bind();
-    //
     JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
         tableScraper);
     //
@@ -271,15 +217,6 @@ class MovieImageSettingsPanel extends JPanel {
         tpScraperDescription, jTextPaneBeanProperty);
     autoBinding_23.bind();
     //
-    BeanProperty<MovieSettings, MediaLanguages> movieSettingsBeanProperty = BeanProperty.create("imageScraperLanguage");
-    AutoBinding<MovieSettings, MediaLanguages, JComboBox, Object> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty, cbScraperLanguage, jComboBoxBeanProperty);
-    autoBinding.bind();
-    //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_10 = BeanProperty.create("imageLanguagePriority");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_10, chckbxPreferLanguage, jCheckBoxBeanProperty);
-    autoBinding_11.bind();
-    //
+
   }
 }

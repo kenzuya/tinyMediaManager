@@ -15,13 +15,12 @@
  */
 package org.tinymediamanager.core.tvshow.tasks;
 
+import static org.tinymediamanager.core.tvshow.TvShowArtworkHelper.sortArtworkUrls;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +37,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -113,14 +113,18 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
       options.setIds(episode.getIds());
+      options.setEpisodeGroup(episode.getEpisodeGroup());
 
-      if (episode.isDvdOrder()) {
-        options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
-        options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));
+      // have a look if the wanted episode order is available
+      if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+        // found -> pass it to the scraper
+        options.setId(MediaMetadata.SEASON_NR, episode.getSeason());
+        options.setId(MediaMetadata.EPISODE_NR, episode.getEpisode());
       }
       else {
-        options.setId(MediaMetadata.SEASON_NR, String.valueOf(episode.getAiredSeason()));
-        options.setId(MediaMetadata.EPISODE_NR, String.valueOf(episode.getAiredEpisode()));
+        // not found. Fall back to the default one
+        options.setId(MediaMetadata.SEASON_NR, episode.getAiredSeason());
+        options.setId(MediaMetadata.EPISODE_NR, episode.getAiredEpisode());
       }
 
       options.setTvShowIds(episode.getTvShow().getIds());
@@ -133,19 +137,19 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
 
         // also inject other ids
+        metadata.setId(MediaMetadata.TVSHOW_IDS, options.getTvShowIds());
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_EPISODE);
 
         // also fill other ratings if ratings are requested
         if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings() && config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
-          Map<String, Object> ids = new HashMap<>(metadata.getIds());
-          ids.put(MediaMetadata.TVSHOW_IDS, new HashMap<>(episode.getTvShow().getIds()));
-
-          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(ids, MediaType.TV_EPISODE))) {
+          for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_EPISODE))) {
             if (!metadata.getRatings().contains(rating)) {
               metadata.addRating(rating);
             }
           }
         }
+
+        metadata.removeId(MediaMetadata.TVSHOW_IDS);
 
         if (StringUtils.isNotBlank(metadata.getTitle())) {
           episode.setMetadata(metadata, config, overwrite);
@@ -168,18 +172,29 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
           // thumb
           if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
               && (overwrite || StringUtils.isBlank(episode.getArtworkFilename(MediaFileType.THUMB)))) {
-            for (MediaArtwork art : artworks) {
-              if (art.getType() == THUMB && StringUtils.isNotBlank(art.getDefaultUrl())) {
-                episode.setArtworkUrl(art.getDefaultUrl(), MediaFileType.THUMB);
-                episode.downloadArtwork(MediaFileType.THUMB, false);
-                break;
-              }
+            int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+
+            // sort artwork due to our preferences
+            List<MediaArtwork.ImageSizeAndUrl> sortedThumbs = sortArtworkUrls(artworks, THUMB, preferredSizeOrder);
+
+            // assign and download the poster
+            if (!sortedThumbs.isEmpty()) {
+              MediaArtwork.ImageSizeAndUrl foundThumb = sortedThumbs.get(0);
+              episode.setArtworkUrl(foundThumb.getUrl(), MediaFileType.THUMB);
+              episode.downloadArtwork(MediaFileType.THUMB, false);
+              episode.saveToDb();
+              episode.writeNFO();
             }
           }
         }
 
         if (cancel) {
           return;
+        }
+
+        // rename on the fly if needed
+        if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+          TvShowRenamer.renameEpisode(episode);
         }
       }
       catch (MissingIdException e) {
@@ -238,6 +253,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
     options.setIds(episode.getIds());
     options.setId(MediaMetadata.TVSHOW_IDS, episode.getTvShow().getIds());
     options.setId("mediaFile", episode.getMainFile());
+    options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
 
     // scrape providers till one artwork has been found
     for (MediaScraper artworkScraper : scrapeOptions.getArtworkScrapers()) {
@@ -257,6 +273,15 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
       }
     }
+
+    // sort by size descending
+    artwork.sort((o1, o2) -> {
+      if (o1.getBiggestArtwork() == null || o2.getBiggestArtwork() == null) {
+        return 0;
+      }
+      return Integer.compare(o2.getBiggestArtwork().getWidth(), o1.getBiggestArtwork().getWidth());
+    });
+
     return artwork;
   }
 }

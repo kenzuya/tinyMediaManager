@@ -54,8 +54,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowScrapeMetadataDialog extends TmmDialog {
-  private static final long                                                            serialVersionUID = 6120530120703772160L;
-
   private boolean                                                                      startScrape      = false;
 
   /** UI components */

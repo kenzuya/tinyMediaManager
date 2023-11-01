@@ -15,10 +15,12 @@
  */
 package org.tinymediamanager;
 
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * The Class Globals. used to hold global information/fields for the whole application
@@ -27,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class Globals {
   private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
+  private static final boolean READ_ONLY;
+
+  public static final String   CONTENT_FOLDER;
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
@@ -41,55 +46,71 @@ public final class Globals {
     String backupFolder = System.getProperty("tmm.backupfolder");
     String logFolder = System.getProperty("tmm.logfolder");
 
+    READ_ONLY = !isTmmDirWritable();
+
+    // always filled!
     String contentFolder = System.getProperty("tmm.contentfolder");
+    if (StringUtils.isBlank(contentFolder)) {
+      // when .userdir exists and data not exists OR tmm folder is not writable we can use the local userdir
+      if ((Files.exists(Paths.get(".userdir")) && Files.notExists(Paths.get("data"))) || isReadOnly()) {
+        // userdir
+        contentFolder = TmmOsUtils.getUserDir().toString();
+      }
+      else {
+        // portable - current folder
+        contentFolder = ".";
+      }
+    }
+    CONTENT_FOLDER = contentFolder;
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {
       DATA_FOLDER = dataFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      DATA_FOLDER = contentFolder + "/data";
-    }
     else {
-      DATA_FOLDER = "data";
+      DATA_FOLDER = Paths.get(contentFolder, "data").toAbsolutePath().toString();
     }
 
     // cache
     if (StringUtils.isNotBlank(cacheFolder)) {
       CACHE_FOLDER = cacheFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      CACHE_FOLDER = contentFolder + "/cache";
-    }
     else {
-      CACHE_FOLDER = "cache";
+      CACHE_FOLDER = Paths.get(contentFolder, "cache").toAbsolutePath().toString();
     }
 
     // backup
     if (StringUtils.isNotBlank(backupFolder)) {
       BACKUP_FOLDER = backupFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      BACKUP_FOLDER = contentFolder + "/backup";
-    }
     else {
-      BACKUP_FOLDER = "backup";
+      BACKUP_FOLDER = Paths.get(contentFolder, "backup").toAbsolutePath().toString();
     }
 
     // logs
     if (StringUtils.isNotBlank(logFolder)) {
       LOG_FOLDER = logFolder;
     }
-    else if (StringUtils.isNotBlank(contentFolder)) {
-      LOG_FOLDER = contentFolder + "/logs";
-    }
     else {
-      LOG_FOLDER = "logs";
+      LOG_FOLDER = Paths.get(contentFolder, "logs").toAbsolutePath().toString();
     }
   }
 
   private Globals() {
     throw new IllegalAccessError();
+  }
+
+  private static boolean isTmmDirWritable() {
+    try {
+      RandomAccessFile f = new RandomAccessFile("access.test", "rw");
+      f.close();
+      Files.deleteIfExists(Paths.get("access.test"));
+      return true;
+    }
+    catch (Exception e) {
+      // ignore
+    }
+    return false;
   }
 
   /**
@@ -102,9 +123,18 @@ public final class Globals {
   }
 
   /**
+   * ReadOnly TMM instance? cannot write to TMM dir...
+   * 
+   * @return
+   */
+  public static boolean isReadOnly() {
+    return READ_ONLY;
+  }
+
+  /**
    * checks, if we are within a dockerized environment<br>
    * not 100% accurate!
-   * 
+   *
    * @return true/false
    */
   public static boolean isDocker() {
@@ -138,5 +168,56 @@ public final class Globals {
    */
   public static boolean isRunningWebSwing() {
     return System.getProperty("webswing.classPath") != null;
+  }
+
+  /**
+   * check if the installation is self-udpatable
+   * 
+   * @return true if the installation is self-updatable
+   */
+  public static boolean isSelfUpdatable() {
+    // env param -Dtmm.noupdate=true has been set
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      return false;
+    }
+
+    // no on macOS (would destroy the signature)
+    if (SystemUtils.IS_OS_MAC) {
+      return false;
+    }
+
+    // special files exist (e.g. in docker env)
+    if (isDocker() || Files.exists(Paths.get(".managed"))) {
+      return false;
+    }
+
+    // tmm folder is not even writable
+    if (isReadOnly()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * can we check if an update is available
+   * 
+   * @return true if we should check for an update
+   */
+  public static boolean canCheckForUpdates() {
+    if (ReleaseInfo.isGitBuild()) {
+      return false;
+    }
+
+    if (isSelfUpdatable()) {
+      return true;
+    }
+
+    // no update is forced
+    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      return false;
+    }
+
+    return true;
   }
 }

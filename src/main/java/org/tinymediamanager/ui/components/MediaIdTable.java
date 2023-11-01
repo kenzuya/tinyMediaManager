@@ -18,50 +18,50 @@ package org.tinymediamanager.ui.components;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.ImageIcon;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.tinymediamanager.ui.components.table.TmmTable;
+import org.jetbrains.annotations.NotNull;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.table.TmmEditorTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.IdEditorPanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.gui.WritableTableFormat;
 
 /**
  * The class MediaIdTable is used to display / edit media ids
  *
  * @author Manuel Laggner
  */
-public class MediaIdTable extends TmmTable {
-  private static final long         serialVersionUID = 8010722883277208728L;
+public class MediaIdTable extends TmmEditorTable {
+  private final EventList<MediaId> idList;
+  private final ScraperType        scraperType;
 
-  private final Map<String, Object> idMap;
-  private final EventList<MediaId>  idList;
-
-  /**
-   * this constructor is used to display the ids
-   *
-   * @param ids
-   *          a map containing the ids
-   */
-  public MediaIdTable(Map<String, Object> ids) {
-    this.idMap = ids;
-    this.idList = convertIdMapToEventList(idMap);
-    setModel(new TmmTableModel<>(idList, new MediaIdTableFormat(false)));
-    setTableHeader(null);
-    putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+  public MediaIdTable(EventList<MediaId> idList) {
+    this(idList, null);
   }
 
-  public MediaIdTable(EventList<MediaId> ids) {
-    this.idMap = null;
+  public MediaIdTable(EventList<MediaId> ids, ScraperType type) {
+    super();
+
     this.idList = ids;
-    setModel(new TmmTableModel<>(idList, new MediaIdTableFormat(true)));
+    this.scraperType = type;
+
+    setModel(new TmmTableModel<>(idList, new MediaIdTableFormat()));
+
     setTableHeader(null);
-    putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
   }
 
-  public static EventList<MediaId> convertIdMapToEventList(Map<String, Object> idMap) {
+  @NotNull
+  public static EventList<MediaId> convertIdMapToEventList(@NotNull Map<String, Object> idMap) {
     EventList<MediaId> idList = new BasicEventList<>();
     for (Entry<String, Object> entry : idMap.entrySet()) {
       MediaId id = new MediaId();
@@ -78,6 +78,26 @@ public class MediaIdTable extends TmmTable {
     return idList;
   }
 
+  protected void editButtonClicked(int row) {
+    IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(MediaIdTable.this);
+    if (iModalPopupPanelProvider == null) {
+      return;
+    }
+
+    int index = convertRowIndexToModel(row);
+    MediaId mediaId = idList.get(index);
+
+    ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+    popupPanel.setTitle(TmmResourceBundle.getString("rating.edit"));
+
+    IdEditorPanel idEditorPanel = new IdEditorPanel(mediaId, scraperType);
+    popupPanel.setContent(idEditorPanel);
+    iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
+  }
+
+  /**
+   * helper classes
+   */
   public static class MediaId {
     public String key;
     public String value;
@@ -96,23 +116,21 @@ public class MediaIdTable extends TmmTable {
 
     @Override
     public boolean equals(Object obj) {
-      if (!(obj instanceof MediaId) || obj == null) {
+      if (!(obj instanceof MediaId other)) {
         return false;
       }
+
       if (obj == this) {
         return true;
       }
-      MediaId other = (MediaId) obj;
+
       return StringUtils.equals(key, other.key);
     }
   }
 
-  private static class MediaIdTableFormat extends TmmTableFormat<MediaId> implements WritableTableFormat<MediaId> {
-    private final boolean editable;
+  private static class MediaIdTableFormat extends TmmTableFormat<MediaId> {
 
-    public MediaIdTableFormat(boolean editable) {
-      this.editable = editable;
-
+    public MediaIdTableFormat() {
       /*
        * key
        */
@@ -124,28 +142,14 @@ public class MediaIdTable extends TmmTable {
        */
       col = new Column("", "value", mediaId -> mediaId.value, String.class);
       addColumn(col);
-    }
 
-    @Override
-    public boolean isEditable(MediaId arg0, int arg1) {
-      return editable && arg1 == 1;
-    }
-
-    @Override
-    public MediaId setColumnValue(MediaId arg0, Object arg1, int arg2) {
-      if (arg0 == null || arg1 == null) {
-        return null;
-      }
-      switch (arg2) {
-        case 0:
-          arg0.key = arg1.toString();
-          break;
-
-        case 1:
-          arg0.value = arg1.toString();
-          break;
-      }
-      return arg0;
+      /*
+       * edit
+       */
+      col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
+      col.setColumnResizeable(false);
+      col.setHeaderIcon(IconManager.EDIT_HEADER);
+      addColumn(col);
     }
   }
 }

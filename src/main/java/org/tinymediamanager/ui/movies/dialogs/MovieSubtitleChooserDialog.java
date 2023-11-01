@@ -23,10 +23,10 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -37,7 +37,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -87,7 +86,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSubtitleChooserDialog extends TmmDialog {
-  private static final long                          serialVersionUID = -3104541519073924724L;
   private static final Logger                        LOGGER           = LoggerFactory.getLogger(MovieSubtitleChooserDialog.class);
 
   private final MovieList                            movieList        = MovieModuleManager.getInstance().getMovieList();
@@ -102,7 +100,6 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
   // UI components
   private TmmTable                                   tableSubs;
-  private JTextField                                 tfSearchQuery;
   private JComboBox<MediaLanguages>                  cbLanguage;
   private MediaScraperCheckComboBox                  cbScraper;
   private JLabel                                     lblProgressAction;
@@ -147,11 +144,11 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
 
     // action listeners
-    btnSearch.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
-    cbLanguage.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
+    btnSearch.addActionListener(e -> searchSubtitle());
+    cbLanguage.addActionListener(e -> searchSubtitle());
 
     // start initial search
-    searchSubtitle(fileToScrape.getFileAsPath().toFile(), movieToScrape.getImdbId(), tfSearchQuery.getText());
+    searchSubtitle();
   }
 
   private void initComponents() {
@@ -193,10 +190,6 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
       cbScraper = new MediaScraperCheckComboBox(movieList.getAvailableSubtitleScrapers());
       panelContent.add(cbScraper, "cell 1 2,growx");
-
-      tfSearchQuery = new JTextField(movieToScrape.getTitle());
-      panelContent.add(tfSearchQuery, "cell 2 2 3 1,growx,aligny center");
-      tfSearchQuery.setColumns(10);
 
       btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
       panelContent.add(btnSearch, "cell 2 2,alignx left,aligny top");
@@ -247,7 +240,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
   }
 
-  private void searchSubtitle(File file, String imdbId, String searchTerm) {
+  private void searchSubtitle() {
     if (activeSearchTask != null && !activeSearchTask.isDone()) {
       activeSearchTask.cancel();
     }
@@ -255,7 +248,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     // scrapers
     List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
 
-    activeSearchTask = new SearchTask(file, imdbId, searchTerm, scrapers);
+    activeSearchTask = new SearchTask(fileToScrape, movieToScrape.getIds(), movieToScrape.getTitle(), scrapers);
     activeSearchTask.execute();
   }
 
@@ -288,19 +281,24 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private File                       file;
-    private String                     searchTerm;
-    private String                     imdbId;
-    private List<SubtitleSearchResult> searchResults;
-    private MediaLanguages             language;
-    private List<MediaScraper>         scrapers;
-    boolean                            cancel;
-    private String                     message;
+    private final MediaFile                  mediaFile;
+    private final String                     searchTerm;
+    private final Map<String, Object>        ids;
+    private final List<SubtitleSearchResult> searchResults;
+    private final MediaLanguages             language;
+    private final List<MediaScraper>         scrapers;
 
-    public SearchTask(File file, String imdbId, String searchTerm, List<MediaScraper> scrapers) {
-      this.file = file;
+    boolean                                  cancel;
+    private String                           message;
+
+    public SearchTask(MediaFile mediaFile, String searchTerm, List<MediaScraper> scrapers) {
+      this(mediaFile, Collections.emptyMap(), searchTerm, scrapers);
+    }
+
+    public SearchTask(MediaFile mediaFile, Map<String, Object> ids, String searchTerm, List<MediaScraper> scrapers) {
+      this.mediaFile = mediaFile;
       this.searchTerm = searchTerm;
-      this.imdbId = imdbId;
+      this.ids = ids;
       this.language = (MediaLanguages) cbLanguage.getSelectedItem();
       this.searchResults = new ArrayList<>();
       this.scrapers = scrapers;
@@ -314,9 +312,9 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
         try {
           IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
-          options.setFile(file);
+          options.setMediaFile(mediaFile);
           options.setSearchQuery(searchTerm);
-          options.setImdbId(imdbId);
+          options.setIds(ids);
           options.setLanguage(language);
           searchResults.addAll(subtitleProvider.search(options));
         }
@@ -381,14 +379,14 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
        * title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MovieSubtitleChooserModel::getName, String.class);
-      col.setColumnTooltip(MovieSubtitleChooserModel::getName);
+      col.setCellTooltip(MovieSubtitleChooserModel::getName);
       addColumn(col);
 
       /*
        * release name
        */
       col = new Column(TmmResourceBundle.getString("metatag.releasename"), "releasename", MovieSubtitleChooserModel::getReleaseName, String.class);
-      col.setColumnTooltip(MovieSubtitleChooserModel::getReleaseName);
+      col.setCellTooltip(MovieSubtitleChooserModel::getReleaseName);
       addColumn(col);
     }
   }

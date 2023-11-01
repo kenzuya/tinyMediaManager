@@ -43,8 +43,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRenameAction extends TmmAction {
-  private static final long serialVersionUID = -8988748633666277616L;
-
   public TvShowRenameAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rename"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rename"));
@@ -84,7 +82,7 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     // rename
-    TmmThreadPool renameTask = new TvShowRenameTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive(), true);
+    TmmThreadPool renameTask = new TvShowRenameTask(selectedObjects.getTvShows(), selectedObjects.getEpisodesRecursive());
     TmmTaskManager.getInstance().addMainTask(renameTask);
   }
 }

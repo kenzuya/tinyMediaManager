@@ -28,8 +28,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class DebugDumpMovieAction extends TmmAction {
-  private static final long serialVersionUID = -8473181347332963044L;
-
   public DebugDumpMovieAction() {
     putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("debug.entity.dump.desc"));

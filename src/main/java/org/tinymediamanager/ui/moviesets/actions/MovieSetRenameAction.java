@@ -35,9 +35,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * 
  */
 public class MovieSetRenameAction extends TmmAction {
-
-  private static final long serialVersionUID = 1677285197819210130L;
-
   public MovieSetRenameAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rename"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rename"));
@@ -52,11 +49,11 @@ public class MovieSetRenameAction extends TmmAction {
       if (obj instanceof MovieSet.MovieSetMovie) {
         // do nothing
       }
-      else if (obj instanceof Movie) {
-        selectedMovies.add((Movie) obj);
+      else if (obj instanceof Movie movie) {
+        selectedMovies.add(movie);
       }
-      else if (obj instanceof MovieSet) {
-        selectedMovies.addAll(((MovieSet) obj).getMovies());
+      else if (obj instanceof MovieSet movieSet) {
+        selectedMovies.addAll(movieSet.getMovies());
       }
     }
 

@@ -39,7 +39,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowOpenFolderAction extends TmmAction {
-  private static final long   serialVersionUID = 492120923459852998L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(TvShowOpenFolderAction.class);
 
   public TvShowOpenFolderAction() {

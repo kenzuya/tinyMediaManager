@@ -44,6 +44,9 @@ public class SeriesExtendedRecord {
   @SerializedName("defaultSeasonType")
   public Long                      defaultSeasonType    = null;
 
+  @SerializedName("seasonTypes")
+  public List<SeasonTypeRecord>    seasonTypes          = null;
+
   @SerializedName("firstAired")
   public String                    firstAired           = null;
 

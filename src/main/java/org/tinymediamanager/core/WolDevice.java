@@ -15,21 +15,32 @@
  */
 package org.tinymediamanager.core;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 /**
- * The class WolDevice - to reprensent a Wake On LAN device
+ * The class WolDevice - to represent a Wake On LAN device
  * 
  * @author Manuel Laggner
  * 
  */
-@XmlRootElement(name = "WolDevice")
 public class WolDevice extends AbstractModelObject {
   private static final String NAME        = "name";
   private static final String MAC_ADDRESS = "macAddress";
 
   private String              name;
   private String              macAddress;
+
+  public WolDevice() {
+  }
+
+  /**
+   * copy constructor
+   * 
+   * @param original
+   *          the original to copy
+   */
+  public WolDevice(WolDevice original) {
+    this.name = original.name;
+    this.macAddress = original.macAddress;
+  }
 
   public String getName() {
     return name;

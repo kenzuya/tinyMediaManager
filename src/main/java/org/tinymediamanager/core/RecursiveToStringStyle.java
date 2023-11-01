@@ -25,8 +25,6 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class RecursiveToStringStyle extends ToStringStyle {
-
-  private static final long                   serialVersionUID = 1L;
   private static final RecursiveToStringStyle INSTANCE         = new RecursiveToStringStyle(13);
 
   public static ToStringStyle getInstance() {

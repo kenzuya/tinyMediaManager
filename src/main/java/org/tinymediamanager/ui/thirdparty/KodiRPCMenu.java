@@ -25,12 +25,11 @@ import java.util.ResourceBundle;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.movies.actions.MovieKodiGetWatchedAction;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetKodiGetWatchedMovieAction;
@@ -86,43 +85,36 @@ public class KodiRPCMenu {
     m.add(createMenuVideoDatasources());
     m.add(createMenuAudioDatasources());
 
-    m.addMenuListener(new MenuListener() {
+    m.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuSelected(MenuEvent e) {
+      protected void menuWillBecomeVisible(JMenu menu) {
+
         boolean connected = KodiRPC.getInstance().isConnected();
 
-        for (Component component : m.getMenuComponents()) {
+        for (Component component : menu.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (connected) {
-            if (component == connectMenuItem) {
-              component.setEnabled(false);
+          if (component instanceof JMenuItem menuItem) {
+            if (connected) {
+              if (menuItem.getIcon() == IconManager.CONNECT) {
+                component.setEnabled(false);
+              }
+              else {
+                component.setEnabled(true);
+              }
             }
             else {
-              component.setEnabled(true);
-            }
-          }
-          else {
-            if (component == connectMenuItem) {
-              component.setEnabled(true);
-            }
-            else {
-              component.setEnabled(false);
+              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {
+                component.setEnabled(false);
+              }
             }
           }
         }
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent e) {
-        // not needed
-      }
-
-      @Override
-      public void menuCanceled(MenuEvent e) {
-        // not needed
       }
     });
 
@@ -165,41 +157,35 @@ public class KodiRPCMenu {
     m.add(createMenuVideoDatasources());
     m.add(createMenuAudioDatasources());
 
-    m.addMenuListener(new MenuListener() {
+    m.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuSelected(MenuEvent e) {
-        for (Component component : m.getMenuComponents()) {
+      protected void menuWillBecomeVisible(JMenu menu) {
+        boolean connected = KodiRPC.getInstance().isConnected();
+
+        for (Component component : menu.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (KodiRPC.getInstance().isConnected()) {
-            if (component == connectMenuItem) {
-              component.setEnabled(false);
+          if (component instanceof JMenuItem menuItem) {
+            if (connected) {
+              if (menuItem.getIcon() == IconManager.CONNECT) {
+                component.setEnabled(false);
+              }
+              else {
+                component.setEnabled(true);
+              }
             }
             else {
-              component.setEnabled(true);
-            }
-          }
-          else {
-            if (component == connectMenuItem) {
-              component.setEnabled(true);
-            }
-            else {
-              component.setEnabled(false);
+              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {
+                component.setEnabled(false);
+              }
             }
           }
         }
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent e) {
-        // not needed
-      }
-
-      @Override
-      public void menuCanceled(MenuEvent e) {
-        // not needed
       }
     });
 
@@ -242,43 +228,35 @@ public class KodiRPCMenu {
     m.add(createMenuVideoDatasources());
     m.add(createMenuAudioDatasources());
 
-    m.addMenuListener(new MenuListener() {
+    m.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuSelected(MenuEvent e) {
+      protected void menuWillBecomeVisible(JMenu menu) {
         boolean connected = KodiRPC.getInstance().isConnected();
 
-        for (Component component : m.getMenuComponents()) {
+        for (Component component : menu.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (connected) {
-            if (component == connectMenuItem) {
-              component.setEnabled(false);
+          if (component instanceof JMenuItem menuItem) {
+            if (connected) {
+              if (menuItem.getIcon() == IconManager.CONNECT) {
+                component.setEnabled(false);
+              }
+              else {
+                component.setEnabled(true);
+              }
             }
             else {
-              component.setEnabled(true);
-            }
-          }
-          else {
-            if (component == connectMenuItem) {
-              component.setEnabled(true);
-            }
-            else {
-              component.setEnabled(false);
+              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {
+                component.setEnabled(false);
+              }
             }
           }
         }
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent e) {
-        // not needed
-      }
-
-      @Override
-      public void menuCanceled(MenuEvent e) {
-        // not needed
       }
     });
 
@@ -319,42 +297,35 @@ public class KodiRPCMenu {
     m.add(createMenuVideoDatasources());
     m.add(createMenuAudioDatasources());
 
-    m.addMenuListener(new MenuListener() {
+    m.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuSelected(MenuEvent e) {
+      protected void menuWillBecomeVisible(JMenu menu) {
         boolean connected = KodiRPC.getInstance().isConnected();
+
         for (Component component : m.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (connected) {
-            if (component == connectMenuItem) {
-              component.setEnabled(false);
+          if (component instanceof JMenuItem menuItem) {
+            if (connected) {
+              if (menuItem.getIcon() == IconManager.CONNECT) {
+                component.setEnabled(false);
+              }
+              else {
+                component.setEnabled(true);
+              }
             }
             else {
-              component.setEnabled(true);
-            }
-          }
-          else {
-            if (component == connectMenuItem) {
-              component.setEnabled(true);
-            }
-            else {
-              component.setEnabled(false);
+              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {
+                component.setEnabled(false);
+              }
             }
           }
         }
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent e) {
-        // not needed
-      }
-
-      @Override
-      public void menuCanceled(MenuEvent e) {
-        // not needed
       }
     });
 
@@ -511,5 +482,4 @@ public class KodiRPCMenu {
 
     return m;
   }
-
 }

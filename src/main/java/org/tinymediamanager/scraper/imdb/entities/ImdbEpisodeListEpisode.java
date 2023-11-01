@@ -18,7 +18,7 @@ public class ImdbEpisodeListEpisode {
   public String               plot                 = "";
   public double               aggregateRating      = 0.0;
   public int                  voteCount            = 0;
-  public String               releaseDate          = "";
+  public ImdbReleaseDate      releaseDate          = null;
   public int                  releaseYear          = 0;
   public ImdbEpisodeListImage image                = null;
 

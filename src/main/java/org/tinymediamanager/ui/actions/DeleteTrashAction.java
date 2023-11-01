@@ -33,7 +33,6 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
  * @author Manuel Laggner
  */
 public class DeleteTrashAction extends TmmAction {
-  private static final long   serialVersionUID = -9178351750617647813L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(DeleteTrashAction.class);
 
   public DeleteTrashAction() {

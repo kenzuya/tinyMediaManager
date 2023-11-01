@@ -58,6 +58,8 @@ import com.madgag.gif.fmsware.GifDecoder;
 public class MediaFile extends AbstractModelObject implements Comparable<MediaFile> {
   private static final Logger        LOGGER            = LoggerFactory.getLogger(MediaFile.class);
 
+  public static final MediaFile      EMPTY_MEDIAFILE   = new MediaFile();
+
   @JsonProperty
   private MediaFileType              type              = MediaFileType.UNKNOWN;
   @JsonProperty
@@ -504,13 +506,20 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *          the new path
    */
   public void replacePathForRenamedFolder(Path oldPath, Path newPath) {
-    if (oldPath == null || newPath == null) {
+    if (oldPath == null || newPath == null || oldPath.equals(newPath)) {
       return;
     }
-
-    String p = getPath();
-    p = p.replace(oldPath.toAbsolutePath().toString(), newPath.toAbsolutePath().toString());
-    setPath(p);
+    int oldCnt = oldPath.getNameCount();
+    Path remaining = getFileAsPath().subpath(oldCnt, getFileAsPath().getNameCount());
+    Path newPathToSet = null;
+    if (remaining != null) {
+      newPathToSet = newPath.resolve(remaining).getParent(); // parent = folder
+    }
+    else {
+      newPathToSet = newPath;
+    }
+    // LOGGER.trace("MF replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
+    setPath(newPathToSet.toAbsolutePath().toString());
   }
 
   public String getFilename() {
@@ -668,6 +677,25 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return subtitleLanguages;
   }
 
+  /**
+   * gets the subtitle codec from all streams as List
+   *
+   * @return the subtitle languages as List
+   */
+  public List<String> getSubtitleCodecList() {
+    List<String> subtitleLanguages = new ArrayList<>();
+
+    for (MediaFileSubtitle stream : ListUtils.nullSafe(subtitles)) {
+
+      // just in case we couldn't detect the codec name
+      if (StringUtils.isBlank(stream.getCodec())) {
+        continue;
+      }
+      subtitleLanguages.add(stream.getCodec());
+    }
+    return subtitleLanguages;
+  }
+
   public String getSubtitlesAsString() {
 
     if (this.subtitles == null) {
@@ -804,7 +832,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     List<String> audioTitleList = new ArrayList<>();
 
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
-      audioTitleList.add(stream.getAudioTitle());
+      audioTitleList.add(stream.getTitle());
     }
 
     return audioTitleList;

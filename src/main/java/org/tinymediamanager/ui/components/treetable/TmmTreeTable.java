@@ -48,6 +48,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -585,6 +586,7 @@ public class TmmTreeTable extends TmmTable {
         if (uiFilters != null) {
           tmmUIFilter.setFilterState(uiFilters.state);
           tmmUIFilter.setFilterValue(uiFilters.filterValue);
+          tmmUIFilter.setFilterOption(uiFilters.option);
         }
         else {
           tmmUIFilter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);
@@ -632,7 +634,7 @@ public class TmmTreeTable extends TmmTable {
    *          the mouse event
    * @return the tooltip or null
    */
-  public String getToolTipText(MouseEvent e) {
+  public String getToolTipText(@NotNull MouseEvent e) {
     if (!(getModel() instanceof TmmTreeTableModel)) {
       return null;
     }
@@ -718,6 +720,10 @@ public class TmmTreeTable extends TmmTable {
     }
   }
 
+  public boolean isAdjusting() {
+    return ((TmmTreeModel) treeTableModel.getTreeModel()).isAdjusting();
+  }
+
   private class TmmTreeModelConnector<E extends TmmTreeNode> extends TmmTreeModel {
 
     /**
@@ -751,6 +757,8 @@ public class TmmTreeTable extends TmmTable {
           for (int row : selectedRows) {
             getSelectionModel().addSelectionInterval(row, row);
           }
+        } else {
+          setAdjusting(false);
         }
         long end = System.currentTimeMillis();
 

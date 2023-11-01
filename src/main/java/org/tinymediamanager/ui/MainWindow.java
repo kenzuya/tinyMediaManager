@@ -36,6 +36,8 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLayer;
+import javax.swing.JLayeredPane;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -46,6 +48,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TinyMediaManager;
@@ -62,6 +65,8 @@ import org.tinymediamanager.ui.dialogs.SettingsDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.StatusBarPanel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -74,17 +79,18 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MainWindow extends JFrame {
-
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MainWindow.class);
-  private static final long   serialVersionUID = 1L;
-
-  public static final Image   LOGOS            = createLogos();
+public class MainWindow extends JFrame implements IModalPopupPanelProvider {
+  private static final Logger LOGGER     = LoggerFactory.getLogger(MainWindow.class);
+  public static final Image   LOGOS      = createLogos();
 
   private static MainWindow   instance;
 
+  private JMenuBar            menuBar;
+  private ToolbarPanel        toolbarPanel;
+
   private JTabbedPane         tabbedPane;
   private JPanel              detailPanel;
+  private int                 popupIndex = JLayeredPane.MODAL_LAYER;
 
   /**
    * Gets the active instance.
@@ -109,6 +115,7 @@ public class MainWindow extends JFrame {
     setName("mainWindow");
     setMinimumSize(new Dimension(1050, 700));
 
+    // needed here, otherwise we get a stack overflow
     instance = this; // NOSONAR
 
     initialize();
@@ -142,7 +149,15 @@ public class MainWindow extends JFrame {
     // do nothing, we have our own windowClosing() listener
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-    ToolbarPanel toolbarPanel = new ToolbarPanel();
+    // on macOS use the system menu bar
+    if (SystemUtils.IS_OS_MAC) {
+      System.setProperty("apple.laf.useScreenMenuBar", "true");
+
+      menuBar = new JMenuBar();
+      setJMenuBar(menuBar);
+    }
+
+    toolbarPanel = new ToolbarPanel();
     getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 
     JPanel rootPanel = new JPanel();
@@ -165,8 +180,6 @@ public class MainWindow extends JFrame {
     rootPanel.add(splitPane, "cell 0 0, grow");
 
     tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 9041548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("rightBorder", "half");
@@ -185,16 +198,19 @@ public class MainWindow extends JFrame {
 
     addModule(MovieUIModule.getInstance());
     toolbarPanel.setUIModule(MovieUIModule.getInstance());
+    updateMenuBar(MovieUIModule.getInstance());
+
     addModule(MovieSetUIModule.getInstance());
     addModule(TvShowUIModule.getInstance());
 
     ChangeListener changeListener = changeEvent -> {
       JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-      if (sourceTabbedPane.getSelectedComponent() instanceof ITmmTabItem) {
-        ITmmTabItem activeTab = (ITmmTabItem) sourceTabbedPane.getSelectedComponent();
+      if (sourceTabbedPane.getSelectedComponent()instanceof ITmmTabItem activeTab) {
         toolbarPanel.setUIModule(activeTab.getUIModule());
         CardLayout cl = (CardLayout) detailPanel.getLayout();
         cl.show(detailPanel, activeTab.getUIModule().getModuleId());
+
+        updateMenuBar(activeTab.getUIModule());
       }
     };
     tabbedPane.addChangeListener(changeListener);
@@ -211,11 +227,9 @@ public class MainWindow extends JFrame {
 
     // mouse event listener for context menu
     Toolkit.getDefaultToolkit().addAWTEventListener(arg0 -> {
-      if (arg0 instanceof MouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource() instanceof JTextComponent) {
-        MouseEvent me = (MouseEvent) arg0;
-        JTextComponent tc = (JTextComponent) arg0.getSource();
-        if (me.isPopupTrigger() && tc.getComponentPopupMenu() == null) {
-          TextFieldPopupMenu.buildCutCopyPaste().show(tc, me.getX(), me.getY());
+      if (arg0 instanceof MouseEvent mouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource()instanceof JTextComponent textComponent) {
+        if (mouseEvent.isPopupTrigger() && textComponent.getComponentPopupMenu() == null) {
+          TextFieldPopupMenu.buildCutCopyPaste().show(textComponent, mouseEvent.getX(), mouseEvent.getY());
         }
       }
     }, AWTEvent.MOUSE_EVENT_MASK);
@@ -305,6 +319,52 @@ public class MainWindow extends JFrame {
           TmmUILayoutStore.getInstance().saveSettings(frame);
         }
       }
+    }
+  }
+
+  @Override
+  public void showModalPopupPanel(ModalPopupPanel popupPanel) {
+    popupPanel.setBounds(getContentPane().getBounds());
+    getLayeredPane().add(popupPanel, popupIndex++, 0);
+  }
+
+  @Override
+  public void hideModalPopupPanel(ModalPopupPanel popupPanel) {
+    getLayeredPane().remove(popupPanel);
+    popupIndex--;
+    validate();
+    repaint();
+  }
+
+  private void updateMenuBar(ITmmUIModule uiModule) {
+    if (menuBar != null) {
+      menuBar.removeAll();
+
+      // update data sources
+      if (uiModule.getUpdateMenu() != null) {
+        menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getUpdateMenu(), TmmResourceBundle.getString("Toolbar.update")));
+      }
+
+      // search & scrape
+      if (uiModule.getSearchMenu() != null) {
+        menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getSearchMenu(), TmmResourceBundle.getString("Toolbar.search")));
+      }
+
+      // edit
+      if (uiModule.getEditMenu() != null) {
+        menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getEditMenu(), TmmResourceBundle.getString("Toolbar.edit")));
+      }
+
+      // rename
+      if (uiModule.getRenameMenu() != null) {
+        menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getRenameMenu(), TmmResourceBundle.getString("Toolbar.rename")));
+      }
+
+      // tools
+      menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(toolbarPanel.getToolsMenu(), TmmResourceBundle.getString("Toolbar.tools")));
+      menuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(toolbarPanel.getInfoMenu(), TmmResourceBundle.getString("Toolbar.help")));
+
+      menuBar.revalidate();
     }
   }
 }

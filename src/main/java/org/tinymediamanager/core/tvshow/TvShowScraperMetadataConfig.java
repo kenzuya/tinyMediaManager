@@ -39,6 +39,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   AIRED(Type.METADATA, "metatag.aired"),
   STATUS(Type.METADATA),
   RATING(Type.METADATA),
+  TOP250(Type.METADATA),
   RUNTIME(Type.METADATA),
   CERTIFICATION(Type.METADATA),
   GENRES(Type.METADATA, "metatag.genre"),
@@ -47,6 +48,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   TAGS(Type.METADATA),
   TRAILER(Type.METADATA),
   SEASON_NAMES(Type.METADATA, "metatag.seasonname"),
+  SEASON_OVERVIEW(Type.METADATA, "metatag.seasonoverview"),
 
   // cast
   ACTORS(Type.CAST),
@@ -57,7 +59,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   BANNER(Type.ARTWORK),
   CLEARART(Type.ARTWORK),
   THUMB(Type.ARTWORK),
-  LOGO(Type.ARTWORK),
+  LOGO(Type.DEPRECATED),
   CLEARLOGO(Type.ARTWORK),
   DISCART(Type.ARTWORK, "mediafiletype.disc"),
   KEYART(Type.ARTWORK),

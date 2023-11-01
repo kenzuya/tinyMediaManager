@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,9 +35,9 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
-  private static final int NUMBER_OF_EXPECTED_SHOWS      = 16;
-  private static final int NUMBER_OF_EXPECTED_EPISODES   = 162;
-  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 400;
+  private static final int NUMBER_OF_EXPECTED_SHOWS      = 17;
+  private static final int NUMBER_OF_EXPECTED_EPISODES   = 164;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 408;
 
   @Before
   public void setup() throws Exception {
@@ -85,6 +86,10 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
       System.out.println(show.getPath());
       mfCnt += show.getMediaFiles().size();
 
+      for (TvShowSeason season : show.getSeasons()) {
+        mfCnt += season.getMediaFiles().size();
+      }
+
       // check for every found episode that it has at least one VIDEO file
       for (TvShowEpisode episode : show.getEpisodes()) {
         assertThat(episode.getMediaFiles(MediaFileType.VIDEO)).isNotEmpty();
@@ -106,7 +111,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show.getEpisodes().size()).isEqualTo(62);
     assertThat(show.getSeasons().size()).isEqualTo(5);
 
-    List<TvShowSeason> seasons = show.getSeasons();
+    List<TvShowSeason> seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     Object[] a = seasons.toArray();
     Arrays.sort(a);
@@ -134,7 +139,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show.getEpisodes().size()).isEqualTo(14);
     assertThat(show.getSeasons().size()).isEqualTo(1);
 
-    seasons = show.getSeasons();
+    seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     a = seasons.toArray();
     Arrays.sort(a);
@@ -152,9 +157,9 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
     assertThat(show).isNotNull();
     assertThat(show.getTitle()).isEqualTo("Futurama");
     assertThat(show.getEpisodes().size()).isEqualTo(44);
-    assertThat(show.getSeasons().size()).isEqualTo(3);
+    assertThat(show.getSeasons().size()).isEqualTo(5); // 3 with episodes, 2 more with only artwork
 
-    seasons = show.getSeasons();
+    seasons = new ArrayList<>(show.getSeasons());
     // Collections.sort(seasons, seasonComparator);
     a = seasons.toArray();
     Arrays.sort(a);
@@ -162,12 +167,12 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTvShowTest {
       seasons.set(i, (TvShowSeason) a[i]);
     }
 
-    assertThat(seasons.get(0).getSeason()).isEqualTo(1);
-    assertThat(seasons.get(0).getEpisodes().size()).isEqualTo(9);
-    assertThat(seasons.get(1).getSeason()).isEqualTo(2);
-    assertThat(seasons.get(1).getEpisodes().size()).isEqualTo(20);
-    assertThat(seasons.get(2).getSeason()).isEqualTo(3);
-    assertThat(seasons.get(2).getEpisodes().size()).isEqualTo(15);
+    assertThat(seasons.get(1).getSeason()).isEqualTo(1);
+    assertThat(seasons.get(1).getEpisodes().size()).isEqualTo(9);
+    assertThat(seasons.get(2).getSeason()).isEqualTo(2);
+    assertThat(seasons.get(2).getEpisodes().size()).isEqualTo(20);
+    assertThat(seasons.get(3).getSeason()).isEqualTo(3);
+    assertThat(seasons.get(3).getEpisodes().size()).isEqualTo(15);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // unknown -1/-1 detection

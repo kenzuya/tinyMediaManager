@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.thetvdb;
 
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
@@ -52,8 +53,11 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
+import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 import retrofit2.Response;
 
@@ -98,11 +102,11 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   String getAuthToken() {
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
     String userPin = providerInfo.getConfig().getValue("pin");
 
     if (StringUtils.isNotBlank(userApiKey)) {
@@ -125,7 +129,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
     // check if the API should change from current key to another
     if (tvdb != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      String userApiKey = providerInfo.getUserApiKey();
       String userPin = providerInfo.getConfig().getValue("pin");
       if (StringUtils.isNotBlank(userApiKey) && (!userApiKey.equals(tvdb.getUserApiKey()) || !userPin.equals(tvdb.getUserPin()))) {
         // force re-initialization with new key
@@ -244,8 +248,12 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           break;
 
         case 3:
-        case 4:
           member = new Person(ACTOR);
+          member.setRole(character.name);
+          break;
+
+        case 4:
+          member = new Person(GUEST);
           member.setRole(character.name);
           break;
 
@@ -271,6 +279,76 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     return members;
+  }
+
+  /**
+   * Parses used remote IDs into our format<br>
+   * Feel free to extend this!
+   * 
+   * @param ids
+   * @return
+   */
+  protected Map<String, Object> parseRemoteIDs(List<RemoteID> ids) {
+    Map<String, Object> ret = new HashMap<>();
+
+    for (RemoteID remote : ListUtils.nullSafe(ids)) {
+      switch (remote.type) {
+        case 1: // ???
+          break;
+
+        case 2: // IMDB
+          if (MediaIdUtil.isValidImdbId(remote.id)) {
+            ret.put(MediaMetadata.IMDB, remote.id);
+          }
+          break;
+
+        case 3: // TMS (Zap2It)
+          ret.put(MediaMetadata.ZAP2IT, remote.id);
+          break;
+
+        case 4: // Official Website
+        case 5: // Facebook
+        case 6: // Twitter
+        case 7: // Reddit
+        case 8: // Fan Site
+        case 9: // Instagram
+        case 10: // ???
+        case 11: // Youtube
+          break;
+
+        case 12: // TheMovieDB.com
+          ret.put(MediaMetadata.TMDB, remote.id);
+          break;
+
+        case 13: // EIDR
+          ret.put("eidr", remote.id);
+          break;
+
+        case 14: // ???
+        case 15: // ???
+        case 16: // ???
+        case 17: // ???
+          break;
+
+        case 18: // Wikidata
+          ret.put(MediaMetadata.WIKIDATA, remote.id);
+          break;
+
+        case 19: // TV Maze
+          ret.put(MediaMetadata.TVMAZE, remote.id);
+          break;
+
+        case 20: // ???
+        case 21: // ???
+        case 22: // ???
+        case 23: // ???
+        case 24: // Wikipedia
+        default:
+          break;
+      }
+    }
+
+    return ret;
   }
 
   /**
@@ -330,60 +408,17 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     if (artworkType != null) {
       int width = artworkType.width;
       int height = artworkType.height;
-      ma.addImageSize(width, height, image.image);
+      int sizeOrder = getSizeOrder(ma.getType(), width);
 
-      // set image size
-      switch (ma.getType()) {
-        case POSTER:
-          if (width >= 1000) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.LARGE.getOrder());
-          }
-          else if (width >= 500) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.BIG.getOrder());
-          }
-          else if (width >= 342) {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.MEDIUM.getOrder());
-          }
-          else {
-            ma.setSizeOrder(MediaArtwork.PosterSizes.SMALL.getOrder());
-          }
-          break;
-
-        case BACKGROUND:
-          if (width >= 3840) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.XLARGE.getOrder());
-          }
-          if (width >= 1920) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-          }
-          else if (width >= 1280) {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-          }
-          else {
-            ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
-          }
-          break;
-
-        default:
-          break;
-      }
+      ma.addImageSize(width, height, image.image, sizeOrder);
     }
 
-    // set size for banner & season poster (resolution not in api)
-    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER) {
-      ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-    }
-    else if (ma.getType() == BANNER) {
-      ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-    }
-
-    ma.setDefaultUrl(image.image);
     ma.setOriginalUrl(image.image);
     if (StringUtils.isNotBlank(image.thumbnail)) {
       ma.setPreviewUrl(image.thumbnail);
     }
     else {
-      ma.setPreviewUrl(ma.getDefaultUrl());
+      ma.setPreviewUrl(ma.getOriginalUrl());
     }
 
     if (StringUtils.isBlank(image.language)) {
@@ -410,7 +445,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     searchResult.setMetadata(md);
     for (MediaArtwork artwork : md.getMediaArt()) {
       if (artwork.getType() == MediaArtwork.MediaArtworkType.POSTER) {
-        searchResult.setPosterUrl(artwork.getDefaultUrl());
+        searchResult.setPosterUrl(artwork.getPreviewUrl());
         break;
       }
     }
@@ -432,5 +467,82 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     return 0;
+  }
+
+  /**
+   * get the size order of the given artwork
+   *
+   * @param type
+   *          the {@link MediaArtwork.MediaArtworkType}
+   * @param width
+   *          the width
+   * @return the size order
+   */
+  protected int getSizeOrder(MediaArtwork.MediaArtworkType type, int width) {
+    int sizeOrder = 0;
+
+    // set image size
+    switch (type) {
+      case POSTER:
+        if (width >= 1000) {
+          sizeOrder = MediaArtwork.PosterSizes.LARGE.getOrder();
+        }
+        else if (width >= 500) {
+          sizeOrder = MediaArtwork.PosterSizes.BIG.getOrder();
+        }
+        else if (width >= 342) {
+          sizeOrder = MediaArtwork.PosterSizes.MEDIUM.getOrder();
+        }
+        else {
+          sizeOrder = MediaArtwork.PosterSizes.SMALL.getOrder();
+        }
+        break;
+
+      case BACKGROUND:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder();
+        }
+        else if (width >= 1920) {
+          sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+        }
+        else if (width >= 1280) {
+          sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+        }
+        else {
+          sizeOrder = MediaArtwork.FanartSizes.SMALL.getOrder();
+        }
+        break;
+
+      case THUMB:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.ThumbSizes.XLARGE.getOrder();
+        }
+        else if (width >= 1920) {
+          sizeOrder = MediaArtwork.ThumbSizes.LARGE.getOrder();
+        }
+        else if (width >= 1280) {
+          sizeOrder = MediaArtwork.ThumbSizes.BIG.getOrder();
+        }
+        else if (width >= 960) {
+          sizeOrder = MediaArtwork.ThumbSizes.MEDIUM.getOrder();
+        }
+        else {
+          sizeOrder = MediaArtwork.ThumbSizes.SMALL.getOrder();
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // set size for banner & season poster (resolution not in api)
+    if (type == SEASON_BANNER || type == SEASON_POSTER) {
+      sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+    }
+    else if (type == BANNER) {
+      sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+    }
+
+    return sizeOrder;
   }
 }

@@ -16,10 +16,13 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.io.FilenameUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -38,9 +41,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieReadNfoAction extends TmmAction {
-  private static final long           serialVersionUID = 2866581962767395824L;
-  
-
   public MovieReadNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.readnfo"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.readnfo.desc"));
@@ -56,48 +56,66 @@ public class MovieReadNfoAction extends TmmAction {
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("movie.readnfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
-      @Override
-      protected void doInBackground() {
-        int i = 0;
-        for (Movie movie : selectedMovies) {
-          Movie tempMovie = null;
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("movie.readnfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
+          @Override
+          protected void doInBackground() {
+            int i = 0;
+            for (Movie movie : selectedMovies) {
+              Movie tempMovie = null;
 
-          // process all registered NFOs
-          for (MediaFile mf : movie.getMediaFiles(MediaFileType.NFO)) {
-            // at the first NFO we get a movie object
-            if (tempMovie == null) {
-              try {
-                tempMovie = MovieNfoParser.parseNfo(mf.getFileAsPath()).toMovie();
+              // process all registered NFOs
+              for (MediaFile mf : movie.getMediaFiles(MediaFileType.NFO)) {
+                // at the first NFO we get a movie object
+                if (tempMovie == null) {
+                  try {
+                    tempMovie = MovieNfoParser.parseNfo(mf.getFileAsPath()).toMovie();
+                  }
+                  catch (Exception ignored) {
+                  }
+                  continue;
+                }
+
+                // every other NFO gets merged into that temp. movie object
+                if (tempMovie != null) {
+                  try {
+                    tempMovie.merge(MovieNfoParser.parseNfo(mf.getFileAsPath()).toMovie());
+                  }
+                  catch (Exception ignored) {
+                  }
+                }
               }
-              catch (Exception ignored) {
+
+              // no MF (yet)? try to find NFO...
+              // it might have been added w/o UDS, and since we FORCE a read...
+              if (tempMovie == null) {
+                MediaFile vid = movie.getMainVideoFile();
+                String name = vid.getFilenameWithoutStacking();
+                name = FilenameUtils.getBaseName(name) + ".nfo";
+                Path nfo = vid.getFileAsPath().getParent().resolve(name);
+                if (Files.exists(nfo)) {
+                  movie.addToMediaFiles(new MediaFile(nfo));
+                  try {
+                    tempMovie = MovieNfoParser.parseNfo(nfo).toMovie();
+                  }
+                  catch (Exception ignored) {
+                  }
+                }
               }
-              continue;
+
+              // did we get movie data from our NFOs
+              if (tempMovie != null) {
+                // force merge it to the actual movie object
+                movie.forceMerge(tempMovie);
+                movie.saveToDb();
+              }
+
+              publishState(++i);
+              if (cancel) {
+                break;
+              }
             }
-
-            // every other NFO gets merged into that temp. movie object
-            if (tempMovie != null) {
-              try {
-                tempMovie.merge(MovieNfoParser.parseNfo(mf.getFileAsPath()).toMovie());
-              }
-              catch (Exception ignored) {
-              }
-            }
           }
-
-          // did we get movie data from our NFOs
-          if (tempMovie != null) {
-            // force merge it to the actual movie object
-            movie.forceMerge(tempMovie);
-            movie.saveToDb();
-          }
-
-          publishState(++i);
-          if (cancel) {
-            break;
-          }
-        }
-      }
-    });
+        });
   }
 }

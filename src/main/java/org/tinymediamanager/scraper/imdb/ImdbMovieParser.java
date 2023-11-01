@@ -340,7 +340,7 @@ public class ImdbMovieParser extends ImdbParser {
       }
 
       if (value > 0) {
-        MediaRating rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
         rating.setRating(value);
         rating.setVotes(count);
         rating.setMaxValue(100);
@@ -391,12 +391,7 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    String imdbId = "";
-
-    // imdbid from scraper option
-    if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      imdbId = options.getImdbId();
-    }
+    String imdbId = options.getImdbId();
 
     // imdbid via tmdbid
     if (!MediaIdUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
@@ -404,7 +399,7 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     if (!MediaIdUtil.isValidImdbId(imdbId)) {
-      LOGGER.warn("not possible to scrape from IMDB - imdbId found");
+      LOGGER.warn("not possible to scrape from IMDB - no imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB);
     }
 
@@ -413,16 +408,7 @@ public class ImdbMovieParser extends ImdbParser {
     movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
-
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
-          adoptArtworkToOptions(artwork, options);
-        }
-      }
-
-      return artworks;
+      return getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
     }
     catch (NothingFoundException e) {
       LOGGER.debug("nothing found");

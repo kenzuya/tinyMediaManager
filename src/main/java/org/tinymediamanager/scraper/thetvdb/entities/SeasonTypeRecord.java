@@ -19,11 +19,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class SeasonTypeRecord {
   @SerializedName("id")
-  public Integer id   = null;
+  public Integer    id   = null;
 
   @SerializedName("name")
-  public String  name = null;
+  public String     name = null;
 
   @SerializedName("type")
-  public String  type = null;
+  public SeasonType type = null;
+
+  @SerializedName("alternateName")
+  public String     alternateName;
 }

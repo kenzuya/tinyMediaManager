@@ -131,17 +131,17 @@ public class TmmProperties {
   }
 
   /**
-   * get the value as Boolean<br>
-   * if the value is not available or not parsable, this will return {@literal Boolean.FALSE}
+   * get the value as boolean<br>
+   * if the value is not available or not parsable, this will return {@literal false}
    *
    * @param key
    *          the key to search the value for
    * @return true or false
    */
-  public Boolean getPropertyAsBoolean(String key) {
+  public boolean getPropertyAsBoolean(String key) {
     String value = properties.getProperty(key);
     if (StringUtils.isBlank(value)) {
-      return Boolean.FALSE;
+      return false;
     }
 
     return Boolean.parseBoolean(value);

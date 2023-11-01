@@ -16,22 +16,9 @@
 package org.tinymediamanager.ui.movies.dialogs;
 
 import static java.util.Locale.ROOT;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.*;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.FontMetrics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -39,47 +26,23 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -92,13 +55,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
-import org.tinymediamanager.ui.components.EnhancedTextField;
-import org.tinymediamanager.ui.components.ImageLabel;
-import org.tinymediamanager.ui.components.JHintCheckBox;
-import org.tinymediamanager.ui.components.NoBorderScrollPane;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SquareIconButton;
-import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.*;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -110,11 +67,7 @@ import org.tinymediamanager.ui.movies.MovieChooserModel;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.*;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import net.miginfocom.swing.MigLayout;
@@ -125,8 +78,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                                    serialVersionUID      = -3104541519073924724L;
-
   private static final Logger                                                  LOGGER                = LoggerFactory
       .getLogger(MovieChooserDialog.class);
 
@@ -533,10 +484,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.BANNER)))) {
                 chooseArtwork(MediaFileType.BANNER);
               }
-              if (scraperConfig.contains(MovieScraperMetadataConfig.LOGO)
-                  && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.LOGO)))) {
-                chooseArtwork(MediaFileType.LOGO);
-              }
               if (scraperConfig.contains(MovieScraperMetadataConfig.CLEARLOGO)
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
                 chooseArtwork(MediaFileType.CLEARLOGO);
@@ -557,16 +504,19 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.KEYART)))) {
                 chooseArtwork(MediaFileType.KEYART);
               }
+
+              movieToScrape.saveToDb();
+              movieToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous
-              model.startArtworkScrapeTask(movieToScrape, scraperConfig, overwrite);
+              model.startArtworkScrapeTask(scraperConfig, overwrite);
             }
           }
 
           // get trailers?
           if (scraperConfig.contains(MovieScraperMetadataConfig.TRAILER)) {
-            model.startTrailerScrapeTask(movieToScrape, overwrite);
+            model.startTrailerScrapeTask(overwrite);
           }
 
           // if configured - sync with trakt.tv
@@ -576,7 +526,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
             task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
             task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
-            TmmTaskManager.getInstance().addUnnamedTask(task);
+            TmmTaskChain.getInstance(movieToScrape).add(task);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -637,13 +587,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         imageType = BANNER;
         break;
 
-      case LOGO:
-        if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-          return;
-        }
-        imageType = LOGO;
-        break;
-
       case CLEARLOGO:
         if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
           return;
@@ -684,7 +627,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     }
 
     Map<String, Object> newIds = new HashMap<>(movieToScrape.getIds());
-    newIds.put("mediaFile", movieToScrape.getMainFile());
+    if (movieToScrape.isStacked()) {
+      ArrayList<MediaFile> mfs = new ArrayList<>();
+      mfs.addAll(movieToScrape.getMediaFiles(MediaFileType.VIDEO));
+      newIds.put("mediaFile", mfs);
+    }
+    else {
+      newIds.put("mediaFile", movieToScrape.getMainFile());
+    }
 
     String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, artworkScrapers, extrathumbs, extrafanarts, MediaType.MOVIE,
         movieToScrape.getPathNIO().toAbsolutePath().toString());
@@ -755,8 +705,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
    * helper classes
    ******************************************************************************/
   private class ChangeScraperAction extends AbstractAction {
-    private static final long serialVersionUID = -4365761222995534769L;
-
     @Override
     public void actionPerformed(ActionEvent e) {
       mediaScraper = (MediaScraper) cbScraper.getSelectedItem();
@@ -873,7 +821,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * title
        */
       Column col = new Column(TmmResourceBundle.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
-      col.setColumnTooltip(MovieChooserModel::getTitle);
+      col.setCellTooltip(MovieChooserModel::getTitle);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
       addColumn(col);
@@ -949,14 +897,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * name
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.name"), "name", Person::getName, String.class);
-      col.setColumnTooltip(Person::getName);
+      col.setCellTooltip(Person::getName);
       addColumn(col);
 
       /*
        * role
        */
       col = new Column(TmmResourceBundle.getString("metatag.role"), "role", Person::getRole, String.class);
-      col.setColumnTooltip(Person::getRole);
+      col.setCellTooltip(Person::getRole);
       addColumn(col);
     }
   }

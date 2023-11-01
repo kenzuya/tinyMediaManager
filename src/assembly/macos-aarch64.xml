@@ -1,0 +1,68 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>macos-aarch64</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <!-- copy BASE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-base</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/${project.artifactId}-getdown/macOS</directory>
+            <outputDirectory>tinyMediaManager.app/Contents</outputDirectory>
+            <excludes>
+                <exclude>macOS/MacOS/tinyMediaManager</exclude> <!-- this is the x64 one -->
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <!-- and just windows stuff from GD -->
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
+            <includes>
+                <include>digest*</include>
+                <include>getdown.txt</include>
+                <include>version</include>
+            </includes>
+            <excludes>
+                <exclude>macOS/*</exclude>
+                <exclude>templates/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <!-- libmediainfo -->
+            <directory>native/mac</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/macos-aarch64</directory>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/launcher/macos_aarch64/tinyMediaManager</source>
+            <outputDirectory>tinyMediaManager.app/Contents/MacOS</outputDirectory>
+            <destName>tinyMediaManager</destName>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-macos_aarch64.tar.xz.sha256</source>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/native/mac/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>tinyMediaManager.app/Contents/Resources/Java/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
+        </file>
+    </files>
+</assembly>

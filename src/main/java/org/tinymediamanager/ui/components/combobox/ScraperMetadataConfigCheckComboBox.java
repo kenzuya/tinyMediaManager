@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.components.FlatButton;
  * @author Manuel Laggner
  */
 public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig> extends TmmCheckComboBox<E> {
-  private static final long serialVersionUID = 8153649858409237947L;
-
   public ScraperMetadataConfigCheckComboBox(final List<E> scrapers) {
     super(scrapers);
   }

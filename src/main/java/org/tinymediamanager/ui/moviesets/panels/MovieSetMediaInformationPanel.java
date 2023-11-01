@@ -24,7 +24,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.moviesets.MovieSetSelectionModel;
 import org.tinymediamanager.ui.panels.MediaFilesPanel;
@@ -41,8 +40,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetMediaInformationPanel extends JPanel {
-  private static final long            serialVersionUID = 1610264727610254912L;
-
   private final MovieSetSelectionModel selectionModel;
   private final EventList<MediaFile>   mediaFileEventList;
 
@@ -87,12 +84,7 @@ public class MovieSetMediaInformationPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[][150lp][grow]", "[80lp,grow]"));
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        @Override
-        public MediaEntity getMediaEntity() {
-          return selectionModel.getSelectedMovieSet();
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 0 3 1,grow");
     }
   }

@@ -44,8 +44,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MiscSettingsPanel extends JPanel {
-  private static final long serialVersionUID = 500841588272296493L;
-
   private final Settings    settings         = Settings.getInstance();
   private JComboBox         cbImageCacheQuality;
   private JCheckBox         chckbxImageCache;

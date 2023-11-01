@@ -47,13 +47,12 @@ import org.tinymediamanager.ui.components.MenuScroller;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
+import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowActionWithChilds;
 import org.tinymediamanager.ui.tvshows.actions.TvShowAddDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeSeasonArtworkAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToAiredOrderAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToDvdOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowCleanUpFilesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowClearImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
@@ -62,6 +61,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkActio
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbTop250;
 import org.tinymediamanager.ui.tvshows.actions.TvShowFetchRatingsAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowLockAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
@@ -74,6 +74,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRemoveAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenameAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenamePreviewAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowResetNewFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteEpisodeNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeEpisodesAction;
@@ -144,8 +145,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for TV shows
     JTabbedPane tvShowDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3344548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -164,8 +163,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for seasons
     JTabbedPane tvShowSeasonDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3134567895608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -179,8 +176,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     // panel for episodes
     JTabbedPane tvShowEpisodeDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3344548905108767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -319,6 +314,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowLockAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowFetchImdbTop250.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
@@ -326,8 +322,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
@@ -337,6 +331,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
 
     editPopupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
@@ -420,12 +415,11 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbTop250.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
@@ -433,6 +427,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
     popupMenu.add(enhancedEditMenu);
 
     JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
@@ -480,6 +475,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");
       debugMenu.add(new DebugDumpShowAction());
+      debugMenu.add(new DebugDumpShowActionWithChilds());
       popupMenu.addSeparator();
       popupMenu.add(debugMenu);
     }

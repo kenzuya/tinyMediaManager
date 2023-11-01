@@ -47,7 +47,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetBannerNaming;
@@ -55,7 +54,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
@@ -97,7 +95,6 @@ public final class MovieSettings extends AbstractSettings {
   static final String                       BANNER_FILENAME                        = "bannerFilename";
   static final String                       CLEARART_FILENAME                      = "clearartFilename";
   static final String                       THUMB_FILENAME                         = "thumbFilename";
-  static final String                       LOGO_FILENAME                          = "logoFilename";
   static final String                       CLEARLOGO_FILENAME                     = "clearlogoFilename";
   static final String                       DISCART_FILENAME                       = "discartFilename";
   static final String                       KEYART_FILENAME                        = "keyartFilename";
@@ -106,7 +103,6 @@ public final class MovieSettings extends AbstractSettings {
   static final String                       MOVIE_SET_BANNER_FILENAME              = "movieSetBannerFilename";
   static final String                       MOVIE_SET_CLEARART_FILENAME            = "movieSetClearartFilename";
   static final String                       MOVIE_SET_THUMB_FILENAME               = "movieSetThumbFilename";
-  static final String                       MOVIE_SET_LOGO_FILENAME                = "movieSetLogoFilename";
   static final String                       MOVIE_SET_CLEARLOGO_FILENAME           = "movieSetClearlogoFilename";
   static final String                       MOVIE_SET_DISCART_FILENAME             = "movieSetDiscartFilename";
   static final String                       TRAILER_FILENAME                       = "trailerFilename";
@@ -132,7 +128,6 @@ public final class MovieSettings extends AbstractSettings {
   final List<MovieClearartNaming>           clearartFilenames                      = new ArrayList<>();
   final List<MovieThumbNaming>              thumbFilenames                         = new ArrayList<>();
   final List<MovieClearlogoNaming>          clearlogoFilenames                     = new ArrayList<>();
-  final List<MovieLogoNaming>               logoFilenames                          = new ArrayList<>();
   final List<MovieDiscartNaming>            discartFilenames                       = new ArrayList<>();
   final List<MovieKeyartNaming>             keyartFilenames                        = new ArrayList<>();
 
@@ -176,7 +171,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   allowMultipleMoviesInSameDir           = false;
 
   // meta data scraper
-  String                                    movieScraper                           = Constants.TMDB;
+  String                                    movieScraper                           = MediaMetadata.TMDB;
   MediaLanguages                            scraperLanguage                        = MediaLanguages.en;
   CountryCode                               certificationCountry                   = CountryCode.US;
   String                                    releaseDateCountry                     = "";
@@ -197,8 +192,12 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   imageExtraFanart                       = false;
   int                                       imageExtraFanartCount                  = 5;
   boolean                                   scrapeBestImage                        = true;
-  MediaLanguages                            imageScraperLanguage                   = MediaLanguages.en;
-  boolean                                   imageLanguagePriority                  = false;
+  final List<MediaLanguages>                imageScraperLanguages                  = ObservableCollections.observableList(new ArrayList<>());
+
+  boolean                                   imageScraperOtherResolutions           = true;
+  boolean                                   imageScraperFallback                   = true;
+  boolean                                   imageScraperPreferFanartWoText         = true;
+
   boolean                                   writeActorImages                       = false;
 
   // trailer scraper
@@ -245,6 +244,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   storeUiFilters                         = false;
   final List<UIFilters>                     uiFilters                              = new ArrayList<>();
   final List<UniversalFilterFields>         universalFilterFields                  = new ArrayList<>();
+  boolean                                   resetNewFlagOnUds                      = true;
 
   // movie sets
   MovieSetConnectors                        movieSetConnector                      = MovieSetConnectors.EMBY;
@@ -252,6 +252,7 @@ public final class MovieSettings extends AbstractSettings {
   @JsonAlias("movieSetArtworkFolder")
   String                                    movieSetDataFolder                     = "";
   boolean                                   scrapeBestImageMovieSet                = true;
+  String movieSetTitleCharacterReplacement = "_";
 
   // movie set artwork
   final List<MovieSetPosterNaming>          movieSetPosterFilenames                = new ArrayList<>();
@@ -264,7 +265,6 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   storeMovieSetUiFilters                 = false;
   final List<MovieSetClearlogoNaming>       movieSetClearlogoFilenames             = new ArrayList<>();
   final List<UIFilters>                     movieSetUiFilters                      = new ArrayList<>();
-  final List<MovieSetLogoNaming>            movieSetLogoFilenames                  = new ArrayList<>();
   final Map<String, List<UIFilters>>        movieUiFilterPresets                   = new HashMap<>();
   final List<MovieSetDiscartNaming>         movieSetDiscartFilenames               = new ArrayList<>();
   final Map<String, List<UIFilters>>        movieSetUiFilterPresets                = new HashMap<>();
@@ -305,9 +305,6 @@ public final class MovieSettings extends AbstractSettings {
     thumbFilenames.clear();
     addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
-    logoFilenames.clear();
-    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
-
     clearlogoFilenames.clear();
     addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
@@ -334,9 +331,6 @@ public final class MovieSettings extends AbstractSettings {
 
     movieSetThumbFilenames.clear();
     addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
-
-    movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
 
     movieSetClearlogoFilenames.clear();
     addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
@@ -376,6 +370,9 @@ public final class MovieSettings extends AbstractSettings {
 
     ratingSources.clear();
     addRatingSource(MediaMetadata.IMDB);
+
+    imageScraperLanguages.clear();
+    addImageScraperLanguage(MediaLanguages.en);
 
     movieSetCheckMetadata.clear();
     addMovieSetCheckMetadata(MovieSetScraperMetadataConfig.ID);
@@ -457,6 +454,10 @@ public final class MovieSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
+        setNfoLanguage(ml);
+        imageScraperLanguages.clear();
+        addImageScraperLanguage(ml);
+        setSubtitleScraperLanguage(ml);
       }
     }
     saveSettings();
@@ -639,22 +640,6 @@ public final class MovieSettings extends AbstractSettings {
     return new ArrayList<>(this.thumbFilenames);
   }
 
-  public void addLogoFilename(MovieLogoNaming filename) {
-    if (!logoFilenames.contains(filename)) {
-      logoFilenames.add(filename);
-      firePropertyChange(LOGO_FILENAME, null, logoFilenames);
-    }
-  }
-
-  public void clearLogoFilenames() {
-    logoFilenames.clear();
-    firePropertyChange(LOGO_FILENAME, null, logoFilenames);
-  }
-
-  public List<MovieLogoNaming> getLogoFilenames() {
-    return new ArrayList<>(this.logoFilenames);
-  }
-
   public void addClearlogoFilename(MovieClearlogoNaming filename) {
     if (!clearlogoFilenames.contains(filename)) {
       clearlogoFilenames.add(filename);
@@ -742,6 +727,12 @@ public final class MovieSettings extends AbstractSettings {
   public void addMovieCheckArtwork(MovieScraperMetadataConfig config) {
     if (!movieCheckArtwork.contains(config)) {
       movieCheckArtwork.add(config);
+      firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
+    }
+  }
+
+  public void removeMovieCheckArtwork(MovieScraperMetadataConfig config) {
+    if (movieCheckArtwork.remove(config)) {
       firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
     }
   }
@@ -1040,7 +1031,7 @@ public final class MovieSettings extends AbstractSettings {
 
   public String getMovieScraper() {
     if (StringUtils.isBlank(movieScraper)) {
-      return Constants.TMDB;
+      return MediaMetadata.TMDB;
     }
     return movieScraper;
   }
@@ -1099,6 +1090,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.scrapeBestImageMovieSet;
     this.scrapeBestImageMovieSet = newValue;
     firePropertyChange("scrapeBestImageMovieSet", oldValue, newValue);
+  }
+
+  public String getMovieSetTitleCharacterReplacement() {
+    return movieSetTitleCharacterReplacement;
+  }
+
+  public void setMovieSetTitleCharacterReplacement(String newValue) {
+    String oldValue = this.movieSetTitleCharacterReplacement;
+    this.movieSetTitleCharacterReplacement = newValue;
+    firePropertyChange("movieSetTitleCharacterReplacement", oldValue, newValue);
   }
 
   public void addMovieTrailerScraper(String newValue) {
@@ -1535,24 +1536,72 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("ratingSources", null, ratingSources);
   }
 
-  public MediaLanguages getImageScraperLanguage() {
-    return imageScraperLanguage;
+  public void setImageScraperLanguages(List<MediaLanguages> newValue) {
+    imageScraperLanguages.clear();
+    imageScraperLanguages.addAll(newValue);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
   }
 
-  public void setImageScraperLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = this.imageScraperLanguage;
-    this.imageScraperLanguage = newValue;
-    firePropertyChange("imageScraperLanguage", oldValue, newValue);
+  public void addImageScraperLanguage(MediaLanguages language) {
+    if (!imageScraperLanguages.contains(language)) {
+      imageScraperLanguages.add(language);
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+    }
   }
 
-  public boolean isImageLanguagePriority() {
-    return imageLanguagePriority;
+  public void removeImageScraperLanguage(MediaLanguages language) {
+    if (imageScraperLanguages.remove(language)) {
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+    }
   }
 
-  public void setImageLanguagePriority(boolean newValue) {
-    boolean oldValue = this.imageLanguagePriority;
-    this.imageLanguagePriority = newValue;
-    firePropertyChange("imageLanguagePriority", oldValue, newValue);
+  public void swapImageScraperLanguage(int pos1, int pos2) {
+    MediaLanguages tmp = imageScraperLanguages.get(pos1);
+    imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
+    imageScraperLanguages.set(pos2, tmp);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+  }
+
+  public List<MediaLanguages> getImageScraperLanguages() {
+    return imageScraperLanguages;
+  }
+
+  public MediaLanguages getDefaultImageScraperLanguage() {
+    MediaLanguages language = scraperLanguage; // fallback
+    if (!imageScraperLanguages.isEmpty()) {
+      language = imageScraperLanguages.get(0);
+    }
+    return language;
+  }
+
+  public boolean isImageScraperOtherResolutions() {
+    return imageScraperOtherResolutions;
+  }
+
+  public void setImageScraperOtherResolutions(boolean newValue) {
+    boolean oldValue = this.imageScraperOtherResolutions;
+    this.imageScraperOtherResolutions = newValue;
+    firePropertyChange("imageScraperOtherResolutions", oldValue, newValue);
+  }
+
+  public boolean isImageScraperFallback() {
+    return imageScraperFallback;
+  }
+
+  public void setImageScraperFallback(boolean newValue) {
+    boolean oldValue = this.imageScraperFallback;
+    this.imageScraperFallback = newValue;
+    firePropertyChange("imageScraperFallback", oldValue, newValue);
+  }
+
+  public boolean isImageScraperPreferFanartWoText() {
+    return imageScraperPreferFanartWoText;
+  }
+
+  public void setImageScraperPreferFanartWoText(boolean newValue) {
+    boolean oldValue = this.imageScraperPreferFanartWoText;
+    this.imageScraperPreferFanartWoText = newValue;
+    firePropertyChange("imageScraperPreferFanartWoText", oldValue, newValue);
   }
 
   public CertificationStyle getCertificationStyle() {
@@ -1821,22 +1870,6 @@ public final class MovieSettings extends AbstractSettings {
     return new ArrayList<>(this.movieSetThumbFilenames);
   }
 
-  public void addMovieSetLogoFilename(MovieSetLogoNaming filename) {
-    if (!movieSetLogoFilenames.contains(filename)) {
-      movieSetLogoFilenames.add(filename);
-      firePropertyChange(MOVIE_SET_LOGO_FILENAME, null, movieSetLogoFilenames);
-    }
-  }
-
-  public void clearMovieSetLogoFilenames() {
-    movieSetLogoFilenames.clear();
-    firePropertyChange(MOVIE_SET_LOGO_FILENAME, null, movieSetLogoFilenames);
-  }
-
-  public List<MovieSetLogoNaming> getMovieSetLogoFilenames() {
-    return new ArrayList<>(this.movieSetLogoFilenames);
-  }
-
   public void addMovieSetClearlogoFilename(MovieSetClearlogoNaming filename) {
     if (!movieSetClearlogoFilenames.contains(filename)) {
       movieSetClearlogoFilenames.add(filename);
@@ -1973,5 +2006,15 @@ public final class MovieSettings extends AbstractSettings {
     postProcess.clear();
     postProcess.addAll(newValues);
     firePropertyChange(POST_PROCESS, null, postProcess);
+  }
+
+  public boolean isResetNewFlagOnUds() {
+    return resetNewFlagOnUds;
+  }
+
+  public void setResetNewFlagOnUds(boolean newValue) {
+    boolean oldValue = this.resetNewFlagOnUds;
+    this.resetNewFlagOnUds = newValue;
+    firePropertyChange("resetNewFlagOnUds", oldValue, newValue);
   }
 }

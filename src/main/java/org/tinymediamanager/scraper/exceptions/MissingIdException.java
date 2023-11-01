@@ -23,8 +23,6 @@ package org.tinymediamanager.scraper.exceptions;
  * @since 3.0
  */
 public class MissingIdException extends ScrapeException {
-  private static final long serialVersionUID = 1682582702692312793L;
-
   private final String[]    ids;
 
   /**

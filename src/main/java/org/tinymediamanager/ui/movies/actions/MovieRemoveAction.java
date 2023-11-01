@@ -43,8 +43,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRemoveAction extends TmmAction {
-  private static final long serialVersionUID = -984567332370801730L;
-
   public MovieRemoveAction() {
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(NAME, TmmResourceBundle.getString("movie.remove"));

@@ -35,6 +35,7 @@ public class StrgUtilsTest extends BasicTest {
     Assert.assertNotNull(StrgUtils.parseDate("11 Dic. 2001"));
     Assert.assertNotNull(StrgUtils.parseDate("1 Okt. 2001"));
     Assert.assertNotNull(StrgUtils.parseDate("01 Okt. 2001"));
+    Assert.assertNotNull(StrgUtils.parseDate("1. Oktober 2001"));
     Assert.assertNotNull(StrgUtils.parseDate("11 Okt..... 2001"));
     Assert.assertNotNull(StrgUtils.parseDate("2019-02-12"));
     Assert.assertNotNull(StrgUtils.parseDate("12-02-2019"));

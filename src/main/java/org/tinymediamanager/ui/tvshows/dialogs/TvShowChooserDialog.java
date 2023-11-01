@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static ca.odell.glazedlists.gui.AbstractTableComparatorChooser.SINGLE_COLUMN;
 import static java.util.Locale.ROOT;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
@@ -22,7 +23,6 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
@@ -46,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -74,7 +74,8 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
+import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -84,10 +85,12 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -128,7 +131,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                                            serialVersionUID      = 2371518113606870230L;
   private static final Logger                                                          LOGGER                = LoggerFactory
       .getLogger(TvShowChooserDialog.class);
 
@@ -162,6 +164,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   private final JButton                                                                okButton;
   private final JLabel                                                                 lblPath;
   private final JLabel                                                                 lblOriginalTitle;
+  private final JComboBox<MediaEpisodeGroup>                                           cbEpisodeGroup;
+  private final JLabel                                                                 lblEpisodeGroup;
+  private final JButton                                                                btnCompareEpisodeGroup;
   private final ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>        cbTvShowScraperConfig;
   private final ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
   private final JHintCheckBox                                                          chckbxDoNotOverwrite;
@@ -294,7 +299,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow 3]", "[][][150lp:200lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow]", "[][][150lp:300lp,grow][]"));
         {
           lblTtitle = new JLabel("");
           TmmFontHelper.changeFont(lblTtitle, 1.166, Font.BOLD);
@@ -303,7 +308,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         {
           lblTvShowPoster = new ImageLabel(false);
           lblTvShowPoster.setDesiredAspectRatio(2 / 3f);
-          panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 3,grow");
+          panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 4,grow");
         }
         {
           lblOriginalTitle = new JLabel("");
@@ -315,6 +320,29 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           taOverview = new ReadOnlyTextArea();
           scrollPane.setViewportView(taOverview);
+        }
+        {
+          JPanel panelEpisodeGroup = new JPanel();
+          panelEpisodeGroup.setLayout(new FlowLayout());
+
+          lblEpisodeGroup = new JLabel(TmmResourceBundle.getString("tvshow.episodegroup"));
+          lblEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(lblEpisodeGroup);
+
+          cbEpisodeGroup = new JComboBox();
+          cbEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(cbEpisodeGroup);
+
+          btnCompareEpisodeGroup = new JButton(TmmResourceBundle.getString("tmm.episodegroup.compare"));
+          btnCompareEpisodeGroup.setToolTipText(TmmResourceBundle.getString("tmm.episodegroup.compare.desc"));
+          btnCompareEpisodeGroup.addActionListener(actionEvent -> {
+            TvShowChooserEpisodeListDialog dialog = new TvShowChooserEpisodeListDialog(TvShowChooserDialog.this, tvShow, selectedResult);
+            dialog.setVisible(true);
+          });
+          btnCompareEpisodeGroup.setVisible(false);
+          panelEpisodeGroup.add(btnCompareEpisodeGroup);
+
+          panelSearchDetail.add(panelEpisodeGroup, "cell 1 3,aligny bottom");
         }
       }
     }
@@ -404,7 +432,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
 
     // install and save the comparator on the Table
-    TableComparatorChooser.install(tableSearchResults, searchResultEventList, TableComparatorChooser.SINGLE_COLUMN);
+    TableComparatorChooser.install(tableSearchResults, searchResultEventList, SINGLE_COLUMN);
 
     // double click to take the result
     tableSearchResults.addMouseListener(new MouseAdapter() {
@@ -416,7 +444,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       }
     });
 
-    // add a change listener for the async loaded meta data
+    // add a change listener for the async loaded metadata
     PropertyChangeListener listener = evt -> {
       String property = evt.getPropertyName();
       if ("scraped".equals(property)) {
@@ -428,6 +456,21 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             lblTvShowPoster.setImageUrl(model.getPosterUrl());
           }
           taOverview.setText(model.getOverview());
+
+          cbEpisodeGroup.removeAllItems();
+          if (model.getEpisodeGroups().isEmpty()) {
+            lblEpisodeGroup.setVisible(false);
+            cbEpisodeGroup.setVisible(false);
+            btnCompareEpisodeGroup.setVisible(false);
+          }
+          else {
+            lblEpisodeGroup.setVisible(true);
+            cbEpisodeGroup.setVisible(true);
+            btnCompareEpisodeGroup.setVisible(true);
+            model.getEpisodeGroups().forEach(cbEpisodeGroup::addItem);
+
+            cbEpisodeGroup.setSelectedItem(model.getEpisodeGroup());
+          }
         }
       }
     };
@@ -447,6 +490,10 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         lblTtitle.setText(model.getCombinedName());
         lblOriginalTitle.setText(model.getOriginalTitle());
         taOverview.setText(model.getOverview());
+
+        lblEpisodeGroup.setVisible(false);
+        cbEpisodeGroup.setVisible(false);
+        btnCompareEpisodeGroup.setVisible(false);
 
         selectedResult = model;
         selectedResult.addPropertyChangeListener(listener);
@@ -515,6 +562,14 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             md.clearMediaArt();
           }
 
+          if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup episodeGroup) {
+            tvShowToScrape.setEpisodeGroup(episodeGroup);
+          }
+          else {
+            tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+          }
+          tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
+
           // set scraped metadata
           tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
           tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
@@ -544,10 +599,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.BANNER)))) {
                 chooseArtwork(MediaFileType.BANNER);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.LOGO)
-                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.LOGO)))) {
-                chooseArtwork(MediaFileType.LOGO);
-              }
               if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARLOGO)
                   && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
                 chooseArtwork(MediaFileType.CLEARLOGO);
@@ -570,31 +621,31 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               }
 
               // season artwork
-              for (TvShowSeason season : tvShowToScrape.getSeasons()
-                  .stream()
-                  .sorted(Comparator.comparingInt(TvShowSeason::getSeason))
-                  .collect(Collectors.toList())) {
+              for (TvShowSeason season : tvShowToScrape.getSeasons().stream().sorted(Comparator.comparingInt(TvShowSeason::getSeason)).toList()) {
                 // relevant for v5
                 // if (season.isDummy()) {
                 // continue;
                 // }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_POSTER)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_POSTER);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_POSTER)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_POSTER);
                 }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_BANNER)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_BANNER);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_BANNER)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_BANNER);
                 }
                 if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.SEASON_THUMB)
-                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB)))) {
-                  chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_THUMB);
+                    && (overwrite || StringUtils.isBlank(season.getArtworkFilename(MediaFileType.SEASON_THUMB)))) {
+                  chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_THUMB);
                 }
               }
+
+              tvShowToScrape.saveToDb();
+              tvShowToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous
-              model.startArtworkScrapeTask(tvShowToScrape, tvShowScraperMetadataConfig, overwrite);
+              model.startArtworkScrapeTask(tvShowScraperMetadataConfig, overwrite);
             }
           }
 
@@ -609,19 +660,19 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               scrapeOptions.setArtworkScraper(model.getArtworkScrapers());
               scrapeOptions.setLanguage(model.getLanguage());
 
-              TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite);
-              TmmTaskManager.getInstance().addUnnamedTask(task);
+              TmmTaskChain.getInstance(tvShowToScrape)
+                  .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
             }
           }
 
           // get trailers?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
-            model.startTrailerScrapeTask(tvShowToScrape, overwrite);
+            model.startTrailerScrapeTask(overwrite);
           }
 
           // get theme?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
-            model.startThemeDownloadTask(tvShowToScrape, overwrite);
+            model.startThemeDownloadTask(overwrite);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -632,7 +683,12 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
             task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
-            TmmTaskManager.getInstance().addUnnamedTask(task);
+            TmmTaskChain.getInstance(tvShowToScrape).add(task);
+          }
+
+          // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
+          if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+            TmmTaskChain.getInstance(tvShowToScrape).add(new TvShowRenameTask(tvShowToScrape));
           }
 
           setVisible(false);
@@ -683,13 +739,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           return;
         }
         imageType = BANNER;
-        break;
-
-      case LOGO:
-        if (TvShowModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-          return;
-        }
-        imageType = LOGO;
         break;
 
       case CLEARLOGO:
@@ -748,7 +797,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
   }
 
-  private void chooseSeasonArtwork(int season, MediaArtwork.MediaArtworkType imageType) {
+  private void chooseSeasonArtwork(TvShowSeason season, MediaArtwork.MediaArtworkType imageType) {
     switch (imageType) {
       case SEASON_POSTER:
         if (TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames().isEmpty()) {
@@ -778,9 +827,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     String imageUrl = ImageChooserDialog.chooseImage(this, ids, imageType, artworkScrapers, null, null, MediaType.TV_SHOW,
         tvShowToScrape.getPathNIO().toAbsolutePath().toString());
 
-    tvShowToScrape.setSeasonArtworkUrl(season, imageUrl, imageType);
+    season.setArtworkUrl(imageUrl, MediaFileType.getMediaFileType(imageType));
     if (StringUtils.isNotBlank(imageUrl)) {
-      tvShowToScrape.downloadSeasonArtwork(season, imageType);
+      TvShowArtworkHelper.downloadSeasonArtwork(season, MediaFileType.getMediaFileType(imageType));
     }
   }
 
@@ -872,7 +921,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             if (mpFromResult == null) {
               mpFromResult = tvShowList.getMediaScraperById(result.getProviderId());
             }
-            searchResultEventList.add(new TvShowChooserModel(mpFromResult, artworkScrapers, trailerScrapers, result, language));
+            if (mpFromResult == null) {
+              // still null? maybe we have a Kodi scraper here where the getProdiverId comes from the sub-scraper; take the scraper from the dropdown
+              mpFromResult = (MediaScraper) cbScraper.getSelectedItem();
+            }
+            searchResultEventList.add(new TvShowChooserModel(tvShowToScrape, mpFromResult, artworkScrapers, trailerScrapers, result, language));
           }
         }
       }
@@ -919,11 +972,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class ChangeScraperAction extends AbstractAction {
-    private static final long serialVersionUID = -3537728352474538431L;
-
-    ChangeScraperAction() {
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
       mediaScraper = (MediaScraper) cbScraper.getSelectedItem();

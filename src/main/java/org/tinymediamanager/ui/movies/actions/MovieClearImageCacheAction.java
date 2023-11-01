@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieClearImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = -5089957097690621345L;
-
   public MovieClearImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.clearimagecache"));
     putValue(LARGE_ICON_KEY, "");

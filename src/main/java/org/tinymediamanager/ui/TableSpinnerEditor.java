@@ -34,11 +34,10 @@ import javax.swing.SwingUtilities;
  * @author Manuel Laggner
  */
 public class TableSpinnerEditor extends DefaultCellEditor {
-  private static final long      serialVersionUID = -4249251950819118622L;
+  private final JSpinner               spinner;
+  private final JSpinner.DefaultEditor editor;
+  private final JTextField             textField;
 
-  private JSpinner               spinner;
-  private JSpinner.DefaultEditor editor;
-  private JTextField             textField;
   private boolean                valueSet;
 
   // Initializes the spinner.

@@ -178,6 +178,7 @@ public class MediaScraper {
         }
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 

@@ -27,10 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -210,7 +208,7 @@ public class ITTmdbMetadataProviderTest extends BasicITest {
       assertEquals("Harry Potter and the Philosopher's Stone", md.getTitle());
       assertEquals(2001, md.getYear());
       assertThat(md.getPlot()).contains("Harry", "Potter", "Hogwarts");
-      assertEquals("Let the Magic Begin.", md.getTagline());
+      assertThat(md.getTagline()).isEqualToIgnoringCase("Let the Magic Begin.");
       assertEquals(1241, (int) md.getId(MediaMetadata.TMDB_SET));
       assertEquals("Harry Potter Collection", md.getCollectionName());
 

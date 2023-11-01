@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.util.Calendar;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,9 +71,9 @@ public class MetadataUtil {
    * @return the penalty 0...0.11 (0 for no year difference or no search year; 0.11 for the maximum difference of >100 years)
    */
   public static float calculateYearPenalty(int searchYear, int resultYear) {
-    if (searchYear <= 0) {
-      // no search year given - calculate penalty from current year
-      searchYear = Calendar.getInstance().get(Calendar.YEAR);
+    if (searchYear <= 1900) {
+      // do not calculate a penalty if there is no year in the search given
+      return 0;
     }
 
     if (resultYear == 0) {
@@ -153,6 +152,13 @@ public class MetadataUtil {
       // since we do not know for which locale the separators has been written, remove . and , and all whitespaces
       return Integer.parseInt(intAsString.replaceAll("[,\\.\\s]*", ""));
     }
+  }
+
+  public static int parseInt(Object intObj, int defaultValue) {
+    if (intObj == null) {
+      return defaultValue;
+    }
+    return parseInt(intObj.toString());
   }
 
   /**

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -33,6 +34,7 @@ import java.util.jar.Manifest;
  */
 public class ReleaseInfo {
   private static String version;
+  private static String humanVersion;
   private static String build;
   private static String buildDate;
 
@@ -41,6 +43,7 @@ public class ReleaseInfo {
       Properties releaseInfoProp = new Properties();
       releaseInfoProp.load(fileInputStream);
       version = releaseInfoProp.getProperty("version");
+      humanVersion = releaseInfoProp.getProperty("human.version");
       build = releaseInfoProp.getProperty("build");
       buildDate = releaseInfoProp.getProperty("date");
     }
@@ -49,12 +52,14 @@ public class ReleaseInfo {
         Properties releaseInfoProp = new Properties();
         releaseInfoProp.load(fileInputStream);
         version = releaseInfoProp.getProperty("version");
+        humanVersion = releaseInfoProp.getProperty("human.version");
         build = "git";
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         buildDate = formatter.format(new Date());
       }
       catch (IOException e2) {
         version = "";
+        humanVersion = "";
         build = "git"; // no file - we must be in GIT
         buildDate = "";
       }
@@ -87,32 +92,21 @@ public class ReleaseInfo {
   }
 
   /**
-   * Gets the live version or nightly/prerel/git build string<br>
-   * useful for reporting
-   * 
-   * @return the version
-   */
-  public static String getVersionForReporting() {
-    String v = version;
-    if (isGitBuild()) {
-      v = "GIT";
-    }
-    else if (isNightly()) {
-      v = "NIGHTLY";
-    }
-    else if (isPreRelease()) {
-      v = "PRE-RELEASE";
-    }
-    return v;
-  }
-
-  /**
    * Gets the builds the.
    * 
    * @return the builds the
    */
   public static String getBuild() {
     return build;
+  }
+
+  /**
+   * human readable version with tier (like 5.0-NIGHTLY)
+   * 
+   * @return
+   */
+  public static String getHumanVersion() {
+    return humanVersion;
   }
 
   /**
@@ -126,15 +120,17 @@ public class ReleaseInfo {
 
   // @formatter:off
   /*
-    Manifest-Version: 1.0
-    Ant-Version: Apache Ant 1.9.2
-    Created-By: 1.6.0_38-ea-b04 (Sun Microsystems Inc.)
-    Main-Class: org.tinymediamanager.TinyMediaManager
-    SplashScreen-Image: org/tinymediamanager/ui/images/splashscreen.png
+    Specification-Title: tinyMediaManager
+    Specification-Version: 5.0
+    Specification-Vendor: tinyMediaManager
     Implementation-Title: tinyMediaManager
-    Implementation-Version: 2.4 (r992)
-    Build-Date: 20130924-1832
-    Build-By: jenkins
+    Implementation-Version: 5.0-SNAPSHOT
+    Implementation-Vendor: tinyMediaManager
+    Main-Class: org.tinymediamanager.TinyMediaManager
+    Build-By: Myron
+    Build-Date: 2022-09-09 09:56
+    Build-Nr: b45805a
+    Human-Version: 5.0-NIGHTLY
   */
   // @formatter:on
 
@@ -144,7 +140,7 @@ public class ReleaseInfo {
    * @return true/false if nightly dev build
    */
   public static boolean isNightly() {
-    return getBuild().equalsIgnoreCase("nightly");
+    return getBuild().equalsIgnoreCase("nightly") || humanVersion.toUpperCase(Locale.ROOT).contains("NIGHTLY");
   }
 
   /**
@@ -153,7 +149,7 @@ public class ReleaseInfo {
    * @return true/false if nightly dev build
    */
   public static boolean isPreRelease() {
-    return getBuild().equalsIgnoreCase("prerelease");
+    return getBuild().equalsIgnoreCase("prerelease") || humanVersion.toUpperCase(Locale.ROOT).contains("PRERELEASE");
   }
 
   /**
@@ -162,7 +158,7 @@ public class ReleaseInfo {
    * @return true/false if GIT build
    */
   public static boolean isGitBuild() {
-    return getBuild().equalsIgnoreCase("git");
+    return getBuild().equalsIgnoreCase("git") || humanVersion.toUpperCase(Locale.ROOT).contains("SNAPSHOT");
   }
 
   /**

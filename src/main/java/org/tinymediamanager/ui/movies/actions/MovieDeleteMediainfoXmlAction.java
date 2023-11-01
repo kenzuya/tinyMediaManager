@@ -43,10 +43,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieDeleteMediainfoXmlAction extends TmmAction {
-
-  private static final long           serialVersionUID = -2019243514238173721L;
-  
-
   public MovieDeleteMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.deletemediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.deletemediainfoxml"));

@@ -38,7 +38,6 @@ import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import net.miginfocom.swing.MigLayout;
 
 public class MessagePanel extends JPanel {
-  private static final long           serialVersionUID = -7224510527137312686L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
 
   private JLabel                      lblTitle;

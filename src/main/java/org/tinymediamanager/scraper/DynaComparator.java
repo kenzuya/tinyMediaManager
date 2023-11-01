@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 // implemented own method, but included this to be more generic
 // https://github.com/jeevatkm/generic-repo/blob/master/genericComparator/src/main/java/com/myjeeva/comparator/GenericComparator.java
 public class DynaComparator<E> implements Comparator<E>, Serializable {
-
-  private static final long   serialVersionUID = -1L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(DynaComparator.class);
 
   private static final int    LESSER           = -1;
@@ -199,19 +197,23 @@ public class DynaComparator<E> implements Comparator<E>, Serializable {
    * alternate to actual value comparison i.e., either (lsh &amp; rhs) one the value could be null
    * 
    * @param cm
-   *          - a enum used to idetify the position for sorting
+   *          - an enum used to identify the position for sorting
    */
   private int compareAlternate(CompareMode cm) {
-    int compareState = LESSER;
+    int compareState;
+
     switch (cm) {
-      case LESS_THAN:
-        compareState = LESSER * determinePosition();
-        break;
       case GREATER_THAN:
         compareState = GREATER * determinePosition();
         break;
+
       case EQUAL:
-        compareState = EQUAL * determinePosition();
+        compareState = EQUAL;
+        break;
+
+      case LESS_THAN:
+      default:
+        compareState = LESSER * determinePosition();
         break;
     }
     return compareState;
@@ -236,25 +238,32 @@ public class DynaComparator<E> implements Comparator<E>, Serializable {
       case "java.lang.Integer":
         acutal = (((Integer) v1).compareTo((Integer) v2) * determinePosition());
         break;
+
       case "boolean":
       case "java.lang.Boolean":
         acutal = (((Boolean) v1).compareTo((Boolean) v2) * determinePosition());
         break;
+
       case "java.lang.String":
         acutal = (((String) v1).compareTo((String) v2) * determinePosition());
         break;
+
       case "java.util.Date":
         acutal = (((Date) v1).compareTo((Date) v2) * determinePosition());
         break;
+
       case "java.lang.Long":
         acutal = (((Long) v1).compareTo((Long) v2) * determinePosition());
         break;
+
       case "java.lang.Float":
         acutal = (((Float) v1).compareTo((Float) v2) * determinePosition());
         break;
+
       case "java.lang.Double":
         acutal = (((Double) v1).compareTo((Double) v2) * determinePosition());
         break;
+
       default:
         break;
     }

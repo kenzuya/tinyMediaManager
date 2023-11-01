@@ -46,9 +46,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRebuildMediainfoXmlAction extends TmmAction {
-
-  private static final long serialVersionUID = -2029243504238273761L;
-
   public TvShowRebuildMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rebuildmediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rebuildmediainfoxml"));

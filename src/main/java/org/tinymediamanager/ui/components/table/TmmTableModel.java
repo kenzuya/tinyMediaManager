@@ -20,6 +20,8 @@ import javax.swing.JComponent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
@@ -56,8 +58,8 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer() instanceof JComponent) {
-      ((JComponent) column.getHeaderRenderer()).setToolTipText(getHeaderTooltip(columnIndex));
+    if (column.getHeaderRenderer()instanceof JComponent headerRenderer) {
+      headerRenderer.setToolTipText(getHeaderTooltip(columnIndex));
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));
@@ -69,7 +71,24 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
   }
 
   public String getHeaderTooltip(int column) {
-    return tmmTableFormat.getColumnName(column);
+    this.source.getReadWriteLock().readLock().lock();
+
+    String tooltip;
+    try {
+      tooltip = tmmTableFormat.getHeaderTooltip(column);
+    }
+    catch (Exception e) {
+      tooltip = null;
+    }
+    finally {
+      this.source.getReadWriteLock().readLock().unlock();
+    }
+
+    if (StringUtils.isBlank(tooltip)) {
+      tooltip = tmmTableFormat.getColumnName(column);
+    }
+
+    return tooltip;
   }
 
   public String getTooltipAt(int row, int column) {

@@ -17,9 +17,9 @@
 package org.tinymediamanager.scraper.universal_tvshow;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -141,7 +141,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicITest {
 
     assertThat(mediaMetadata.getIds()).containsValues(73871, "tt0149460");
     assertThat(mediaMetadata.getTitle()).isEqualTo("Futurama");
-    assertThat(mediaMetadata.getOriginalTitle()).isEmpty(); // no original title at tvbd
+    assertThat(mediaMetadata.getOriginalTitle()).isEqualTo("Futurama");
     assertThat(mediaMetadata.getYear()).isEqualTo(1999);
     assertThat(mediaMetadata.getReleaseDate()).isNotNull();
     assertThat(mediaMetadata.getRuntime()).isGreaterThan(0);
@@ -269,7 +269,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicITest {
     assertThat(mediaMetadata.getRuntime()).isGreaterThan(0);
     assertThat(mediaMetadata.getPlot()).isNotEmpty();
     assertThat(mediaMetadata.getRatings()).isNotEmpty();
-    assertThat(mediaMetadata.getStatus()).isEqualByComparingTo(MediaAiredStatus.UNKNOWN); // not available at imdb
+    assertThat(mediaMetadata.getStatus()).isEqualByComparingTo(MediaAiredStatus.ENDED);
     assertThat(mediaMetadata.getGenres()).isNotEmpty();
     assertThat(mediaMetadata.getCertifications()).isNotEmpty();
     assertThat(mediaMetadata.getProductionCompanies()).isNotEmpty();
@@ -291,7 +291,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicITest {
 
     assertThat(mediaMetadata.getIds()).containsValues(73871, "tt0149460");
     assertThat(mediaMetadata.getTitle()).isEqualTo("Futurama");
-    assertThat(mediaMetadata.getOriginalTitle()).isEmpty(); // no original title from trakt
+    assertThat(mediaMetadata.getOriginalTitle()).isEqualTo("Futurama");
     assertThat(mediaMetadata.getYear()).isEqualTo(1999);
     assertThat(mediaMetadata.getReleaseDate()).isNotNull();
     assertThat(mediaMetadata.getRuntime()).isGreaterThan(0);
@@ -527,15 +527,16 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicITest {
     mp.getProviderInfo().getConfig().setValue("episodeRatings", scraperId);
 
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-    options.getTvShowIds().putAll(Collections.singletonMap(providerId, showId));
+    options.getTvShowIds().put(providerId, showId);
     options.setId(providerId, episodeId);
     options.setLanguage(MediaLanguages.en);
 
     MediaMetadata md = mp.getMetadata(options);
 
     assertThat(md).isNotNull();
-    assertThat(md.getSeasonNumber()).isEqualTo(1);
-    assertThat(md.getEpisodeNumber()).isEqualTo(9);
+    assertThat(md.getEpisodeNumber(AIRED)).isNotNull();
+    assertThat(md.getEpisodeNumber(AIRED).season()).isEqualTo(1);
+    assertThat(md.getEpisodeNumber(AIRED).episode()).isEqualTo(9);
     assertThat(md.getTitle()).isEqualTo("Forget Me Not");
     assertThat(md.getPlot()).isNotEmpty();
     assertThat(md.getReleaseDate()).isNotNull();
@@ -558,15 +559,16 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicITest {
     mp.getProviderInfo().getConfig().setValue("episodeRatings", "imdb");
 
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-    options.getTvShowIds().putAll(Collections.singletonMap("imdb", "tt0491738"));
+    options.getTvShowIds().put("imdb", "tt0491738");
     options.setId("tmdb", "66777");
     options.setLanguage(MediaLanguages.en);
 
     MediaMetadata md = mp.getMetadata(options);
 
     assertThat(md).isNotNull();
-    assertThat(md.getSeasonNumber()).isEqualTo(1);
-    assertThat(md.getEpisodeNumber()).isEqualTo(9);
+    assertThat(md.getEpisodeNumber(AIRED)).isNotNull();
+    assertThat(md.getEpisodeNumber(AIRED).season()).isEqualTo(1);
+    assertThat(md.getEpisodeNumber(AIRED).episode()).isEqualTo(9);
     assertThat(md.getTitle()).isEqualTo("Forget Me Not");
     assertThat(md.getPlot()).isNotEmpty();
     assertThat(md.getReleaseDate()).isNotNull();

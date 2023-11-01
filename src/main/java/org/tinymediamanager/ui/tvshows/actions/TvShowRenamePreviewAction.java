@@ -30,8 +30,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowRenamerPreviewDialog;
  * @author Manuel Laggner
  */
 public class TvShowRenamePreviewAction extends TmmAction {
-  private static final long serialVersionUID = 5167114686702295145L;
-
   public TvShowRenamePreviewAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.renamepreview"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.renamepreview.hint"));

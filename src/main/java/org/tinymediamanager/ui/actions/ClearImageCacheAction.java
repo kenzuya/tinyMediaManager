@@ -31,8 +31,6 @@ import org.tinymediamanager.core.Utils;
  * @author Manuel Laggner
  */
 public class ClearImageCacheAction extends TmmAction {
-  private static final long           serialVersionUID = -4615019451671427233L;
-
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearImageCacheAction.class);
 
   public ClearImageCacheAction() {

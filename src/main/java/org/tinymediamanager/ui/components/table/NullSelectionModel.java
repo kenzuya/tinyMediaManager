@@ -24,8 +24,6 @@ import javax.swing.event.ListSelectionListener;
  * @author Manuel Laggner
  */
 public class NullSelectionModel extends DefaultListSelectionModel {
-  private static final long serialVersionUID = -1956483331520197616L;
-
   @Override
   public boolean isSelectionEmpty() {
     return true;

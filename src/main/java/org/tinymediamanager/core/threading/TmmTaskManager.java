@@ -17,12 +17,7 @@ package org.tinymediamanager.core.threading;
 
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tinymediamanager.core.Settings;
@@ -46,6 +41,8 @@ public class TmmTaskManager implements TmmTaskListener {
   // image download/subtitle download are rather small/fast tasks - we only queue them in a queue and provide to abort the complete queue
   private ThreadPoolExecutor             imageDownloadExecutor;
 
+  private ThreadPoolExecutor             imageCacheExecutor;
+
   // this is a queue which holds "other" tasks
   private ThreadPoolExecutor             unnamedTaskExecutor;
 
@@ -56,7 +53,8 @@ public class TmmTaskManager implements TmmTaskListener {
   private final ThreadPoolExecutor       mainTaskExecutor = createMainTaskQueue();
 
   // fake task handles to manage queues
-  private final TmmTaskHandle            imageQueueHandle;
+  private final TmmTaskHandle            imageDownloadHandle;
+  private final TmmTaskHandle            imageCacheHandle;
 
   // scheduled threads
   private final ScheduledExecutorService scheduler        = Executors.newScheduledThreadPool(1);
@@ -64,7 +62,8 @@ public class TmmTaskManager implements TmmTaskListener {
   private boolean                        isShutdown       = false;
 
   private TmmTaskManager() {
-    imageQueueHandle = new ImageQueueTaskHandle();
+    imageDownloadHandle = new ImageDownloadTaskHandle();
+    imageCacheHandle = new ImageCacheTaskHandle();
 
     Settings.getInstance().addPropertyChangeListener("maximumDownloadThreads", e -> {
       // only need to set this if there is already an executor. otherwise the executor will be created with the right amount
@@ -96,21 +95,48 @@ public class TmmTaskManager implements TmmTaskListener {
   }
 
   private ThreadPoolExecutor createImageDownloadExecutor() {
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 2, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
         new TmmThreadFactory("image-download-task")) {
       @Override
       protected void beforeExecute(Thread d, Runnable r) {
         super.beforeExecute(d, r);
-        if (imageQueueHandle != null) {
-          processTaskEvent(imageQueueHandle);
+        if (imageDownloadHandle != null) {
+          processTaskEvent(imageDownloadHandle);
         }
       }
 
       @Override
       protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        if (imageQueueHandle != null) {
-          processTaskEvent(imageQueueHandle);
+        if (imageDownloadHandle != null) {
+          processTaskEvent(imageDownloadHandle);
+        }
+      }
+    };
+    executor.allowCoreThreadTimeOut(true);
+    return executor;
+  }
+
+  private ThreadPoolExecutor createImageCacheExecutor() {
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount < 2) {
+      threadCount = 2;
+    }
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount, 2, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+        new TmmThreadFactory("image-cache-task")) {
+      @Override
+      protected void beforeExecute(Thread d, Runnable r) {
+        super.beforeExecute(d, r);
+        if (imageCacheHandle != null) {
+          processTaskEvent(imageCacheHandle);
+        }
+      }
+
+      @Override
+      protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        if (imageCacheHandle != null) {
+          processTaskEvent(imageCacheHandle);
         }
       }
     };
@@ -120,18 +146,18 @@ public class TmmTaskManager implements TmmTaskListener {
 
   private ThreadPoolExecutor createUnnamedTaskExecutor() {
     // create enough thread to keep the system busy ;)
-    int threadCount = Runtime.getRuntime().availableProcessors() - 1;
-    if (threadCount < 3) {
-      threadCount = 3;
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount < 2) {
+      threadCount = 2;
     }
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount, 2, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
         new TmmThreadFactory("unnamed-task"));
     executor.allowCoreThreadTimeOut(true);
     return executor;
   }
 
   /**
-   * add a image download task to the queue
+   * add an image download task to the queue
    * 
    * @param task
    *          the task to be added
@@ -145,6 +171,23 @@ public class TmmTaskManager implements TmmTaskListener {
       imageDownloadExecutor = createImageDownloadExecutor();
     }
     imageDownloadExecutor.execute(task);
+  }
+
+  /**
+   * add an image cache task to the queue
+   *
+   * @param task
+   *          the task to be added
+   */
+  public void addImageCacheTask(Runnable task) {
+    if (isShutdown) {
+      return;
+    }
+
+    if (imageCacheExecutor == null || imageCacheExecutor.isShutdown()) {
+      imageCacheExecutor = createImageCacheExecutor();
+    }
+    imageCacheExecutor.execute(task);
   }
 
   /**
@@ -219,17 +262,17 @@ public class TmmTaskManager implements TmmTaskListener {
   }
 
   /**
-   * cancel all open and running unnamed tasks
+   * cancel all open and running image cache tasks
    */
-  public void cancelUnnamedTasks() {
-    if (unnamedTaskExecutor != null) {
-      unnamedTaskExecutor.shutdownNow();
+  public void cancelImageCache() {
+    if (imageCacheExecutor != null) {
+      imageCacheExecutor.shutdownNow();
     }
   }
 
   /**
-   * add a new task to the the main task queue
-   * 
+   * add a new task to the main task queue
+   *
    * @param newTask
    *          the task to be added
    */
@@ -262,6 +305,9 @@ public class TmmTaskManager implements TmmTaskListener {
 
     if (imageDownloadExecutor != null) {
       imageDownloadExecutor.shutdown();
+    }
+    if (imageCacheExecutor != null) {
+      imageCacheExecutor.shutdown();
     }
     if (unnamedTaskExecutor != null) {
       unnamedTaskExecutor.shutdown();
@@ -298,6 +344,9 @@ public class TmmTaskManager implements TmmTaskListener {
     // check if all finished
     if (imageDownloadExecutor != null && !imageDownloadExecutor.isTerminated()) {
       imageDownloadExecutor.shutdownNow();
+    }
+    if (imageCacheExecutor != null && !imageCacheExecutor.isTerminated()) {
+      imageCacheExecutor.shutdownNow();
     }
     if (unnamedTaskExecutor != null && !unnamedTaskExecutor.isTerminated()) {
       unnamedTaskExecutor.shutdownNow();
@@ -379,7 +428,7 @@ public class TmmTaskManager implements TmmTaskListener {
   }
 
   private static boolean isEmpty(CharSequence cs) {
-    return cs == null || cs.length() == 0;
+    return cs == null || cs.isEmpty();
   }
 
   @Override
@@ -398,7 +447,7 @@ public class TmmTaskManager implements TmmTaskListener {
   /*************************************************************************
    * helper classes
    *************************************************************************/
-  private class ImageQueueTaskHandle implements TmmTaskHandle {
+  private class ImageDownloadTaskHandle implements TmmTaskHandle {
     @Override
     public String getTaskName() {
       return TmmResourceBundle.getString("task.imagedownloads");
@@ -437,7 +486,7 @@ public class TmmTaskManager implements TmmTaskListener {
 
     @Override
     public TaskState getState() {
-      if (imageQueueHandle != null && getOpenTasks() > 0) {
+      if (imageDownloadHandle != null && getOpenTasks() > 0) {
         return TaskState.STARTED;
       }
       return TaskState.FINISHED;
@@ -451,7 +500,69 @@ public class TmmTaskManager implements TmmTaskListener {
     @Override
     public void cancel() {
       cancelImageDownloads();
-      processTaskEvent(imageQueueHandle);
+      processTaskEvent(imageDownloadHandle);
+    }
+
+    @Override
+    public String toString() {
+      return getType().name() + " image " + getState().name() + " " + getProgressDone() + "/" + getWorkUnits();
+    }
+  }
+
+  private class ImageCacheTaskHandle implements TmmTaskHandle {
+    @Override
+    public String getTaskName() {
+      return TmmResourceBundle.getString("tmm.rebuildimagecache");
+    }
+
+    @Override
+    public int getWorkUnits() {
+      int unit = 0;
+      if (imageCacheExecutor != null) {
+        unit = (int) imageCacheExecutor.getTaskCount();
+      }
+      return unit;
+    }
+
+    @Override
+    public int getProgressDone() {
+      int done = 0;
+      if (imageCacheExecutor != null) {
+        done = (int) imageCacheExecutor.getCompletedTaskCount();
+      }
+      return done;
+    }
+
+    @Override
+    public String getTaskDescription() {
+      return getOpenTasks() + " " + TmmResourceBundle.getString("task.remaining");
+    }
+
+    private int getOpenTasks() {
+      int openTasks = 0;
+      if (imageCacheExecutor != null) {
+        openTasks = imageCacheExecutor.getQueue().size() + imageCacheExecutor.getActiveCount();
+      }
+      return openTasks;
+    }
+
+    @Override
+    public TaskState getState() {
+      if (imageCacheHandle != null && getOpenTasks() > 0) {
+        return TaskState.STARTED;
+      }
+      return TaskState.FINISHED;
+    }
+
+    @Override
+    public TaskType getType() {
+      return TaskType.BACKGROUND_TASK;
+    }
+
+    @Override
+    public void cancel() {
+      cancelImageCache();
+      processTaskEvent(imageCacheHandle);
     }
 
     @Override

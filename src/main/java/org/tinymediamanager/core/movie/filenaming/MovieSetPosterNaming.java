@@ -19,13 +19,13 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MoviePosterNaming.
+ * The enum {@link MoviePosterNaming} - used to generate post filename
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetPosterNaming implements IMovieSetFileNaming {
 
-  /** movieset-poster.* */
+  /** movieset-poster.ext - in movie folder */
   MOVIE_POSTER {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +38,20 @@ public enum MovieSetPosterNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** poster.* */
+  /** [movieset name]-poster.ext - in movie folder */
+  MOVIESET_POSTER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-poster." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** poster.ext - in artwork folder */
   KODI_POSTER {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +64,7 @@ public enum MovieSetPosterNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-poster.* */
+  /** [movie set name]-poster.ext - in artwork folder */
   AUTOMATOR_POSTER {
     @Override
     public String getFilename(String basename, String extension) {

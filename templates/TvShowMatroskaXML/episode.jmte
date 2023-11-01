@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tags>
+   <!--Collection information-->
+  <Tag>
+    <Targets>
+      <TargetType>50</TargetType>
+    </Targets>
+    <Simple>
+    <Name>TITLE</Name>
+      <String>${episode.tvShow.title}</String>
+    </Simple>
+  </Tag>
+ <!--Episode information-->
+  <Tag>
+     <Targets>
+        <TargetType>40</TargetType>
+     </Targets>
+         <Simple>
+         <Name>PART_NUMBER</Name>
+         <String>${episode.episode}</String>
+       </Simple>
+     <Simple>
+       <Name>TITLE</Name>
+       <String>${episode.title}</String>
+     </Simple>
+      <Simple>
+      <Name>SUBTITLE</Name>
+        <String>${episode.titleForUi}</String>
+      </Simple>
+	 <Simple>
+	   <Name>ORIGINAL</Name>
+	   <Simple>
+		<Name>TITLE</Name>
+		<String>${episode.originalTitle}</String>
+	   </Simple>
+	</Simple>
+     <Simple>
+       <Name>SUMMARY</Name>
+       <String>${episode.plot}</String>
+     </Simple>
+	     <Simple>
+       <Name>DESCRIPTION</Name>
+       <String>${episode.plot}</String>
+     </Simple>
+    <Simple>
+    <Name>SYNOPSIS</Name>
+      <String>${episode.plot}</String>
+    </Simple>
+    <Simple>
+      <Name>DATE_RELEASED</Name>
+      <String>${episode.tvShow.year}</String>
+    </Simple>
+    ${foreach episode.tvShow.genres genre}<Simple>
+       <Name>GENRE</Name>
+       <String>${genre}</String>
+    </Simple>${end}
+	<Simple>
+		<Name>TMDB</Name>
+		<String>${episode.tmdbId}</String>
+	</Simple>
+	<Simple>
+		<Name>IMDB</Name>
+		<String>${episode.imdbId}</String>
+	</Simple>
+	${foreach episode.actors actor}<Simple>
+	<Name>ACTOR</Name>
+	<String>${actor.name}</String>
+		<Simple>
+			<Name>CHARACTER</Name>
+			<String>${actor.role}</String>
+		</Simple>
+	</Simple>${end}
+	${foreach episode.writers writer}<Simple>
+	   <Name>WRITTEN_BY</Name>
+	   <String>${writer.name}</String>
+	</Simple>${end}
+	${foreach episode.directors director}<Simple>
+	   <Name>DIRECTOR</Name>
+	   <String>${director.name}</String>
+	</Simple>${end}
+	${foreach episode.productionCompanyAsArray studio}<Simple>
+	   <Name>PRODUCTION_STUDIO</Name>
+	   <String>${studio}</String>
+	</Simple>${end}
+    	<Simple>
+		<Name>LAW_RATING</Name>
+		<String>${episode.tvShow.certification}</String>
+	</Simple>
+  </Tag>
+</Tags>

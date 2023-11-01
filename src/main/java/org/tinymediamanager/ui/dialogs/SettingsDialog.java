@@ -38,7 +38,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -58,9 +57,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class SettingsDialog extends TmmDialog {
-  private static final long             serialVersionUID = 2435834806519338339L;
-
-
   private static JDialog                instance;
 
   private final TmmSettingsDataProvider dataProvider;
@@ -195,8 +191,6 @@ public class SettingsDialog extends TmmDialog {
   }
 
   private class CloseAction extends AbstractAction {
-    private static final long serialVersionUID = 2386371884117941373L;
-
     CloseAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.close"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
@@ -207,14 +201,6 @@ public class SettingsDialog extends TmmDialog {
     public void actionPerformed(ActionEvent e) {
       setVisible(false);
     }
-  }
-
-  @Override
-  public void setVisible(boolean visible) {
-    if (!visible) {
-      TmmModuleManager.getInstance().saveSettings();
-    }
-    super.setVisible(visible);
   }
 
   private static class TmmSettingsTreeFilter extends TmmTreeTextFilter<TmmTreeNode> {

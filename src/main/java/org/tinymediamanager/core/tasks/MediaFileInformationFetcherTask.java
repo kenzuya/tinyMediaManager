@@ -22,11 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -77,13 +74,6 @@ public class MediaFileInformationFetcherTask implements Runnable {
       Thread.currentThread().setName(name);
 
       mediaFile.gatherMediaInformation(forceUpdate);
-      if (mediaFile.getType() == MediaFileType.SUBTITLE || mediaFile.getType() == MediaFileType.AUDIO) {
-        // also re-evaluate subtitle language/title if it starts with the same basename
-        MediaFile mainVideoFile = mediaEntity.getMainFile();
-        if (StringUtils.isNotBlank(mainVideoFile.getBasename()) && mediaFile.getFilename().startsWith(mainVideoFile.getBasename())) {
-          MediaFileHelper.gatherLanguageInformation(mediaFile, mainVideoFile.getBasename());
-        }
-      }
 
       if (mediaFile.hasSubtitles()) {
         mediaEntity.firePropertyChange("hasSubtitles", false, true);

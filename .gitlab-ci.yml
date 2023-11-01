@@ -15,55 +15,44 @@ stages:
   - package
   - deploy
 
-test:jdk11:
-  stage: test
-  image: tinymediamanager/testing:jdk11-20220926085938
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
-  tags:
-    - tmm # force running on own runners
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk15:
-  stage: test
-  image: tinymediamanager/testing:jdk15-20220926090137
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
-  tags:
-    - tmm # force running on own runners
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk16:
-  stage: test
-  image: tinymediamanager/testing:jdk16-20220926090138
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
-  tags:
-    - tmm # force running on own runners
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
 test:jdk17:
   stage: test
   image: tinymediamanager/testing:jdk17-20220926090140
-  except:
-    - main@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
+  rules:
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  tags:
+    - tmm # force running on own runners
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
+test:jdk18:
+  stage: test
+  image: tinymediamanager/testing:jdk18-20221002133514
+  rules:
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  tags:
+    - tmm # force running on own runners
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
+test:jdk19:
+  stage: test
+  image: tinymediamanager/testing:jdk19-20221002133519
+  rules:
+    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   tags:
     - tmm # force running on own runners
   script:
@@ -136,7 +125,7 @@ deploy:DOCKER-RELEASE:
   services:
     - name: docker:dind
   variables:
-    TMM_VERSION: "4.3.13"
+    TMM_VERSION: "5.0.0"
     IMAGE_NAME: tinymediamanager/tinymediamanager:${TMM_VERSION}
   script:
     # login
@@ -145,12 +134,10 @@ deploy:DOCKER-RELEASE:
     # build
     - cd docker
     - docker build -f Dockerfile -t $IMAGE_NAME .
-    - docker tag $IMAGE_NAME tinymediamanager/tinymediamanager:4-latest
     - docker tag $IMAGE_NAME tinymediamanager/tinymediamanager:latest
 
     # push to the registry
     - docker push $IMAGE_NAME
-    - docker push tinymediamanager/tinymediamanager:4-latest
     - docker push tinymediamanager/tinymediamanager:latest
 
 ##########################################
@@ -161,7 +148,18 @@ deploy:test:
   only:
     variables:
       - $TEST_BUILD == "true"
-  when: manual
   trigger:
     include: .ci/deploy_test.yml
+    strategy: depend
+
+##########################################
+# V5-TEST
+##########################################
+deploy:v5:
+  stage: deploy
+  only:
+    variables:
+      - $V5_BUILD == "true"
+  trigger:
+    include: .ci/deploy_v5.yml
     strategy: depend

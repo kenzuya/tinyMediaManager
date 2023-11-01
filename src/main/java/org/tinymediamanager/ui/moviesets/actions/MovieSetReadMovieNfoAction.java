@@ -36,8 +36,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetReadMovieNfoAction extends TmmAction {
-  private static final long serialVersionUID = 2866581962767395824L;
-
   public MovieSetReadMovieNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.readnfo"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.readnfo.desc"));

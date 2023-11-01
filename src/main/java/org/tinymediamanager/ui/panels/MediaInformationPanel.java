@@ -38,7 +38,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -61,10 +60,9 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-abstract public class MediaInformationPanel extends JPanel {
-  private static final long                 serialVersionUID = 2513029074142934502L;
+public abstract class MediaInformationPanel extends JPanel {
 
-  private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
+  private static final Logger               LOGGER = LoggerFactory.getLogger(MediaInformationPanel.class);
 
   protected EventList<MediaFile>            mediaFileEventList;
   protected EventList<AudioStreamContainer> audioStreamEventList;
@@ -217,25 +215,16 @@ abstract public class MediaInformationPanel extends JPanel {
       add(lblMediaFilesT, "cell 0 13 2 1");
     }
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        private static final long serialVersionUID = -8712860341504013403L;
-
-        @Override
-        public MediaEntity getMediaEntity() {
-          return MediaInformationPanel.this.getMediaEntity();
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 14 6 1,grow");
     }
   }
 
-  abstract protected MediaEntity getMediaEntity();
+  protected abstract void fillVideoStreamDetails();
 
-  abstract protected void fillVideoStreamDetails();
+  protected abstract void buildAudioStreamDetails();
 
-  abstract protected void buildAudioStreamDetails();
-
-  abstract protected void buildSubtitleStreamDetails();
+  protected abstract void buildSubtitleStreamDetails();
 
   /*
    * helper classes
@@ -328,7 +317,7 @@ abstract public class MediaInformationPanel extends JPanel {
       /*
        * Audio title
        */
-      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.audioStream.getAudioTitle(), String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.audioStream.getTitle(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
     }
@@ -339,6 +328,7 @@ abstract public class MediaInformationPanel extends JPanel {
     public MediaFileSubtitle subtitle;
 
     public SubtitleContainer() {
+      // to be accessible
     }
   }
 
@@ -357,15 +347,7 @@ abstract public class MediaInformationPanel extends JPanel {
       /*
        * language
        */
-      col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> {
-        String language = container.subtitle.getLanguage();
-
-        if (StringUtils.isNotBlank(container.subtitle.getCodec())) {
-          language += " (" + container.subtitle.getCodec() + ")";
-        }
-
-        return language;
-      }, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> container.subtitle.getLanguage(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
 
@@ -381,6 +363,13 @@ abstract public class MediaInformationPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.sdh"), "sdh", container -> container.subtitle.isSdh(), Boolean.class);
       col.setColumnComparator(booleanComparator);
+      addColumn(col);
+
+      /*
+       * format
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.format"), "format", container -> container.subtitle.getCodec(), String.class);
+      col.setColumnComparator(stringComparator);
       addColumn(col);
 
       /*

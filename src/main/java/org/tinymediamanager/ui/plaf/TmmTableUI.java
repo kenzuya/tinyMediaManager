@@ -68,8 +68,6 @@ public class TmmTableUI extends FlatTableUI {
    */
   private CellRendererPane createCustomCellRendererPane() {
     return new CellRendererPane() {
-      private static final long serialVersionUID = 7146435127995900923L;
-
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public void paintComponent(Graphics graphics, Component component, Container container, int x, int y, int w, int h, boolean shouldValidate) {

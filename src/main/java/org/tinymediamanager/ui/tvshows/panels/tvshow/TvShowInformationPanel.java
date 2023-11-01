@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,6 +47,8 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Converter;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -58,7 +59,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -83,8 +84,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowInformationPanel extends InformationPanel {
-  private static final long          serialVersionUID       = 1911808562993073590L;
-
   private static final Logger        LOGGER                 = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
   private static final String        LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
@@ -102,6 +101,7 @@ public class TvShowInformationPanel extends InformationPanel {
   private JTextPane                  taStudio;
   private JLabel                     lblStatus;
   private JLabel                     lblYear;
+  private JLabel                     lblEpisodeGroup;
   private JTextPane                  taTags;
   private JTextPane                  taOtherIds;
   private JLabel                     lblCountry;
@@ -410,29 +410,36 @@ public class TvShowInformationPanel extends InformationPanel {
       }
       {
         JPanel panelBottomDetails = new JPanel();
-        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][grow]", "[]2lp[]2lp[]"));
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][grow]", "[]2lp[]2lp[]2lp[]"));
         panelRight.add(panelBottomDetails, "cell 0 9,grow");
 
         {
+          JLabel lblEpisodegroupT = new TmmLabel(TmmResourceBundle.getString("metatag.episode.group"));
+          panelBottomDetails.add(lblEpisodegroupT, "cell 0 0");
+
+          lblEpisodeGroup = new JLabel();
+          panelBottomDetails.add(lblEpisodeGroup, "cell 1 0,growx,wmin 0");
+        }
+        {
           JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
-          panelBottomDetails.add(lblTagsT, "cell 0 0");
+          panelBottomDetails.add(lblTagsT, "cell 0 1");
 
           taTags = new ReadOnlyTextPane();
-          panelBottomDetails.add(taTags, "cell 1 0,growx,wmin 0");
+          panelBottomDetails.add(taTags, "cell 1 1,growx,wmin 0");
         }
         {
           JLabel lblPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
-          panelBottomDetails.add(lblPathT, "cell 0 1");
+          panelBottomDetails.add(lblPathT, "cell 0 2");
 
           lblPath = new LinkTextArea("");
-          panelBottomDetails.add(lblPath, "cell 1 1,growx,wmin 0");
+          panelBottomDetails.add(lblPath, "cell 1 2,growx,wmin 0");
         }
         {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
-          panelBottomDetails.add(lblNoteT, "cell 0 2");
+          panelBottomDetails.add(lblNoteT, "cell 0 3");
 
           taNote = new ReadOnlyTextPaneHTML();
-          panelBottomDetails.add(taNote, "cell 1 2,growx,wmin 0");
+          panelBottomDetails.add(taNote, "cell 1 3,growx,wmin 0");
         }
       }
     }
@@ -464,107 +471,127 @@ public class TvShowInformationPanel extends InformationPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty = BeanProperty.create("selectedTvShow.title");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty, lblTvShowName, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty = BeanProperty.create("selectedTvShow.title");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty, lblTvShowName,
+        jLabelBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShow.plot");
-    BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_1, taOverview, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShow.plot");
+    Property jTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_1, taOverview,
+        jTextPaneBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_4 = BeanProperty.create("selectedTvShow.originalTitle");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_4, lblOriginalTitle, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_4 = BeanProperty.create("selectedTvShow.originalTitle");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_4,
+        lblOriginalTitle, jLabelBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSelectionModel, Integer> tvShowSelectionModelBeanProperty_6 = BeanProperty.create("selectedTvShow.year");
-    AutoBinding<TvShowSelectionModel, Integer, JLabel, String> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_6, lblYear, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_6 = BeanProperty.create("selectedTvShow.year");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_6, lblYear,
+        jLabelBeanProperty);
     autoBinding_6.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_7 = BeanProperty.create("selectedTvShow.imdbId");
-    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSelectionModel, String, LinkLabel, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_7, lblImdbId, linkLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_7 = BeanProperty.create("selectedTvShow.imdbId");
+    Property linkLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_7, lblImdbId,
+        linkLabelBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_8 = BeanProperty.create("selectedTvShow.certification.localizedName");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_8, lblCertification, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_8 = BeanProperty.create("selectedTvShow.certification.localizedName");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_8,
+        lblCertification, jLabelBeanProperty);
     autoBinding_8.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_9 = BeanProperty.create("selectedTvShow.tvdbId");
-    AutoBinding<TvShowSelectionModel, String, LinkLabel, String> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_9, lblThetvdbId, linkLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_9 = BeanProperty.create("selectedTvShow.tvdbId");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_9,
+        lblThetvdbId, linkLabelBeanProperty);
     autoBinding_9.bind();
     //
-    BeanProperty<TvShowSelectionModel, Integer> tvShowSelectionModelBeanProperty_10 = BeanProperty.create("selectedTvShow.runtime");
-    AutoBinding<TvShowSelectionModel, Integer, JLabel, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_10, lblRuntime, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_10 = BeanProperty.create("selectedTvShow.runtime");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_10,
+        lblRuntime, jLabelBeanProperty);
     autoBinding_10.bind();
     //
-    BeanProperty<TvShowSelectionModel, Map<String, Object>> tvShowSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShow.otherIds");
-    AutoBinding<TvShowSelectionModel, Map<String, Object>, JTextPane, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_11, taOtherIds, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShow.otherIds");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_11,
+        taOtherIds, jTextPaneBeanProperty);
     autoBinding_11.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShow.status.localizedName");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_12, lblStatus, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShow.status.localizedName");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_12, lblStatus,
+        jLabelBeanProperty);
     autoBinding_12.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShow.genresAsString");
-    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_13, taGenres, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShow.genresAsString");
+    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_13, taGenres,
+        jTextPaneBeanProperty);
     autoBinding_13.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShow.firstAiredAsString");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_14, lblPremiered, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShow.firstAiredAsString");
+    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_14,
+        lblPremiered, jLabelBeanProperty);
     autoBinding_14.bind();
     //
-
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_15 = BeanProperty.create("selectedTvShow.productionCompany");
-    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_15, taStudio, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_15 = BeanProperty.create("selectedTvShow.productionCompany");
+    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_15, taStudio,
+        jTextPaneBeanProperty);
     autoBinding_15.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_16 = BeanProperty.create("selectedTvShow.country");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_16, lblCountry, jLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_16 = BeanProperty.create("selectedTvShow.country");
+    AutoBinding autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_16,
+        lblCountry, jLabelBeanProperty);
     autoBinding_16.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_17 = BeanProperty.create("selectedTvShow.tagsAsString");
-    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_17, taTags, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_17 = BeanProperty.create("selectedTvShow.tagsAsString");
+    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_17, taTags,
+        jTextPaneBeanProperty);
     autoBinding_17.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_18 = BeanProperty.create("selectedTvShow.path");
-    BeanProperty<LinkTextArea, String> linkTextAreaBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSelectionModel, String, LinkTextArea, String> autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_18, lblPath, linkTextAreaBeanProperty);
+    Property tvShowSelectionModelBeanProperty_18 = BeanProperty.create("selectedTvShow.path");
+    Property linkTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_18, lblPath,
+        linkTextAreaBeanProperty);
     autoBinding_18.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_19 = BeanProperty.create("selectedTvShow.note");
-    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_19, taNote, jTextPaneBeanProperty);
+    Property tvShowSelectionModelBeanProperty_19 = BeanProperty.create("selectedTvShow.note");
+    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_19, taNote,
+        jTextPaneBeanProperty);
     autoBinding_19.bind();
     //
-    BeanProperty<TvShowSelectionModel, MediaCertification> tvShowSelectionModelBeanProperty_20 = BeanProperty.create("selectedTvShow.certification");
-    BeanProperty<JLabel, Icon> jLabelBeanProperty_1 = BeanProperty.create("icon");
-    AutoBinding<TvShowSelectionModel, MediaCertification, JLabel, Icon> autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_20, lblCertificationLogo, jLabelBeanProperty_1);
+    Property tvShowSelectionModelBeanProperty_20 = BeanProperty.create("selectedTvShow.certification");
+    Property jLabelBeanProperty_1 = BeanProperty.create("icon");
+    AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_20,
+        lblCertificationLogo, jLabelBeanProperty_1);
     autoBinding_20.setConverter(new CertificationImageConverter());
     autoBinding_20.bind();
     //
-    BeanProperty<TvShowSelectionModel, Integer> tvShowSelectionModelBeanProperty_21 = BeanProperty.create("selectedTvShow.tmdbId");
-    AutoBinding<TvShowSelectionModel, Integer, LinkLabel, String> autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_21, lblTmdbId, linkLabelBeanProperty);
+    Property tvShowSelectionModelBeanProperty_21 = BeanProperty.create("selectedTvShow.tmdbId");
+    AutoBinding autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_21, lblTmdbId,
+        linkLabelBeanProperty);
     autoBinding_21.setConverter(new ZeroIdConverter());
     autoBinding_21.bind();
+    //
+    Property tvShowSelectionModelBeanProperty_2 = BeanProperty.create("selectedTvShow.episodeGroup");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel, tvShowSelectionModelBeanProperty_2,
+        lblEpisodeGroup, jLabelBeanProperty);
+    autoBinding_2.setConverter(new MediaEpisodeGroupConverter());
+    autoBinding_2.bind();
+  }
+
+  private static class MediaEpisodeGroupConverter extends Converter<MediaEpisodeGroup, String> {
+    @Override
+    public String convertForward(MediaEpisodeGroup value) {
+      if (value == null) {
+        return null;
+      }
+      return value.toString();
+    }
+
+    @Override
+    public MediaEpisodeGroup convertReverse(String value) {
+      return null;
+    }
   }
 }

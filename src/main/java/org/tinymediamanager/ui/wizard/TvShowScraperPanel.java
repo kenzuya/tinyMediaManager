@@ -61,8 +61,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner*
  */
 class TvShowScraperPanel extends JPanel {
-  private static final long         serialVersionUID = -2639391458779374972L;
-
   private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 

@@ -39,6 +39,7 @@ import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.MenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
@@ -55,6 +56,7 @@ import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
+import org.tinymediamanager.ui.movies.actions.MovieFetchImdbTop250;
 import org.tinymediamanager.ui.movies.actions.MovieFetchRatingsAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieLockAction;
@@ -67,6 +69,7 @@ import org.tinymediamanager.ui.movies.actions.MovieRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.movies.actions.MovieRemoveAction;
 import org.tinymediamanager.ui.movies.actions.MovieRenameAction;
 import org.tinymediamanager.ui.movies.actions.MovieRenamePreviewAction;
+import org.tinymediamanager.ui.movies.actions.MovieResetNewFlagAction;
 import org.tinymediamanager.ui.movies.actions.MovieRewriteNfoAction;
 import org.tinymediamanager.ui.movies.actions.MovieSelectedScrapeAction;
 import org.tinymediamanager.ui.movies.actions.MovieSelectedScrapeMetadataAction;
@@ -127,8 +130,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     // tabbed pane containing the movie data
     JTabbedPane tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 1234548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -197,24 +198,14 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
     MenuScroller.setScrollerFor(datasourcesMenu, 20, 50, 0, 0);
-    datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+    datasourcesMenu.getPopupMenu().addPopupMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        datasourcesMenu.removeAll();
+      protected void menuWillBecomeVisible(JMenu menu) {
+        menu.removeAll();
 
         for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
-          datasourcesMenu.add(new MovieUpdateSingleDatasourceAction(ds));
+          menu.add(new MovieUpdateSingleDatasourceAction(ds));
         }
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // nothing to do
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
-        // nothing to do
       }
     });
     updatePopupMenu.add(datasourcesMenu);
@@ -242,6 +233,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieFetchImdbTop250.class));
     editPopupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -249,12 +241,12 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
-    // editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieResetNewFlagAction.class));
 
     editPopupMenu.addSeparator();
     JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
@@ -308,24 +300,14 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
     MenuScroller.setScrollerFor(datasourcesMenu, 20, 50, 2, 5);
-    datasourcesMenu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+    datasourcesMenu.getPopupMenu().addPopupMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        datasourcesMenu.removeAll();
+      protected void menuWillBecomeVisible(JMenu menu) {
+        menu.removeAll();
 
         for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
-          datasourcesMenu.add(new MovieUpdateSingleDatasourceAction(ds));
+          menu.add(new MovieUpdateSingleDatasourceAction(ds));
         }
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // nothing to do
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
-        // nothing to do
       }
     });
     updateDatasourcesMenu.add(datasourcesMenu);
@@ -347,16 +329,17 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieUnlockAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieFetchRatingsAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbTop250.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
-    // enhancedEditMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieResetNewFlagAction.class));
     popupMenu.add(enhancedEditMenu);
 
     JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));

@@ -43,8 +43,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadMissingArtworkDialog;
  * @author Manuel Laggner
  */
 public class MovieDownloadMissingArtworkAction extends TmmAction {
-  private static final long serialVersionUID = -4006932829840795735L;
-
   public MovieDownloadMissingArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);

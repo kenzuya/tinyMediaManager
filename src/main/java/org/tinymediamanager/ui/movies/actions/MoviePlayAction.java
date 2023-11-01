@@ -40,7 +40,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MoviePlayAction extends TmmAction {
-  private static final long   serialVersionUID = 4927467365489852998L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MoviePlayAction.class);
 
   public MoviePlayAction() {

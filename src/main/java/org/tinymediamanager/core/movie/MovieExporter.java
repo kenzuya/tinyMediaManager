@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie;
 
 import static org.tinymediamanager.core.movie.MovieSettings.DEFAULT_RENAMER_FILE_PATTERN;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -41,20 +40,10 @@ import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
-import org.tinymediamanager.core.jmte.NamedDateRenderer;
-import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
-import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
-import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedNumberRenderer;
-import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
-import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
-import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
-import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 /**
  * This class exports a list of movies to various formats according to templates.
@@ -86,19 +75,12 @@ public class MovieExporter extends MediaEntityExporter {
       return;
     }
 
-    // register own renderers
-    engine.registerNamedRenderer(new NamedDateRenderer());
-    engine.registerNamedRenderer(new NamedNumberRenderer());
-    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-    engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
+    // register specific renderers
     engine.registerNamedRenderer(new MovieFilenameRenderer());
     engine.registerNamedRenderer(new MovieArtworkCopyRenderer(exportDir));
-    engine.registerNamedRenderer(new NamedFilesizeRenderer());
-    engine.registerNamedRenderer(new NamedBitrateRenderer());
-    engine.registerNamedRenderer(new NamedReplacementRenderer());
-    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+
+    // register default renderers
+    registerDefaultRenderers();
 
     // prepare export destination
     if (!Files.exists(exportDir)) {
@@ -107,9 +89,6 @@ public class MovieExporter extends MediaEntityExporter {
 
     // prepare listfile
     Path listExportFile = exportDir.resolve("movielist." + fileExtension);
-    if (listExportFile == null) {
-      throw new FileNotFoundException("error creating movie list file");
-    }
 
     // create list
     LOGGER.info("generating movie list");

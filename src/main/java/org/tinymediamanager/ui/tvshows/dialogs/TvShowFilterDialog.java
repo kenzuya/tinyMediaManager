@@ -19,13 +19,11 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -36,10 +34,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,13 +47,13 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.FlatButton;
-import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
-import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.panels.FilterSavePanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.tvshows.filters.ITvShowUIFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAllInOneFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAspectRatioFilter;
@@ -66,18 +62,26 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowAudioCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioStreamCountFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioTitleFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowBannerSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCastFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCertificationFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowClearArtSizeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowClearLogoSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCountryFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDatasourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDateAddedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDecadeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowDiscArtSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDuplicateEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowEmptyFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowEpisodeCountFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowFanartSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFrameRateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowGenreFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowHDRFormatFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowKeyArtSizeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowLockedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaFilesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaSourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingArtworkFilter;
@@ -87,15 +91,23 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowMissingSubtitlesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowNewEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowNoteFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowPathFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowPosterSizeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowRuntimeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowSeasonCountFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStatusFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStudioFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleCountFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowTagFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowThumbSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowUncategorizedEpisodesFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowVideoBitdepthFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowVideoBitrateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoContainerFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFilenameFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFilesizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowWatchedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
@@ -103,9 +115,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
 import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
-  private static final long                          serialVersionUID = 2298540526328945319L;
-
-  protected static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final String                        PANEL_COL_CONSTRAINTS = "[][][][200lp:250lp,grow]";
 
   private final TmmTreeTable                         treeTable;
 
@@ -119,7 +129,6 @@ public class TvShowFilterDialog extends TmmDialog {
   public TvShowFilterDialog(TmmTreeTable treeTable) {
     super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.tvshows"), "tvShowFilter");
     setModalityType(ModalityType.MODELESS);
-    setMinimumSize(new Dimension(550, 400));
 
     this.treeTable = treeTable;
     this.filterMap = new HashMap<>();
@@ -145,20 +154,19 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel Main
-        JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
-        scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
+        JPanel panelMain = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelMain);
 
         panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowNewEpisodesFilter(), panelMain);
         addFilter(new TvShowDatasourceFilter(), panelMain);
         addFilter(new TvShowWatchedFilter(), panelMain);
+        addFilter(new TvShowLockedFilter(), panelMain);
         addFilter(new TvShowDateAddedFilter(), panelMain);
         addFilter(new TvShowDuplicateEpisodesFilter(), panelMain);
         addFilter(new TvShowStatusFilter(), panelMain);
@@ -168,15 +176,13 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel Metadata
-        JPanel panelMetadata = new JPanel(new MigLayout("", "[][][100lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneMetadata = new NoBorderScrollPane(panelMetadata);
-        scrollPaneMetadata.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), scrollPaneMetadata);
+        JPanel panelMetadata = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), panelMetadata);
 
         panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelMetadata.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowYearFilter(), panelMetadata);
@@ -188,23 +194,24 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowStudioFilter(), panelMetadata);
         addFilter(new TvShowTagFilter(), panelMetadata);
         addFilter(new TvShowNoteFilter(), panelMetadata);
+        addFilter(new TvShowEpisodeCountFilter(), panelMetadata);
+        addFilter(new TvShowSeasonCountFilter(), panelMetadata);
       }
 
       {
         // panel video
-        JPanel panelVideo = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneVideo = new NoBorderScrollPane(panelVideo);
-
-        scrollPaneVideo.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), scrollPaneVideo);
+        JPanel panelVideo = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), panelVideo);
         panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelVideo.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowVideoFormatFilter(), panelVideo);
         addFilter(new TvShowVideoCodecFilter(), panelVideo);
+        addFilter(new TvShowVideoBitrateFilter(), panelVideo);
+        addFilter(new TvShowVideoBitdepthFilter(), panelVideo);
         addFilter(new TvShowVideoContainerFilter(), panelVideo);
         addFilter(new TvShowAspectRatioFilter(), panelVideo);
         addFilter(new TvShowFrameRateFilter(), panelVideo);
@@ -213,15 +220,12 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel audio
-        JPanel panelAudio = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneAudio = new NoBorderScrollPane(panelAudio);
-
-        scrollPaneAudio.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), scrollPaneAudio);
+        JPanel panelAudio = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), panelAudio);
         panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelAudio.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowAudioCodecFilter(), panelAudio);
@@ -232,29 +236,49 @@ public class TvShowFilterDialog extends TmmDialog {
       }
 
       {
-        // panel other
-        JPanel panelOthers = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneOthers = new NoBorderScrollPane(panelOthers);
+        // panel artwork
+        JPanel panelArtwork = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.artwork"), panelArtwork);
+        panelArtwork.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        scrollPaneOthers.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), scrollPaneOthers);
+        panelArtwork.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelArtwork.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
+        panelArtwork.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new TvShowPosterSizeFilter(), panelArtwork);
+        addFilter(new TvShowFanartSizeFilter(), panelArtwork);
+        addFilter(new TvShowBannerSizeFilter(), panelArtwork);
+        addFilter(new TvShowThumbSizeFilter(), panelArtwork);
+        addFilter(new TvShowClearLogoSizeFilter(), panelArtwork);
+        addFilter(new TvShowClearArtSizeFilter(), panelArtwork);
+        addFilter(new TvShowDiscArtSizeFilter(), panelArtwork);
+        addFilter(new TvShowKeyArtSizeFilter(), panelArtwork);
+        addFilter(new TvShowMissingArtworkFilter(), panelArtwork);
+      }
+
+      {
+        // panel other
+        JPanel panelOthers = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), panelOthers);
         panelOthers.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelOthers.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelOthers.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelOthers.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelOthers.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelOthers.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowMediaSourceFilter(), panelOthers);
         addFilter(new TvShowMediaFilesFilter(), panelOthers);
         addFilter(new TvShowFilenameFilter(), panelOthers);
         addFilter(new TvShowVideoFilenameFilter(), panelOthers);
+        addFilter(new TvShowVideoFilesizeFilter(), panelOthers);
+        addFilter(new TvShowRuntimeFilter(), panelOthers);
         addFilter(new TvShowPathFilter(), panelOthers);
         addFilter(new TvShowSubtitleCountFilter(), panelOthers);
         addFilter(new TvShowSubtitleLanguageFilter(), panelOthers);
+        addFilter(new TvShowSubtitleFormatFilter(), panelOthers);
         addFilter(new TvShowUncategorizedEpisodesFilter(), panelOthers);
         addFilter(new TvShowMissingEpisodesFilter(), panelOthers);
         addFilter(new TvShowMissingMetadataFilter(), panelOthers);
-        addFilter(new TvShowMissingArtworkFilter(), panelOthers);
         addFilter(new TvShowMissingSubtitlesFilter(), panelOthers);
       }
 
@@ -285,20 +309,28 @@ public class TvShowFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
+            Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(
                 TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
-            FilterSaveDialog saveDialog = new FilterSaveDialog(TvShowFilterDialog.this, activeUiFilters, tvShowUiFilters);
-            saveDialog.setVisible(true);
 
-            String savedPreset = saveDialog.getSavedPreset();
-            if (StringUtils.isNotBlank(savedPreset)) {
-              cbPreset.removeActionListener(actionListener);
-              TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
-              TvShowModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.setSelectedItem(savedPreset);
-              cbPreset.addActionListener(actionListener);
-            }
+            ModalPopupPanel popupPanel = createModalPopupPanel();
+            popupPanel.setTitle(TmmResourceBundle.getString("filter.savepreset"));
+
+            FilterSavePanel filterSavePanel = new FilterSavePanel(activeUiFilters, uiFilters);
+
+            popupPanel.setOnCloseHandler(() -> {
+              String savedPreset = filterSavePanel.getSavedPreset();
+              if (StringUtils.isNotBlank(savedPreset)) {
+                cbPreset.removeActionListener(actionListener);
+                TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(uiFilters);
+                TvShowModuleManager.getInstance().getSettings().saveSettings();
+                loadPresets();
+                cbPreset.setSelectedItem(savedPreset);
+                cbPreset.addActionListener(actionListener);
+              }
+            });
+
+            popupPanel.setContent(filterSavePanel);
+            showModalPopupPanel(popupPanel);
           }
         });
         panelFilterPreset.add(btnSavePreset, "cell 2 3");
@@ -384,6 +416,13 @@ public class TvShowFilterDialog extends TmmDialog {
     panel.add(filter.getCheckBox(), "");
     panel.add(filter.getLabel(), "");
 
+    if (filter.getFilterOptionComboBox() != null) {
+      panel.add(filter.getFilterOptionComboBox(), "");
+    }
+    else {
+      panel.add(Box.createGlue(), "");
+    }
+
     if (filter.getFilterComponent() != null) {
       panel.add(filter.getFilterComponent(), "wmin 100, grow, wrap");
     }
@@ -434,6 +473,14 @@ public class TvShowFilterDialog extends TmmDialog {
         }
       }
     }
+  }
+
+  @Override
+  public void pack() {
+    super.pack();
+
+    // avoid shrinking the dialog below the preferred size
+    setMinimumSize(getPreferredSize());
   }
 
   @Override

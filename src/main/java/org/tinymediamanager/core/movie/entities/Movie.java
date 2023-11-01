@@ -25,7 +25,6 @@ import static org.tinymediamanager.core.Constants.EDITION_AS_STRING;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.GENRES_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.MOVIESET;
 import static org.tinymediamanager.core.Constants.MOVIESET_TITLE;
@@ -37,11 +36,8 @@ import static org.tinymediamanager.core.Constants.SORT_TITLE;
 import static org.tinymediamanager.core.Constants.SPOKEN_LANGUAGES;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
-import static org.tinymediamanager.core.Constants.TMDB_SET;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
-import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.VIDEO_IN_3D;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
@@ -115,7 +111,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
@@ -310,7 +305,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       switch (entry.getKey()) {
         case MediaMetadata.IMDB:
         case MediaMetadata.TMDB:
-        case TRAKT:
+        case MediaMetadata.TRAKT_TV:
           // already in UI - skip
           continue;
 
@@ -632,7 +627,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the imdb id
    */
   public String getImdbId() {
-    return this.getIdAsString(IMDB);
+    return this.getIdAsString(MediaMetadata.IMDB);
   }
 
   /**
@@ -641,7 +636,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the tmdb id
    */
   public int getTmdbId() {
-    return this.getIdAsInt(TMDB);
+    return this.getIdAsInt(MediaMetadata.TMDB);
   }
 
   /**
@@ -651,7 +646,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new tmdb id
    */
   public void setTmdbId(int newValue) {
-    this.setId(TMDB, newValue);
+    this.setId(MediaMetadata.TMDB, newValue);
   }
 
   /**
@@ -660,7 +655,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the trakt.tv id
    */
   public int getTraktId() {
-    return this.getIdAsInt(TRAKT);
+    return this.getIdAsInt(MediaMetadata.TRAKT_TV);
   }
 
   /**
@@ -670,7 +665,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new trakt.tv id
    */
   public void setTraktId(int newValue) {
-    this.setId(TRAKT, newValue);
+    this.setId(MediaMetadata.TRAKT_TV, newValue);
   }
 
   /**
@@ -767,7 +762,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new imdb id
    */
   public void setImdbId(String newValue) {
-    this.setId(IMDB, newValue);
+    this.setId(MediaMetadata.IMDB, newValue);
   }
 
   /**
@@ -980,7 +975,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // create MovieSet
-    if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(TMDB_SET) == 0)) {
+    if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(MediaMetadata.TMDB_SET) == 0)) {
       int col = 0;
       try {
         col = (int) metadata.getId(MediaMetadata.TMDB_SET);
@@ -2102,7 +2097,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       if (person == null || actors.contains(person)) {
         continue;
       }
-      if (person.getType() != Person.Type.ACTOR) {
+      if (person.getType() != Person.Type.ACTOR && person.getType() != Person.Type.GUEST) {
         return;
       }
 
@@ -2446,11 +2441,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public MediaFile getMainVideoFile() {
-    MediaFile vid = new MediaFile();
+    MediaFile vid = null;
 
     if (stacked) {
       // search the first stacked media file (e.g. CD1)
-      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(new MediaFile());
+      vid = getMediaFiles(MediaFileType.VIDEO).stream().min(Comparator.comparingInt(MediaFile::getStacking)).orElse(MediaFile.EMPTY_MEDIAFILE);
     }
     else {
       // try to find correct main movie file (DVD only)
@@ -2469,13 +2464,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     LOGGER.warn("Movie without video file? {}", getPathNIO());
     // cannot happen - movie MUST always have a video file
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   public MediaFile getMainDVDVideoFile() {
     MediaFile vid = null;
 
-    // find IFO file with longest duration
+    // find IFO file with the longest duration
     for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
       if (mf.getExtension().equalsIgnoreCase("ifo")) {
         if (vid == null || mf.getDuration() > vid.getDuration()) {
@@ -2635,10 +2630,20 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public List<String> getMediaInfoSubtitleLanguageList() {
     List<String> lang = new ArrayList<>(getMainVideoFile().getSubtitleLanguagesList());
 
-    for (MediaFile mf : getMediaFiles(MediaFileType.SUBTITLE)) {
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
       lang.addAll(mf.getSubtitleLanguagesList());
     }
     return lang;
+  }
+
+  @Override
+  public List<String> getMediaInfoSubtitleCodecList() {
+    List<String> codecs = new ArrayList<>(getMainVideoFile().getSubtitleCodecList());
+
+    for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
+      codecs.addAll(mf.getSubtitleCodecList());
+    }
+    return codecs;
   }
 
   @Override
@@ -2950,10 +2955,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       case THUMB:
         return getMediaFiles(MediaFileType.THUMB);
 
-      case LOGO:
-        return getMediaFiles(MediaFileType.LOGO);
-
-      case CLEARLOGO:
+      case LOGO, CLEARLOGO: // LOGO = legacy
         return getMediaFiles(MediaFileType.CLEARLOGO);
 
       case DISCART:
@@ -2973,15 +2975,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   protected void postProcess(List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
-    TmmTaskChain taskChain = new TmmTaskChain();
+    TmmTaskChain taskChain = TmmTaskChain.getInstance(this);
 
     if (MovieModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
-
-      List<MediaFile> imageFiles = getImagesToCache();
-      if (!imageFiles.isEmpty()) {
-        taskChain.add(new ImageCacheTask(imageFiles));
-      }
     }
 
     // write actor images after possible rename (to have a good folder structure)
@@ -2993,8 +2990,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
         }
       });
     }
-
-    taskChain.run();
   }
 
   @Override

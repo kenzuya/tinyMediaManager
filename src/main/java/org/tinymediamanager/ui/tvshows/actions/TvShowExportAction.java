@@ -16,23 +16,35 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.ExportTemplate;
+import org.tinymediamanager.core.MediaEntityExporter;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tasks.ExportTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.panels.ExporterPanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
-import org.tinymediamanager.ui.tvshows.dialogs.TvShowExporterDialog;
 
 /**
- * The TvShowExportAction - to export all selected movies via a template
+ * The TvShowExportAction - to export all selected TV shows via a template
  * 
  * @author Manuel Laggner
  */
 public class TvShowExportAction extends TmmAction {
-  private static final long serialVersionUID = 6746506855715337027L;
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowExportAction.class);
 
   public TvShowExportAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);
@@ -48,9 +60,44 @@ public class TvShowExportAction extends TmmAction {
       return;
     }
 
-    // export selected tv shows
-    TvShowExporterDialog dialog = new TvShowExporterDialog(selectedTvShows);
-    dialog.setLocationRelativeTo(MainWindow.getInstance());
-    dialog.setVisible(true);
+    ModalPopupPanel popupPanel = MainWindow.getInstance().createModalPopupPanel();
+    popupPanel.setTitle(TmmResourceBundle.getString("tvshow.export"));
+
+    ExporterPanel exporterPanel = new ExporterPanel(MediaEntityExporter.TemplateType.TV_SHOW) {
+      @Override
+      protected void onClose() {
+        if (StringUtils.isBlank(tfExportDir.getText())) {
+          return;
+        }
+        // check selected template
+        ExportTemplate template = list.getSelectedValue();
+        if (template == null) {
+          return;
+        }
+
+        Path exportPath;
+        try {
+          exportPath = getExportPath();
+        }
+        catch (Exception e) {
+          LOGGER.debug("Aborted export - '{}'", e.getMessage());
+          return;
+        }
+
+        try {
+          TmmProperties.getInstance().putProperty(panelId + ".template", template.getName());
+          TvShowExporter exporter = new TvShowExporter(Paths.get(template.getPath()));
+          TmmTaskManager.getInstance()
+              .addMainTask(new ExportTask(TmmResourceBundle.getString("tvshow.export"), exporter, selectedTvShows, exportPath));
+        }
+        catch (Exception e) {
+          LOGGER.error("Error exporting TV shows: ", e);
+        }
+        setVisible(false);
+      }
+    };
+
+    popupPanel.setContent(exporterPanel);
+    MainWindow.getInstance().showModalPopupPanel(popupPanel);
   }
 }

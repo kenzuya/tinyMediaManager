@@ -16,6 +16,9 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.tinymediamanager.core.MediaFileType;
@@ -35,8 +38,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowReadNfoAction extends TmmAction {
-  private static final long serialVersionUID = -6575156436788397648L;
-
   public TvShowReadNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.readnfo"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.readnfo.desc"));
@@ -77,6 +78,20 @@ public class TvShowReadNfoAction extends TmmAction {
                     tempTvShow.merge(TvShowNfoParser.parseNfo(mf.getFileAsPath()).toTvShow());
                   }
                   catch (Exception ignored) {
+                  }
+                }
+              }
+
+              // no MF (yet)? try to find NFO...
+              // it might have been added w/o UDS, and since we FORCE a read...
+              if (tempTvShow == null) {
+                Path nfo = tvShow.getPathNIO().resolve("tvshow.nfo");
+                if (Files.exists(nfo)) {
+                  tvShow.addToMediaFiles(new MediaFile(nfo));
+                  try {
+                    tempTvShow = TvShowNfoParser.parseNfo(nfo).toTvShow();
+                  }
+                  catch (IOException ignored) {
                   }
                 }
               }

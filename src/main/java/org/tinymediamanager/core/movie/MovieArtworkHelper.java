@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,28 +28,16 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.IFileNaming;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieClearlogoNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
-import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
+import org.tinymediamanager.core.movie.filenaming.*;
 import org.tinymediamanager.core.movie.tasks.MovieExtraImageFetcherTask;
 import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 /**
@@ -61,7 +50,7 @@ public class MovieArtworkHelper {
   private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private MovieArtworkHelper() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -175,13 +164,8 @@ public class MovieArtworkHelper {
             }
             break;
 
-          case LOGO:
-            if (!MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty() || force) {
-              download = true;
-            }
-            break;
-
           case CLEARLOGO:
+          case LOGO:
             if (!MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty() || force) {
               download = true;
             }
@@ -244,11 +228,6 @@ public class MovieArtworkHelper {
       setBestFanart(movie, artwork);
     }
 
-    // logo
-    if (metadataConfig.contains(MovieScraperMetadataConfig.LOGO) && movie.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.LOGO, !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty());
-    }
-
     // clearlogo
     if (metadataConfig.contains(MovieScraperMetadataConfig.CLEARLOGO) && movie.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
       setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
@@ -284,14 +263,17 @@ public class MovieArtworkHelper {
     if (metadataConfig.contains(MovieScraperMetadataConfig.EXTRATHUMB) && movie.getMediaFiles(MediaFileType.EXTRATHUMB).isEmpty()
         && MovieModuleManager.getInstance().getSettings().isImageExtraThumbs()
         && MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount() > 0) {
-      for (MediaArtwork art : artwork) {
+      for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == MediaArtworkType.BACKGROUND).toList()) {
         // only get artwork in desired resolution
-        if (art.getType() == MediaArtworkType.BACKGROUND
-            && art.getSizeOrder() == MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder()) {
-          extrathumbs.add(art.getDefaultUrl());
-          if (extrathumbs.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount()) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (imageSizeAndUrl.getSizeOrder() == MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder()) {
+            extrathumbs.add(imageSizeAndUrl.getUrl());
             break;
           }
+        }
+
+        if (extrathumbs.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount()) {
+          break;
         }
       }
       movie.setExtraThumbs(extrathumbs);
@@ -306,14 +288,17 @@ public class MovieArtworkHelper {
     List<String> extrafanarts = new ArrayList<>();
     if (metadataConfig.contains(MovieScraperMetadataConfig.EXTRAFANART) && MovieModuleManager.getInstance().getSettings().isImageExtraFanart()
         && MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount() > 0) {
-      for (MediaArtwork art : artwork) {
+      for (MediaArtwork art : artwork.stream().filter(mediaArtwork -> mediaArtwork.getType() == MediaArtworkType.BACKGROUND).toList()) {
         // only get artwork in desired resolution
-        if (art.getType() == MediaArtworkType.BACKGROUND
-            && art.getSizeOrder() == MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder()) {
-          extrafanarts.add(art.getDefaultUrl());
-          if (extrafanarts.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount()) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (imageSizeAndUrl.getSizeOrder() == MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder()) {
+            extrafanarts.add(imageSizeAndUrl.getUrl());
             break;
           }
+        }
+
+        if (extrafanarts.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount()) {
+          break;
         }
       }
       movie.setExtraFanarts(extrafanarts);
@@ -326,6 +311,7 @@ public class MovieArtworkHelper {
 
     // update DB
     movie.saveToDb();
+    movie.writeNFO(); // rewrite NFO to get the urls into the NFO
   }
 
   /**
@@ -350,10 +336,6 @@ public class MovieArtworkHelper {
     }
     if (config.contains(MovieScraperMetadataConfig.DISCART) && !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty()
         && movie.getMediaFiles(MediaFileType.DISC).isEmpty()) {
-      return true;
-    }
-    if (config.contains(MovieScraperMetadataConfig.LOGO) && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()
-        && movie.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
       return true;
     }
     if (config.contains(MovieScraperMetadataConfig.CLEARLOGO) && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()
@@ -637,43 +619,6 @@ public class MovieArtworkHelper {
   }
 
   /**
-   * Logo format is not empty, so we want at least one ;)<br>
-   * Idea is, to check whether the preferred format is set in settings<br>
-   * and if not, take some default (since we want logos)
-   *
-   * @param movie
-   *          the movie to get the logo names for
-   * @return list of MovieLogoNaming (can be empty!)
-   */
-  public static List<MovieLogoNaming> getLogoNamesForMovie(Movie movie) {
-    List<MovieLogoNaming> logonames = new ArrayList<>();
-    if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-      return logonames;
-    }
-
-    if (movie.isMultiMovieDir()) {
-      if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().contains(MovieLogoNaming.FILENAME_LOGO)) {
-        logonames.add(MovieLogoNaming.FILENAME_LOGO);
-      }
-      if (logonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-        logonames.add(MovieLogoNaming.FILENAME_LOGO);
-      }
-    }
-    else if (movie.isDisc()) {
-      if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().contains(MovieLogoNaming.LOGO)) {
-        logonames.add(MovieLogoNaming.LOGO);
-      }
-      if (logonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
-        logonames.add(MovieLogoNaming.LOGO);
-      }
-    }
-    else {
-      logonames.addAll(MovieModuleManager.getInstance().getSettings().getLogoFilenames());
-    }
-    return logonames;
-  }
-
-  /**
    * Clearlogo format is not empty, so we want at least one ;)<br>
    * Idea is, to check whether the preferred format is set in settings<br>
    * and if not, take some default (since we want clearlogos)
@@ -692,6 +637,10 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.FILENAME_CLEARLOGO)) {
         clearlogonames.add(MovieClearlogoNaming.FILENAME_CLEARLOGO);
       }
+      else if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.FILENAME_LOGO)) {
+        clearlogonames.add(MovieClearlogoNaming.FILENAME_LOGO);
+      }
+
       if (clearlogonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
         clearlogonames.add(MovieClearlogoNaming.FILENAME_CLEARLOGO);
       }
@@ -700,6 +649,10 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.CLEARLOGO)) {
         clearlogonames.add(MovieClearlogoNaming.CLEARLOGO);
       }
+      else if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().contains(MovieClearlogoNaming.LOGO)) {
+        clearlogonames.add(MovieClearlogoNaming.LOGO);
+      }
+
       if (clearlogonames.isEmpty() && !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
         clearlogonames.add(MovieClearlogoNaming.CLEARLOGO);
       }
@@ -829,10 +782,6 @@ public class MovieArtworkHelper {
     }
 
     // works now for single & multimovie
-    if (config.contains(MovieScraperMetadataConfig.LOGO) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.LOGO)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.LOGO, !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty());
-    }
-
     if (config.contains(MovieScraperMetadataConfig.CLEARLOGO)
         && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
@@ -866,13 +815,12 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().isImageExtraThumbs()
           && MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount() > 0) {
         // sort the fanarts
-        List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND,
-            MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder(),
-            MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage());
+        List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND,
+            MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder());
 
         // and add them according to the want amount
-        for (MediaArtwork art : sortedFanarts) {
-          extrathumbs.add(art.getDefaultUrl());
+        for (MediaArtwork.ImageSizeAndUrl art : sortedFanarts) {
+          extrathumbs.add(art.getUrl());
           if (extrathumbs.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount()) {
             break;
           }
@@ -894,13 +842,12 @@ public class MovieArtworkHelper {
       if (MovieModuleManager.getInstance().getSettings().isImageExtraFanart()
           && MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount() > 0) {
         // sort the fanarts
-        List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND,
-            MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder(),
-            MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage());
+        List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND,
+            MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder());
 
         // and add them according to the want amount
-        for (MediaArtwork art : sortedFanarts) {
-          extrafanarts.add(art.getDefaultUrl());
+        for (MediaArtwork.ImageSizeAndUrl art : sortedFanarts) {
+          extrafanarts.add(art.getUrl());
           if (extrafanarts.size() >= MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount()) {
             break;
           }
@@ -925,20 +872,14 @@ public class MovieArtworkHelper {
    */
   private static void setBestPoster(Movie movie, List<MediaArtwork> artwork) {
     int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
-    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtworkType.POSTER, preferredSizeOrder, preferredLanguage);
+    List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
 
     // assign and download the poster
     if (!sortedPosters.isEmpty()) {
-      MediaArtwork foundPoster = sortedPosters.get(0);
-      movie.setArtworkUrl(foundPoster.getDefaultUrl(), MediaFileType.POSTER);
-
-      // did we get the tmdbid from artwork?
-      if (movie.getTmdbId() == 0 && foundPoster.getTmdbId() > 0) {
-        movie.setTmdbId(foundPoster.getTmdbId());
-      }
+      MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
+      movie.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
       downloadArtwork(movie, MediaFileType.POSTER);
     }
   }
@@ -948,21 +889,29 @@ public class MovieArtworkHelper {
    */
   private static void setBestFanart(Movie movie, List<MediaArtwork> artwork) {
     int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
-    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
     // resolution) first
     // https://kodi.wiki/view/Artwork_types#fanart
-    MediaArtwork fanartWoText = null;
-    for (MediaArtwork art : artwork) {
-      if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("") && art.getSizeOrder() == preferredSizeOrder) {
-        fanartWoText = art;
-        break;
+    MediaArtwork.ImageSizeAndUrl fanartWoText = null;
+
+    if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
+      for (MediaArtwork art : artwork) {
+        if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("-")) {
+          // right type
+          for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+            // right size
+            if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
+              fanartWoText = imageSizeAndUrl;
+              break;
+            }
+          }
+        }
       }
     }
 
     // sort artwork due to our preferences
-    List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder, preferredLanguage);
+    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder);
 
     // and insert the text-less in the front
     if (fanartWoText != null) {
@@ -971,13 +920,8 @@ public class MovieArtworkHelper {
 
     // assign and download the fanart
     if (!sortedFanarts.isEmpty()) {
-      MediaArtwork foundfanart = sortedFanarts.get(0);
-      movie.setArtworkUrl(foundfanart.getDefaultUrl(), MediaFileType.FANART);
-
-      // did we get the tmdbid from artwork?
-      if (movie.getTmdbId() == 0 && foundfanart.getTmdbId() > 0) {
-        movie.setTmdbId(foundfanart.getTmdbId());
-      }
+      MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
+      movie.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
       downloadArtwork(movie, MediaFileType.FANART);
     }
   }
@@ -996,111 +940,60 @@ public class MovieArtworkHelper {
    *          the artwork type
    * @param sizeOrder
    *          the preferred size
-   * @param language
-   *          the preferred language
    * @return the found artwork or null
    */
-  private static List<MediaArtwork> sortArtwork(List<MediaArtwork> artwork, MediaArtworkType type, int sizeOrder, String language) {
-    List<MediaArtwork> sortedArtwork = new ArrayList<>();
+  public static List<MediaArtwork.ImageSizeAndUrl> sortArtworkUrls(List<MediaArtwork> artwork, MediaArtworkType type, int sizeOrder) {
+    List<MediaArtwork> artworkForType = new ArrayList<>(artwork.stream().filter(art -> art.getType() == type).toList());
 
-    // the right language and the right resolution
-    for (MediaArtwork art : artwork) {
-      if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == sizeOrder) {
-        sortedArtwork.add(art);
-      }
+    if (artwork.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    // we've got two different search logics here
-    // 1. try to get the image in the chosen language (or no text when not found) - independently of the artwork size
-    // 2. try to get the chosen artwork size (first in chosen language, second with no text, third with en - fallback with _any_ language)
-    if (MovieModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
-      // the right language and a smaller artwork dimension
-      int newOrder = sizeOrder;
-      while (newOrder > 1) {
-        newOrder = newOrder / 2;
+    List<MediaArtwork.ImageSizeAndUrl> sortedArtwork = new ArrayList<>();
 
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
-          }
-        }
-      }
+    if (sizeOrder == 0) {
+      // we do not have any sizeOrder -> we're sorting an artwork without a setting. So pre-sort by biggest artwork first
+      artworkForType.sort((o1, o2) -> Integer.compare(o2.getBiggestArtwork().getWidth(), o1.getBiggestArtwork().getWidth()));
+    }
 
-      // no language, but the right resolution
-      for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
-          sortedArtwork.add(art);
-        }
-      }
+    List<MediaLanguages> languages = MovieSettings.getInstance().getImageScraperLanguages();
 
-      // no language, but the lower resolution
-      newOrder = sizeOrder;
-      while (newOrder > 1) {
-        newOrder = newOrder / 2;
-
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
+    // get the artwork in the chosen language priority
+    for (MediaLanguages language : languages) {
+      // the right language and the right resolution
+      for (MediaArtwork art : artworkForType.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (imageSizeAndUrl.getSizeOrder() == sizeOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
+            sortedArtwork.add(imageSizeAndUrl);
           }
         }
       }
     }
 
-    // nothing found in requested languages - try to get the other way
-    if (sortedArtwork.isEmpty()) {
-      // the right resolution (first w/o text)
-      for (MediaArtwork art : artwork) {
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == sizeOrder) {
-          sortedArtwork.add(art);
-        }
-      }
-
-      // en
-      for (MediaArtwork art : artwork) {
-        // only get artwork in desired resolution
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("en") && art.getSizeOrder() == sizeOrder) {
-          sortedArtwork.add(art);
-        }
-      }
-
-      // other languages
-      for (MediaArtwork art : artwork) {
-        // only get artwork in desired resolution
-        if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == sizeOrder) {
-          sortedArtwork.add(art);
-        }
-      }
-
-      // down to 2 resolutions lower
-      int newOrder = sizeOrder;
+    // do we want to take other resolution artwork?
+    if (MovieModuleManager.getInstance().getSettings().isImageScraperOtherResolutions()) {
+      int newOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER;
       while (newOrder > 1) {
         newOrder = newOrder / 2;
-
-        // first with chosen language
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals(language) && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
+        for (MediaLanguages language : languages) {
+          // the right language and the right resolution
+          for (MediaArtwork art : artworkForType.stream().filter(art -> art.getLanguage().equals(language.getLanguage())).toList()) {
+            for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+              if (imageSizeAndUrl.getSizeOrder() == newOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
+                sortedArtwork.add(imageSizeAndUrl);
+              }
+            }
           }
         }
+      }
+    }
 
-        // w/o text
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("-") && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
-          }
-        }
-
-        // en
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getLanguage().equals("en") && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
-          }
-        }
-
-        // any
-        for (MediaArtwork art : artwork) {
-          if (!sortedArtwork.contains(art) && art.getType() == type && art.getSizeOrder() == newOrder) {
-            sortedArtwork.add(art);
+    // should we fall back to _any_ artwork?
+    if (MovieModuleManager.getInstance().getSettings().isImageScraperFallback()) {
+      for (MediaArtwork art : artworkForType) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (!sortedArtwork.contains(imageSizeAndUrl)) {
+            sortedArtwork.add(imageSizeAndUrl);
           }
         }
       }
@@ -1124,17 +1017,14 @@ public class MovieArtworkHelper {
   private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
     // sort artwork due to our preferences
     // this is everything but the poster/fanart - so we must not use the fanart size here
-    int preferredSizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder(); // big enough to catch _all_ sizes
-    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
-    List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder, preferredLanguage);
+    int preferredSizeOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER; // big enough to catch _all_ sizes
+    List<MediaArtwork.ImageSizeAndUrl> sortedArtworks = sortArtworkUrls(artwork, type, preferredSizeOrder);
 
-    for (MediaArtwork art : sortedArtworks) {
-      if (art.getType() == type && StringUtils.isNotBlank(art.getDefaultUrl())) {
-        movie.setArtworkUrl(art.getDefaultUrl(), MediaFileType.getMediaFileType(type));
-        if (download) {
-          downloadArtwork(movie, MediaFileType.getMediaFileType(type));
-        }
-        break;
+    if (!sortedArtworks.isEmpty()) {
+      MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtworks.get(0);
+      movie.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
+      if (download) {
+        downloadArtwork(movie, MediaFileType.getMediaFileType(type));
       }
     }
   }
@@ -1241,10 +1131,6 @@ public class MovieArtworkHelper {
         fileNamings.addAll(getPosterNamesForMovie(movie));
         break;
 
-      case LOGO:
-        fileNamings.addAll(getLogoNamesForMovie(movie));
-        break;
-
       case CLEARLOGO:
         fileNamings.addAll(getClearlogoNamesForMovie(movie));
         break;
@@ -1280,6 +1166,7 @@ public class MovieArtworkHelper {
    * If found, copy the bluray metadata poster files into movieDir and add them as MF
    * 
    * @param movie
+   *          the movie to extract BluRay posters
    * @return true if ok or none found, false otherwise
    */
   public static boolean extractBlurayPosters(Movie movie) {

@@ -54,8 +54,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowSourcePanel extends JPanel {
-  private static final long    serialVersionUID = -7126616245313008341L;
-
   private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
 
   private JList<String>        listDataSources;

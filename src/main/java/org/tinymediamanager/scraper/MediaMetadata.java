@@ -16,16 +16,20 @@
 package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -35,79 +39,94 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
- * The Class MediaMetadata. This is the main class to transport meta data.
+ * The Class MediaMetadata. This is the main class to transport metadata.
  * 
  * @author Manuel Laggner
  * @since 2.0
  */
 public class MediaMetadata {
   // some well known ids
-  public static final String             IMDB                 = "imdb";
-  public static final String             TMDB                 = "tmdb";
-  public static final String             TVDB                 = "tvdb";
-  public static final String             TMDB_SET             = "tmdbSet";
-  public static final String             TRAKT_TV             = "trakt";
+  public static final String                               ALLOCINE            = "allocine";
+  public static final String                               ANIDB               = "anidb";
+  public static final String                               IMDB                = "imdb";
+  public static final String                               LETTERBOXD          = "letterboxd";
+  public static final String                               METACRITIC          = "metacritic";
+  public static final String                               MY_ANIME_LIST       = "myanimelist";
+  public static final String                               ROGER_EBERT         = "rogerebert";
+  public static final String                               TMDB                = "tmdb";
+  public static final String                               TMDB_SET            = "tmdbSet";
+  public static final String                               TRAKT_TV            = "trakt";
+  public static final String                               TVDB                = "tvdb";
+  public static final String                               TVMAZE              = "tvmaze";
+  public static final String                               TVRAGE              = "tvrage";
+  public static final String                               WIKIDATA            = "wikidata";
+  public static final String                               ZAP2IT              = "zap2it";
+  // no so well-known
+  // mptv
+  // ofdb
+  // omdb
+  // eidr
 
   // some meta ids for TV show scraping
-  public static final String             TVSHOW_IDS           = "tvShowIds";
-  public static final String             EPISODE_NR           = "episodeNr";
-  public static final String             SEASON_NR            = "seasonNr";
-  public static final String             EPISODE_NR_DVD       = "dvdEpisodeNr";
-  public static final String             SEASON_NR_DVD        = "dvdSeasonNr";
+  public static final String                               TVSHOW_IDS          = "tvShowIds";
+  public static final String                               EPISODE_NR          = "episodeNr";
+  public static final String                               SEASON_NR           = "seasonNr";
+  @Deprecated
+  public static final String                               EPISODE_NR_DVD      = "dvdEpisodeNr";
+  @Deprecated
+  public static final String                               SEASON_NR_DVD       = "dvdSeasonNr";
 
   // the "empty" rating
-  public static final MediaRating        EMPTY_RATING         = new MediaRating("", 0);
+  public static final MediaRating                          EMPTY_RATING        = new MediaRating("", 0);
 
-  private final String                   providerId;
+  private final String                                     providerId;
 
   // this map contains all set ids
-  private final Map<String, Object>      ids                  = new HashMap<>();
+  private final Map<String, Object>                        ids                 = new HashMap<>();
 
   // multi value
-  private final List<MediaRating>        ratings              = new ArrayList<>();
-  private final List<Person>             castMembers          = new ArrayList<>();
-  private final List<MediaArtwork>       artwork              = new ArrayList<>();
-  private final List<MediaGenres>        genres               = new ArrayList<>();
-  private final List<MediaCertification> certifications       = new ArrayList<>();
-  private final List<String>             productionCompanies  = new ArrayList<>();
-  private final List<String>             spokenLanguages      = new ArrayList<>();
-  private final List<String>             countries            = new ArrayList<>();
-  private final List<MediaTrailer>       trailers             = new ArrayList<>();
-  private final List<MediaMetadata>      subItems             = new ArrayList<>();
-  private final List<String>             tags                 = new ArrayList<>();
+  private final List<MediaRating>                          ratings             = new ArrayList<>();
+  private final List<Person>                               castMembers         = new ArrayList<>();
+  private final List<MediaArtwork>                         artwork             = new ArrayList<>();
+  private final List<MediaGenres>                          genres              = new ArrayList<>();
+  private final List<MediaCertification>                   certifications      = new ArrayList<>();
+  private final List<String>                               productionCompanies = new ArrayList<>();
+  private final List<String>                               spokenLanguages     = new ArrayList<>();
+  private final List<String>                               countries           = new ArrayList<>();
+  private final List<MediaTrailer>                         trailers            = new ArrayList<>();
+  private final List<MediaMetadata>                        subItems            = new ArrayList<>();
+  private final List<String>                               tags                = new ArrayList<>();
 
   // general media entity
-  private String                         title                = "";
-  private String                         originalTitle        = "";
-  private String                         originalLanguage     = "";
-  private int                            year                 = 0;
-  private Date                           releaseDate          = null;
-  private String                         plot                 = "";
-  private String                         tagline              = "";
-  private int                            runtime              = 0;
+  private String                                           title               = "";
+  private String                                           originalTitle       = "";
+  private String                                           originalLanguage    = "";
+  private int                                              year                = 0;
+  private Date                                             releaseDate         = null;
+  private String                                           plot                = "";
+  private String                                           tagline             = "";
+  private int                                              runtime             = 0;
 
   // movie
-  private String                         collectionName       = "";
-  private int                            top250               = 0;
+  private String                                           collectionName      = "";
+  private int                                              top250              = 0;
 
   // tv show
-  private int                            episodeNumber        = -1;
-  private int                            seasonNumber         = -1;
-  private int                            dvdEpisodeNumber     = -1;
-  private int                            dvdSeasonNumber      = -1;
-  private int                            displayEpisodeNumber = -1;
-  private int                            displaySeasonNumber  = -1;
-  private int                            absoluteNumber       = -1;
-  private MediaAiredStatus               status               = MediaAiredStatus.UNKNOWN;
-  private final Map<Integer, String>     seasonNames          = new HashMap<>();
+  private final Set<MediaEpisodeGroup>                     episodeGroups       = new HashSet<>();
+  private final Map<MediaEpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new LinkedHashMap<>();
+  private MediaAiredStatus                                 status              = MediaAiredStatus.UNKNOWN;
+  private Map<MediaEpisodeGroup, Map<Integer, String>>     seasonNames         = new HashMap<>();
+  private Map<MediaEpisodeGroup, Map<Integer, String>>     seasonOverview      = new HashMap<>();
 
   // extra data
-  private final Map<String, Object>      extraData            = new HashMap<>();
-  private MediaSearchAndScrapeOptions    scrapeOptions        = null;
+  private final Map<String, Object>                        extraData           = new HashMap<>();
+  private MediaSearchAndScrapeOptions                      scrapeOptions       = null;
 
   /**
    * Instantiates a new media metadata for the given provider.
@@ -147,15 +166,12 @@ public class MediaMetadata {
     runtime = merge(runtime, md.getRuntime());
     collectionName = merge(collectionName, md.getCollectionName());
     top250 = merge(top250, md.getTop250());
-    episodeNumber = merge(episodeNumber, md.getEpisodeNumber());
-    seasonNumber = merge(seasonNumber, md.getSeasonNumber());
-    dvdEpisodeNumber = merge(dvdEpisodeNumber, md.getDvdEpisodeNumber());
-    dvdSeasonNumber = merge(dvdSeasonNumber, md.getDvdSeasonNumber());
-    absoluteNumber = merge(absoluteNumber, md.getAbsoluteNumber());
     status = merge(status, md.getStatus());
 
     // remove all local ones, which we have in other array
     // so no dupe on adding all ;)
+    episodeNumbers.putAll(md.getEpisodeNumbers());
+
     ratings.removeAll(md.getRatings());
     ratings.addAll(md.getRatings());
 
@@ -188,6 +204,15 @@ public class MediaMetadata {
 
     tags.removeAll(md.getTags());
     tags.addAll(md.getTags());
+
+    episodeGroups.removeAll(md.getEpisodeGroups());
+    episodeGroups.addAll(md.getEpisodeGroups());
+
+    seasonNames.keySet().removeAll(md.getSeasonNames().keySet());
+    seasonNames.putAll(md.seasonNames);
+
+    seasonOverview.keySet().removeAll(md.getSeasonOverview().keySet());
+    seasonOverview.putAll(md.seasonOverview);
 
     delta = md.getExtraData();
     delta.keySet().removeAll(extraData.keySet());
@@ -259,7 +284,13 @@ public class MediaMetadata {
    */
   public List<Person> getCastMembers(Person.Type type) {
     // get all cast members for the given type
-    return castMembers.stream().filter(person -> person.getType() == type).collect(Collectors.toList());
+    List<Person> ret = new ArrayList<>();
+    ret.addAll(castMembers.stream().filter(person -> person.getType() == type).toList());
+    if (type == Person.Type.ACTOR) {
+      // if we want actors, add all guest stars too!
+      ret.addAll(castMembers.stream().filter(person -> person.getType() == Person.Type.GUEST).toList());
+    }
+    return ret;
   }
 
   /**
@@ -275,7 +306,7 @@ public class MediaMetadata {
     }
 
     // get all artwork
-    return artwork.stream().filter(ma -> ma.getType() == type).collect(Collectors.toList());
+    return artwork.stream().filter(ma -> ma.getType() == type).toList();
   }
 
   /**
@@ -497,6 +528,16 @@ public class MediaMetadata {
   }
 
   /**
+   * remove the given key from the ids table
+   *
+   * @param key
+   *          the key to remove
+   */
+  public void removeId(String key) {
+    ids.remove(key);
+  }
+
+  /**
    * Gets an ID.
    * 
    * @param key
@@ -531,18 +572,18 @@ public class MediaMetadata {
    * Get the id for the given provider id as Integer
    *
    * @param providerId
-   *          the provider Id
+   *          the provider id
    * @return the id as Integer or null
    */
   public Integer getIdAsInteger(String providerId) {
     Object id = ids.get(providerId);
     if (id != null) {
-      if (id instanceof Integer) {
-        return (Integer) id;
+      if (id instanceof Integer integer) {
+        return integer;
       }
-      if (id instanceof String)
+      if (id instanceof String string)
         try {
-          return Integer.parseInt((String) id);
+          return Integer.parseInt(string);
         }
         catch (Exception ignored) {
           // nothing to be done here
@@ -556,7 +597,7 @@ public class MediaMetadata {
    * Get the id for the given provider id as int
    *
    * @param providerId
-   *          the provider Id
+   *          the provider id
    * @return the id as int or 0
    */
   public int getIdAsInt(String providerId) {
@@ -567,7 +608,7 @@ public class MediaMetadata {
    * Get the id for the given provider id as int or the chosen default value
    *
    * @param providerId
-   *          the provider Id
+   *          the provider id
    * @return the id as int or the default value
    */
   public int getIdAsIntOrDefault(String providerId, int defaultValue) {
@@ -835,7 +876,9 @@ public class MediaMetadata {
    *          the release date to be set
    */
   public void setReleaseDate(Date releaseDate) {
-    this.releaseDate = releaseDate;
+    if (releaseDate != null) {
+      this.releaseDate = releaseDate;
+    }
   }
 
   /**
@@ -1005,220 +1048,82 @@ public class MediaMetadata {
   }
 
   /**
-   * Get the episode number (or -1 if not set)
-   * 
-   * @return the episode number (or -1 if not set)
+   * get all available {@link MediaEpisodeNumber}s
+   *
+   * @return a {@link Map} with all available {@link MediaEpisodeNumber}s
    */
-  public int getEpisodeNumber() {
-    return episodeNumber;
+  public Map<MediaEpisodeGroup, MediaEpisodeNumber> getEpisodeNumbers() {
+    return Collections.unmodifiableMap(episodeNumbers);
+  }
+
+  /**
+   * set all given {@link MediaEpisodeNumber}s
+   *
+   * @param eps
+   *          a {@link Map} containing all {@link MediaEpisodeNumber}s
+   */
+  public void setEpisodeNumbers(Map<MediaEpisodeGroup, MediaEpisodeNumber> eps) {
+    if (eps != null) {
+      episodeNumbers.clear();
+      episodeNumbers.putAll(eps);
+    }
+  }
+
+  /**
+   * Get the {@link MediaEpisodeNumber}
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to get the episode number for
+   * @return the {@link MediaEpisodeNumber} or null
+   */
+  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup) {
+    return episodeNumbers.get(episodeGroup);
+  }
+
+  /**
+   * Get the {@link MediaEpisodeNumber}
+   *
+   * @param episodeGroupType
+   *          the {@link MediaEpisodeGroup.EpisodeGroupType} to get the episode number for
+   * @return the {@link MediaEpisodeNumber} or null
+   */
+  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroupType episodeGroupType) {
+    // match the first available episode group
+    for (Map.Entry<MediaEpisodeGroup, MediaEpisodeNumber> entry : episodeNumbers.entrySet()) {
+      if (entry.getKey().getEpisodeGroupType() == episodeGroupType) {
+        return entry.getValue();
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Set the episode number
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup.EpisodeGroupType} this episode number belongs to
+   * @param season
+   *          the season
+   * @param episode
+   *          the episode
+   */
+  public void setEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup, int season, int episode) {
+    setEpisodeNumber(new MediaEpisodeNumber(episodeGroup, season, episode));
   }
 
   /**
    * Set the episode number
    *
    * @param episodeNumber
-   *          the episode number to be set
+   *          the {@link MediaEpisodeNumber} to be set
    */
-  public void setEpisodeNumber(int episodeNumber) {
-    this.episodeNumber = episodeNumber;
-  }
-
-  /**
-   * Set the episode number - nullsafe
-   *
-   * @param episodeNumber
-   *          the episode number to be set
-   */
-  public void setEpisodeNumber(Integer episodeNumber) {
-    if (episodeNumber != null) {
-      setEpisodeNumber(episodeNumber.intValue());
+  public void setEpisodeNumber(MediaEpisodeNumber episodeNumber) {
+    if (episodeNumber == null || !episodeNumber.isValid()) {
+      return;
     }
-  }
 
-  /**
-   * Get the season number (or -1 if not set)
-   * 
-   * @return the season number (or -1 if not set)
-   */
-  public int getSeasonNumber() {
-    return seasonNumber;
-  }
-
-  /**
-   * Set the season number
-   *
-   * @param seasonNumber
-   *          the season number to be set
-   */
-  public void setSeasonNumber(int seasonNumber) {
-    this.seasonNumber = seasonNumber;
-  }
-
-  /**
-   * Set the season number - nullsafe
-   *
-   * @param seasonNumber
-   *          the season number to be set
-   */
-  public void setSeasonNumber(Integer seasonNumber) {
-    if (seasonNumber != null) {
-      setSeasonNumber(seasonNumber.intValue());
-    }
-  }
-
-  /**
-   * Get the DVD episode number (or -1 if not set)
-   * 
-   * @return the DVD episode number (or -1 if not set)
-   */
-  public int getDvdEpisodeNumber() {
-    return dvdEpisodeNumber;
-  }
-
-  /**
-   * Set the DVD episode number
-   *
-   * @param dvdEpisodeNumber
-   *          the DVD episode number to be set
-   */
-  public void setDvdEpisodeNumber(int dvdEpisodeNumber) {
-    this.dvdEpisodeNumber = dvdEpisodeNumber;
-  }
-
-  /**
-   * Set the DVD episode number - nullsafe
-   *
-   * @param dvdEpisodeNumber
-   *          the DVD episode number to be set
-   */
-  public void setDvdEpisodeNumber(Integer dvdEpisodeNumber) {
-    if (dvdEpisodeNumber != null) {
-      setDvdEpisodeNumber(dvdEpisodeNumber.intValue());
-    }
-  }
-
-  /**
-   * Get the DVD season number (or -1 if not set)
-   * 
-   * @return the DVD season number (or -1 if not set)
-   */
-  public int getDvdSeasonNumber() {
-    return dvdSeasonNumber;
-  }
-
-  /**
-   * Set the DVD season number
-   *
-   * @param dvdSeasonNumber
-   *          the DVD season number to be set
-   */
-  public void setDvdSeasonNumber(int dvdSeasonNumber) {
-    this.dvdSeasonNumber = dvdSeasonNumber;
-  }
-
-  /**
-   * Set the DVD season number - nullsafe
-   *
-   * @param dvdSeasonNumber
-   *          the DVD season number to be set
-   */
-  public void setDvdSeasonNumber(Integer dvdSeasonNumber) {
-    if (dvdSeasonNumber != null) {
-      setDvdSeasonNumber(dvdSeasonNumber.intValue());
-    }
-  }
-
-  /**
-   * Get the display-episode number (or -1 if not set)
-   * 
-   * @return the display-episode number (or -1 if not set)
-   */
-  public int getDisplayEpisodeNumber() {
-    return displayEpisodeNumber;
-  }
-
-  /**
-   * Set the display-episode number
-   *
-   * @param displayEpisodeNumber
-   *          the display-episode number to be set
-   */
-  public void setDisplayEpisodeNumber(int displayEpisodeNumber) {
-    this.displayEpisodeNumber = displayEpisodeNumber;
-  }
-
-  /**
-   * Set the display-episode number - nullsafe
-   *
-   * @param displayEpisodeNumber
-   *          the display-episode number to be set
-   */
-  public void setDisplayEpisodeNumber(Integer displayEpisodeNumber) {
-    if (displayEpisodeNumber != null) {
-      setDisplayEpisodeNumber(displayEpisodeNumber.intValue());
-    }
-  }
-
-  /**
-   * Get the display-season number (or -1 if not set)
-   * 
-   * @return the display-season number (or -1 if not set)
-   */
-  public int getDisplaySeasonNumber() {
-    return displaySeasonNumber;
-  }
-
-  /**
-   * Set the display-season number
-   *
-   * @param displaySeasonNumber
-   *          the display-season number to be set
-   */
-  public void setDisplaySeasonNumber(int displaySeasonNumber) {
-    this.displaySeasonNumber = displaySeasonNumber;
-  }
-
-  /**
-   * Set the display-season number - nullsafe
-   *
-   * @param displaySeasonNumber
-   *          the display-season number to be set
-   */
-  public void setDisplaySeasonNumber(Integer displaySeasonNumber) {
-    if (displaySeasonNumber != null) {
-      setDisplaySeasonNumber(displaySeasonNumber.intValue());
-    }
-  }
-
-  /**
-   * Get the absolute number (or -1 if not set)
-   * 
-   * @return the absolute number (or -1 if not set)
-   */
-  public int getAbsoluteNumber() {
-    return absoluteNumber;
-  }
-
-  /**
-   * Set the absolute number
-   *
-   * @param absoluteNumber
-   *          the absolute number to be set
-   */
-  public void setAbsoluteNumber(int absoluteNumber) {
-    this.absoluteNumber = absoluteNumber;
-  }
-
-  /**
-   * Set the absolute number - nullsafe
-   *
-   * @param absoluteNumber
-   *          the absolute number to be set
-   */
-  public void setAbsoluteNumber(Integer absoluteNumber) {
-    if (absoluteNumber != null) {
-      setAbsoluteNumber(absoluteNumber.intValue());
-    }
+    episodeNumbers.put(episodeNumber.episodeGroup(), episodeNumber);
   }
 
   /**
@@ -1334,15 +1239,17 @@ public class MediaMetadata {
 
   /**
    * Add a season name
-   * 
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to set the season name for
    * @param seasonNumber
    *          the season number
    * @param name
    *          the season name
    */
-  public void addSeasonName(int seasonNumber, String name) {
-    if (StringUtils.isNotBlank(name)) {
-      seasonNames.put(seasonNumber, name);
+  public void addSeasonName(MediaEpisodeGroup episodeGroup, int seasonNumber, String name) {
+    if (seasonNumber > -1 && StringUtils.isNotBlank(name)) {
+      seasonNames.computeIfAbsent(episodeGroup, k -> new HashMap<>()).put(seasonNumber, name);
     }
   }
 
@@ -1351,8 +1258,66 @@ public class MediaMetadata {
    * 
    * @return the season names
    */
-  public Map<Integer, String> getSeasonNames() {
+  public Map<MediaEpisodeGroup, Map<Integer, String>> getSeasonNames() {
     return seasonNames;
+  }
+
+  /**
+   * for introspection on universal scraper
+   */
+  public void setSeasonNames(Map<MediaEpisodeGroup, Map<Integer, String>> map) {
+    this.seasonNames = map;
+  }
+
+  /**
+   * add a season overview
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to set the season name for
+   * @param seasonNumber
+   *          the season number
+   * @param overview
+   *          the overview
+   */
+  public void addSeasonOverview(MediaEpisodeGroup episodeGroup, int seasonNumber, String overview) {
+    if (seasonNumber > -1 && StringUtils.isNotBlank(overview)) {
+      seasonOverview.computeIfAbsent(episodeGroup, k -> new HashMap<>()).put(seasonNumber, overview);
+    }
+  }
+
+  /**
+   * get the season overview/plot
+   *
+   * @return the season overview/plot
+   */
+  public Map<MediaEpisodeGroup, Map<Integer, String>> getSeasonOverview() {
+    return seasonOverview;
+  }
+
+  /**
+   * for introspection on universal scraper
+   */
+  public void setSeasonOverview(Map<MediaEpisodeGroup, Map<Integer, String>> map) {
+    this.seasonOverview = map;
+  }
+
+  /**
+   * add the given {@link MediaEpisodeGroup} to the available episode groups
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to add
+   */
+  public void addEpisodeGroup(MediaEpisodeGroup episodeGroup) {
+    episodeGroups.add(episodeGroup);
+  }
+
+  /**
+   * get all available {@link MediaEpisodeGroup}s
+   *
+   * @return a {@link Set} with all available {@link MediaEpisodeGroup}s
+   */
+  public Set<MediaEpisodeGroup> getEpisodeGroups() {
+    return episodeGroups;
   }
 
   /**
@@ -1376,7 +1341,7 @@ public class MediaMetadata {
 
   /**
    * generates a SearchResult out of a scraped detail page (when searching via ID)
-   * 
+   *
    * @return
    */
   public MediaSearchResult toSearchResult(MediaType type) {

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tags>
+   <!--Collection information-->
+  <Tag>
+    <Targets>
+      <TargetType>70</TargetType>
+    </Targets>
+    <Simple>
+    <Name>TITLE</Name>
+      <String>${movieSet.title}</String>
+      <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+    </Simple>
+  </Tag>
+ <!--Movie information-->
+  <Tag>
+     <Targets>
+        <TargetType>50</TargetType>
+     </Targets>
+     <Simple>
+       <Name>TITLE</Name>
+       <String>${movie.title}</String>
+       <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+     </Simple>
+      <Simple>
+      <Name>SUBTITLE</Name>
+        <String>${movieSet.titleSortable}</String>
+        <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+      </Simple>
+	 <Simple>
+	   <Name>ORIGINAL</Name>
+	   <Simple>
+		<Name>TITLE</Name>
+		<String>${movie.originalTitle}</String>
+	   </Simple>
+	</Simple>
+     <Simple>
+       <Name>SUMMARY</Name>
+       <String>${movie.plot}</String>
+       <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+     </Simple>
+	     <Simple>
+       <Name>DESCRIPTION</Name>
+       <String>${movie.plot}</String>
+       <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+     </Simple>
+    <Simple>
+    <Name>SYNOPSIS</Name>
+      <String>${movie.plot}</String>
+      <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+    </Simple>
+    <Simple>
+      <Name>DATE_RELEASED</Name>
+      <String>${movie.year}</String>
+    </Simple>
+    ${foreach movie.genres genre}<Simple>
+       <Name>GENRE</Name>
+       <String>${genre}</String>
+       <TagLanguage>${movie.lastScrapeLanguage}</TagLanguage>
+    </Simple>${end}
+	<Simple>
+		<Name>TMDB</Name>
+		<String>${movie.tmdbId}</String>
+	</Simple>
+	<Simple>
+		<Name>IMDB</Name>
+		<String>${movie.imdbId}</String>
+	</Simple>
+	${foreach movie.actors actor}<Simple>
+	<Name>ACTOR</Name>
+	<String>${actor.name}</String>
+		<Simple>
+			<Name>CHARACTER</Name>
+			<String>${actor.role}</String>
+		</Simple>
+	</Simple>${end}
+	${foreach movie.writers writer}<Simple>
+	   <Name>WRITTEN_BY</Name>
+	   <String>${writer.name}</String>
+	</Simple>${end}
+	${foreach movie.directors director}<Simple>
+	   <Name>DIRECTOR</Name>
+	   <String>${director.name}</String>
+	</Simple>${end}
+	${foreach movie.producers producer}<Simple>
+	   <Name>PRODUCER</Name>
+	   <String>${producer.name}</String>
+	</Simple>${end}
+	${foreach movie.productionCompanyAsArray studio}<Simple>
+	   <Name>PRODUCTION_STUDIO</Name>
+	   <String>${studio}</String>
+	</Simple>${end}
+	<Simple>
+		<Name>LAW_RATING</Name>
+		<String>${movie.certification}</String>
+	</Simple>
+  </Tag>
+</Tags>
+	  

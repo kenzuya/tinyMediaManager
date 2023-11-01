@@ -32,9 +32,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * 
  */
 public class MovieFindMissingAction extends TmmAction {
-  private static final long           serialVersionUID = 7873846965534352231L;
-
-
   private String                      datasource       = null;
 
   /**

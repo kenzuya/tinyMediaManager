@@ -50,6 +50,8 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -288,10 +290,8 @@ public abstract class BasicTest {
     TvShowEpisode episode = new TvShowEpisode();
     episode.setTvShow(tvShow);
     episode.setTitle(title + "-EP");
-    episode.setSeason(1);
-    episode.setEpisode(2);
-    episode.setDvdSeason(3);
-    episode.setDvdEpisode(4);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 3, 4));
     episode.setTitle("Don't Pet the Teacher");
     episode.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
     episode.setFirstAired(getRandomDate());

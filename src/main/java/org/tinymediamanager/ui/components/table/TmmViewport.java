@@ -29,14 +29,11 @@ import javax.swing.JViewport;
  * @author Manuel Laggner
  */
 class TmmViewport extends JViewport {
-  private static final long   serialVersionUID = 3786918873070899884L;
-
-  private final JTable        fTable;
-  private final List<Integer> colsWoRightGrid;
+  private final JTable fTable;
 
   TmmViewport(JTable table, int[] cols) {
     fTable = table;
-    colsWoRightGrid = new ArrayList<>(cols.length);
+    List<Integer> colsWoRightGrid = new ArrayList<>(cols.length);
     for (int i : cols) {
       colsWoRightGrid.add(i);
     }

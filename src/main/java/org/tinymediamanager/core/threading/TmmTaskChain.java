@@ -15,37 +15,92 @@
  */
 package org.tinymediamanager.core.threading;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.entities.MediaEntity;
 
 /**
  * chain several {@link TmmTask}s in a controlled way
  *
- * @author Alex Bruns, Kai Werner
+ * @author Alex Bruns, Kai Werner, Manuel Laggner
  */
 public class TmmTaskChain implements TmmTaskListener {
-  private static final Logger  LOGGER = LoggerFactory.getLogger(TmmTaskChain.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TmmTaskChain.class);
 
-  private final Queue<TmmTask> tasks  = new LinkedList<>();
+  private static final Map<MediaEntity, TmmTaskChain> ACTIVE_TASK_CHAINS = new HashMap<>();
 
+  private final MediaEntity mediaEntity;
+  private final Queue<TmmTask> tasks = new LinkedList<>();
+  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+  private boolean running = false;
+
+  /**
+   * get the {@link TmmTaskChain} for the given {@link MediaEntity}
+   *
+   * @param mediaEntity the {@link MediaEntity} to get the {@link TmmTaskChain} for
+   * @return the {@link TmmTaskChain}
+   */
+  public static TmmTaskChain getInstance(MediaEntity mediaEntity) {
+    synchronized (ACTIVE_TASK_CHAINS) {
+      return ACTIVE_TASK_CHAINS.computeIfAbsent(mediaEntity, TmmTaskChain::new);
+    }
+  }
+
+  /**
+   * abort ALL open Tasks
+   */
+  public static void abortAllOpenTasks() {
+    synchronized (ACTIVE_TASK_CHAINS) {
+      ACTIVE_TASK_CHAINS.forEach((mediaEntity1, tmmTaskChain) -> tmmTaskChain.abort());
+      ACTIVE_TASK_CHAINS.clear();
+    }
+  }
+
+  private TmmTaskChain(MediaEntity mediaEntity) {
+    this.mediaEntity = mediaEntity;
+  }
+
+  /**
+   * add a new {@link TmmTask} to the task queue
+   *
+   * @param task the {@link TmmTask} to add
+   * @return the {@link TmmTaskChain} instance
+   */
   public TmmTaskChain add(TmmTask task) {
+    lock.writeLock().lock();
     task.addListener(this);
     tasks.add(task);
+    lock.writeLock().unlock();
+
+    // start with first task
+    if (!running) {
+      running = true;
+      startNextTask();
+    }
+
     return this;
   }
 
-  public void run() {
-    startNextTask();
+  /**
+   * abort all open tasks
+   */
+  public void abort() {
+    lock.writeLock().lock();
+    tasks.clear();
+    lock.writeLock().unlock();
   }
 
   @Override
   public void processTaskEvent(TmmTaskHandle task) {
     switch (task.getState()) {
-      case CANCELLED:
-      case FAILED:
+      case CANCELLED, FAILED:
         LOGGER.debug("Task '{}' {} - continue with next", task.getClass().getName(), task.getState());
         startNextTask();
         break;
@@ -60,15 +115,23 @@ public class TmmTaskChain implements TmmTaskListener {
   }
 
   private void startNextTask() {
+    lock.writeLock().lock();
     TmmTask nextTask = tasks.poll();
+    lock.writeLock().unlock();
+
     if (nextTask != null) {
-      if (nextTask instanceof TmmThreadPool) {
+      if (nextTask instanceof TmmThreadPool threadPool) {
         // add the main task to the named queue
-        TmmTaskManager.getInstance().addMainTask((TmmThreadPool) nextTask);
+        TmmTaskManager.getInstance().addMainTask(threadPool);
       }
       else {
         // add to the unnamed queue
         TmmTaskManager.getInstance().addUnnamedTask(nextTask);
+      }
+    } else {
+      // finished
+      synchronized (ACTIVE_TASK_CHAINS) {
+        ACTIVE_TASK_CHAINS.remove(mediaEntity);
       }
     }
   }

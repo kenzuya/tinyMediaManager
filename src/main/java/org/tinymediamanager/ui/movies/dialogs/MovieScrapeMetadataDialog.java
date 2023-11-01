@@ -53,8 +53,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieScrapeMetadataDialog extends TmmDialog {
-  private static final long                                                    serialVersionUID = 3826984454317979241L;
-
   private final JComboBox<MediaLanguages>                                      cbLanguage;
   private final MediaScraperComboBox                                           cbMetadataScraper;
   private final MediaScraperCheckComboBox                                      cbArtworkScraper;

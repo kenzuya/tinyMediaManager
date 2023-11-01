@@ -15,32 +15,14 @@
  */
 package org.tinymediamanager.core.movie;
 
-import static org.tinymediamanager.core.Constants.CERTIFICATION;
-import static org.tinymediamanager.core.Constants.DECADE;
-import static org.tinymediamanager.core.Constants.GENRE;
-import static org.tinymediamanager.core.Constants.MEDIA_FILES;
-import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
-import static org.tinymediamanager.core.Constants.TAGS;
-import static org.tinymediamanager.core.Constants.YEAR;
+import static org.tinymediamanager.core.Constants.*;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -52,26 +34,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.ImageCache;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.MediaEntity;
-import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.entities.MediaFileAudioStream;
-import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaSource;
+import org.tinymediamanager.core.entities.*;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -116,6 +86,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             decadeInMovies;
   private final CopyOnWriteArrayList<String>             hdrFormatInMovies;
   private final CopyOnWriteArrayList<String>             audioTitlesInMovies;
+  private final CopyOnWriteArrayList<String>             subtitleFormatsInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -146,12 +117,11 @@ public final class MovieList extends AbstractModelObject {
     decadeInMovies = new CopyOnWriteArrayList<>();
     hdrFormatInMovies = new CopyOnWriteArrayList<>();
     audioTitlesInMovies = new CopyOnWriteArrayList<>();
+    subtitleFormatsInMovies = new CopyOnWriteArrayList<>();
 
-    // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
+    // movie listener: it's used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
-      if (evt.getSource() instanceof Movie) {
-        Movie movie = (Movie) evt.getSource();
-
+      if (evt.getSource() instanceof Movie movie) {
         // do not update all list at the same time - could be a performance issue
         switch (evt.getPropertyName()) {
           case YEAR:
@@ -192,6 +162,14 @@ public final class MovieList extends AbstractModelObject {
           break;
       }
     };
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case "movieSetDataFolder":
+          movieSetList.forEach(MovieSetArtworkHelper::updateArtwork);
+          break;
+      }
+    });
   }
 
   /**
@@ -260,7 +238,7 @@ public final class MovieList extends AbstractModelObject {
    */
   void exchangeDatasource(String oldDatasource, String newDatasource) {
     Path oldPath = Paths.get(oldDatasource);
-    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).collect(Collectors.toList());
+    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).toList();
     List<MediaFile> imagesToCache = new ArrayList<>();
 
     for (Movie movie : moviesToChange) {
@@ -286,8 +264,7 @@ public final class MovieList extends AbstractModelObject {
     }
 
     if (!imagesToCache.isEmpty()) {
-      ImageCacheTask task = new ImageCacheTask(imagesToCache);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
+      imagesToCache.forEach(ImageCache::cacheImageAsync);
     }
   }
 
@@ -876,7 +853,7 @@ public final class MovieList extends AbstractModelObject {
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(MovieModuleManager.getInstance().getSettings().getMovieScraper(), ScraperType.MOVIE);
     if (scraper == null || !scraper.isEnabled()) {
-      scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.MOVIE);
+      scraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
     }
     return scraper;
   }
@@ -1138,13 +1115,18 @@ public final class MovieList extends AbstractModelObject {
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
     Set<String> audioTitles = new HashSet<>();
+    Set<String> subtitleFormats = new HashSet<>();
 
-    // get Subtitle language from video files and subtitle files
+    // get subtitle language/format from video files and subtitle files
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
         // subtitle language
         if (!mf.getSubtitleLanguagesList().isEmpty()) {
           subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+        }
+        // subtitle formats
+        for (MediaFileSubtitle subtitle : mf.getSubtitles()) {
+          subtitleFormats.add(subtitle.getCodec());
         }
       }
     }
@@ -1188,9 +1170,12 @@ public final class MovieList extends AbstractModelObject {
           audioLanguages.addAll(mf.getAudioLanguagesList());
         }
 
-        // HDR Format
+        // HDR Format (comma separated)
         if (!mf.getHdrFormat().isEmpty()) {
-          hdrFormat.add(mf.getHdrFormat());
+          String[] hdrs = mf.getHdrFormat().split(", ");
+          for (String hdr : hdrs) {
+            hdrFormat.add(hdr);
+          }
         }
 
         // Audio Titles
@@ -1243,6 +1228,11 @@ public final class MovieList extends AbstractModelObject {
     // subtitle languages
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInMovies, subtitleLanguages)) {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInMovies);
+    }
+
+    // subtitle formats
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleFormatsInMovies, subtitleFormats)) {
+      firePropertyChange(Constants.SUBTITLE_FORMATS, null, subtitleFormatsInMovies);
     }
 
     // HDR Format
@@ -1338,6 +1328,10 @@ public final class MovieList extends AbstractModelObject {
     return Collections.unmodifiableList(subtitleLanguagesInMovies);
   }
 
+  public Collection<String> getSubtitleFormatsInMovies() {
+    return Collections.unmodifiableList(subtitleFormatsInMovies);
+  }
+
   public Collection<String> getHDRFormatInMovies() {
     return Collections.unmodifiableList(hdrFormatInMovies);
   }
@@ -1358,7 +1352,7 @@ public final class MovieList extends AbstractModelObject {
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs" (tmdbcol is from Ember)
-        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
+        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
 
@@ -1451,7 +1445,7 @@ public final class MovieList extends AbstractModelObject {
 
       // remove any empty movie set data folder
       if (StringUtils.isNotBlank(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder())) {
-        String movieSetName = movieSet.getTitleForStorage();
+        String movieSetName = MovieSetArtworkHelper.getMovieSetTitleForStorage(movieSet);
         Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder(), movieSetName));
       }
 

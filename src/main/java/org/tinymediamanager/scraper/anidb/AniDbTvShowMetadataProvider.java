@@ -15,18 +15,16 @@
  */
 package org.tinymediamanager.scraper.anidb;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
+
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +38,8 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -77,7 +77,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     if (!isActive()) {
@@ -99,7 +99,12 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
 
     // filter out the wanted episode
     for (MediaMetadata episode : episodes) {
-      if (episode.getEpisodeNumber() == episodeNr && episode.getSeasonNumber() == seasonNr) {
+      MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(AIRED);
+      if (episodeNumber == null) {
+        continue;
+      }
+
+      if (episodeNumber.episode() == episodeNr && episodeNumber.season() == seasonNr) {
         md = episode;
         break;
       }
@@ -113,7 +118,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public List<MediaMetadata> getEpisodeList(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
 
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
@@ -136,12 +141,13 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     }
 
     // filter out the episode
-    for (Episode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
+    for (AniDbEpisode ep : AniDbMetadataParser.parseEpisodes(doc.getElementsByTag("episodes").first())) {
       MediaMetadata md = new MediaMetadata(providerInfo.getId());
       md.setScrapeOptions(options);
       md.setTitle(ep.titles.get(language));
-      md.setSeasonNumber(ep.season);
-      md.setEpisodeNumber(ep.episode);
+      // basically only absolute order is supported by anidb. we add aired as backwards compatibility
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, ep.season, ep.episode);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, ep.season, ep.episode);
 
       if (StringUtils.isBlank(md.getTitle())) {
         md.setTitle(ep.titles.get("en"));
@@ -169,7 +175,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
   }
 
   @Override
-  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
     if (!isActive()) {
@@ -234,8 +240,7 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
 
     switch (options.getArtworkType()) {
       // AniDB only offers Poster
-      case ALL:
-      case POSTER:
+      case ALL, POSTER -> {
         MediaMetadata md;
         try {
           TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = new TvShowSearchAndScrapeOptions();
@@ -246,19 +251,18 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
           LOGGER.error("could not get artwork: {}", e.getMessage());
           throw new ScrapeException(e);
         }
-
         artwork.addAll(md.getMediaArt(MediaArtworkType.POSTER));
-        break;
-
-      default:
+      }
+      default -> {
         return artwork;
+      }
     }
 
     return artwork;
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     if (!isActive()) {
@@ -275,113 +279,11 @@ public class AniDbTvShowMetadataProvider extends AniDbMetadataProvider implement
     String language = options.getLanguage().getLanguage();
     String id = options.getIdAsString(providerInfo.getId());
     md.setId(providerInfo.getId(), id);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_ABSOLUTE);
 
     AniDbMetadataParser.fillAnimeMetadata(md, language, doc.child(0), providerInfo);
 
     return md;
-  }
-
-  /****************************************************************************
-   * helper class for episode extraction
-   ****************************************************************************/
-  static class Episode {
-    int                 id;
-    int                 episode = -1;
-    int                 season  = -1;
-    int                 runtime = 0;
-    Date                airdate = null;
-    float               rating  = 0;
-    int                 votes   = 0;
-    String              summary = "";
-    Map<String, String> titles;
-
-    private Episode(Builder builder) {
-      id = builder.id;
-      episode = builder.episode;
-      season = builder.season;
-      runtime = builder.runtime;
-      airdate = builder.airdate;
-      rating = builder.rating;
-      votes = builder.votes;
-      summary = builder.summary;
-      titles = builder.titles;
-    }
-
-    public static final class Builder {
-      private int                 id      = -1;
-      private int                 episode = -1;
-      private int                 season  = -1;
-      private int                 runtime = 0;
-      private Date                airdate = null;
-      private float               rating  = 0;
-      private int                 votes   = 0;
-      private String              summary = "";
-      private Map<String, String> titles  = new HashMap<>();
-
-      @Nonnull
-      public Builder id(int val) {
-        id = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder episode(int val) {
-        episode = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder season(int val) {
-        season = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder runtime(int val) {
-        runtime = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder airdate(@Nonnull Date val) {
-        airdate = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder rating(float val) {
-        rating = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder votes(int val) {
-        votes = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder summary(@Nonnull String val) {
-        summary = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder titles(@Nonnull Map<String, String> val) {
-        titles = val;
-        return this;
-      }
-
-      @Nonnull
-      public Builder titles(@Nonnull String language, @Nonnull String title) {
-        titles.put(language, title);
-        return this;
-      }
-
-      @Nonnull
-      public Episode build() {
-        return new Episode(this);
-      }
-    }
   }
 }

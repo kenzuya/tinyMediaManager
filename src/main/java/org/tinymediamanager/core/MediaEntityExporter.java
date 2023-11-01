@@ -17,12 +17,14 @@ package org.tinymediamanager.core;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,15 +34,27 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 import org.tinymediamanager.core.jmte.JSONEncoder;
+import org.tinymediamanager.core.jmte.NamedArrayRenderer;
+import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
+import org.tinymediamanager.core.jmte.NamedDateRenderer;
+import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
+import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
+import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedNumberRenderer;
+import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
+import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.RegexpProcessor;
 
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 import com.floreysoft.jmte.encoder.XMLEncoder;
+import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 public abstract class MediaEntityExporter {
   private static final Logger   LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
@@ -56,6 +70,7 @@ public abstract class MediaEntityExporter {
 
   public enum TemplateType {
     MOVIE,
+    MOVIE_SET,
     TV_SHOW
   }
 
@@ -64,12 +79,12 @@ public abstract class MediaEntityExporter {
 
     // check if template exists and is valid
     if (!Files.isDirectory(templateDir)) {
-      throw new Exception("illegal template path");
+      throw new FileNotFoundException("illegal template path");
     }
 
     Path configFile = templateDir.resolve("template.conf");
     if (!Files.exists(configFile)) {
-      throw new Exception("illegal template config");
+      throw new FileNotFoundException("no template config found");
     }
 
     // load settings from template
@@ -114,6 +129,22 @@ public abstract class MediaEntityExporter {
     }
   }
 
+  protected void registerDefaultRenderers() {
+    engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedNumberRenderer());
+    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
+    engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new NamedArrayRenderer());
+
+    // NEEDS TO BE THE LAST !
+    engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
+  }
+
   public abstract <T extends MediaEntity> void export(List<T> entitiesToExport, Path pathToExport) throws Exception;
 
   /**
@@ -134,13 +165,38 @@ public abstract class MediaEntityExporter {
     List<ExportTemplate> templatesFound = new ArrayList<>();
 
     // search in template folder for templates
-    Path root = Paths.get(TEMPLATE_DIRECTORY);
-    if (!Files.isDirectory(root)) {
-      return templatesFound;
+    // first in tmm dir
+    Path templateInTmmDir = Paths.get(TEMPLATE_DIRECTORY);
+    templatesFound.addAll(findTemplatesInFolder(templateInTmmDir, type));
+
+    // and on content dir
+    Path templateInContentDir = Paths.get(Globals.CONTENT_FOLDER, TEMPLATE_DIRECTORY);
+    if (!templateInContentDir.equals(templateInTmmDir)) {
+      templatesFound.addAll(findTemplatesInFolder(templateInContentDir, type));
     }
 
+    // sort by title
+    templatesFound.sort((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+
+    return templatesFound;
+  }
+
+  /**
+   * search for {@link ExportTemplate}s in the given {@link Path}
+   *
+   * @param folder the {@link Path} to search templates for
+   * @param type   the {@link TemplateType}
+   * @return a {@link List} of found {@link ExportTemplate}s
+   */
+  private static List<ExportTemplate> findTemplatesInFolder(Path folder, TemplateType type) {
+    if (!Files.isDirectory(folder)) {
+      return Collections.emptyList();
+    }
+
+    List<ExportTemplate> templatesFound = new ArrayList<>();
+
     // search ever subdir
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(root)) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(folder)) {
       for (Path path : directoryStream) {
         if (Files.isDirectory(path)) {
 
@@ -188,9 +244,6 @@ public abstract class MediaEntityExporter {
     catch (IOException ignored) {
       // nothing to do
     }
-
-    // sort by title
-    templatesFound.sort((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
 
     return templatesFound;
   }
@@ -249,7 +302,7 @@ public abstract class MediaEntityExporter {
         }
 
         switch (key.toLowerCase(Locale.ROOT)) {
-          case "type":
+          case "type" -> {
             try {
               MediaFileType type = MediaFileType.valueOf(value.toUpperCase(Locale.ROOT));
               parameterMap.put(key, type);
@@ -257,29 +310,19 @@ public abstract class MediaEntityExporter {
             catch (Exception e) {
               // do not let the exporter crash
             }
-            break;
-
-          case "destination":
-          case "default":
-            parameterMap.put(key, value);
-            break;
-
-          case "thumb":
-          case "escape":
-            parameterMap.put(key, Boolean.parseBoolean(value));
-            break;
-
-          case "width":
+          }
+          case "destination", "default" -> parameterMap.put(key, value);
+          case "thumb", "escape" -> parameterMap.put(key, Boolean.parseBoolean(value));
+          case "width" -> {
             try {
               parameterMap.put(key, Integer.parseInt(value));
             }
             catch (Exception ignored) {
               // do not let the exporter crash
             }
-            break;
-
-          default:
-            break;
+          }
+          default -> {
+          }
         }
       }
 

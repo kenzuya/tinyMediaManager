@@ -89,8 +89,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
-  private static final long serialVersionUID = -1681460428331929420L;
-
   MovieSelectionModel       selectionModel;
 
   private MovieList         movieList;
@@ -400,6 +398,10 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   @Override
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
+
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
 
     movieTable.addMouseListener(new MouseAdapter() {
       @Override

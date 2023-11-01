@@ -19,13 +19,13 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MovieThumbNaming.
+ * The enum {@link MovieThumbNaming} - used to generate thumb filenames
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetThumbNaming implements IMovieSetFileNaming {
 
-  /** movieset-thumb.* */
+  /** movieset-thumb.ext - in movie folder */
   MOVIE_THUMB {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +38,20 @@ public enum MovieSetThumbNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** movieset-landscape.* */
+  /** [movieset name]-thumb.ext - in movie folder */
+  MOVIESET_THUMB {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-thumb." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** movieset-landscape.ext - in movie folder */
   MOVIE_LANDSCAPE {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +64,20 @@ public enum MovieSetThumbNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** thumb.* */
+  /** [movieset name]-landscape.ext - in movie folder */
+  MOVIESET_LANDSCAPE {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-landscape." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** thumb.ext - in artwork folder */
   KODI_THUMB {
     @Override
     public String getFilename(String basename, String extension) {
@@ -64,7 +90,7 @@ public enum MovieSetThumbNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** landscape.* */
+  /** landscape.ext - in artwork folder */
   KODI_LANDSCAPE {
     @Override
     public String getFilename(String basename, String extension) {
@@ -77,7 +103,7 @@ public enum MovieSetThumbNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-thumb.* */
+  /** [movie set name]-thumb.ext - in artwork folder */
   AUTOMATOR_THUMB {
     @Override
     public String getFilename(String basename, String extension) {
@@ -90,7 +116,7 @@ public enum MovieSetThumbNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-landscape.* */
+  /** [movie set name]-landscape.ext - in artwork folder */
   AUTOMATOR_LANDSCAPE {
     @Override
     public String getFilename(String basename, String extension) {

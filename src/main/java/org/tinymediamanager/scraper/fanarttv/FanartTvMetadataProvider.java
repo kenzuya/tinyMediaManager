@@ -26,6 +26,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
+import org.tinymediamanager.scraper.entities.MediaArtwork.ThumbSizes;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Image;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
@@ -224,7 +225,6 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       }
 
       MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type.type);
-      ma.setDefaultUrl(image.url);
       ma.setOriginalUrl(image.url);
 
       // replace the url to get the preview AND switch to assetcache.fanart.tv (as suggested in discord)
@@ -232,7 +232,7 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
       // not anymore - keep url, and just exchange the fanart to /preview/ (Discord Feb 2022)
       ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/"));
 
-      if ("OO".equals(image.lang)) {
+      if ("00".equals(image.lang) || StringUtils.isBlank(image.lang)) {
         // no text
         ma.setLanguage("-");
       }
@@ -240,8 +240,7 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
         ma.setLanguage(image.lang);
       }
       ma.setLikes(image.likes);
-      ma.addImageSize(type.width, type.height, image.url);
-      ma.setSizeOrder(type.sizeOrder);
+      ma.addImageSize(type.width, type.height, image.url, type.sizeOrder);
 
       if ("all".equals(image.season)) {
         ma.setSeason(0);
@@ -255,11 +254,6 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
         }
       }
       artworks.add(ma);
-
-      // fanart.tv only knows clearlogo; copy that for the logo type
-      if (type.type == MediaArtworkType.CLEARLOGO) {
-        artworks.add(new MediaArtwork(ma, MediaArtworkType.LOGO));
-      }
     }
 
     return artworks;
@@ -270,9 +264,9 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
     // @formatter:off
     HDMOVIECLEARART(1000, 562, MediaArtworkType.CLEARART, FanartSizes.MEDIUM.getOrder()),
     HDCLEARART(1000, 562, MediaArtworkType.CLEARART, FanartSizes.MEDIUM.getOrder()),
-    MOVIETHUMB(1000, 562, MediaArtworkType.THUMB, FanartSizes.MEDIUM.getOrder()),
-    SEASONTHUMB(1000, 562, MediaArtworkType.SEASON_THUMB, FanartSizes.MEDIUM.getOrder()),
-    TVTHUMB(500, 281, MediaArtworkType.THUMB, FanartSizes.MEDIUM.getOrder()),
+    MOVIETHUMB(1000, 562, MediaArtworkType.THUMB, ThumbSizes.MEDIUM.getOrder()),
+    SEASONTHUMB(1000, 562, MediaArtworkType.SEASON_THUMB, ThumbSizes.MEDIUM.getOrder()),
+    TVTHUMB(500, 281, MediaArtworkType.THUMB, ThumbSizes.MEDIUM.getOrder()),
     MOVIEBACKGROUND(1920, 1080, MediaArtworkType.BACKGROUND, FanartSizes.LARGE.getOrder()),
     SHOWBACKGROUND(1920, 1080, MediaArtworkType.BACKGROUND, FanartSizes.LARGE.getOrder()),
     MOVIEPOSTER(1000, 1426, MediaArtworkType.POSTER, PosterSizes.LARGE.getOrder()),

@@ -217,10 +217,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
             try {
               for (MediaMetadata me : ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getEpisodeList(options)) {
                 TvShowEpisode ep = new TvShowEpisode();
-                ep.setEpisode(me.getEpisodeNumber());
-                ep.setSeason(me.getSeasonNumber());
-                ep.setDvdEpisode(me.getDvdEpisodeNumber());
-                ep.setDvdSeason(me.getDvdSeasonNumber());
+                ep.setEpisodeNumbers(me.getEpisodeNumbers());
                 ep.setFirstAired(me.getReleaseDate());
                 ep.setTitle(me.getTitle());
                 ep.setOriginalTitle(me.getOriginalTitle());
@@ -306,6 +303,17 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 task.run();
               }
             }
+
+            if (cancel) {
+              return;
+            }
+
+            // last but not least call a further rename task on the TV show root to move the season fanart into the right folders
+            if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
+              TvShowRenameTask task = new TvShowRenameTask(tvShow);
+              // start this task embedded (to the abortable)
+              task.run();
+            }
           }
           catch (MissingIdException e) {
             LOGGER.warn("missing id for scrape");
@@ -346,6 +354,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
       options.setMetadata(metadata);
 
       for (Entry<String, Object> entry : tvShow.getIds().entrySet()) {

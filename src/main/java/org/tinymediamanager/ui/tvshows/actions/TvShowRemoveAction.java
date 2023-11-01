@@ -19,6 +19,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -45,8 +46,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRemoveAction extends TmmAction {
-  private static final long serialVersionUID = -2355545751433709417L;
-
   public TvShowRemoveAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.remove"));
     putValue(SMALL_ICON, IconManager.DELETE);
@@ -87,18 +86,18 @@ public class TvShowRemoveAction extends TmmAction {
     }
 
     TmmTaskManager.getInstance().addUnnamedTask(() -> {
-      for (TvShow tvShow : selectedObjects.getTvShows()) {
-        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
+      for (TvShowEpisode episode : selectedObjects.getEpisodes()) {
+        episode.getTvShow().removeEpisode(episode);
       }
 
       for (TvShowSeason season : selectedObjects.getSeasons()) {
-        for (TvShowEpisode episode : season.getEpisodes()) {
+        for (TvShowEpisode episode : new ArrayList<>(season.getEpisodes())) {
           season.getTvShow().removeEpisode(episode);
         }
       }
 
-      for (TvShowEpisode episode : selectedObjects.getEpisodes()) {
-        episode.getTvShow().removeEpisode(episode);
+      for (TvShow tvShow : selectedObjects.getTvShows()) {
+        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
       }
     });
   }

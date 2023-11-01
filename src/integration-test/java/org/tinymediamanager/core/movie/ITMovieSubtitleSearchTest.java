@@ -22,12 +22,9 @@ import static org.assertj.core.api.Fail.fail;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -70,7 +67,7 @@ public class ITMovieSubtitleSearchTest extends BasicITest {
       for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
         for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.VIDEO)) {
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
-          options.setFile(mediaFile.getFile().toFile());
+          options.setMediaFile(mediaFile);
           List<SubtitleSearchResult> results = ((IMovieSubtitleProvider) scraper.getMediaProvider()).search(options);
           if (!results.isEmpty()) {
             System.out.println("Subtitle for hash found: " + results.get(0).getUrl());

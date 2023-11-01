@@ -45,6 +45,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
@@ -69,8 +70,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class UiSettingsPanel extends JPanel {
-  private static final long          serialVersionUID   = 6409982195347794360L;
-
   private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
@@ -191,7 +190,7 @@ class UiSettingsPanel extends JPanel {
     }
 
     // hide update related settings if we tmm.noupdate has been set
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || ReleaseInfo.isNightly()) {
+    if (!Globals.canCheckForUpdates() || ReleaseInfo.isNightly()) {
       collapsiblePanelUpdate.setVisible(false);
     }
   }

@@ -15,18 +15,23 @@
  */
 package org.tinymediamanager.scraper.tmdb;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.tmdb.entities.Configuration;
+import org.tinymediamanager.scraper.tmdb.entities.ExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.Genre;
 import org.tinymediamanager.scraper.tmdb.entities.Translations;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -75,7 +80,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   // thread safe initialization of the API
@@ -83,7 +88,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
     // check if the API should change from current key to another
     if (api != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+      String userApiKey = providerInfo.getUserApiKey();
       if (StringUtils.isNotBlank(userApiKey) && !userApiKey.equals(api.apiKey())) {
         // force re-initialization with new key
         api = null;
@@ -101,7 +106,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
       }
 
       try {
-        String userApiKey = providerInfo.getConfig().getValue("apiKey");
+        String userApiKey = providerInfo.getUserApiKey();
         api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey());
         Response<Configuration> response = api.configurationService().configuration().execute();
         if (response.code() == 401) {
@@ -389,6 +394,25 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
     return g;
   }
 
+  protected Map<String, Object> parseExternalIDs(ExternalIds ids) {
+    Map<String, Object> ret = new HashMap<>();
+    if (ids != null) {
+      if (StringUtils.isNotBlank(ids.imdb_id)) {
+        ret.put(MediaMetadata.IMDB, ids.imdb_id);
+      }
+      if (StringUtils.isNotBlank(ids.wikidata_id)) {
+        ret.put(MediaMetadata.WIKIDATA, ids.wikidata_id);
+      }
+      if (ids.tvdb_id != null && ids.tvdb_id > 0) {
+        ret.put(MediaMetadata.TVDB, ids.tvdb_id);
+      }
+      if (ids.tvrage_id != null && ids.tvrage_id > 0) {
+        ret.put(MediaMetadata.TVRAGE, ids.tvrage_id);
+      }
+    }
+    return ret;
+  }
+
   /**
    * tmdb works better if we send a "real" language tag (containing language AND country); since we have only the language tag we do the same hack as
    * described in the tmdb api (By default, a bare ISO-639-1 language will default to its matching pair, ie. pt-PT - source
@@ -398,7 +422,7 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
    *          the {@link MediaLanguages} to parse
    * @return a {@link String} containing the language and country code
    */
-  static String getRequestLanguage(MediaLanguages language) {
+  static String getRequestLanguage(@NotNull MediaLanguages language) {
     String name = language.name();
 
     Locale locale;
@@ -418,7 +442,8 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
     }
 
     if (locale == null) {
-      return null;
+      // fallback - should never be reached, but...
+      locale = Locale.getDefault();
     }
 
     return locale.toLanguageTag();

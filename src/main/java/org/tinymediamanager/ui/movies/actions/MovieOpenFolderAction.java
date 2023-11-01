@@ -39,7 +39,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieOpenFolderAction extends TmmAction {
-  private static final long   serialVersionUID = 4921209365489852998L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MovieOpenFolderAction.class);
 
   public MovieOpenFolderAction() {

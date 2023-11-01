@@ -336,6 +336,21 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
         height.setTextContent(Integer.toString(vid.getVideoHeight()));
         video.appendChild(height);
 
+        if (movie.isVideoInHDR()) {
+          // basically a TMM string to Kodi skin mapping, but only one
+          Element hdr = document.createElement("hdrtype");
+          if (vid.getHdrFormat().contains("Dolby Vision")) {
+            hdr.setTextContent("dolbyvision");
+          }
+          else if (vid.getHdrFormat().contains("HLG")) {
+            hdr.setTextContent("hlg");
+          }
+          else if (vid.getHdrFormat().contains("HDR10")) {
+            hdr.setTextContent("hdr10");
+          }
+          video.appendChild(hdr);
+        }
+
         // does not work reliable for disc style movies, MediaInfo and even Kodi write weird values in there
         if (!movie.isDisc() && !movie.getMainVideoFile().getExtension().equalsIgnoreCase("iso")) {
           Element durationinseconds = document.createElement("durationinseconds");

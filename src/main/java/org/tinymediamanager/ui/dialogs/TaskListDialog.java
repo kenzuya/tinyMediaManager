@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -42,14 +43,12 @@ import org.tinymediamanager.ui.components.TaskListComponent;
 import net.miginfocom.swing.MigLayout;
 
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
-  private static final long                           serialVersionUID = 4151412495928010232L;
-
-  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle               BUNDLE  = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;
 
   // a map of all active tasks
-  private final Map<TmmTaskHandle, TaskListComponent> taskMap          = new ConcurrentHashMap<>();
+  private final Map<TmmTaskHandle, TaskListComponent> taskMap = new ConcurrentHashMap<>();
   private final TaskListComponent                     noActiveTask;
 
   private final JPanel                                panelContent;
@@ -84,20 +83,17 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       getContentPane().add(rootPanel, BorderLayout.CENTER);
 
       JButton btnAbortAll = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
-      btnAbortAll.addActionListener(e -> taskMap.forEach((task, component) -> {
-        task.cancel();
-        removeListItem(task);
-      }));
+      btnAbortAll.addActionListener(e -> {
+        TmmTaskChain.abortAllOpenTasks();
+        taskMap.forEach((task, component) -> {
+          task.cancel();
+          removeListItem(task);
+        });
+      });
       addButton(btnAbortAll);
     }
     TmmTaskManager.getInstance().addTaskListener(this);
     TmmUILayoutStore.getInstance().install(panelContent);
-  }
-
-  @Override
-  public void dispose() {
-    // do not dispose (singleton), but save the size/position
-    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 
   public static TaskListDialog getInstance() {
@@ -166,10 +162,8 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     bottomPanel.setVisible(true);
 
     if (isShowing()) {
-      invalidate();
-      panelContent.invalidate();
+      revalidate();
       repaint();
-      panelContent.repaint();
     }
   }
 
@@ -191,10 +185,8 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     }
 
     if (isShowing()) {
-      invalidate();
-      panelContent.invalidate();
+      revalidate();
       repaint();
-      panelContent.repaint();
     }
   }
 }

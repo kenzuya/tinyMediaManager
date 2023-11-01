@@ -1,317 +1,59 @@
-Version 4.3.13
+Version 5.0
 =======================
-+ MediaInfo: also support their sidecar file naming
-+ improve ID detection from file-/folder name
-x several fixes for IMDb
-x fix NFO naming for disc style movies #2252
-x fix reordering of TV show data sources #2251
-x fixed wrong translation for reading TV show nfo files #2250
-x adapt CLI help dialog for resized window
-x (Trakt.tv) fixed refreshing the access token #2253
-x fixed sorting of movies without a movie set #2247
-x fixed HTTP 403 errors from YT
++ Adopted storage locations to the operating system defaults (for new installations):
+  - macOS: ~/Library/Application Support/tinyMediaManager
+  - Windows: Users home\AppData\Roaming
+  - Linux: ~/.local/share/tinyMediaManager
+  - added an extra portable build for local storage
++ Subtitle handling rework: 
+  - support for any language/locale style, greatly improved detection
+  - check new "original" language style for renaming
++ providing signed installers (Windows, macOS)
++ changed Linux ARM build to 64 bit (arm64/aarch64)
++ enabled usage of different episode groups #1935 #1138 #736
++ added support for OpenSubtitles.com
++ unified logo and clearlogo usage #2148
+  ATTENTION: you should review your logo and clearlogo settings!
++ reworked some dialogs to a material design like input dialog
++ enhanced automatic artwork downloading #2184, #2182
++ added subtitle format info to media files tab and filters #1709
++ fetch ratings: remember last used rating sources #1940
++ added some more movie editions per default #1987
++ writing season NFO files (mainly for Emby) #1697
++ added season plot
++ added a movie set export engine #1928
++ also scrape & identify episode guest stars
++ added a bulk editor for TV shows and episodes #1866
++ filter enhancements: numerical values can now be filtered with various other comparison methods #1952
++ many new filters #1052 #1952 #1949
++ added an option to control how the "new" flag should be cleared
++ added a logo for HDR/Dolby Vision #2191
++ (movie/TV shows) added templates for exporting XML files for tagging *.mkv using mkvtoolnix suite. thx @curious_ralf
++ added EpisodeCount/SeasonCount filter
++ able to identify multiple HDR streams and fallbacks #2213
++ (IMDB) added action to fetch Top 250 numbers; add support for TvShows
++ added an action to reset the "new" flag
++ (FFmpeg) support stacked movies for generating previews #2271
++ Added an option to write the movie set folder/artwork in Emby style
++ added mdblist.com as new rating source #2276
++ added locked filter for movies and tv shows
++ added bulk edit option for "Date Added" (movies / tv-shows) #2013
++ added HFR(Higher Frame Rate) Logo if mediafile has more or equal 48 fps #1376
++ added "Criterion Collection" as known edition #2295
++ added certification column (tv show) #2317
++ (TRAKT) improve search performance, fixed TV poster
++ (Jellyfin) added backdrop naming for fanart #2322
+x fixed displaying missing season metadata #2238
+x fixed downloading of season artwork #2258
+x better handling of image cache upon rename
+x added an option to write season data (NFO/artwork) for unavailable seasons
+x (movie) renamer preview now shows subfolders too #2010
+x (IMDB) adapt keywords parsing to new style
+x (TVDB) also scrape season overview/names #2275
 x do not drop audio channels with empty bitrate #2262
 x do not write NFO files on "update data sources"
+x fix cloning of TV episodes #2309
 x fixed rebuilding image cache #2268
+x improve reloading of NFO files; exception for those without s/e numbers #2266
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
-
-
-Version 4.3.12
-=======================
-x (FFmpeg) set correct artwork metadata for the enhanced artwork download algorithm #2181
-x added an action to export internal data for issue analysis
-x encrypt exported logs/data for your privacy
-x do not always download actor images, when "overwrite existing" is false
-x rewrite NFO file after gathering mediainfo !488
-x enhanced media source detection
-x ignore case when checking for special folders (Trailers, Behind The Scenes, Featurettes, ...) #2205
-x enhanced detection of movies in "update data sources"
-x enhanced detection of season/episode names
-x Movie Picker export template update (thx @bastienpruvost)
-x new "Dark" export templates for movies and TV shows (thx @jhartlep)
-x only trigger Trakt.tv sync if there is anything to sync
-
-
-Version 4.3.11.1
-=======================
-x some fixes/enhancements on the automatic artwork download algorithm #2182, #2184
-x use "date added" as default date for Trakt.tv sync #2183
-x (Trakt) added sanity check: we must not sync a date in the future #2183
-
-
-Version 4.3.11
-=======================
-+ added Chinese (Singapore) to the scraper languages #2142
-+ (renamer) audioChannels in "dot" notation (6ch -> 5.1)
-+ (bulk edit) remember last used tab when bulk editing
-+ upgraded libmediainfo to 23.04
-+ added Macedonian to the scraper languages #2170
-+ (mediainfo) extract subtitles from audio files too #2180
-+ (Trakt) added an option to choose which date field is used for "collected at" #2168
-x (TMDB) enhanced loading of localized episode content (title, original title, plot) #2165
-x fixed Kodi RPC mappings
-x fixed trailer downloading
-x (Docker) force writing of window sizes/locations on shutdown #2091
-x (TMDB/TVDB) do not scrape empty episode names if no translation is available #2147
-x (movie set) downloading of artwork with different extensions #2154
-x (TV shows) fixed renaming of video extras #2145
-x fix extras detection for TV shows/episodes
-x (movie) fix renaming of stacked subtitles
-x fix renamer preview for extras
-x added a faster way to re-evaluate MMD on each update
-x made update data sources more crash resistant #2169
-x enhanced logic to detect scraped status #2156
-x enhanced extra(s) handling for episodes
-x enhanced multi movie detection
-x fixed pre-set of episode thumbs in the "Scrape metadata of selected episodes" dialog
-x moved version info into the toolbar #2161
-x added "Canceled" status for TV shows #2177
-x improved edition detection from filename
-x some enhancements on the automatic artwork download algorithm
-
-
-Version 4.3.10
-=======================
-+ added new "unique" array renderer
-+ (FFmpeg) added some variance to create different thumbs everytime #2137
-x improved loading speed of movie and TV show module
-x fixed overwriting existing artwork on download #2109
-x (IMDB/TMDB) scrape certifications for TV shows #2116
-x do not create a movie set without title from a damaged NFO
-x fix language selector #2133
-x fix TvShow update not finding/reading episode NFO files #2126
-x (FFmpeg) added some mitigations for wrong settings #2112
-x (HD-trailers) fix scraping
-x (TV shows) handle "uncategorized" missing episodes in the same way as missing specials
-
-
-Version 4.3.9.1
-=======================
-x (TV shows) fix displaying posters for episodes
-x (movies) improve performance of update, do not always reevaluate MMD
-
-
-Version 4.3.9
-=======================
-x (TVDB) only scrape the requested certification code
-x fix duplicate filter with movie sets scraped from TMDB #2024
-x fixed parsing language from libmediainfo #2036
-x (movie) fixed loading of custom editions #2043
-x (TMDB) fixed classification of artwork (logos) #2044
-x (TV show) fixed fetching of missing episode thumbs #2045
-x (HTTP API) wait for all image downloads before renaming
-x enhanced the array renderer (also render lists with other types than strings)
-x (TV shows) hanging when scraping for episodes #1411
-x (TV shows) also allow to choose season artwork when scraping TV shows
-x (movie) fix character escaping of path separators #2049
-x (Trakt.tv) enhanced conversion for atmos/hdr codec in metadata sync (thx @louislach)
-x (moviesets) do not allow editing of 'dummy' movies #2064
-x (TV show) re-evaluate filter state after changes #2047
-x (JMTE) replacement renderer can also be called for a single char
-x (API) scope "unscraped" has been added to our HTTP API
-x improved performance of "update data sources" when Kodi sync is activated
-x sorting of video formats #2077
-x added certifications for BR #2074
-x (movie set) added an action to remove selected movies from the movie set #2064
-x some performance enhancements for the Kodi sync
-x fixed saving of filter dialog location #2081 #2032
-x display data sources in filter in the same order as in the settings #2079
-x (trakt) fixed linking to detail pages with ID #2085
-x fixed (re)setting watched date from Trakt and Kodi to NFO #2083
-x slightly tweak the split files pattern
-x fix actor display #2073
-x (OFDB) rework scraper, fix trailers
-x removed some unneeded actions
-
-
-Version 4.3.8
-=======================
-+ added new <episodeguide> style for Kodi v19+ - https://forum.kodi.tv/showthread.php?tid=370489 (http://bit.ly/3IIJZLV)
-+ added an option to specify update check interval/disable update check completely
-+ (movie, TV show) added the ability to copy renamer token into the clipboard (CTRL C, right click)
-+ upgraded libmediainfo to 22.12
-+ new implementation of the IMDB scraper (check scraper settings!)
-+ added new IMDB trailer scraper (needs to be activated in the settings)
-+ added a new renderer to process outputs from multiple renderers #1980 (http://bit.ly/3GYsbLk)
-+ open context menu of movie/movie set/TV show lists via context menu key on the keyboard
-x automatically close renamer preview if nothing needs to be renamed #1964
-x do not store filters if they are not active #1961
-x do not remove missing episodes with unset DVD S/E #1960
-x (movie) create new editions when importing NFO files #1959
-x (movie) reserve more space for the edition dropdown #1963
-x (movie) added some more editions per default #1987
-x (movie) enabled strict case comparison when creating new editions #1969
-x improve episode detection to find them also in optional [brackets]
-x (TV shows) fixed filtering for missing episode thumbs #1977
-x able to exchange movies with same name in case of MMD
-x fix parsing MediaSource on exchanged video files #1992
-x remember all splitter locations #1966
-x (movie) enhanced detection of movie titles when parsing the data source
-x (AniDB) inform users when they are banned #1997
-x (movie, TV show) set playcount and lastplayed along with watched state in the NFO #1983
-x fixed deletion of filter presets when the warning has been disabled #2002
-x added season name renamer token to the examples #1968
-x provide release date as another date field for UI #1981
-x added "Passed" and "Approved" to US certifications #2001
-x fixed adding of new extrathumbs/extrafanarts #1996
-x Fanart.tv switch url back to original
-x IMDB: artworks should only be downscaled, but never upscaled - #1988
-x added some validation to the aspect ratio detection #2016
-x prevent UI lockups when writing NFO files is not possible
-
-
-Version 4.3.7
-=======================
-x better detect and parse movie structures #1932
-x fixed changing of tags in episodes #1955
-x (IMDB) make cleaner calls to avoid HTTP 403 responses
-x (TV show) better cleanup after scraping in the episode editor
-x added module name into title bar of the filter dialog
-
-
-Version 4.3.6
-=======================
-+ added reloading of mediainfo to the commandline interface
-+ Subtitles: also parse language from filename, if MediaInfo detects none #1947
-+ updated Java to 17.0.5 #1948 #1933
-x improved MediaSource detection (false positives, ordering) #1950
-x (TV show) also normalize database values before filtering the tree #1929
-x (IMDB) fixed search
-x (TV show) enhanced season detection for season artwork #1943
-x added some performance improvements to the launcher
-
-
-Version 4.3.5
-=======================
-+ added the "date added" column to the movie set table #1937
-+ IMDB serves different search result pages - parse other one too
-x fixed wrong detection of the season number in season artwork filename (resulting in season2147483647-poster.jpg) #1943
-x prevent crashes in the episode editor due to too large episode numbers #1917
-x also enable FFmpeg for automatic fanart scraping #1927
-x do not show rating star twice in the ratings panel #1931
-x (TV show) normalize text before filtering the tree #1929
-x AniDB: better filtering of search results
-x Improved search results when having a date in title #1932
-x revert change, which prevented renaming of episodes w/o patterns
-x better handling of timeouts #1925
-
-
-Version 4.3.4
-=======================
-+ added the ID of the movie/TV show to the search results #1824
-+ added a renamer token for TV show genres and TV show/episode ratings #1874
-+ also delete unwanted folders on rename #1692
-+ TV episodes: also detect IDs from filename
-+ changing the user rating will remove it from the ratings
-+ added regular expression based skip folders for TV shows #1402
-+ added a path based filter for movies and TV shows #1891
-+ upgraded libmediainfo to 22.09
-x do not check title token for valid episode name pattern #1870
-x fixed timing of KodiRPC calls #1831
-x (TVDB) allow using a subscriber API key & pin
-x (TMDB) matching of episode numbers #1884
-x update movie media source on exchanged video files
-x remove all scraped IDs when changing episode/season numbers
-x upgrade MediaSource BluRay to UHD-BluRay, if video specs say so
-x (TVDB) also scrape certification data for TV shows
-x KodiRPC: better handling of URIs for matching (stackoverflow) #1903
-x read real subtitle format via mediainfo
-
-
-Version 4.3.3
-=======================
-+ redesign the file type panel
-+ added Top 250 column to the movie list #1838
-x fix displaying correct runtime for disc folders
-x preserve tags order #1848
-x better fallback scraper selection
-x merging multiple items should not remove anything #1840
-x (TMDB) fixed rating download for TV shows
-x do not try to get episode thumbs from fanart.tv #1855
-x ignore tmdbcol (from Ember) in the duplicate filter
-x (AniDB) fixed scraping of episodes
-x saving of changes genres/tags in the movie/TV show editor #1858
-x (TV shows) removed double assigned hotkey #1851
-x fix scraping TV season names #1856
-x also set unknown HDR values
-x respect preferred artwork sizes for TV shows too
-x fix loading values in the replacement renderer
-
-
-Version 4.3.2
-=======================
-+ redesign ImageType naming panel
-x check for existing ID when using MPDb.TV scraper (metadata & artwork)
-x fixed AspectRatioDetection; improved logging of errors
-x fixed occasional removing of cast when re-scrape #1840
-x fixed downloading of some YT trailers
-x fixed fetching of season artwork from TVDB #1841
-x fixed KodiRPC calls #1831
-x DownloadMissingArtwork did not respect the chosen scrapers
-x improved fallback episode detection for files with just numbers
-x improved error handling on reading MediaInfo XMLs
-x revert UI lib to fix scaling issues with bigger fonts
-x hd-trailers.net better error handling
-x fix FFMpeg artwork scraper for tv episodes #1842
-x parse even more metadata fields of MKV files
-
-
-Version 4.3.1
-=======================
-x removed copying of file attributes which resulted in inaccessible artwork #1835
-x fix for handling disc files not in their expected folder
-x parse correct filename out of the mediainfo.xml (which is now mandatory for better detection)
-x fix AspectRatioDetection on some files
-x improved overall performance when dealing with disc folder structures (runtime calculation)
-x fix for detection of the FFmpeg executable
-x removed overwriting of the renamer pattern when using a media center preset #1837
-
-
-Version 4.3
-=======================
-+ added an action to scrape ratings from multiple scrapers #1672 (https://bit.ly/3yDBRY8)
-+ fetch all possible IDs & ratings when scraping #1672
-+ added a fallback strategy for the universal scraper #1684
-+ added an action to lock objects on movie/TV show level
-+ updated the bundled Java version to 17.0.2
-+ bundled Java, libmediainfo and tinyFileDialogs for arm (32bit)
-+ added an HTTP API for remote control of tinyMediaManager (https://bit.ly/3lcA6sQ)
-+ added a movie scraper for AniDB #1728 (thx @hudsonrj09)
-+ added a regular expression based JMTE annotation #1611 (https://bit.ly/3wtIZUb)
-+ added a renamer token for movie set index respecting missing movies #1702
-+ (AniDB) added an option to get the character image instead of the actor image
-+ (movies/TV shows) write <tvdbid> tag for actors in the NFO file #1722
-+ allow editing of cast from within the cast panels #1639
-+ (TMDB) enabled logo scraping
-+ added writing of TMDB/IMDB/TVDB ids for writers and directors in the NFO files #1731
-+ added an option to disable the trash bin (.deletedByTMM) #1727
-+ added an option to store NFO files outside of disc folders (VIDEO_TS, BDMV)
-+ added an option to automatically "cleanup unwanted files" on rename #1775
-+ added extended syntax to movie search field.
-+ added a NFO option to control writing of <lockdata>true</lockdata> #1796
-+ enhanced delete unwanted files action to find unwanted folders too #1692
-x changed person-merge behavior: #1799
-  - with "Do not overwrite" enabled, new person data will be merged into existing data
-  - with "Do not overwrite" disabled, existing person data will replaced by the newly scraped data
-x Improved handling of Bluray/DVD disc folder structures (also within ISOs)
-x rework automatic aspect ratio detection (performance)
-x updated Movie Picker template (thx @bastienpruvost)
-x copy file-date attributes on Windows #1674
-x improved download speed of trailers
-x changed imdb actor image loading/scaling algorithm
-x enabled downloading actor images for multi movie folders
-x loading of "ignore SSL errors" on startup
-x use collection as root node of the collection NFO #1731
-x (TV shows/movie sets) do not crash when title and original title column is hidden #1733
-x (Emby) preserve custom movie sets in NFO #1617
-x sync episodes to Trakt.tv via IDs where possible #1643
-x locked movies should not disappear on update #1784
-x adhere empty season folder on renaming 'specials' #1785
-x fixed downloading missing artwork for seasons #1794
-x remove failed tasks from the task list
-x removed tmdbCollectionId from NFOs because Emby does not read that any more #1793
-x fixed update datasource with additional files in disc folders / or at root level
-x reloading of user_note from NFO #1808
-x round ratings to only one decimal place #1807
-x filter for season artwork in the image chooser
-x some issues with filter loading #1811
+x fix plot formatting with line-breaks #2286

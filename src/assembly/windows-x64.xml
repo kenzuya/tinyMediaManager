@@ -1,0 +1,53 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>windows-amd64</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <!-- copy BASE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-base</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- and just windows stuff from GD -->
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+            <includes>
+                <include>digest*</include>
+                <include>getdown.txt</include>
+                <include>version</include>
+
+                <include>*.exe</include>
+                <include>native/windows/*</include><!-- no subfolders! -->
+            </includes>
+        </fileSet>
+        <fileSet>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/windows-x64</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/jre/windows_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/jre</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-windows_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/native/windows/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
+        </file>
+    </files>
+</assembly>

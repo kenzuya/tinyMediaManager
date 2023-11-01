@@ -31,8 +31,6 @@ import javax.swing.ToolTipManager;
  * @author Manuel Laggner
  */
 public class JHintLabel extends JLabel {
-  private static final long serialVersionUID = 3027595143561381907L;
-
   private Icon              hintIcon         = null;
   private MouseAdapter      tooltipAdatapter = new MouseAdapter() {
                                                final int defaultDismissTimeout = ToolTipManager.sharedInstance().getDismissDelay();

@@ -17,6 +17,8 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -36,27 +38,46 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowRenameTask extends TmmThreadPool {
-  private static final Logger             LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowRenameTask.class);
 
-  private final Collection<TvShow>        tvShowsToRename  = new ArrayList<>();
-  private final Collection<TvShowEpisode> episodesToRename = new ArrayList<>();
-  private final boolean                   renameRoot;
+  private final List<TvShow> tvShowsToRename = new ArrayList<>();
+  private final List<TvShowEpisode> episodesToRename = new ArrayList<>();
 
   /**
-   * Instantiates a new tv show rename task.
-   * 
-   * @param tvShowsToRename
-   *          the tvshows to rename
+   * Rename just the given {@link TvShow} root (and {@link org.tinymediamanager.core.entities.MediaFile}s)
+   *
+   * @param tvShowToRename the {@link TvShow} to rename
    */
-  public TvShowRenameTask(Collection<TvShow> tvShowsToRename, Collection<TvShowEpisode> episodesToRename, boolean renameRootFolder) {
+  public TvShowRenameTask(TvShow tvShowToRename) {
+    this(Collections.singletonList(tvShowToRename), null);
+  }
+
+  /**
+   * Rename just the given {@link TvShow} roots (and {@link org.tinymediamanager.core.entities.MediaFile}s)
+   *
+   * @param tvShowsToRename the {@link TvShow}s to rename
+   */
+  public TvShowRenameTask(Collection<TvShow> tvShowsToRename) {
+    this(tvShowsToRename, null);
+  }
+
+  /**
+   * Rename {@link TvShow}s and {@link TvShowEpisode}s together
+   *
+   * @param tvShowsToRename
+   *          the {@link TvShow}s to rename (only TV show MFs and root folder)
+   * @param episodesToRename
+   *          the {@link TvShowEpisode}s to rename
+   */
+  public TvShowRenameTask(Collection<TvShow> tvShowsToRename, Collection<TvShowEpisode> episodesToRename) {
     super(TmmResourceBundle.getString("tvshow.rename"));
     if (tvShowsToRename != null) {
       this.tvShowsToRename.addAll(tvShowsToRename);
     }
+
     if (episodesToRename != null) {
       this.episodesToRename.addAll(episodesToRename);
     }
-    this.renameRoot = renameRootFolder;
   }
 
   @Override
@@ -65,16 +86,7 @@ public class TvShowRenameTask extends TmmThreadPool {
       start();
       initThreadPool(1, "rename");
 
-      // rename complete tv shows
-      for (TvShow tvShowToRename : tvShowsToRename) {
-        if (cancel) {
-          break;
-        }
-        for (TvShowEpisode episode : new ArrayList<>(tvShowToRename.getEpisodes())) {
-          submitTask(new RenameEpisodeTask(episode));
-        }
-      }
-      // rename single episodes
+      // 1. episodes first (to get the right season folders for moving season artwork)
       for (TvShowEpisode tvEpisodesToRename : episodesToRename) {
         if (cancel) {
           break;
@@ -87,24 +99,9 @@ public class TvShowRenameTask extends TmmThreadPool {
         return;
       }
 
-      // rename TvShowRoot and update all MFs in DB to new path
-      if (renameRoot) {
-        for (TvShowEpisode anEpisodesToRename : episodesToRename) {
-          if (cancel) {
-            break;
-          }
-          // fill TvShowsToRename if we just rename an episodes list
-          TvShow show = anEpisodesToRename.getTvShow();
-          if (!tvShowsToRename.contains(show)) {
-            tvShowsToRename.add(show);
-          }
-        }
-        for (TvShow aTvShowsToRename : tvShowsToRename) {
-          if (cancel) {
-            break;
-          }
-          TvShowRenamer.renameTvShow(aTvShowsToRename); // rename root and artwork and update ShowMFs
-        }
+      // 2. rename TV show root
+      for (TvShow tvShow : tvShowsToRename) {
+        TvShowRenamer.renameTvShow(tvShow); // rename root and artwork and update ShowMFs
       }
 
       LOGGER.info("Done renaming TV shows)");

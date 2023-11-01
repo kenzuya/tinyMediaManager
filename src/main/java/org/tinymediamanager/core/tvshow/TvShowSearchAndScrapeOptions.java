@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.tvshow;
 
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 
 /**
@@ -24,6 +25,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class TvShowSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
+  private MediaEpisodeGroup episodeGroup = MediaEpisodeGroup.DEFAULT_AIRED;
 
   public TvShowSearchAndScrapeOptions() {
     super(MediaType.TV_SHOW);
@@ -37,6 +39,7 @@ public class TvShowSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    */
   public TvShowSearchAndScrapeOptions(TvShowSearchAndScrapeOptions original) {
     super(original);
+    episodeGroup = original.episodeGroup;
   }
 
   /**
@@ -58,5 +61,13 @@ public class TvShowSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
 
     // subtitle
     subtitleScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultSubtitleScrapers());
+  }
+
+  public MediaEpisodeGroup getEpisodeGroup() {
+    return episodeGroup;
+  }
+
+  public void setEpisodeGroup(MediaEpisodeGroup episodeGroup) {
+    this.episodeGroup = episodeGroup;
   }
 }

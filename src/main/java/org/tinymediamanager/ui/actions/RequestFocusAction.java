@@ -27,8 +27,7 @@ import javax.swing.JComponent;
  *
  */
 public class RequestFocusAction extends AbstractAction {
-  private static final long serialVersionUID = -1541521353035739479L;
-  private JComponent        target;
+  private final JComponent target;
 
   public RequestFocusAction(JComponent target) {
     this.target = target;

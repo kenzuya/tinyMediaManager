@@ -16,10 +16,6 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -51,6 +47,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
@@ -75,6 +72,7 @@ public class TvShowNfoParser {
   public String                     sortTitle           = "";
   public String                     showTitle           = "";
   public int                        year                = -1;
+  public int                        top250              = 0;
   public String                     plot                = "";
   public int                        runtime             = 0;
   public MediaCertification         certification       = MediaCertification.UNKNOWN;
@@ -112,7 +110,6 @@ public class TvShowNfoParser {
   /* some xbmc related tags we parse, but do not use internally */
   public String                     outline             = "";
   public String                     tagline             = "";
-  public int                        top250              = 0;
   public String                     trailer             = "";
   public Date                       lastplayed          = null;
   public String                     code                = "";
@@ -376,7 +373,7 @@ public class TvShowNfoParser {
           r.id = "tomatometerallcritics";
         }
         else if ("metascore".equals(r.id)) {
-          r.id = "metacritic";
+          r.id = MediaMetadata.METACRITIC;
         }
 
         // maxvalue
@@ -1251,6 +1248,11 @@ public class TvShowNfoParser {
             actor.profile = child.ownText();
             break;
 
+          case "type":
+            if (child.ownText().equals("GuestStar")) {
+              actor.guestStar = true;
+            }
+
           case "tmdbid":
             actor.tmdbId = child.ownText();
             break;
@@ -1473,24 +1475,30 @@ public class TvShowNfoParser {
     }
 
     for (Map.Entry<Integer, String> entry : seasonTitles.entrySet()) {
-      show.addSeasonTitle(entry.getKey(), entry.getValue());
+      if (StringUtils.isNotBlank(entry.getValue())) {
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setTitle(entry.getValue());
+      }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonPosters.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_POSTER);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_POSTER);
       }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonBanners.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_BANNER);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_BANNER);
       }
     }
 
     for (Map.Entry<Integer, List<String>> entry : seasonThumbs.entrySet()) {
       if (!entry.getValue().isEmpty()) {
-        show.setSeasonArtworkUrl(entry.getKey(), entry.getValue().get(0), SEASON_THUMB);
+        TvShowSeason tvShowSeason = show.getOrCreateSeason(entry.getKey());
+        tvShowSeason.setArtworkUrl(entry.getValue().get(0), MediaFileType.SEASON_THUMB);
       }
     }
 
@@ -1544,7 +1552,10 @@ public class TvShowNfoParser {
 
     List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
     for (Person actor : actors) {
-      newActors.add(morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor));
+      org.tinymediamanager.core.entities.Person tmmActor = morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor);
+      if (!newActors.contains(tmmActor)) {
+        newActors.add(tmmActor);
+      }
     }
     show.setActors(newActors);
 
@@ -1563,6 +1574,10 @@ public class TvShowNfoParser {
     person.setRole(nfoPerson.role);
     person.setThumbUrl(nfoPerson.thumb);
     person.setProfileUrl(nfoPerson.profile);
+
+    if (nfoPerson.guestStar) {
+      person.setType(org.tinymediamanager.core.entities.Person.Type.GUEST);
+    }
 
     int tmdbId = MetadataUtil.parseInt(nfoPerson.tmdbId, 0);
     if (tmdbId > 0) {
@@ -1595,12 +1610,13 @@ public class TvShowNfoParser {
   }
 
   public static class Person {
-    String name    = "";
-    String role    = "";
-    String thumb   = "";
-    String profile = "";
-    String tmdbId  = "";
-    String imdbId  = "";
-    String tvdbId  = "";
+    String  name      = "";
+    String  role      = "";
+    String  thumb     = "";
+    boolean guestStar = false;
+    String  profile   = "";
+    String  tmdbId    = "";
+    String  imdbId    = "";
+    String  tvdbId    = "";
   }
 }

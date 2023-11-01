@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -35,6 +34,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -73,16 +73,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileExistsException;
@@ -93,7 +87,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
-import org.brotli.dec.BrotliInputStream;
+import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -112,40 +106,43 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner / Myron Boyle
  */
 public class Utils {
-  private static final Logger  LOGGER                      = LoggerFactory.getLogger(Utils.class);
-  private static final Pattern localePattern               = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties", Pattern.CASE_INSENSITIVE);
+  private static final Logger       LOGGER                      = LoggerFactory.getLogger(Utils.class);
+  private static final Pattern      localePattern               = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties",
+      Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><0-N>
-  private static final Pattern stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
+  private static final Pattern      stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><a-d>
-  private static final Pattern stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
+  private static final Pattern      stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
-  private static final Pattern stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern      stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern stackingPattern4            = Pattern.compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern      stackingPattern4            = Pattern
+      .compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$", Pattern.CASE_INSENSITIVE);
 
   // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
-  private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
+  private static final Pattern      folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
   // illegal file name characters
-  private static final char[]  ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
+  private static final char[]       ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
+      ':' };
 
   // pattern for matching youtube links
-  public static final Pattern  YOUTUBE_PATTERN             = Pattern
+  public static final Pattern       YOUTUBE_PATTERN             = Pattern
       .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
-  public static final String   DISC_FOLDER_REGEX           = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
+  public static final Pattern       SEASON_NFO_PATTERN          = Pattern.compile("^season(\\d{2,}|specials)?\\.nfo$", Pattern.CASE_INSENSITIVE);
+  public static final String        DISC_FOLDER_REGEX           = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
-  private static List<Locale>  availableLocales            = new ArrayList<>();
+  private static final List<Locale> AVAILABLE_LOCALES           = new ArrayList<>();
 
-  private static String        tempFolder;
+  private static String             tempFolder;
 
   static {
     // get the systems default temp folder
@@ -577,7 +574,7 @@ public class Utils {
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
-    List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
+    List<String> toFilter = list.stream().filter(StringUtils::isBlank).toList();
     list.removeAll(toFilter);
   }
 
@@ -626,7 +623,9 @@ public class Utils {
       if (matcher.find()) {
         try {
           if (replacements.length > index) {
-            result = result.replaceFirst(pattern.pattern(), StringEscapeUtils.escapeJava(replacements[index]));
+            // we need the UnicodeUnescaper, because StringEscapeUtils.escapeJava translated unicode
+            // https://stackoverflow.com/questions/59280607/stringescapeutils-not-handling-utf-8
+            result = result.replaceFirst(pattern.pattern(), new UnicodeUnescaper().translate(StringEscapeUtils.escapeJava(replacements[index])));
           }
           else {
             result = result.replaceFirst(pattern.pattern(), "");
@@ -673,7 +672,7 @@ public class Utils {
         throw new FileNotFoundException("Source '{}" + srcDir + "' does not exist, or is not a directory"); // NOSONAR
       }
       if (Files.exists(destDir) && !Files.isSameFile(destDir, srcDir)) {
-        // extra check for Windows/OSX, where the File.equals is case insensitive
+        // extra check for Windows/OSX, where the File.equals is case-insensitive
         // so we know now, that the Dir is the same, but the absolute name does not match
         throw new FileExistsException("Destination '" + destDir + "' already exists"); // NOSONAR
       }
@@ -682,6 +681,10 @@ public class Utils {
         // NULL parent means, that we just have one relative folder like Paths.get("bla") - no need to create anything
         try {
           Files.createDirectories(destDir.getParent());
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (create folder) - '{}'", e.getMessage());
+          // but we try a move anyway...
         }
         catch (Exception e) {
           LOGGER.error("could not create directory structure {}", destDir.getParent());
@@ -696,6 +699,10 @@ public class Utils {
           // need atomic fs move for changing cASE
           Files.move(srcDir, destDir, StandardCopyOption.ATOMIC_MOVE);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+          break;
         }
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that; original documentation
@@ -728,6 +735,10 @@ public class Utils {
             // delete source files
             Utils.deleteDirectoryRecursive(srcDir);
             rename = true;
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("rename problem (fallback): {}", e.getMessage()); // NOSONAR
@@ -838,6 +849,10 @@ public class Utils {
           // need atomic fs move for changing cASE
           Files.move(srcFile, destFile, StandardCopyOption.ATOMIC_MOVE);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (move file) - '{}'", e.getMessage());
+          break;
         }
         catch (AtomicMoveNotSupportedException a) {
           // if it fails (b/c not on same file system) use that
@@ -846,6 +861,10 @@ public class Utils {
             fixDateAttributes(srcFile, destFile);
             Files.delete(srcFile);
             rename = true; // no exception
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (move file) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("rename problem (fallback): '{}' - '{}'", e.getClass().getSimpleName(), e.getMessage()); // NOSONAR
@@ -931,19 +950,23 @@ public class Utils {
     if (!srcFile.toAbsolutePath().toString().equals(destFile.toAbsolutePath().toString())) {
       LOGGER.debug("try to copy file {} to {}", srcFile, destFile);
       if (!Files.exists(srcFile)) {
+        LOGGER.debug("file not found - '{}'", srcFile);
         throw new FileNotFoundException("Source '" + srcFile + "' does not exist");
       }
       if (Files.isDirectory(srcFile)) {
+        LOGGER.debug("source is a directory - '{}'", srcFile);
         throw new IOException("Source '" + srcFile + "' is a directory");
       }
       if (!overwrite) {
         if (Files.exists(destFile) && !Files.isSameFile(destFile, srcFile)) {
-          // extra check for windows, where the File.equals is case insensitive
+          // extra check for windows, where the File.equals is case-insensitive
           // so we know now, that the File is the same, but the absolute name does not match
+          LOGGER.debug("destination exists - '{}'", destFile);
           throw new FileExistsException("Destination '" + destFile + "' already exists");
         }
       }
       if (Files.isDirectory(destFile)) {
+        LOGGER.debug("destination is a directory - '{}'", destFile);
         throw new IOException("Destination '" + destFile + "' is a directory");
       }
 
@@ -955,6 +978,10 @@ public class Utils {
           Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
           fixDateAttributes(srcFile, destFile);
           rename = true;// no exception
+        } catch (AccessDeniedException e) {
+          // propagate to UI by logging with error
+          LOGGER.error("ACCESS DENIED (copy file) - '{}'", e.getMessage());
+          break;
         }
         catch (UnsupportedOperationException u) {
           // maybe copy with attributes does not work here (across file systems), just try without file attributes
@@ -963,6 +990,10 @@ public class Utils {
             Files.copy(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
             fixDateAttributes(srcFile, destFile);
             rename = true;// no exception
+          } catch (AccessDeniedException e) {
+            // propagate to UI by logging with error
+            LOGGER.error("ACCESS DENIED (copy file) - '{}'", e.getMessage());
+            break;
           }
           catch (IOException e) {
             LOGGER.warn("copy did not work (fallback): {}", e.getMessage());
@@ -1030,7 +1061,7 @@ public class Utils {
         return false;
       }
 
-      // check if the file exists; if it does not exist any more we won't need to delete it ;)
+      // check if the file exists; if it does not exist anymore we won't need to delete it ;)
       if (!Files.exists(file)) {
         // this file is no more here - just return "true"
         return true;
@@ -1045,6 +1076,9 @@ public class Utils {
         if (!Files.exists(backup.resolve(".nomedia"))) {
           Files.createFile(backup.resolve(".nomedia"));
         }
+      } catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (create folder) - '{}'", e.getMessage());
       }
       catch (Exception e) {
         // ignore
@@ -1060,6 +1094,10 @@ public class Utils {
         // overwrite backup file by deletion prior
         Files.deleteIfExists(backup);
         return moveFileSafe(file, backup);
+      } catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (delete file) - '{}'", e.getMessage());
+        return false;
       }
       catch (IOException e) {
         LOGGER.warn("Could not delete file: {}", e.getMessage());
@@ -1084,6 +1122,10 @@ public class Utils {
     }
     try {
       Files.deleteIfExists(file);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete file) - '{}'", e.getMessage());
+      return false;
     }
     catch (Exception e) {
       LOGGER.warn("Could not delete file: {}", e.getMessage());
@@ -1125,6 +1167,9 @@ public class Utils {
       if (!Files.exists(backup.resolve(".nomedia"))) {
         Files.createFile(backup.resolve(".nomedia"));
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       // ignore
@@ -1142,6 +1187,10 @@ public class Utils {
       // overwrite backup file by deletion prior
       // deleteDirectoryRecursive(backup); // we timestamped our folder - no need for it
       return moveDirectorySafe(folder, backup);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+      return false;
     }
     catch (IOException e) {
       LOGGER.warn("could not delete directory: {}", e.getMessage());
@@ -1155,12 +1204,12 @@ public class Utils {
    * @return List of Locales
    */
   public static List<Locale> getLanguages() {
-    if (!availableLocales.isEmpty()) {
+    if (!AVAILABLE_LOCALES.isEmpty()) {
       // do not return the original list to avoid external manipulation
-      return new ArrayList<>(availableLocales);
+      return new ArrayList<>(AVAILABLE_LOCALES);
     }
 
-    availableLocales.add(getLocaleFromLanguage(Locale.ENGLISH.getLanguage()));
+    AVAILABLE_LOCALES.add(getLocaleFromLanguage(Locale.ENGLISH.getLanguage()));
     try {
       // list all properties files from the classpath
       InputStream is = Utils.class.getResourceAsStream("/");
@@ -1172,7 +1221,7 @@ public class Utils {
         }
       }
 
-      if (availableLocales.size() == 1) {
+      if (AVAILABLE_LOCALES.size() == 1) {
         // we may be in a .jar file
         CodeSource src = Utils.class.getProtectionDomain().getCodeSource();
         if (src != null) {
@@ -1194,7 +1243,7 @@ public class Utils {
     }
 
     // do not return the original list to avoid external manipulation
-    return new ArrayList<>(availableLocales);
+    return new ArrayList<>(AVAILABLE_LOCALES);
   }
 
   private static void parseLocaleFromFilename(String filename) {
@@ -1213,8 +1262,8 @@ public class Utils {
         // found only language
         myloc = getLocaleFromLanguage(language);
       }
-      if (myloc != null && !availableLocales.contains(myloc)) {
-        availableLocales.add(myloc);
+      if (myloc != null && !AVAILABLE_LOCALES.contains(myloc)) {
+        AVAILABLE_LOCALES.add(myloc);
       }
     }
   }
@@ -1302,6 +1351,9 @@ public class Utils {
       if (!Files.exists(backup) || overwrite) {
         createZip(backup, file); // just put in main dir
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (create backup file) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("Could not backup file {}: {}", file, e.getMessage());
@@ -1327,6 +1379,9 @@ public class Utils {
           al.add(path);
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (listing old backups) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("could not list files from the backup folder: {}", e.getMessage());
@@ -1397,32 +1452,39 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<>() {
+    try {
+      Files.walkFileTree(dir, new FileVisitor<>() {
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        Files.delete(dir);
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+          Files.delete(dir);
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        Files.delete(file);
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          Files.delete(file);
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        LOGGER.warn("Could not delete {} - {}", file, exc.getMessage());
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+          LOGGER.warn("Could not delete {} - {}", file, exc.getMessage());
+          return FileVisitResult.CONTINUE;
+        }
 
-    });
+      });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete complete directory) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
+    }
   }
 
   /**
@@ -1438,31 +1500,38 @@ public class Utils {
     }
 
     LOGGER.info("Deleting empty directories in: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<>() {
+    try {
+      Files.walkFileTree(dir, new FileVisitor<>() {
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        if (isFolderEmpty(dir)) {
-          Files.delete(dir);
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+          if (isFolderEmpty(dir)) {
+            Files.delete(dir);
+          }
+          return FileVisitResult.CONTINUE;
         }
-        return FileVisitResult.CONTINUE;
-      }
 
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        return FileVisitResult.CONTINUE;
-      }
-    });
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete empty directories) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
+    }
   }
 
   /**
@@ -1476,6 +1545,11 @@ public class Utils {
   public static boolean isFolderEmpty(final Path folder) throws IOException {
     try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder)) {
       return !dirStream.iterator().hasNext();
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (checking for empty folders) - '{}'", e.getMessage());
+      // re-trow
+      throw e;
     }
   }
 
@@ -1509,6 +1583,9 @@ public class Utils {
         archive.closeArchiveEntry();
       }
       archive.finish();
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (creating .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1540,7 +1617,6 @@ public class Utils {
    *          the name of the zip file to extract
    * @param destDir
    *          the directory to unzip to
-   * @throws IOException
    */
   public static void unzip(final Path zipFile, final Path destDir) {
     Map<String, String> env = new HashMap<>();
@@ -1586,6 +1662,9 @@ public class Utils {
           }
         });
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (extracting .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1601,7 +1680,6 @@ public class Utils {
    *          the name of the file to extract
    * @param destFile
    *          the directory to unzip to
-   * @throws IOException
    */
   public static void unzipFile(final Path zipFile, final Path fileToExtract, final Path destFile) {
     Map<String, String> env = new HashMap<>();
@@ -1643,6 +1721,9 @@ public class Utils {
           }
         });
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (extracting .zip) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
@@ -1660,8 +1741,19 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static void writeStringToFile(Path file, String text) throws IOException {
-    byte[] buf = text.getBytes(StandardCharsets.UTF_8);
-    Files.write(file, buf);
+    try {
+      // pre-delete existing file. this will be needed for CaSe insensitive file systems,
+      // because truncating the existing one may result to a false filename
+      Files.deleteIfExists(file);
+
+      // write the file
+      Files.writeString(file, text);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete/write file) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1674,8 +1766,14 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static String readFileToString(Path file) throws IOException {
-    byte[] fileArray = Files.readAllBytes(file);
-    return new String(fileArray, StandardCharsets.UTF_8);
+    try {
+      return Files.readString(file);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1690,7 +1788,14 @@ public class Utils {
    */
   public static void copyDirectoryRecursive(Path from, Path to) throws IOException {
     LOGGER.info("Copying complete directory from {} to {}", from, to);
-    Files.walkFileTree(from, new CopyFileVisitor(to));
+    try {
+      Files.walkFileTree(from, new CopyFileVisitor(to));
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (copy directory) - '{}'", e.getMessage());
+      // re-throw
+      throw e;
+    }
   }
 
   /**
@@ -1718,6 +1823,9 @@ public class Utils {
           }
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete old logs) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.debug("could not clean old logs: {}", e.getMessage());
@@ -1730,7 +1838,6 @@ public class Utils {
     for (int i = 0; i < traces.size() - 3; i++) {
       Utils.deleteFileSafely(traces.get(i));
     }
-
   }
 
   /**
@@ -1835,6 +1942,9 @@ public class Utils {
           filesFound.add(path);
         }
       }
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.warn("could not get a file listing: {}", e.getMessage());
@@ -1865,6 +1975,9 @@ public class Utils {
           return FileVisitResult.CONTINUE;
         }
       });
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (Exception e) {
       LOGGER.warn("could not get a file listing: {}", e.getMessage());
@@ -1901,6 +2014,9 @@ public class Utils {
           })
           .sum();
 
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (calculate folder size) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.warn("Coule not get folder size: ", e);
@@ -1988,6 +2104,9 @@ public class Utils {
 
     try {
       Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor);
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (list files) - '{}'", e.getMessage());
     }
     catch (IOException e) {
       LOGGER.error("could not get unknown files: {}", e.getMessage());
@@ -2099,73 +2218,6 @@ public class Utils {
     }
   }
 
-  /**
-   * unpack the given brotli archive ({code .tar.br}) to the given path
-   *
-   * @param archive
-   *          the brotli archive
-   * @param targetPath
-   *          the path to extract
-   * @throws IOException
-   *           any {@link IOException} thrown while extracting
-   */
-  public static void unpackBrotli(File archive, File targetPath) throws IOException {
-    try (FileInputStream fis = new FileInputStream(archive);
-        InputStream buis = new BufferedInputStream(fis);
-        BrotliInputStream bris = new BrotliInputStream(buis);
-        InputStream bis = new BufferedInputStream(bris);
-        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
-      ArchiveEntry entry = null;
-      while ((entry = ais.getNextEntry()) != null) {
-        if (!ais.canReadEntryData(entry)) {
-          // log something?
-          continue;
-        }
-
-        File f = new File(targetPath, entry.getName());
-        if (entry.isDirectory()) {
-          if (!f.isDirectory() && !f.mkdirs()) {
-            throw new IOException("failed to create directory " + f);
-          }
-        }
-        else {
-          File parent = f.getParentFile();
-          if (!parent.isDirectory() && !parent.mkdirs()) {
-            throw new IOException("failed to create directory " + parent);
-          }
-
-          if (entry instanceof TarArchiveEntry && ((TarArchiveEntry) entry).isSymbolicLink()) {
-            try {
-              TarArchiveEntry tae = (TarArchiveEntry) entry;
-              Files.createSymbolicLink(f.toPath(), Paths.get(tae.getLinkName()));
-            }
-            catch (Exception e) {
-              LOGGER.debug("could not create symbolic link - '{}'", e.getMessage());
-            }
-          }
-          else {
-            try (OutputStream o = Files.newOutputStream(f.toPath())) {
-              IOUtils.copy(ais, o);
-            }
-          }
-
-          if (entry instanceof TarArchiveEntry) {
-            try {
-              TarArchiveEntry tae = (TarArchiveEntry) entry;
-              Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
-            }
-            catch (Exception ignored) {
-              // may fail on filesystems w/o posix support
-            }
-          }
-        }
-      }
-    }
-    catch (ArchiveException e) {
-      throw new IOException("Could not extract archive", e);
-    }
-  }
-
   private static Set<PosixFilePermission> parsePerms(int mode) {
     Set<PosixFilePermission> ret = new HashSet<>();
     if ((mode & 0001) > 0) {
@@ -2201,6 +2253,9 @@ public class Utils {
   public static void clearTempFolder() {
     try {
       deleteDirectoryRecursive(Paths.get(tempFolder));
+    } catch (AccessDeniedException e) {
+      // propagate to UI by logging with error
+      LOGGER.error("ACCESS DENIED (delete temp folder) - '{}'", e.getMessage());
     }
     catch (Exception ignored) {
       // just ignore
@@ -2223,11 +2278,11 @@ public class Utils {
 
   /**
    * handy method to return 1 when the value is filled
-   * 
+   *
    * @param value
    *          the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   * 
+   *
    */
   public static int returnOneWhenFilled(String value) {
     if (StringUtils.isNotBlank(value)) {
@@ -2238,7 +2293,7 @@ public class Utils {
 
   /**
    * handy method to return 1 when the value is filled
-   * 
+   *
    * @param value
    *          the value
    * @return 1 if the value is not null/empty - 0 otherwise

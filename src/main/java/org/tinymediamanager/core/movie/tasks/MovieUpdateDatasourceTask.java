@@ -58,7 +58,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -78,6 +77,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaSource;
@@ -90,7 +90,6 @@ import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.connector.MovieSetNfoParser;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -221,8 +220,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       if (!imageFiles.isEmpty()) {
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+          imageFiles.forEach(ImageCache::cacheImageAsync);
       }
 
       if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
@@ -245,9 +243,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void updateDatasource() {
+    // should we re-set all new flags?
+    if (MovieModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
+      movieList.getMovies().forEach(movie -> movie.setNewlyAdded(false));
+    }
+
     for (String ds : dataSources) {
+      Path dsAsPath = Paths.get(ds);
+
       // check the special case, that the data source is also an ignore folder
-      if (isInSkipFolder(Paths.get(ds))) {
+      if (isInSkipFolder(dsAsPath)) {
         LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
         continue;
       }
@@ -258,7 +263,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
       publishState();
 
-      Path dsAsPath = Paths.get(ds);
       // first of all check if the DS is available; we can take the
       // Files.exist here:
       // if the DS exists (and we have access to read it): Files.exist = true
@@ -398,12 +402,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           if (movieSetInDb != null) {
             // just add the media file if needed - if it is not locked
             if (!movieSetInDb.isLocked()) {
-              movieSetInDb.addToMediaFiles(new MediaFile(path));
+              MediaFile mf = new MediaFile(path);
+              movieSetInDb.addToMediaFiles(mf);
+              miTasks.add(new MovieMediaFileInformationFetcherTask(mf, movieSetInDb, true));
             }
           }
           else {
             // add this new one
-            movieSet.addToMediaFiles(new MediaFile(path));
+            MediaFile mf = new MediaFile(path);
+            movieSet.addToMediaFiles(mf);
+            miTasks.add(new MovieMediaFileInformationFetcherTask(mf, movieSet, true));
             MovieModuleManager.getInstance().getMovieList().addMovieSet(movieSet);
           }
         }
@@ -579,6 +587,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private void parseMovieDirectory(Path movieDir, Path dataSource) {
     LOGGER.trace("Parsing '{}'", movieDir);
+    publishState(movieDir.toString());
+
     List<Path> movieDirList = listFilesAndDirs(movieDir);
     List<Path> files = new ArrayList<>();
     Set<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
@@ -1069,6 +1079,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir, List<Path> allFiles) {
     LOGGER.debug("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
+    publishState(movieDir.toString());
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 
@@ -1581,13 +1592,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
-          submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
+          submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, false));
         }
         else {
           // at least update the file dates
           if (MediaFileHelper.gatherFileInformation(mf)) {
             // okay, something changed with that movie file - force fetching mediainfo
-            submitTask(new MediaFileInformationFetcherTask(mf, movie, true));
+            submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, true));
           }
         }
       }
@@ -1610,13 +1621,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
-          submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
+          submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, false));
         }
         else {
           // did the file dates/size change?
           if (MediaFileHelper.gatherFileInformation(mf)) {
             // okay, something changed with that movie file - force fetching mediainfo
-            submitTask(new MediaFileInformationFetcherTask(mf, movie, true));
+            submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, true));
           }
         }
       }
@@ -1667,7 +1678,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private List<MediaFile> getMediaFiles(List<MediaFile> mfs, MediaFileType... types) {
     List<MediaFileType> mediaFileTypes = Arrays.asList(types);
-    return mfs.stream().filter(mf -> mediaFileTypes.contains(mf.getType())).collect(Collectors.toList());
+    return mfs.stream().filter(mf -> mediaFileTypes.contains(mf.getType())).toList();
   }
 
   @Override
@@ -1708,6 +1719,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     if (fileNames.isEmpty()) {
       LOGGER.warn("Tried to list {}, but it was empty?!", directory);
     }
+
+    // return sorted
+    Collections.sort(fileNames);
+
     return fileNames;
   }
 
@@ -1723,7 +1738,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     List<Path> fileNames = new ArrayList<>();
 
     try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
-      List<Path> allElements = directoryStream.collect(Collectors.toList());
+      List<Path> allElements = directoryStream.toList();
       for (Path path : allElements) {
         if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
           continue;
@@ -1739,6 +1754,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     catch (Exception e) {
       LOGGER.error("error on listFilesAndDirs2", e);
     }
+
+    // return sorted
+    Collections.sort(fileNames);
+
     return fileNames;
   }
 
@@ -2024,6 +2043,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       catch (IOException e) {
         LOGGER.error("error on listFilesOnly: {}", e.getMessage());
       }
+
+      // return sorted
+      Collections.sort(fileNames);
+
       return fileNames;
     }
   }
@@ -2084,5 +2107,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private static synchronized void incPostDir() {
     postDir++;
+  }
+
+  /**
+   * helper class just do inject the file name in the task description
+   */
+  private class MovieMediaFileInformationFetcherTask extends MediaFileInformationFetcherTask {
+    public MovieMediaFileInformationFetcherTask(MediaFile mediaFile, MediaEntity mediaEntity, boolean forceUpdate) {
+      super(mediaFile, mediaEntity, forceUpdate);
+    }
+
+    @Override
+    public void run() {
+      // pass the filename to the task description
+      publishState(mediaEntity.getTitle() + " - " + mediaFile.getFilename());
+      super.run();
+    }
   }
 }

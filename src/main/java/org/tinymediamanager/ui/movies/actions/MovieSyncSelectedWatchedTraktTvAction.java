@@ -35,9 +35,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieSyncSelectedWatchedTraktTvAction extends TmmAction {
-  private static final long           serialVersionUID = 6640292090443882545L;
-
-
   public MovieSyncSelectedWatchedTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected.watched"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.watched.desc"));

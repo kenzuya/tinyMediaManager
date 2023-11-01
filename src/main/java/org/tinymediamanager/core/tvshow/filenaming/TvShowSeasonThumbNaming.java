@@ -23,6 +23,7 @@ import org.tinymediamanager.core.tvshow.ITvShowSeasonFileNaming;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
  * The Enum TvShowSeasonThumbNaming.
@@ -33,98 +34,118 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
   /** seasonXX-thumb.* */
   SEASON_THUMB {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == -1) {
-        return "season-all-thumb." + extension;
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      String filename;
+
+      if (tvShowSeason.getSeason() == -1) {
+        filename = "season-all-thumb." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        return "season-specials-thumb." + extension;
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename = "season-specials-thumb." + extension;
       }
-      else if (season > -1) {
-        return String.format("season%02d-thumb.%s", season, extension);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename = String.format("season%02d-thumb.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
+
+      return filename;
     }
   },
 
   /** seasonXX-landscape.* */
   SEASON_LANDSCAPE {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == -1) {
-        return "season-all-landscape." + extension;
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      String filename;
+
+      if (tvShowSeason.getSeason() == -1) {
+        filename = "season-all-landscape." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        return "season-specials-landscape." + extension;
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename = "season-specials-landscape." + extension;
       }
-      else if (season > -1) {
-        return String.format("season%02d-landscape.%s", season, extension);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename = String.format("season%02d-landscape.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
+
+      return filename;
     }
   },
 
   /** season_folder/seasonXX-thumb.* */
   SEASON_FOLDER {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, season);
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      TvShow tvShow = tvShowSeason.getTvShow();
+      if (tvShow == null) {
+        return "";
+      }
+
+      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeason.getSeason());
 
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
-        // no season folder name in the templates found - fall back to the the show base filename style
-        return SEASON_THUMB.getFilename(tvShow, season, extension);
+        // no season folder name in the templates found - fall back to the show base filename style
+        return SEASON_THUMB.getFilename(tvShowSeason, extension);
       }
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == -1) {
-        filename += "season-all-thumb";
+      if (tvShowSeason.getSeason() == -1) {
+        filename += "season-all-thumb." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials-thumb";
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename += "season-specials-thumb." + extension;
       }
-      else if (season > -1) {
-        filename += String.format("season%02d-thumb", season);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename += String.format("season%02d-thumb.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
-      return filename + "." + extension;
+
+      return filename;
     }
   },
 
   /** season_folder/seasonXX-landscape.* */
   SEASON_FOLDER_LANDSCAPE {
     @Override
-    public String getFilename(TvShow tvShow, int season, String extension) {
-      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, season);
+    public String getFilename(TvShowSeason tvShowSeason, String extension) {
+      TvShow tvShow = tvShowSeason.getTvShow();
+      if (tvShow == null) {
+        return "";
+      }
+
+      String seasonFoldername = TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeason.getSeason());
 
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
-        // no season folder name in the templates found - fall back to the the show base filename style
-        return SEASON_THUMB.getFilename(tvShow, season, extension);
+        // no season folder name in the templates found - fall back to the show base filename style
+        return SEASON_THUMB.getFilename(tvShowSeason, extension);
       }
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == -1) {
-        filename += "season-all-landscape";
+      if (tvShowSeason.getSeason() == -1) {
+        filename += "season-all-landscape." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials-landscape";
+      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
+        filename += "season-specials-landscape." + extension;
       }
-      else if (season > -1) {
-        filename += String.format("season%02d-landscape", season);
+      else if (tvShowSeason.getSeason() > -1) {
+        filename += String.format("season%02d-landscape.%s", tvShowSeason.getSeason(), extension);
       }
       else {
-        return "";
+        filename = "";
       }
-      return filename + "." + extension;
+
+      return filename;
     }
   }
 }

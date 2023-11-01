@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  * @author Manuel Laggner
  */
 public class MovieSingleScrapeAction extends TmmAction {
-  private static final long serialVersionUID = 3066746719177708420L;
-
   public MovieSingleScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.scrape.selected"));
     putValue(SMALL_ICON, IconManager.SEARCH);

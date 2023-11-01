@@ -19,13 +19,13 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MovieDiscNaming.
+ * The enum {@link MovieDiscartNaming} - used to generate the discart filename
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
 
-  /** movieset-disc.* */
+  /** movieset-disc.ext - in movie folder */
   MOVIE_DISC {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +38,20 @@ public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** movieset-discart.* */
+  /** [movieset name]-disc.ext - in movie folder */
+  MOVIESET_DISC {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-disc." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** movieset-discart.ext - in movie folder */
   MOVIE_DISCART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +64,20 @@ public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** disc.* */
+  /** [movieset name]-discart.ext - in movie folder */
+  MOVIESET_DISCART {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-discart." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /** disc.ext - in artwork folder */
   KODI_DISC {
     @Override
     public String getFilename(String basename, String extension) {
@@ -64,7 +90,7 @@ public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** discart.* */
+  /** discart.ext - in artwork folder */
   KODI_DISCART {
     @Override
     public String getFilename(String basename, String extension) {
@@ -77,7 +103,7 @@ public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-disc.* */
+  /** [movie set name]-disc.ext - in artwork folder */
   AUTOMATOR_DISC {
     @Override
     public String getFilename(String basename, String extension) {
@@ -90,7 +116,7 @@ public enum MovieSetDiscartNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-discart.* */
+  /** [movie set name]-discart.ext - in artwork folder */
   AUTOMATOR_DISCART {
     @Override
     public String getFilename(String basename, String extension) {

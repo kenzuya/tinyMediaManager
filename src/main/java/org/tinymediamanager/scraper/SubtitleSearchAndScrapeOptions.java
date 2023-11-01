@@ -16,8 +16,7 @@
 
 package org.tinymediamanager.scraper;
 
-import java.io.File;
-
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.entities.MediaType;
 
 /**
@@ -26,10 +25,10 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class SubtitleSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
-  private int  season  = -1;
-  private int  episode = -1;
+  private int       season  = -1;
+  private int       episode = -1;
 
-  private File file;
+  private MediaFile mediaFile;
 
   public SubtitleSearchAndScrapeOptions(MediaType type) {
     super(type);
@@ -39,7 +38,7 @@ public class SubtitleSearchAndScrapeOptions extends MediaSearchAndScrapeOptions 
     super(original);
     this.season = original.season;
     this.episode = original.episode;
-    this.file = original.file;
+    this.mediaFile = original.mediaFile;
   }
 
   /**
@@ -83,19 +82,19 @@ public class SubtitleSearchAndScrapeOptions extends MediaSearchAndScrapeOptions 
   /**
    * Get the file for subtitle scraping
    *
-   * @return the file
+   * @return the {@link MediaFile}
    */
-  public File getFile() {
-    return file;
+  public MediaFile getMediaFile() {
+    return mediaFile;
   }
 
   /**
    * Set the file for subtitle scraping
    *
-   * @param file
+   * @param mediaFile
    *          the file for creating hashes
    */
-  public void setFile(File file) {
-    this.file = file;
+  public void setMediaFile(MediaFile mediaFile) {
+    this.mediaFile = mediaFile;
   }
 }

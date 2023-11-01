@@ -21,7 +21,7 @@
         xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
         version="2.0">
     <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
-    <media ref="/home/manuel/Downloads/ISS_4k_HDR10plus_ff.mp4">
+    <media ref="ISS_4k_HDR10plus_ff.mp4">
         <track type="General">
             <VideoCount>1</VideoCount>
             <AudioCount>1</AudioCount>

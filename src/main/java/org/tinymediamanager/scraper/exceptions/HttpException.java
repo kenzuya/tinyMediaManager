@@ -27,8 +27,6 @@ import org.apache.commons.lang3.StringUtils;
  * @since 3.0
  */
 public class HttpException extends IOException {
-  private static final long serialVersionUID = 2161692612692312193L;
-
   private final String      url;
   private final int         statusCode;
   private final String      message;

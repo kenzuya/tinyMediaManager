@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -20,7 +19,6 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider.Episode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -240,7 +238,7 @@ class AniDbMetadataParser {
     for (Element rating : ratings.children()) {
       if ("temporary".equalsIgnoreCase(rating.tagName())) {
         try {
-          MediaRating mediaRating = new MediaRating("anidb");
+          MediaRating mediaRating = new MediaRating(MediaMetadata.ANIDB);
           mediaRating.setRating(Float.parseFloat(rating.text()));
           mediaRating.setVotes(Integer.parseInt(rating.attr("count")));
           mediaRating.setMaxValue(10);
@@ -322,9 +320,9 @@ class AniDbMetadataParser {
     // Poster
     MediaArtwork ma = new MediaArtwork(providerId, MediaArtwork.MediaArtworkType.POSTER);
     ma.setPreviewUrl(IMAGE_SERVER + picture.text());
-    ma.setDefaultUrl(IMAGE_SERVER + picture.text());
     ma.setOriginalUrl(IMAGE_SERVER + picture.text());
     ma.setLanguage(language);
+    ma.addImageSize(0, 0, IMAGE_SERVER + picture.text(), 0); // no size given in the API
     md.addMediaArt(ma);
   }
 
@@ -422,7 +420,7 @@ class AniDbMetadataParser {
    *
    * @return
    */
-  static List<Episode> parseEpisodes(@Nullable Element episodes) {
+  static List<AniDbEpisode> parseEpisodes(@Nullable Element episodes) {
     if (episodes == null)
       return new ArrayList<>();
 
@@ -431,15 +429,16 @@ class AniDbMetadataParser {
         .filter(e -> e.tagName().equals("episode"))
         .map(AniDbMetadataParser::parseEpisode)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
   }
 
-  private static Episode parseEpisode(Element episodeElement) {
-    Episode.Builder builder = new Episode.Builder();
+  private static AniDbEpisode parseEpisode(Element episodeElement) {
+    AniDbEpisode.Builder builder = new AniDbEpisode.Builder();
     try {
       builder.id(Integer.parseInt(episodeElement.attr("id")));
     }
     catch (NumberFormatException ignored) {
+      // ignored
     }
 
     for (Element episodeInfo : episodeElement.children()) {
@@ -463,6 +462,7 @@ class AniDbMetadataParser {
           }
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -472,6 +472,7 @@ class AniDbMetadataParser {
           builder.runtime(Integer.parseInt(episodeInfo.text()));
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -481,6 +482,7 @@ class AniDbMetadataParser {
           builder.airdate(StrgUtils.parseDate(episodeInfo.text()));
         }
         catch (Exception ignored) {
+          // ignored
         }
         continue;
       }
@@ -491,6 +493,7 @@ class AniDbMetadataParser {
           builder.votes(Integer.parseInt(episodeInfo.attr("votes")));
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
         continue;
       }
@@ -500,6 +503,7 @@ class AniDbMetadataParser {
           builder.titles(episodeInfo.attr("xml:lang").toLowerCase(Locale.ROOT), episodeInfo.text());
         }
         catch (Exception ignored) {
+          // ignored
         }
         continue;
       }

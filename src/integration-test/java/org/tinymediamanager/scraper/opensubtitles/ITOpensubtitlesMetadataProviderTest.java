@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -63,7 +64,10 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicITest {
 
           for (File file : files) {
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
-            options.setFile(file);
+            MediaFile mediaFile = new MediaFile(file.toPath());
+            mediaFile.gatherMediaInformation();
+
+            options.setMediaFile(mediaFile);
             options.setLanguage(MediaLanguages.de);
             List<SubtitleSearchResult> results = os.search(options);
             if (!results.isEmpty()) {

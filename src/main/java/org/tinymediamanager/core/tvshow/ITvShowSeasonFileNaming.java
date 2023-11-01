@@ -16,7 +16,7 @@
 
 package org.tinymediamanager.core.tvshow;
 
-import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
  * the interface ITvShowFileNaming is used for generating file names for tv show related files
@@ -25,13 +25,18 @@ public interface ITvShowSeasonFileNaming {
   /**
    * get the file name for this enum
    *
-   * @param tvShow
-   *          the TV show
-   * @param season
-   *          the season to create the filename for
+   * @param tvShowSeason
+   *          the TV show season
    * @param extension
    *          the file extension
    * @return the file name or an empty string
    */
-  String getFilename(TvShow tvShow, int season, String extension);
+  String getFilename(TvShowSeason tvShowSeason, String extension);
+
+  /**
+   * get the enum name
+   * 
+   * @return the enum name
+   */
+  String name();
 }

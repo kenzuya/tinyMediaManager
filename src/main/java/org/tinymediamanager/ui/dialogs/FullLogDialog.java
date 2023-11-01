@@ -32,8 +32,6 @@ import ch.qos.logback.core.Appender;
 import net.miginfocom.swing.MigLayout;
 
 public class FullLogDialog extends TmmDialog {
-  private static final long serialVersionUID = -5054005564554148578L;
-
   public FullLogDialog() {
     super(TmmResourceBundle.getString("logwindow.title"), "fullLog");
     setBounds(5, 5, 1000, 590);

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo xmlns="https://mediaarea.net/mediainfo"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+           version="2.0">
+	<creatingLibrary version="23.07"
+	                 url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="HDR (2086).mkv">
+		<track type="General">
+            <Count>355</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>General</StreamKind>
+            <StreamKind_String>Allgemein</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <UniqueID>295078782577727273296459721188633881851</UniqueID>
+            <UniqueID_String>295078782577727273296459721188633881851 (0xDDFE1B38928E1DD4BBBC9BDED37E2CFB)
+            </UniqueID_String>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <Video_Format_List>HEVC</Video_Format_List>
+            <Video_Format_WithHint_List>HEVC</Video_Format_WithHint_List>
+            <Video_Codec_List>HEVC</Video_Codec_List>
+            <Audio_Format_List>AAC LC</Audio_Format_List>
+            <Audio_Format_WithHint_List>AAC LC</Audio_Format_WithHint_List>
+            <Audio_Codec_List>AAC LC</Audio_Codec_List>
+            <Audio_Channels_Total>2</Audio_Channels_Total>
+            <CompleteName>HDR (2086).mkv</CompleteName>
+            <FolderName>Video Test Files</FolderName>
+            <FileNameExtension>HDR (2086).mkv</FileNameExtension>
+            <FileName>HDR (2086)</FileName>
+            <FileExtension>mkv</FileExtension>
+            <Format>Matroska</Format>
+            <Format_String>Matroska</Format_String>
+            <Format_Url>https://matroska.org/downloads/windows.html</Format_Url>
+            <Format_Extensions>mkv mk3d mka mks</Format_Extensions>
+            <Format_Commercial>Matroska</Format_Commercial>
+            <Format_Version>4</Format_Version>
+            <FileSize>238428914</FileSize>
+            <FileSize_String>227 MiB</FileSize_String>
+            <FileSize_String1>227 MiB</FileSize_String1>
+            <FileSize_String2>227 MiB</FileSize_String2>
+            <FileSize_String3>227 MiB</FileSize_String3>
+            <FileSize_String4>227,4 MiB</FileSize_String4>
+            <FrameRate>29.970</FrameRate>
+            <FrameRate_String>29,970 FPS</FrameRate_String>
+            <IsStreamable>Yes</IsStreamable>
+            <EncodedBy>isovideo Viarte</EncodedBy>
+            <File_Created_Date>2023-07-26 13:28:59.474 UTC</File_Created_Date>
+            <File_Created_Date_Local>2023-07-26 15:28:59.474</File_Created_Date_Local>
+            <File_Modified_Date>2023-07-26 12:27:18.533 UTC</File_Modified_Date>
+            <File_Modified_Date_Local>2023-07-26 14:27:18.533</File_Modified_Date_Local>
+            <Encoded_Application>Lavf57.83.100</Encoded_Application>
+            <Encoded_Application_String>Lavf57.83.100</Encoded_Application_String>
+            <Encoded_Library>Lavf57.83.100</Encoded_Library>
+            <Encoded_Library_String>Lavf57.83.100</Encoded_Library_String>
+            <extra>
+                <IsTruncated>Yes</IsTruncated>
+                <AUDIOSAMPLERATE>48000</AUDIOSAMPLERATE>
+                <FRAMERATE>30000/1001</FRAMERATE>
+				<HEIGHT>2160</HEIGHT>
+				<TimeCode_FirstFrame>00:00:00;00</TimeCode_FirstFrame>
+				<TimeCode_Source>Matroska tags</TimeCode_Source>
+				<WIDTH>3840</WIDTH>
+			</extra>
+		</track>
+        <track type="Video">
+            <Count>381</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Video</StreamKind>
+            <StreamKind_String>Video</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <ID_String>1</ID_String>
+            <UniqueID>1</UniqueID>
+            <Format>HEVC</Format>
+            <Format_String>HEVC</Format_String>
+            <Format_Info>High Efficiency Video Coding</Format_Info>
+            <Format_Url>http://www.itu.int</Format_Url>
+            <Format_Commercial>HEVC</Format_Commercial>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5</Format_Level>
+            <Format_Tier>Main</Format_Tier>
+            <HDR_Format>SMPTE ST 2086</HDR_Format>
+            <HDR_Format_String>SMPTE ST 2086, HDR10 compatible</HDR_Format_String>
+            <HDR_Format_Commercial>HDR10</HDR_Format_Commercial>
+            <HDR_Format_Compatibility>HDR10</HDR_Format_Compatibility>
+            <InternetMediaType>video/H265</InternetMediaType>
+            <CodecID>V_MPEGH/ISO/HEVC</CodecID>
+            <Width>3840</Width>
+            <Width_String>3 840 Pixel</Width_String>
+            <Height>2160</Height>
+            <Height_String>2 160 Pixel</Height_String>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+			<DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <DisplayAspectRatio_String>16:9</DisplayAspectRatio_String>
+			<FrameRate_Mode>CFR</FrameRate_Mode>
+            <FrameRate_Mode_String>konstant</FrameRate_Mode_String>
+			<FrameRate>29.970</FrameRate>
+            <FrameRate_String>29,970 (30000/1001) FPS</FrameRate_String>
+			<FrameRate_Num>30000</FrameRate_Num>
+			<FrameRate_Den>1001</FrameRate_Den>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_String>4:2:0</ChromaSubsampling_String>
+			<BitDepth>10</BitDepth>
+            <BitDepth_String>10 bits</BitDepth_String>
+			<Encoded_Library>x265 - +-:[Linux][GCC 5.4.0][64 bit] 10bit</Encoded_Library>
+            <Encoded_Library_String>x265 +-:[Linux][GCC 5.4.0][64 bit] 10bit</Encoded_Library_String>
+			<Encoded_Library_Name>x265</Encoded_Library_Name>
+			<Encoded_Library_Version>+-:[Linux][GCC 5.4.0][64 bit] 10bit</Encoded_Library_Version>
+			<Encoded_Library_Settings>wpp / ctu=64 / min-cu-size=8 / max-tu-size=32 / tu-intra-depth=1 / tu-inter-depth=1 / me=3 / subme=3 / merange=57 / rect / no-amp / max-merge=3 / temporal-mvp / no-early-skip / rdpenalty=0 / no-tskip / no-tskip-fast / strong-intra-smoothing / no-lossless / no-cu-lossless / no-constrained-intra / no-fast-intra / open-gop / no-temporal-layers / interlace=0 / keyint=250 / min-keyint=25 / scenecut=40 / rc-lookahead=25 / lookahead-slices=4 / bframes=4 / bframe-bias=0 / b-adapt=2 / ref=4 / limit-refs=3 / limit-modes / weightp / no-weightb / aq-mode=1 / qg-size=32 / aq-strength=1.00 / cbqpoffs=0 / crqpoffs=0 / rd=4 / psy-rd=2.00 / rdoq-level=2 / psy-rdoq=1.00 / no-rd-refine / signhide / deblock / sao / no-sao-non-deblock / b-pyramid / cutree / no-intra-refresh / rc=crf / crf=18.0 / qcomp=0.60 / qpmin=0 / qpmax=51 / qpstep=4 / ipratio=1.40 / pbratio=1.30</Encoded_Library_Settings>
+			<Default>Yes</Default>
+            <Default_String>Ja</Default_String>
+			<Forced>No</Forced>
+            <Forced_String>Nein</Forced_String>
+			<colour_description_present>Yes</colour_description_present>
+			<colour_description_present_Source>Stream</colour_description_present_Source>
+			<colour_range>Limited</colour_range>
+			<colour_range_Source>Stream</colour_range_Source>
+			<colour_primaries>BT.2020</colour_primaries>
+			<colour_primaries_Source>Stream</colour_primaries_Source>
+			<transfer_characteristics>PQ</transfer_characteristics>
+			<transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+			<matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+			<matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+			<MasteringDisplay_ColorPrimaries>BT.2020</MasteringDisplay_ColorPrimaries>
+			<MasteringDisplay_ColorPrimaries_Source>Stream</MasteringDisplay_ColorPrimaries_Source>
+			<MasteringDisplay_Luminance>min: 0.0500 cd/m2, max: 1000 cd/m2</MasteringDisplay_Luminance>
+			<MasteringDisplay_Luminance_Source>Stream</MasteringDisplay_Luminance_Source>
+		</track>
+        <track type="Audio">
+            <Count>285</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Audio</StreamKind>
+            <StreamKind_String>Audio</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <ID_String>2</ID_String>
+            <UniqueID>2</UniqueID>
+            <Format>AAC</Format>
+            <Format_String>AAC LC</Format_String>
+            <Format_Info>Advanced Audio Codec Low Complexity</Format_Info>
+            <Format_Commercial>AAC</Format_Commercial>
+            <Format_Settings_SBR>No (Explicit)</Format_Settings_SBR>
+            <Format_Settings_SBR_String>No (Explicit)</Format_Settings_SBR_String>
+            <Format_AdditionalFeatures>LC</Format_AdditionalFeatures>
+            <CodecID>A_AAC-2</CodecID>
+            <Channels>2</Channels>
+            <Channels_String>2 Kanäle</Channels_String>
+            <ChannelPositions>Front: L R</ChannelPositions>
+            <ChannelPositions_String2>2/0/0</ChannelPositions_String2>
+            <ChannelLayout>L R</ChannelLayout>
+            <SamplesPerFrame>1024</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingRate_String>48,0 kHz</SamplingRate_String>
+            <FrameRate>46.875</FrameRate>
+            <FrameRate_String>46,875 FPS (1024 SPF)</FrameRate_String>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Compression_Mode_String>Lossy</Compression_Mode_String>
+            <Delay>1.079</Delay>
+            <Delay_String>1s 79 ms</Delay_String>
+            <Delay_String1>1s 79 ms</Delay_String1>
+            <Delay_String2>1s 79 ms</Delay_String2>
+            <Delay_String3>00:00:01.079</Delay_String3>
+            <Delay_String5>00:00:01.079</Delay_String5>
+            <Delay_Source>Container</Delay_Source>
+            <Delay_Source_String>Container</Delay_Source_String>
+            <Encoded_Library>Lavc57.107.100 aac</Encoded_Library>
+            <Encoded_Library_String>Lavc57.107.100 aac</Encoded_Library_String>
+            <Default>Yes</Default>
+            <Default_String>Ja</Default_String>
+            <Forced>No</Forced>
+            <Forced_String>Nein</Forced_String>
+        </track>
+	</media>
+</MediaInfo>

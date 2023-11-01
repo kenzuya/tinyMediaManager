@@ -1,0 +1,96 @@
+# The URL from which the client is downloaded
+appbase = https://v5.tinymediamanager.org/v5/build/
+
+# UI Configuration
+ui.name = tinyMediaManager
+ui.background_image = splashscreen.png
+ui.background = 00000000
+ui.icon = tmm.png
+ui.progress = 47, 400, 227, 10
+#ui.progress_text = 868686
+ui.progress_bar = 868686
+ui.hide_progress_text = true
+ui.progress_image = progress.jpg
+ui.status = 50, 380, 200, 18
+ui.status_text = 868686
+ui.mac_dock_icon = ../tmm.icns
+ui.hide_decorations = true
+
+# Application jar files, on classpath (generated from classpath in build.xml)
+code = tmm.jar
+code = restart.jar
+%CODELIBS%
+
+resource = [windows-amd64] tinyMediaManager.exe
+resource = [windows-amd64] tinyMediaManagerCMD.exe
+xresource = [linux-amd64] tinyMediaManager
+xresource = [linux-arm] tinyMediaManager-arm
+xresource = [linux-aarch64] tinyMediaManager-arm
+# legacy v3 launcher which is linked in existing .desktop files
+xresource = [linux] tinyMediaManager.sh
+resource = [mac os x] macOS/Info.plist
+resource = [mac os x] macOS/Resources/tmm.icns
+resource = version
+resource = tmm.png
+resource = changelog.txt
+resource = launcher.yml
+resource = restart.jar
+
+# JRE - will be mixed into the path by the ant build
+# DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
+resource = [windows-amd64] jre/windows_x64.tar.xz
+resource = [linux-amd64] jre/linux_x64.tar.xz
+resource = [linux-aarch64] jre/linux_aarch64.tar.xz
+
+## FFmpeg addon - will be mixed into the path by the ant build
+# DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
+resource = [windows-amd64] native/windows/addons/ffmpeg-windows_x64.tar.xz
+resource = [linux-amd64] native/linux/addons/ffmpeg-linux_x64.tar.xz
+resource = [linux-aarch64] native/arm/addons/ffmpeg-linux_aarch64.tar.xz
+
+# translations
+%LOCALES%
+
+# mediainfo native libs
+resource = [windows-amd64] native/windows/MediaInfo.dll
+resource = [linux-amd64] native/linux/libmediainfo.so
+resource = [linux-amd64] native/linux/libzen.so
+resource = [linux-aarch64] native/arm/libmediainfo.so
+resource = [linux-aarch64] native/arm/libzen.so
+
+# tiny file dialogs native libs
+resource = [windows-amd64] native/windows/tinyfiledialogs.dll
+resource = [linux-amd64] native/linux/libtinyfiledialogs.so
+resource = [linux-arm] native/arm/libtinyfiledialogs.so
+
+# templates
+resource = templates/templates.tar.bz2
+
+# The main entry point for the application (prefix needed for GD params)
+class = Restart
+tmm.class = Restart
+
+# allow offline use
+allow_offline = true
+
+# jvm args
+#####################################################################################
+# NOTE: please consider to write fundamental changes to the commandline start scripts
+# and all other launchers too
+#####################################################################################
+jvmarg = -XX:+IgnoreUnrecognizedVMOptions
+jvmarg = -XX:+UseG1GC
+jvmarg = -XX:+UseStringDeduplication
+jvmarg = -Xms64m
+jvmarg = -Xmx512m
+jvmarg = -Xss512k
+jvmarg = -splash:splashscreen.png
+jvmarg = -Djava.net.preferIPv4Stack=true
+jvmarg = -Dfile.encoding=UTF-8
+jvmarg = -Dsun.jnu.encoding=UTF-8
+jvmarg = [mac os x] -Dapple.awt.graphics.UseQuartz=true
+jvmarg = [mac os x] -Xdock:name=tinyMediaManager
+jvmarg = [mac os x] -Dapple.eawt.quitStrategy=CLOSE_ALL_WINDOWS
+jvmarg = -Djna.nosys=true
+jvmarg = [linux] -Dawt.useSystemAAFontSettings=on
+jvmarg = [linux] -Dswing.aatext=true

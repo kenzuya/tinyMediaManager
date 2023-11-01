@@ -38,8 +38,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowChangeDatasourceDialog;
  * @author Manuel Laggner
  */
 public class TvShowChangeDatasourceAction extends TmmAction {
-  private static final long serialVersionUID = -2731782311579049379L;
-
   public TvShowChangeDatasourceAction() {
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);

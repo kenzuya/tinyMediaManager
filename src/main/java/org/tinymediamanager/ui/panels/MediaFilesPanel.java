@@ -42,7 +42,6 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -58,13 +57,13 @@ import ca.odell.glazedlists.EventList;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The Class MediaFilesPanel.
+ * The class {@link MediaFilesPanel} holds a {@link JTable} which contains all {@link MediaFile}s of a
+ * {@link org.tinymediamanager.core.entities.MediaEntity}.
  * 
  * @author Manuel Laggner
  */
-public abstract class MediaFilesPanel extends JPanel {
-  private static final long          serialVersionUID = -4929581173434859034L;
-  private static final Logger        LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
+public class MediaFilesPanel extends JPanel {
+  private static final Logger        LOGGER = LoggerFactory.getLogger(MediaFilesPanel.class);
 
   private TmmTable                   tableFiles;
 
@@ -105,13 +104,6 @@ public abstract class MediaFilesPanel extends JPanel {
   public void adjustColumns() {
     tableFiles.adjustColumnPreferredWidths(6);
   }
-
-  /**
-   * get the actual media entity holding this list of media files
-   *
-   * @return the media entity
-   */
-  public abstract MediaEntity getMediaEntity();
 
   private static class MediaTableFormat extends TmmTableFormat<MediaFile> {
     MediaTableFormat() {
@@ -154,6 +146,13 @@ public abstract class MediaFilesPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.size"), "filesize", MediaFile::getFilesizeInMegabytes, String.class);
       col.setCellRenderer(new RightAlignTableCellRenderer());
+      addColumn(col);
+
+      /*
+       * title
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MediaFile::getTitle, String.class);
+      col.setDefaultHidden(true);
       addColumn(col);
 
       /*
@@ -304,14 +303,17 @@ public abstract class MediaFilesPanel extends JPanel {
 
     @Override
     public void mousePressed(MouseEvent e) {
+      // nothing to do here
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+      // nothing to do here
     }
 
     @Override
     public void mouseDragged(MouseEvent arg0) {
+      // nothing to do here
     }
   }
 }

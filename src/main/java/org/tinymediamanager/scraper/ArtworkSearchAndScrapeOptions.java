@@ -28,6 +28,7 @@ public class ArtworkSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   private MediaArtwork.MediaArtworkType artworkType;
   private MediaArtwork.FanartSizes      fanartSize = MediaArtwork.FanartSizes.LARGE; // default; will be overwritten by tmm settings
   private MediaArtwork.PosterSizes      posterSize = MediaArtwork.PosterSizes.LARGE; // default; will be overwritten by tmm settings
+  private MediaArtwork.ThumbSizes thumbSize = MediaArtwork.ThumbSizes.MEDIUM; // default; will be overwritten by tmm settings
 
   public ArtworkSearchAndScrapeOptions(MediaType type) {
     super(type);
@@ -95,5 +96,23 @@ public class ArtworkSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    */
   public void setPosterSize(MediaArtwork.PosterSizes posterSize) {
     this.posterSize = posterSize;
+  }
+
+  /**
+   * get the expected thumb size
+   *
+   * @return the expected thumb size
+   */
+  public MediaArtwork.ThumbSizes getThumbSize() {
+    return thumbSize;
+  }
+
+  /**
+   * set the expected thumb size
+   *
+   * @param thumbSizes the expected thumb size
+   */
+  public void setThumbSize(MediaArtwork.ThumbSizes thumbSizes) {
+    this.thumbSize = thumbSizes;
   }
 }

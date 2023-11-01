@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.dialogs;
 
 import java.awt.BorderLayout;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.time.LocalDate;
 
 import javax.swing.JButton;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.license.License;
@@ -58,8 +60,17 @@ public class UnlockDialog extends TmmDialog {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[][500lp,grow]", "[][][20lp!][10lp:n][20lp!][][100lp:150lp,grow][]"));
     {
-      JTextArea taLicenseHint = new ReadOnlyTextArea(
-          TmmResourceBundle.getString("tmm.license.hint") + "\n\n" + TmmResourceBundle.getString("tmm.license.hint2"));
+      String text = TmmResourceBundle.getString("tmm.license.hint") + "\n\n";
+
+      LocalDate validUntil = License.getInstance().validUntil();
+      if (validUntil != null) {
+        text += "==> " + TmmResourceBundle.getString("tmm.license.validuntil") + ": " + TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil))
+                + " <==\n\n";
+      }
+
+      text += TmmResourceBundle.getString("tmm.license.hint2");
+
+      JTextArea taLicenseHint = new ReadOnlyTextArea(text);
       taLicenseHint.setLineWrap(true);
       panelContent.add(taLicenseHint, "cell 0 0 2 1,grow, wmin 0");
 
@@ -83,14 +94,14 @@ public class UnlockDialog extends TmmDialog {
     }
     {
       JLabel lblEnterLicenseCodeT = new JLabel(TmmResourceBundle.getString("tmm.license.code"));
-      panelContent.add(lblEnterLicenseCodeT, "cell 0 5");
+      panelContent.add(lblEnterLicenseCodeT, "cell 0 4");
 
       JTextArea taLicenseCode = new JTextArea();
       taLicenseCode.setLineWrap(true);
 
       JScrollPane scrollPane = new JScrollPane(taLicenseCode);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      panelContent.add(scrollPane, "cell 1 5 1 2,grow, wmin 0");
+      panelContent.add(scrollPane, "cell 0 5 2 2,wmin 0,grow");
 
       JButton btnUnlock = new JButton(TmmResourceBundle.getString("tmm.license.unlock"));
       btnUnlock.addActionListener(arg0 -> {

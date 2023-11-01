@@ -46,6 +46,8 @@ import static org.tinymediamanager.core.Constants.YEAR;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.awt.Dimension;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,7 +56,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -66,19 +67,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -94,6 +93,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject implements IPrintable {
+  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
+
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -153,7 +154,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
 
   /**
    * get the release date for this entity
-   * 
+   *
    * @return the release/first aired date
    */
   public abstract Date getReleaseDate();
@@ -303,7 +304,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
    * @return a map of all IDs
    */
   public Map<String, Object> getIds() {
-    return ids;
+    return Collections.unmodifiableMap(ids);
   }
 
   /**
@@ -557,6 +558,10 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       case CLEARLOGO:
       case CHARACTERART:
       case KEYART:
+      case SEASON_BANNER:
+      case SEASON_FANART:
+      case SEASON_POSTER:
+      case SEASON_THUMB:
         if (StringUtils.isBlank(url)) {
           artworkUrlMap.remove(type);
         }
@@ -626,7 +631,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
    * @return a map of all found artworks
    */
   public Map<MediaFileType, MediaFile> getArtworkMap() {
-    Map<MediaFileType, MediaFile> artworkMap = new HashMap<>();
+    Map<MediaFileType, MediaFile> artworkMap = new EnumMap<>(MediaFileType.class);
     List<MediaFile> mfs = getMediaFiles();
     for (MediaFile mf : mfs) {
       if (!mf.isGraphic()) {
@@ -745,12 +750,15 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
 
     // all properties from this class - except "title" which is always filled (at leas with the filename)
     score = score + ids.size(); // each given ID increases the score by 1
-    score = score + returnOneWhenFilled(year);
     score = score + returnOneWhenFilled(originalTitle);
     score = score + returnOneWhenFilled(plot);
     score = score + returnOneWhenFilled(productionCompany);
     score = score + returnOneWhenFilled(ratings);
     score = score + returnOneWhenFilled(artworkUrlMap);
+    if (!getMediaFiles(MediaFileType.NFO).isEmpty()) {
+      score++;
+    }
+    score = score + returnOneWhenFilled(lastScraperId);
 
     return score;
   }
@@ -814,7 +822,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     }
     else {
       // if the given ID is an imdb id but is not valid, then do not add
-      if (Constants.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
+      if (MediaMetadata.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
         return;
       }
 
@@ -823,7 +831,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     firePropertyChange(key, null, value);
 
     // fire special events for our well known IDs
-    if (Constants.TMDB.equals(key) || Constants.IMDB.equals(key) || Constants.TVDB.equals(key) || Constants.TRAKT.equals(key)) {
+    if (MediaMetadata.TMDB.equals(key) || MediaMetadata.IMDB.equals(key) || MediaMetadata.TVDB.equals(key) || MediaMetadata.TRAKT_TV.equals(key)) {
       firePropertyChange(key + "Id", null, value);
     }
   }
@@ -845,10 +853,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
    * remove all IDs
    */
   public void removeAllIds() {
-    Map<String, Object> oldIds = new HashMap<>(ids); // create a copy for a stable iterator
-    for (var entry : oldIds.entrySet()) {
-      removeId(entry.getKey());
-    }
+    new ArrayList<>(ids.keySet()).forEach(this::removeId);
   }
 
   /**
@@ -1298,29 +1303,37 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     }
 
     for (MediaFile mf : mfs) {
-      // invalidate image cache
-      if (mf.isGraphic()) {
-        ImageCache.invalidateCachedImage(mf);
-      }
-
+      // update the cached image by just MOVEing it around
+      Path oldCache = ImageCache.getAbsolutePath(mf);
       mf.replacePathForRenamedFolder(oldPath, newPath);
+
+      if (mf.isGraphic()) {
+        if (Files.exists(oldCache)) {
+          Path newCache = ImageCache.getAbsolutePath(mf);
+          LOGGER.trace("updating imageCache {} -> {}", oldCache, newCache);
+          // just use plain move here, since we do not need all the safety checks done in our method
+          try {
+            Files.move(oldCache, newCache);
+          }
+          catch (IOException e) {
+            LOGGER.warn("Error moving cached file - '{}'", e.getMessage());
+          }
+        }
+      }
     }
   }
 
   public void cacheImages() {
     // re-build the image cache afterwards in an own thread
     List<MediaFile> imageFiles = getImagesToCache();
-    if (!imageFiles.isEmpty()) {
-      ImageCacheTask task = new ImageCacheTask(imageFiles);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
-    }
+    imageFiles.forEach(ImageCache::cacheImageAsync);
   }
 
   public List<MediaFile> getImagesToCache() {
     if (!Settings.getInstance().isImageCache()) {
       return Collections.emptyList();
     }
-    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).toList();
   }
 
   public void gatherMediaFileInformation(boolean force) {

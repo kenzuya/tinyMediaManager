@@ -88,8 +88,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieInformationPanel extends InformationPanel {
   private static final Logger        LOGGER                 = LoggerFactory.getLogger(MovieInformationPanel.class);
-  private static final long          serialVersionUID       = -8527284262749511617L;
-
   private static final String        LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
   private static final String        LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";
 

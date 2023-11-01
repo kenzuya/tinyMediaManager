@@ -35,8 +35,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowBulkEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditAction extends TmmAction {
-  private static final long serialVersionUID = -1193886444149690516L;
-
   public TvShowBulkEditAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.bulkedit"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.bulkedit.desc"));

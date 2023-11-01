@@ -5,7 +5,7 @@
         xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
         version="2.0">
     <creatingLibrary version="21.03" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
-    <media ref="D:\_qnap_Märchen\Allerleirauh (2012).mkv">
+    <media ref="Allerleirauh (2012).mkv">
         <track type="General">
             <UniqueID>309586732223659466982694629472510269249</UniqueID>
             <VideoCount>1</VideoCount>

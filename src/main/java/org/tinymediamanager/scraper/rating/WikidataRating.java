@@ -128,7 +128,7 @@ class WikidataRating {
           break;
 
         case "Metacritic":
-          rating = new MediaRating("metacritic");
+          rating = new MediaRating(MediaMetadata.METACRITIC);
           rating.setRating(Float.parseFloat(score.replace("/100", "")));
           rating.setVotes(MetadataUtil.parseInt(votes, 0));
           rating.setMaxValue(100);

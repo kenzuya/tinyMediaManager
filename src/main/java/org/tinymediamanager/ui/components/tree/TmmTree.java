@@ -35,8 +35,6 @@ import javax.swing.tree.TreePath;
  *          the node type
  */
 public class TmmTree<E extends TmmTreeNode> extends JTree {
-  private static final long              serialVersionUID = 4918691644082882866L;
-
   protected final TmmTreeDataProvider<E> dataProvider;
 
   protected Set<ITmmTreeFilter<E>>       treeFilters;

@@ -26,10 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
@@ -39,7 +41,7 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -356,12 +358,12 @@ public class MovieChooserModel extends AbstractModelObject {
     return tagline;
   }
 
-  public void startArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movie, config, overwrite));
+  public void startArtworkScrapeTask(List<MovieScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskChain.getInstance(movieToScrape).add(new ArtworkScrapeTask(movieToScrape, config, overwrite));
   }
 
-  public void startTrailerScrapeTask(Movie movie, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(movie, overwrite));
+  public void startTrailerScrapeTask(boolean overwrite) {
+    TmmTaskChain.getInstance(movieToScrape).add(new TrailerScrapeTask(movieToScrape, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
@@ -388,8 +390,15 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setId("mediaFile", movieToScrape.getMainFile());
-      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      if (movieToScrape.isStacked()) {
+        ArrayList<MediaFile> mfs = new ArrayList<>();
+        mfs.addAll(movieToScrape.getMediaFiles(MediaFileType.VIDEO));
+        options.setId("mediaFile", mfs);
+      }
+      else {
+        options.setId("mediaFile", movieToScrape.getMainFile());
+      }
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
@@ -415,8 +424,9 @@ public class MovieChooserModel extends AbstractModelObject {
       // at last take the poster from the result
       if (StringUtils.isNotBlank(getPosterUrl())) {
         MediaArtwork ma = new MediaArtwork(result.getProviderId(), MediaArtworkType.POSTER);
-        ma.setDefaultUrl(getPosterUrl());
+        ma.setOriginalUrl(getPosterUrl());
         ma.setPreviewUrl(getPosterUrl());
+        ma.addImageSize(0, 0, getPosterUrl(), 0);
         artwork.add(ma);
       }
 

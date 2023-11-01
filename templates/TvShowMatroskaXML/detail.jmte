@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tvshow>
+  <title>${tvShow.title}</title>
+  <seasons>${tvShow.seasonCount}</seasons>
+  <episodes>${tvShowSeason.episodeCount}</episodes>
+  <plot>${tvShow.plot}</plot>
+  <!-- iterate over all episodes -->    
+  ${foreach tvShow.episodes episode}
+  <episode>
+    <title>${episode.title}</title>
+    <season>${episode.season}</season>
+    <episode>${episode.episode}</episode>
+    <directory>${episode.path}</directory>${foreach episode.mediaFiles media}${if media.type = "VIDEO"}
+    <filename>${media.filename}</filename>${end}${if media.type = "THUMB"}
+    <thumbname>${media.filename}</thumbname>${end}${end}
+  </episode>
+  ${end}
+</tvshow>

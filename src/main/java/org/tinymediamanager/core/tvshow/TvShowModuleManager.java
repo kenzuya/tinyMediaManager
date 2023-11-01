@@ -45,7 +45,9 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.http.TmmHttpServer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.http.TvShowCommandHandler;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -71,6 +73,8 @@ public final class TvShowModuleManager implements ITmmModule {
   private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowModuleManager.class);
   private static final int             COMMIT_DELAY         = 2000;
 
+  private static final String          METADATA_VERSION     = "VERSION";
+
   private static TvShowModuleManager   instance;
 
   private final List<String>           startupMessages;
@@ -82,11 +86,15 @@ public final class TvShowModuleManager implements ITmmModule {
   private MVStore                      mvStore;
   private ObjectWriter                 tvShowObjectWriter;
   private ObjectReader                 tvShowObjectReader;
+  private ObjectWriter                 seasonObjectWriter;
+  private ObjectReader                 seasonObjectReader;
   private ObjectWriter                 episodeObjectWriter;
   private ObjectReader                 episodeObjectReader;
 
   private MVMap<UUID, String>          tvShowMap;
+  private MVMap<UUID, String>          seasonMap;
   private MVMap<UUID, String>          episodeMap;
+  private MVMap<String, String>        metadataMap;
 
   private Timer                        databaseTimer;
 
@@ -151,6 +159,8 @@ public final class TvShowModuleManager implements ITmmModule {
 
     tvShowObjectWriter = objectMapper.writerFor(TvShow.class);
     tvShowObjectReader = objectMapper.readerFor(TvShow.class);
+    seasonObjectWriter = objectMapper.writerFor(TvShowSeason.class);
+    seasonObjectReader = objectMapper.readerFor(TvShowSeason.class);
     episodeObjectWriter = objectMapper.writerFor(TvShowEpisode.class);
     episodeObjectReader = objectMapper.readerFor(TvShowEpisode.class);
 
@@ -290,10 +300,16 @@ public final class TvShowModuleManager implements ITmmModule {
           mvStore.setCacheSize(8);
 
           tvShowMap = mvStore.openMap("tvshows");
+          seasonMap = mvStore.openMap("seasons");
           episodeMap = mvStore.openMap("episodes");
+          metadataMap = mvStore.openMap("metadata");
 
           for (TvShow tvShow : getTvShowList().getTvShows()) {
             persistTvShow(tvShow);
+
+            for (TvShowSeason season : tvShow.getSeasons()) {
+              persistSeason(season);
+            }
 
             for (TvShowEpisode episode : tvShow.getEpisodes()) {
               persistEpisode(episode);
@@ -316,9 +332,11 @@ public final class TvShowModuleManager implements ITmmModule {
     mvStore.setCacheSize(8);
 
     tvShowMap = mvStore.openMap("tvshows");
+    seasonMap = mvStore.openMap("seasons");
     episodeMap = mvStore.openMap("episodes");
+    metadataMap = mvStore.openMap("metadata");
 
-    getTvShowList().loadTvShowsFromDatabase(tvShowMap, episodeMap);
+    getTvShowList().loadTvShowsFromDatabase(tvShowMap, seasonMap, episodeMap);
     getTvShowList().initDataAfterLoading();
   }
 
@@ -373,10 +391,8 @@ public final class TvShowModuleManager implements ITmmModule {
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
         if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
-            if (entry.getKey() instanceof TvShow) {
+            if (entry.getKey() instanceof TvShow tvShow) {
               // store TV show
-              TvShow tvShow = (TvShow) entry.getKey();
-
               // only diffs
               String oldValue = tvShowMap.get(tvShow.getDbId());
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
@@ -384,10 +400,17 @@ public final class TvShowModuleManager implements ITmmModule {
                 tvShowMap.put(tvShow.getDbId(), newValue);
               }
             }
-            else if (entry.getKey() instanceof TvShowEpisode) {
+            else if (entry.getKey() instanceof TvShowSeason season) {
+              // store season
+              // only diffs
+              String oldValue = seasonMap.get(season.getDbId());
+              String newValue = seasonObjectWriter.writeValueAsString(season);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                seasonMap.put(season.getDbId(), newValue);
+              }
+            }
+            else if (entry.getKey() instanceof TvShowEpisode episode) {
               // store episode
-              TvShowEpisode episode = (TvShowEpisode) entry.getKey();
-
               // only diffs
               String oldValue = episodeMap.get(episode.getDbId());
               String newValue = episodeObjectWriter.writeValueAsString(episode);
@@ -422,21 +445,73 @@ public final class TvShowModuleManager implements ITmmModule {
    * @param tvshow
    *          the TV show to dump the data for
    */
-  public void dump(TvShow tvshow) {
+  public void dump(TvShow tvshow, boolean withChilds) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      ObjectNode node = mapper.readValue(tvShowMap.get(tvshow.getDbId()), ObjectNode.class);
+      ObjectNode showNode = mapper.readValue(tvShowMap.get(tvshow.getDbId()), ObjectNode.class);
 
-      ArrayNode episodes = JsonNodeFactory.instance.arrayNode();
-      for (TvShowEpisode ep : tvshow.getEpisodes()) {
-        ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
-        episodes.add(epNode);
-        // TODO: dump EP IDs !!!
+      if (withChilds) {
+        ArrayNode seasons = JsonNodeFactory.instance.arrayNode();
+        for (TvShowSeason se : tvshow.getSeasons()) {
+          ObjectNode seasonNode = mapper.readValue(seasonMap.get(se.getDbId()), ObjectNode.class);
+
+          ArrayNode episodes = JsonNodeFactory.instance.arrayNode();
+          for (TvShowEpisode ep : se.getEpisodes()) {
+            ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+            episodes.add(epNode);
+          }
+
+          seasonNode.set("episodes", episodes);
+          seasons.add(seasonNode);
+        }
+        showNode.set("seasons", seasons);
       }
-      node.set("episodes", episodes);
-
-      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(showNode);
       LOGGER.info("Dumping TvShow: {}\n{}", tvshow.getDbId(), s);
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot parse JSON!", e);
+    }
+  }
+
+  /**
+   * dumps a whole season to logfile
+   * 
+   * @param tvshow
+   *          the TV show to dump the data for
+   */
+  public void dump(TvShowSeason season, boolean withChilds) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectNode seasonNode = mapper.readValue(seasonMap.get(season.getDbId()), ObjectNode.class);
+      if (withChilds) {
+        ArrayNode episodes = JsonNodeFactory.instance.arrayNode();
+        for (TvShowEpisode ep : season.getEpisodes()) {
+          ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+          episodes.add(epNode);
+        }
+        seasonNode.set("episodes", episodes);
+      }
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(seasonNode);
+      LOGGER.info("Dumping TvShowSeason: {}\n{}", season.getDbId(), s);
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot parse JSON!", e);
+    }
+  }
+
+  /**
+   * dumps a single episode to logfile
+   * 
+   * @param tvshow
+   *          the TV show to dump the data for
+   */
+  public void dump(TvShowEpisode ep) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(epNode);
+      LOGGER.info("Dumping TvShowEpisode: {}\n{}", ep.getDbId(), s);
     }
     catch (Exception e) {
       LOGGER.error("Cannot parse JSON!", e);
@@ -459,6 +534,27 @@ public final class TvShowModuleManager implements ITmmModule {
       lock.writeLock().lock();
       pendingChanges.remove(tvShow);
       tvShowMap.remove(tvShow.getDbId());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  void persistSeason(TvShowSeason season) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(season, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  void removeSeasonFromDb(TvShowSeason season) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.remove(season);
+      seasonMap.remove(season.getDbId());
     }
     finally {
       lock.writeLock().unlock();
@@ -508,4 +604,17 @@ public final class TvShowModuleManager implements ITmmModule {
   public ObjectReader getEpisodeObjectReader() {
     return episodeObjectReader;
   }
+
+  public ObjectReader getSeasonObjectReader() {
+    return seasonObjectReader;
+  }
+
+  public int getDbVersion() {
+    return MetadataUtil.parseInt(metadataMap.get(METADATA_VERSION), 0);
+  }
+
+  public void setDbVersion(int ver) {
+    metadataMap.put(METADATA_VERSION, String.valueOf(ver));
+  }
+
 }

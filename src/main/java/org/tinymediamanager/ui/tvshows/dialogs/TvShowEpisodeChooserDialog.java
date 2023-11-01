@@ -86,7 +86,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                      serialVersionUID = 3317576458848699068L;
   private static final Logger                                    LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
 
   private final TvShowEpisode                                    episode;

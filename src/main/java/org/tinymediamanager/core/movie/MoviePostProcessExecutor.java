@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.PostProcessExecutor;
 import org.tinymediamanager.core.jmte.JmteUtils;
-import org.tinymediamanager.core.jmte.RegexpProcessor;
-import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
@@ -64,10 +62,6 @@ public class MoviePostProcessExecutor extends PostProcessExecutor {
 
   private String[] substituteMovieTokens(Movie movie) {
     Engine engine = MovieRenamer.createEngine();
-
-    engine.registerAnnotationProcessor(new RegexpProcessor());
-
-    engine.setModelAdaptor(new TmmModelAdaptor());
 
     Map<String, Object> root = new HashMap<>();
     root.put("movie", movie);

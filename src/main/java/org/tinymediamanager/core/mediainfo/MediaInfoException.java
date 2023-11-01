@@ -23,10 +23,6 @@ import com.sun.jna.Platform;
  * @author Myron Boyle
  */
 public class MediaInfoException extends RuntimeException {
-
-  /** The Constant serialVersionUID. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * Instantiates a new media info exception.
    * 

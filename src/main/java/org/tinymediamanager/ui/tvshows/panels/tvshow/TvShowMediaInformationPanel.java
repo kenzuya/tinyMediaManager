@@ -40,7 +40,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.LinkTextArea;
@@ -60,8 +59,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationPanel extends JPanel {
-  private static final long          serialVersionUID = 1610264727610254912L;
-
   private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private final TvShowSelectionModel selectionModel;
@@ -149,12 +146,7 @@ public class TvShowMediaInformationPanel extends JPanel {
       add(lblWatchedT, "flowx,cell 2 1");
     }
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        @Override
-        public MediaEntity getMediaEntity() {
-          return selectionModel.getSelectedTvShow();
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 2 3 1,grow");
     }
 

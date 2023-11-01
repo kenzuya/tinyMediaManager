@@ -61,7 +61,6 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -75,6 +74,7 @@ import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.panels.InformationPanel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
@@ -89,7 +89,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowEpisodeInformationPanel extends InformationPanel {
   private static final Logger               LOGGER                 = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
-  private static final long                 serialVersionUID       = 2032708149757390567L;
 
   private static final String               LAYOUT_ARTWORK_VISIBLE = "[n:100lp:20%, grow][300lp:300lp,grow 350]";
   private static final String               LAYOUT_ARTWORK_HIDDEN  = "[][300lp:300lp,grow 350]";
@@ -202,8 +201,8 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     lblTraktTvId.addActionListener(arg0 -> {
       String url = "";
       // use EP id
-      String epId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTraktTvId();
-      if (!epId.isEmpty()) {
+      int epId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTraktTvId();
+      if (epId > 0) {
         url = "https://trakt.tv//search/trakt/" + epId + "?id_type=episode";
       }
       else {
@@ -314,7 +313,7 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     }
     {
       JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
+      panelRight.setLayout(new MigLayout("insets 0 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
 
       scrollPane = new NoBorderScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -446,8 +445,8 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
   }
 
   private void setSeasonPoster(TvShowEpisode episode) {
-    String posterPath = episode.getTvShowSeason().getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
-    Dimension posterSize = episode.getTvShowSeason().getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
+    String posterPath = episode.getTvShowSeason().getArtworkFilename(MediaFileType.SEASON_POSTER);
+    Dimension posterSize = episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_POSTER);
 
     if (StringUtils.isBlank(posterPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
@@ -469,14 +468,11 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
     for (Component component : components) {
       component.setVisible(visible);
 
-      if (component instanceof ImageLabel) {
-        ImageLabel imageLabel = (ImageLabel) component;
+      if (component instanceof ImageLabel imageLabel) {
         imageLabel.clearImage();
         imageLabel.setImagePath(artworkPath);
       }
-      else if (component instanceof JLabel) {
-        JLabel sizeLabel = (JLabel) component;
-
+      else if (component instanceof JLabel sizeLabel) {
         if (artworkDimension.width > 0 && artworkDimension.height > 0) {
           sizeLabel.setText(TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT)) + " - " + artworkDimension.width
               + "x" + artworkDimension.height);
@@ -587,10 +583,11 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, taNote, JTextPaneBeanProperty);
     autoBinding_14.bind();
     //
-    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");
+    BeanProperty<TvShowEpisodeSelectionModel, Integer> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");
     BeanProperty<LinkLabel, String> linkLabelBeanProperty_2 = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
+    AutoBinding<TvShowEpisodeSelectionModel, Integer, LinkLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_13, lblTraktTvId, linkLabelBeanProperty_2);
+    autoBinding_15.setConverter(new ZeroIdConverter());
     autoBinding_15.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShowEpisode.imdbId");

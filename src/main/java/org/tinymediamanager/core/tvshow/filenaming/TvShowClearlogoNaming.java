@@ -30,5 +30,13 @@ public enum TvShowClearlogoNaming implements IFileNaming {
     public String getFilename(String basename, String extension) {
       return "clearlogo." + extension;
     }
+  },
+
+  /** logo.png */
+  LOGO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "logo." + extension;
+    }
   }
 }

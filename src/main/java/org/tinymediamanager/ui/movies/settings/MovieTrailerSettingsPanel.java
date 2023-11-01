@@ -74,11 +74,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieTrailerSettingsPanel extends JPanel {
-  private static final long          serialVersionUID           = -1607146878528487625L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
-
   private final MovieSettings        settings                   = MovieModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers                   = new ArrayList<>();
   private final ItemListener         checkBoxListener;

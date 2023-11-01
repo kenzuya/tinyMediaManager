@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowUpdateDatasourcesAction extends TmmAction {
-  private static final long serialVersionUID = 5704371143505653741L;
-
   public TvShowUpdateDatasourcesAction() {
     putValue(NAME, TmmResourceBundle.getString("update.datasource.all"));
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);

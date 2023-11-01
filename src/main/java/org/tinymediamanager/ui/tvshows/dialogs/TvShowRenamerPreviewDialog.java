@@ -42,6 +42,7 @@ import org.tinymediamanager.core.tvshow.TvShowComparator;
 import org.tinymediamanager.core.tvshow.TvShowRenamerPreview;
 import org.tinymediamanager.core.tvshow.TvShowRenamerPreviewContainer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -65,8 +66,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowRenamerPreviewDialog extends TmmDialog {
-  private static final long                              serialVersionUID = -8163631711234589277L;
-
   private final EventList<TvShowRenamerPreviewContainer> results;
   private final ResultSelectionModel                     resultSelectionModel;
   private final EventList<MediaFileContainer>            oldMediaFileEventList;
@@ -188,13 +187,15 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       btnRename.setToolTipText(TmmResourceBundle.getString("movie.rename"));
       btnRename.addActionListener(arg0 -> {
         List<TvShow> selectedTvShows1 = new ArrayList<>();
+        List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
         List<TvShowRenamerPreviewContainer> selectedResults = new ArrayList<>(resultSelectionModel.selectedResults);
         for (TvShowRenamerPreviewContainer result : selectedResults) {
           selectedTvShows1.add(result.getTvShow());
+          selectedEpisodes.addAll(result.getTvShow().getEpisodes());
         }
 
         // rename
-        TmmThreadPool renameTask = new TvShowRenameTask(selectedTvShows1, null, true);
+        TmmThreadPool renameTask = new TvShowRenameTask(selectedTvShows1, selectedEpisodes);
         TmmTaskManager.getInstance().addMainTask(renameTask);
         results.removeAll(selectedResults);
       });
@@ -221,7 +222,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.tvshow"), "title", container -> container.getTvShow().getTitleSortable(),
           String.class);
-      col.setColumnTooltip(container -> container.getTvShow().getTitleSortable());
+      col.setCellTooltip(container -> container.getTvShow().getTitleSortable());
       addColumn(col);
     }
   }
@@ -238,7 +239,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
        * filename
        */
       col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.filename, String.class);
-      col.setColumnTooltip(container -> container.filename);
+      col.setCellTooltip(container -> container.filename);
       addColumn(col);
     }
   }
@@ -323,7 +324,15 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
           }
           oldMediaFileEventList.add(container);
         }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
+      finally {
+        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
+      }
 
+      try {
         newMediaFileEventList.getReadWriteLock().writeLock().lock();
         newMediaFileEventList.clear();
         for (MediaFile mf : selectedResult.getNewMediaFiles()) {
@@ -342,10 +351,9 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
         }
       }
       catch (Exception ignored) {
-        // ignored.printStackTrace();
+        // ignored
       }
       finally {
-        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
         newMediaFileEventList.getReadWriteLock().writeLock().unlock();
       }
     }

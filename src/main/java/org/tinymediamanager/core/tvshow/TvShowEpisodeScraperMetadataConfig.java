@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 /**
  * The enum TvShowEpisodeScraperMetadataConfig is used to control which episode fields should be set after scraping.
  * 
@@ -34,9 +36,8 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
   TITLE(Type.METADATA),
   ORIGINAL_TITLE(Type.METADATA, "metatag.originaltitle"),
   PLOT(Type.METADATA),
-  AIRED_SEASON_EPISODE(Type.METADATA, "tvshow.aired.seasonepisode"),
-  DVD_SEASON_EPISODE(Type.METADATA, "tvshow.dvd.seasonepisode"),
-  DISPLAY_SEASON_EPISODE(Type.METADATA, "tvshow.display.seasonepisode"),
+  @JsonAlias({ "AIRED_SEASON_EPISODE", "DVD_SEASON_EPISODE", "DISPLAY_SEASON_EPISODE" })
+  SEASON_EPISODE(Type.METADATA, "tvshow.seasonepisode"),
   AIRED(Type.METADATA, "metatag.aired"),
   RATING(Type.METADATA),
   TAGS(Type.METADATA),

@@ -32,7 +32,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -47,6 +47,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -65,28 +66,33 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class TvShowChooserModel extends AbstractModelObject {
 
-  private static final Logger            LOGGER          = LoggerFactory.getLogger(TvShowChooserModel.class);
-  public static final TvShowChooserModel emptyResult     = new TvShowChooserModel();
+  private static final Logger            LOGGER        = LoggerFactory.getLogger(TvShowChooserModel.class);
+  public static final TvShowChooserModel emptyResult   = new TvShowChooserModel();
 
-  private MediaScraper                   mediaScraper    = null;
-  private List<MediaScraper>             artworkScrapers = null;
-  private List<MediaScraper>             trailerScrapers = null;
-  private MediaLanguages                 language        = null;
-  private MediaSearchResult              result          = null;
-  private MediaMetadata                  metadata        = null;
+  private final TvShow                   tvShow;
+  private final MediaScraper             mediaScraper;
+  private final List<MediaScraper>       artworkScrapers;
+  private final List<MediaScraper>       trailerScrapers;
+  private MediaLanguages                 language      = null;
+  private MediaSearchResult              result        = null;
+  private MediaMetadata                  metadata      = null;
 
-  private float                          score           = 0;
-  private String                         title           = "";
-  private String                         originalTitle   = "";
-  private String                         overview        = "";
-  private String                         year            = "";
-  private String                         id              = "";
-  private String                         combinedName    = "";
-  private String                         posterUrl       = "";
-  private boolean                        scraped         = false;
+  private float                          score         = 0;
+  private String                         title         = "";
+  private String                         originalTitle = "";
+  private String                         overview      = "";
+  private String                         year          = "";
+  private String                         id            = "";
+  private String                         combinedName  = "";
+  private String                         posterUrl     = "";
+  private List<MediaEpisodeGroup>        episodeGroups = new ArrayList<>();
+  private MediaEpisodeGroup              episodeGroup  = null;
+  private List<MediaMetadata>            episodeList   = new ArrayList<>();
+  private boolean                        scraped       = false;
 
-  public TvShowChooserModel(MediaScraper mediaScraper, List<MediaScraper> artworkScrapers, List<MediaScraper> trailerScrapers,
+  public TvShowChooserModel(TvShow tvShow, MediaScraper mediaScraper, List<MediaScraper> artworkScrapers, List<MediaScraper> trailerScrapers,
       MediaSearchResult result, MediaLanguages language) {
+    this.tvShow = tvShow;
     this.mediaScraper = mediaScraper;
     this.artworkScrapers = artworkScrapers;
     this.result = result;
@@ -119,6 +125,10 @@ public class TvShowChooserModel extends AbstractModelObject {
    */
   private TvShowChooserModel() {
     setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
+    tvShow = null;
+    mediaScraper = null;
+    artworkScrapers = null;
+    trailerScrapers = null;
     combinedName = title;
   }
 
@@ -210,12 +220,12 @@ public class TvShowChooserModel extends AbstractModelObject {
     return artworkScrapers;
   }
 
-  public void startTrailerScrapeTask(TvShow tvShow, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow, overwrite));
+  public void startTrailerScrapeTask(boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new TrailerScrapeTask(tvShow, overwrite));
   }
 
-  public void startThemeDownloadTask(TvShow tvShow, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
+  public void startThemeDownloadTask(boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
   }
 
   /**
@@ -238,8 +248,29 @@ public class TvShowChooserModel extends AbstractModelObject {
       LOGGER.info("{}", options);
       LOGGER.info("=====================================================");
       metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
+      episodeList = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options);
+
       // also inject other ids
       MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.TV_SHOW);
+
+      // if we do have more than one episode group, we need the episode list too
+      episodeGroups.addAll(metadata.getEpisodeGroups());
+      Collections.sort(episodeGroups);
+      if (episodeGroups.size() > 1) {
+        // try to find out which episode group matches best
+        MediaEpisodeGroup detectedEpisodeGroup = TvShowHelpers.findBestMatchingEpisodeGroup(tvShow, episodeGroups, episodeList);
+        if (detectedEpisodeGroup != null) {
+          // we found a good matching episode group
+          episodeGroup = detectedEpisodeGroup;
+        }
+        else {
+          // fallback - take first
+          episodeGroup = episodeGroups.get(0);
+        }
+      }
+      else if (episodeGroups.size() == 1) {
+        episodeGroup = episodeGroups.get(0);
+      }
 
       if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings()) {
         for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(metadata.getIds(), MediaType.TV_SHOW))) {
@@ -292,10 +323,7 @@ public class TvShowChooserModel extends AbstractModelObject {
       List<MediaMetadata> mediaEpisodes = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options);
       for (MediaMetadata me : mediaEpisodes) {
         TvShowEpisode ep = new TvShowEpisode();
-        ep.setEpisode(me.getEpisodeNumber());
-        ep.setSeason(me.getSeasonNumber());
-        ep.setDvdEpisode(me.getDvdEpisodeNumber());
-        ep.setDvdSeason(me.getDvdSeasonNumber());
+        ep.setEpisodeNumbers(me.getEpisodeNumbers());
         ep.setFirstAired(me.getReleaseDate());
         ep.setTitle(me.getTitle());
         ep.setOriginalTitle(me.getOriginalTitle());
@@ -323,10 +351,10 @@ public class TvShowChooserModel extends AbstractModelObject {
     return metadata;
   }
 
-  private void setScraped(boolean newvalue) {
+  private void setScraped(boolean newValue) {
     boolean oldValue = scraped;
-    scraped = newvalue;
-    firePropertyChange("scraped", oldValue, newvalue);
+    scraped = newValue;
+    firePropertyChange("scraped", oldValue, newValue);
   }
 
   public boolean isScraped() {
@@ -337,8 +365,26 @@ public class TvShowChooserModel extends AbstractModelObject {
     return language;
   }
 
-  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config, overwrite));
+  public List<MediaEpisodeGroup> getEpisodeGroups() {
+    return episodeGroups;
+  }
+
+  public MediaEpisodeGroup getEpisodeGroup() {
+    return episodeGroup;
+  }
+
+  public void setEpisodeGroup(MediaEpisodeGroup newValue) {
+    MediaEpisodeGroup oldValue = this.episodeGroup;
+    this.episodeGroup = newValue;
+    firePropertyChange("episodeGroup", oldValue, newValue);
+  }
+
+  public List<MediaMetadata> getEpisodeList() {
+    return episodeList;
+  }
+
+  public void startArtworkScrapeTask(List<TvShowScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskChain.getInstance(tvShow).add(new ArtworkScrapeTask(tvShow, config, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
@@ -363,12 +409,12 @@ public class TvShowChooserModel extends AbstractModelObject {
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);
       options.setArtworkType(MediaArtworkType.ALL);
-      options.setLanguage(language);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
 
       for (Entry<String, Object> entry : tvShowToScrape.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
@@ -396,8 +442,9 @@ public class TvShowChooserModel extends AbstractModelObject {
       // at last take the poster from the result
       if (StringUtils.isNotBlank(getPosterUrl())) {
         MediaArtwork ma = new MediaArtwork(result.getProviderId(), MediaArtworkType.POSTER);
-        ma.setDefaultUrl(getPosterUrl());
+        ma.setOriginalUrl(getPosterUrl());
         ma.setPreviewUrl(getPosterUrl());
+        ma.addImageSize(0, 0, getPosterUrl(), 0);
         artwork.add(ma);
       }
 

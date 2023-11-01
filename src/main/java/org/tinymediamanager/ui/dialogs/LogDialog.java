@@ -37,7 +37,6 @@ import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import net.miginfocom.swing.MigLayout;
 
 public class LogDialog extends TmmDialog implements ActionListener {
-  private static final long   serialVersionUID = -5054005564554148578L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(LogDialog.class);
   private static final int    REFRESH_PERIOD   = 1000;
 

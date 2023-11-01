@@ -38,8 +38,6 @@ import javax.swing.UIManager;
  * @author Manuel Laggner
  */
 class DayPanel extends JPanel {
-  private static final long serialVersionUID = -4247612348953136350L;
-
   private final Calendar    today;
   private final JLabel[]    dayNames;
   private final JLabel[]    days;

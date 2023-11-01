@@ -1,5 +1,5 @@
 # The URL from which the client is downloaded
-appbase = https://release.tinymediamanager.org/v4/build/
+appbase = https://release.tinymediamanager.org/v5/build/
 
 # UI Configuration
 ui.name = tinyMediaManager
@@ -26,19 +26,9 @@ resource = [windows-amd64] tinyMediaManagerCMD.exe
 xresource = [linux-amd64] tinyMediaManager
 xresource = [linux-arm] tinyMediaManager-arm
 xresource = [linux-aarch64] tinyMediaManager-arm
-xresource = [mac os x] macOS/MacOS/tinyMediaManager
-# legacy v3 launcher - needed since macOS caches old Info.plist where this launcher is listed
-xresource = [mac os x] macOS/MacOS/JavaApplicationStub
 # legacy v3 launcher which is linked in existing .desktop files
 xresource = [linux] tinyMediaManager.sh
-resource = [mac os x] macOS/Info.plist
-resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
-resource = splashscreen.png
-resource = splashscreen@150pct.png
-resource = splashscreen@200pct.png
-resource = splashscreen@250pct.png
-resource = splashscreen@300pct.png
 resource = tmm.png
 resource = changelog.txt
 resource = launcher.yml
@@ -46,33 +36,30 @@ resource = restart.jar
 
 # JRE - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
-resource = [windows-amd64] jre/jre-windows_x64.tar.br
-resource = [linux-amd64] jre/jre-linux_x64.tar.br
-resource = [linux-arm] jre/jre-linux_arm32.tar.br
-resource = [mac os x] jre/jre-macos_x64.tar.br
+resource = [windows-amd64] jre/windows_x64.tar.xz
+resource = [linux-amd64] jre/linux_x64.tar.xz
+resource = [linux-arm] jre/linux_aarch64.tar.xz
 
 ## FFmpeg addon - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
-resource = [windows-amd64] native/windows/addons/ffmpeg-windows_x64.tar.br
-resource = [linux-amd64] native/linux/addons/ffmpeg-linux_x64.tar.br
-resource = [linux-arm] native/arm/addons/ffmpeg-linux_arm32.tar.br
-resource = [mac os x] native/macos/addons/ffmpeg-macos_x64.tar.br
+resource = [windows-amd64] native/windows/addons/ffmpeg-windows_x64.tar.xz
+resource = [linux-amd64] native/linux/addons/ffmpeg-linux_x64.tar.xz
+resource = [linux-aarch64] native/arm/addons/ffmpeg-linux_aarch64.tar.xz
 
 # translations
 %LOCALES%
 
 # mediainfo native libs
-resource = [mac os x] native/mac/libmediainfo.dylib
 resource = [windows-amd64] native/windows/MediaInfo.dll
 resource = [linux-amd64] native/linux/libmediainfo.so
 resource = [linux-amd64] native/linux/libzen.so
-resource = [linux-arm] native/arm/libmediainfo.so
-resource = [linux-arm] native/arm/libzen.so
+resource = [linux-aarch64] native/arm/libmediainfo.so
+resource = [linux-aarch64] native/arm/libzen.so
 
 # tiny file dialogs native libs
 resource = [windows-amd64] native/windows/tinyfiledialogs.dll
 resource = [linux-amd64] native/linux/libtinyfiledialogs.so
-resource = [linux-arm] native/arm/libtinyfiledialogs.so
+resource = [linux-aarch64] native/arm/libtinyfiledialogs.so
 
 # templates
 resource = templates/templates.tar.bz2

@@ -213,7 +213,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
         if (info != null) {
           this.metadata = info;
           if (!info.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
-            setFanartUrl(info.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl());
+            setFanartUrl(info.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getOriginalUrl());
           }
 
           setName(info.getTitle());
@@ -240,12 +240,12 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
             // POSTER
             if (!item.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
-              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
+              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.POSTER).get(0).getOriginalUrl(), MediaFileType.POSTER);
             }
 
             // FANART
             if (!item.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
-              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
+              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getOriginalUrl(), MediaFileType.FANART);
             }
 
             movieSetMovies.add(movieSetMovie);
@@ -311,7 +311,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
       catch (Exception e) {
         options.setTmdbId(0);
       }
-      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
@@ -334,8 +334,9 @@ public class MovieSetChooserModel extends AbstractModelObject {
       // at last take the poster from the result
       if (StringUtils.isNotBlank(getPosterUrl())) {
         MediaArtwork ma = new MediaArtwork(result.getProviderId(), MediaArtwork.MediaArtworkType.POSTER);
-        ma.setDefaultUrl(getPosterUrl());
+        ma.setOriginalUrl(getPosterUrl());
         ma.setPreviewUrl(getPosterUrl());
+        ma.addImageSize(0, 0, getPosterUrl(), 0);
         artwork.add(ma);
       }
 

@@ -34,8 +34,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowKodiGetWatchedAction extends TmmAction {
-  private static final long serialVersionUID = 3112210911017607679L;
-
   public TvShowKodiGetWatchedAction() {
     putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
     putValue(SMALL_ICON, IconManager.WATCHED_MENU);

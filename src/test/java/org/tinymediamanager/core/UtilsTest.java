@@ -68,17 +68,6 @@ public class UtilsTest extends BasicTest {
   }
 
   @Test
-  public void testBrotli() throws Exception {
-    Path sourceFile = Paths.get("target", "test-classes", "test.tar.br");
-    Path target = Paths.get("target", "test-classes", "brotli");
-    Utils.unpackBrotli(sourceFile.toFile(), target.toFile());
-
-    Path targetFile = target.resolve("test.txt");
-    assertThat(targetFile).exists();
-    assertThat(Utils.readFileToString(targetFile).trim()).isEqualTo("FOO");
-  }
-
-  @Test
   public void compareVersions() {
     assertEqual(true, StrgUtils.compareVersion("GIT", "GIT") < 0); // GIT always "lower"
     assertEqual(true, StrgUtils.compareVersion("GIT", "2.7.2") < 0); // GIT always "lower"
@@ -301,9 +290,10 @@ public class UtilsTest extends BasicTest {
 
   @Test
   public void locale() {
-    // for (String s : LanguageUtils.KEY_TO_LOCALE_MAP.keySet()) {
-    // System.out.println(s + " - " + LanguageUtils.KEY_TO_LOCALE_MAP.get(s));
-    // }
+    for (String s : LanguageUtils.KEY_TO_LOCALE_MAP.keySet()) {
+      if (s.startsWith("zh"))
+        System.out.println(s + " - " + LanguageUtils.KEY_TO_LOCALE_MAP.get(s));
+    }
 
     assertEqual(LanguageUtils.KEY_TO_LOCALE_MAP.get("tur").getISO3Language(), new Locale("tr").getISO3Language());
   }

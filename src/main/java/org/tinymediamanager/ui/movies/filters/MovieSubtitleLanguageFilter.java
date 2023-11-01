@@ -25,9 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -43,8 +41,7 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
 
   public MovieSubtitleLanguageFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s)
-        .startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildSubtitleLanguageArray();
     movieList.addPropertyChangeListener(Constants.SUBTITLE_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildSubtitleLanguageArray));
   }
@@ -73,24 +70,11 @@ public class MovieSubtitleLanguageFilter extends AbstractCheckComboBoxMovieUIFil
   public boolean accept(Movie movie) {
 
     List<String> selectedItems = checkComboBox.getSelectedItems();
-    List<MediaFile> mediaFileList = movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE);
-
-    for (MediaFile mf : mediaFileList) {
-
-      // check for explicit empty search
-      if (selectedItems.isEmpty() && mf.getSubtitleLanguagesList()
-          .isEmpty()) {
+    List<String> lang = movie.getMediaInfoSubtitleLanguageList();
+    for (String sel : selectedItems) {
+      if (lang.contains(sel)) {
         return true;
       }
-
-      for (String lang : mf.getSubtitleLanguagesList()) {
-
-        if (selectedItems.contains(lang)) {
-          return true;
-        }
-
-      }
-
     }
 
     return false;

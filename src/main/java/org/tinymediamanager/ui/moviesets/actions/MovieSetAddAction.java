@@ -32,8 +32,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * 
  */
 public class MovieSetAddAction extends TmmAction {
-  private static final long serialVersionUID = 819724436270051906L;
-
   /**
    * Instantiates a new adds the movie set action.
    */

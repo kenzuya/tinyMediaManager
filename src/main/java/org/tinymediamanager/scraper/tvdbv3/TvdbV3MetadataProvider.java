@@ -15,6 +15,10 @@
  */
 package org.tinymediamanager.scraper.tvdbv3;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
@@ -80,7 +85,7 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   protected synchronized void initAPI() throws ScrapeException {
@@ -125,7 +130,7 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       }
     }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getUserApiKey();
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey)) {
@@ -188,5 +193,69 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
    */
   protected String clearYearFromTitle(String title, int year) {
     return title.replaceAll("\\(" + year + "\\)$", "").trim();
+  }
+
+  /**
+   * get the size order of the given artwork
+   *
+   * @param type  the {@link MediaArtwork.MediaArtworkType}
+   * @param width the width
+   * @return the size order
+   */
+  protected int getSizeOrder(MediaArtwork.MediaArtworkType type, int width) {
+    int sizeOrder = 0;
+
+    // set image size
+    switch (type) {
+      case POSTER:
+        if (width >= 1000) {
+          sizeOrder = MediaArtwork.PosterSizes.LARGE.getOrder();
+        } else if (width >= 500) {
+          sizeOrder = MediaArtwork.PosterSizes.BIG.getOrder();
+        } else if (width >= 342) {
+          sizeOrder = MediaArtwork.PosterSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.PosterSizes.SMALL.getOrder();
+        }
+        break;
+
+      case BACKGROUND:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder();
+        } else if (width >= 1920) {
+          sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+        } else if (width >= 1280) {
+          sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.FanartSizes.SMALL.getOrder();
+        }
+        break;
+
+      case THUMB:
+        if (width >= 3840) {
+          sizeOrder = MediaArtwork.ThumbSizes.XLARGE.getOrder();
+        } else if (width >= 1920) {
+          sizeOrder = MediaArtwork.ThumbSizes.LARGE.getOrder();
+        } else if (width >= 1280) {
+          sizeOrder = MediaArtwork.ThumbSizes.BIG.getOrder();
+        } else if (width >= 960) {
+          sizeOrder = MediaArtwork.ThumbSizes.MEDIUM.getOrder();
+        } else {
+          sizeOrder = MediaArtwork.ThumbSizes.SMALL.getOrder();
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // set size for banner & season poster (resolution not in api)
+    if (type == SEASON_BANNER || type == SEASON_POSTER) {
+      sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
+    } else if (type == BANNER) {
+      sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
+    }
+
+    return sizeOrder;
   }
 }

@@ -15,7 +15,10 @@
  */
 package org.tinymediamanager.ui.components.toolbar;
 
+import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
+
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.nio.file.Files;
@@ -32,11 +35,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.Timer;
 import javax.swing.UIManager;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -52,16 +52,19 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmLazyMenuAdapter;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
 import org.tinymediamanager.ui.actions.CheckForUpdateAction;
+import org.tinymediamanager.ui.actions.ClearDatabaseAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
@@ -73,6 +76,7 @@ import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
 import org.tinymediamanager.ui.actions.ForumAction;
 import org.tinymediamanager.ui.actions.HomepageAction;
+import org.tinymediamanager.ui.actions.ImportV4DataAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
@@ -81,6 +85,7 @@ import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
+import org.tinymediamanager.updater.UpdateCheck;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -90,9 +95,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ToolbarPanel extends JPanel {
-  private static final long   serialVersionUID = 7969400170662870244L;
-
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
+  private static final Logger LOGGER = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private final ToolbarButton btnSearch;
   private final ToolbarButton btnEdit;
@@ -100,14 +103,18 @@ public class ToolbarPanel extends JPanel {
   private final ToolbarButton btnRename;
   private final ToolbarButton btnUnlock;
   private final ToolbarButton btnRenewLicense;
+  private final ToolbarButton btnUpdateFound;
 
   private final ToolbarMenu   menuUpdate;
   private final ToolbarMenu   menuSearch;
   private final ToolbarMenu   menuEdit;
   private final ToolbarMenu   menuRename;
+  private final ToolbarMenu   menuTools;
+  private final ToolbarMenu   menuInfo;
 
   private final ToolbarLabel  lblUnlock;
   private final ToolbarLabel  lblRenewLicense;
+  private final ToolbarLabel  lblUpdateFound;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -116,7 +123,7 @@ public class ToolbarPanel extends JPanel {
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
     panelCenter.setLayout(
-        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
+        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx center, aligny bottom");
     JLabel lblVersion = new ToolbarLabel(ReleaseInfo.getRealVersion());
@@ -158,6 +165,11 @@ public class ToolbarPanel extends JPanel {
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(btnRenewLicense, "cell 12 0, alignx center,aligny bottom, gap 10lp");
 
+    btnUpdateFound = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
+    btnUpdateFound.setAction(new CheckForUpdateAction());
+    btnUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
+    panelCenter.add(btnUpdateFound, "cell 13 0, alignx center,aligny bottom, gap 10lp");
+
     menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
@@ -173,11 +185,11 @@ public class ToolbarPanel extends JPanel {
     JLabel lblSettings = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.settings"), settingsAction);
     panelCenter.add(lblSettings, "cell 8 1,alignx center, wmin 0");
 
-    ToolbarMenu lblTools = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.tools"), toolsPopupMenu);
-    panelCenter.add(lblTools, "cell 9 1,alignx center, wmin 0");
+    menuTools = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.tools"), toolsPopupMenu);
+    panelCenter.add(menuTools, "cell 9 1,alignx center, wmin 0");
 
-    ToolbarMenu menuHelp = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
-    panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
+    menuInfo = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
+    panelCenter.add(menuInfo, "cell 10 1,alignx center, wmin 0");
 
     lblUnlock = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.upgrade"), unlockAction);
     lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.upgrade.desc"));
@@ -187,9 +199,15 @@ public class ToolbarPanel extends JPanel {
     lblRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(lblRenewLicense, "cell 12 1,alignx center, gap 10lp, wmin 0");
 
+    lblUpdateFound = new ToolbarLabel(TmmResourceBundle.getString("tmm.update.message.toolbar"));
+    lblUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message"));
+    panelCenter.add(lblUpdateFound, "cell 13 1,alignx center, gap 10lp, wmin 0");
+
     License.getInstance().addEventListener(this::showHideUnlock);
 
     showHideUnlock();
+
+    initUpgradeCheck();
   }
 
   private void showHideUnlock() {
@@ -212,6 +230,42 @@ public class ToolbarPanel extends JPanel {
       lblUnlock.setVisible(true);
       btnRenewLicense.setVisible(false);
       lblRenewLicense.setVisible(false);
+    }
+  }
+
+  private void initUpgradeCheck() {
+    btnUpdateFound.setVisible(false);
+    lblUpdateFound.setVisible(false);
+
+    if (!Settings.getInstance().isNewConfig()) {
+      // if the wizard is not run, check for an update
+      // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is
+      // showing, the wizard will no more appear
+      // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
+      // next startup
+      if (Globals.canCheckForUpdates()) {
+        // only update if the last update check is more than the specified interval ago
+        if (shouldCheckForUpdate()) {
+          Runnable runnable = () -> {
+            try {
+              UpdateCheck updateCheck = new UpdateCheck();
+              if (updateCheck.isUpdateAvailable()) {
+                btnUpdateFound.setVisible(true);
+                lblUpdateFound.setVisible(true);
+                LOGGER.info("update available");
+              }
+            }
+            catch (Exception e) {
+              LOGGER.warn("Update check failed - {}", e.getMessage());
+            }
+          };
+
+          // update task start a few secs after GUI...
+          Timer timer = new Timer(10 * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
+          timer.setRepeats(false);
+          timer.start();
+        }
+      }
     }
   }
 
@@ -263,59 +317,36 @@ public class ToolbarPanel extends JPanel {
 
     JMenuItem tmmFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotoinstalldir"));
     menu.add(tmmFolder);
-    tmmFolder.addActionListener(arg0 -> {
-      Path path = Paths.get(System.getProperty("user.dir"));
-      try {
-        // check whether this location exists
-        if (Files.exists(path)) {
-          TmmUIHelper.openFile(path);
-        }
-      }
-      catch (Exception ex) {
-        LOGGER.error("open filemanager", ex);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-      }
-    });
+    tmmFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotoinstalldir.desc"));
+    tmmFolder.addActionListener(arg0 -> openFolder(Paths.get(System.getProperty("user.dir"))));
+
+    JMenuItem dataFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotodatadir"));
+    menu.add(dataFolder);
+    dataFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotodatadir.desc"));
+    dataFolder.addActionListener(arg0 -> openFolder(Paths.get(Globals.DATA_FOLDER)));
+
+    JMenuItem logFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotologdir"));
+    menu.add(logFolder);
+    logFolder.setToolTipText(TmmResourceBundle.getString("tmm.gotologdir.desc"));
+    logFolder.addActionListener(arg0 -> openFolder(Paths.get(Globals.LOG_FOLDER)));
 
     JMenuItem tmpFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gototmpdir"));
     menu.add(tmpFolder);
-    tmpFolder.addActionListener(arg0 -> {
-      Path path = Paths.get(Utils.getTempFolder());
-      try {
-        // check whether this location exists
-        if (Files.exists(path)) {
-          TmmUIHelper.openFile(path);
-        }
-      }
-      catch (Exception ex) {
-        LOGGER.error("open filemanager", ex);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-      }
-    });
+    tmpFolder.addActionListener(arg0 -> openFolder(Paths.get(Utils.getTempFolder())));
 
     menu.add(new DeleteTrashAction());
     menu.addSeparator();
 
     final JMenu menuWakeOnLan = new JMenu(TmmResourceBundle.getString("tmm.wakeonlan"));
     menuWakeOnLan.setMnemonic(KeyEvent.VK_W);
-    menuWakeOnLan.addMenuListener(new MenuListener() {
+    menuWakeOnLan.addMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void menuCanceled(MenuEvent arg0) {
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent arg0) {
-      }
-
-      @Override
-      public void menuSelected(MenuEvent arg0) {
-        menuWakeOnLan.removeAll();
+      protected void menuWillBecomeVisible(JMenu menu) {
+        menu.removeAll();
         for (final WolDevice device : Settings.getInstance().getWolDevices()) {
           JMenuItem item = new JMenuItem(device.getName());
           item.addActionListener(arg01 -> Utils.sendWakeOnLanPacket(device.getMacAddress()));
-          menuWakeOnLan.add(item);
+          menu.add(item);
         }
       }
     });
@@ -325,40 +356,42 @@ public class ToolbarPanel extends JPanel {
     menu.add(kodiRPCMenu);
 
     // activate/deactivate menu items based on some status
-    menu.addPopupMenuListener(new PopupMenuListener() {
+    menu.addPopupMenuListener(new TmmLazyMenuAdapter() {
       @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+      protected void menuWillBecomeVisible(JMenu menu) {
         if (!Settings.getInstance().getWolDevices().isEmpty()) {
-          menuWakeOnLan.setEnabled(true);
+          menu.setEnabled(true);
         }
         else {
-          menuWakeOnLan.setEnabled(false);
+          menu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
-          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-          kodiRPCMenu.setEnabled(true);
+        JMenu kodiRPCMenu = null;
+        for (Component comp : menu.getMenuComponents()) {
+          if (comp instanceof JMenu subMenu && subMenu.getIcon() == IconManager.KODI) {
+            kodiRPCMenu = subMenu;
+            break;
+          }
         }
-        else {
-          kodiRPCMenu.setText("Kodi");
-          kodiRPCMenu.setEnabled(false);
+
+        if (kodiRPCMenu != null) {
+          if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
+            kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
+            kodiRPCMenu.setEnabled(true);
+          }
+          else {
+            kodiRPCMenu.setText("Kodi");
+            kodiRPCMenu.setEnabled(false);
+          }
         }
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
       }
     });
 
-    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || Globals.isDebug()) {
+    if (Globals.canCheckForUpdates() || Globals.isDebug()) {
       menu.addSeparator();
     }
 
-    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+    if (Globals.canCheckForUpdates()) {
       menu.add(new CheckForUpdateAction());
     }
 
@@ -397,7 +430,27 @@ public class ToolbarPanel extends JPanel {
       menu.add(new CreateDesktopFileAction());
     }
 
+    menu.addSeparator();
+    menu.add(new ClearDatabaseAction());
+
+    menu.addSeparator();
+    menu.add(new ImportV4DataAction());
+
     return menu;
+  }
+
+  private static void openFolder(Path path) {
+    try {
+      // check whether this location exists
+      if (Files.exists(path)) {
+        TmmUIHelper.openFile(path);
+      }
+    }
+    catch (Exception ex) {
+      LOGGER.error("open filemanager", ex);
+      MessageManager.instance
+          .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+    }
   }
 
   private JPopupMenu buildInfoMenu() {
@@ -420,5 +473,13 @@ public class ToolbarPanel extends JPanel {
     menu.add(new AboutAction());
 
     return menu;
+  }
+
+  public JPopupMenu getToolsMenu() {
+    return menuTools.getPopupMenu();
+  }
+
+  public JPopupMenu getInfoMenu() {
+    return menuInfo.getPopupMenu();
   }
 }

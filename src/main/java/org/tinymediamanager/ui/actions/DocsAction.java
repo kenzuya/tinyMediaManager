@@ -26,9 +26,6 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class DocsAction extends TmmAction {
-  private static final long           serialVersionUID = 1668251251156765161L;
-
-
   public static final String          DOCS_URL         = "https://www.tinymediamanager.org/docs";
 
   public DocsAction() {

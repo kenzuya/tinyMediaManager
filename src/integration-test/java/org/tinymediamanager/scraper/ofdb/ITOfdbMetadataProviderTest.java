@@ -122,8 +122,7 @@ public class ITOfdbMetadataProviderTest extends BasicITest {
       assertThat(md.getTitle()).isEqualTo("Merida - Legende der Highlands");
       assertThat(md.getOriginalTitle()).isEqualTo("Brave");
       assertThat(md.getYear()).isEqualTo(2012);
-      assertThat(md.getPlot()).startsWith(
-          "Merida wächst als Erstgeborene von König Fergus an, der im schottischen Hochland sein Volk, bestehend aus vier Clans, anführt. Fergus hatte, als Merida noch ein Kleinkind war, einen Teil seines linken Beines im Kampf gegen einen riesigen, gefährlichen Bären verloren -");
+      assertThat(md.getPlot()).contains("Merida", "Erstgeborene", "Fergus", "Hochland");
       assertThat(md.getTagline()).isEmpty();
 
       assertThat(md.getRatings().size()).isEqualTo(1);

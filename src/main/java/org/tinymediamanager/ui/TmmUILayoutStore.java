@@ -53,6 +53,8 @@ public class TmmUILayoutStore {
   private final TmmProperties     properties;
   private final Set<String>       componentSet;
 
+  private boolean skipSaving = false;
+
   private TmmUILayoutStore() {
     properties = TmmProperties.getInstance();
     componentSet = new HashSet<>();
@@ -84,11 +86,10 @@ public class TmmUILayoutStore {
       return;
     }
 
-    if (component instanceof JSplitPane) {
-      installJSplitPane((JSplitPane) component);
-    }
-    else if (component instanceof TmmTable) {
-      installTmmTable((TmmTable) component);
+    if (component instanceof JSplitPane splitPane) {
+      installJSplitPane(splitPane);
+    } else if (component instanceof TmmTable tmmTable) {
+      installTmmTable(tmmTable);
     }
 
   }
@@ -114,7 +115,7 @@ public class TmmUILayoutStore {
       List<String> hiddenColumns = Arrays.asList(hiddenColumnsAsString.split(","));
       table.readHiddenColumns(hiddenColumns);
 
-      if (table.getTableComparatorChooser() != null) {
+      if (table.getTableComparatorChooser() != null && StringUtils.isNotBlank(properties.getProperty(componentName + ".sortState"))) {
         table.getTableComparatorChooser().fromString(properties.getProperty(componentName + ".sortState"));
       }
     }
@@ -131,14 +132,6 @@ public class TmmUILayoutStore {
    *          the frame
    */
   public void loadSettings(JFrame frame) {
-    if (!Settings.getInstance().isStoreWindowPreferences()) {
-      // at least display the main frame centered
-      if ("mainWindow".equals(frame.getName())) {
-        frame.setLocationRelativeTo(null);
-      }
-      return;
-    }
-
     // settings for main window
     if ("mainWindow".equals(frame.getName())) {
       // only set location/size if something was stored
@@ -173,13 +166,7 @@ public class TmmUILayoutStore {
    *          the dialog
    */
   public void loadSettings(JDialog dialog) {
-    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
-      dialog.pack();
-      dialog.setLocationRelativeTo(dialog.getParent());
-      return;
-    }
-
-    if (!dialog.getName().contains("dialog")) {
+    if (!StringUtils.isBlank(dialog.getName()) && !dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
 
       if (rect.width == 0 && rect.height == 0) {
@@ -243,7 +230,7 @@ public class TmmUILayoutStore {
    *          the frame
    */
   public void saveSettings(JFrame frame) {
-    if (!Settings.getInstance().isStoreWindowPreferences()) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || skipSaving) {
       return;
     }
 
@@ -274,17 +261,16 @@ public class TmmUILayoutStore {
         }
       }
 
-      if (comp instanceof Container)
-        saveChildren((Container) comp);
+      if (comp instanceof Container container1)
+        saveChildren(container1);
     }
   }
 
   private void saveComponent(Component component) {
-    if (component instanceof JSplitPane) {
-      saveJSplitPane((JSplitPane) component);
-    }
-    else if (component instanceof TmmTable) {
-      saveTmmTable((TmmTable) component);
+    if (component instanceof JSplitPane splitPane) {
+      saveJSplitPane(splitPane);
+    } else if (component instanceof TmmTable tmmTable) {
+      saveTmmTable(tmmTable);
     }
   }
 
@@ -327,13 +313,23 @@ public class TmmUILayoutStore {
   }
 
   /**
+   * general purpose flag to skip saving
+   *
+   * @param skipSaving
+   *          true/false
+   */
+  public void setSkipSaving(boolean skipSaving) {
+    this.skipSaving = skipSaving;
+  }
+
+  /**
    * Save settings for a dialog
    * 
    * @param dialog
    *          the dialog
    */
   public void saveSettings(JDialog dialog) {
-    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName()) || skipSaving) {
       return;
     }
 
@@ -367,6 +363,14 @@ public class TmmUILayoutStore {
     }
     catch (Exception e) {
       return rect;
+    }
+
+    // prevent from moving out of the screen (can happen in Docker/VNC)
+    if (rect.x < 0) {
+      rect.x = 0;
+    }
+    if (rect.y < 0) {
+      rect.y = 0;
     }
 
     // check if the stored sizes fit to any screen

@@ -38,8 +38,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRewriteNfoAction extends TmmAction {
-  private static final long serialVersionUID = 2866581962767395824L;
-
   public MovieRewriteNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rewritenfo"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));

@@ -6,12 +6,12 @@ import org.tinymediamanager.scraper.tmdb.entities.AlternativeTitles;
 import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
 import org.tinymediamanager.scraper.tmdb.entities.ContentRatings;
 import org.tinymediamanager.scraper.tmdb.entities.Credits;
+import org.tinymediamanager.scraper.tmdb.entities.ExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.Images;
 import org.tinymediamanager.scraper.tmdb.entities.Keywords;
 import org.tinymediamanager.scraper.tmdb.entities.RatingObject;
 import org.tinymediamanager.scraper.tmdb.entities.Status;
 import org.tinymediamanager.scraper.tmdb.entities.Translations;
-import org.tinymediamanager.scraper.tmdb.entities.TvExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.TvShow;
 import org.tinymediamanager.scraper.tmdb.entities.TvShowResultsPage;
 import org.tinymediamanager.scraper.tmdb.entities.Videos;
@@ -106,7 +106,7 @@ public interface TvService {
    *          <em>Optional.</em> ISO 639-1 code.
    */
   @GET("tv/{tv_id}/external_ids")
-  Call<TvExternalIds> externalIds(@Path("tv_id") int tvShowId, @Query("language") String language);
+  Call<ExternalIds> externalIds(@Path("tv_id") int tvShowId, @Query("language") String language);
 
   /**
    * Get the images (posters and backdrops) for a TV series.

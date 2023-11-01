@@ -1,0 +1,58 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>linux-amd64</id>
+    <formats>
+        <format>tar.xz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <!-- copy BASE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-base</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- copy TEMPLATE folder from former assembly -->
+            <directory>${project.build.directory}/${project.artifactId}-${project.version}-templates</directory>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!-- and just windows stuff from GD -->
+            <directory>${project.build.directory}/${project.artifactId}-getdown</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+            <includes>
+                <include>digest*</include>
+                <include>getdown.txt</include>
+                <include>version</include>
+
+                <include>tinyMediaManager</include>
+                <include>native/linux/*</include><!-- no subfolders! -->
+            </includes>
+        </fileSet>
+        <fileSet>
+            <!-- native and jre-->
+            <directory>${project.build.directory}/linux-x64</directory>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${project.build.directory}/jre/linux_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/jre</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/addons/ffmpeg-linux_x64.tar.xz.sha256</source>
+            <outputDirectory>/tinyMediaManager/native/linux/addons</outputDirectory>
+        </file>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}-templates.tar.bz2.sha256
+            </source>
+            <outputDirectory>/tinyMediaManager/templates</outputDirectory>
+            <destName>templates.tar.bz2.sha256</destName>
+        </file>
+        <file>
+            <source>AppBundler/.userdir</source>
+            <outputDirectory>/tinyMediaManager</outputDirectory>
+        </file>
+    </files>
+</assembly>

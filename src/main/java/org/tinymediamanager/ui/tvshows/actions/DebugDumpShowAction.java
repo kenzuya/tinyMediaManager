@@ -16,19 +16,19 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
-
-import javax.swing.JOptionPane;
+import java.util.Set;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel.SelectedObjects;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 public class DebugDumpShowAction extends TmmAction {
-  private static final long serialVersionUID = -8473181347332963044L;
+  private static final long serialVersionUID = 1L;
 
   public DebugDumpShowAction() {
     putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
@@ -37,15 +37,21 @@ public class DebugDumpShowAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
+    SelectedObjects sel = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects(true, true);
 
-    if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
-      return;
+    Set<TvShow> selectedTvShows = sel.getTvShows();
+    for (TvShow tvShow : selectedTvShows) {
+      TvShowModuleManager.getInstance().dump(tvShow, false);
     }
 
-    for (TvShow tvShow : selectedTvShows) {
-      TvShowModuleManager.getInstance().dump(tvShow);
+    Set<TvShowSeason> selectedSeason = sel.getSeasons();
+    for (TvShowSeason se : selectedSeason) {
+      TvShowModuleManager.getInstance().dump(se, false);
+    }
+
+    Set<TvShowEpisode> selectedEpisodes = sel.getEpisodes();
+    for (TvShowEpisode ep : selectedEpisodes) {
+      TvShowModuleManager.getInstance().dump(ep);
     }
   }
 }

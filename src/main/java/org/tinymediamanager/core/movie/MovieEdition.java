@@ -34,30 +34,32 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @author Manuel Laggner
  */
 public class MovieEdition extends DynaEnum<MovieEdition> {
-  private static final Comparator<MovieEdition> COMPARATOR         = new MovieEditionComparator();
+  private static final Comparator<MovieEdition> COMPARATOR           = new MovieEditionComparator();
 
-  public static final MovieEdition              NONE               = new MovieEdition("NONE", 0, "", "");
-  public static final MovieEdition              DIRECTORS_CUT      = new MovieEdition("DIRECTORS_CUT", 1, "Director's Cut",
+  public static final MovieEdition              NONE                 = new MovieEdition("NONE", 0, "", "");
+  public static final MovieEdition              DIRECTORS_CUT        = new MovieEdition("DIRECTORS_CUT", 1, "Director's Cut",
       ".Director.?s.(Cut|Edition|Version)");
-  public static final MovieEdition              EXTENDED_EDITION   = new MovieEdition("EXTENDED_EDITION", 2, "Extended Edition",
+  public static final MovieEdition              EXTENDED_EDITION     = new MovieEdition("EXTENDED_EDITION", 2, "Extended Edition",
       ".Extended.(Cut|Edition|Version)?");
-  public static final MovieEdition              THEATRICAL_EDITION = new MovieEdition("THEATRICAL_EDITION", 3, "Theatrical Edition",
+  public static final MovieEdition              THEATRICAL_EDITION   = new MovieEdition("THEATRICAL_EDITION", 3, "Theatrical Edition",
       ".Theatrical.(Cut|Edition|Version)?");
-  public static final MovieEdition              UNRATED            = new MovieEdition("UNRATED", 4, "Unrated", ".Unrated.(Cut|Edition|Version)?");
-  public static final MovieEdition              UNCUT              = new MovieEdition("UNCUT", 5, "Uncut", ".Uncut.(Cut|Edition|Version)?");
-  public static final MovieEdition              IMAX               = new MovieEdition("IMAX", 6, "IMAX", "^(IMAX|.*?.IMAX).(Cut|Edition|Version)?");
-  public static final MovieEdition              REMASTERED         = new MovieEdition("REMASTERED", 7, "Remastered",
+  public static final MovieEdition              UNRATED              = new MovieEdition("UNRATED", 4, "Unrated", ".Unrated.(Cut|Edition|Version)?");
+  public static final MovieEdition              UNCUT                = new MovieEdition("UNCUT", 5, "Uncut", ".Uncut.(Cut|Edition|Version)?");
+  public static final MovieEdition              IMAX                 = new MovieEdition("IMAX", 6, "IMAX", "^(IMAX|.*?.IMAX).(Cut|Edition|Version)?");
+  public static final MovieEdition              REMASTERED           = new MovieEdition("REMASTERED", 7, "Remastered",
       ".Remastered.(Cut|Edition|Version)?");
-  public static final MovieEdition              COLLECTORS_EDITION = new MovieEdition("COLLECTORS_EDITION", 8, "Collectors Edition",
+  public static final MovieEdition              COLLECTORS_EDITION   = new MovieEdition("COLLECTORS_EDITION", 8, "Collectors Edition",
       ".Collectors.(Cut|Edition|Version)");
-  public static final MovieEdition              ULTIMATE_EDITION   = new MovieEdition("ULTIMATE_EDITION", 9, "Ultimate Edition",
+  public static final MovieEdition              ULTIMATE_EDITION     = new MovieEdition("ULTIMATE_EDITION", 9, "Ultimate Edition",
       ".Ultimate.(Cut|Edition|Version)");
-  public static final MovieEdition              FINAL_CUT          = new MovieEdition("FINAL_CUT", 9, "Final Edition",
+  public static final MovieEdition              FINAL_CUT            = new MovieEdition("FINAL_CUT", 10, "Final Edition",
       ".Final.(Cut|Edition|Version)");
-  public static final MovieEdition              SPECIAL_EDITION    = new MovieEdition("SPECIAL_EDITION", 7, "Special Edition",
+  public static final MovieEdition              SPECIAL_EDITION      = new MovieEdition("SPECIAL_EDITION", 11, "Special Edition",
       ".Special.(Cut|Edition|Version)");
+  public static final MovieEdition              CRITERION_COLLECTION = new MovieEdition("CRITERION_COLLECTION", 12, "Criterion Collection",
+      ".Criterion.(Collection|Edition)?");
 
-  private static final Pattern                  FILENAME_PATTERN   = Pattern.compile("\\{edition\\-(.*?)\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern                  FILENAME_PATTERN     = Pattern.compile("\\{edition\\-(.*?)\\}", Pattern.CASE_INSENSITIVE);
   private final String                          title;
   private final Pattern                         pattern;
 
@@ -227,7 +229,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * @param listener
    *          the new listener to be added
    */
-  public static void addListener(DynaEnumEventListener listener) {
+  public static void addListener(DynaEnumEventListener<MovieEdition> listener) {
     addListener(MovieEdition.class, listener);
   }
 
@@ -237,7 +239,7 @@ public class MovieEdition extends DynaEnum<MovieEdition> {
    * @param listener
    *          the listener to be removed
    */
-  public static void removeListener(DynaEnumEventListener listener) {
+  public static void removeListener(DynaEnumEventListener<MovieEdition> listener) {
     removeListener(MovieEdition.class, listener);
   }
 }

@@ -37,8 +37,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 public class LinkTextArea extends ReadOnlyTextArea {
-  private static final long serialVersionUID = 3762584745632060187L;
-
   protected String          link;
   protected ActionListener  activeListener   = null;
 

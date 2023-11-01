@@ -58,7 +58,6 @@ import org.tinymediamanager.ui.components.FlatButton;
  * @param <E>
  */
 public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
-  private static final long                                     serialVersionUID = -7796247854176782396L;
   protected static final ResourceBundle                         BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected final DefaultComboBoxModel<TmmCheckComboBoxItem<E>> model;

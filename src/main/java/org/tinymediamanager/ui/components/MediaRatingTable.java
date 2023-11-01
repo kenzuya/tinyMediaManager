@@ -19,47 +19,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.table.TableColumn;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaRating;
-import org.tinymediamanager.ui.NumberCellEditor;
-import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.table.TmmEditorTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.panels.IModalPopupPanelProvider;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
+import org.tinymediamanager.ui.panels.RatingEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.gui.WritableTableFormat;
 
 /**
- * The class MediaRatingTable is used to display / edit ratings
+ * The class {@link MediaRatingTable} is used to display / edit ratings
  *
  * @author Manuel Laggner
  */
-public class MediaRatingTable extends TmmTable {
-  private static final long              serialVersionUID = 8010732881277204728L;
-
-
-
-  private final Map<String, MediaRating> ratingMap;
-  private final EventList<Rating>        ratingList;
-
-  /**
-   * this constructor is used to display the ratings
-   *
-   * @param ratings
-   *          a map containing the ratings
-   */
-  public MediaRatingTable(Map<String, MediaRating> ratings) {
-    this.ratingMap = ratings;
-    this.ratingList = convertRatingMapToEventList(ratingMap, true);
-    setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat(false)));
-    setTableHeader(null);
-    putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-  }
+public class MediaRatingTable extends TmmEditorTable {
+  private final EventList<Rating> ratingList;
 
   /**
    * this constructor is used to edit the ratings
@@ -68,23 +50,14 @@ public class MediaRatingTable extends TmmTable {
    *          an eventlist containing the ratings
    */
   public MediaRatingTable(EventList<Rating> ratings) {
-    this.ratingMap = null;
+    super();
+
     this.ratingList = ratings;
-    setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat(true)));
+
+    setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat()));
+
     // setTableHeader(null);
-    putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-
-    // value column
-    TableColumn column = getColumnModel().getColumn(1);
-    column.setCellEditor(new NumberCellEditor(3, 2));
-
-    // maxValue column
-    column = getColumnModel().getColumn(2);
-    column.setCellEditor(new NumberCellEditor(3, 0));
-
-    // votes column
-    column = getColumnModel().getColumn(3);
-    column.setCellEditor(new NumberCellEditor(10, 0));
+    adjustColumnPreferredWidths(3);
   }
 
   public static EventList<Rating> convertRatingMapToEventList(Map<String, org.tinymediamanager.core.entities.MediaRating> idMap,
@@ -112,16 +85,33 @@ public class MediaRatingTable extends TmmTable {
     EventList<Rating> idList = new BasicEventList<>();
     for (org.tinymediamanager.core.entities.MediaRating rating : ratings) {
       Rating id = new Rating(rating.getId());
-      org.tinymediamanager.core.entities.MediaRating mediaRating = rating;
 
-      id.value = mediaRating.getRating();
-      id.votes = mediaRating.getVotes();
-      id.maxValue = mediaRating.getMaxValue();
+      id.value = rating.getRating();
+      id.votes = rating.getVotes();
+      id.maxValue = rating.getMaxValue();
 
       idList.add(id);
     }
 
     return idList;
+  }
+
+  @Override
+  protected void editButtonClicked(int row) {
+    IModalPopupPanelProvider iModalPopupPanelProvider = IModalPopupPanelProvider.findModalProvider(MediaRatingTable.this);
+    if (iModalPopupPanelProvider == null) {
+      return;
+    }
+
+    int index = convertRowIndexToModel(row);
+    Rating rating = ratingList.get(index);
+
+    ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
+    popupPanel.setTitle(TmmResourceBundle.getString("rating.edit"));
+
+    RatingEditorPanel ratingEditorPanel = new RatingEditorPanel(rating);
+    popupPanel.setContent(ratingEditorPanel);
+    iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
   }
 
   public static class Rating {
@@ -141,23 +131,21 @@ public class MediaRatingTable extends TmmTable {
 
     @Override
     public boolean equals(Object obj) {
-      if (!(obj instanceof Rating)) {
+      if (!(obj instanceof Rating other)) {
         return false;
       }
       if (obj == this) {
         return true;
       }
-      Rating other = (Rating) obj;
       return StringUtils.equals(key, other.key);
     }
   }
 
-  private class MediaRatingTableFormat extends TmmTableFormat<Rating> implements WritableTableFormat<Rating> {
-    private final boolean editable;
-
-    MediaRatingTableFormat(boolean editable) {
-      this.editable = editable;
-
+  /**
+   * helper classes
+   */
+  private static class MediaRatingTableFormat extends TmmTableFormat<Rating> {
+    private MediaRatingTableFormat() {
       /*
        * source
        */
@@ -181,48 +169,14 @@ public class MediaRatingTable extends TmmTable {
        */
       col = new Column(TmmResourceBundle.getString("metatag.rating.votes"), "votes", rating -> rating.votes, Integer.class);
       addColumn(col);
-    }
 
-    @Override
-    public boolean isEditable(Rating arg0, int arg1) {
-      return editable;
-    }
-
-    @Override
-    public Rating setColumnValue(Rating arg0, Object arg1, int arg2) {
-      if (arg0 == null || arg1 == null) {
-        return null;
-      }
-      switch (arg2) {
-        case 0:
-          arg0.key = arg1.toString();
-          break;
-
-        case 1:
-          try {
-            arg0.value = (float) arg1;
-          }
-          catch (Exception ignored) {
-          }
-          break;
-
-        case 2:
-          try {
-            arg0.maxValue = (int) arg1;
-          }
-          catch (Exception ignored) {
-          }
-          break;
-
-        case 3:
-          try {
-            arg0.votes = (int) arg1;
-          }
-          catch (Exception ignored) {
-          }
-          break;
-      }
-      return arg0;
+      /*
+       * edit
+       */
+      col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
+      col.setColumnResizeable(false);
+      col.setHeaderIcon(IconManager.EDIT_HEADER);
+      addColumn(col);
     }
   }
 }

@@ -40,7 +40,6 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
@@ -50,7 +49,6 @@ import org.tinymediamanager.scraper.thetvdb.entities.GenreBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.MovieExtendedRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.MovieExtendedResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.Release;
-import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchType;
@@ -314,12 +312,11 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
       throw new ScrapeException(e);
     }
 
-    if (movie == null) {
-      throw new NothingFoundException();
-    }
-
     // populate metadata
     md.setId(getId(), movie.id);
+    parseRemoteIDs(movie.remoteIds).forEach((k, v) -> {
+      md.setId(k, v);
+    });
 
     if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.name)) {
       md.setTitle(baseTranslation.name);
@@ -341,31 +338,6 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     }
     else if (fallbackTranslation != null && StringUtils.isNotBlank(fallbackTranslation.overview)) {
       md.setPlot(fallbackTranslation.overview);
-    }
-
-    for (RemoteID remoteID : ListUtils.nullSafe(movie.remoteIds)) {
-      if (StringUtils.isAnyBlank(remoteID.sourceName, remoteID.id)) {
-        continue;
-      }
-
-      switch (remoteID.sourceName) {
-        case "IMDB":
-          if (MediaIdUtil.isValidImdbId(remoteID.id)) {
-            md.setId(MediaMetadata.IMDB, remoteID.id);
-          }
-          break;
-
-        case "Zap2It":
-          md.setId("zap2it", remoteID.id);
-          break;
-
-        case "TheMovieDB.com":
-          md.setId(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
-          break;
-
-        default:
-          break;
-      }
     }
 
     Date localReleaseDate = null;
@@ -473,7 +445,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     if (StringUtils.isNotBlank(movie.image)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setOriginalUrl(movie.image);
-      ma.setDefaultUrl(movie.image);
+      ma.addImageSize(0, 0, movie.image, 0);
       md.addMediaArt(ma);
     }
 

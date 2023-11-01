@@ -45,6 +45,7 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetBatchEditMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetCleanupArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditMovieAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetExportAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetExportMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetReadMovieNfoAction;
@@ -104,8 +105,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for movie sets
     JTabbedPane movieSetDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548865608767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -122,8 +121,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for movies
     JTabbedPane movieDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548867189767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -157,8 +154,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // panel for missing movies
     JTabbedPane missingMovieDetailPanel = new MainTabbedPane() {
-      private static final long serialVersionUID = 3233548834189767661L;
-
       @Override
       public void updateUI() {
         putClientProperty("leftBorder", "half");
@@ -204,6 +199,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     updateAction = createAndRegisterAction(MovieSetAddAction.class);
     searchAction = createAndRegisterAction(MovieSetSearchAction.class);
     editAction = createAndRegisterAction(MovieSetEditAction.class);
+    renameAction = createAndRegisterAction(MovieSetRenameAction.class);
   }
 
   private void createPopupMenu() {
@@ -219,6 +215,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetRewriteNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetExportAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
 
     // movie actions

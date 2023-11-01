@@ -20,7 +20,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -260,19 +259,6 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
     if (ListUtils.isNotEmpty(selectedMovies)) {
       this.selectedMovies.addAll(selectedMovies);
     }
-  }
-
-  /**
-   * Sort movies.
-   * 
-   * @param column
-   *          the column
-   * @param ascending
-   *          the ascending
-   */
-  public void sortMovies(MovieExtendedComparator.SortColumn column, boolean ascending) {
-    Comparator<Movie> comparator = new MovieExtendedComparator(column, ascending);
-    sortedList.setComparator(comparator);
   }
 
   /**

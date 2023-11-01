@@ -30,8 +30,10 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -48,10 +50,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class UpdateDialog extends TmmDialog {
-  private static final long   serialVersionUID = 535315282932742179L;
-  private static final Logger LOGGER           = LoggerFactory.getLogger(UpdateDialog.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateDialog.class);
 
-  public UpdateDialog(String changelog) {
+  public UpdateDialog(String changelog, String baseurl) {
     super(TmmResourceBundle.getString("tmm.update.title"), "update");
 
     {
@@ -94,11 +95,29 @@ public class UpdateDialog extends TmmDialog {
 
       JButton btnUpdate = new JButton(TmmResourceBundle.getString("Button.update"));
       btnUpdate.addActionListener(arg0 -> {
-        setVisible(false);
-        LOGGER.info("Updating...");
+        if (Globals.isSelfUpdatable()) {
+          // the installation is self updatable
+          setVisible(false);
+          LOGGER.info("Updating...");
 
-        TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+          TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+        }
+        else {
+          // redirect to the downloads page for the download of the new version
+          try {
+            TmmUIHelper.browseUrl(baseurl);
+          }
+          catch (Exception e) {
+            LOGGER.warn("could not open '{}' - '{}'", baseurl, e.getMessage());
+          }
+        }
       });
+
+      // deactivate the update button if we cannot self update and we do have a base url
+      if (!Globals.isSelfUpdatable() && StringUtils.isBlank(baseurl)) {
+        btnUpdate.setEnabled(false);
+      }
+
       addButton(btnUpdate);
     }
   }
@@ -111,10 +130,22 @@ public class UpdateDialog extends TmmDialog {
   }
 
   private String prepareTextAsHtml(String originalText) {
-    Pattern pattern = Pattern.compile("(http[s]?://.*?)[ )]");
+    // mask tags
+    originalText = originalText.replace("<", "&lt;").replace(">", "&gt;");
+
+    // links
+    Pattern pattern = Pattern.compile("(http[s]?://.*?)[\\n\\r\\s)]");
     Matcher matcher = pattern.matcher(originalText);
     while (matcher.find()) {
       originalText = originalText.replace(matcher.group(1), "<a href=\"" + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+    }
+
+    // issues
+    pattern = Pattern.compile("(#\\d{3,5})[\\n\\r\\s)]");
+    matcher = pattern.matcher(originalText);
+    while (matcher.find()) {
+      originalText = originalText.replace(matcher.group(1), "<a href=\"https://gitlab.com/tinyMediaManager/tinyMediaManager/-/issues/"
+          + matcher.group(1).replace("#", "") + "\">" + matcher.group(1) + "</a>");
     }
 
     // set the foreground color of the content

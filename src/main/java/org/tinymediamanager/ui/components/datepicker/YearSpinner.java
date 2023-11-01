@@ -27,8 +27,6 @@ import javax.swing.SpinnerNumberModel;
  * @author Manuel Laggner
  */
 public class YearSpinner extends JSpinner {
-  private static final long serialVersionUID = 2648810220491090064L;
-
   public YearSpinner() {
     Calendar calendar = Calendar.getInstance();
     setModel(new SpinnerNumberModel(calendar.get(Calendar.YEAR), 0, calendar.getMaximum(Calendar.YEAR), 1));

@@ -117,9 +117,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final long                 serialVersionUID = 8193355920006275933L;
-  private static final Logger               LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
-  private static final String               DIALOG_ID        = "imageChooser";
+  private static final Logger               LOGGER         = LoggerFactory.getLogger(ImageChooserDialog.class);
+  private static final String               DIALOG_ID      = "imageChooser";
 
   private final Map<String, Object>         ids;
   private final MediaArtworkType            type;
@@ -127,9 +126,9 @@ public class ImageChooserDialog extends TmmDialog {
   private final ImageLabel                  imageLabel;
   private final List<MediaScraper>          artworkScrapers;
 
-  private final ButtonGroup                 buttonGroup      = new NoneSelectedButtonGroup();
-  private final List<JToggleButton>         buttons          = new ArrayList<>();
-  private final List<JPanel>                imagePanels      = new ArrayList<>();
+  private final ButtonGroup                 buttonGroup    = new NoneSelectedButtonGroup();
+  private final List<JToggleButton>         buttons        = new ArrayList<>();
+  private final List<JPanel>                imagePanels    = new ArrayList<>();
   private final ActionListener              filterListener;
 
   private JProgressBar                      progressBar;
@@ -139,9 +138,9 @@ public class ImageChooserDialog extends TmmDialog {
   private LockableViewPort                  viewport;
   private JTextField                        tfImageUrl;
 
-  private String                            openFolderPath   = null;
-  private List<String>                      extraThumbs      = null;
-  private List<String>                      extraFanarts     = null;
+  private String                            openFolderPath = null;
+  private List<String>                      extraThumbs    = null;
+  private List<String>                      extraFanarts   = null;
   private DownloadTask                      task;
 
   private MediaScraperCheckComboBox         cbScraper;
@@ -170,7 +169,7 @@ public class ImageChooserDialog extends TmmDialog {
    * @param imageLabel
    *          the image label
    * @param mediaType
-   *          the media for for which artwork has to be chosen
+   *          the media for which artwork has to be chosen
    */
   public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
       ImageLabel imageLabel, MediaType mediaType) {
@@ -251,10 +250,6 @@ public class ImageChooserDialog extends TmmDialog {
 
       case DISC:
         setTitle(TmmResourceBundle.getString("image.choose.disc"));
-        break;
-
-      case LOGO:
-        setTitle(TmmResourceBundle.getString("image.choose.logo"));
         break;
 
       case CLEARLOGO:
@@ -659,7 +654,14 @@ public class ImageChooserDialog extends TmmDialog {
         return 0;
       }
 
-      return artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
+      int result = artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
+      if (result == 0) {
+        // same size
+        // sort by likes descending
+        result = Integer.compare(artwork2.getLikes(), artwork1.getLikes());
+      }
+
+      return result;
     });
 
     // update filters
@@ -719,6 +721,9 @@ public class ImageChooserDialog extends TmmDialog {
 
     // and add them in the right order
     List<MediaLanguages> newValues = new ArrayList<>();
+
+    // add none in the front - this will come from MediaLanguages.valuesSorted()
+    newValues.add(MediaLanguages.none);
 
     for (MediaLanguages mediaLanguages : MediaLanguages.valuesSorted()) {
       if (allItems.contains(mediaLanguages)) {
@@ -789,6 +794,7 @@ public class ImageChooserDialog extends TmmDialog {
 
           for (MediaLanguages mediaLanguages : cbLanguage.getSelectedItems()) {
             if (mediaLanguages == MediaLanguages.none) {
+              languages.add("-");
               languages.add("");
             }
             else {
@@ -835,11 +841,8 @@ public class ImageChooserDialog extends TmmDialog {
             art = new MediaArtwork("", BACKGROUND);
             break;
 
-          case LOGO:
-            art = new MediaArtwork("", MediaArtworkType.LOGO);
-            break;
-
           case CLEARLOGO:
+          case LOGO:
             art = new MediaArtwork("", MediaArtworkType.CLEARLOGO);
             break;
 
@@ -878,7 +881,6 @@ public class ImageChooserDialog extends TmmDialog {
           default:
             return;
         }
-        art.setDefaultUrl(url);
         art.setPreviewUrl(url);
         art.setOriginalUrl(url);
 
@@ -886,6 +888,8 @@ public class ImageChooserDialog extends TmmDialog {
         final BufferedImage bufferedImage = ImageUtils.createImage(url1.getBytesWithRetry(5));
 
         if (bufferedImage != null) {
+          art.addImageSize(bufferedImage.getWidth(), bufferedImage.getHeight(), url, 0);
+
           SwingUtilities.invokeLater(() -> {
             addImage(bufferedImage, art);
             bufferedImage.flush();
@@ -901,6 +905,34 @@ public class ImageChooserDialog extends TmmDialog {
       }
     };
     task.run();
+  }
+
+  /**
+   * pre-set the artwork size filter to initially show only a part of the results
+   *
+   * @param width
+   *          the image width
+   * @param height
+   *          the image height
+   */
+  public void setImageSizeFilter(int width, int height) {
+    ImageSizeAndUrl imageSizeAndUrl = new ImageSizeAndUrl(width, height, "");
+    List<ImageSizeAndUrl> items = new ArrayList<>();
+    items.add(imageSizeAndUrl);
+    cbSize.setItems(items);
+    cbSize.setSelectedItems(items);
+  }
+
+  /**
+   * pre-set the language filter to initially show only a part of the results
+   *
+   * @param languages
+   *          the languages
+   */
+  public void setImageLanguageFilter(List<MediaLanguages> languages) {
+    List<MediaLanguages> items = new ArrayList<>(languages);
+    cbLanguage.setItems(items);
+    cbLanguage.setSelectedItems(items);
   }
 
   /**
@@ -965,8 +997,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class OkAction extends AbstractAction {
-    private static final long serialVersionUID = -1255049344169945137L;
-
     public OkAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.ok"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.seteselected"));
@@ -1014,7 +1044,7 @@ public class ImageChooserDialog extends TmmDialog {
           imageLabel.setImageUrl(resolution.getUrl());
         }
         else {
-          imageLabel.setImageUrl(artwork.getDefaultUrl());
+          imageLabel.setImageUrl(artwork.getOriginalUrl());
         }
       }
 
@@ -1056,11 +1086,11 @@ public class ImageChooserDialog extends TmmDialog {
                 selectedExtraThumbs.add(size.getUrl());
               }
               else {
-                selectedExtraThumbs.add(artwork.getDefaultUrl());
+                selectedExtraThumbs.add(artwork.getOriginalUrl());
               }
             }
             else if (cb.getSelectedItem() instanceof String) {
-              selectedExtraThumbs.add(artwork.getDefaultUrl());
+              selectedExtraThumbs.add(artwork.getOriginalUrl());
             }
           }
         }
@@ -1091,11 +1121,11 @@ public class ImageChooserDialog extends TmmDialog {
                 selectedExtrafanarts.add(size.getUrl());
               }
               else {
-                selectedExtrafanarts.add(artwork.getDefaultUrl());
+                selectedExtrafanarts.add(artwork.getOriginalUrl());
               }
             }
             else if (cb.getSelectedItem() instanceof String) {
-              selectedExtrafanarts.add(artwork.getDefaultUrl());
+              selectedExtrafanarts.add(artwork.getOriginalUrl());
             }
           }
         }
@@ -1105,8 +1135,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class CancelAction extends AbstractAction {
-    private static final long serialVersionUID = 403327079655572423L;
-
     public CancelAction() {
       putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.cancel"));
@@ -1158,7 +1186,7 @@ public class ImageChooserDialog extends TmmDialog {
 
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(mediaType);
           if (mediaType == MediaType.MOVIE || mediaType == MediaType.MOVIE_SET) {
-            options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
             options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
             options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
           }
@@ -1166,6 +1194,7 @@ public class ImageChooserDialog extends TmmDialog {
             options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
             options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
             options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+            options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
           }
           else {
             continue;
@@ -1208,11 +1237,8 @@ public class ImageChooserDialog extends TmmDialog {
               options.setArtworkType(MediaArtworkType.DISC);
               break;
 
-            case LOGO:
-              options.setArtworkType(MediaArtworkType.LOGO);
-              break;
-
             case CLEARLOGO:
+            case LOGO:
               options.setArtworkType(MediaArtworkType.CLEARLOGO);
               break;
 
@@ -1342,8 +1368,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class LocalFileChooseAction extends AbstractAction {
-    private static final long serialVersionUID = -1178325861474276709L;
-
     public LocalFileChooseAction() {
       putValue(NAME, TmmResourceBundle.getString("image.choose.file"));
       putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.choose.file"));

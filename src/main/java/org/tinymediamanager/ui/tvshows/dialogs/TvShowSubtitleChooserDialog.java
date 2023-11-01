@@ -22,10 +22,10 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -52,6 +52,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -85,7 +86,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleChooserDialog extends TmmDialog {
-  private static final long                           serialVersionUID = -3104541519073924724L;
   private static final Logger                         LOGGER           = LoggerFactory.getLogger(TvShowSubtitleChooserDialog.class);
 
   private final TvShowList                            tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
@@ -144,13 +144,13 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
     }
 
     // action listeners
-    btnSearch.addActionListener(e -> searchSubtitle(fileToScrape.getFileAsPath().toFile(), episodeToScrape.getTvShow().getImdbId(),
+    btnSearch.addActionListener(e -> searchSubtitle(fileToScrape, episodeToScrape.getIds(), episodeToScrape.getTvShow().getIds(),
         episodeToScrape.getSeason(), episodeToScrape.getEpisode()));
-    cbLanguage.addActionListener(e -> searchSubtitle(fileToScrape.getFileAsPath().toFile(), episodeToScrape.getTvShow().getImdbId(),
+    cbLanguage.addActionListener(e -> searchSubtitle(fileToScrape, episodeToScrape.getIds(), episodeToScrape.getTvShow().getIds(),
         episodeToScrape.getSeason(), episodeToScrape.getEpisode()));
 
     // start initial search
-    searchSubtitle(fileToScrape.getFileAsPath().toFile(), episodeToScrape.getTvShow().getImdbId(), episodeToScrape.getSeason(),
+    searchSubtitle(fileToScrape, episodeToScrape.getIds(), episodeToScrape.getTvShow().getIds(), episodeToScrape.getSeason(),
         episodeToScrape.getEpisode());
   }
 
@@ -247,7 +247,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
     }
   }
 
-  private void searchSubtitle(File file, String imdbId, int season, int episode) {
+  private void searchSubtitle(MediaFile mediaFile, Map<String, Object> episodeIds, Map<String, Object> tvShowIds, int season, int episode) {
     if (activeSearchTask != null && !activeSearchTask.isDone()) {
       activeSearchTask.cancel();
     }
@@ -255,7 +255,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
     // scrapers
     List<MediaScraper> scrapers = new ArrayList<>(cbScraper.getSelectedItems());
 
-    activeSearchTask = new SearchTask(file, imdbId, season, episode, scrapers);
+    activeSearchTask = new SearchTask(mediaFile, episodeIds, tvShowIds, season, episode, scrapers);
     activeSearchTask.execute();
   }
 
@@ -288,20 +288,24 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private File                       file;
-    private int                        season;
-    private int                        episode;
-    private String                     imdbId;
-    private List<SubtitleSearchResult> searchResults;
-    private MediaLanguages             language;
-    private List<MediaScraper>         scrapers;
-    boolean                            cancel;
+    private final MediaFile                  mediaFile;
+    private final int                        season;
+    private final int                        episode;
+    private final Map<String, Object>        episodeIds;
+    private final Map<String, Object>        tvShowIds;
+    private final List<SubtitleSearchResult> searchResults;
+    private final MediaLanguages             language;
+    private final List<MediaScraper>         scrapers;
 
-    SearchTask(File file, String imdbId, int season, int episode, List<MediaScraper> scrapers) {
-      this.file = file;
+    boolean                                  cancel;
+
+    SearchTask(MediaFile mediaFile, Map<String, Object> episodeIds, Map<String, Object> tvShowIds, int season, int episode,
+        List<MediaScraper> scrapers) {
+      this.mediaFile = mediaFile;
       this.season = season;
       this.episode = episode;
-      this.imdbId = imdbId;
+      this.episodeIds = episodeIds;
+      this.tvShowIds = tvShowIds;
       this.language = (MediaLanguages) cbLanguage.getSelectedItem();
       this.searchResults = new ArrayList<>();
       this.scrapers = scrapers;
@@ -315,8 +319,9 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
         try {
           ITvShowSubtitleProvider subtitleProvider = (ITvShowSubtitleProvider) scraper.getMediaProvider();
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.TV_SHOW);
-          options.setFile(file);
-          options.setImdbId(imdbId);
+          options.setMediaFile(mediaFile);
+          options.setIds(episodeIds);
+          options.setId(MediaMetadata.TVSHOW_IDS, tvShowIds);
           options.setLanguage(language);
           options.setSeason(season);
           options.setEpisode(episode);

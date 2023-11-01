@@ -63,6 +63,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.MovieTextMatcherList;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -81,10 +82,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieUiSettingsPanel extends JPanel {
-  private static final long                                serialVersionUID = -4173835431245178069L;
-  private static final int                                 COL_COUNT        = 7;
+  private static final int                                 COL_COUNT = 7;
 
-  private final MovieSettings                              settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings                              settings  = MovieModuleManager.getInstance().getSettings();
   private AutocompleteComboBox<String>                     cbRating;
   private JCheckBox                                        chckbxMovieTableTooltips;
 
@@ -526,7 +526,8 @@ class MovieUiSettingsPanel extends JPanel {
           btnMoveRatingDown.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
           panelRatingSource.add(btnMoveRatingDown, "cell 1 0,aligny bottom");
 
-          cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metacritic", "tomatometerallcritics", "user"));
+          cbRating = new AutocompleteComboBox(
+              Arrays.asList(MediaMetadata.IMDB, MediaMetadata.TMDB, MediaMetadata.METACRITIC, "tomatometerallcritics", "user"));
           panelRatingSource.add(cbRating, "cell 0 1,growx");
 
           btnRemoveRating = new SquareIconButton(IconManager.REMOVE_INV);

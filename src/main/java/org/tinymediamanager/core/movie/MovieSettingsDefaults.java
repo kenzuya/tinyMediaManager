@@ -24,7 +24,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetBannerNaming;
@@ -32,7 +31,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
@@ -120,9 +118,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
@@ -148,9 +143,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
@@ -197,9 +189,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
@@ -226,9 +215,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
@@ -275,9 +261,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.THUMB);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
 
@@ -304,9 +287,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
@@ -353,9 +333,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.THUMB);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
 
@@ -382,9 +359,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
@@ -431,9 +405,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.THUMB);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
 
@@ -459,9 +430,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
@@ -508,9 +476,6 @@ public class MovieSettingsDefaults {
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.THUMB);
 
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.LOGO);
-
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
 
@@ -536,9 +501,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
@@ -571,10 +533,10 @@ public class MovieSettingsDefaults {
     movieSettings.addPosterFilename(MoviePosterNaming.POSTER);
 
     movieSettings.fanartFilenames.clear();
-    movieSettings.addFanartFilename(MovieFanartNaming.FANART);
+    movieSettings.addFanartFilename(MovieFanartNaming.BACKDROP);
 
     movieSettings.extraFanartFilenames.clear();
-    movieSettings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+    movieSettings.addExtraFanartFilename(MovieExtraFanartNaming.EXTRABACKDROP);
 
     movieSettings.bannerFilenames.clear();
     movieSettings.addBannerFilename(MovieBannerNaming.BANNER);
@@ -584,9 +546,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.thumbFilenames.clear();
     movieSettings.addThumbFilename(MovieThumbNaming.THUMB);
-
-    movieSettings.logoFilenames.clear();
-    movieSettings.addLogoFilename(MovieLogoNaming.LOGO);
 
     movieSettings.clearlogoFilenames.clear();
     movieSettings.addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
@@ -613,9 +572,6 @@ public class MovieSettingsDefaults {
 
     movieSettings.movieSetThumbFilenames.clear();
     movieSettings.addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSettings.movieSetLogoFilenames.clear();
-    movieSettings.addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
 
     movieSettings.movieSetClearlogoFilenames.clear();
     movieSettings.addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);

@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.interfaces;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -41,7 +42,7 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
    */
-  MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException;
+  MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * Gets the metadata for the given episode
@@ -52,7 +53,7 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
    */
-  MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException;
+  MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * Search for a TV show
@@ -63,7 +64,7 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
    */
-  SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException;
+  SortedSet<MediaSearchResult> search(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * Gets an episode list for the given TV show
@@ -74,5 +75,5 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
    */
-  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException;
+  List<MediaMetadata> getEpisodeList(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException;
 }

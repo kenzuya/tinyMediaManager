@@ -68,7 +68,6 @@ public class ImageLabel extends JComponent {
     CENTER
   }
 
-  private static final long         serialVersionUID       = -2524445544386464158L;
   private static final Color        EMPTY_BACKGROUND_COLOR = new Color(141, 165, 179);
 
   private static final TmmSvgIcon   NO_IMAGE               = createNoImageIcon();

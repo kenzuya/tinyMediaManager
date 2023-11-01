@@ -30,9 +30,6 @@ import org.tinymediamanager.ui.dialogs.CleanUpUnwantedFilesDialog;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class MovieCleanUpFilesAction extends TmmAction {
-
-  private static final long serialVersionUID = -2029243504238273721L;
-
   public MovieCleanUpFilesAction() {
 
     putValue(NAME, TmmResourceBundle.getString("cleanupfiles"));

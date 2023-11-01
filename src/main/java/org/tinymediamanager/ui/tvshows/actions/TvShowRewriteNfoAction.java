@@ -36,8 +36,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRewriteNfoAction extends TmmAction {
-  private static final long serialVersionUID = -6575156436788397648L;
-
   public TvShowRewriteNfoAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rewritenfo"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));

@@ -15,13 +15,7 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.w3c.tidy.Tidy;
 
 /**
  * Various parses methods to get a clean and workable name out of weird filenames
@@ -48,7 +41,7 @@ public class ParserUtils {
       "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6", "cd7", "cd8", "cd9", "dd20", "dd51", "disc1", "disc2", "disc3", "disc4", "disc5",
       "disc6", "disc7", "disc8", "disc9", "divx", "divx5", "dl", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3",
       "dvd4", "dvd5", "dvd6", "dvd7", "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "fs", "fps", "german", "h264",
-      "h265", "hd", "hddvd", "hdr", "hdr10", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd",
+      "h265", "hd", "hddvd", "hdr", "hdr10", "hdr10+", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md", "microhd",
       "multisubs", "mp3", "netflixhd", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "remastered", "repack",
       "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd",
       "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264", "x265", "xf", "xvid", "xvidvd", "8bit",
@@ -369,7 +362,7 @@ public class ParserUtils {
         before = basename;
       }
     }
-    return basename + "." + extension;
+    return basename + (extension.isBlank() ? "" : "." + extension);
   }
 
   /**
@@ -417,37 +410,6 @@ public class ParserUtils {
     }
 
     return new Pair<>(title, null);
-  }
-
-  /**
-   * Try to clean the NFO(XML) content with JTidy.
-   * 
-   * @param sourceNfoContent
-   *          the XML content to be cleaned
-   * @return the cleaned XML content (or the source, if any Exceptions occur)
-   */
-  public static String cleanNfo(String sourceNfoContent) {
-    try {
-      Tidy tidy = new Tidy();
-      tidy.setInputEncoding("UTF-8");
-      tidy.setOutputEncoding("UTF-8");
-      tidy.setWraplen(Integer.MAX_VALUE);
-      tidy.setXmlOut(true);
-      tidy.setSmartIndent(true);
-      tidy.setXmlTags(true);
-      tidy.setMakeClean(true);
-      tidy.setForceOutput(true);
-      tidy.setQuiet(true);
-      tidy.setShowWarnings(false);
-      StringReader in = new StringReader(sourceNfoContent);
-      StringWriter out = new StringWriter();
-      tidy.parse(in, out);
-
-      return out.toString();
-    }
-    catch (Exception ignored) {
-    }
-    return sourceNfoContent;
   }
 
   /**
@@ -559,7 +521,7 @@ public class ParserUtils {
     return result;
   }
 
-  private static class ParserInfo {
+  public static class ParserInfo {
     public String name  = "";
     public String year  = "";
     public String clean = "";

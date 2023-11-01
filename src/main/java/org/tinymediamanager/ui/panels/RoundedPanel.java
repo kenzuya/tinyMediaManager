@@ -37,7 +37,6 @@ import org.tinymediamanager.ui.thirdparty.ShadowRenderer;
  * @author Manuel Laggner
  */
 public class RoundedPanel extends JPanel {
-  private static final long serialVersionUID = -1225971440296084187L;
   protected Dimension       arcs             = new Dimension(20, 20);
 
   protected boolean         drawShadow;

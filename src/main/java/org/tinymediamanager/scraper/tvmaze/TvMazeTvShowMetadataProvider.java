@@ -11,6 +11,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -51,7 +53,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api
@@ -61,10 +63,10 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     md.setScrapeOptions(options);
 
     // do we have an id from the options?
-    Integer tvMazeId = options.getIdAsIntOrDefault("tvmaze", 0);
+    int tvMazeId = options.getIdAsIntOrDefault(MediaMetadata.TVMAZE, 0);
     if (tvMazeId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException("tvmaze");
+      throw new MissingIdException(MediaMetadata.TVMAZE);
     }
 
     Show show = null;
@@ -82,76 +84,81 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       LOGGER.trace("could not get Main TvShow information: {}", e.getMessage());
     }
 
-    if (show != null) {
-      md.setId("tvmaze", show.id);
-      md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
-      md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
-      md.setId("tvrage", show.tvShowIds.tvrage);
+    if (show == null) {
+      throw new NothingFoundException();
+    }
 
-      md.setTitle(show.title);
+    md.setId(MediaMetadata.TVMAZE, show.id);
+    md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
+    md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
+    md.setId(MediaMetadata.TVRAGE, show.tvShowIds.tvrage);
 
-      try {
-        md.setYear(parseYear(show.premiered));
-      }
-      catch (ParseException e) {
-        LOGGER.trace("could not parse year: {}", e.getMessage());
-      }
+    md.addEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
 
-      try {
-        md.setReleaseDate(premieredFormat.parse(show.premiered));
-      }
-      catch (ParseException e) {
-        LOGGER.trace("could not parse releasedate: {}", e.getMessage());
-      }
+    md.setTitle(show.title);
 
-      md.setRuntime(show.runtime);
+    try {
+      md.setYear(parseYear(show.premiered));
+    }
+    catch (ParseException e) {
+      LOGGER.trace("could not parse year: {}", e.getMessage());
+    }
 
-      for (String gen : show.genres) {
-        MediaGenres genre = MediaGenres.getGenre(gen);
-        md.addGenre(genre);
-      }
+    try {
+      md.setReleaseDate(premieredFormat.parse(show.premiered));
+    }
+    catch (ParseException e) {
+      LOGGER.trace("could not parse releasedate: {}", e.getMessage());
+    }
 
-      md.setPlot(Jsoup.parse(show.summary).text());
-      md.setOriginalLanguage(show.language);
+    md.setRuntime(show.runtime);
 
-      MediaRating rating = new MediaRating("tvmaze");
-      rating.setRating(show.rating.average);
-      rating.setMaxValue(10);
-      md.addRating(rating);
+    for (String gen : show.genres) {
+      MediaGenres genre = MediaGenres.getGenre(gen);
+      md.addGenre(genre);
+    }
 
-      // Get Cast
-      try {
-        castList = controller.getCast(tvMazeId);
+    md.setPlot(Jsoup.parse(show.summary).text());
+    md.setOriginalLanguage(show.language);
 
-        if (!castList.isEmpty()) {
+    MediaRating rating = new MediaRating(MediaMetadata.TVMAZE);
+    rating.setRating(show.rating.average);
+    rating.setMaxValue(10);
+    md.addRating(rating);
 
-          for (Cast cast : castList) {
-            Person person = new Person(Person.Type.ACTOR);
-            person.setName(cast.person.name);
-            person.setProfileUrl(cast.person.image.original);
-            person.setThumbUrl(cast.person.image.medium);
-            md.addCastMember(person);
-          }
+    // Get Cast
+    try {
+      castList = controller.getCast(tvMazeId);
 
+      if (!castList.isEmpty()) {
+
+        for (Cast cast : castList) {
+          Person person = new Person(Person.Type.ACTOR);
+          person.setName(cast.person.name);
+          person.setProfileUrl(cast.person.image.original);
+          person.setThumbUrl(cast.person.image.medium);
+          md.addCastMember(person);
         }
 
       }
-      catch (IOException e) {
-        LOGGER.trace("could not get cast information: {}", e.getMessage());
-      }
+
     }
+    catch (IOException e) {
+      LOGGER.trace("could not get cast information: {}", e.getMessage());
+    }
+
     return md;
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+  public MediaMetadata getMetadata(@NotNull TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShowEpisode: {}", options);
 
     // lazy initialization of the api
     initAPI();
 
     // do we have an id from the options?
-    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault("tvmaze", 0);
+    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault(MediaMetadata.TVMAZE, 0);
     if (showId == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(MediaMetadata.TVDB);
@@ -178,17 +185,17 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     md.setScrapeOptions(options);
 
     // found the correct episode
-    md.setId("tvmaze", episode.id);
+    md.setId(MediaMetadata.TVMAZE, episode.id);
     md.setTitle(episode.name);
     md.setPlot(Jsoup.parse(episode.summary).text());
-    md.setEpisodeNumber(episode.episode);
-    md.setSeasonNumber(episode.season);
+    md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.season, episode.episode);
     md.setRuntime(episode.runtime);
     try {
       md.setReleaseDate(premieredFormat.parse(episode.airdate));
       md.setYear(parseYear(episode.airdate));
     }
     catch (ParseException ignored) {
+      // ignored
     }
 
     // Get Image Information for the given TV Show
@@ -210,19 +217,27 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       switch (image.type) {
         case "poster":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setPreviewUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
+              MediaArtwork.PosterSizes.getSizeOrder(image.resolutions.original.width));
           md.addMediaArt(ma);
           break;
 
         case "background":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
+              MediaArtwork.FanartSizes.getSizeOrder(image.resolutions.original.width));
           md.addMediaArt(ma);
           break;
 
         case "banner":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BANNER);
-          ma.setDefaultUrl(image.resolutions.original.url);
+          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setOriginalUrl(image.resolutions.original.url);
+          ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url, 0);
           md.addMediaArt(ma);
           break;
       }
@@ -268,9 +283,9 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
         result.setOverview(Jsoup.parse(shows.show.summary).text());
       }
       result.setIMDBId(shows.show.tvShowIds.imdb);
-      result.setId("tvrage", String.valueOf(shows.show.tvShowIds.tvrage));
+      result.setId(MediaMetadata.TVRAGE, String.valueOf(shows.show.tvShowIds.tvrage));
       result.setId(MediaMetadata.TVDB, String.valueOf(shows.show.tvShowIds.thetvdb));
-      result.setId("tvmaze", String.valueOf(shows.show.id));
+      result.setId(MediaMetadata.TVMAZE, String.valueOf(shows.show.id));
       result.setOriginalLanguage(shows.show.language);
       if (StringUtils.isNotBlank(shows.show.premiered)) {
         try {
@@ -303,7 +318,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     initAPI();
 
     // do we have an id from the options?
-    int showId = options.getIdAsIntOrDefault("tvmaze", 0);
+    int showId = options.getIdAsIntOrDefault(MediaMetadata.TVMAZE, 0);
     if (showId == 0) {
       LOGGER.warn("no id available");
       throw new MissingIdException(MediaMetadata.TVDB);
@@ -328,8 +343,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       // found the correct episode
       md.setTitle(episode.name);
       md.setPlot(Jsoup.parse(episode.summary).text());
-      md.setEpisodeNumber(episode.episode);
-      md.setSeasonNumber(episode.season);
+      md.setEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, episode.season, episode.episode);
       md.setRuntime(episode.runtime);
       try {
         md.setReleaseDate(premieredFormat.parse(episode.airdate));

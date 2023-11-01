@@ -85,12 +85,11 @@ import org.tinymediamanager.ui.moviesets.MovieSetTreeCellRenderer;
 import org.tinymediamanager.ui.moviesets.MovieSetTreeDataProvider;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long            serialVersionUID = 5889203009864512935L;
-
   private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
   private final MovieSetSelectionModel selectionModel;
 
@@ -257,6 +256,17 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     tree.getSelectionModel().addListSelectionListener(arg0 -> {
       if (arg0.getValueIsAdjusting() || !(arg0.getSource() instanceof DefaultListSelectionModel)) {
+        return;
+      }
+
+      // if nothing is in the tree, set the initial movie set
+      if (tree.getModel().getRowCount() == 0) {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+        return;
+      }
+
+      if (tree.isAdjusting()) {
+        // prevent flickering
         return;
       }
 
@@ -492,6 +502,10 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   public void setPopupMenu(JPopupMenu popupMenu) {
     this.popupMenu = popupMenu;
 
+    if (popupMenu != null) {
+      setComponentPopupMenu(popupMenu);
+    }
+
     // add the tree menu entries on the bottom
     popupMenu.addSeparator();
     popupMenu.add(new MovieSetTreePanel.ExpandAllAction());
@@ -504,8 +518,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
    * local helper classes
    **************************************************************************/
   public class CollapseAllAction extends AbstractAction {
-    private static final long serialVersionUID = -1444530142931061317L;
-
     public CollapseAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
@@ -519,8 +531,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   public class ExpandAllAction extends AbstractAction {
-    private static final long serialVersionUID = 6191727607109012198L;
-
     public ExpandAllAction() {
       putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }

@@ -45,7 +45,6 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -397,7 +396,7 @@ public class MovieNfoParser {
           r.id = "tomatometerallcritics";
         }
         else if ("metascore".equals(r.id)) {
-          r.id = "metacritic";
+          r.id = MediaMetadata.METACRITIC;
         }
 
         // maxvalue
@@ -1419,6 +1418,10 @@ public class MovieNfoParser {
           }
           break;
 
+        case "hdrtype":
+          video.hdrtype = child.ownText();
+          break;
+
         case "stereomode":
           video.stereomode = child.ownText();
           break;
@@ -1840,11 +1843,11 @@ public class MovieNfoParser {
         tmdbSetId = set.tmdbId;
       }
       if (tmdbSetId == 0) {
-        Object id = ids.get(Constants.TMDB_SET);
+        Object id = ids.get(MediaMetadata.TMDB_SET);
         tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
       }
       if (tmdbSetId == 0) {
-        Object id = ids.get("tmdbset");
+        Object id = ids.get("tmdbset"); // lowercase
         tmdbSetId = id != null ? MetadataUtil.parseInt(String.valueOf(id), 0) : 0;
       }
 
@@ -1978,6 +1981,7 @@ public class MovieNfoParser {
     int    width      = 0;
     int    height     = 0;
     int    durationinseconds;
+    String hdrtype    = "";
     String stereomode = "";
   }
 

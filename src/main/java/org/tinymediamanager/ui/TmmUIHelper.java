@@ -17,10 +17,13 @@ package org.tinymediamanager.ui;
 
 import java.awt.Desktop;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.awt.Window;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -36,6 +39,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -44,9 +49,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
-import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -57,11 +61,11 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.thirdparty.TinyFileDialogs;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
-import org.tinymediamanager.ui.dialogs.RegexpInputDialog;
 import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
 import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
@@ -81,6 +85,29 @@ public class TmmUIHelper {
 
   private TmmUIHelper() {
     throw new IllegalAccessError();
+  }
+
+  public static void setLookAndFeel() {
+    // load font settings
+    try {
+      // sanity check
+      Font font = Font.decode(Settings.getInstance().getFontFamily());
+      Font savedFont = new Font(font.getFamily(), font.getStyle(), Settings.getInstance().getFontSize());
+
+      UIManager.put("defaultFont", savedFont);
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not set default font - {}", e.getMessage());
+    }
+
+    try {
+      TmmUIHelper.setTheme();
+      // decrease the tooltip timeout
+      ToolTipManager.sharedInstance().setInitialDelay(300);
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to initialize LaF - {}", e.getMessage());
+    }
   }
 
   public static Path selectDirectory(String title, String initialPath) {
@@ -230,7 +257,24 @@ public class TmmUIHelper {
 
   public static Path selectApplication(String title, String initialPath) {
     if (SystemUtils.IS_OS_MAC) {
-      return selectDirectory(title, initialPath);
+      try {
+        Process process = Runtime.getRuntime()
+            .exec(new String[] { //
+                "/usr/bin/osascript", //
+                "-e", //
+                "set selectedFolder to choose application as alias\n"//
+                    + "return POSIX path of selectedFolder" });
+        int result = process.waitFor();
+        if (result == 0) {
+          String selectedFolder = new BufferedReader(new InputStreamReader(process.getInputStream())).readLine();
+          return Paths.get(selectedFolder);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("could not call osascript - '{}'", e.getMessage());
+      }
+
+      return null;
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
       return selectFile(title, initialPath, new FileNameExtensionFilter(TmmResourceBundle.getString("tmm.executables"), ".exe"));
@@ -554,11 +598,11 @@ public class TmmUIHelper {
 
     // same url, regardless if movie or tv
     switch (id) {
-      case Constants.IMDB:
+      case MediaMetadata.IMDB:
         url = "https://www.imdb.com/title/" + value;
         break;
 
-      case "anidb":
+      case MediaMetadata.ANIDB:
         url = "https://anidb.net/anime/" + value;
         break;
 
@@ -578,7 +622,7 @@ public class TmmUIHelper {
         url = "https://www.omdb.org/movie/" + value + "-" + me.getTitle();
         break;
 
-      case "tvmaze":
+      case MediaMetadata.TVMAZE:
         url = "https://www.tvmaze.com/shows/" + value;
         break;
 
@@ -588,15 +632,15 @@ public class TmmUIHelper {
 
     if (me instanceof Movie) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=movie";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/movie/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/movie/" + value;
           break;
 
@@ -606,15 +650,15 @@ public class TmmUIHelper {
     }
     else if (me instanceof TvShow) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=show";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/tv/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/series/" + value;
           break;
 
@@ -624,15 +668,15 @@ public class TmmUIHelper {
     }
     else if (me instanceof TvShowEpisode) {
       switch (id) {
-        case Constants.TRAKT:
+        case MediaMetadata.TRAKT_TV:
           url = "https://trakt.tv/search/trakt/" + value + "?id_type=episode";
           break;
 
-        case Constants.TMDB:
+        case MediaMetadata.TMDB:
           url = "https://www.themoviedb.org/tv/" + value;
           break;
 
-        case Constants.TVDB:
+        case MediaMetadata.TVDB:
           url = "https://thetvdb.com/dereferrer/series/" + value;
           break;
 
@@ -674,13 +718,14 @@ public class TmmUIHelper {
   /**
    * checks for our automatic update setting interval <br>
    * Nightly users are always true!
-   * 
+   *
    * @return
    */
   public static boolean shouldCheckForUpdate() {
     if (ReleaseInfo.isNightly()) {
       return true;
     }
+
     try {
       // get the property for the last update check
       String lastUpdateCheck = TmmProperties.getInstance().getProperty("lastUpdateCheck");
@@ -703,7 +748,7 @@ public class TmmUIHelper {
           LOGGER.info("update available");
 
           // we might need this somewhen...
-          if (updateCheck.isForcedUpdate()) {
+          if (Globals.isSelfUpdatable() && updateCheck.isForcedUpdate()) {
             LOGGER.info("Updating (forced)...");
             // start the updater task
             TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
@@ -713,10 +758,10 @@ public class TmmUIHelper {
           // show whatsnewdialog with the option to update
           SwingUtilities.invokeLater(() -> {
             if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
-              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog());
+              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog(), updateCheck.getBaseUrl());
               dialog.setVisible(true);
             }
-            else {
+            else if (Globals.isSelfUpdatable()) {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
               int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
@@ -752,20 +797,5 @@ public class TmmUIHelper {
     else {
       TmmTaskManager.getInstance().addUnnamedTask(runnable);
     }
-  }
-
-  public static void restartWarningAfterV4Upgrade() {
-    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"),
-        TmmResourceBundle.getString("tmm.upgrade.finished"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-    if (confirm == JOptionPane.YES_OPTION) {
-      MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
-    }
-  }
-
-  public static String showRegexpInputDialog(Window parent) {
-    RegexpInputDialog inputDialog = new RegexpInputDialog(parent);
-    inputDialog.setVisible(true);
-    return inputDialog.getRegularExpression();
   }
 }

@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.components.table;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.event.TableColumnModelEvent;
@@ -226,12 +227,11 @@ public class TmmTableColumnModel extends DefaultTableColumnModel {
    */
   List<TableColumn> getAllColumns() {
     List<TableColumn> columns = Collections.list(getColumns());
-    int n = hiddenColumns.size();
-    for (int i = 0; i < n; i++) {
-      int index = hiddenColumnsPosition.get(i);
-      index = Math.min(index, columns.size());
-      columns.add(index, hiddenColumns.get(i));
-    }
+    columns.addAll(hiddenColumns);
+
+    // sort by model index
+    columns.sort(Comparator.comparingInt(TableColumn::getModelIndex));
+
     return columns;
   }
 

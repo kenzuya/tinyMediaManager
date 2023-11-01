@@ -61,7 +61,7 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
   }
 
   @Override
-  protected void paintTabSelection(Graphics g, int tabPlacement, int x, int y, int w, int h) {
+  protected void paintTabSelection(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h) {
     // not needed
   }
 

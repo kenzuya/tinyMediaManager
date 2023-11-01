@@ -40,8 +40,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadSubtitleDialog;
  * @author Manuel Laggner
  */
 public class MovieSubtitleDownloadAction extends TmmAction {
-  private static final long serialVersionUID = -6002932119900795735L;
-
   public MovieSubtitleDownloadAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.download.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);

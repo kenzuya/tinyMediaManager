@@ -29,15 +29,11 @@ public final class Constants {
   public static final String ADDED_MOVIE_SET        = "addedMovieSet";
   public static final String ADDED_SEASON           = "addedSeason";
   public static final String ADDED_TV_SHOW          = "addedTvShow";
-  public static final String AIRED_EPISODE          = "airedEpisode";
-  public static final String AIRED_SEASON           = "airedSeason";
   public static final String AUDIO_CODEC            = "audioCodec";
   public static final String AUDIO_CHANNEL          = "audioChannel";
   public static final String AUDIOSTREAMS_COUNT     = "audioStreams";
   public static final String BANNER                 = "banner";
   public static final String BANNER_URL             = "bannerUrl";
-  public static final String CAST                   = "cast";
-  public static final String CHARACTER              = "character";
   public static final String CHARACTERART           = "characterart";
   public static final String CERTIFICATION          = "certification";
   public static final String CLEARART               = "clearart";
@@ -49,15 +45,11 @@ public final class Constants {
   public static final String DIRECTORS              = "directors";
   public static final String DIRECTORS_AS_STRING    = "directorsAsString";
   public static final String DISC                   = "disc";
-  public static final String DVD_EPISODE            = "dvdEpisode";
-  public static final String DVD_ORDER              = "dvdOrder";
-  public static final String DVD_SEASON             = "dvdSeason";
-  public static final String DISPLAY_EPISODE        = "displayEpisode";
-  public static final String DISPLAY_SEASON         = "displaySeason";
   public static final String EDITION                = "edition";
   public static final String EDITION_AS_STRING      = "editionAsString";
   public static final String EPISODE                = "episode";
   public static final String EPISODE_COUNT          = "episodeCount";
+  public static final String EPISODE_GROUP          = "episodeGroup";
   public static final String FANART                 = "fanart";
   public static final String FANART_URL             = "fanartUrl";
   public static final String FIRST_AIRED            = "firstAired";
@@ -78,7 +70,6 @@ public final class Constants {
   public static final String MOVIESET_TITLE         = "movieSetTitle";
   public static final String NAME                   = "name";
   public static final String NEWLY_ADDED            = "newlyAdded";
-  public static final String NFO_FILENAME           = "nfoFilename";
   public static final String ORIGINAL_TITLE         = "originalTitle";
   public static final String ORIGINAL_FILENAME      = "originalFilename";
   public static final String PATH                   = "path";
@@ -93,6 +84,7 @@ public final class Constants {
   public static final String REMOVED_EPISODE        = "removedEpisode";
   public static final String REMOVED_MOVIE          = "removedMovie";
   public static final String REMOVED_MOVIE_SET      = "removedMovieSet";
+  public static final String REMOVED_SEASON         = "removedSeason";
   public static final String REMOVED_TV_SHOW        = "removedTvShow";
   public static final String ROLE                   = "role";
   public static final String RUNTIME                = "runtime";
@@ -106,15 +98,14 @@ public final class Constants {
   public static final String SORT_TITLE             = "sortTitle";
   public static final String SPOKEN_LANGUAGES       = "spokenLanguages";
   public static final String STATUS                 = "status";
-  public static final String STUDIO                 = "studio";
   public static final String SUBTITLES              = "subtitles";
   public static final String SUBTITLES_COUNT        = "countSubtitles";
   public static final String SUBTITLE_LANGUAGES     = "subtitleLanguages";
+  public static final String SUBTITLE_FORMATS       = "subtitleFormats";
   public static final String TAGS                   = "tags";
   public static final String TAGS_AS_STRING         = "tagsAsString";
   public static final String THUMB                  = "thumb";
   public static final String THUMB_URL              = "thumbUrl";
-  public static final String THUMB_PATH             = "thumbPath";
   public static final String TITLE                  = "title";
   public static final String TITLE_FOR_UI           = "titleForUi";
   public static final String TITLE_SORTABLE         = "titleSortable";
@@ -126,7 +117,6 @@ public final class Constants {
   public static final String VIDEO_CODEC            = "videoCodec";
   public static final String VIDEO_CONTAINER        = "videoContainer";
   public static final String VIDEO_IN_3D            = "videoIn3D";
-  public static final String VOTES                  = "votes";
   public static final String WATCHED                = "watched";
   public static final String WRITERS                = "writers";
   public static final String WRITERS_AS_STRING      = "writersAsString";
@@ -135,15 +125,6 @@ public final class Constants {
   public static final String DECADE                 = "decade";
   public static final String HDR_FORMAT             = "hdrFormat";
   public static final String AUDIO_TITLE            = "audioTitle";
-
-  // some hardcoded, well known meta data provider IDs
-  // may add new ones in MediaEntity.setId()
-  public static final String TMDB                   = "tmdb";
-  public static final String TMDB_SET               = "tmdbSet";
-  public static final String IMDB                   = "imdb";
-  public static final String TVDB                   = "tvdb";
-  public static final String TRAKT                  = "trakt";
-  public static final String FANART_TV              = "fanarttv";
 
   private Constants() {
   }

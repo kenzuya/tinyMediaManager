@@ -39,8 +39,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetArtworkPanel extends JPanel {
-  private static final long     serialVersionUID = -7478111154774646873L;
-
   private final List<MediaFile> mediaFiles;
   private ImagePanel            imagePanel;
 

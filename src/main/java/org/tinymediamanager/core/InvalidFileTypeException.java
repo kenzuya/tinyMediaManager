@@ -24,8 +24,6 @@ import java.nio.file.Path;
  * @author Manuel Laggner
  */
 public class InvalidFileTypeException extends Exception {
-  private static final long    serialVersionUID = -1369038811049706860L;
-
   private final transient Path file;
 
   public InvalidFileTypeException(Path file) {

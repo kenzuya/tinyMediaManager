@@ -20,10 +20,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -104,8 +106,15 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
           options.setDataFromOtherOptions(scrapeOptions);
           options.setArtworkType(MediaArtworkType.ALL);
           options.setIds(movie.getIds());
-          options.setId("mediaFile", movie.getMainFile());
-          options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+          if (movie.isStacked()) {
+            ArrayList<MediaFile> mfs = new ArrayList<>();
+            mfs.addAll(movie.getMediaFiles(MediaFileType.VIDEO));
+            options.setId("mediaFile", mfs);
+          }
+          else {
+            options.setId("mediaFile", movie.getMainFile());
+          }
+          options.setLanguage(MovieModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
           options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
           options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 

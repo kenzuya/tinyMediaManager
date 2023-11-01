@@ -17,9 +17,6 @@
 package org.tinymediamanager.core.tvshow.connector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,9 +41,12 @@ import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
 
@@ -60,49 +60,48 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
   public void testXbmcNfo() throws Exception {
     Files.createDirectories(getWorkFolder().resolve("xbmc_nfo"));
 
-      TvShow tvShow = createTvShow("xbmc_nfo");
-      List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
+    TvShow tvShow = createTvShow("xbmc_nfo");
+    List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
 
-      // write it
-      List<TvShowEpisodeNfoNaming> nfoNames = Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME);
-      TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
-      connector.write(nfoNames);
+    // write it
+    List<TvShowEpisodeNfoNaming> nfoNames = Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME);
+    TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
+    connector.write(nfoNames);
 
-      Path nfoFile = getWorkFolder().resolve("xbmc_nfo/S01E01E02.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
+    Path nfoFile = getWorkFolder().resolve("xbmc_nfo/S01E01E02.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      // unmarshal it
-      TvShowEpisodeNfoParser tvShowEpisodeNfoParser = TvShowEpisodeNfoParser.parseNfo(nfoFile);
-      List<TvShowEpisode> newEpisodes = tvShowEpisodeNfoParser.toTvShowEpisodes();
-      for (TvShowEpisode episode : newEpisodes) {
-        episode.setTvShow(tvShow);
-      }
-      compareEpisodes(episodes, newEpisodes);
+    // unmarshal it
+    TvShowEpisodeNfoParser tvShowEpisodeNfoParser = TvShowEpisodeNfoParser.parseNfo(nfoFile);
+    List<TvShowEpisode> newEpisodes = tvShowEpisodeNfoParser.toTvShowEpisodes();
+    for (TvShowEpisode episode : newEpisodes) {
+      episode.setTvShow(tvShow);
+    }
+    compareEpisodes(episodes, newEpisodes);
   }
 
   @Test
   public void testKodiNfo() throws Exception {
     Files.createDirectories(getWorkFolder().resolve("kodi_nfo"));
 
+    TvShow tvShow = createTvShow("kodi_nfo");
+    List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
 
-      TvShow tvShow = createTvShow("kodi_nfo");
-      List<TvShowEpisode> episodes = createEpisodes(tvShow, true);
+    // write it
+    List<TvShowEpisodeNfoNaming> nfoNames = Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME);
+    TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
+    connector.write(nfoNames);
 
-      // write it
-      List<TvShowEpisodeNfoNaming> nfoNames = Collections.singletonList(TvShowEpisodeNfoNaming.FILENAME);
-      TvShowEpisodeToXbmcConnector connector = new TvShowEpisodeToXbmcConnector(episodes);
-      connector.write(nfoNames);
+    Path nfoFile = getWorkFolder().resolve("kodi_nfo/S01E01E02.nfo");
+    assertThat(Files.exists(nfoFile)).isTrue();
 
-      Path nfoFile = getWorkFolder().resolve("kodi_nfo/S01E01E02.nfo");
-      assertThat(Files.exists(nfoFile)).isTrue();
-
-      // unmarshal it
-      TvShowEpisodeNfoParser tvShowEpisodeNfoParser = TvShowEpisodeNfoParser.parseNfo(nfoFile);
-      List<TvShowEpisode> newEpisodes = tvShowEpisodeNfoParser.toTvShowEpisodes();
-      for (TvShowEpisode episode : newEpisodes) {
-        episode.setTvShow(tvShow);
-      }
-      compareEpisodes(episodes, newEpisodes);
+    // unmarshal it
+    TvShowEpisodeNfoParser tvShowEpisodeNfoParser = TvShowEpisodeNfoParser.parseNfo(nfoFile);
+    List<TvShowEpisode> newEpisodes = tvShowEpisodeNfoParser.toTvShowEpisodes();
+    for (TvShowEpisode episode : newEpisodes) {
+      episode.setTvShow(tvShow);
+    }
+    compareEpisodes(episodes, newEpisodes);
   }
 
   private TvShow createTvShow(String path) throws Exception {
@@ -116,12 +115,17 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
     tvShow.setRuntime(45);
     tvShow.setArtworkUrl("http://poster", MediaFileType.POSTER);
     tvShow.setArtworkUrl("http://fanart", MediaFileType.FANART);
-    tvShow.setSeasonArtworkUrl(1, "http://season1", SEASON_POSTER);
-    tvShow.setSeasonArtworkUrl(2, "http://season2", SEASON_POSTER);
-    tvShow.setSeasonArtworkUrl(1, "http://season-banner1", SEASON_BANNER);
-    tvShow.setSeasonArtworkUrl(2, "http://season-banner2", SEASON_BANNER);
-    tvShow.setSeasonArtworkUrl(1, "http://season-thumb1", SEASON_THUMB);
-    tvShow.setSeasonArtworkUrl(2, "http://season-thumb2", SEASON_THUMB);
+
+    TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(1);
+    tvShowSeason.setArtworkUrl("http://season1", MediaFileType.SEASON_POSTER);
+    tvShowSeason.setArtworkUrl("http://season-banner1", MediaFileType.SEASON_BANNER);
+    tvShowSeason.setArtworkUrl("http://season-thumb1", MediaFileType.SEASON_THUMB);
+
+    tvShowSeason = tvShow.getOrCreateSeason(2);
+    tvShowSeason.setArtworkUrl("http://season2", MediaFileType.SEASON_POSTER);
+    tvShowSeason.setArtworkUrl("http://season-banner2", MediaFileType.SEASON_BANNER);
+    tvShowSeason.setArtworkUrl("http://season-thumb2", MediaFileType.SEASON_THUMB);
+
     tvShow.setImdbId("tt0103639");
     tvShow.setTvdbId("812");
     tvShow.setId("trakt", 655);
@@ -183,10 +187,8 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
     episode1.setTvShow(tvShow);
     episode1.setPath(tvShow.getPathNIO().toString());
     episode1.setTitle("Pilot (1)");
-    episode1.setSeason(1);
-    episode1.setEpisode(1);
-    episode1.setDisplaySeason(1);
-    episode1.setDisplayEpisode(1);
+    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
+    episode1.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, 1, 1));
     episode1.setId(MediaMetadata.TVDB, 1234);
     episode1.setPlot(
         "Hanson gets assigned to the Jump Street unit, a special division of the police force which uses young cops to go undercover and stop juvenile crime, when his youthful appearance causes him to be underestimated while on patrol. His first case involves catching drug dealers.");
@@ -233,10 +235,8 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTvShowTest {
       TvShowEpisode episode2 = new TvShowEpisode();
       episode2.setTvShow(tvShow);
       episode2.setTitle("Pilot (2)");
-      episode2.setSeason(1);
-      episode2.setEpisode(2);
-      episode2.setDisplaySeason(1);
-      episode2.setDisplayEpisode(2);
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 2));
+      episode2.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, 1, 2));
       episode2.setId(MediaMetadata.TVDB, 2345);
       episode2.setPlot(
           "Hanson gets assigned to the Jump Street unit, a special division of the police force which uses young cops to go undercover and stop juvenile crime, when his youthful appearance causes him to be underestimated while on patrol. His first case involves catching drug dealers.");

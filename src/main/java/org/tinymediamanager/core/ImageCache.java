@@ -42,7 +42,9 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.ThreadUtils;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -149,6 +151,16 @@ public class ImageCache {
   }
 
   /**
+   * returns the absolute path of the cached file from this MediaFile
+   * 
+   * @param mf
+   * @return
+   */
+  public static Path getAbsolutePath(MediaFile mf) {
+    return CACHE_DIR.resolve(getMD5WithSubfolder(mf.getFileAsPath().toString()) + "." + mf.getExtension());
+  }
+
+  /**
    * Cache image without overwriting an existing one
    * 
    * @param mediaFile
@@ -160,6 +172,20 @@ public class ImageCache {
   public static Path cacheImage(MediaFile mediaFile) throws Exception {
     return cacheImage(mediaFile, false);
   }
+
+    /**
+     * cache the given {@link MediaFile} in an own thread
+     *
+     * @param mediaFile the {@link MediaFile} to cache
+     */
+    public static void cacheImageAsync(MediaFile mediaFile) {
+        if (!Settings.getInstance().isImageCache() || !mediaFile.isGraphic()) {
+            // we can only cache when the cache is enabled AND this is an image
+            return;
+        }
+
+        TmmTaskManager.getInstance().addImageCacheTask(new ImageCacheTask(mediaFile));
+    }
 
   /**
    * Cache image.
@@ -178,7 +204,7 @@ public class ImageCache {
     }
 
     Path originalFile = mediaFile.getFileAsPath();
-    Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(originalFile.toString()) + "." + Utils.getExtension(originalFile));
+    Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(originalFile.toString()) + "." + mediaFile.getExtension());
     if (overwrite || !Files.exists(cachedFile)) {
       // check if the original file exists && size > 0
       if (!Files.exists(originalFile)) {
@@ -364,7 +390,8 @@ public class ImageCache {
   }
 
   /**
-   * Cache image silently without throwing an exception. Use the method {@link #cacheImageSilently(MediaFile)} if possible!
+   * Cache image silently without throwing an exception. Use the method {@link #cacheImageSilently(MediaFile)} if possible!<br>
+   * Overwriting existing files!
    *
    * @param path
    *          the path to this image
@@ -374,12 +401,25 @@ public class ImageCache {
   }
 
   /**
-   * Cache image silently without throwing an exception.
+   * Caches image silently without throwing an exception.<br>
+   * Overwriting existing files!
    *
    * @param mediaFile
    *          the media file
    */
   public static void cacheImageSilently(MediaFile mediaFile) {
+    cacheImageSilently(mediaFile, true);
+  }
+
+  /**
+   * Cache image silently without throwing an exception.
+   *
+   * @param mediaFile
+   *          the media file
+   * @param overwrite
+   *          should existing files be overwritten?
+   */
+  public static void cacheImageSilently(MediaFile mediaFile, boolean overwrite) {
     if (!Settings.getInstance().isImageCache()) {
       return;
     }
@@ -389,7 +429,7 @@ public class ImageCache {
     }
 
     try {
-      cacheImage(mediaFile, true);
+      cacheImage(mediaFile, overwrite);
     }
     catch (Exception e) {
       LOGGER.debug("could not cache image: {}", e.getMessage());

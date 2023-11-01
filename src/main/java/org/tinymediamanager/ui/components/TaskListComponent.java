@@ -38,9 +38,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TaskListComponent extends JPanel {
-  private static final long           serialVersionUID = -6088880093610800005L;
-
-
   private TmmTaskHandle               taskHandle;
 
   private JLabel                      mainLabel;

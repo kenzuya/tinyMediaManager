@@ -28,9 +28,6 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 public class TvShowAspectRatioDetectAction extends TmmAction {
-
-  private static final long serialVersionUID = 1537573685063738415L;
-
   public TvShowAspectRatioDetectAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.ard"));
     putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO_BLUE);

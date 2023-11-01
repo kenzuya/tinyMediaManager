@@ -32,7 +32,6 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -47,8 +46,6 @@ import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
-  private static final long                 serialVersionUID = 2513029074142934502L;
-
   private final TvShowEpisodeSelectionModel selectionModel;
 
   public TvShowEpisodeMediaInformationPanel(TvShowEpisodeSelectionModel model) {
@@ -90,11 +87,6 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
 
     selectionModel.addPropertyChangeListener(propertyChangeListener);
     initDataBindings();
-  }
-
-  @Override
-  protected MediaEntity getMediaEntity() {
-    return selectionModel.getSelectedTvShowEpisode();
   }
 
   @Override

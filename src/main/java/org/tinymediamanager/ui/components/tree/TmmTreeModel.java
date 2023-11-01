@@ -42,7 +42,6 @@ import javax.swing.tree.TreeNode;
  * @param <E>
  */
 public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
-  private static final long              serialVersionUID          = 894025254282580674L;
   protected static final long            TIMER_DELAY               = 100L;
 
   protected final TmmTreeDataProvider<E> dataProvider;
@@ -691,7 +690,12 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
       indices[i] = index + i;
     }
 
-    nodesWereInserted(parent, indices);
+    try {
+      nodesWereInserted(parent, indices);
+    }
+    catch (Exception ignored) {
+      // sometimes this crashes when the tree is refreshing and the cursor is in the wrong location
+    }
 
     // Forcing child nodes to load their structures
     for (final E child : children) {

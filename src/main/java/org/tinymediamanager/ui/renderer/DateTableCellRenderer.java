@@ -30,9 +30,7 @@ import org.tinymediamanager.core.TmmDateFormat;
  * @author Manuel Laggner
  */
 public class DateTableCellRenderer extends DefaultTableCellRenderer {
-  private static final long serialVersionUID = 2136302874452711571L;
-
-  private DateFormat        dateFormat;
+  private final DateFormat dateFormat;
 
   /**
    * Create a new DateTableCellRenderer that renders Dates as formatted Strings.

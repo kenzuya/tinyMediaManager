@@ -51,8 +51,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class SortTitleSettingsPanel extends JPanel {
-  private static final long serialVersionUID = 1857926059556024932L;
-
   private final Settings    settings         = Settings.getInstance();
 
   private JList<String>     listSortPrefixes;

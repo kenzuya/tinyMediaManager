@@ -19,13 +19,15 @@ package org.tinymediamanager.core.movie.filenaming;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The Enum MovieBannerNaming.
+ * The enum {@link MovieBannerNaming} - used to generate the banner filename
  * 
  * @author Manuel Laggner
  */
 public enum MovieSetBannerNaming implements IMovieSetFileNaming {
 
-  /** movieset-banner.* */
+  /**
+   * movieset-banner.ext - in movie folder
+   */
   MOVIE_BANNER {
     @Override
     public String getFilename(String basename, String extension) {
@@ -38,7 +40,24 @@ public enum MovieSetBannerNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** banner.* */
+  /**
+   * [movieset name]-banner.ext - in movie folder
+   */
+  MOVIESET_BANNER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-banner." + extension : "";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.MOVIE_FOLDER;
+    }
+  },
+
+  /**
+   * banner.ext - in artwork folder
+   */
   KODI_BANNER {
     @Override
     public String getFilename(String basename, String extension) {
@@ -51,7 +70,9 @@ public enum MovieSetBannerNaming implements IMovieSetFileNaming {
     }
   },
 
-  /** [movie set name]-banner.* */
+  /**
+   * [movie set name]-banner.ext - in artwork folder
+   */
   AUTOMATOR_BANNER {
     @Override
     public String getFilename(String basename, String extension) {

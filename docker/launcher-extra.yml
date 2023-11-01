@@ -1,6 +1,0 @@
----
-javaHome: ""
-jvmOpts:
-  - "-Dtmm.contentfolder=/data"
-  - "-Dtmm.noupdate=true"
-env: [ ]

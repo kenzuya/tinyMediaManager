@@ -24,6 +24,8 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DVD;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
@@ -233,18 +236,20 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertNotNull("MediaMetadata", md);
 
       assertThat(md.getIds().size()).isGreaterThanOrEqualTo(1); // at least tvdb
-      assertThat(md.getEpisodeNumber()).isEqualTo(2);
-      assertThat(md.getSeasonNumber()).isEqualTo(1);
-      assertThat(md.getDvdEpisodeNumber()).isEqualTo(2);
-      assertThat(md.getDvdSeasonNumber()).isEqualTo(1);
+      assertThat(md.getEpisodeNumber(AIRED)).isNotNull();
+      assertThat(md.getEpisodeNumber(AIRED).episode()).isEqualTo(2);
+      assertThat(md.getEpisodeNumber(AIRED).season()).isEqualTo(1);
+      assertThat(md.getEpisodeNumber(DVD)).isNotNull();
+      assertThat(md.getEpisodeNumber(DVD).episode()).isEqualTo(2);
+      assertThat(md.getEpisodeNumber(DVD).season()).isEqualTo(1);
       assertThat(md.getTitle()).isEqualTo("The Spellingg Bee");
       assertThat(md.getPlot()).startsWith("When what begins as a little competitive sabotage in a regional spelling");
       assertEquals("14-07-2006", sdf.format(md.getReleaseDate()));
       assertEquals(18, md.getCastMembers(ACTOR).size());
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getCertifications()).doesNotContain(MediaCertification.UNKNOWN);
-      assertThat(md.getCastMembers(DIRECTOR).size()).isGreaterThan(0);
-      assertThat(md.getCastMembers(WRITER).size()).isGreaterThan(0);
+      assertThat(md.getCastMembers(DIRECTOR)).isNotEmpty();
+      assertThat(md.getCastMembers(WRITER)).isNotEmpty();
       assertThat(md.getMediaArt(MediaArtwork.MediaArtworkType.THUMB)).isNotEmpty();
     }
     catch (Exception e) {
@@ -276,17 +281,19 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertNotNull("MediaMetadata", md);
 
       assertThat(md.getIds().size()).isGreaterThanOrEqualTo(1); // at least tvdb
-      assertThat(md.getEpisodeNumber()).isEqualTo(2);
-      assertThat(md.getSeasonNumber()).isEqualTo(1);
-      assertThat(md.getDvdEpisodeNumber()).isEqualTo(2);
-      assertThat(md.getDvdSeasonNumber()).isEqualTo(1);
+      assertThat(md.getEpisodeNumber(AIRED)).isNotNull();
+      assertThat(md.getEpisodeNumber(AIRED).episode()).isEqualTo(2);
+      assertThat(md.getEpisodeNumber(AIRED).season()).isEqualTo(1);
+      assertThat(md.getEpisodeNumber(DVD)).isNotNull();
+      assertThat(md.getEpisodeNumber(DVD).episode()).isEqualTo(2);
+      assertThat(md.getEpisodeNumber(DVD).season()).isEqualTo(1);
       assertThat(md.getTitle()).isEqualTo("So spannend kann ein Buchstabierwettbewerb sein!");
       assertThat(md.getPlot()).startsWith(
           "In Santa Barbara findet der alljährliche Buchstabier-Wettbewerb statt. Gus, der als Knirps selbst einmal an dieser Veranstaltung teilgenommen hatte, aber ausgeschieden war, weil der im Publikum sitzende Shawn ihm falsch vorgesagt hatte, ist vor Begeisterung kaum zu halten und verfolgt die Veranstaltung mangels Tickets als Live-Übertragung im Fernsehen. Shawn dagegen hält die Veranstaltung für eine reine Freakshow und ist von Gus' Enthusiasmus mehr als genervt. Als Brendan Vu, der haushohe Favorit der Veranstaltung, auf Grund eines mysteriösen Ohnmachtsanfalles ausscheiden muss, werden Shawn und Gus mit der Untersuchung des Falles beauftragt. Kurz nachdem sie am Veranstaltungsort eintreffen, stürzt der altgediente Spielleiter des Buchstabierwettbewerbes, Elvin Cavanaugh, bewusstlos aus seiner Loge in das Publikum und ist auf der Stelle tot. Für die Polizei, insbesondere den zynischen Detective Carlton Lassiter scheint dieser Fall sonnenklar zu sein: Der stark übergewichtige Cavanaugh habe einen Herzinfarkt erlitten und sei deshalb in den Tod gestürzt. Lassiters neue Kollegin Juliet O'Hara, auf die Shawn sofort ein Auge wirft, zweifelt jedoch an dieser Theorie. Auch Shawn und Gus vermuten mehr dahinter, für sie deuten die Zeichen eindeutig auf ein Fremdverschulden hin.");
       assertEquals("14-07-2006", sdf.format(md.getReleaseDate()));
       assertEquals(18, md.getCastMembers(ACTOR).size());
-      assertThat(md.getCastMembers(DIRECTOR).size()).isGreaterThan(0);
-      assertThat(md.getCastMembers(WRITER).size()).isGreaterThan(0);
+      assertThat(md.getCastMembers(DIRECTOR)).isNotEmpty();
+      assertThat(md.getCastMembers(WRITER)).isNotEmpty();
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getCertifications()).doesNotContain(MediaCertification.UNKNOWN);
       assertThat(md.getMediaArt(MediaArtwork.MediaArtworkType.THUMB)).isNotEmpty();
@@ -315,7 +322,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       MediaArtwork ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isIn(MediaArtwork.MediaArtworkType.BANNER, MediaArtwork.MediaArtworkType.POSTER,
           MediaArtwork.MediaArtworkType.BACKGROUND, MediaArtwork.MediaArtworkType.SEASON_POSTER, MediaArtwork.MediaArtworkType.SEASON_BANNER,
           MediaArtwork.MediaArtworkType.SEASON_THUMB);
@@ -328,7 +335,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_POSTER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
 
@@ -339,7 +346,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_BANNER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
     }
@@ -372,15 +379,19 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
 
       MediaMetadata episode = null;
       for (MediaMetadata ep : episodes) {
-        if (ep.getSeasonNumber() == 1 && ep.getEpisodeNumber() == 2) {
+        if (ep.getEpisodeNumber(AIRED).season() == 1 && ep.getEpisodeNumber(AIRED).episode() == 2) {
           episode = ep;
           break;
         }
       }
-      assertThat(episode.getEpisodeNumber()).isEqualTo(2);
-      assertThat(episode.getSeasonNumber()).isEqualTo(1);
-      assertThat(episode.getDvdEpisodeNumber()).isEqualTo(2);
-      assertThat(episode.getDvdSeasonNumber()).isEqualTo(1);
+
+      assertThat(episode).isNotNull();
+      assertThat(episode.getEpisodeNumber(AIRED)).isNotNull();
+      assertThat(episode.getEpisodeNumber(AIRED).episode()).isEqualTo(2);
+      assertThat(episode.getEpisodeNumber(AIRED).season()).isEqualTo(1);
+      assertThat(episode.getEpisodeNumber(DVD)).isNotNull();
+      assertThat(episode.getEpisodeNumber(DVD).episode()).isEqualTo(2);
+      assertThat(episode.getEpisodeNumber(DVD).season()).isEqualTo(1);
       assertThat(episode.getTitle()).isEqualTo("The Spellingg Bee");
       assertThat(episode.getReleaseDate()).isEqualTo("2006-07-14");
 
@@ -556,5 +567,65 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
     assertThat(md.getCastMembers(DIRECTOR).size()).isGreaterThan(0);
     assertThat(md.getCastMembers(WRITER).size()).isGreaterThan(0);
     assertThat(md.getCastMembers(PRODUCER).size()).isGreaterThan(0);
+  }
+
+  @Test
+  public void testEpisodeGroups() throws Exception {
+    ITvShowMetadataProvider mp = new TheTvDbTvShowMetadataProvider();
+
+    {
+      // house of money - aired and netflix (alternate) order
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+      options.setId(mp.getProviderInfo().getId(), "327417");
+      options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
+
+      MediaMetadata mediaMetadata = mp.getMetadata(options);
+
+      assertThat(mediaMetadata).isNotNull();
+      assertThat(mediaMetadata.getEpisodeGroups()).hasSize(2);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups())
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ALTERNATE);
+
+      options.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+      List<MediaMetadata> episodesInAiredOrder = mp.getEpisodeList(options);
+
+    }
+
+    {
+      // firefly - aired, dvd and absolute
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+      options.setLanguage(MediaLanguages.en);
+      options.setId(mp.getProviderInfo().getId(), 78874);
+
+      MediaMetadata mediaMetadata = mp.getMetadata(options);
+
+      assertThat(mediaMetadata).isNotNull();
+      assertThat(mediaMetadata.getEpisodeGroups()).hasSize(3);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == DVD);
+      assertThat(mediaMetadata.getEpisodeGroups())
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE);
+    }
+
+    {
+      // futurama - aired, dvd, absolute, digital and production (unused yet)
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+      options.setLanguage(MediaLanguages.en);
+      options.setId(mp.getProviderInfo().getId(), 73871);
+
+      MediaMetadata mediaMetadata = mp.getMetadata(options);
+
+      assertThat(mediaMetadata).isNotNull();
+      assertThat(mediaMetadata.getEpisodeGroups()).hasSize(4);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == DVD);
+      assertThat(mediaMetadata.getEpisodeGroups())
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE);
+      assertThat(mediaMetadata.getEpisodeGroups())
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ALTERNATE);
+    }
   }
 }

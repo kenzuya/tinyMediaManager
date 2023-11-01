@@ -19,13 +19,11 @@ package org.tinymediamanager.ui.movies.dialogs;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -36,10 +34,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,10 +47,8 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.FlatButton;
-import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
-import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -66,6 +60,8 @@ import org.tinymediamanager.ui.movies.filters.MovieAudioLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioTitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
+import org.tinymediamanager.ui.movies.filters.MovieClearArtSizeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieClearLogoSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountSubtitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
@@ -73,14 +69,18 @@ import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDateAddedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDecadesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDifferentRuntimeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieDiscArtSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
+import org.tinymediamanager.ui.movies.filters.MovieFanartSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
 import org.tinymediamanager.ui.movies.filters.MovieHDRFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
+import org.tinymediamanager.ui.movies.filters.MovieKeyArtSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
+import org.tinymediamanager.ui.movies.filters.MovieLockedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaFilesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaSourceFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMissingArtworkFilter;
@@ -89,29 +89,37 @@ import org.tinymediamanager.ui.movies.filters.MovieMissingSubtitlesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieNewMoviesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieNoteFilter;
 import org.tinymediamanager.ui.movies.filters.MoviePathFilter;
+import org.tinymediamanager.ui.movies.filters.MoviePosterSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieProductionCompanyFilter;
+import org.tinymediamanager.ui.movies.filters.MovieRuntimeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieSubtitleFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieSubtitleLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieTagFilter;
+import org.tinymediamanager.ui.movies.filters.MovieThumbSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideo3DFilter;
+import org.tinymediamanager.ui.movies.filters.MovieVideoBitdepthFilter;
+import org.tinymediamanager.ui.movies.filters.MovieVideoBitrateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoCodecFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoContainerFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoExtrasFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoFilenameFilter;
+import org.tinymediamanager.ui.movies.filters.MovieVideoFilesizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieWatchedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
+import org.tinymediamanager.ui.movies.filters.MovieBannerSizeFilter;
+import org.tinymediamanager.ui.panels.FilterSavePanel;
+import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
 import net.miginfocom.swing.MigLayout;
 
 /**
- * the class {@link MovieFilterDialog} provides an easy access to all filters
+ * the class {@link MovieFilterDialog} provides easy access to all filters
  * 
  * @author Manuel Laggner
  */
 public class MovieFilterDialog extends TmmDialog {
-  private static final long                      serialVersionUID = 2298540526428945319L;
-
-  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final String                    PANEL_COL_CONSTRAINTS = "[][][][200lp:250lp,grow]";
 
   private final MovieSelectionModel              selectionModel;
 
@@ -126,7 +134,6 @@ public class MovieFilterDialog extends TmmDialog {
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(TmmResourceBundle.getString("movieextendedsearch.options") + " - " + TmmResourceBundle.getString("tmm.movies"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
-    setMinimumSize(new Dimension(550, 400));
 
     this.selectionModel = selectionModel;
     this.filterMap = new HashMap<>();
@@ -152,20 +159,19 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel Main
-        JPanel panelMain = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
-        scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
+        JPanel panelMain = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelMain);
 
         panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieNewMoviesFilter(), panelMain);
         addFilter(new MovieDatasourceFilter(), panelMain);
         addFilter(new MovieWatchedFilter(), panelMain);
+        addFilter(new MovieLockedFilter(), panelMain);
         addFilter(new MovieDateAddedFilter(), panelMain);
         addFilter(new MovieDuplicateFilter(), panelMain);
         addFilter(new MovieInMovieSetFilter(), panelMain);
@@ -174,15 +180,12 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel metadata
-        JPanel panelMetadata = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPane = new NoBorderScrollPane(panelMetadata);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JPanel panelMetadata = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), panelMetadata);
+        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1");
 
-        tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), scrollPane);
-        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
-
-        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelMetadata.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelMetadata.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieYearFilter(), panelMetadata);
@@ -203,19 +206,18 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel video
-        JPanel panelVideo = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPane = new NoBorderScrollPane(panelVideo);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), scrollPane);
+        JPanel panelVideo = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), panelVideo);
         panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelVideo.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelVideo.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieVideoFormatFilter(), panelVideo);
         addFilter(new MovieVideoCodecFilter(), panelVideo);
+        addFilter(new MovieVideoBitrateFilter(), panelVideo);
+        addFilter(new MovieVideoBitdepthFilter(), panelVideo);
         addFilter(new MovieVideoContainerFilter(), panelVideo);
         addFilter(new MovieAspectRatioFilter(), panelVideo);
         addFilter(new MovieFrameRateFilter(), panelVideo);
@@ -225,15 +227,12 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel audio
-        JPanel panelAudio = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPane = new NoBorderScrollPane(panelAudio);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), scrollPane);
+        JPanel panelAudio = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), panelAudio);
         panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelAudio.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelAudio.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieAudioCodecFilter(), panelAudio);
@@ -244,32 +243,52 @@ public class MovieFilterDialog extends TmmDialog {
       }
 
       {
-        // panel other
-        JPanel panelOther = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
-        JScrollPane scrollPane = new NoBorderScrollPane(panelOther);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        // panel artwork
+        JPanel panelArtwork = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.artwork"), panelArtwork);
+        panelArtwork.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), scrollPane);
+        panelArtwork.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelArtwork.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
+        panelArtwork.add(Box.createHorizontalGlue(), "wrap");
+
+        addFilter(new MoviePosterSizeFilter(), panelArtwork);
+        addFilter(new MovieFanartSizeFilter(), panelArtwork);
+        addFilter(new MovieBannerSizeFilter(), panelArtwork);
+        addFilter(new MovieThumbSizeFilter(), panelArtwork);
+        addFilter(new MovieClearLogoSizeFilter(), panelArtwork);
+        addFilter(new MovieClearArtSizeFilter(), panelArtwork);
+        addFilter(new MovieDiscArtSizeFilter(), panelArtwork);
+        addFilter(new MovieKeyArtSizeFilter(), panelArtwork);
+        addFilter(new MovieMissingArtworkFilter(), panelArtwork);
+      }
+
+      {
+        // panel other
+        JPanel panelOther = new JPanel(new MigLayout("", PANEL_COL_CONSTRAINTS, "[]"));
+        tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), panelOther);
         panelOther.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
 
-        panelOther.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
-        panelOther.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 2 0, right, wrap");
+        panelOther.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 3 0, right");
+        panelOther.add(new FlatButton(IconManager.DELETE, resetFilter), "cell 3 0, right, wrap");
         panelOther.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieMediaSourceFilter(), panelOther);
         addFilter(new MovieMediaFilesFilter(), panelOther);
         addFilter(new MovieFilenameFilter(), panelOther);
+        addFilter(new MovieVideoFilesizeFilter(), panelOther);
         addFilter(new MovieVideoFilenameFilter(), panelOther);
         addFilter(new MoviePathFilter(), panelOther);
         addFilter(new MovieCountSubtitleFilter(), panelOther);
         addFilter(new MovieSubtitleLanguageFilter(), panelOther);
+        addFilter(new MovieSubtitleFormatFilter(), panelOther);
         addFilter(new MovieVideoExtrasFilter(), panelOther);
+        addFilter(new MovieRuntimeFilter(), panelOther);
         addFilter(new MovieDifferentRuntimeFilter(), panelOther);
 
         panelOther.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieMissingMetadataFilter(), panelOther);
-        addFilter(new MovieMissingArtworkFilter(), panelOther);
         addFilter(new MovieMissingSubtitlesFilter(), panelOther);
       }
 
@@ -300,19 +319,27 @@ public class MovieFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
-            FilterSaveDialog saveDialog = new FilterSaveDialog(MovieFilterDialog.this, activeUiFilters, movieUiFilters);
-            saveDialog.setVisible(true);
+            Map<String, List<UIFilters>> uiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
 
-            String savedPreset = saveDialog.getSavedPreset();
-            if (StringUtils.isNotBlank(savedPreset)) {
-              cbPreset.removeActionListener(actionListener);
-              MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
-              MovieModuleManager.getInstance().getSettings().saveSettings();
-              loadPresets();
-              cbPreset.setSelectedItem(savedPreset);
-              cbPreset.addActionListener(actionListener);
-            }
+            ModalPopupPanel popupPanel = createModalPopupPanel();
+            popupPanel.setTitle(TmmResourceBundle.getString("filter.savepreset"));
+
+            FilterSavePanel filterSavePanel = new FilterSavePanel(activeUiFilters, uiFilters);
+
+            popupPanel.setOnCloseHandler(() -> {
+              String savedPreset = filterSavePanel.getSavedPreset();
+              if (StringUtils.isNotBlank(savedPreset)) {
+                cbPreset.removeActionListener(actionListener);
+                MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(uiFilters);
+                MovieModuleManager.getInstance().getSettings().saveSettings();
+                loadPresets();
+                cbPreset.setSelectedItem(savedPreset);
+                cbPreset.addActionListener(actionListener);
+              }
+            });
+
+            popupPanel.setContent(filterSavePanel);
+            showModalPopupPanel(popupPanel);
           }
         });
         panelFilterPreset.add(btnSavePreset, "cell 2 3");
@@ -397,6 +424,13 @@ public class MovieFilterDialog extends TmmDialog {
     panel.add(filter.getCheckBox(), "");
     panel.add(filter.getLabel(), "");
 
+    if (filter.getFilterOptionComboBox() != null) {
+      panel.add(filter.getFilterOptionComboBox(), "");
+    }
+    else {
+      panel.add(Box.createGlue(), "");
+    }
+
     if (filter.getFilterComponent() != null) {
       panel.add(filter.getFilterComponent(), "wmin 100, grow, wrap");
     }
@@ -448,6 +482,14 @@ public class MovieFilterDialog extends TmmDialog {
         }
       }
     }
+  }
+
+  @Override
+  public void pack() {
+    super.pack();
+
+    // avoid shrinking the dialog below the preferred size
+    setMinimumSize(getPreferredSize());
   }
 
   @Override

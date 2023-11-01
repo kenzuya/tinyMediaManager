@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -514,7 +513,7 @@ class TraktTvTvShow {
     ShowIds ids = traktShow.ids;
 
     int traktId = MetadataUtil.unboxInteger(ids.trakt);
-    if (traktId > 0 && traktId == tmmShow.getIdAsInt(Constants.TRAKT)) {
+    if (traktId > 0 && traktId == tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV)) {
       return true;
     }
 
@@ -528,13 +527,13 @@ class TraktTvTvShow {
     }
 
     int tvdbId = MetadataUtil.unboxInteger(ids.tvdb);
-    if (tvdbId > 0 && tvdbId == tmmShow.getIdAsInt(Constants.TVDB)) {
+    if (tvdbId > 0 && tvdbId == tmmShow.getIdAsInt(MediaMetadata.TVDB)) {
       return true;
     }
 
     // not used atm
     int tvrageId = MetadataUtil.unboxInteger(ids.tvrage);
-    if (tvrageId > 0 && tvrageId == tmmShow.getIdAsInt("tvrage")) {
+    if (tvrageId > 0 && tvrageId == tmmShow.getIdAsInt(MediaMetadata.TVRAGE)) {
       return true;
     }
 
@@ -549,24 +548,24 @@ class TraktTvTvShow {
 
     ShowIds ids = traktShow.ids;
 
-    if (StringUtils.isBlank(tmmShow.getIdAsString(Constants.IMDB)) && !StringUtils.isBlank(ids.imdb)) {
-      tmmShow.setId(Constants.IMDB, ids.imdb);
+    if (StringUtils.isBlank(tmmShow.getIdAsString(MediaMetadata.IMDB)) && !StringUtils.isBlank(ids.imdb)) {
+      tmmShow.setId(MediaMetadata.IMDB, ids.imdb);
       dirty = true;
     }
-    if (tmmShow.getIdAsInt(Constants.TMDB) == 0 && MetadataUtil.unboxInteger(ids.tmdb) > 0) {
-      tmmShow.setId(Constants.TMDB, ids.tmdb);
+    if (tmmShow.getIdAsInt(MediaMetadata.TMDB) == 0 && MetadataUtil.unboxInteger(ids.tmdb) > 0) {
+      tmmShow.setId(MediaMetadata.TMDB, ids.tmdb);
       dirty = true;
     }
-    if (tmmShow.getIdAsInt(Constants.TRAKT) == 0 && MetadataUtil.unboxInteger(ids.trakt) > 0) {
-      tmmShow.setId(Constants.TRAKT, ids.trakt);
+    if (tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV) == 0 && MetadataUtil.unboxInteger(ids.trakt) > 0) {
+      tmmShow.setId(MediaMetadata.TRAKT_TV, ids.trakt);
       dirty = true;
     }
-    if (tmmShow.getIdAsInt(Constants.TVDB) == 0 && MetadataUtil.unboxInteger(ids.tvdb) > 0) {
-      tmmShow.setId(Constants.TVDB, ids.tvdb);
+    if (tmmShow.getIdAsInt(MediaMetadata.TVDB) == 0 && MetadataUtil.unboxInteger(ids.tvdb) > 0) {
+      tmmShow.setId(MediaMetadata.TVDB, ids.tvdb);
       dirty = true;
     }
-    if (tmmShow.getIdAsInt("tvrage") == 0 && MetadataUtil.unboxInteger(ids.tvrage) > 0) {
-      tmmShow.setId("tvrage", ids.tvrage);
+    if (tmmShow.getIdAsInt(MediaMetadata.TVRAGE) == 0 && MetadataUtil.unboxInteger(ids.tvrage) > 0) {
+      tmmShow.setId(MediaMetadata.TVRAGE, ids.tvrage);
       dirty = true;
     }
 
@@ -587,18 +586,18 @@ class TraktTvTvShow {
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt(Constants.TVDB) > 0) {
-      ids.tvdb = tmmShow.getIdAsInt(Constants.TVDB);
+    if (tmmShow.getIdAsInt(MediaMetadata.TVDB) > 0) {
+      ids.tvdb = tmmShow.getIdAsInt(MediaMetadata.TVDB);
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt(Constants.TRAKT) > 0) {
-      ids.trakt = tmmShow.getIdAsInt(Constants.TRAKT);
+    if (tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV) > 0) {
+      ids.trakt = tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV);
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt("tvrage") > 0) {
-      ids.tvrage = tmmShow.getIdAsInt("tvrage");
+    if (tmmShow.getIdAsInt(MediaMetadata.TVRAGE) > 0) {
+      ids.tvrage = tmmShow.getIdAsInt(MediaMetadata.TVRAGE);
       hasId = true;
     }
 
@@ -731,18 +730,18 @@ class TraktTvTvShow {
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt(Constants.TVDB) > 0) {
-      ids.tvdb = tmmShow.getIdAsInt(Constants.TVDB);
+    if (tmmShow.getIdAsInt(MediaMetadata.TVDB) > 0) {
+      ids.tvdb = tmmShow.getIdAsInt(MediaMetadata.TVDB);
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt(Constants.TRAKT) > 0) {
-      ids.trakt = tmmShow.getIdAsInt(Constants.TRAKT);
+    if (tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV) > 0) {
+      ids.trakt = tmmShow.getIdAsInt(MediaMetadata.TRAKT_TV);
       hasId = true;
     }
 
-    if (tmmShow.getIdAsInt("tvrage") > 0) {
-      ids.tvrage = tmmShow.getIdAsInt("tvrage");
+    if (tmmShow.getIdAsInt(MediaMetadata.TVRAGE) > 0) {
+      ids.tvrage = tmmShow.getIdAsInt(MediaMetadata.TVRAGE);
       hasId = true;
     }
 

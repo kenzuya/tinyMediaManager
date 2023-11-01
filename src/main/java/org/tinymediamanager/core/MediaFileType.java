@@ -42,6 +42,7 @@ public enum MediaFileType {
   BANNER, // gfx
   CLEARART, // gfx
   DISC, // gfx
+  @Deprecated
   LOGO, // gfx
   CLEARLOGO, // gfx
   THUMB, // gfx
@@ -99,10 +100,8 @@ public enum MediaFileType {
       case CLEARART:
         return MediaFileType.CLEARART;
 
-      case LOGO:
-        return MediaFileType.LOGO;
-
       case CLEARLOGO:
+      case LOGO:
         return MediaFileType.CLEARLOGO;
 
       case CHARACTERART:
@@ -155,10 +154,8 @@ public enum MediaFileType {
       case CLEARART:
         return MediaArtworkType.CLEARART;
 
-      case LOGO:
-        return MediaArtworkType.LOGO;
-
       case CLEARLOGO:
+      case LOGO:
         return MediaArtworkType.CLEARLOGO;
 
       case CHARACTERART:

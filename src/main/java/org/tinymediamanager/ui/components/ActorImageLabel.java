@@ -33,9 +33,6 @@ import org.tinymediamanager.core.entities.Person;
  * @author Manuel Laggner
  */
 public class ActorImageLabel extends ImageLabel {
-
-  private static final long       serialVersionUID = -1768796209645569296L;
-
   private SwingWorker<Void, Void> actorWorker      = null;
   private Person                  actor            = null;
 

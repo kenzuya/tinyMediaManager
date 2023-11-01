@@ -27,11 +27,9 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author Manuel Laggner
  */
 public class RuntimeTableCellRenderer extends DefaultTableCellRenderer {
-  private static final long serialVersionUID = 2136302874452711571L;
-
   public enum FORMAT {
     MINUTES,
-    HOURS_MINUTES;
+    HOURS_MINUTES
   }
 
   private final FORMAT format;

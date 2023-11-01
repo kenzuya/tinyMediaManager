@@ -65,8 +65,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieRenamerPreviewDialog extends TmmDialog {
-  private static final long                             serialVersionUID = -8162631708278089277L;
-
   private final EventList<MovieRenamerPreviewContainer> results;
   private final ResultSelectionModel                    resultSelectionModel;
   private final EventList<MediaFileContainer>           oldMediaFileEventList;
@@ -221,7 +219,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
        */
       Column col = new Column(TmmResourceBundle.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(),
           String.class);
-      col.setColumnTooltip(container -> container.getMovie().getTitleSortable());
+      col.setCellTooltip(container -> container.getMovie().getTitleSortable());
       addColumn(col);
     }
   }
@@ -237,8 +235,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       /*
        * filename
        */
-      col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.mediaFile.getFilename(), String.class);
-      col.setColumnTooltip(container -> container.mediaFile.getFilename());
+      col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.filename, String.class);
+      col.setCellTooltip(container -> container.filename);
       addColumn(col);
     }
   }
@@ -296,8 +294,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
 
       // the empty result does not have any valid Path
       if (selectedResult != emptyResult) {
-        lblFolderOld.setText(selectedResult.getOldPath().toString());
-        lblFolderNew.setText(selectedResult.getNewPath().toString());
+        lblFolderOld.setText(selectedResult.getOldPathRelative().toString());
+        lblFolderNew.setText(selectedResult.getNewPathRelative().toString());
       }
       else {
         lblFolderOld.setText("");
@@ -311,13 +309,11 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
         for (MediaFile mf : selectedResult.getOldMediaFiles()) {
           boolean found = false;
           MediaFileContainer container = new MediaFileContainer();
-          container.mediaFile = mf;
+          container.filename = selectedResult.getNewPath().relativize(mf.getFileAsPath()).toString(); // newPath here, since we already faked the
+                                                                                                      // files in the renamer
 
-          for (MediaFile mf2 : selectedResult.getNewMediaFiles()) {
-            if (mf2 != null && mf.getFilename().equals(mf2.getFilename())) {
-              found = true;
-              break;
-            }
+          if (selectedResult.getNewMediaFiles().contains(mf)) {
+            found = true;
           }
 
           if (!found) {
@@ -325,19 +321,24 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
           }
           oldMediaFileEventList.add(container);
         }
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
+      finally {
+        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
+      }
 
+      try {
         newMediaFileEventList.getReadWriteLock().writeLock().lock();
         newMediaFileEventList.clear();
         for (MediaFile mf : selectedResult.getNewMediaFiles()) {
           boolean found = false;
           MediaFileContainer container = new MediaFileContainer();
-          container.mediaFile = mf;
+          container.filename = selectedResult.getNewPath().relativize(mf.getFileAsPath()).toString();
 
-          for (MediaFile mf2 : selectedResult.getOldMediaFiles()) {
-            if (mf.getFilename().equals(mf2.getFilename())) {
-              found = true;
-              break;
-            }
+          if (selectedResult.getOldMediaFiles().contains(mf)) {
+            found = true;
           }
 
           if (!found) {
@@ -347,9 +348,9 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
         }
       }
       catch (Exception ignored) {
+        // ignored
       }
       finally {
-        oldMediaFileEventList.getReadWriteLock().writeLock().unlock();
         newMediaFileEventList.getReadWriteLock().writeLock().unlock();
       }
     }
@@ -374,6 +375,6 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
 
   private static class MediaFileContainer {
     ImageIcon icon = null;
-    MediaFile mediaFile;
+    String    filename;
   }
 }

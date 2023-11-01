@@ -46,9 +46,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieImageExtraPanel extends JPanel {
-  private static final long   serialVersionUID = 7312645402037806284L;
-
-  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings settings = MovieModuleManager.getInstance().getSettings();
   private final ItemListener  checkBoxListener;
 
   private JCheckBox           cbActorImages;
@@ -62,6 +60,9 @@ class MovieImageExtraPanel extends JPanel {
   private JCheckBox           chckbxExtrafanart2;
   private JCheckBox           chckbxExtrafanart3;
   private JCheckBox           chckbxExtrafanart4;
+  private JCheckBox           chckbxExtrafanart5;
+  private JCheckBox           chckbxExtrafanart6;
+  private JCheckBox           chckbxExtrafanart7;
 
   /**
    * Instantiates a new movie image settings panel.
@@ -79,6 +80,9 @@ class MovieImageExtraPanel extends JPanel {
     buttonGroup.add(chckbxExtrafanart2);
     buttonGroup.add(chckbxExtrafanart3);
     buttonGroup.add(chckbxExtrafanart4);
+    buttonGroup.add(chckbxExtrafanart5);
+    buttonGroup.add(chckbxExtrafanart6);
+    buttonGroup.add(chckbxExtrafanart7);
 
     settings.addPropertyChangeListener(evt -> {
       if ("preset".equals(evt.getPropertyName())) {
@@ -91,7 +95,8 @@ class MovieImageExtraPanel extends JPanel {
 
   private void buildCheckBoxes() {
     // initialize
-    clearSelection(chckbxExtrafanart1, chckbxExtrafanart2, chckbxExtrafanart3, chckbxExtrafanart4);
+    clearSelection(chckbxExtrafanart1, chckbxExtrafanart2, chckbxExtrafanart3, chckbxExtrafanart4, chckbxExtrafanart5, chckbxExtrafanart6,
+        chckbxExtrafanart7);
 
     // extrafanart filenames
     for (MovieExtraFanartNaming fanart : settings.getExtraFanartFilenames()) {
@@ -110,6 +115,19 @@ class MovieImageExtraPanel extends JPanel {
 
         case FOLDER_EXTRAFANART:
           chckbxExtrafanart4.setSelected(true);
+          break;
+
+        case FILENAME_EXTRABACKDROP:
+          chckbxExtrafanart5.setSelected(true);
+          break;
+
+        case FILENAME_EXTRABACKDROP2:
+          chckbxExtrafanart6.setSelected(true);
+          break;
+
+        case EXTRABACKDROP:
+          chckbxExtrafanart7.setSelected(true);
+          break;
       }
     }
 
@@ -118,6 +136,9 @@ class MovieImageExtraPanel extends JPanel {
     chckbxExtrafanart2.addItemListener(checkBoxListener);
     chckbxExtrafanart3.addItemListener(checkBoxListener);
     chckbxExtrafanart4.addItemListener(checkBoxListener);
+    chckbxExtrafanart5.addItemListener(checkBoxListener);
+    chckbxExtrafanart6.addItemListener(checkBoxListener);
+    chckbxExtrafanart7.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -146,12 +167,21 @@ class MovieImageExtraPanel extends JPanel {
     if (chckbxExtrafanart4.isSelected()) {
       settings.addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
     }
+    if (chckbxExtrafanart5.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRABACKDROP);
+    }
+    if (chckbxExtrafanart6.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRABACKDROP2);
+    }
+    if (chckbxExtrafanart7.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.EXTRABACKDROP);
+    }
   }
 
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][]"));
     {
-      JPanel panelExtra = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][20lp!][][][][][][10lp!][][20lp!][]"));
+      JPanel panelExtra = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][20lp!][][][10lp!][][20lp!][]"));
 
       JLabel lblExtra = new TmmLabel(TmmResourceBundle.getString("Settings.extraartwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExtra, lblExtra, true);
@@ -178,29 +208,44 @@ class MovieImageExtraPanel extends JPanel {
         chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
         panelExtra.add(chckbxEnableExtrafanart, "cell 1 4 2 1");
 
+        JPanel panelExtraFanart = new JPanel();
+        panelExtra.add(panelExtraFanart, "cell 2 5,grow");
+        panelExtraFanart.setLayout(new MigLayout("insets 0", "[][]", "[][][][]"));
+
         chckbxExtrafanart1 = new JCheckBox(
             TmmResourceBundle.getString("Settings.moviefilename") + "-fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelExtra.add(chckbxExtrafanart1, "cell 2 5");
+        panelExtraFanart.add(chckbxExtrafanart1, "flowy,cell 0 0");
 
         chckbxExtrafanart2 = new JCheckBox(
             TmmResourceBundle.getString("Settings.moviefilename") + ".fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelExtra.add(chckbxExtrafanart2, "cell 2 6");
+        panelExtraFanart.add(chckbxExtrafanart2, "cell 0 1");
 
         chckbxExtrafanart3 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelExtra.add(chckbxExtrafanart3, "cell 2 7");
+        panelExtraFanart.add(chckbxExtrafanart3, "cell 0 2");
 
         chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
-        panelExtra.add(chckbxExtrafanart4, "cell 2 8");
+        panelExtraFanart.add(chckbxExtrafanart4, "cell 0 3");
+
+        chckbxExtrafanart5 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-backdropX." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelExtraFanart.add(chckbxExtrafanart5, "cell 1 0");
+
+        chckbxExtrafanart6 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + ".backdropX." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelExtraFanart.add(chckbxExtrafanart6, "cell 1 1");
+
+        chckbxExtrafanart7 = new JCheckBox("backdropX." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelExtraFanart.add(chckbxExtrafanart7, "cell 1 2");
 
         JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
-        panelExtra.add(lblDownloadCount, "cell 2 10");
+        panelExtra.add(lblDownloadCount, "cell 2 7");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelExtra.add(spDownloadCountExtrafanart, "cell 2 10");
+        panelExtra.add(spDownloadCountExtrafanart, "cell 2 7");
 
         cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
-        panelExtra.add(cbActorImages, "cell 1 12 2 1");
+        panelExtra.add(cbActorImages, "cell 1 9 2 1");
       }
     }
   }

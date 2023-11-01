@@ -203,13 +203,13 @@ public class MediaProviderConfig {
 
   /**
    * If you know that this key is a boolean, use that :)<br>
-   * will return NULL if it cannot be parsed as boolean
+   * will return false if it cannot be parsed as boolean
    * 
    * @param key
    *          the key for the config value to get
    * @return true|false or NULL
    */
-  public Boolean getValueAsBool(String key) {
+  public boolean getValueAsBool(String key) {
     return getConfigObject(key).getValueAsBool();
   }
 
@@ -223,12 +223,13 @@ public class MediaProviderConfig {
    *          the default value to return
    * @return true|false or the default value
    */
-  public Boolean getValueAsBool(String key, boolean defaultValue) {
-    Boolean value = getConfigObject(key).getValueAsBool();
-    if (value == null) {
-      value = defaultValue;
+  public boolean getValueAsBool(String key, boolean defaultValue) {
+    // is that value unset?
+    if (settings.get(key) == null) {
+      return defaultValue;
     }
-    return value;
+
+    return getConfigObject(key).getValueAsBool();
   }
 
   /**

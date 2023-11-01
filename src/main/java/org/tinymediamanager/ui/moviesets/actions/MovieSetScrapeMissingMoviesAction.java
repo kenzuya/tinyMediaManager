@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetScrapeMissingMoviesAction extends TmmAction {
-  private static final long serialVersionUID = -389165862194237592L;
-
   public MovieSetScrapeMissingMoviesAction() {
     putValue(NAME, TmmResourceBundle.getString("movieset.scrape.missingmovies"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.scrape.missingmovies.desc"));

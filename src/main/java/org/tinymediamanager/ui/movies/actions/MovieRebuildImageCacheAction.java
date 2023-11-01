@@ -27,7 +27,6 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -41,8 +40,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRebuildImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = -5089957097690621345L;
-
   public MovieRebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rebuildimagecache"));
@@ -74,8 +71,7 @@ public class MovieRebuildImageCacheAction extends TmmAction {
 
         ImageCache.clearImageCache(imageFiles);
 
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+          imageFiles.forEach(ImageCache::cacheImageAsync);
       }
     };
 

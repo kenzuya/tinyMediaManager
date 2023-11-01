@@ -35,9 +35,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieSyncSelectedCollectionTraktTvAction extends TmmAction {
-  private static final long           serialVersionUID = 6640292090443882545L;
-
-
   public MovieSyncSelectedCollectionTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected.collection"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.collection.desc"));

@@ -132,10 +132,10 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
 
             IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MOVIE);
-            options.setFile(mf.getFileAsPath().toFile());
+            options.setMediaFile(mf);
             options.setSearchQuery(movie.getOriginalTitle());
             options.setLanguage(language);
-            options.setImdbId(movie.getImdbId());
+            options.setIds(movie.getIds());
 
             List<SubtitleSearchResult> searchResults = subtitleProvider.search(options);
             if (searchResults.isEmpty()) {
@@ -185,7 +185,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
       }
 
       SubtitleSearchResult hashMatch = searchResults.stream()
-          .filter(result -> result.getScore() == 1 && StringUtils.isNotBlank(result.getUrl()))
+          .filter(result -> result.getScore() == 1)
           .findFirst()
           .orElse(null);
       // if not forceBestMatch, we take only 100% (hash matched) results

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<movieSet>
+  <title>${movieSet.title}</title>
+  <plot>${movieSet.plot}</plot>
+  <!-- iterate over all movies -->
+  ${foreach movieSet.movies movie}
+  <movie>
+    <title>${movie.title}</title>
+  </movie>
+  ${end}
+</movieSet>

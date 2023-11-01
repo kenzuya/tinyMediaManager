@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Settings;
@@ -30,7 +30,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -43,8 +42,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class RebuildImageCacheAction extends TmmAction {
-  private static final long serialVersionUID = -9178351750617647813L;
-
   public RebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.rebuildimagecache"));
@@ -82,8 +79,7 @@ public class RebuildImageCacheAction extends TmmAction {
 
         ImageCache.clearImageCache(imageFiles);
 
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+        imageFiles.forEach(ImageCache::cacheImageAsync);
       }
     };
 

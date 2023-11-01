@@ -37,8 +37,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class MovieSelectedScrapeMetadataAction extends TmmAction {
-  private static final long serialVersionUID = -4417368111497702010L;
-
   public MovieSelectedScrapeMetadataAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.scrape.metadata"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.scrape.metadata.desc"));

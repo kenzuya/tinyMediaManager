@@ -41,8 +41,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
  * @author Manuel Laggner
  */
 public class TvShowEditAction extends TmmAction {
-  private static final long serialVersionUID = -3911290901017607679L;
-
   public TvShowEditAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.edittvshowepisodes"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
@@ -122,8 +120,7 @@ public class TvShowEditAction extends TmmAction {
       }
 
       // display tv episode editor
-      if (obj instanceof TvShowEpisode) {
-        TvShowEpisode tvShowEpisode = (TvShowEpisode) obj;
+      if (obj instanceof TvShowEpisode tvShowEpisode) {
         TvShowEpisodeEditorDialog editor = new TvShowEpisodeEditorDialog(tvShowEpisode, index, selectedCount, selectedEpisodeTab);
         editor.setVisible(true);
         selectedEpisodeTab = editor.getSelectedTab();

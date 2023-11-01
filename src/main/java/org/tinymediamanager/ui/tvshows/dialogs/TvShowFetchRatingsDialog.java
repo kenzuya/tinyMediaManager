@@ -16,18 +16,23 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -37,8 +42,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowFetchRatingsDialog extends TmmDialog {
-  private static final long                                   serialVersionUID = -8515248104217313279L;
-
+  private static final ObjectMapper                           OBJECT_MAPPER = new ObjectMapper();
+  private static final String                                 PROPERTY_NAME = "ratingSources";
   private final TmmCheckComboBox<RatingProvider.RatingSource> cbSources;
 
   public TvShowFetchRatingsDialog() {
@@ -65,12 +70,61 @@ public class TvShowFetchRatingsDialog extends TmmDialog {
 
       JButton btnOk = new JButton(TmmResourceBundle.getString("Button.ok"));
       btnOk.setIcon(IconManager.APPLY_INV);
-      btnOk.addActionListener(e -> setVisible(false));
+      btnOk.addActionListener(e -> {
+        storeDefaults();
+        setVisible(false);
+      });
       addButton(btnOk);
     }
   }
 
   public List<RatingProvider.RatingSource> getSelectedRatingSources() {
     return cbSources.getSelectedItems();
+  }
+
+  @Override
+  public void setVisible(boolean visible) {
+    if (visible) {
+      // init defaults
+      loadDefaults();
+    }
+
+    // super
+    super.setVisible(visible);
+  }
+
+  private void loadDefaults() {
+    List<RatingProvider.RatingSource> selectedItems = new ArrayList<>();
+
+    try {
+      String storedValues = TmmProperties.getInstance().getProperty(getName() + "." + PROPERTY_NAME);
+      if (StringUtils.isNotBlank(storedValues)) {
+        List<String> values = OBJECT_MAPPER.readValue(storedValues, OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class));
+
+        for (String valueAsString : values) {
+          selectedItems.add(RatingProvider.RatingSource.valueOf(valueAsString));
+        }
+      }
+    }
+    catch (Exception ignored) {
+      // just do not crash
+    }
+
+    cbSources.setSelectedItems(selectedItems);
+  }
+
+  private void storeDefaults() {
+    try {
+      List<String> values = new ArrayList<>();
+
+      for (RatingProvider.RatingSource source : getSelectedRatingSources()) {
+        values.add(source.name());
+      }
+
+      TmmProperties.getInstance().putProperty(getName() + "." + PROPERTY_NAME, OBJECT_MAPPER.writeValueAsString(values));
+    }
+    catch (Exception e) {
+      // just catch
+    }
   }
 }

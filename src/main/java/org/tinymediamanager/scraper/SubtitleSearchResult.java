@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.scraper;
 
+import java.util.function.Supplier;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -26,14 +29,16 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 2.0
  */
 public class SubtitleSearchResult implements Comparable<SubtitleSearchResult> {
-  private String providerId;
-  private String id          = "";
-  private String title       = "";
-  private String releaseName = "";
-  private int    stackCount  = 0;
-  private String url         = "";
-  private float  score       = 0f;
-  private float  rating      = 0f;
+  private String           providerId;
+  private String           id          = "";
+  private String           title       = "";
+  private String           releaseName = "";
+  private int              stackCount  = 0;
+  private float            score       = 0f;
+  private float            rating      = 0f;
+
+  private String           url         = null;
+  private Supplier<String> urlSupplier = null;
 
   public SubtitleSearchResult(String providerId) {
     this.providerId = providerId;
@@ -157,6 +162,16 @@ public class SubtitleSearchResult implements Comparable<SubtitleSearchResult> {
    * @return the url
    */
   public String getUrl() {
+    if (url != null) {
+      return url;
+    }
+
+    url = this.urlSupplier.get();
+
+    if (StringUtils.isBlank(url)) {
+      url = "";
+    }
+
     return url;
   }
 
@@ -166,8 +181,8 @@ public class SubtitleSearchResult implements Comparable<SubtitleSearchResult> {
    * @param url
    *          the url
    */
-  public void setUrl(String url) {
-    this.url = StrgUtils.getNonNullString(url);
+  public void setUrl(Supplier<String> url) {
+    this.urlSupplier = url;
   }
 
   /**

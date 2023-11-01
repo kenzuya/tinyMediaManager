@@ -16,9 +16,12 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
+
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +44,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -64,14 +69,16 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
-  private static final Logger         LOGGER            = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
+  private static final Logger               LOGGER            = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
 
-  private JButton                     btnClose;
-  private JCheckBox                   chckbxShowMissingSpecials;
-  private JProgressBar                pbListEpisodes;
-  private EventList<EpisodeContainer> results;
-  private TmmTable                    tblMissingEpisodeList;
-  private SwingWorker<Void, Void>     episodeListWorker = null;
+  private final JButton                     btnClose;
+  private final JCheckBox                   chckbxShowMissingSpecials;
+  private final JCheckBox                   chckbxIncludeNotAired;
+  private final JProgressBar                pbListEpisodes;
+  private final EventList<EpisodeContainer> results;
+  private final TmmTable                    tblMissingEpisodeList;
+
+  private SwingWorker<Void, Void>           episodeListWorker = null;
 
   public TvShowMissingEpisodeListDialog(List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("tvshow.missingepisodelist"), "missingepisodelist");
@@ -109,6 +116,19 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       });
       infoPanel.add(chckbxShowMissingSpecials, "cell 0 0");
 
+      chckbxIncludeNotAired = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingnotaired"));
+      chckbxIncludeNotAired.setSelected(TvShowModuleManager.getInstance().getSettings().isDisplayMissingNotAired());
+
+      chckbxIncludeNotAired.addItemListener(e -> {
+        if (episodeListWorker != null && !episodeListWorker.isDone()) {
+          episodeListWorker.cancel(true);
+        }
+        results.clear();
+        episodeListWorker = new EpisodeListWorker(tvShows);
+        episodeListWorker.execute();
+      });
+      infoPanel.add(chckbxIncludeNotAired, "cell 1 0");
+
       pbListEpisodes = new JProgressBar();
       infoPanel.add(pbListEpisodes, "cell 1 0");
 
@@ -129,6 +149,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     int    season;
     int    episode;
     String episodeTitle;
+    Date   airedDate;
   }
 
   private static class EpisodeContainerComparator implements Comparator<EpisodeContainer> {
@@ -151,6 +172,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     MissingEpisodeListTableFormat() {
       Comparator<String> stringComparator = new StringComparator();
       Comparator<Integer> integerComparator = new IntegerComparator();
+      Comparator<Date> dateComparator = new DateComparator();
       FontMetrics fontMetrics = getFontMetrics();
 
       /*
@@ -185,7 +207,15 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       addColumn(col);
 
       /*
-       * Episode Title
+       * episode aired date
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.aired"), "airedDate", container -> container.airedDate, Date.class);
+      col.setColumnComparator(dateComparator);
+      col.setColumnResizeable(false);
+      addColumn(col);
+
+      /*
+       * episode title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "episodeTitle", container -> container.episodeTitle, String.class);
       col.setColumnComparator(stringComparator);
@@ -207,6 +237,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
       btnClose.setEnabled(false);
       chckbxShowMissingSpecials.setEnabled(false);
+      chckbxIncludeNotAired.setEnabled(false);
       startProgressBar();
       compareTvShows();
 
@@ -256,15 +287,26 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
         List<TvShowEpisode> scrapedEpisodes = tvshow.getEpisodes();
         List<MediaMetadata> mediaEpisodes = getEpisodes(tvshow);
 
-        for (MediaMetadata mediaEpisode : mediaEpisodes) {
+        for (MediaMetadata mediaEpisode : ListUtils.nullSafe(mediaEpisodes)) {
 
           boolean entryFound = false;
 
           EpisodeContainer container = new EpisodeContainer();
           container.tvShowTitle = tvshow.getTitle();
           container.episodeTitle = mediaEpisode.getTitle();
-          container.season = mediaEpisode.getSeasonNumber();
-          container.episode = mediaEpisode.getEpisodeNumber();
+
+          MediaEpisodeNumber episodeNumber = mediaEpisode.getEpisodeNumber(AIRED);
+          if (episodeNumber != null) {
+            container.season = episodeNumber.season();
+            container.episode = episodeNumber.episode();
+          }
+
+          container.airedDate = mediaEpisode.getReleaseDate();
+
+          boolean alreadyAired = mediaEpisode.getReleaseDate() != null && mediaEpisode.getReleaseDate().compareTo(new Date()) <= 0;
+          if (!alreadyAired && !chckbxIncludeNotAired.isSelected()) {
+            continue;
+          }
 
           for (TvShowEpisode scrapedEpisode : scrapedEpisodes) {
 
@@ -294,6 +336,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       stopProgressBar();
       btnClose.setEnabled(true);
       chckbxShowMissingSpecials.setEnabled(true);
+      chckbxIncludeNotAired.setEnabled(true);
       tblMissingEpisodeList.adjustColumnPreferredWidths(3);
     }
   }

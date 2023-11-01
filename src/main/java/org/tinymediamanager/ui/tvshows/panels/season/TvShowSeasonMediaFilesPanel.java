@@ -21,7 +21,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.panels.MediaFilesPanel;
@@ -40,8 +39,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonMediaFilesPanel extends JPanel {
-  private static final long          serialVersionUID = -1895363438194617002L;
-
   private final EventList<MediaFile> mediaFileEventList;
   private MediaFilesPanel            panelMediaFiles;
 
@@ -58,8 +55,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
       Object source = propertyChangeEvent.getSource();
       if (source instanceof TvShowSeasonSelectionModel || (source instanceof TvShowSeason && (MEDIA_FILES.equals(property)))) {
         TvShowSeason selectedSeason;
-        if (source instanceof TvShowSeasonSelectionModel) {
-          TvShowSeasonSelectionModel model = (TvShowSeasonSelectionModel) source;
+        if (source instanceof TvShowSeasonSelectionModel model) {
           selectedSeason = model.getSelectedTvShowSeason();
         }
         else {
@@ -68,7 +64,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
         try {
           mediaFileEventList.getReadWriteLock().writeLock().lock();
           mediaFileEventList.clear();
-          mediaFileEventList.addAll(selectedSeason.getMediaFiles());
+          mediaFileEventList.addAll(selectedSeason.getMediaFilesRecursive());
         }
         catch (Exception ignored) {
           // ignored
@@ -85,12 +81,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[grow]"));
     {
-      panelMediaFiles = new MediaFilesPanel(mediaFileEventList) {
-        @Override
-        public MediaEntity getMediaEntity() {
-          return null;
-        }
-      };
+      panelMediaFiles = new MediaFilesPanel(mediaFileEventList);
       add(panelMediaFiles, "cell 0 0,grow");
     }
   }

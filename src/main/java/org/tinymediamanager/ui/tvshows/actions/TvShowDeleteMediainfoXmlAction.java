@@ -44,9 +44,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowDeleteMediainfoXmlAction extends TmmAction {
-
-  private static final long serialVersionUID = -2029243504238273761L;
-
   public TvShowDeleteMediainfoXmlAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.deletemediainfoxml"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.deletemediainfoxml"));

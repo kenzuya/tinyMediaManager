@@ -39,8 +39,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @author Manuel Laggner
  */
 class CalendarPanel extends JPanel implements PropertyChangeListener {
-  private static final long serialVersionUID = 2214699062624370112L;
-
   private Calendar          calendar;
   protected Locale          locale;
 

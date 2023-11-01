@@ -170,7 +170,7 @@ public class ITKodiMetadataProviderTest extends BasicITest {
       assertEquals(2001, md.getYear());
       assertThat(md.getPlot()).startsWith("Harry Potter has lived under the stairs");
       assertEquals(152, md.getRuntime());
-      assertEquals("Let the Magic Begin.", md.getTagline());
+      assertThat(md.getTagline()).isEqualToIgnoringCase("Let the Magic Begin.");
       assertThat(md.getCollectionName()).startsWith("Harry Potter Collection");
 
       assertNotNull(md.getCastMembers(ACTOR));

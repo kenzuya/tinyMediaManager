@@ -1,0 +1,164 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository/
+
+build:
+  stage: build
+  image: tinymediamanager/packaging:20221121194626
+  environment:
+    name: v5
+    url: https://v5.tinymediamanager.org
+  allow_failure: false
+  tags:
+    - tmm # force running on own runners
+  script:
+    # generate changelog.txt
+    - sh generate_changelog.sh
+
+    # package archives
+    - echo -n "$CODE_SIGN_CERT" | base64 -d > "code-sign-cert.p12"
+    - mvn $MAVEN_CLI_OPTS -U -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -DskipSign=false -Dgetdown=getdown-v5.txt -Dtier=test -Dthread_pool_size=1 clean package
+
+    # build Windows installer
+    - chmod 777 . dist
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh "$CODE_SIGN_CERT" "$CODE_SIGN_PASS"
+
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_V5},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rev target/tinyMediaManager-getdown/ ./upload/v5/build; mirror -Rev dist/ ./upload/v5/dist; chmod -R g+rw ./upload/v5"
+
+  artifacts:
+    expire_in: 2 hours
+    paths:
+      - dist/tinyMediaManager*linux-amd64.tar.xz # upload for docker build
+      - dist/tinyMediaManager*linux-arm64.tar.xz # upload for docker build
+      - target/docker # compiled Dockerfile
+      - target/tinyMediaManager*macos*.zip # for macOS build
+
+build-mac:
+  stage: build
+  needs:
+    - build
+  dependencies:
+    - build
+  allow_failure: false
+  tags:
+    - tmm-mac # force running on own macOS runners
+  script:
+    # remove linux build (no need to upload this twice)
+    - rm dist/tinyMediaManager*linux-amd64.tar.xz
+    - rm dist/tinyMediaManager*linux-arm64.tar.xz
+
+    # create macOS bundles
+    - sh AppBundler/create_mac_image.sh
+
+    # push the build to the webserver
+    - lftp -c "set ftp:ssl-allow no; open -u ${FTP_USER_V5},${FTP_PASSWORD_TEST} ${FTP_HOST}; mirror -Rv dist/ ./upload/v5/dist; chmod -R g+w ./upload/v5"
+
+deploy-docker-amd64:
+  stage: deploy
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.1-debug
+    entrypoint: [ "" ]
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager
+  needs:
+    - build
+  tags:
+    - tmm # force running on own runners
+  script:
+    # create login credentials
+    - echo -e $DOCKERHUB_AUTH > /kaniko/.docker/config.json
+
+    # copy data
+    - tar xJf dist/tinyMediaManager*linux-amd64.tar.xz -C target/docker/
+    - cd target/docker
+
+    # build image
+    - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
+    - |
+      /kaniko/executor \
+      --context "${CI_PROJECT_DIR}/target/docker" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --custom-platform=linux/amd64/ \
+      --destination "${IMAGE_NAME}:5-test-amd64"
+
+    #--destination "${IMAGE_NAME}:${$VERSION}" \
+
+deploy-docker-arm64:
+  stage: deploy
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.1-debug
+    entrypoint: [ "" ]
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager
+  needs:
+    - build
+  tags:
+    - tmm-arm64 # force running on own runners
+  script:
+    # create login credentials
+    - echo -e $DOCKERHUB_AUTH > /kaniko/.docker/config.json
+
+    # copy data
+    - tar xJf dist/tinyMediaManager*linux-arm64.tar.xz -C target/docker/
+    - cd target/docker
+    - mv tinyMediaManager/tinyMediaManager-arm tinyMediaManager/tinyMediaManager
+
+    # build image
+    - VERSION=$(grep 'human.version' 'tinyMediaManager/version' | cut -d'=' -f2)
+    - |
+      /kaniko/executor \
+      --context "${CI_PROJECT_DIR}/target/docker" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --custom-platform=linux/arm64/ \
+      --destination "${IMAGE_NAME}:5-test-arm64"
+
+    #--destination "${IMAGE_NAME}:${$VERSION}" \
+
+deploy-docker:
+  stage: deploy
+  image:
+    name: curlimages/curl:8.1.1
+  needs:
+    - deploy-docker-amd64
+    - deploy-docker-arm64
+  dependencies: [ ]  # do not download any artifacts
+  tags:
+    - tmm # force running on own runners
+  script:
+    - cd /tmp
+    - curl -s -L https://github.com/estesp/manifest-tool/releases/download/v2.0.8/binaries-manifest-tool-2.0.8.tar.gz | tar xvz
+    - mv manifest-tool-linux-amd64 manifest-tool
+    - chmod +x manifest-tool
+
+    # create the manifest for multiarch tag
+    - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
+      --platforms linux/amd64,linux/arm64
+      --template tinymediamanager/tinymediamanager:5-test-ARCH
+      --target tinymediamanager/tinymediamanager:5-test
+    - ./manifest-tool --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD push from-args
+      --platforms linux/amd64,linux/arm64
+      --template tinymediamanager/tinymediamanager:5-test-ARCH
+      --target tinymediamanager/tinymediamanager:latest-test
+
+deploy:
+  stage: deploy
+  image: curlimages/curl:7.85.0
+  environment:
+    name: v5
+    url: https://v5.tinymediamanager.org
+  dependencies: [ ]  # do not download any artifacts
+  tags:
+    - tmm # force running on own runners
+  script:
+    # and publish the files on the webserver
+    - curl https://v5.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}

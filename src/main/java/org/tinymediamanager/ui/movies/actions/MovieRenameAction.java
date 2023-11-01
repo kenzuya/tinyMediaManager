@@ -44,9 +44,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRenameAction extends TmmAction {
-  private static final long           serialVersionUID = 4804592958868052533L;
-
-
   public MovieRenameAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rename"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rename"));

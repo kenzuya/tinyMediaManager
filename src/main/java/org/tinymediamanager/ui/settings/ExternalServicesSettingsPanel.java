@@ -19,11 +19,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.util.Map;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -50,14 +46,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalServicesSettingsPanel extends JPanel {
-  private static final long serialVersionUID = 7266564870819511988L;
+  private final Settings settings = Settings.getInstance();
 
-  private final Settings    settings         = Settings.getInstance();
-
-  private JButton           btnGetTraktPin;
-  private JButton           btnTestTraktConnection;
-  private JLabel            lblTraktStatus;
-  private JComboBox         cbTraktDate;
+  private JButton        btnGetTraktPin;
+  private JButton        btnTestTraktConnection;
+  private JLabel         lblTraktStatus;
+  private JTextField     tfMdbListApiKey;
+  private JComboBox      cbTraktDate;
+  private AutoBinding    autobinding_1;
 
   ExternalServicesSettingsPanel() {
     // UI init
@@ -171,6 +167,22 @@ class ExternalServicesSettingsPanel extends JPanel {
       cbTraktDate = new JComboBox(DateField.values());
       panelTrakt.add(cbTraktDate, "cell 1 3 2 1");
     }
+    {
+      JPanel panelMdbList = new JPanel();
+      panelMdbList.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][][]", "[]"));
+      JLabel lblMdbListT = new TmmLabel(TmmResourceBundle.getString("Settings.external.rating.mdblist"), H3);
+
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMdbList, lblMdbListT, true);
+      add(collapsiblePanel, "cell 0 1,growx, wmin 0");
+      {
+        JLabel lblMdbListApiKeyT = new JLabel(TmmResourceBundle.getString("Settings.api.key"));
+        panelMdbList.add(lblMdbListApiKeyT, "cell 1 0");
+
+        tfMdbListApiKey = new JTextField();
+        panelMdbList.add(tfMdbListApiKey, "cell 2 0");
+        tfMdbListApiKey.setColumns(30);
+      }
+    }
     initDataBindings();
   }
 
@@ -180,5 +192,11 @@ class ExternalServicesSettingsPanel extends JPanel {
     AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, cbTraktDate,
         jComboBoxBeanProperty);
     autoBinding.bind();
+
+    Property settingsBeanProperty_1 = BeanProperty.create("mdbListApiKey");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autobinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, tfMdbListApiKey,
+        jTextFieldBeanProperty);
+    autobinding_1.bind();
   }
 }

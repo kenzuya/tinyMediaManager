@@ -33,11 +33,13 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -52,6 +54,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -67,8 +70,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long            serialVersionUID = 6150939811851709115L;
-
   private TmmTableComparatorChooser<?> tableComparatorChooser;
 
   public TmmTable() {
@@ -98,6 +99,8 @@ public class TmmTable extends JTable {
   }
 
   private void init() {
+    // remove next line on enter
+    getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("ENTER"), "none");
     getTableHeader().setReorderingAllowed(false);
     setOpaque(false);
 
@@ -144,11 +147,11 @@ public class TmmTable extends JTable {
   public List<String> getHiddenColumns() {
     List<String> hiddenColumns = new ArrayList<>();
 
-    if (getColumnModel() instanceof TmmTableColumnModel) {
-      List<TableColumn> cols = ((TmmTableColumnModel) getColumnModel()).getHiddenColumns();
+    if (getColumnModel()instanceof TmmTableColumnModel tableColumnModel) {
+      List<TableColumn> cols = tableColumnModel.getHiddenColumns();
       for (TableColumn col : cols) {
-        if (col.getIdentifier() instanceof String && StringUtils.isNotBlank((String) col.getIdentifier())) {
-          hiddenColumns.add((String) col.getIdentifier());
+        if (col.getIdentifier()instanceof String identifier && StringUtils.isNotBlank(identifier)) {
+          hiddenColumns.add(identifier);
         }
       }
     }
@@ -157,14 +160,13 @@ public class TmmTable extends JTable {
   }
 
   public void readHiddenColumns(List<String> hiddenColumns) {
-    if (getColumnModel() instanceof TmmTableColumnModel) {
-      ((TmmTableColumnModel) getColumnModel()).setHiddenColumns(hiddenColumns);
+    if (getColumnModel()instanceof TmmTableColumnModel tmmTableColumnModel) {
+      tmmTableColumnModel.setHiddenColumns(hiddenColumns);
     }
   }
 
   public void setDefaultHiddenColumns() {
-    if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTableModel) {
-      TmmTableModel<?> tableModel = (TmmTableModel<?>) getModel();
+    if (getColumnModel() instanceof TmmTableColumnModel && getModel()instanceof TmmTableModel<?> tableModel) {
       TmmTableFormat<?> tableFormat = (TmmTableFormat<?>) tableModel.getTableFormat();
 
       List<String> hiddenColumns = new ArrayList<>();
@@ -239,8 +241,7 @@ public class TmmTable extends JTable {
     Container p = getParent();
     if (p instanceof JViewport) {
       Container parent = p.getParent();
-      if (parent instanceof JScrollPane) {
-        JScrollPane scrollPane = (JScrollPane) parent;
+      if (parent instanceof JScrollPane scrollPane) {
         scrollPane.setBorder(null);
 
         // Make certain we are the viewPort's view and not, for
@@ -312,8 +313,6 @@ public class TmmTable extends JTable {
   }
 
   protected static class IconHeaderRenderer extends DefaultTableCellRenderer {
-    private static final long serialVersionUID = 7963585655106103415L;
-
     public IconHeaderRenderer() {
       setHorizontalAlignment(CENTER);
       setOpaque(true);
@@ -347,8 +346,8 @@ public class TmmTable extends JTable {
         setFont(UIManager.getFont("TableHeader.font"));
       }
 
-      if (value instanceof ImageIcon) {
-        setIcon((ImageIcon) value);
+      if (value instanceof ImageIcon imageIcon) {
+        setIcon(imageIcon);
         setText("");
       }
       else {
@@ -362,7 +361,6 @@ public class TmmTable extends JTable {
   }
 
   protected static class SortableIconHeaderRenderer extends JPanel implements TableCellRenderer, SortableRenderer {
-    private static final long       serialVersionUID = 7963585655186183415L;
     private final TableCellRenderer delegate;
     private final JLabel            labelLeft;
     private final JLabel            labelRight;
@@ -389,11 +387,10 @@ public class TmmTable extends JTable {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focused, int row, int column) {
       Component c = delegate.getTableCellRendererComponent(table, value, selected, focused, row, column);
-      if (!(c instanceof JLabel)) {
+      if (!(c instanceof JLabel label)) {
         return c;
       }
 
-      JLabel label = (JLabel) c;
       setForeground(label.getForeground());
       setBackground(label.getBackground());
       setFont(label.getFont());
@@ -415,8 +412,8 @@ public class TmmTable extends JTable {
         labelRight.setIcon(sortIcon);
       }
 
-      if (value instanceof ImageIcon) {
-        labelLeft.setIcon((ImageIcon) value);
+      if (value instanceof ImageIcon imageIcon) {
+        labelLeft.setIcon(imageIcon);
         labelLeft.setText("");
       }
       else {
@@ -435,12 +432,12 @@ public class TmmTable extends JTable {
    *          the mouse event
    * @return the tooltip or null
    */
-  public String getToolTipText(MouseEvent e) {
-    if (!(getModel() instanceof TmmTableModel)) {
+  @Override
+  public String getToolTipText(@NotNull MouseEvent e) {
+    if (!(getModel()instanceof TmmTableModel<?> tableModel)) {
       return super.getToolTipText(e);
     }
 
-    TmmTableModel tableModel = ((TmmTableModel) getModel());
     Point p = e.getPoint();
     int rowIndex = rowAtPoint(p);
     int colIndex = columnAtPoint(p);
@@ -461,7 +458,6 @@ public class TmmTable extends JTable {
     int colIndex = columnAtPoint(p);
     Rectangle r = getCellRect(rowIndex, colIndex, false);
 
-    Point point = new Point(r.x + 20, r.y + (int) (1.2 * r.height));
-    return point;
+    return new Point(r.x + 20, r.y + (int) (1.2 * r.height));
   }
 }

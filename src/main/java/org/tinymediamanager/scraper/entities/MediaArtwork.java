@@ -17,7 +17,6 @@ package org.tinymediamanager.scraper.entities;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,6 +34,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 1.0
  */
 public class MediaArtwork {
+  public static final int MAX_IMAGE_SIZE_ORDER = 32;
 
   /**
    * The different types of artwork we know
@@ -57,6 +57,7 @@ public class MediaArtwork {
     KEYART,
     CHARACTERART,
     DISC, 
+    @Deprecated
     LOGO,
     CLEARLOGO,
     ALL
@@ -70,17 +71,21 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum PosterSizes {
-    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~2000x3000px", 16),
-    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1000x1500px", 8),
-    BIG(TmmResourceBundle.getString("Settings.image.big") + ": ~500x750px", 4),
-    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~342x513px", 2),
-    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~185x277px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 2000, 3000, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1000, 1500, 8),
+    BIG(TmmResourceBundle.getString("Settings.image.big"), 500, 750, 4),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 342, 513, 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 185, 278, 1);
 
     private final String text;
+    private final int width;
+    private final int height;
     private final int    order;
 
-    PosterSizes(String text, int order) {
-      this.text = text;
+    PosterSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
       this.order = order;
     }
 
@@ -91,6 +96,23 @@ public class MediaArtwork {
 
     public int getOrder() {
       return order;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+
+    public static int getSizeOrder(int width) {
+      for (var entry : values()) {
+        if (width >= entry.width) {
+          return entry.order;
+        }
+      }
+      return 0;
     }
   }
 
@@ -101,16 +123,20 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum FanartSizes {
-    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~3840x2160px", 16),
-    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1920x1080px", 8),
-    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~1280x720px", 2),
-    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~300x168px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 3840, 2160, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1920, 1080, 8),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 1280, 720, 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
 
     private final String text;
+    private final int width;
+    private final int height;
     private final int    order;
 
-    FanartSizes(String text, int order) {
-      this.text = text;
+    FanartSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
       this.order = order;
     }
 
@@ -122,6 +148,75 @@ public class MediaArtwork {
     public int getOrder() {
       return order;
     }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+
+    public static int getSizeOrder(int width) {
+      for (var entry : values()) {
+        if (width >= entry.width) {
+          return entry.order;
+        }
+      }
+      return 0;
+    }
+  }
+
+  /**
+   * All available thumb sizes
+   *
+   * @author Manuel Laggner
+   * @since 1.0
+   */
+  public enum ThumbSizes {
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge"), 3840, 2160, 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large"), 1920, 1080, 8),
+    BIG(TmmResourceBundle.getString("Settings.image.big"), 1280, 720, 4),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium"), 960, 540, 2), // kodi preference
+    SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
+
+    private final String text;
+    private final int width;
+    private final int height;
+    private final int order;
+
+    ThumbSizes(String text, int width, int height, int order) {
+      this.text = text + ": ~" + width + "x" + height + "px";
+      this.width = width;
+      this.height = height;
+      this.order = order;
+    }
+
+    @Override
+    public String toString() {
+      return text;
+    }
+
+    public int getOrder() {
+      return order;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+
+    public static int getSizeOrder(int width) {
+      for (var entry : values()) {
+        if (width >= entry.width) {
+          return entry.order;
+        }
+      }
+      return 0;
+    }
   }
 
   private final String                providerId;
@@ -131,10 +226,8 @@ public class MediaArtwork {
   private int                         tmdbId;
   private int                         season      = -1;
   private String                      previewUrl  = "";
-  private String                      defaultUrl  = "";
   private String                      originalUrl = "";
   private String                      language    = "";
-  private int                         sizeOrder   = 0;
   private int                         likes       = 0;
   private boolean                     animated    = false;
 
@@ -166,11 +259,9 @@ public class MediaArtwork {
     this.tmdbId = oldArtwork.getTmdbId();
     this.season = oldArtwork.getSeason();
     this.previewUrl = oldArtwork.getPreviewUrl();
-    this.defaultUrl = oldArtwork.getDefaultUrl();
     this.originalUrl = oldArtwork.getOriginalUrl();
     this.language = oldArtwork.getLanguage();
     this.providerId = oldArtwork.getProviderId();
-    this.sizeOrder = oldArtwork.getSizeOrder();
     this.likes = oldArtwork.getLikes();
 
     for (ImageSizeAndUrl oldImageSizeAndUrl : oldArtwork.getImageSizes()) {
@@ -188,7 +279,7 @@ public class MediaArtwork {
   public String getPreviewUrl() {
     // return the default url if the preview url has not been set
     if (StringUtils.isBlank(previewUrl)) {
-      return defaultUrl;
+      return originalUrl;
     }
     return previewUrl;
   }
@@ -201,28 +292,6 @@ public class MediaArtwork {
    */
   public void setPreviewUrl(String previewUrl) {
     this.previewUrl = previewUrl;
-  }
-
-  /**
-   * Get the default url for this artwork - or the original if default is empty
-   * 
-   * @return the default url
-   */
-  public String getDefaultUrl() {
-    if (defaultUrl.isEmpty()) {
-      return originalUrl;
-    }
-    return defaultUrl;
-  }
-
-  /**
-   * Set the default url
-   * 
-   * @param defaultUrl
-   *          the default url
-   */
-  public void setDefaultUrl(String defaultUrl) {
-    this.defaultUrl = defaultUrl;
   }
 
   /**
@@ -328,9 +397,11 @@ public class MediaArtwork {
    *          the height
    * @param url
    *          the url
+   * @param sizeOrder
+   *          the sizeOrder - set with the right int when known, 0 otherwise
    */
-  public void addImageSize(int width, int height, String url) {
-    imageSizes.add(new ImageSizeAndUrl(width, height, url));
+  public void addImageSize(int width, int height, String url, int sizeOrder) {
+    imageSizes.add(new ImageSizeAndUrl(width, height, url, sizeOrder));
   }
 
   /**
@@ -383,25 +454,6 @@ public class MediaArtwork {
       }
     }
     return null;
-  }
-
-  /**
-   * Get the size order to indicate how big this artwork is
-   * 
-   * @return the size order
-   */
-  public int getSizeOrder() {
-    return sizeOrder;
-  }
-
-  /**
-   * Set the size order to indicate how big this artwork is
-   * 
-   * @param sizeOrder
-   *          the size order
-   */
-  public void setSizeOrder(int sizeOrder) {
-    this.sizeOrder = sizeOrder;
   }
 
   /**
@@ -483,11 +535,17 @@ public class MediaArtwork {
   public static class ImageSizeAndUrl implements Comparable<ImageSizeAndUrl> {
     private final int    width;
     private final int    height;
+    private final int sizeOrder;
     private final String url;
 
     public ImageSizeAndUrl(int width, int height, String url) {
+      this(width, height, url, 0);
+    }
+
+    public ImageSizeAndUrl(int width, int height, String url, int sizeOrder) {
       this.width = width;
       this.height = height;
+      this.sizeOrder = sizeOrder;
       this.url = StrgUtils.getNonNullString(url);
     }
 
@@ -497,6 +555,10 @@ public class MediaArtwork {
 
     public int getHeight() {
       return height;
+    }
+
+    public int getSizeOrder() {
+      return sizeOrder;
     }
 
     public String getUrl() {
@@ -531,49 +593,6 @@ public class MediaArtwork {
     @Override
     public String toString() {
       return width + "x" + height;
-    }
-  }
-
-  public static class MediaArtworkComparator implements Comparator<MediaArtwork> {
-    private String preferredLangu;
-
-    public MediaArtworkComparator(String language) {
-      preferredLangu = language;
-    }
-
-    /*
-     * sort artwork: primary by language: preferred lang (ie de), en, others; then: score
-     */
-    @Override
-    public int compare(MediaArtwork arg0, MediaArtwork arg1) {
-      // check first if is preferred langu
-      if (Objects.equals(preferredLangu, arg0.getLanguage()) && !Objects.equals(preferredLangu, arg1.getLanguage())) {
-        return -1;
-      }
-      if (!Objects.equals(preferredLangu, arg0.getLanguage()) && Objects.equals(preferredLangu, arg1.getLanguage())) {
-        return 1;
-      }
-
-      // not? compare with EN
-      if ("en".equals(arg0.getLanguage()) && !"en".equals(arg1.getLanguage())) {
-        return -1;
-      }
-      if (!"en".equals(arg0.getLanguage()) && "en".equals(arg1.getLanguage())) {
-        return 1;
-      }
-
-      // we did not sort until here; so lets sort with the rating / likes
-      if (arg0.getSizeOrder() == arg1.getSizeOrder()) {
-        if (arg0.getLikes() == arg1.getLikes()) {
-          return 0;
-        }
-        else {
-          return arg0.getLikes() > arg1.getLikes() ? -1 : 1;
-        }
-      }
-      else {
-        return arg0.getSizeOrder() > arg1.getSizeOrder() ? -1 : 1;
-      }
     }
   }
 }

@@ -16,9 +16,7 @@
 
 package org.tinymediamanager.ui.movies.filters;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -30,19 +28,19 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Wolfgang Janes
  */
-public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
+public class MovieDifferentRuntimeFilter extends AbstractNumberMovieFilter {
 
-  private JSpinner spinner;
+  public MovieDifferentRuntimeFilter() {
+    super();
+
+    // display the size with min at the end
+    spinnerLow.setEditor(prepareNumberEditor(spinnerLow, "##0 min"));
+    spinnerHigh.setEditor(prepareNumberEditor(spinnerHigh, "##0 min"));
+  }
 
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(TmmResourceBundle.getString("metatag.runtimedifference"));
-  }
-
-  @Override
-  protected JComponent createFilterComponent() {
-    spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
-    return spinner;
   }
 
   @Override
@@ -51,38 +49,12 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return spinner.getValue().toString();
-  }
-
-  @Override
-  public void setFilterValue(Object value) {
-    try {
-      spinner.setValue(Integer.parseInt(value.toString()));
-    }
-    catch (Exception e) {
-      // default value
-      spinner.setValue(1);
-    }
-  }
-
-  @Override
-  public void clearFilter() {
-    // default value
-    spinner.setValue(1);
-  }
-
-  @Override
   public boolean accept(Movie movie) {
+    return matchInt(Math.abs(movie.getRuntime() - movie.getRuntimeFromMediaFilesInMinutes()));
+  }
 
-    int scrapedRuntimeInMinutes = movie.getRuntime();
-    int mediaInfoRuntimeInMinutes = movie.getRuntimeFromMediaFilesInMinutes();
-
-    if ((scrapedRuntimeInMinutes - mediaInfoRuntimeInMinutes >= (int) spinner.getValue())
-        || (mediaInfoRuntimeInMinutes - scrapedRuntimeInMinutes >= (int) spinner.getValue())) {
-      return true;
-    }
-
-    return false;
+  @Override
+  protected SpinnerNumberModel getNumberModel() {
+    return new SpinnerNumberModel(0, 0, 999, 1);
   }
 }

@@ -170,6 +170,11 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
     informListeners();
   }
 
+  protected void publishState(String taskDescription) {
+    this.taskDescription = taskDescription;
+    publishState();
+  }
+
   protected void publishState() {
     informListeners();
   }
@@ -179,6 +184,7 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
       setState(TaskState.FINISHED);
     }
     thread = null;
+      listeners.clear();  // avoid leak
   }
 
   @Override

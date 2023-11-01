@@ -52,6 +52,11 @@ class ToolbarButton extends FlatButton {
 
     addMouseListener(new MouseAdapter() {
       @Override
+      public void mousePressed(MouseEvent arg0) {
+        mouseClicked(arg0);
+      }
+
+      @Override
       public void mouseClicked(MouseEvent arg0) {
         if (ToolbarButton.this.popupMenu != null) {
           ToolbarButton.this.popupMenu.show(ToolbarButton.this,

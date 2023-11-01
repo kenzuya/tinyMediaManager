@@ -53,6 +53,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.filenaming.IMovieSetFileNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
@@ -209,7 +210,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
       return null;
     }
 
-    String movieSetName = movieSet.getTitleForStorage();
+    String movieSetName = MovieSetArtworkHelper.getMovieSetTitleForStorage(movieSet);
 
     String nfoFilename = nfoNaming.getFilename(movieSetName, "nfo");
     if (StringUtils.isBlank(nfoFilename)) {

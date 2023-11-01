@@ -32,9 +32,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieCreateOfflineDialog;
  * @author Manuel Laggner
  */
 public class MovieCreateOfflineAction extends TmmAction {
-  private static final long           serialVersionUID = -8473181347332963094L;
-
-
   public MovieCreateOfflineAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.createoffline"));
     putValue(LARGE_ICON_KEY, IconManager.ADD);

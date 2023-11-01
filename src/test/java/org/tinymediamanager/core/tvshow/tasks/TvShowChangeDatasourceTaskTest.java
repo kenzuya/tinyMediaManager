@@ -31,6 +31,8 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.BasicTvShowTest;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 
 public class TvShowChangeDatasourceTaskTest extends BasicTvShowTest {
 
@@ -57,8 +59,7 @@ public class TvShowChangeDatasourceTaskTest extends BasicTvShowTest {
     tvShow.addToMediaFiles(mf);
 
     TvShowEpisode episode = new TvShowEpisode();
-    episode.setSeason(1);
-    episode.setEpisode(1);
+    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, 1, 1));
     episode.setPath(sourceFolder + "/Futurama (1999)/Season 1");
 
     mf = new MediaFile(Paths.get(episode.getPathNIO().toString(), "Futurama - S01E01 - Space Pilot 3000.avi"));

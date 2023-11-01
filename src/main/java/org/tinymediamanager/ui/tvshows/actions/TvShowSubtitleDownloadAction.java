@@ -39,8 +39,6 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowDownloadSubtitleDialog;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleDownloadAction extends TmmAction {
-  private static final long serialVersionUID = -6002932119900795735L;
-
   public TvShowSubtitleDownloadAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.download.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);

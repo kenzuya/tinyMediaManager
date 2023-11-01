@@ -37,7 +37,6 @@ public class TvShowSubtitleChooserModel extends AbstractModelObject {
 
   private String                                 name         = "";
   private String                                 releaseName  = "";
-  private String                                 downloadUrl  = "";
 
   public TvShowSubtitleChooserModel(SubtitleSearchResult result, MediaLanguages language) {
     this.result = result;
@@ -45,7 +44,6 @@ public class TvShowSubtitleChooserModel extends AbstractModelObject {
 
     name = result.getTitle();
     releaseName = result.getReleaseName();
-    downloadUrl = result.getUrl();
   }
 
   /**
@@ -64,7 +62,7 @@ public class TvShowSubtitleChooserModel extends AbstractModelObject {
   }
 
   public String getDownloadUrl() {
-    return downloadUrl;
+    return result.getUrl();
   }
 
   public MediaLanguages getLanguage() {

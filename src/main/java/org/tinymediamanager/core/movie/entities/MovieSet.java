@@ -18,8 +18,6 @@ package org.tinymediamanager.core.movie.entities;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
-import static org.tinymediamanager.core.Constants.TMDB_SET;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,7 +169,7 @@ public class MovieSet extends MediaEntity {
   public int getTmdbId() {
     int id;
     try {
-      id = (Integer) ids.get(TMDB_SET);
+      id = (Integer) ids.get(MediaMetadata.TMDB_SET);
     }
     catch (Exception e) {
       return 0;
@@ -181,8 +179,8 @@ public class MovieSet extends MediaEntity {
 
   public void setTmdbId(int newValue) {
     int oldValue = getTmdbId();
-    ids.put(TMDB_SET, newValue);
-    firePropertyChange(TMDB, oldValue, newValue);
+    ids.put(MediaMetadata.TMDB_SET, newValue);
+    firePropertyChange(MediaMetadata.TMDB, oldValue, newValue);
   }
 
   /**
@@ -368,7 +366,7 @@ public class MovieSet extends MediaEntity {
   }
 
   public List<Movie> getMovies() {
-    return movies;
+    return Collections.unmodifiableList(movies);
   }
 
   /**
@@ -512,7 +510,7 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public MediaFile getMainFile() {
-    return new MediaFile();
+    return MediaFile.EMPTY_MEDIAFILE;
   }
 
   @Override
@@ -642,25 +640,6 @@ public class MovieSet extends MediaEntity {
     }
   }
 
-  /**
-   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
-   *
-   * @return the cleaned movie set title
-   */
-  public String getTitleForStorage() {
-    String result = title.replace('/', '_');
-    result = result.replace('\\', '_');
-    result = result.replace('?', '_');
-    result = result.replace(':', '_');
-    result = result.replace('*', '_');
-    result = result.replace('\"', '_');
-    result = result.replace('<', '_');
-    result = result.replace('>', '_');
-    result = result.replace('|', '_');
-
-    return result;
-  }
-
   public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
     this.dummyMovies.clear();
     dummyMovies.forEach(dummy -> {
@@ -719,46 +698,21 @@ public class MovieSet extends MediaEntity {
   }
 
   public Object getValueForMetadata(MovieSetScraperMetadataConfig metadataConfig) {
+    return switch (metadataConfig) {
+      case ID -> getIds();
+      case TITLE -> getTitle();
+      case PLOT -> getPlot();
+      case RATING -> getRatings();
+      case POSTER -> getMediaFiles(MediaFileType.POSTER);
+      case FANART -> getMediaFiles(MediaFileType.FANART);
+      case BANNER -> getMediaFiles(MediaFileType.BANNER);
+      case CLEARART -> getMediaFiles(MediaFileType.CLEARART);
+      case THUMB -> getMediaFiles(MediaFileType.THUMB);
+      case LOGO -> getMediaFiles(MediaFileType.LOGO);
+      case CLEARLOGO -> getMediaFiles(MediaFileType.CLEARLOGO);
+      case DISCART -> getMediaFiles(MediaFileType.DISC);
+    };
 
-    switch (metadataConfig) {
-      case ID:
-        return getIds();
-
-      case TITLE:
-        return getTitle();
-
-      case PLOT:
-        return getPlot();
-
-      case RATING:
-        return getRatings();
-
-      case POSTER:
-        return getMediaFiles(MediaFileType.POSTER);
-
-      case FANART:
-        return getMediaFiles(MediaFileType.FANART);
-
-      case BANNER:
-        return getMediaFiles(MediaFileType.BANNER);
-
-      case CLEARART:
-        return getMediaFiles(MediaFileType.CLEARART);
-
-      case THUMB:
-        return getMediaFiles(MediaFileType.THUMB);
-
-      case LOGO:
-        return getMediaFiles(MediaFileType.LOGO);
-
-      case CLEARLOGO:
-        return getMediaFiles(MediaFileType.CLEARLOGO);
-
-      case DISCART:
-        return getMediaFiles(MediaFileType.DISC);
-    }
-
-    return null;
   }
 
   /*******************************************************************************
@@ -822,7 +776,7 @@ public class MovieSet extends MediaEntity {
     @Override
     public MediaFile getMainVideoFile() {
       // per se no video file here
-      return new MediaFile();
+      return MediaFile.EMPTY_MEDIAFILE;
     }
 
     @Override

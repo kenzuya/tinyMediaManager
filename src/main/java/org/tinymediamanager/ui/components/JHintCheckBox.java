@@ -34,8 +34,6 @@ import javax.swing.border.Border;
  * @author Manuel Laggner
  */
 public class JHintCheckBox extends JCheckBox {
-  private static final long  serialVersionUID = -3513765234706901506L;
-
   private final Insets       dummyInsets;
   private final MouseAdapter tooltipAdapter   = createMouseAdapter();
 
