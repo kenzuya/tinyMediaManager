@@ -8,20 +8,20 @@ import retrofit2.http.Query;
 
 public interface MdbListService {
 
-    // Get Ratings via IMDB ID
-    @GET("/api")
-    Call<MdbListRatingEntity> getRatingsByImdbId(@Query("apikey") String apiKey, @Query("i") String imdbid);
+  // Get Ratings via IMDB ID
+  @GET("/api")
+  Call<MdbListRatingEntity> getRatingsByImdbId(@Query("apikey") String apiKey, @Query("i") String imdbid);
 
-    // Get Ratings via Trakt ID
-    @GET("/api")
-    Call<MdbListRatingEntity> getRatingsByTraktId(@Query("apikey") String apiKey, @Query("t") String imdbid);
+  // Get Ratings via Trakt ID
+  @GET("/api")
+  Call<MdbListRatingEntity> getRatingsByTraktId(@Query("apikey") String apiKey, @Query("t") String traktId);
 
-    //Get Ratings via TMDB ID
-    @GET("/api")
-    Call<MdbListRatingEntity> getRatingsByTmdbId(@Query("apikey") String apiKey, @Query("tm") String imdbid);
+  // Get Ratings via TMDB ID
+  @GET("/api")
+  Call<MdbListRatingEntity> getRatingsByTmdbId(@Query("apikey") String apiKey, @Query("tm") String tmdbId);
 
-    //Get Ratings via TVDB ID
-    @GET("/api")
-    Call<MdbListRatingEntity> getRatingsByTvdbId(@Query("apikey") String apiKey, @Query("tv") String imdbid);
+  // Get Ratings via TVDB ID
+  @GET("/api")
+  Call<MdbListRatingEntity> getRatingsByTvdbId(@Query("apikey") String apiKey, @Query("tv") String tvdbId);
 
 }
