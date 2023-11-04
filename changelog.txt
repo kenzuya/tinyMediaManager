@@ -57,3 +57,4 @@ x fixed rebuilding image cache #2268
 x improve reloading of NFO files; exception for those without s/e numbers #2266
 x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 x fix plot formatting with line-breaks #2286
+x fix loading season-specials.nfo #2343
