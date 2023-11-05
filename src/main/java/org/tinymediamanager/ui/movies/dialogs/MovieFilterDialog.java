@@ -77,6 +77,7 @@ import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
 import org.tinymediamanager.ui.movies.filters.MovieHDRFormatFilter;
+import org.tinymediamanager.ui.movies.filters.MovieImdbIdFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
 import org.tinymediamanager.ui.movies.filters.MovieKeyArtSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
@@ -96,6 +97,8 @@ import org.tinymediamanager.ui.movies.filters.MovieSubtitleFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieSubtitleLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieTagFilter;
 import org.tinymediamanager.ui.movies.filters.MovieThumbSizeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieTmdbIdFilter;
+import org.tinymediamanager.ui.movies.filters.MovieTraktIdFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideo3DFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoBitdepthFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoBitrateFilter;
@@ -202,6 +205,12 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieTagFilter(), panelMetadata);
         addFilter(new MovieEditionFilter(), panelMetadata);
         addFilter(new MovieNoteFilter(), panelMetadata);
+
+        panelMetadata.add(Box.createHorizontalGlue(),"wrap");
+
+        addFilter(new MovieImdbIdFilter(), panelMetadata);
+        addFilter(new MovieTmdbIdFilter(), panelMetadata);
+        addFilter(new MovieTraktIdFilter(), panelMetadata);
       }
 
       {
