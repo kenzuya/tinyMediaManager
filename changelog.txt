@@ -6,6 +6,7 @@ x dropping DavesTrailerPage scraper, since Apple closed their trailer site
 x removed Apple trailers from hd-trailers.net and TMDB scraper
 x remove any leading/trailing spaces from user API keys #2303
 x remove orphaned files of the MP4 parser from the temporary folder
+x fixed detection of widescreen 576p #2344
 
 
 Version 4.3.13
