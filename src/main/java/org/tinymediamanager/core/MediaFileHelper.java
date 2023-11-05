@@ -558,6 +558,9 @@ public class MediaFileHelper {
       // 720x576 (PAL) (handbrake sometimes encode it to a max of 776 x 592)
       return VIDEO_FORMAT_576P;
     }
+    else if (w <= blur(1024) && h <= blur(576)) { // Wide 576p 1024×576 16:9
+      return VIDEO_FORMAT_576P;
+    }
     else if (w <= blur(960) && h <= blur(544)) {
       // 960x540 (sometimes 544 which is multiple of 16)
       return VIDEO_FORMAT_540P;
