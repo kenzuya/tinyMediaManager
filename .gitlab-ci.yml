@@ -131,7 +131,7 @@ deploy:DOCKER-RELEASE:
   stage: deploy
   image: docker:latest
   only:
-    - main@tinyMediaManager/tinyMediaManager
+    - v4@tinyMediaManager/tinyMediaManager
   when: manual
   services:
     - name: docker:dind
