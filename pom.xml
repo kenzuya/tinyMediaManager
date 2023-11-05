@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.tinymediamanager</groupId>
 	<artifactId>tinyMediaManager</artifactId>
-	<version>4.3.14-SNAPSHOT</version>
+	<version>4.3.14</version>
 
 	<name>tinyMediaManager</name>
 	<description>a media management tool written in Java</description>
@@ -66,7 +64,7 @@
 		<url>https://gitlab.com/tinyMediaManager/${project.artifactId}</url>
 		<connection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</connection>
 		<developerConnection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>tinyMediaManager-4.3.14</tag>
 	</scm>
 	<ciManagement>
 		<system>GitLab CI</system>
@@ -877,7 +875,7 @@
 								</goals>
 							</execution>
 						</executions>
-						<configuration></configuration>
+						<configuration />
 					</plugin>
 				</plugins>
 			</build>
