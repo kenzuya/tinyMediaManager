@@ -73,6 +73,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -547,7 +548,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       tfTmdbId.setText(String.valueOf(movieSetToEdit.getTmdbId()));
       taPlot.setText(movieSetToEdit.getPlot());
       taNote.setText(movieSetToEdit.getNote());
-      tfsortTitle.setText(movieSetToEdit.getMovieSetSortTitle());
+      tfsortTitle.setText(movieSetToEdit.getSortTitle());
       moviesInSet.addAll(movieSetToEdit.getMovies());
 
       setArtworkPath(MediaFileType.POSTER, lblPoster);
@@ -672,7 +673,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       movieSetToEdit.setTitle(tfName.getText());
       movieSetToEdit.setPlot(taPlot.getText());
       movieSetToEdit.setNote(taNote.getText());
-      movieSetToEdit.setMovieSetSortTitle(tfsortTitle.getText());
+      movieSetToEdit.setSortTitle(tfsortTitle.getText());
 
       // process artwork
       processArtwork(MediaFileType.POSTER, lblPoster, tfPoster);
@@ -712,14 +713,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
         movie.writeNFO();
       }
 
-      int tmdbId = 0;
-      try {
-
-        tmdbId = Integer.parseInt(tfTmdbId.getText());
-      }
-      catch (Exception ignored) {
-      }
-      movieSetToEdit.setTmdbId(tmdbId);
+      movieSetToEdit.setTmdbId(MetadataUtil.parseInt(tfTmdbId.getText(), 0));
       movieSetToEdit.writeNFO();
       movieSetToEdit.saveToDb();
 

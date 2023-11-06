@@ -293,9 +293,9 @@ public class MovieSetNfoParser {
    * movie set sort title
    */
   private Void parseSortTitle() {
-    supportedElements.add("sort_title");
+    supportedElements.add("sorttitle");
 
-    Element element = getSingleElement(root,"sort_title");
+    Element element = getSingleElement(root,"sorttitle");
     if (element != null) {
       sortTitle = element.ownText();
     }
@@ -404,7 +404,7 @@ public class MovieSetNfoParser {
 
     movieSet.addToTags(tags);
     movieSet.setNote(userNote);
-    movieSet.setMovieSetSortTitle(sortTitle);
+    movieSet.setSortTitle(sortTitle);
 
     return movieSet;
   }

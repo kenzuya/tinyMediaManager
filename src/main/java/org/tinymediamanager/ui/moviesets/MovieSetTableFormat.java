@@ -105,9 +105,19 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Comparator<Date> dateTimeComparator = new DateTimeComparator();
 
     /*
+     * sort title
+     */
+    Column col = new Column(TmmResourceBundle.getString("metatag.sorttitle"), "sortTitle", this::getSortTitle, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setCellTooltip(this::getSortTitle);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * movie count
      */
-    Column col = new Column(TmmResourceBundle.getString("movieset.moviecount"), "seasons", this::getMovieCount, String.class);
+    col = new Column(TmmResourceBundle.getString("movieset.moviecount"), "seasons", this::getMovieCount, String.class);
     col.setHeaderIcon(IconManager.COUNT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f));
@@ -314,16 +324,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
-    addColumn(col);
-
-    /*
-    * sort title
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.sorttitle"), "sortTitle", this::getSortTitle, ImageIcon.class);
-    col.setColumnComparator(stringComparator);
-    col.setColumnResizeable(true);
-    col.setCellTooltip(this::getSortTitle);
-    col.setDefaultHidden(true);
     addColumn(col);
   }
 
@@ -655,8 +655,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((MediaEntity) userObject).getPathNIO().toString();
+    if (userObject instanceof Movie movie) {
+      return movie.getPathNIO().toString();
     }
 
     return null;
@@ -669,8 +669,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMainVideoFile().getFilename();
+    if (userObject instanceof Movie movie) {
+      return movie.getMainVideoFile().getFilename();
     }
 
     return null;
@@ -679,8 +679,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private String getSortTitle(TmmTreeNode node) {
     Object userObject = node.getUserObject();
 
-    if (userObject instanceof MovieSet) {
-      return ((MovieSet) userObject).getMovieSetSortTitle();
+    if (userObject instanceof MovieSet movieSet) {
+      return movieSet.getSortTitle();
     }
     return null;
   }

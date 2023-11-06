@@ -68,7 +68,6 @@ public final class Constants {
   public static final String MESSAGES               = "messages";
   public static final String MOVIESET               = "movieset";
   public static final String MOVIESET_TITLE         = "movieSetTitle";
-  public static final String MOVIESET_SORTTITLE     = "movieSetSortTitle";
   public static final String NAME                   = "name";
   public static final String NEWLY_ADDED            = "newlyAdded";
   public static final String ORIGINAL_TITLE         = "originalTitle";

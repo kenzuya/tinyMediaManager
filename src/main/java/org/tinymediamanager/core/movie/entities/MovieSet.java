@@ -15,13 +15,6 @@
  */
 package org.tinymediamanager.core.movie.entities;
 
-import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.MOVIESET_SORTTITLE;
-import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
-import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
-import static org.tinymediamanager.core.Constants.TMDB_SET;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,6 +60,8 @@ import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.tinymediamanager.core.Constants.*;
+
 /**
  * The Class MovieSet. This class is used to represent a movie set (which means a "collection" of n movies)
  * 
@@ -78,13 +73,15 @@ public class MovieSet extends MediaEntity {
   private static final Comparator<MediaFile> MEDIA_FILE_COMPARATOR = new MovieMediaFileComparator();
 
   @JsonProperty
+  private String                             sortTitle             = "";
+
+  @JsonProperty
   private final List<UUID>                   movieIds              = new ArrayList<>(0);
   @JsonProperty
   private final List<MovieSetMovie>          dummyMovies           = new CopyOnWriteArrayList<>();
 
   private final List<Movie>                  movies                = new CopyOnWriteArrayList<>();
   private String                             titleSortable         = "";
-  private String                             sortTitle             = "";
 
   /**
    * Instantiates a new movieset. To initialize the propertychangesupport after loading
@@ -176,10 +173,10 @@ public class MovieSet extends MediaEntity {
    * @param newValue
    *          the new sort title
    */
-  public void setMovieSetSortTitle(String newValue) {
+  public void setSortTitle(String newValue) {
     String oldValue = this.sortTitle;
     this.sortTitle = newValue;
-    firePropertyChange(MOVIESET_SORTTITLE, oldValue, newValue);
+    firePropertyChange(SORT_TITLE, oldValue, newValue);
   }
 
   /**
@@ -187,7 +184,7 @@ public class MovieSet extends MediaEntity {
    *
    * @return the sort title
    */
-  public String getMovieSetSortTitle() {
+  public String getSortTitle() {
     return sortTitle;
   }
 
