@@ -24,8 +24,8 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.DVD;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DVD;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -322,7 +322,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       MediaArtwork ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isIn(MediaArtwork.MediaArtworkType.BANNER, MediaArtwork.MediaArtworkType.POSTER,
           MediaArtwork.MediaArtworkType.BACKGROUND, MediaArtwork.MediaArtworkType.SEASON_POSTER, MediaArtwork.MediaArtworkType.SEASON_BANNER,
           MediaArtwork.MediaArtworkType.SEASON_THUMB);
@@ -335,7 +335,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_POSTER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
 
@@ -346,7 +346,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
       assertThat(artwork).isNotEmpty();
 
       ma = artwork.get(0);
-      assertThat(ma.getDefaultUrl()).isNotEmpty();
+      assertThat(ma.getImageSizes()).isNotEmpty();
       assertThat(ma.getType()).isEqualTo(MediaArtwork.MediaArtworkType.SEASON_BANNER);
       assertThat(ma.getSeason()).isGreaterThan(-1);
     }
@@ -585,9 +585,9 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
 
       assertThat(mediaMetadata).isNotNull();
       assertThat(mediaMetadata.getEpisodeGroups()).hasSize(2);
-      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
       assertThat(mediaMetadata.getEpisodeGroups())
-          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == MediaEpisodeGroup.EpisodeGroup.ALTERNATE);
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ALTERNATE);
 
       options.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
       List<MediaMetadata> episodesInAiredOrder = mp.getEpisodeList(options);
@@ -604,10 +604,10 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
 
       assertThat(mediaMetadata).isNotNull();
       assertThat(mediaMetadata.getEpisodeGroups()).hasSize(3);
-      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == AIRED);
-      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == DVD);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == DVD);
       assertThat(mediaMetadata.getEpisodeGroups())
-          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == MediaEpisodeGroup.EpisodeGroup.ABSOLUTE);
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE);
     }
 
     {
@@ -620,12 +620,12 @@ public class ITTheTvDbMetadataProviderTest extends BasicITest {
 
       assertThat(mediaMetadata).isNotNull();
       assertThat(mediaMetadata.getEpisodeGroups()).hasSize(4);
-      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == AIRED);
-      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == DVD);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == AIRED);
+      assertThat(mediaMetadata.getEpisodeGroups()).anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == DVD);
       assertThat(mediaMetadata.getEpisodeGroups())
-          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == MediaEpisodeGroup.EpisodeGroup.ABSOLUTE);
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE);
       assertThat(mediaMetadata.getEpisodeGroups())
-          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroup() == MediaEpisodeGroup.EpisodeGroup.ALTERNATE);
+          .anyMatch(episodeGroup -> episodeGroup.getEpisodeGroupType() == MediaEpisodeGroup.EpisodeGroupType.ALTERNATE);
     }
   }
 }

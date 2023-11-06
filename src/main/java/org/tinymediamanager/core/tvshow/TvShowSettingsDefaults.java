@@ -319,10 +319,10 @@ public class TvShowSettingsDefaults {
     tvShowSettings.posterFilenames.add(TvShowPosterNaming.POSTER);
 
     tvShowSettings.fanartFilenames.clear();
-    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.FANART);
+    tvShowSettings.fanartFilenames.add(TvShowFanartNaming.BACKDROP);
 
     tvShowSettings.extraFanartFilenames.clear();
-    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
+    tvShowSettings.extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRABACKDROP);
 
     tvShowSettings.bannerFilenames.clear();
     tvShowSettings.bannerFilenames.add(TvShowBannerNaming.BANNER);

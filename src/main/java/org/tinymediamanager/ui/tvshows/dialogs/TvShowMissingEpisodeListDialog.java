@@ -16,7 +16,7 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;

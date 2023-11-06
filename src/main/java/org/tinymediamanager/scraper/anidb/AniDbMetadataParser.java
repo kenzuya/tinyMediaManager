@@ -238,7 +238,7 @@ class AniDbMetadataParser {
     for (Element rating : ratings.children()) {
       if ("temporary".equalsIgnoreCase(rating.tagName())) {
         try {
-          MediaRating mediaRating = new MediaRating("anidb");
+          MediaRating mediaRating = new MediaRating(MediaMetadata.ANIDB);
           mediaRating.setRating(Float.parseFloat(rating.text()));
           mediaRating.setVotes(Integer.parseInt(rating.attr("count")));
           mediaRating.setMaxValue(10);
@@ -320,9 +320,9 @@ class AniDbMetadataParser {
     // Poster
     MediaArtwork ma = new MediaArtwork(providerId, MediaArtwork.MediaArtworkType.POSTER);
     ma.setPreviewUrl(IMAGE_SERVER + picture.text());
-    ma.setDefaultUrl(IMAGE_SERVER + picture.text());
     ma.setOriginalUrl(IMAGE_SERVER + picture.text());
     ma.setLanguage(language);
+    ma.addImageSize(0, 0, IMAGE_SERVER + picture.text(), 0); // no size given in the API
     md.addMediaArt(ma);
   }
 

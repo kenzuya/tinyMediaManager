@@ -37,8 +37,8 @@ public class TvShowFanartSizeFilter extends AbstractNumberTvShowUIFilter {
     super();
 
     // display the size with px at the end
-    spinnerLow.setEditor(prepareNumberEditor(spinnerLow, "#0 bit"));
-    spinnerHigh.setEditor(prepareNumberEditor(spinnerHigh, "#0 bit"));
+    spinnerLow.setEditor(prepareNumberEditor(spinnerLow, "####0 px"));
+    spinnerHigh.setEditor(prepareNumberEditor(spinnerHigh, "####0 px"));
   }
 
   @Override
@@ -52,7 +52,7 @@ public class TvShowFanartSizeFilter extends AbstractNumberTvShowUIFilter {
       // filter on the poster height of the TV shows/seasons/episodes
 
       // TV show
-      boolean foundShow = matchInt(tvShow.getArtworkDimension(MediaFileType.FANART).height);
+      boolean foundShow = matchInt(tvShow.getArtworkDimension(MediaFileType.FANART).width);
 
       if (!invert && foundShow) {
         return true;
@@ -63,7 +63,7 @@ public class TvShowFanartSizeFilter extends AbstractNumberTvShowUIFilter {
 
       // episode
       for (TvShowEpisode episode : episodes) {
-        boolean foundEpisode = matchInt(episode.getArtworkDimension(MediaFileType.FANART).height);
+        boolean foundEpisode = matchInt(episode.getArtworkDimension(MediaFileType.FANART).width);
 
         // if there is a match in this episode, we can stop
         if (invert && !foundEpisode) {
@@ -73,7 +73,7 @@ public class TvShowFanartSizeFilter extends AbstractNumberTvShowUIFilter {
           return true;
         }
 
-        boolean foundSeason = matchInt(episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_FANART).height);
+        boolean foundSeason = matchInt(episode.getTvShowSeason().getArtworkDimension(MediaFileType.SEASON_FANART).width);
         // if there is a match in this season, we can stop
         if (invert && !foundSeason) {
           return true;
@@ -94,11 +94,11 @@ public class TvShowFanartSizeFilter extends AbstractNumberTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("metatag.bitdepth"));
+    return new TmmLabel(TmmResourceBundle.getString("filter.fanart.width"));
   }
 
   @Override
   public String getId() {
-    return "tvShowVideoBitdepth";
+    return "tvShowFanartSize";
   }
 }

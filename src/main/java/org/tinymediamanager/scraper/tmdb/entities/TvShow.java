@@ -25,7 +25,7 @@ public class TvShow extends BaseTvShow {
   // Following are used with append_to_response
   public Images            images;
   public Credits           credits;
-  public TvExternalIds     external_ids;
+  public ExternalIds       external_ids;
   public AlternativeTitles alternative_titles;
   public Changes           changes;
   public Keywords          keywords;
@@ -39,5 +39,5 @@ public class TvShow extends BaseTvShow {
   public BaseTvEpisode     next_episode_to_air;
 
   @SerializedName(value = "episode_groups")
-  public EpisodeGroups     episodeGroups;
+  public EpisodeGroupsList episodeGroups;
 }

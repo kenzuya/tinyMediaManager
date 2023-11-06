@@ -139,7 +139,7 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
     if (!mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).isEmpty()) {
       MediaArtwork poster = mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).get(0);
-      setPosterUrl(poster.getDefaultUrl());
+      setPosterUrl(poster.getPreviewUrl());
     }
   }
 

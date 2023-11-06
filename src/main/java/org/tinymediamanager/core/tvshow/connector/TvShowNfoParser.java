@@ -373,7 +373,7 @@ public class TvShowNfoParser {
           r.id = "tomatometerallcritics";
         }
         else if ("metascore".equals(r.id)) {
-          r.id = "metacritic";
+          r.id = MediaMetadata.METACRITIC;
         }
 
         // maxvalue

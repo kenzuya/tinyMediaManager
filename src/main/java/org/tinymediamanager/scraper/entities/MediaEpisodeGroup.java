@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
 
-  public enum EpisodeGroup {
+  public enum EpisodeGroupType {
     AIRED,
     DVD,
     ABSOLUTE,
@@ -41,32 +41,32 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
     DISPLAY
   }
 
-  public static final MediaEpisodeGroup DEFAULT_AIRED    = new MediaEpisodeGroup(EpisodeGroup.AIRED);
-  public static final MediaEpisodeGroup DEFAULT_DVD      = new MediaEpisodeGroup(EpisodeGroup.DVD);
-  public static final MediaEpisodeGroup DEFAULT_ABSOLUTE = new MediaEpisodeGroup(EpisodeGroup.ABSOLUTE);
-  public static final MediaEpisodeGroup DEFAULT_DISPLAY  = new MediaEpisodeGroup(EpisodeGroup.DISPLAY);
+  public static final MediaEpisodeGroup DEFAULT_AIRED    = new MediaEpisodeGroup(EpisodeGroupType.AIRED);
+  public static final MediaEpisodeGroup DEFAULT_DVD      = new MediaEpisodeGroup(EpisodeGroupType.DVD);
+  public static final MediaEpisodeGroup DEFAULT_ABSOLUTE = new MediaEpisodeGroup(EpisodeGroupType.ABSOLUTE);
+  public static final MediaEpisodeGroup DEFAULT_DISPLAY  = new MediaEpisodeGroup(EpisodeGroupType.DISPLAY);
 
   @JsonProperty
-  private final EpisodeGroup            episodeGroup;
+  private final EpisodeGroupType        episodeGroupType;
   @JsonProperty
   private final String                  name;
 
   public MediaEpisodeGroup(String name) {
-    this(EpisodeGroup.AIRED, name);
+    this(EpisodeGroupType.AIRED, name);
   }
 
-  public MediaEpisodeGroup(EpisodeGroup episodeGroup) {
-    this(episodeGroup, "");
+  public MediaEpisodeGroup(EpisodeGroupType episodeGroupType) {
+    this(episodeGroupType, "");
   }
 
   @JsonCreator
-  public MediaEpisodeGroup(@NotNull @JsonProperty("episodeGroup") EpisodeGroup episodeGroup, @JsonProperty("name") String name) {
-    this.episodeGroup = episodeGroup;
+  public MediaEpisodeGroup(@NotNull @JsonProperty("episodeGroupType") EpisodeGroupType episodeGroupType, @JsonProperty("name") String name) {
+    this.episodeGroupType = episodeGroupType;
     this.name = name != null ? name : "";
   }
 
-  public EpisodeGroup getEpisodeGroup() {
-    return episodeGroup;
+  public EpisodeGroupType getEpisodeGroupType() {
+    return episodeGroupType;
   }
 
   public String getName() {
@@ -75,7 +75,10 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
 
   @Override
   public String toString() {
-    String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroup.name().toLowerCase(Locale.ROOT));
+    if (episodeGroupType == null) {
+      return TmmResourceBundle.getString("episodeGroup.aired"); // former v5
+    }
+    String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroupType.name().toLowerCase(Locale.ROOT));
     if (StringUtils.isNotBlank(name)) {
       return name + " (" + localizedEnumName + ")";
     }
@@ -95,17 +98,17 @@ public class MediaEpisodeGroup implements Comparable<MediaEpisodeGroup> {
     }
 
     MediaEpisodeGroup that = (MediaEpisodeGroup) o;
-    return episodeGroup == that.episodeGroup && Objects.equals(name, that.name);
+    return episodeGroupType == that.episodeGroupType && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(episodeGroup, name);
+    return Objects.hash(episodeGroupType, name);
   }
 
   @Override
   public int compareTo(@NotNull MediaEpisodeGroup o) {
-    int result = Integer.compare(episodeGroup.ordinal(), o.episodeGroup.ordinal());
+    int result = Integer.compare(episodeGroupType.ordinal(), o.episodeGroupType.ordinal());
 
     if (result == 0) {
       result = name.compareTo(o.name);

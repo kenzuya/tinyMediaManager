@@ -2,11 +2,6 @@
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0                          http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
-            <id>ossrh</id>
-            <username>${env.MAVEN_REPO_USER}</username>
-            <password>${env.MAVEN_REPO_PASS}</password>
-        </server>
-        <server>
             <id>gitlab-maven</id>
             <configuration>
                 <httpHeaders>
@@ -23,8 +18,8 @@
         </server>
         <server>
             <id>github-maven</id>
-            <username>tmmbuild</username>
-            <password>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</password>
+            <username>${env.GITHUB_REPO_USER}</username>
+            <password>${env.GITHUB_REPO_PASS}</password>
         </server>
     </servers>
 </settings>

@@ -19,10 +19,6 @@ package org.tinymediamanager.scraper.http;
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.CacheControl;
-import okhttp3.Interceptor;
-import okhttp3.Response;
-
 /**
  * an implementation of the url to use a local disk cache
  * 
@@ -51,27 +47,6 @@ public class OnDiskCachedUrl extends Url {
    */
   public OnDiskCachedUrl(String url, int timeToLive, TimeUnit timeUnit) throws MalformedURLException {
     super(url);
-    client = TmmHttpClient.newBuilder(true).addNetworkInterceptor(provideCacheInterceptor(timeToLive, timeUnit)).build();
-  }
-
-  /**
-   * add an interceptor which sets the header field
-   * 
-   * @param timeToLive
-   *          the time to live in the cache
-   * @param timeUnit
-   *          the time unit
-   * @return the interceptor
-   */
-  private Interceptor provideCacheInterceptor(final int timeToLive, final TimeUnit timeUnit) {
-    return chain -> {
-      Response response = chain.proceed(chain.request());
-      if (!response.isSuccessful()) {
-        // do not cache unsuccessful requests
-        return response;
-      }
-      CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
-      return response.newBuilder().header("Cache-Control", cacheControl.toString()).build();
-    };
+    client = TmmHttpClient.newBuilderWithForcedCache(timeToLive, timeUnit).build();
   }
 }

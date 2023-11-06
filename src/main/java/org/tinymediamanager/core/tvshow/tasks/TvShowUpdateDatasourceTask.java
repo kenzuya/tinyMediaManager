@@ -53,7 +53,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractFileVisitor;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -76,11 +75,13 @@ import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
+import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser.Episode;
 import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.connector.TvShowSeasonNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
@@ -770,13 +771,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       // detect some IDs from show folder
       if (!MediaIdUtil.isValidImdbId(tvShow.getImdbId())) {
-        tvShow.setId(Constants.IMDB, ParserUtils.detectImdbId(showDir.getFileName().toString()));
+        tvShow.setId(MediaMetadata.IMDB, ParserUtils.detectImdbId(showDir.getFileName().toString()));
       }
       if (tvShow.getTmdbId() == 0) {
-        tvShow.setId(Constants.TMDB, ParserUtils.detectTmdbId(showDir.getFileName().toString()));
+        tvShow.setId(MediaMetadata.TMDB, ParserUtils.detectTmdbId(showDir.getFileName().toString()));
       }
       if (tvShow.getTvdbId().isEmpty()) {
-        tvShow.setId(Constants.TVDB, ParserUtils.detectTvdbId(showDir.getFileName().toString()));
+        tvShow.setId(MediaMetadata.TVDB, ParserUtils.detectTvdbId(showDir.getFileName().toString()));
       }
 
       // ******************************
@@ -876,7 +877,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // meta data from XML files
           TvShowEpisode xmlEP = null;
           for (MediaFile xmlMf : epFiles) {
-            if ("xml".equalsIgnoreCase(xmlMf.getExtension())) {
+            if ("xml".equalsIgnoreCase(xmlMf.getExtension()) && !xmlMf.getFilename().endsWith("mediainfo.xml")) {
               try {
                 TvShowEpisodeNfoParser nfoParser = TvShowEpisodeNfoParser.parseNfo(xmlMf.getFileAsPath());
                 List<TvShowEpisode> epsInXml = nfoParser.toTvShowEpisodes();
@@ -900,6 +901,22 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             try {
               TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(epNfo.getFileAsPath());
+
+              // ALL episodes detected with -1? try to parse from filename...
+              boolean allUnknown = !parser.episodes.isEmpty() && parser.episodes.stream().allMatch(ep -> ep.episode == -1);
+              if (allUnknown) {
+                EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
+                    .detectEpisodeFromFilename(showDir.relativize(epNfo.getFileAsPath()).toString(), tvShow.getTitle());
+                if (parser.episodes.size() == result.episodes.size()) {
+                  int i = 0;
+                  for (Episode ep : parser.episodes) {
+                    ep.episode = result.episodes.get(i);
+                    ep.season = result.season;
+                    i++;
+                  }
+                }
+              }
+
               if (parser.isValidNfo()) {
                 episodesInNfo.addAll(parser.toTvShowEpisodes());
               }
@@ -1028,15 +1045,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
               // try to parse the imdb id from the filename
               if (!MediaIdUtil.isValidImdbId(episode.getImdbId())) {
-                episode.setId(Constants.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+                episode.setId(MediaMetadata.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               // try to parse the Tmdb id from the filename
               if (episode.getTmdbId().isEmpty()) {
-                episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+                episode.setId(MediaMetadata.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               // try to parse the Tvdb id from the filename
               if (episode.getTvdbId().isEmpty()) {
-                episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+                episode.setId(MediaMetadata.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
               }
               if (episode.getMediaSource() == MediaSource.UNKNOWN) {
                 episode.setMediaSource(MediaSource.parseMediaSource(vid.getBasename()));
@@ -1117,15 +1134,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             // try to parse the imdb id from the filename
             if (!MediaIdUtil.isValidImdbId(episode.getImdbId())) {
-              episode.setId(Constants.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+              episode.setId(MediaMetadata.IMDB, ParserUtils.detectImdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             // try to parse the Tmdb id from the filename
             if (episode.getTmdbId().isEmpty()) {
-              episode.setId(Constants.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+              episode.setId(MediaMetadata.TMDB, ParserUtils.detectTmdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             // try to parse the Tvdb id from the filename
             if (episode.getTvdbId().isEmpty()) {
-              episode.setId(Constants.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
+              episode.setId(MediaMetadata.TVDB, ParserUtils.detectTvdbId(Utils.relPath(showDir, vid.getFileAsPath()).toString()));
             }
             if (episode.getMediaSource() == MediaSource.UNKNOWN) {
               episode.setMediaSource(MediaSource.parseMediaSource(vid.getBasename()));

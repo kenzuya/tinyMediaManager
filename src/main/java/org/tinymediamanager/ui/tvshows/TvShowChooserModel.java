@@ -411,9 +411,10 @@ public class TvShowChooserModel extends AbstractModelObject {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-        options.setLanguage(TvShowModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getDefaultImageScraperLanguage());
       options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+      options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
 
       for (Entry<String, Object> entry : tvShowToScrape.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
@@ -441,8 +442,9 @@ public class TvShowChooserModel extends AbstractModelObject {
       // at last take the poster from the result
       if (StringUtils.isNotBlank(getPosterUrl())) {
         MediaArtwork ma = new MediaArtwork(result.getProviderId(), MediaArtworkType.POSTER);
-        ma.setDefaultUrl(getPosterUrl());
+        ma.setOriginalUrl(getPosterUrl());
         ma.setPreviewUrl(getPosterUrl());
+        ma.addImageSize(0, 0, getPosterUrl(), 0);
         artwork.add(ma);
       }
 

@@ -225,17 +225,17 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse IMDB rating/vote count: {}", e.getMessage());
     }
 
     try {
-      MediaRating rating = new MediaRating("metacritic");
+      MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
       rating.setRating(Float.parseFloat(movie.attr("metascore")));
       rating.setMaxValue(100);
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse metacritic rating/vote count: {}", e.getMessage());
     }
 
     // Tomatoratings
@@ -247,7 +247,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse tomatometerallcritics rating/vote count: {}", e.getMessage());
     }
 
     try {
@@ -258,7 +258,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse tomatometerallaudience rating/vote count: {}", e.getMessage());
     }
 
     try {
@@ -269,7 +269,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse tomatometeravgcritics rating/vote count: {}", e.getMessage());
     }
 
     try {
@@ -280,7 +280,7 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
       md.addRating(rating);
     }
     catch (NumberFormatException e) {
-      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+      getLogger().trace("could not parse tomatometeravgaudience rating/vote count: {}", e.getMessage());
     }
 
     // get the imdb rating from the imdb dataset too (and probably replace an
@@ -296,7 +296,8 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
 
     if (StringUtils.isNotBlank(movie.attr("poster"))) {
       MediaArtwork artwork = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-      artwork.setDefaultUrl(movie.attr("poster"));
+      artwork.setOriginalUrl(movie.attr("poster"));
+      artwork.addImageSize(300, 445, movie.attr("poster"), MediaArtwork.PosterSizes.getSizeOrder(300));
       md.addMediaArt(artwork);
     }
 

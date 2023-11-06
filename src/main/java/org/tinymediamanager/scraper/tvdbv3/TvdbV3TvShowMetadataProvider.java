@@ -20,7 +20,7 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.GUEST;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       md.setId(MediaMetadata.IMDB, show.imdbId);
     }
     if (StringUtils.isNotBlank(show.zap2itId)) {
-      md.setId("zap2it", show.zap2itId);
+      md.setId(MediaMetadata.ZAP2IT, show.zap2itId);
     }
     md.setPlot(show.overview);
 
@@ -582,14 +582,15 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
       if (StringUtils.isNotBlank(ep.filename)) {
         MediaArtwork ma = new MediaArtwork(getProviderInfo().getId(), MediaArtwork.MediaArtworkType.THUMB);
         ma.setPreviewUrl(ARTWORK_URL + ep.filename);
-        ma.setDefaultUrl(ARTWORK_URL + ep.filename);
         ma.setOriginalUrl(ARTWORK_URL + ep.filename);
         if (StringUtils.isNoneBlank(ep.thumbWidth, ep.thumbHeight)) {
           try {
-            ma.addImageSize(Integer.parseInt(ep.thumbWidth), Integer.parseInt(ep.thumbHeight), ARTWORK_URL + ep.filename);
+            int width = Integer.parseInt(ep.thumbWidth);
+            int height = Integer.parseInt(ep.thumbHeight);
+            ma.addImageSize(width, height, ARTWORK_URL + ep.filename, getSizeOrder(ma.getType(), width));
           }
           catch (Exception e) {
-            ma.addImageSize(0, 0, ARTWORK_URL + ep.filename);
+            ma.addImageSize(0, 0, ARTWORK_URL + ep.filename, 0);
           }
         }
         episode.addMediaArt(ma);

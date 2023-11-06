@@ -562,10 +562,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             md.clearMediaArt();
           }
 
-          // set scraped metadata
-          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
-          tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
-          tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
           if (cbEpisodeGroup.getSelectedItem() instanceof MediaEpisodeGroup episodeGroup) {
             tvShowToScrape.setEpisodeGroup(episodeGroup);
           }
@@ -573,6 +569,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
           }
           tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
+
+          // set scraped metadata
+          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
+          tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
+          tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           // get the episode list for display?
           if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
@@ -638,6 +639,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                   chooseSeasonArtwork(season, MediaArtwork.MediaArtworkType.SEASON_THUMB);
                 }
               }
+
+              tvShowToScrape.saveToDb();
+              tvShowToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous
@@ -657,7 +661,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               scrapeOptions.setLanguage(model.getLanguage());
 
               TmmTaskChain.getInstance(tvShowToScrape)
-                      .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
+                  .add(new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite));
             }
           }
 

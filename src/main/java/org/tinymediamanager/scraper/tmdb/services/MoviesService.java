@@ -5,10 +5,10 @@ import java.util.Map;
 import org.tinymediamanager.scraper.tmdb.entities.AlternativeTitles;
 import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
 import org.tinymediamanager.scraper.tmdb.entities.Credits;
+import org.tinymediamanager.scraper.tmdb.entities.ExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.Images;
 import org.tinymediamanager.scraper.tmdb.entities.Keywords;
 import org.tinymediamanager.scraper.tmdb.entities.Movie;
-import org.tinymediamanager.scraper.tmdb.entities.MovieExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.MovieResultsPage;
 import org.tinymediamanager.scraper.tmdb.entities.RatingObject;
 import org.tinymediamanager.scraper.tmdb.entities.ReleaseDate;
@@ -102,7 +102,7 @@ public interface MoviesService {
    *          <em>Optional.</em> ISO 639-1 code.
    */
   @GET("movie/{movie_id}/external_ids")
-  Call<MovieExternalIds> externalIds(@Path("movie_id") int movieId, @Query("language") String language);
+  Call<ExternalIds> externalIds(@Path("movie_id") int movieId, @Query("language") String language);
 
   /**
    * Get the images (posters and backdrops) for a specific movie id.

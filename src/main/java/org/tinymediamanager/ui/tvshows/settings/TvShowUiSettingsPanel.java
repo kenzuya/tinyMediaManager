@@ -54,6 +54,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -755,7 +756,8 @@ class TvShowUiSettingsPanel extends JPanel {
       JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
       panelUiSettings.add(lblRating, "cell 1 14 2 1");
 
-      cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
+      cbRating = new AutocompleteComboBox(Arrays.asList(MediaMetadata.TVDB, MediaMetadata.TMDB, MediaMetadata.IMDB, MediaMetadata.TRAKT_TV,
+          "metascore", "rottenTomatoes", MediaMetadata.ANIDB));
       panelUiSettings.add(cbRating, "cell 1 14 2 1");
     }
     {

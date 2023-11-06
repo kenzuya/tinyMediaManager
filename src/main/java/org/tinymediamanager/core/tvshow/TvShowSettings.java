@@ -59,6 +59,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowThumbNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -190,7 +191,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        createMissingSeasonItems               = false;
 
   // meta data scraper
-  String                                         scraper                                = Constants.TVDB;
+  String                                         scraper                                = MediaMetadata.TVDB;
   MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
   CountryCode                                    certificationCountry                   = CountryCode.US;
   String                                         releaseDateCountry                     = "";
@@ -202,11 +203,12 @@ public final class TvShowSettings extends AbstractSettings {
   // artwork scraper
   final List<MediaLanguages> imageScraperLanguages = ObservableCollections.observableList(new ArrayList<>());
 
-    boolean imageScraperOtherResolutions = true;
-    boolean imageScraperFallback = true;
-    boolean imageScraperPreferFanartWoText = true;
+  boolean imageScraperOtherResolutions = true;
+  boolean imageScraperFallback = true;
+  boolean imageScraperPreferFanartWoText = true;
   MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
   MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
+  MediaArtwork.ThumbSizes imageThumbSize = MediaArtwork.ThumbSizes.MEDIUM;
   boolean                                        scrapeBestImage                        = true;
   boolean                                        writeActorImages                       = false;
   boolean                                        imageExtraFanart                       = false;
@@ -312,8 +314,8 @@ public final class TvShowSettings extends AbstractSettings {
     keyartFilenames.clear();
     addKeyartFilename(TvShowKeyartNaming.KEYART);
 
-      imageScraperLanguages.clear();
-      addImageScraperLanguage(MediaLanguages.en);
+    imageScraperLanguages.clear();
+    addImageScraperLanguage(MediaLanguages.en);
 
     seasonNfoFilenames.clear();
     // do default for NFO file namings yet (only Emby supports that)
@@ -458,8 +460,8 @@ public final class TvShowSettings extends AbstractSettings {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
         setNfoLanguage(ml);
-          imageScraperLanguages.clear();
-          addImageScraperLanguage(ml);
+        imageScraperLanguages.clear();
+        addImageScraperLanguage(ml);
         setSubtitleScraperLanguage(ml);
       }
     }
@@ -519,7 +521,7 @@ public final class TvShowSettings extends AbstractSettings {
 
   public String getScraper() {
     if (StringUtils.isBlank(scraper)) {
-      return Constants.TVDB;
+      return MediaMetadata.TVDB;
     }
     return scraper;
   }
@@ -1129,72 +1131,72 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("episodeScraperMetadataConfig", null, episodeScraperMetadataConfig);
   }
 
-    public void setImageScraperLanguages(List<MediaLanguages> newValue) {
-        imageScraperLanguages.clear();
-        imageScraperLanguages.addAll(newValue);
-        firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
-    }
-
-    public void addImageScraperLanguage(MediaLanguages language) {
-        if (!imageScraperLanguages.contains(language)) {
-            imageScraperLanguages.add(language);
-            firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
-        }
-    }
-
-    public void removeImageScraperLanguage(MediaLanguages language) {
-        if (imageScraperLanguages.remove(language)) {
-            firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
-        }
-    }
-
-    public void swapImageScraperLanguage(int pos1, int pos2) {
-        MediaLanguages tmp = imageScraperLanguages.get(pos1);
-        imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
-        imageScraperLanguages.set(pos2, tmp);
-        firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
-    }
-
-    public List<MediaLanguages> getImageScraperLanguages() {
-        return imageScraperLanguages;
+  public void setImageScraperLanguages(List<MediaLanguages> newValue) {
+    imageScraperLanguages.clear();
+    imageScraperLanguages.addAll(newValue);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
   }
 
-    public MediaLanguages getDefaultImageScraperLanguage() {
-        MediaLanguages language = scraperLanguage; // fallback
-        if (!imageScraperLanguages.isEmpty()) {
-            language = imageScraperLanguages.get(0);
-        }
-        return language;
+  public void addImageScraperLanguage(MediaLanguages language) {
+    if (!imageScraperLanguages.contains(language)) {
+      imageScraperLanguages.add(language);
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
     }
+  }
 
-    public boolean isImageScraperOtherResolutions() {
-        return imageScraperOtherResolutions;
+  public void removeImageScraperLanguage(MediaLanguages language) {
+    if (imageScraperLanguages.remove(language)) {
+      firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
     }
+  }
 
-    public void setImageScraperOtherResolutions(boolean newValue) {
-        boolean oldValue = this.imageScraperOtherResolutions;
-        this.imageScraperOtherResolutions = newValue;
-        firePropertyChange("imageScraperOtherResolutions", oldValue, newValue);
+  public void swapImageScraperLanguage(int pos1, int pos2) {
+    MediaLanguages tmp = imageScraperLanguages.get(pos1);
+    imageScraperLanguages.set(pos1, imageScraperLanguages.get(pos2));
+    imageScraperLanguages.set(pos2, tmp);
+    firePropertyChange("imageScraperLanguages", null, imageScraperLanguages);
+  }
+
+  public List<MediaLanguages> getImageScraperLanguages() {
+    return imageScraperLanguages;
+  }
+
+  public MediaLanguages getDefaultImageScraperLanguage() {
+    MediaLanguages language = scraperLanguage; // fallback
+    if (!imageScraperLanguages.isEmpty()) {
+      language = imageScraperLanguages.get(0);
     }
+    return language;
+  }
 
-    public boolean isImageScraperFallback() {
-        return imageScraperFallback;
-    }
+  public boolean isImageScraperOtherResolutions() {
+    return imageScraperOtherResolutions;
+  }
 
-    public void setImageScraperFallback(boolean newValue) {
-        boolean oldValue = this.imageScraperFallback;
-        this.imageScraperFallback = newValue;
-        firePropertyChange("imageScraperFallback", oldValue, newValue);
-    }
+  public void setImageScraperOtherResolutions(boolean newValue) {
+    boolean oldValue = this.imageScraperOtherResolutions;
+    this.imageScraperOtherResolutions = newValue;
+    firePropertyChange("imageScraperOtherResolutions", oldValue, newValue);
+  }
 
-    public boolean isImageScraperPreferFanartWoText() {
-        return imageScraperPreferFanartWoText;
-    }
+  public boolean isImageScraperFallback() {
+    return imageScraperFallback;
+  }
 
-    public void setImageScraperPreferFanartWoText(boolean newValue) {
-        boolean oldValue = this.imageScraperPreferFanartWoText;
-        this.imageScraperPreferFanartWoText = newValue;
-        firePropertyChange("imageScraperPreferFanartWoText", oldValue, newValue);
+  public void setImageScraperFallback(boolean newValue) {
+    boolean oldValue = this.imageScraperFallback;
+    this.imageScraperFallback = newValue;
+    firePropertyChange("imageScraperFallback", oldValue, newValue);
+  }
+
+  public boolean isImageScraperPreferFanartWoText() {
+    return imageScraperPreferFanartWoText;
+  }
+
+  public void setImageScraperPreferFanartWoText(boolean newValue) {
+    boolean oldValue = this.imageScraperPreferFanartWoText;
+    this.imageScraperPreferFanartWoText = newValue;
+    firePropertyChange("imageScraperPreferFanartWoText", oldValue, newValue);
   }
 
   public MediaArtwork.PosterSizes getImagePosterSize() {
@@ -1215,6 +1217,16 @@ public final class TvShowSettings extends AbstractSettings {
     MediaArtwork.FanartSizes oldValue = this.imageFanartSize;
     this.imageFanartSize = newValue;
     firePropertyChange("imageFanartSize", oldValue, newValue);
+  }
+
+  public MediaArtwork.ThumbSizes getImageThumbSize() {
+    return imageThumbSize;
+  }
+
+  public void setImageThumbSize(MediaArtwork.ThumbSizes newValue) {
+    MediaArtwork.ThumbSizes oldValue = this.imageThumbSize;
+    this.imageThumbSize = newValue;
+    firePropertyChange("imageThumbSize", oldValue, newValue);
   }
 
   public void addNfoFilename(TvShowNfoNaming filename) {

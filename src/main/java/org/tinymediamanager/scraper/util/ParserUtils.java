@@ -15,13 +15,7 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.w3c.tidy.Tidy;
 
 /**
  * Various parses methods to get a clean and workable name out of weird filenames
@@ -420,37 +413,6 @@ public class ParserUtils {
   }
 
   /**
-   * Try to clean the NFO(XML) content with JTidy.
-   * 
-   * @param sourceNfoContent
-   *          the XML content to be cleaned
-   * @return the cleaned XML content (or the source, if any Exceptions occur)
-   */
-  public static String cleanNfo(String sourceNfoContent) {
-    try {
-      Tidy tidy = new Tidy();
-      tidy.setInputEncoding("UTF-8");
-      tidy.setOutputEncoding("UTF-8");
-      tidy.setWraplen(Integer.MAX_VALUE);
-      tidy.setXmlOut(true);
-      tidy.setSmartIndent(true);
-      tidy.setXmlTags(true);
-      tidy.setMakeClean(true);
-      tidy.setForceOutput(true);
-      tidy.setQuiet(true);
-      tidy.setShowWarnings(false);
-      StringReader in = new StringReader(sourceNfoContent);
-      StringWriter out = new StringWriter();
-      tidy.parse(in, out);
-
-      return out.toString();
-    }
-    catch (Exception ignored) {
-    }
-    return sourceNfoContent;
-  }
-
-  /**
    * for all strings, return the "cleanest" one detected by rateCleanness()
    * 
    * @param badWords
@@ -559,7 +521,7 @@ public class ParserUtils {
     return result;
   }
 
-  private static class ParserInfo {
+  public static class ParserInfo {
     public String name  = "";
     public String year  = "";
     public String clean = "";

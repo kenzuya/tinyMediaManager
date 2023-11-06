@@ -72,7 +72,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
@@ -823,7 +822,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     }
     else {
       // if the given ID is an imdb id but is not valid, then do not add
-      if (Constants.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
+      if (MediaMetadata.IMDB.equals(key) && !MediaIdUtil.isValidImdbId(v)) {
         return;
       }
 
@@ -832,7 +831,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     firePropertyChange(key, null, value);
 
     // fire special events for our well known IDs
-    if (Constants.TMDB.equals(key) || Constants.IMDB.equals(key) || Constants.TVDB.equals(key) || Constants.TRAKT.equals(key)) {
+    if (MediaMetadata.TMDB.equals(key) || MediaMetadata.IMDB.equals(key) || MediaMetadata.TVDB.equals(key) || MediaMetadata.TRAKT_TV.equals(key)) {
       firePropertyChange(key + "Id", null, value);
     }
   }

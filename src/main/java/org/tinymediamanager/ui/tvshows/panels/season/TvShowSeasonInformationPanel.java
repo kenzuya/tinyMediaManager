@@ -23,6 +23,7 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
 import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.THUMB;
+import static org.tinymediamanager.core.Constants.TITLE;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -122,7 +123,7 @@ public class TvShowSeasonInformationPanel extends InformationPanel {
       TvShowSeasonSelectionModel model = (TvShowSeasonSelectionModel) source;
       TvShowSeason selectedSeason = model.getSelectedTvShowSeason();
 
-      if ("selectedTvShowSeason".equals(property) || SEASON.equals(property)) {
+      if ("selectedTvShowSeason".equals(property) || SEASON.equals(property) || TITLE.equals(property)) {
         if (StringUtils.isNotBlank(selectedSeason.getTitle())) {
           lblSeason
               .setText(selectedSeason.getTitle() + " (" + TmmResourceBundle.getString("metatag.season") + " " + selectedSeason.getSeason() + ")");

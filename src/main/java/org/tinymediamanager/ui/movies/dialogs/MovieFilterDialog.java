@@ -60,6 +60,8 @@ import org.tinymediamanager.ui.movies.filters.MovieAudioLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioTitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
+import org.tinymediamanager.ui.movies.filters.MovieClearArtSizeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieClearLogoSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountSubtitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
@@ -67,6 +69,7 @@ import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDateAddedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDecadesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDifferentRuntimeFilter;
+import org.tinymediamanager.ui.movies.filters.MovieDiscArtSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFanartSizeFilter;
@@ -75,6 +78,7 @@ import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
 import org.tinymediamanager.ui.movies.filters.MovieHDRFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
+import org.tinymediamanager.ui.movies.filters.MovieKeyArtSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLockedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaFilesFilter;
@@ -91,6 +95,7 @@ import org.tinymediamanager.ui.movies.filters.MovieRuntimeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieSubtitleFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieSubtitleLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieTagFilter;
+import org.tinymediamanager.ui.movies.filters.MovieThumbSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideo3DFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoBitdepthFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoBitrateFilter;
@@ -102,6 +107,7 @@ import org.tinymediamanager.ui.movies.filters.MovieVideoFilesizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieWatchedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
+import org.tinymediamanager.ui.movies.filters.MovieBannerSizeFilter;
 import org.tinymediamanager.ui.panels.FilterSavePanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
@@ -248,6 +254,12 @@ public class MovieFilterDialog extends TmmDialog {
 
         addFilter(new MoviePosterSizeFilter(), panelArtwork);
         addFilter(new MovieFanartSizeFilter(), panelArtwork);
+        addFilter(new MovieBannerSizeFilter(), panelArtwork);
+        addFilter(new MovieThumbSizeFilter(), panelArtwork);
+        addFilter(new MovieClearLogoSizeFilter(), panelArtwork);
+        addFilter(new MovieClearArtSizeFilter(), panelArtwork);
+        addFilter(new MovieDiscArtSizeFilter(), panelArtwork);
+        addFilter(new MovieKeyArtSizeFilter(), panelArtwork);
         addFilter(new MovieMissingArtworkFilter(), panelArtwork);
       }
 

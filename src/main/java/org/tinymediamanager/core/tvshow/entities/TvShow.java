@@ -26,10 +26,10 @@ import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.GENRES_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
+import static org.tinymediamanager.core.Constants.REMOVED_SEASON;
 import static org.tinymediamanager.core.Constants.RUNTIME;
 import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.SEASON_COUNT;
@@ -38,11 +38,8 @@ import static org.tinymediamanager.core.Constants.STATUS;
 import static org.tinymediamanager.core.Constants.SUBTITLES;
 import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
-import static org.tinymediamanager.core.Constants.TRAKT;
-import static org.tinymediamanager.core.Constants.TVDB;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
 
 import java.beans.PropertyChangeListener;
@@ -58,7 +55,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -68,7 +64,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,6 +114,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
+import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.TvUtils;
@@ -135,52 +131,55 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public class TvShow extends MediaEntity implements IMediaInformation {
-  private static final Logger                                          LOGGER                     = LoggerFactory.getLogger(TvShow.class);
-  private static final Comparator<MediaFile>                           MEDIA_FILE_COMPARATOR      = new TvShowMediaFileComparator();
+  private static final Logger                     LOGGER                     = LoggerFactory.getLogger(TvShow.class);
+  private static final Comparator<MediaFile>      MEDIA_FILE_COMPARATOR      = new TvShowMediaFileComparator();
 
-  public static final Pattern                                          SEASON_ONLY_PATTERN        = Pattern
-      .compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$", Pattern.CASE_INSENSITIVE);
+  public static final Pattern                     SEASON_ONLY_PATTERN        = Pattern.compile("^(s|staffel|season|series)[\\s_.-]*(\\d{1,4})$",
+      Pattern.CASE_INSENSITIVE);
 
   @JsonProperty
-  private int                                                          runtime                    = 0;
+  private int                                     runtime                    = 0;
   @JsonProperty
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-  private Date                                                         firstAired                 = null;
+  private Date                                    firstAired                 = null;
   @JsonProperty
-  private MediaAiredStatus                                             status                     = MediaAiredStatus.UNKNOWN;
+  private MediaAiredStatus                        status                     = MediaAiredStatus.UNKNOWN;
   @JsonProperty
-  private String                                                       sortTitle                  = "";
+  private String                                  sortTitle                  = "";
   @JsonProperty
-  private MediaCertification                                           certification              = MediaCertification.UNKNOWN;
+  private MediaCertification                      certification              = MediaCertification.UNKNOWN;
   @JsonProperty
-  private String                                                       country                    = "";
+  private String                                  country                    = "";
   @JsonProperty
-  private MediaEpisodeGroup                                            episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
+  private MediaEpisodeGroup                       episodeGroup               = MediaEpisodeGroup.DEFAULT_AIRED;
   @JsonProperty
-  private final List<MediaGenres>                                      genres                     = new CopyOnWriteArrayList<>();
+  private final List<MediaGenres>                 genres                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private int                                                          top250                     = 0;
+  private int                                     top250                     = 0;
   @JsonProperty
-  private final List<Person>                                           actors                     = new CopyOnWriteArrayList<>();
+  private final List<Person>                      actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<TvShowEpisode>                                    dummyEpisodes              = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>               dummyEpisodes              = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<String>                                           extraFanartUrls            = new CopyOnWriteArrayList<>();
+  private final List<String>                      extraFanartUrls            = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final List<MediaTrailer>                                     trailer                    = new CopyOnWriteArrayList<>();
+  private final List<MediaTrailer>                trailer                    = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private final Map<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeGroup> episodeGroups              = new EnumMap<>(
-      MediaEpisodeGroup.EpisodeGroup.class);
+  private final List<MediaEpisodeGroup>           episodeGroups              = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private final Map<String, Map<Integer, String>> seasonNames                = new HashMap<>();
+  @JsonProperty
+  private final Map<String, Map<Integer, String>> seasonOverviews            = new HashMap<>();
 
-  private final List<TvShowSeason>                                     seasons                    = new CopyOnWriteArrayList<>();
-  private final List<TvShowEpisode>                                    episodes                   = new CopyOnWriteArrayList<>();
-  private String                                                       titleSortable              = "";
-  private String                                                       otherIds                   = "";
-  private Date                                                         lastWatched                = null;
+  private final List<TvShowSeason>                seasons                    = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>               episodes                   = new CopyOnWriteArrayList<>();
+  private String                                  titleSortable              = "";
+  private String                                  otherIds                   = "";
+  private Date                                    lastWatched                = null;
 
-  private final PropertyChangeListener                                 propertyChangeListener;
+  private final PropertyChangeListener            propertyChangeListener;
 
-  private static final Comparator<MediaTrailer>                        TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
+  private static final Comparator<MediaTrailer>   TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
 
   /**
    * Instantiates a tv show. To initialize the propertychangesupport after loading
@@ -190,7 +189,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     super();
 
     propertyChangeListener = evt -> {
-      if (evt.getSource() instanceof TvShowEpisode episode) {
+      if (evt.getSource()instanceof TvShowEpisode episode) {
 
         switch (evt.getPropertyName()) {
           case TAGS, MEDIA_INFORMATION, MEDIA_FILES, SUBTITLES, "hasSubtitles":
@@ -313,12 +312,22 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       actors.clear();
       extraFanartUrls.clear();
       episodeGroups.clear();
+      seasonNames.clear();
+      seasonOverviews.clear();
     }
 
     setGenres(other.genres);
     setActors(other.actors);
     setExtraFanartUrls(other.extraFanartUrls);
-    setEpisodeGroups(other.episodeGroups.values());
+    setEpisodeGroups(other.episodeGroups);
+
+    for (var entry : other.seasonNames.entrySet()) {
+      seasonNames.putIfAbsent(entry.getKey(), entry.getValue());
+    }
+
+    for (var entry : other.seasonOverviews.entrySet()) {
+      seasonOverviews.putIfAbsent(entry.getKey(), entry.getValue());
+    }
 
     // seasons
     for (TvShowSeason otherSeason : other.getSeasons()) {
@@ -430,9 +439,36 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     this.episodeGroup = newValue;
     firePropertyChange(Constants.EPISODE_GROUP, oldValue, newValue);
 
-    // also fire the event for all episodes too
-    for (TvShowEpisode episode : getEpisodesForDisplay()) {
-      episode.firePropertyChange(Constants.EPISODE_GROUP, oldValue, newValue);
+    // also rebuild the seasons and fire the event for all episodes too
+    if (!oldValue.equals(newValue)) {
+      // remove all episodes from all seasons
+      seasons.forEach(TvShowSeason::removeAllEpisodes);
+
+      // and rebuild
+      for (TvShowEpisode episode : getEpisodesForDisplay()) {
+        // add to new season
+        TvShowSeason season = getOrCreateSeason(episode.getSeason());
+
+        // make sure the season is in the UI
+        firePropertyChange(ADDED_SEASON, null, season);
+
+        // add the episode to it
+        season.addEpisode(episode);
+        episode.firePropertyChange(Constants.EPISODE_GROUP, oldValue, newValue);
+      }
+
+      // remove empty seasons
+      for (TvShowSeason season : new ArrayList<>(seasons)) {
+        if (season.isEmpty()) {
+          removeSeason(season);
+        }
+      }
+
+      // update the season names/overviews
+      for (TvShowSeason season : getSeasons()) {
+        season.setTitle(getSeasonName(season.getSeason()));
+        season.setPlot(getSeasonOverview(season.getSeason()));
+      }
     }
   }
 
@@ -442,21 +478,120 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return a {@link List} of all names {@link MediaEpisodeGroup}s
    */
   public List<MediaEpisodeGroup> getEpisodeGroups() {
-    return new ArrayList<>(episodeGroups.values());
+    return Collections.unmodifiableList(episodeGroups);
   }
 
   /**
    * set the list of "named" {@link MediaEpisodeGroup}s for this TV show
    *
-   * @param newValue
+   * @param newValues
    *          the {@link List} of all named {@link MediaEpisodeGroup}s
    */
-  public void setEpisodeGroups(Collection<MediaEpisodeGroup> newValue) {
+  public void setEpisodeGroups(Collection<MediaEpisodeGroup> newValues) {
     episodeGroups.clear();
-    for (MediaEpisodeGroup eg : newValue) {
-      episodeGroups.putIfAbsent(eg.getEpisodeGroup(), eg);
+
+    // sort by episode groups (same order as in MediaEpisodeGroup.EpisodeGroup)
+    for (MediaEpisodeGroup.EpisodeGroupType eg : MediaEpisodeGroup.EpisodeGroupType.values()) {
+      // special logic: the chosen episode group must be the first one in the list
+      if (episodeGroup != null && episodeGroup.getEpisodeGroupType() == eg) {
+        if (newValues.contains(episodeGroup)) {
+          episodeGroups.add(episodeGroup);
+        }
+      }
+
+      // add all (remaining) episode numbers for this type
+      newValues.forEach(group -> {
+        if (group.getEpisodeGroupType() == eg && !episodeGroups.contains(group)) {
+          episodeGroups.add(group);
+        }
+      });
     }
+
     firePropertyChange("episodeGroups", null, episodeGroups);
+  }
+
+  /**
+   * set all season names
+   *
+   * @param newValue
+   *          a {@link Map} containing all season names
+   */
+  public void setSeasonNames(Map<MediaEpisodeGroup, Map<Integer, String>> newValue) {
+    seasonNames.clear();
+    for (var entry : newValue.entrySet()) {
+      seasonNames.putIfAbsent(entry.getKey().toString(), entry.getValue());
+    }
+    firePropertyChange("seasonNames", null, seasonNames);
+  }
+
+  /**
+   * get all season names
+   *
+   * @return a {@link Map} containing all season names
+   */
+  public Map<String, Map<Integer, String>> getSeasonNames() {
+    return Collections.unmodifiableMap(seasonNames);
+  }
+
+  /**
+   * get the season name for the chosen {@link MediaEpisodeGroup}
+   *
+   * @param season
+   *          the season to get the name for
+   * @return the found season name or an empty {@link String}
+   */
+  String getSeasonName(int season) {
+    Map<Integer, String> seasonNamesForEpisodeGroup = seasonNames.get(episodeGroup.toString());
+    if (seasonNamesForEpisodeGroup != null) {
+      String seasonName = seasonNamesForEpisodeGroup.get(season);
+      if (StringUtils.isNotBlank(seasonName)) {
+        return seasonName;
+      }
+    }
+
+    return "";
+  }
+
+  /**
+   * set all season overviews
+   *
+   * @param newValue
+   *          a {@link Map} containing all season overviews
+   */
+  public void setSeasonOverviews(Map<MediaEpisodeGroup, Map<Integer, String>> newValue) {
+    seasonOverviews.clear();
+    for (var entry : newValue.entrySet()) {
+      seasonOverviews.putIfAbsent(entry.getKey().toString(), entry.getValue());
+    }
+    firePropertyChange("seasonOverviews", null, seasonOverviews);
+  }
+
+  /**
+   * get all season overviews
+   *
+   * @return a {@link Map} containing all season overviews
+   */
+  public Map<String, Map<Integer, String>> getSeasonOverviews() {
+    return Collections.unmodifiableMap(seasonOverviews);
+  }
+
+  /**
+   * get the season overview for the chosen {@link MediaEpisodeGroup}
+   *
+   * @param season
+   *          the season to get the overview for
+   * @return the found season name or an empty {@link String}
+   */
+  String getSeasonOverview(int season) {
+    Map<Integer, String> seasonOverviewForEpisodeGroup = seasonOverviews.get(episodeGroup.toString());
+    if (seasonOverviewForEpisodeGroup != null) {
+      String seasonName = seasonOverviewForEpisodeGroup.get(season);
+      if (StringUtils.isNotBlank(seasonName)) {
+        return seasonName;
+      }
+    }
+
+    return "";
   }
 
   /**
@@ -484,10 +619,17 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     firePropertyChange(ADDED_EPISODE, null, episode);
     firePropertyChange(EPISODE_COUNT, oldValue, episodes.size());
+
+    // probably also add the episode group from this episode
+    for (MediaEpisodeNumber episodeNumber : episode.getEpisodeNumbers()) {
+      if (!episodeGroups.contains(episodeNumber.episodeGroup())) {
+        episodeGroups.add(episodeNumber.episodeGroup());
+      }
+    }
   }
 
   public List<TvShowEpisode> getDummyEpisodes() {
-    return dummyEpisodes;
+    return Collections.unmodifiableList(dummyEpisodes);
   }
 
   public void setDummyEpisodes(List<TvShowEpisode> dummyEpisodes) {
@@ -508,7 +650,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       for (TvShowEpisode episode : dummyEpisodes) {
         TvShowSeason season = getSeasonForEpisode(episode);
         season.addEpisode(episode);
-        firePropertyChange(ADDED_EPISODE, null, episode);
+        if (season.getEpisodesForDisplay().contains(episode)) {
+          firePropertyChange(ADDED_EPISODE, null, episode);
+        }
       }
     }
 
@@ -541,6 +685,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
           availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
         }
+        if (episode.getAbsoluteNumber() > -1) {
+          availableEpisodes.add("ABS" + episode.getAbsoluteNumber());
+        }
       }
 
       // and now mix in unavailable ones
@@ -550,7 +697,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         }
 
         if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
-            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())) {
+            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())
+            && !availableEpisodes.contains("ABS" + episode.getAbsoluteNumber())) {
           episodes.add(episode);
         }
       }
@@ -567,7 +715,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return a {@link List} of all episodes
    */
   public List<TvShowEpisode> getEpisodesForSeason(int season) {
-    return episodes.stream().filter(episode -> episode.getSeason() == season).collect(Collectors.toList());
+    return episodes.stream().filter(episode -> episode.getSeason() == season).toList();
   }
 
   /**
@@ -637,6 +785,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // no one found - create one
     if (season == null) {
       season = new TvShowSeason(episode.getSeason(), this);
+      season.setTitle(getSeasonName(episode.getSeason()));
+      season.setPlot(getSeasonOverview(episode.getSeason()));
       addSeason(season);
     }
 
@@ -676,6 +826,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (season == null) {
       season = new TvShowSeason(seasonNumber, this);
+      season.setTitle(getSeasonName(seasonNumber));
+      season.setPlot(getSeasonOverview(seasonNumber));
       addSeason(season);
     }
 
@@ -768,6 +920,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       seasons.add(season);
 
       firePropertyChange(ADDED_SEASON, null, season);
+      firePropertyChange(SEASON_COUNT, seasonCount, seasons.size());
+    }
+  }
+
+  void removeSeason(TvShowSeason season) {
+    int seasonCount = seasons.size();
+
+    if (seasons.remove(season)) {
+      firePropertyChange(REMOVED_SEASON, null, season);
       firePropertyChange(SEASON_COUNT, seasonCount, seasons.size());
     }
   }
@@ -1059,25 +1220,86 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.SEASON_NAMES)) {
-      for (var entry : metadata.getSeasonNames().entrySet()) {
-        // "Season XX" does not match (and not needed to set)
-        // "Season XX - some name" should be set, so the pattern checks the complete string!
-        Matcher matcher = SEASON_ONLY_PATTERN.matcher(entry.getValue());
-        TvShowSeason season = getOrCreateSeason(entry.getKey());
+      if (!matchFound || overwriteExistingItems) {
+        seasonNames.clear();
+        seasons.forEach(season -> season.setTitle(""));
+      }
 
-        if (!matcher.find()) {
-          if (overwriteExistingItems || StringUtils.isBlank(season.getTitle())) {
-            season.setTitle(entry.getValue());
+      for (var episodeGroupEntry : metadata.getSeasonNames().entrySet()) {
+        // only set season names for stored episode groups
+        if (!episodeGroups.contains(episodeGroupEntry.getKey())) {
+          continue;
+        }
+
+        Map<Integer, String> seasonNamesForEpisodeGroup = seasonNames.computeIfAbsent(episodeGroupEntry.getKey().toString(), k -> new HashMap<>());
+
+        for (var entry : episodeGroupEntry.getValue().entrySet()) {
+          // "Season XX" does not match (and not needed to set)
+          // "Season XX - some name" should be set, so the pattern checks the complete string!
+          Matcher matcher = SEASON_ONLY_PATTERN.matcher(entry.getValue());
+          if (!matcher.find()) {
+            if (overwriteExistingItems) {
+              seasonNamesForEpisodeGroup.put(entry.getKey(), entry.getValue());
+            }
+            else {
+              seasonNamesForEpisodeGroup.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+          }
+
+          // live update of the season
+          if (episodeGroupEntry.getKey().equals(episodeGroup)) {
+            TvShowSeason season = getSeason(entry.getKey());
+            if (season != null) {
+              String seasonName = seasonNamesForEpisodeGroup.get(entry.getKey());
+              if (StringUtils.isNotBlank(seasonName)) {
+                season.setTitle(seasonName);
+              }
+              else {
+                season.setTitle("");
+              }
+            }
           }
         }
+
       }
     }
 
     if (config.contains(TvShowScraperMetadataConfig.SEASON_OVERVIEW)) {
-      for (var entry : metadata.getSeasonOverview().entrySet()) {
-        TvShowSeason season = getOrCreateSeason(entry.getKey());
-        if (overwriteExistingItems || StringUtils.isBlank(season.getPlot())) {
-          season.setPlot(entry.getValue());
+      if (!matchFound || overwriteExistingItems) {
+        seasonOverviews.clear();
+        seasons.forEach(season -> season.setPlot(""));
+      }
+
+      for (var episodeGroupEntry : metadata.getSeasonOverview().entrySet()) {
+        // only set season names for stored episode groups
+        if (!episodeGroups.contains(episodeGroupEntry.getKey())) {
+          continue;
+        }
+
+        Map<Integer, String> seasonOverViewsForEpisodeGroup = seasonOverviews.computeIfAbsent(episodeGroupEntry.getKey().toString(),
+            k -> new HashMap<>());
+
+        for (var entry : episodeGroupEntry.getValue().entrySet()) {
+          if (overwriteExistingItems) {
+            seasonOverViewsForEpisodeGroup.put(entry.getKey(), entry.getValue());
+          }
+          else {
+            seasonOverViewsForEpisodeGroup.putIfAbsent(entry.getKey(), entry.getValue());
+          }
+
+          // live update of the season
+          if (episodeGroupEntry.getKey().equals(episodeGroup)) {
+            TvShowSeason season = getSeason(entry.getKey());
+            if (season != null) {
+              String seasonPlot = seasonOverViewsForEpisodeGroup.get(entry.getKey());
+              if (StringUtils.isNotBlank(seasonPlot)) {
+                season.setPlot(seasonPlot);
+              }
+              else {
+                season.setPlot("");
+              }
+            }
+          }
         }
       }
     }
@@ -1243,7 +1465,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the imdb id
    */
   public String getImdbId() {
-    return this.getIdAsString(IMDB);
+    return this.getIdAsString(MediaMetadata.IMDB);
   }
 
   /**
@@ -1253,7 +1475,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new imdb id
    */
   public void setImdbId(String newValue) {
-    this.setId(IMDB, newValue);
+    this.setId(MediaMetadata.IMDB, newValue);
   }
 
   /**
@@ -1262,7 +1484,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the tvdb id
    */
   public String getTvdbId() {
-    return this.getIdAsString(TVDB);
+    return this.getIdAsString(MediaMetadata.TVDB);
   }
 
   /**
@@ -1272,7 +1494,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new tvdb id
    */
   public void setTvdbId(String newValue) {
-    this.setId(TVDB, newValue);
+    this.setId(MediaMetadata.TVDB, newValue);
   }
 
   /**
@@ -1281,7 +1503,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the TraktTV id
    */
   public int getTraktId() {
-    return this.getIdAsInt(TRAKT);
+    return this.getIdAsInt(MediaMetadata.TRAKT_TV);
   }
 
   /**
@@ -1291,7 +1513,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new TraktTV id
    */
   public void setTraktId(int newValue) {
-    this.setId(TRAKT, newValue);
+    this.setId(MediaMetadata.TRAKT_TV, newValue);
   }
 
   /**
@@ -1300,7 +1522,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the TTMDB id
    */
   public int getTmdbId() {
-    return this.getIdAsInt(TMDB);
+    return this.getIdAsInt(MediaMetadata.TMDB);
   }
 
   /**
@@ -1310,7 +1532,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the new TMDB id
    */
   public void setTmdbId(int newValue) {
-    this.setId(TMDB, newValue);
+    this.setId(MediaMetadata.TMDB, newValue);
   }
 
   /**
@@ -1831,7 +2053,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       return Collections.emptyList();
     }
 
-    return this.episodes.stream().filter(e -> e.getSeason() == season && e.getEpisode() == episode).collect(Collectors.toList());
+    return this.episodes.stream().filter(e -> e.getSeason() == season && e.getEpisode() == episode).toList();
   }
 
   /**
@@ -2256,7 +2478,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if ("seasonTitleMap".equals(property) && value instanceof Map<?, ?> seasonTitleMap) {
       for (var entry : seasonTitleMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue() instanceof String seasonTitle) {
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonTitle) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setTitle(seasonTitle);
         }
@@ -2265,7 +2487,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonPosterUrlMap".equals(property) && value instanceof Map<?, ?> seasonPosterUrlMap) {
       for (var entry : seasonPosterUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue() instanceof String seasonPosterUrl) {
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonPosterUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonPosterUrl, MediaFileType.SEASON_POSTER);
         }
@@ -2274,7 +2496,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonBannerUrlMap".equals(property) && value instanceof Map<?, ?> seasonBannerUrlMap) {
       for (var entry : seasonBannerUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue() instanceof String seasonBannerUrl) {
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonBannerUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonBannerUrl, MediaFileType.SEASON_BANNER);
         }
@@ -2283,7 +2505,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonThumbUrlMap".equals(property) && value instanceof Map<?, ?> seasonThumbUrlMap) {
       for (var entry : seasonThumbUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue() instanceof String seasonThumbUrl) {
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonThumbUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonThumbUrl, MediaFileType.SEASON_THUMB);
         }
@@ -2292,7 +2514,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonFanartUrlMap".equals(property) && value instanceof Map<?, ?> seasonFanartUrlMap) {
       for (var entry : seasonFanartUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue() instanceof String seasonFanartUrl) {
+        if (seasonNumber > -1 && entry.getValue()instanceof String seasonFanartUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonFanartUrl, MediaFileType.SEASON_FANART);
         }

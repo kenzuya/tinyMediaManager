@@ -52,15 +52,26 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MediaMetadata {
   // some well known ids
+  public static final String                               ALLOCINE            = "allocine";
+  public static final String                               ANIDB               = "anidb";
   public static final String                               IMDB                = "imdb";
+  public static final String                               LETTERBOXD          = "letterboxd";
+  public static final String                               METACRITIC          = "metacritic";
+  public static final String                               MY_ANIME_LIST       = "myanimelist";
+  public static final String                               ROGER_EBERT         = "rogerebert";
   public static final String                               TMDB                = "tmdb";
-  public static final String                               TVDB                = "tvdb";
   public static final String                               TMDB_SET            = "tmdbSet";
   public static final String                               TRAKT_TV            = "trakt";
-  public static final String                               METACRITIC          = "metacritic";
-  public static final String                               LETTERBOXD          = "letterboxd";
-  public static final String                               MAL                 = "myanimelist";
-  public static final String                               ROGER_EBERT         = "rogerebert";
+  public static final String                               TVDB                = "tvdb";
+  public static final String                               TVMAZE              = "tvmaze";
+  public static final String                               TVRAGE              = "tvrage";
+  public static final String                               WIKIDATA            = "wikidata";
+  public static final String                               ZAP2IT              = "zap2it";
+  // no so well-known
+  // mptv
+  // ofdb
+  // omdb
+  // eidr
 
   // some meta ids for TV show scraping
   public static final String                               TVSHOW_IDS          = "tvShowIds";
@@ -110,8 +121,8 @@ public class MediaMetadata {
   private final Set<MediaEpisodeGroup>                     episodeGroups       = new HashSet<>();
   private final Map<MediaEpisodeGroup, MediaEpisodeNumber> episodeNumbers      = new LinkedHashMap<>();
   private MediaAiredStatus                                 status              = MediaAiredStatus.UNKNOWN;
-  private Map<Integer, String>                             seasonNames         = new HashMap<>();
-  private Map<Integer, String>                             seasonOverview      = new HashMap<>();
+  private Map<MediaEpisodeGroup, Map<Integer, String>>     seasonNames         = new HashMap<>();
+  private Map<MediaEpisodeGroup, Map<Integer, String>>     seasonOverview      = new HashMap<>();
 
   // extra data
   private final Map<String, Object>                        extraData           = new HashMap<>();
@@ -519,7 +530,8 @@ public class MediaMetadata {
   /**
    * remove the given key from the ids table
    *
-   * @param key the key to remove
+   * @param key
+   *          the key to remove
    */
   public void removeId(String key) {
     ids.remove(key);
@@ -1071,14 +1083,14 @@ public class MediaMetadata {
   /**
    * Get the {@link MediaEpisodeNumber}
    *
-   * @param episodeGroup
-   *          the {@link MediaEpisodeGroup.EpisodeGroup} to get the episode number for
+   * @param episodeGroupType
+   *          the {@link MediaEpisodeGroup.EpisodeGroupType} to get the episode number for
    * @return the {@link MediaEpisodeNumber} or null
    */
-  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroup episodeGroup) {
+  public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroupType episodeGroupType) {
     // match the first available episode group
     for (Map.Entry<MediaEpisodeGroup, MediaEpisodeNumber> entry : episodeNumbers.entrySet()) {
-      if (entry.getKey().getEpisodeGroup() == episodeGroup) {
+      if (entry.getKey().getEpisodeGroupType() == episodeGroupType) {
         return entry.getValue();
       }
     }
@@ -1090,7 +1102,7 @@ public class MediaMetadata {
    * Set the episode number
    *
    * @param episodeGroup
-   *          the {@link MediaEpisodeGroup.EpisodeGroup} this episode number belongs to
+   *          the {@link MediaEpisodeGroup.EpisodeGroupType} this episode number belongs to
    * @param season
    *          the season
    * @param episode
@@ -1227,15 +1239,17 @@ public class MediaMetadata {
 
   /**
    * Add a season name
-   * 
+   *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to set the season name for
    * @param seasonNumber
    *          the season number
    * @param name
    *          the season name
    */
-  public void addSeasonName(int seasonNumber, String name) {
+  public void addSeasonName(MediaEpisodeGroup episodeGroup, int seasonNumber, String name) {
     if (seasonNumber > -1 && StringUtils.isNotBlank(name)) {
-      seasonNames.put(seasonNumber, name);
+      seasonNames.computeIfAbsent(episodeGroup, k -> new HashMap<>()).put(seasonNumber, name);
     }
   }
 
@@ -1244,28 +1258,30 @@ public class MediaMetadata {
    * 
    * @return the season names
    */
-  public Map<Integer, String> getSeasonNames() {
+  public Map<MediaEpisodeGroup, Map<Integer, String>> getSeasonNames() {
     return seasonNames;
   }
 
   /**
    * for introspection on universal scraper
    */
-  public void setSeasonNames(Map<Integer, String> map) {
+  public void setSeasonNames(Map<MediaEpisodeGroup, Map<Integer, String>> map) {
     this.seasonNames = map;
   }
 
   /**
    * add a season overview
    *
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to set the season name for
    * @param seasonNumber
    *          the season number
    * @param overview
    *          the overview
    */
-  public void addSeasonOverview(int seasonNumber, String overview) {
+  public void addSeasonOverview(MediaEpisodeGroup episodeGroup, int seasonNumber, String overview) {
     if (seasonNumber > -1 && StringUtils.isNotBlank(overview)) {
-      seasonOverview.put(seasonNumber, overview);
+      seasonOverview.computeIfAbsent(episodeGroup, k -> new HashMap<>()).put(seasonNumber, overview);
     }
   }
 
@@ -1274,14 +1290,14 @@ public class MediaMetadata {
    *
    * @return the season overview/plot
    */
-  public Map<Integer, String> getSeasonOverview() {
+  public Map<MediaEpisodeGroup, Map<Integer, String>> getSeasonOverview() {
     return seasonOverview;
   }
 
   /**
    * for introspection on universal scraper
    */
-  public void setSeasonOverview(Map<Integer, String> map) {
+  public void setSeasonOverview(Map<MediaEpisodeGroup, Map<Integer, String>> map) {
     this.seasonOverview = map;
   }
 

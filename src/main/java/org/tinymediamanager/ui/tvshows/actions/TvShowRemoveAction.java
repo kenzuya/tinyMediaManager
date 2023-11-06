@@ -86,8 +86,8 @@ public class TvShowRemoveAction extends TmmAction {
     }
 
     TmmTaskManager.getInstance().addUnnamedTask(() -> {
-      for (TvShow tvShow : selectedObjects.getTvShows()) {
-        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
+      for (TvShowEpisode episode : selectedObjects.getEpisodes()) {
+        episode.getTvShow().removeEpisode(episode);
       }
 
       for (TvShowSeason season : selectedObjects.getSeasons()) {
@@ -96,8 +96,8 @@ public class TvShowRemoveAction extends TmmAction {
         }
       }
 
-      for (TvShowEpisode episode : selectedObjects.getEpisodes()) {
-        episode.getTvShow().removeEpisode(episode);
+      for (TvShow tvShow : selectedObjects.getTvShows()) {
+        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
       }
     });
   }

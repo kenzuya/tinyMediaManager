@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Settings;
@@ -79,7 +79,7 @@ public class RebuildImageCacheAction extends TmmAction {
 
         ImageCache.clearImageCache(imageFiles);
 
-          imageFiles.forEach(ImageCache::cacheImageAsync);
+        imageFiles.forEach(ImageCache::cacheImageAsync);
       }
     };
 

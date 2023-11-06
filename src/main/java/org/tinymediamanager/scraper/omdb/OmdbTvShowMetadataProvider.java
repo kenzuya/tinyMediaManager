@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.scraper.omdb;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
@@ -382,7 +382,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
       // IMDB rating
       try {
-        MediaRating rating = new MediaRating("imdb");
+        MediaRating rating = new MediaRating(MediaMetadata.IMDB);
         rating.setRating(Float.parseFloat(result.attr("imdbRating")));
         rating.setMaxValue(10);
         md.addRating(rating);

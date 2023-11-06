@@ -364,7 +364,7 @@ public final class TvShowList extends AbstractModelObject {
     }
 
     if (!imagesToCache.isEmpty()) {
-        imagesToCache.forEach(ImageCache::cacheImageAsync);
+      imagesToCache.forEach(ImageCache::cacheImageAsync);
     }
   }
 
@@ -547,16 +547,13 @@ public final class TvShowList extends AbstractModelObject {
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
     List<UUID> toRemove = new ArrayList<>();
-
     long start = System.nanoTime();
-
     new ArrayList<>(tvShowMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
         json = tvShowMap.get(uuid);
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
-
         // for performance reasons we add tv shows after loading the episodes
         if (!tvShowsFromDb.add(tvShow)) {
           // already in there?! remove dupe
@@ -570,14 +567,11 @@ public final class TvShowList extends AbstractModelObject {
         toRemove.add(uuid);
       }
     });
-
     long end = System.nanoTime();
-
     // remove orphaned defect TV shows
     for (UUID uuid : toRemove) {
       tvShowMap.remove(uuid);
     }
-
     LOGGER.info("found {} TV shows in database", tvShowsFromDb.size());
     LOGGER.debug("took {} ms", (end - start) / 1000000);
 
@@ -595,9 +589,7 @@ public final class TvShowList extends AbstractModelObject {
 
     // just to get the episode count
     List<TvShowSeason> seasonsToCount = new ArrayList<>();
-
     start = System.nanoTime();
-
     new ArrayList<>(seasonMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
@@ -610,7 +602,6 @@ public final class TvShowList extends AbstractModelObject {
         if (tvShow != null) {
           season.setTvShow(tvShow);
           tvShow.addSeason(season);
-
           seasonsToCount.add(season);
         }
         else {
@@ -624,14 +615,11 @@ public final class TvShowList extends AbstractModelObject {
         toRemove.add(uuid);
       }
     });
-
     end = System.nanoTime();
-
-    // remove orphaned episodes
+    // remove orphaned seasons
     for (UUID uuid : toRemove) {
       seasonMap.remove(uuid);
     }
-
     LOGGER.info("found {} seasons in database", seasonsToCount.size());
     LOGGER.debug("took {} ms", (end - start) / 1000000);
 
@@ -643,9 +631,7 @@ public final class TvShowList extends AbstractModelObject {
 
     // just to get the episode count
     List<TvShowEpisode> episodesToCount = new ArrayList<>();
-
     start = System.nanoTime();
-
     new ArrayList<>(episodesMap.keyList()).forEach(uuid -> {
       String json = "";
       try {
@@ -666,7 +652,6 @@ public final class TvShowList extends AbstractModelObject {
         if (tvShow != null) {
           episode.setTvShow(tvShow);
           tvShow.addEpisode(episode);
-
           episodesToCount.add(episode);
         }
         else {
@@ -680,16 +665,27 @@ public final class TvShowList extends AbstractModelObject {
         toRemove.add(uuid);
       }
     });
-
     end = System.nanoTime();
-
     // remove orphaned episodes
     for (UUID uuid : toRemove) {
       episodesMap.remove(uuid);
     }
-
     LOGGER.info("found {} episodes in database", episodesToCount.size());
     LOGGER.debug("took {} ms", (end - start) / 1000000);
+
+    //////////////////////////////////////////////////
+    // cleanup: remove shows with empty episodes
+    //////////////////////////////////////////////////
+    toRemove.clear();
+    for (TvShow tvShow : tvShowsFromDb) {
+      if (tvShow.getEpisodeCount() == 0) {
+        toRemove.add(tvShow.getDbId());
+      }
+    }
+    for (UUID uuid : toRemove) {
+      TvShow tvShow = tvShowUuidMap.get(uuid);
+      tvShowsFromDb.remove(tvShow);
+    }
 
     // and add all TV shows to the UI
     tvShows.addAll(tvShowsFromDb);
@@ -793,7 +789,7 @@ public final class TvShowList extends AbstractModelObject {
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.getInstance().getSettings().getScraper(), ScraperType.TV_SHOW);
     if (scraper == null || !scraper.isEnabled()) {
-      scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.TV_SHOW);
+      scraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.TV_SHOW);
     }
     return scraper;
   }
@@ -1435,7 +1431,7 @@ public final class TvShowList extends AbstractModelObject {
       Map<String, Object> ids = tvShow.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs"
-        if (Constants.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
+        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
           continue;
         }
         String id = entry.getKey() + entry.getValue();

@@ -62,12 +62,16 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowAudioCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioStreamCountFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioTitleFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowBannerSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCastFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCertificationFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowClearArtSizeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowClearLogoSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCountryFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDatasourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDateAddedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDecadeFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowDiscArtSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDuplicateEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowEmptyFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowEpisodeCountFilter;
@@ -76,6 +80,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFrameRateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowGenreFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowHDRFormatFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowKeyArtSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowLockedFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaFilesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaSourceFilter;
@@ -95,6 +100,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleCountFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowTagFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowThumbSizeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowUncategorizedEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoBitdepthFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoBitrateFilter;
@@ -241,6 +247,12 @@ public class TvShowFilterDialog extends TmmDialog {
 
         addFilter(new TvShowPosterSizeFilter(), panelArtwork);
         addFilter(new TvShowFanartSizeFilter(), panelArtwork);
+        addFilter(new TvShowBannerSizeFilter(), panelArtwork);
+        addFilter(new TvShowThumbSizeFilter(), panelArtwork);
+        addFilter(new TvShowClearLogoSizeFilter(), panelArtwork);
+        addFilter(new TvShowClearArtSizeFilter(), panelArtwork);
+        addFilter(new TvShowDiscArtSizeFilter(), panelArtwork);
+        addFilter(new TvShowKeyArtSizeFilter(), panelArtwork);
         addFilter(new TvShowMissingArtworkFilter(), panelArtwork);
       }
 

@@ -340,7 +340,7 @@ public class ImdbMovieParser extends ImdbParser {
       }
 
       if (value > 0) {
-        MediaRating rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
         rating.setRating(value);
         rating.setVotes(count);
         rating.setMaxValue(100);
@@ -408,16 +408,7 @@ public class ImdbMovieParser extends ImdbParser {
     movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
-
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
-          adoptArtworkToOptions(artwork, options);
-        }
-      }
-
-      return artworks;
+      return getMetadata(movieSearchAndScrapeOptions).getMediaArt(options.getArtworkType());
     }
     catch (NothingFoundException e) {
       LOGGER.debug("nothing found");

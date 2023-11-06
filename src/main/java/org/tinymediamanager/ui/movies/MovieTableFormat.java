@@ -236,7 +236,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * metascore rating (hidden per default)
      */
-    col = new Column("MS", "metacritic", movie -> getRatingInteger(movie.getRating("metacritic")), Integer.class);
+    col = new Column("MS", "metacritic", movie -> getRatingInteger(movie.getRating(MediaMetadata.METACRITIC)), Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - Metascore");
     col.setCellRenderer(new RightAlignTableCellRenderer());

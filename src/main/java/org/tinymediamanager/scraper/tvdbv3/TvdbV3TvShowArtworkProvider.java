@@ -209,43 +209,9 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
           if (matcher.matches() && matcher.groupCount() > 1) {
             int width = Integer.parseInt(matcher.group(1));
             int height = Integer.parseInt(matcher.group(2));
-            ma.addImageSize(width, height, ARTWORK_URL + image.fileName);
+            int sizeOrder = getSizeOrder(ma.getType(), width);
 
-            // set image size
-            switch (ma.getType()) {
-              case POSTER:
-                if (width >= 1000) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.LARGE.getOrder());
-                }
-                else if (width >= 500) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.BIG.getOrder());
-                }
-                else if (width >= 342) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.MEDIUM.getOrder());
-                }
-                else {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.SMALL.getOrder());
-                }
-                break;
-
-              case BACKGROUND:
-                if (width >= 3840) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.XLARGE.getOrder());
-                }
-                if (width >= 1920) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-                }
-                else if (width >= 1280) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-                }
-                else {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
-                }
-                break;
-
-              default:
-                break;
-            }
+            ma.addImageSize(width, height, ARTWORK_URL + image.fileName, sizeOrder);
           }
         }
         catch (Exception e) {
@@ -253,21 +219,12 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
         }
       }
 
-      // set size for banner & season poster (resolution not in api)
-      if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER) {
-        ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-      }
-      else if (ma.getType() == BANNER) {
-        ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-      }
-
-      ma.setDefaultUrl(ARTWORK_URL + image.fileName);
       ma.setOriginalUrl(ARTWORK_URL + image.fileName);
       if (StringUtils.isNotBlank(image.thumbnail)) {
         ma.setPreviewUrl(ARTWORK_URL + image.thumbnail);
       }
       else {
-        ma.setPreviewUrl(ma.getDefaultUrl());
+        ma.setPreviewUrl(ma.getOriginalUrl());
       }
 
       if (StringUtils.isBlank(image.language)) {

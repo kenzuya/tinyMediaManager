@@ -4,11 +4,11 @@ import java.util.Map;
 
 import org.tinymediamanager.scraper.tmdb.entities.AppendToResponse;
 import org.tinymediamanager.scraper.tmdb.entities.Credits;
+import org.tinymediamanager.scraper.tmdb.entities.ExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.Images;
 import org.tinymediamanager.scraper.tmdb.entities.RatingObject;
 import org.tinymediamanager.scraper.tmdb.entities.Status;
 import org.tinymediamanager.scraper.tmdb.entities.TvEpisode;
-import org.tinymediamanager.scraper.tmdb.entities.TvEpisodeExternalIds;
 import org.tinymediamanager.scraper.tmdb.entities.Videos;
 
 import retrofit2.Call;
@@ -100,7 +100,7 @@ public interface TvEpisodesService {
    *          TvEpisode Number.
    */
   @GET("tv/{tv_id}/season/{season_number}/episode/{episode_number}/external_ids")
-  Call<TvEpisodeExternalIds> externalIds(@Path("tv_id") int tvShowId, @Path("season_number") int tvShowSeasonNumber,
+  Call<ExternalIds> externalIds(@Path("tv_id") int tvShowId, @Path("season_number") int tvShowSeasonNumber,
       @Path("episode_number") int tvShowEpisodeNumber);
 
   /**

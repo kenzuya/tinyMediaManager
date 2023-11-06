@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -175,7 +174,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.COLLECTION));
       }
       else {
@@ -287,7 +286,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmWatchedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.WATCHED));
       }
       else {
@@ -408,7 +407,7 @@ class TraktTvMovie {
     List<SyncMovie> movies = new ArrayList<>();
     int nosync = 0;
     for (Movie tmmMovie : tmmRatedMovies) {
-      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+      if (tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV) > 0 || MediaIdUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
         movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.RATING));
       }
       else {
@@ -512,7 +511,7 @@ class TraktTvMovie {
     MovieIds ids = traktMovie.ids;
 
     int traktId = MetadataUtil.unboxInteger(ids.trakt);
-    if (traktId > 0 && traktId == tmmMovie.getIdAsInt(Constants.TRAKT)) {
+    if (traktId > 0 && traktId == tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV)) {
       return true;
     }
 
@@ -567,16 +566,16 @@ class TraktTvMovie {
 
     MovieIds ids = traktMovie.ids;
 
-    if (tmmMovie.getIdAsString(Constants.IMDB).isEmpty() && !StringUtils.isEmpty(ids.imdb)) {
-      tmmMovie.setId(Constants.IMDB, ids.imdb);
+    if (tmmMovie.getIdAsString(MediaMetadata.IMDB).isEmpty() && !StringUtils.isEmpty(ids.imdb)) {
+      tmmMovie.setId(MediaMetadata.IMDB, ids.imdb);
       dirty = true;
     }
-    if (tmmMovie.getIdAsInt(Constants.TMDB) == 0 && MetadataUtil.unboxInteger(ids.tmdb) > 0) {
-      tmmMovie.setId(Constants.TMDB, ids.tmdb);
+    if (tmmMovie.getIdAsInt(MediaMetadata.TMDB) == 0 && MetadataUtil.unboxInteger(ids.tmdb) > 0) {
+      tmmMovie.setId(MediaMetadata.TMDB, ids.tmdb);
       dirty = true;
     }
-    if (tmmMovie.getIdAsInt(Constants.TRAKT) == 0 && MetadataUtil.unboxInteger(ids.trakt) > 0) {
-      tmmMovie.setId(Constants.TRAKT, ids.trakt);
+    if (tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV) == 0 && MetadataUtil.unboxInteger(ids.trakt) > 0) {
+      tmmMovie.setId(MediaMetadata.TRAKT_TV, ids.trakt);
       dirty = true;
     }
     return dirty;
@@ -595,8 +594,8 @@ class TraktTvMovie {
       ids.tmdb = tmmMovie.getTmdbId();
       hasId = true;
     }
-    if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0) {
-      ids.trakt = tmmMovie.getIdAsInt(Constants.TRAKT);
+    if (tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV) > 0) {
+      ids.trakt = tmmMovie.getIdAsInt(MediaMetadata.TRAKT_TV);
       hasId = true;
     }
 

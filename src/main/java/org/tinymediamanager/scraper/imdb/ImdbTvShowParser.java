@@ -57,7 +57,6 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeList;
@@ -329,7 +328,7 @@ public class ImdbTvShowParser extends ImdbParser {
       // search by S/E
       if (wantedEpisode == null) {
         for (MediaMetadata episode : episodes) {
-          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroup.AIRED);
+          MediaEpisodeNumber episodeNumber = episode.getEpisodeNumber(MediaEpisodeGroup.EpisodeGroupType.AIRED);
 
           if (episodeNumber != null && episodeNumber.season() == seasonNr && episodeNumber.episode() == episodeNr) {
             // search via season/episode number
@@ -572,7 +571,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
       Url seasonUrl;
       try {
-        seasonUrl = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season));
+        seasonUrl = new OnDiskCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season), 1, TimeUnit.DAYS);
         seasonUrl.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
       }
       catch (Exception e) {
@@ -734,7 +733,6 @@ public class ImdbTvShowParser extends ImdbParser {
               if (StringUtils.isNotBlank(posterUrl)) {
                 MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
                 ma.setPreviewUrl(thumb);
-                ma.setDefaultUrl(posterUrl);
                 ma.setOriginalUrl(posterUrl);
                 ep.addMediaArt(ma);
               }
@@ -830,7 +828,7 @@ public class ImdbTvShowParser extends ImdbParser {
       if (votesElement != null) {
         String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
         try {
-          MediaRating rating = new MediaRating("imdb");
+          MediaRating rating = new MediaRating(MediaMetadata.IMDB);
           rating.setRating(Float.parseFloat(ratingAsString));
           rating.setVotes(MetadataUtil.parseInt(countAsString));
           md.addRating(rating);
@@ -951,11 +949,6 @@ public class ImdbTvShowParser extends ImdbParser {
         TvShowSearchAndScrapeOptions op = new TvShowSearchAndScrapeOptions();
         op.setDataFromOtherOptions(options);
         artworks = getMetadata(op).getMediaArt(options.getArtworkType());
-      }
-
-      // adopt the url to the wanted size
-      for (MediaArtwork artwork : artworks) {
-        adoptArtworkToOptions(artwork, options);
       }
 
       return artworks;

@@ -68,7 +68,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       LOGGER.trace(requestStartMessage);
 
       if (!hasRequestBody || bodyHasUnknownEncoding(request.headers())) {
-        LOGGER.trace("--> END {}", request.method());
+        // LOGGER.trace("--> END {}", request.method()); // senseless msg
       }
       else {
         Buffer buffer = new Buffer();
@@ -80,7 +80,6 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           charset = contentType.charset(UTF8);
         }
 
-        LOGGER.trace("");
         if (isPlaintext(buffer)) {
           String content = buffer.readString(charset);
           // only log the first 1k characters
@@ -90,10 +89,10 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
           else {
             LOGGER.trace(content);
           }
-          LOGGER.trace("--> END {} ({}-byte body)", request.method(), requestBody.contentLength());
+          // LOGGER.trace("--> END {} ({}-byte body)", request.method(), requestBody.contentLength());
         }
         else {
-          LOGGER.trace("--> END {}", request.method());
+          // LOGGER.trace("--> END {}", request.method());
         }
       }
     }
@@ -114,13 +113,23 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
     Buffer buffer = null;
 
+    String cached = ""; // "[CACHE MISS] ";
+    if (response.cacheResponse() != null) {
+      if (response.networkResponse() == null) {
+        cached = "[CACHE HIT] "; // inMemory or onDisk
+      }
+      else if (response.networkResponse() != null && response.networkResponse().code() == 304) {
+        cached = "[CACHE HIT 304] "; // asked server - said not modified
+      }
+    }
+
     try {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
       String logUrl = prepareUrlToLog(response.request().url().toString());
-      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
-          + ", " + bodySize + " body" + ')');
+      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + cached + logUrl + " (" + tookMs
+          + "ms" + ", " + bodySize + " body" + ')');
 
       if (!hasBody(response) || bodyHasUnknownEncoding(response.headers())) {
         LOGGER.trace("<-- END HTTP");
@@ -138,13 +147,11 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
         }
 
         if (!isPlaintext(buffer)) {
-          LOGGER.trace("");
           LOGGER.trace("<-- END HTTP (binary {}-byte body omitted)", buffer.size());
           return response;
         }
 
         if (contentLength != 0) {
-          LOGGER.trace("");
           String content = buffer.clone().readString(charset);
           // only log the first 1k characters
           if (content.length() > MAX_TEXT_BODY_LENGTH) {
@@ -253,6 +260,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
   private String prepareUrlToLog(String url) {
     return url.replaceAll("api_key=\\w+", "api_key=<API_KEY>")
         .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
-        .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
+        .replaceAll("apikey=\\w+", "apikey=<API_KEY>")
+        .replaceAll("client=\\w+", "client=<API_KEY>")
+        .replaceAll("clientver=\\w+", "clientver=<API_KEY>");
   }
 }

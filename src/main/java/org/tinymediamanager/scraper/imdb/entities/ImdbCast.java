@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.scraper.MediaMetadata;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,7 +27,7 @@ public class ImdbCast {
     }
 
     Person p = new Person(type);
-    p.setId("imdb", name.id);
+    p.setId(MediaMetadata.IMDB, name.id);
     p.setName(name.nameText.text);
     if (characters != null) {
       String chars = characters.stream().map(character -> character.name).collect(Collectors.joining(" / "));

@@ -25,7 +25,6 @@ import static org.tinymediamanager.core.Constants.EDITION_AS_STRING;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.GENRES_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.MOVIESET;
 import static org.tinymediamanager.core.Constants.MOVIESET_TITLE;
@@ -37,11 +36,8 @@ import static org.tinymediamanager.core.Constants.SORT_TITLE;
 import static org.tinymediamanager.core.Constants.SPOKEN_LANGUAGES;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TMDB;
-import static org.tinymediamanager.core.Constants.TMDB_SET;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
-import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.VIDEO_IN_3D;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
@@ -309,7 +305,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       switch (entry.getKey()) {
         case MediaMetadata.IMDB:
         case MediaMetadata.TMDB:
-        case TRAKT:
+        case MediaMetadata.TRAKT_TV:
           // already in UI - skip
           continue;
 
@@ -631,7 +627,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the imdb id
    */
   public String getImdbId() {
-    return this.getIdAsString(IMDB);
+    return this.getIdAsString(MediaMetadata.IMDB);
   }
 
   /**
@@ -640,7 +636,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the tmdb id
    */
   public int getTmdbId() {
-    return this.getIdAsInt(TMDB);
+    return this.getIdAsInt(MediaMetadata.TMDB);
   }
 
   /**
@@ -650,7 +646,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new tmdb id
    */
   public void setTmdbId(int newValue) {
-    this.setId(TMDB, newValue);
+    this.setId(MediaMetadata.TMDB, newValue);
   }
 
   /**
@@ -659,7 +655,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the trakt.tv id
    */
   public int getTraktId() {
-    return this.getIdAsInt(TRAKT);
+    return this.getIdAsInt(MediaMetadata.TRAKT_TV);
   }
 
   /**
@@ -669,7 +665,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new trakt.tv id
    */
   public void setTraktId(int newValue) {
-    this.setId(TRAKT, newValue);
+    this.setId(MediaMetadata.TRAKT_TV, newValue);
   }
 
   /**
@@ -766,7 +762,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the new imdb id
    */
   public void setImdbId(String newValue) {
-    this.setId(IMDB, newValue);
+    this.setId(MediaMetadata.IMDB, newValue);
   }
 
   /**
@@ -979,7 +975,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // create MovieSet
-    if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(TMDB_SET) == 0)) {
+    if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(MediaMetadata.TMDB_SET) == 0)) {
       int col = 0;
       try {
         col = (int) metadata.getId(MediaMetadata.TMDB_SET);

@@ -52,6 +52,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -320,7 +321,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.TV_SHOW);
           options.setMediaFile(mediaFile);
           options.setIds(episodeIds);
-          options.setId("tvShowIds", tvShowIds);
+          options.setId(MediaMetadata.TVSHOW_IDS, tvShowIds);
           options.setLanguage(language);
           options.setSeason(season);
           options.setEpisode(episode);

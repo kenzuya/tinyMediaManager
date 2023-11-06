@@ -94,11 +94,11 @@ public class TvShowPosterSizeFilter extends AbstractNumberTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(TmmResourceBundle.getString("metatag.bitdepth"));
+    return new TmmLabel(TmmResourceBundle.getString("filter.poster.height"));
   }
 
   @Override
   public String getId() {
-    return "tvShowVideoBitdepth";
+    return "tvShowPosterSize";
   }
 }

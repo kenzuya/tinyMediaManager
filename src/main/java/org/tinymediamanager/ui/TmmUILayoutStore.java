@@ -315,7 +315,8 @@ public class TmmUILayoutStore {
   /**
    * general purpose flag to skip saving
    *
-   * @param skipSaving true/false
+   * @param skipSaving
+   *          true/false
    */
   public void setSkipSaving(boolean skipSaving) {
     this.skipSaving = skipSaving;
@@ -362,6 +363,14 @@ public class TmmUILayoutStore {
     }
     catch (Exception e) {
       return rect;
+    }
+
+    // prevent from moving out of the screen (can happen in Docker/VNC)
+    if (rect.x < 0) {
+      rect.x = 0;
+    }
+    if (rect.y < 0) {
+      rect.y = 0;
     }
 
     // check if the stored sizes fit to any screen

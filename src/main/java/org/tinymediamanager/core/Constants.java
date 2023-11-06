@@ -84,6 +84,7 @@ public final class Constants {
   public static final String REMOVED_EPISODE        = "removedEpisode";
   public static final String REMOVED_MOVIE          = "removedMovie";
   public static final String REMOVED_MOVIE_SET      = "removedMovieSet";
+  public static final String REMOVED_SEASON         = "removedSeason";
   public static final String REMOVED_TV_SHOW        = "removedTvShow";
   public static final String ROLE                   = "role";
   public static final String RUNTIME                = "runtime";
@@ -124,14 +125,6 @@ public final class Constants {
   public static final String DECADE                 = "decade";
   public static final String HDR_FORMAT             = "hdrFormat";
   public static final String AUDIO_TITLE            = "audioTitle";
-
-  // some hardcoded, well known meta data provider IDs
-  // may add new ones in MediaEntity.setId()
-  public static final String TMDB                   = "tmdb";
-  public static final String TMDB_SET               = "tmdbSet";
-  public static final String IMDB                   = "imdb";
-  public static final String TVDB                   = "tvdb";
-  public static final String TRAKT                  = "trakt";
 
   private Constants() {
   }

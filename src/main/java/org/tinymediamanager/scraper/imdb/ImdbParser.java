@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +55,6 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -68,6 +68,7 @@ import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
+import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
 import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
@@ -825,8 +826,10 @@ public abstract class ImdbParser {
   /**
    * generates the accept-language http header for imdb
    *
-   * @param language the language code to be used
-   * @param country  the country to be used
+   * @param language
+   *          the language code to be used
+   * @param country
+   *          the country to be used
    * @return the Accept-Language string
    */
   protected static String getAcceptLanguage(String language, String country) {
@@ -893,7 +896,8 @@ public abstract class ImdbParser {
    * @param doc
    * @param options
    * @param md
-   * @throws Exception on JSON parsing errors
+   * @throws Exception
+   *           on JSON parsing errors
    */
   protected void parseDetailPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
@@ -932,10 +936,14 @@ public abstract class ImdbParser {
       md.setReleaseDate(relDate.toDate());
 
       md.setRuntime(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
+      // fallback
+      if (md.getRuntime() == 0) {
+        md.setRuntime(JsonUtils.at(node, "/props/pageProps/mainColumnData/series/series/runtime/seconds").asInt(0) / 60);
+      }
 
       JsonNode agg = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/aggregateRating");
       if (!agg.isMissingNode()) {
-        MediaRating rating = new MediaRating("imdb");
+        MediaRating rating = new MediaRating(MediaMetadata.IMDB);
         rating.setRating(agg.floatValue());
         rating.setVotes(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/ratingsSummary/voteCount").asInt(0));
         rating.setMaxValue(10);
@@ -944,7 +952,7 @@ public abstract class ImdbParser {
         }
       }
       if (isScrapeMetacriticRatings()) {
-        MediaRating rating = new MediaRating("metacritic");
+        MediaRating rating = new MediaRating(MediaMetadata.METACRITIC);
         rating.setRating(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/metacritic/metascore/score").asInt(0));
         rating.setMaxValue(100);
         if (rating.getRating() > 0) {
@@ -976,15 +984,27 @@ public abstract class ImdbParser {
       JsonNode primaryImage = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/primaryImage");
       ImdbImage img = JsonUtils.parseObject(mapper, primaryImage, ImdbImage.class);
       if (img != null) {
-        MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        MediaArtwork mediaArtwork;
+        int sizeOrder = 0;
         if (options.getMediaType() == MediaType.TV_EPISODE) {
-          poster = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
+          mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, THUMB);
+          sizeOrder = MediaArtwork.ThumbSizes.getSizeOrder(img.width);
         }
-        poster.setOriginalUrl(img.url);
-        poster.setPreviewUrl(img.url); // well, yes
-        poster.setImdbId(img.id);
-        poster.addImageSize(img.width, img.height, img.url);
-        md.addMediaArt(poster);
+        else {
+          mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.POSTER);
+          sizeOrder = MediaArtwork.PosterSizes.getSizeOrder(img.width);
+        }
+
+        mediaArtwork.setOriginalUrl(img.url);
+        mediaArtwork.setPreviewUrl(img.url); // well, yes
+        mediaArtwork.setImdbId(img.id);
+
+        // add original size
+        mediaArtwork.addImageSize(img.width, img.height, img.url, sizeOrder);
+        // add variants
+        adoptArtworkSizes(mediaArtwork, img.width);
+
+        md.addMediaArt(mediaArtwork);
       }
 
       // primaryVideos for all trailers
@@ -1024,12 +1044,17 @@ public abstract class ImdbParser {
         ImdbImage i = JsonUtils.parseObject(mapper, fanart.get("node"), ImdbImage.class);
         // only parse landscape ones as fanarts
         if (i != null && i.width > i.height) {
-          MediaArtwork poster = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
-          poster.setOriginalUrl(i.url);
-          poster.setPreviewUrl(i.url); // well, yes
-          poster.setImdbId(i.id);
-          poster.addImageSize(i.width, i.height, i.url);
-          md.addMediaArt(poster);
+          MediaArtwork mediaArtwork = new MediaArtwork(ImdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
+          mediaArtwork.setOriginalUrl(i.url);
+          mediaArtwork.setPreviewUrl(i.url); // well, yes
+          mediaArtwork.setImdbId(i.id);
+
+          // add original size
+          mediaArtwork.addImageSize(i.width, i.height, i.url, MediaArtwork.FanartSizes.getSizeOrder(i.width));
+          // add variants
+          adoptArtworkSizes(mediaArtwork, i.width);
+
+          md.addMediaArt(mediaArtwork);
         }
       }
 
@@ -1198,7 +1223,7 @@ public abstract class ImdbParser {
       if (votesElement != null) {
         String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
         try {
-          MediaRating rating = new MediaRating("imdb");
+          MediaRating rating = new MediaRating(MediaMetadata.IMDB);
           rating.setRating(Float.parseFloat(ratingAsString));
           rating.setVotes(MetadataUtil.parseInt(countAsString));
           md.addRating(rating);
@@ -1935,7 +1960,7 @@ public abstract class ImdbParser {
 
       try {
         if (useCachedUrl) {
-          url = new InMemoryCachedUrl(this.pageUrl);
+          url = new OnDiskCachedUrl(this.pageUrl, 15, TimeUnit.MINUTES);
         }
         else {
           url = new Url(this.pageUrl);
@@ -1966,7 +1991,6 @@ public abstract class ImdbParser {
   protected void processMediaArt(MediaMetadata md, MediaArtwork.MediaArtworkType type, String image) {
     MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, type);
 
-    ma.setDefaultUrl(image);
     ma.setOriginalUrl(image);
 
     // https://stackoverflow.com/a/73501833
@@ -1975,52 +1999,64 @@ public abstract class ImdbParser {
     String previewUrl = image.replace("." + extension, "_SX342." + extension);
     ma.setPreviewUrl(previewUrl);
 
+    ma.addImageSize(0, 0, image, 0); // no size available
+
     md.addMediaArt(ma);
   }
 
-  protected void adoptArtworkToOptions(MediaArtwork artwork, ArtworkSearchAndScrapeOptions options) {
-    switch (options.getArtworkType()) {
+  protected void adoptArtworkSizes(MediaArtwork artwork, int width) {
+    switch (artwork.getType()) {
       case POSTER:
         for (MediaArtwork.PosterSizes posterSizes : MediaArtwork.PosterSizes.values()) {
-          addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight());
-          if (options.getPosterSize() == posterSizes) {
-            artwork.setSizeOrder(options.getPosterSize().getOrder());
+          if (width > posterSizes.getWidth()) {
+            addArtworkSize(artwork, posterSizes.getWidth(), posterSizes.getHeight(), posterSizes.getOrder());
+          }
+        }
+        break;
+
+      case BACKGROUND:
+        for (MediaArtwork.FanartSizes fanartSizes : MediaArtwork.FanartSizes.values()) {
+          if (width > fanartSizes.getWidth()) {
+            addArtworkSize(artwork, fanartSizes.getWidth(), fanartSizes.getHeight(), fanartSizes.getOrder());
           }
         }
         break;
 
       case THUMB:
-        addArtworkSize(artwork, 3840, 2160);
-        addArtworkSize(artwork, 1920, 1080);
-        addArtworkSize(artwork, 1280, 720);
-        addArtworkSize(artwork, 960, 540); // Kodi preference
+        for (MediaArtwork.ThumbSizes thumbSizes : MediaArtwork.ThumbSizes.values()) {
+          if (width > thumbSizes.getWidth()) {
+            addArtworkSize(artwork, thumbSizes.getWidth(), thumbSizes.getHeight(), thumbSizes.getOrder());
+          }
+        }
+        break;
+
+      default:
         break;
     }
   }
 
-  private void addArtworkSize(MediaArtwork artwork, int width, int height) {
+  private void addArtworkSize(MediaArtwork artwork, int width, int height, int sizeOrder) {
     // get the highest artwork size (from scraper)
     ImageSizeAndUrl originalSize = !artwork.getImageSizes().isEmpty() ? artwork.getImageSizes().get(0) : null;
     if (originalSize != null) {
       if (originalSize.getWidth() > width || originalSize.getHeight() > height) {
         // only downscale
-        String image = artwork.getDefaultUrl();
+        String image = artwork.getOriginalUrl();
         String extension = FilenameUtils.getExtension(image);
         // https://stackoverflow.com/a/73501833
         String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
-        artwork.setDefaultUrl(defaultUrl);
         artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
-        artwork.addImageSize(width, height, defaultUrl);
+        artwork.addImageSize(width, height, defaultUrl, sizeOrder);
       }
-    } else {
+    }
+    else {
       // no size provided by scraper, just scale it
-      String image = artwork.getDefaultUrl();
+      String image = artwork.getOriginalUrl();
       String extension = FilenameUtils.getExtension(image);
       // https://stackoverflow.com/a/73501833
       String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
-      artwork.setDefaultUrl(defaultUrl);
       artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
-      artwork.addImageSize(width, height, defaultUrl);
+      artwork.addImageSize(width, height, defaultUrl, sizeOrder);
     }
   }
 

@@ -147,7 +147,8 @@ public class TvShowEpisodeNfoParser {
       return false;
     }
 
-    if (episode.episode < 0) {
+    // having multiple episodes in NFO, then the episode# IS mandatory
+    if (episodes.size() > 1 && episode.episode < 0) {
       return false;
     }
 
@@ -515,7 +516,7 @@ public class TvShowEpisodeNfoParser {
             r.id = "tomatometerallcritics";
           }
           else if ("metascore".equals(r.id)) {
-            r.id = "metacritic";
+            r.id = MediaMetadata.METACRITIC;
           }
 
           // maxvalue
@@ -1304,6 +1305,10 @@ public class TvShowEpisodeNfoParser {
             }
             break;
 
+          case "hdrtype":
+            video.hdrtype = child.ownText();
+            break;
+
           case "stereomode":
             video.stereomode = child.ownText();
             break;
@@ -1558,8 +1563,8 @@ public class TvShowEpisodeNfoParser {
       if (element != null) {
         for (Element group : element.children()) {
           try {
-            MediaEpisodeGroup.EpisodeGroup episodeGroup = MediaEpisodeGroup.EpisodeGroup.valueOf(group.attr("id"));
-            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroup, group.attr("name")),
+            MediaEpisodeGroup.EpisodeGroupType episodeGroupType = MediaEpisodeGroup.EpisodeGroupType.valueOf(group.attr("id"));
+            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroupType, group.attr("name")),
                 Integer.parseInt(group.attr("season")), Integer.parseInt(group.attr("episode")));
 
             if (episodeNumber.containsAnyNumber()) {
@@ -1731,6 +1736,7 @@ public class TvShowEpisodeNfoParser {
     public int    width      = 0;
     public int    height     = 0;
     public int    durationinseconds;
+    public String hdrtype    = "";
     public String stereomode = "";
   }
 

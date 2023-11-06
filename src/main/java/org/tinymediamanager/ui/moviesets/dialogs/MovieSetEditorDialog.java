@@ -291,8 +291,8 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       {
         JPanel artworkPanel = new JPanel();
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
-        artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow][20lp:n][100lp:200lp,grow]",
-            "[][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][20lp:n]"));
+        artworkPanel.setLayout(new MigLayout("", "[200lp:50%,grow][20lp:n][200lp:50%,grow]",
+                "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow]"));
         {
           final JLabel lblClearlogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
           artworkPanel.add(lblClearlogoT, "cell 0 0");

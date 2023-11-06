@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -115,22 +118,25 @@ import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.datepicker.YearSpinner;
 import org.tinymediamanager.ui.components.table.MouseKeyboardSortingStrategy;
+import org.tinymediamanager.ui.components.table.TmmEditorTable;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.AbstractEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
+import org.tinymediamanager.ui.panels.AbstractModalInputPanel;
 import org.tinymediamanager.ui.panels.IdEditorPanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 import org.tinymediamanager.ui.panels.RatingEditorPanel;
 import org.tinymediamanager.ui.renderer.LeftDotTableCellRenderer;
+import org.tinymediamanager.ui.tvshows.EpisodeNumberTable;
+import org.tinymediamanager.ui.tvshows.TvShowEpisodeNumberEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.gui.WritableTableFormat;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -217,7 +223,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
    */
   public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO()
-            + " >", "tvShowEditor", tvShow);
+        + " >", "tvShowEditor", tvShow);
 
     this.tvShowToEdit = tvShow;
     this.queueIndex = queueIndex;
@@ -288,22 +294,28 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       }
       cbCertification.setSelectedItem(tvShowToEdit.getCertification());
 
-      buildEpisodeContainer(tvShow.getEpisodeGroup());
+      // initially create the episode containers
+      for (TvShowEpisode episode : tvShowToEdit.getEpisodes()) {
+        EpisodeEditorContainer container = new EpisodeEditorContainer(episode);
+        container.season = episode.getSeason(tvShow.getEpisodeGroup());
+        container.episode = episode.getEpisode(tvShow.getEpisodeGroup());
+        episodes.add(container);
+      }
 
       // calculate distribution of the episodes over episode groups
       EpisodeGroupContainer selectedEpisodeGroup = null;
-      Map<MediaEpisodeGroup.EpisodeGroup, EpisodeGroupContainer> episodeGroups = new HashMap<>();
+      Map<MediaEpisodeGroup, EpisodeGroupContainer> episodeGroups = new LinkedHashMap<>();
       for (TvShowEpisode episode : tvShowToEdit.getEpisodes()) {
-        for (Map.Entry<MediaEpisodeGroup.EpisodeGroup, MediaEpisodeNumber> entry : episode.getEpisodeNumbers().entrySet()) {
-          if (entry.getValue().containsAnyNumber()) {
-            EpisodeGroupContainer container = episodeGroups.get(entry.getKey());
+        for (MediaEpisodeNumber mediaEpisodeNumber : episode.getEpisodeNumbers()) {
+          if (mediaEpisodeNumber.containsAnyNumber()) {
+            EpisodeGroupContainer container = episodeGroups.get(mediaEpisodeNumber.episodeGroup());
             if (container == null) {
-              container = new EpisodeGroupContainer(entry.getValue().episodeGroup());
+              container = new EpisodeGroupContainer(mediaEpisodeNumber.episodeGroup());
 
-              if (tvShowToEdit.getEpisodeGroup() == entry.getValue().episodeGroup()) {
+              if (tvShowToEdit.getEpisodeGroup().equals(mediaEpisodeNumber.episodeGroup())) {
                 selectedEpisodeGroup = container;
               }
-              episodeGroups.put(entry.getKey(), container);
+              episodeGroups.put(mediaEpisodeNumber.episodeGroup(), container);
             }
 
             container.numberOfEpisodes++;
@@ -315,12 +327,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         cbEpisodeOrder.setSelectedItem(selectedEpisodeGroup);
       }
 
-      cbEpisodeOrder.addItemListener(e -> {
-        Object obj = cbEpisodeOrder.getSelectedItem();
-        if (obj instanceof EpisodeGroupContainer episodeGroupContainer) {
-          buildEpisodeContainer(episodeGroupContainer.episodeGroup);
-        }
-      });
+      cbEpisodeOrder.addItemListener(e -> buildEpisodeContainer());
 
       trailers.addAll(tvShow.getTrailer());
 
@@ -364,15 +371,23 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     return tabbedPane.getSelectedIndex();
   }
 
-  private void buildEpisodeContainer(MediaEpisodeGroup episodeGroup) {
-    episodes.clear();
+  private void buildEpisodeContainer() {
 
-    for (TvShowEpisode episode : tvShowToEdit.getEpisodes()) {
-      EpisodeEditorContainer container = new EpisodeEditorContainer(episode);
-      container.season = episode.getSeason(episodeGroup);
-      container.episode = episode.getEpisode(episodeGroup);
-      episodes.add(container);
+    Object obj = cbEpisodeOrder.getSelectedItem();
+    if (obj instanceof EpisodeGroupContainer episodeGroupContainer) {
+      for (EpisodeEditorContainer episodeContainer : episodes) {
+        MediaEpisodeNumber episodeNumber = episodeContainer.getEpisodeNumber(episodeGroupContainer.episodeGroup);
+        if (episodeNumber != null) {
+          episodeContainer.setSeason(episodeNumber.season());
+          episodeContainer.setEpisode(episodeNumber.episode());
+        }
+        else {
+          episodeContainer.setSeason(-1);
+          episodeContainer.setEpisode(-1);
+        }
+      }
     }
+
   }
 
   private void initComponents() {
@@ -543,6 +558,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         lblFanart = new ImageLabel();
         lblFanart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         lblFanart.addMouseListener(new MouseAdapter() {
+
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BACKGROUND,
@@ -575,8 +591,9 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         details1Panel.add(btnDeleteFanart, "cell 8 8");
 
         details1Panel.add(lblFanart, "cell 8 9 1 4,grow");
-        lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-            e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, MediaFileType.FANART));
+        lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e ->
+
+        setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, MediaFileType.FANART));
       }
 
       JButton btnAddRating = new SquareIconButton(new AddRatingAction());
@@ -721,7 +738,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[25%:35%:35%,grow][20lp:n][15%:25%:25%,grow][20lp:n][15%:25%:25%,grow]",
+      artworkPanel.setLayout(new MigLayout("", "[25%:35%:35%,grow][20lp:n][25%:35%:35%,grow][20lp:n][15%:30%:30%,grow]",
           "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow]"));
 
       {
@@ -1046,7 +1063,22 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         episodesPanel.add(btnCloneEpisode, "cell 0 1");
       }
       {
-        tableEpisodes = new TmmTable(new TmmTableModel<>(episodes, new EpisodeTableFormat()));
+        tableEpisodes = new TmmEditorTable(new TmmTableModel<>(episodes, new EpisodeTableFormat())) {
+          @Override
+          protected void editButtonClicked(int row) {
+            if (row > -1) {
+              row = tableEpisodes.convertRowIndexToModel(row);
+              EpisodeEditorContainer episodeContainer = episodes.get(row);
+
+              ModalPopupPanel popupPanel = createModalPopupPanel();
+              popupPanel.setTitle(TmmResourceBundle.getString("tvshowepisode.edit"));
+
+              EpisodeEditorPanel episodeEditorPanel = new EpisodeEditorPanel(episodeContainer);
+              popupPanel.setContent(episodeEditorPanel);
+              showModalPopupPanel(popupPanel);
+            }
+          }
+        };
         tableEpisodes.installComparatorChooser(episodes, new MouseKeyboardSortingStrategy());
 
         JScrollPane scrollPaneEpisodes = new JScrollPane();
@@ -1106,6 +1138,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       JButton okButton = new JButton(new OKAction());
       addButton(okButton);
     }
+
   }
 
   private void updateArtworkUrl(ImageLabel imageLabel, JTextField textField) {
@@ -1140,7 +1173,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       // sync of media ids
       // first round -> add existing ids
       for (MediaId id : ids) {
-        // only process non empty ids
+        // only process non-empty ids
         // changed; if empty/0/null value gets set, it is removed in setter ;)
         // if (StringUtils.isAnyBlank(id.key, id.value)) {
         // continue;
@@ -1170,8 +1203,8 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       }
 
       Object certification = cbCertification.getSelectedItem();
-      if (certification instanceof MediaCertification) {
-        tvShowToEdit.setCertification((MediaCertification) certification);
+      if (certification instanceof MediaCertification mediaCertification) {
+        tvShowToEdit.setCertification(mediaCertification);
       }
 
       // process artwork
@@ -1186,7 +1219,8 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
 
       // set extrafanarts
       if (extrafanarts != null && (extrafanarts.size() != tvShowToEdit.getExtraFanartUrls().size()
-          || !extrafanarts.containsAll(tvShowToEdit.getExtraFanartUrls()) || !tvShowToEdit.getExtraFanartUrls().containsAll(extrafanarts))) {
+          || !new HashSet<>(extrafanarts).containsAll(tvShowToEdit.getExtraFanartUrls()) // HashSet for performance
+          || !new HashSet<>(tvShowToEdit.getExtraFanartUrls()).containsAll(extrafanarts))) {
         tvShowToEdit.setExtraFanartUrls(extrafanarts);
         tvShowToEdit.downloadArtwork(MediaFileType.EXTRAFANART);
       }
@@ -1261,8 +1295,14 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         boolean found = false;
         boolean shouldStore = false;
 
-        if (container.episode != container.tvShowEpisode.getEpisode() || container.season != container.tvShowEpisode.getSeason()) {
-          container.tvShowEpisode.setEpisode(new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), container.season, container.episode));
+        if (!new HashSet<>(container.episodeNumbers).containsAll(container.tvShowEpisode.getEpisodeNumbers()) // HashSet for performance
+            || !new HashSet<>(container.tvShowEpisode.getEpisodeNumbers()).containsAll(container.episodeNumbers)) {
+          Map<MediaEpisodeGroup, MediaEpisodeNumber> episodeNumberMap = new HashMap<>();
+          for (MediaEpisodeNumber episodeNumber : container.episodeNumbers) {
+            episodeNumberMap.putIfAbsent(episodeNumber.episodeGroup(), episodeNumber);
+          }
+
+          container.tvShowEpisode.setEpisodeNumbers(episodeNumberMap);
           container.tvShowEpisode.removeAllIds(); // S/EE changed - invalidate IDs
           shouldStore = true;
         }
@@ -1450,11 +1490,10 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       MediaGenres newGenre = null;
       Object item = cbGenres.getSelectedItem();
 
-      // check, if text is selected (from auto completion), in this case we just
+      // check, if text is selected (from auto-completion), in this case we just
       // remove the selection
       Component editorComponent = cbGenres.getEditor().getEditorComponent();
-      if (editorComponent instanceof JTextField) {
-        JTextField tf = (JTextField) editorComponent;
+      if (editorComponent instanceof JTextField tf) {
         String selectedText = tf.getSelectedText();
         if (selectedText != null) {
           tf.setSelectionStart(0);
@@ -1465,13 +1504,13 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       }
 
       // genre
-      if (item instanceof MediaGenres) {
-        newGenre = (MediaGenres) item;
+      if (item instanceof MediaGenres mediaGenres) {
+        newGenre = mediaGenres;
       }
 
       // newly created genre?
-      if (item instanceof String) {
-        newGenre = MediaGenres.getGenre((String) item);
+      if (item instanceof String genre) {
+        newGenre = MediaGenres.getGenre(genre);
       }
 
       // add genre if it is not already in the list
@@ -1547,7 +1586,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
         return;
       }
 
-      // check, if text is selected (from auto completion), in this case we just
+      // check, if text is selected (from auto-completion), in this case we just
       // remove the selection
       Component editorComponent = cbTags.getEditor().getEditorComponent();
       if (editorComponent instanceof JTextField tf) {
@@ -1671,19 +1710,22 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
   }
 
   private static class EpisodeEditorContainer extends AbstractModelObject implements Comparable<EpisodeEditorContainer> {
-    final TvShowEpisode tvShowEpisode;
-    int                 season;
-    int                 episode;
+    private final TvShowEpisode            tvShowEpisode;
+    private final List<MediaEpisodeNumber> episodeNumbers;
+
+    private int                            season  = -1;
+    private int                            episode = -1;
 
     EpisodeEditorContainer(TvShowEpisode episode) {
       this.tvShowEpisode = episode;
+      this.episodeNumbers = new ArrayList<>(episode.getEpisodeNumbers());
     }
 
-    public String getEpisodeTitle() {
+    String getEpisodeTitle() {
       return tvShowEpisode.getTitle();
     }
 
-    public String getMediaFilename() {
+    String getMediaFilename() {
       List<MediaFile> mfs = tvShowEpisode.getMediaFiles(MediaFileType.VIDEO);
       if (mfs != null && !mfs.isEmpty()) {
         return mfs.get(0).getFile().toString();
@@ -1693,21 +1735,29 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       }
     }
 
-    public int getEpisode() {
+    List<MediaEpisodeNumber> getEpisodeNumbers() {
+      return episodeNumbers;
+    }
+
+    MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup) {
+      return episodeNumbers.stream().filter(mediaEpisodeNumber -> mediaEpisodeNumber.episodeGroup().equals(episodeGroup)).findFirst().orElse(null);
+    }
+
+    int getEpisode() {
       return episode;
     }
 
-    public void setEpisode(int newValue) {
+    void setEpisode(int newValue) {
       int oldValue = this.episode;
       this.episode = newValue;
       firePropertyChange("episode", oldValue, newValue);
     }
 
-    public int getSeason() {
+    int getSeason() {
       return season;
     }
 
-    public void setSeason(int newValue) {
+    void setSeason(int newValue) {
       int oldValue = this.season;
       this.season = newValue;
       firePropertyChange("season", oldValue, newValue);
@@ -1760,11 +1810,14 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       if (row > -1) {
         row = tableEpisodes.convertRowIndexToModel(row);
         EpisodeEditorContainer origContainer = episodes.get(row);
-        EpisodeEditorContainer newContainer = new EpisodeEditorContainer(origContainer.tvShowEpisode);
-        newContainer.tvShowEpisode.setTitle(origContainer.tvShowEpisode.getTitle() + " (clone)");
-        newContainer.episode = -1;
-        newContainer.season = newContainer.tvShowEpisode.getSeason();
-        episodes.add(row + 1, newContainer);
+        EpisodeEditorContainer newContainer = new EpisodeEditorContainer(new TvShowEpisode(origContainer.tvShowEpisode)); // clone
+
+        ModalPopupPanel popupPanel = createModalPopupPanel();
+        popupPanel.setTitle(TmmResourceBundle.getString("tvshowepisode.clone"));
+
+        EpisodeEditorPanel episodeEditorPanel = new EpisodeEditorPanel(newContainer);
+        popupPanel.setContent(episodeEditorPanel);
+        showModalPopupPanel(popupPanel);
       }
     }
   }
@@ -1785,7 +1838,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     }
   }
 
-  private static class EpisodeTableFormat extends TmmTableFormat<EpisodeEditorContainer> implements WritableTableFormat<EpisodeEditorContainer> {
+  private static class EpisodeTableFormat extends TmmTableFormat<EpisodeEditorContainer> {
     EpisodeTableFormat() {
       StringComparator stringComparator = new StringComparator();
       IntegerComparator integerComparator = new IntegerComparator();
@@ -1821,25 +1874,14 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
       col.setColumnResizeable(false);
       col.setColumnComparator(integerComparator);
       addColumn(col);
-    }
 
-    @Override
-    public boolean isEditable(EpisodeEditorContainer episodeEditorContainer, int i) {
-      return switch (i) {
-        case 2, 3 -> true;
-        default -> false;
-      };
-    }
-
-    @Override
-    public EpisodeEditorContainer setColumnValue(EpisodeEditorContainer episodeEditorContainer, Object o, int i) {
-      switch (i) {
-        case 2 -> episodeEditorContainer.setSeason((Integer) o);
-        case 3 -> episodeEditorContainer.setEpisode((Integer) o);
-        default -> {
-        }
-      }
-      return episodeEditorContainer;
+      /*
+       * edit
+       */
+      col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", episode -> IconManager.EDIT, ImageIcon.class);
+      col.setColumnResizeable(false);
+      col.setHeaderIcon(IconManager.EDIT_HEADER);
+      addColumn(col);
     }
   }
 
@@ -1927,7 +1969,7 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
 
     @Override
     public String toString() {
-      String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroup.getEpisodeGroup().name().toLowerCase(Locale.ROOT));
+      String localizedEnumName = TmmResourceBundle.getString("episodeGroup." + episodeGroup.getEpisodeGroupType().name().toLowerCase(Locale.ROOT));
       String episodeGroupName;
       if (StringUtils.isNotBlank(episodeGroup.getName())) {
         episodeGroupName = episodeGroup.getName() + " (" + localizedEnumName + ")";
@@ -1940,4 +1982,131 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
     }
   }
 
+  private class EpisodeEditorPanel extends AbstractModalInputPanel {
+    private final EpisodeEditorContainer        episodeContainer;
+    private final EventList<MediaEpisodeNumber> episodeNumbers;
+    private final TmmTable                      tableEpisodeNumbers;
+
+    EpisodeEditorPanel(EpisodeEditorContainer episode) {
+      super();
+
+      this.episodeContainer = episode;
+      this.episodeNumbers = new BasicEventList<>(new ArrayList<>(episode.tvShowEpisode.getEpisodeNumbers()));
+
+      {
+        setLayout(new MigLayout("", "[][100lp:n,grow]", "[][][50lp:150lp][20lp]"));
+        {
+          JLabel lblEpisodeTitleT = new JLabel(TmmResourceBundle.getString("metatag.title"));
+          add(lblEpisodeTitleT, "cell 0 0,alignx trailing");
+
+          JLabel episodeTitle = new JLabel(episode.getEpisodeTitle());
+          add(episodeTitle, "cell 1 0, wmin 0");
+        }
+        {
+          JLabel lblMediaFileT = new JLabel(TmmResourceBundle.getString("metatag.filename"));
+          add(lblMediaFileT, "cell 0 1,alignx trailing");
+
+          JLabel episodeTitle = new JLabel(episode.getMediaFilename());
+          add(episodeTitle, "cell 1 1, wmin 0");
+        }
+        {
+          JLabel lblEpisodeNumbersT = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
+          add(lblEpisodeNumbersT, "cell 0 2,flowy, alignx right,aligny top");
+
+          JScrollPane scrollPane = new JScrollPane();
+          add(scrollPane, "cell 1 2,grow");
+
+          tableEpisodeNumbers = new EpisodeNumberTable(episodeNumbers) {
+            @Override
+            protected void editButtonClicked(int row) {
+              MediaEpisodeNumber episodeNumber = episodeNumbers.get(row);
+              if (episodeNumber == null) {
+                return;
+              }
+
+              ModalPopupPanel popupPanel = createModalPopupPanel();
+              popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.edit"));
+
+              TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(episodeNumber,
+                  episode.tvShowEpisode.getTvShow().getEpisodeGroups());
+              popupPanel.setContent(episodeNumberEditorPanel);
+              popupPanel.setOnCloseHandler(() -> {
+                MediaEpisodeNumber episodeNumber1 = episodeNumberEditorPanel.getEpisodeNumber();
+                if (episodeNumber1 != null && episodeNumber1.containsAnyNumber()) {
+                  addOrEditEpisodeNumber(episodeNumber1);
+                }
+              });
+
+              showModalPopupPanel(popupPanel);
+            }
+          };
+          tableEpisodeNumbers.configureScrollPane(scrollPane);
+        }
+
+        JButton btnAddEpisodeNumber = new SquareIconButton(IconManager.ADD_INV);
+        btnAddEpisodeNumber.addActionListener(e -> {
+          ModalPopupPanel popupPanel = createModalPopupPanel();
+          popupPanel.setTitle(TmmResourceBundle.getString("episodenumber.add"));
+
+          TvShowEpisodeNumberEditorPanel episodeNumberEditorPanel = new TvShowEpisodeNumberEditorPanel(
+              new MediaEpisodeNumber(tvShowToEdit.getEpisodeGroup(), -1, -1), tvShowToEdit.getEpisodeGroups());
+          popupPanel.setContent(episodeNumberEditorPanel);
+          popupPanel.setOnCloseHandler(() -> {
+            MediaEpisodeNumber episodeNumber = episodeNumberEditorPanel.getEpisodeNumber();
+            if (episodeNumber != null && episodeNumber.containsAnyNumber()) {
+              addOrEditEpisodeNumber(episodeNumber);
+            }
+          });
+
+          showModalPopupPanel(popupPanel);
+        });
+        add(btnAddEpisodeNumber, "cell 0 2,alignx right,aligny top");
+
+        JButton btnRemoveEpisodeNumber = new SquareIconButton(IconManager.REMOVE_INV);
+        btnRemoveEpisodeNumber.addActionListener(e -> {
+          int row = tableEpisodeNumbers.getSelectedRow();
+          if (row > -1) {
+            row = tableEpisodeNumbers.convertRowIndexToModel(row);
+            episodeNumbers.remove(row);
+          }
+        });
+        add(btnRemoveEpisodeNumber, "cell 0 2,alignx right,aligny top");
+      }
+    }
+
+    @Override
+    protected void onClose() {
+      // set the episode numbers
+      episodeContainer.episodeNumbers.clear();
+      episodeContainer.episodeNumbers.addAll(episodeNumbers);
+
+      if (!episodes.contains(episodeContainer)) {
+        episodes.add(episodeContainer);
+      }
+
+      // re-build the episode groups
+      buildEpisodeContainer();
+
+      episodes.sort(EpisodeEditorContainer::compareTo);
+
+      setVisible(false);
+    }
+
+    private void addOrEditEpisodeNumber(MediaEpisodeNumber episodeNumber) {
+      // remove the old one
+      MediaEpisodeNumber existing = episodeNumbers.stream()
+          .filter(ep -> ep.episodeGroup().getEpisodeGroupType() == episodeNumber.episodeGroup().getEpisodeGroupType())
+          .findFirst()
+          .orElse(null);
+      if (existing != null) {
+        int index = episodeNumbers.indexOf(existing);
+        episodeNumbers.remove(existing);
+        episodeNumbers.add(index, episodeNumber);
+        ids.clear();
+      }
+      else {
+        episodeNumbers.add(episodeNumber);
+      }
+    }
+  }
 }

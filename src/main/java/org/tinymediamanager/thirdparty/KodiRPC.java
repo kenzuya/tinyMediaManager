@@ -250,6 +250,10 @@ public class KodiRPC {
   private Map<String, UUID> parseEntity(MediaEntity entity, boolean isDisc) {
     Map<String, UUID> fileMap = new HashMap<>();
     Path ds = Paths.get(entity.getDataSource());
+    if (ds == null || ds.getFileName() == null) {
+      LOGGER.warn("Datasource was null? Ignoring {}", entity.toString());
+      return fileMap;
+    }
     String dsName = ds.getFileName().toString();
 
     MediaFile main = entity.getMainFile();

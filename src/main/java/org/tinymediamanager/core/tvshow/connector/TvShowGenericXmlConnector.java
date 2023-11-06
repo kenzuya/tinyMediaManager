@@ -45,7 +45,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
@@ -552,14 +551,14 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       if (MediaMetadata.TVDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getTvdbId())) {
         root.appendChild(createTvdbEpisodeGuide());
       }
-      else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+      else if (MediaMetadata.TMDB.equals(tvShow.getLastScraperId()) && StringUtils.isNotBlank(tvShow.getIdAsString(MediaMetadata.TMDB))) {
         root.appendChild(createTmdbEpisodeGuide());
       }
       // or existing IDs
       else if (StringUtils.isNotBlank(tvShow.getTvdbId())) {
         root.appendChild(createTvdbEpisodeGuide());
       }
-      else if (StringUtils.isNotBlank(tvShow.getIdAsString(Constants.TMDB))) {
+      else if (StringUtils.isNotBlank(tvShow.getIdAsString(MediaMetadata.TMDB))) {
         root.appendChild(createTmdbEpisodeGuide());
       }
       // or even import it from the parser
@@ -616,7 +615,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     // http://api.themoviedb.org/3/tv/1396?api_key=6a5be4999abf74eba1f9a8311294c267&language=en
     Element episodeguide = document.createElement("episodeguide");
     Element url = document.createElement("url");
-    url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB)
+    url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(MediaMetadata.TMDB)
         + "?api_key=6a5be4999abf74eba1f9a8311294c267&language=" + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
     episodeguide.appendChild(url);
 

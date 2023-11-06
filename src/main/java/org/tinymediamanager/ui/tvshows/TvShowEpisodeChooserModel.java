@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroup.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
 import java.util.Date;
 

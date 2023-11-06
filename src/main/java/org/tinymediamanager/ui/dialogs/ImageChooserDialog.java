@@ -881,7 +881,6 @@ public class ImageChooserDialog extends TmmDialog {
           default:
             return;
         }
-        art.setDefaultUrl(url);
         art.setPreviewUrl(url);
         art.setOriginalUrl(url);
 
@@ -889,6 +888,8 @@ public class ImageChooserDialog extends TmmDialog {
         final BufferedImage bufferedImage = ImageUtils.createImage(url1.getBytesWithRetry(5));
 
         if (bufferedImage != null) {
+          art.addImageSize(bufferedImage.getWidth(), bufferedImage.getHeight(), url, 0);
+
           SwingUtilities.invokeLater(() -> {
             addImage(bufferedImage, art);
             bufferedImage.flush();
@@ -909,8 +910,10 @@ public class ImageChooserDialog extends TmmDialog {
   /**
    * pre-set the artwork size filter to initially show only a part of the results
    *
-   * @param width  the image width
-   * @param height the image height
+   * @param width
+   *          the image width
+   * @param height
+   *          the image height
    */
   public void setImageSizeFilter(int width, int height) {
     ImageSizeAndUrl imageSizeAndUrl = new ImageSizeAndUrl(width, height, "");
@@ -923,7 +926,8 @@ public class ImageChooserDialog extends TmmDialog {
   /**
    * pre-set the language filter to initially show only a part of the results
    *
-   * @param languages the languages
+   * @param languages
+   *          the languages
    */
   public void setImageLanguageFilter(List<MediaLanguages> languages) {
     List<MediaLanguages> items = new ArrayList<>(languages);
@@ -1040,7 +1044,7 @@ public class ImageChooserDialog extends TmmDialog {
           imageLabel.setImageUrl(resolution.getUrl());
         }
         else {
-          imageLabel.setImageUrl(artwork.getDefaultUrl());
+          imageLabel.setImageUrl(artwork.getOriginalUrl());
         }
       }
 
@@ -1082,11 +1086,11 @@ public class ImageChooserDialog extends TmmDialog {
                 selectedExtraThumbs.add(size.getUrl());
               }
               else {
-                selectedExtraThumbs.add(artwork.getDefaultUrl());
+                selectedExtraThumbs.add(artwork.getOriginalUrl());
               }
             }
             else if (cb.getSelectedItem() instanceof String) {
-              selectedExtraThumbs.add(artwork.getDefaultUrl());
+              selectedExtraThumbs.add(artwork.getOriginalUrl());
             }
           }
         }
@@ -1117,11 +1121,11 @@ public class ImageChooserDialog extends TmmDialog {
                 selectedExtrafanarts.add(size.getUrl());
               }
               else {
-                selectedExtrafanarts.add(artwork.getDefaultUrl());
+                selectedExtrafanarts.add(artwork.getOriginalUrl());
               }
             }
             else if (cb.getSelectedItem() instanceof String) {
-              selectedExtrafanarts.add(artwork.getDefaultUrl());
+              selectedExtrafanarts.add(artwork.getOriginalUrl());
             }
           }
         }
@@ -1190,6 +1194,7 @@ public class ImageChooserDialog extends TmmDialog {
             options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
             options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
             options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
+            options.setThumbSize(TvShowModuleManager.getInstance().getSettings().getImageThumbSize());
           }
           else {
             continue;
