@@ -51,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.UpgradeTasks;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -140,14 +141,14 @@ public final class TvShowList extends AbstractModelObject {
     // the tag listener: it's used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow tvShow) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShow tvShow) {
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode episode) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShowEpisode episode) {
         updateEpisodeTags(Collections.singleton(episode));
       }
       if ((MEDIA_FILES.equals(evt.getPropertyName()) || MEDIA_INFORMATION.equals(evt.getPropertyName()))
-          && evt.getSource() instanceof TvShowEpisode episode) {
+          && evt.getSource()instanceof TvShowEpisode episode) {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
@@ -540,6 +541,8 @@ public final class TvShowList extends AbstractModelObject {
    * Load tv shows from database.
    */
   void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> seasonMap, MVMap<UUID, String> episodesMap) {
+    TvShowModuleManager module = TvShowModuleManager.getInstance();
+
     //////////////////////////////////////////////////
     // load all TV shows from the database
     //////////////////////////////////////////////////
@@ -554,6 +557,12 @@ public final class TvShowList extends AbstractModelObject {
         json = tvShowMap.get(uuid);
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
+
+        // inline upgrade from v4 - performance!
+        if (module.getDbVersion() < 5002) {
+          tvShow.getDummyEpisodes().forEach(UpgradeTasks::upgradeEpisodeNumbers);
+        }
+
         // for performance reasons we add tv shows after loading the episodes
         if (!tvShowsFromDb.add(tvShow)) {
           // already in there?! remove dupe
@@ -645,6 +654,11 @@ public final class TvShowList extends AbstractModelObject {
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
           toRemove.add(uuid);
           return;
+        }
+
+        // inline upgrade from v4 - performance!
+        if (module.getDbVersion() < 5002) {
+          UpgradeTasks.upgradeEpisodeNumbers(episode);
         }
 
         // assign it to the right TV show
