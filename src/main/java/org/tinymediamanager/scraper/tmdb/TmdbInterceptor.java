@@ -48,7 +48,7 @@ public class TmdbInterceptor implements Interceptor {
   public static Response handleIntercept(Chain chain, TmdbController tmdbController) throws IOException {
     Request request = chain.request();
 
-    if (!TmdbController.API_HOST.equals(request.url().host())) {
+    if (!TmdbController.API_HOST.equals(request.url().host()) && !TmdbController.ALTERNATE_API_HOST.equals(request.url().host())) {
       // do not intercept requests for other hosts
       // this allows the interceptor to be used on a shared okhttp client
       return chain.proceed(request);

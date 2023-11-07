@@ -44,7 +44,6 @@ public class TmdbTvShowArtworkProvider extends TmdbMetadataProvider implements I
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = super.createMediaProviderInfo();
 
-    info.getConfig().addText("apiKey", "", true);
     info.getConfig().load();
 
     return info;

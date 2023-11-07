@@ -56,33 +56,44 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Helper class for easy usage of the TMDB v3 API using retrofit.
  */
 class TmdbController {
-  public static final String     API_HOST          = "api.themoviedb.org";
-  public static final String     API_VERSION       = "3";
-  public static final String     API_URL           = "https://" + API_HOST + "/" + API_VERSION + "/";
-  public static final String     PARAM_API_KEY     = "api_key";
+  public static final String     API_HOST           = "api.themoviedb.org";
+  public static final String     ALTERNATE_API_HOST = "api.tmdb.org";
+  public static final String     API_VERSION        = "3";
+  public static final String     PARAM_API_KEY      = "api_key";
+  private static final String    TMDB_DATE_PATTERN  = "yyyy-MM-dd";
 
-  private static final String    TMDB_DATE_PATTERN = "yyyy-MM-dd";
+  private final String           apiUrl;
   private final SimpleDateFormat dateFormat;
+  private final String           apiKey;
+  private final boolean          alternateServer;
 
   private Retrofit               retrofit;
-  private String                 apiKey;
 
-  public TmdbController(String apiKey) {
+  TmdbController(String apiKey, boolean alternateServer) {
     this.apiKey = apiKey;
+    this.alternateServer = alternateServer;
+
+    if (alternateServer) {
+      apiUrl = "https://" + ALTERNATE_API_HOST + "/" + API_VERSION + "/";
+    }
+    else {
+      apiUrl = "https://" + API_HOST + "/" + API_VERSION + "/";
+    }
+
     this.dateFormat = new SimpleDateFormat(TMDB_DATE_PATTERN);
-  }
-
-  public void apiKey(String apiKey) {
-    this.apiKey = apiKey;
   }
 
   public String apiKey() {
     return apiKey;
   }
 
+  public boolean isAlternateServer() {
+    return alternateServer;
+  }
+
   protected Retrofit getRetrofit() {
     if (retrofit == null) {
-      retrofit = new Retrofit.Builder().baseUrl(API_URL)
+      retrofit = new Retrofit.Builder().baseUrl(apiUrl)
           .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create()))
           .client(okHttpClient())
           .build();
@@ -126,6 +137,7 @@ class TmdbController {
           media.media_type = MediaType.MOVIE;
         }
       }
+
       switch (media.media_type) {
         case MOVIE:
           media.movie = jsonDeserializationContext.deserialize(jsonElement, BaseMovie.class);

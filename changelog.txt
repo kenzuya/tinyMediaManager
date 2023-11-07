@@ -43,6 +43,8 @@ Version 5.0
 + added certification column (tv show) #2317
 + (TRAKT) improve search performance, fixed TV poster
 + (Jellyfin) added backdrop naming for fanart #2322
++ added ImdbId, TmdbId and TraktId Filter for movies
++ added an alternate API server for TMDB (api.tmdb.org)
 x fixed displaying missing season metadata #2238
 x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
@@ -59,4 +61,3 @@ x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 x fix plot formatting with line-breaks #2286
 x fix loading season-specials.nfo #2343
 x fixed detection of widescreen 576p #2344
-+ added ImdbId, TmdbId and TraktId Filter for movies

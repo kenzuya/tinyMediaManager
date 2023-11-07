@@ -109,7 +109,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = super.createMediaProviderInfo();
 
-    info.getConfig().addText("apiKey", "", true);
     info.getConfig().addBoolean("includeAdultShows", false);
     info.getConfig().addBoolean("scrapeLanguageNames", true);
     info.getConfig().addBoolean("titleFallback", false);
