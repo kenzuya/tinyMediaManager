@@ -59,7 +59,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -552,17 +551,23 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the S/E number (or null when not available)
    */
   public MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup episodeGroup) {
-    MediaEpisodeNumber episodeNumber = episodeNumbers.stream()
-        .filter(mediaEpisodeNumber -> mediaEpisodeNumber.episodeGroup().equals(episodeGroup))
-        .findFirst()
-        .orElse(null);
+    MediaEpisodeNumber episodeNumber = null;
+
+    for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+      if (mediaEpisodeNumber.episodeGroup().equals(episodeGroup)) {
+        episodeNumber = mediaEpisodeNumber;
+        break;
+      }
+    }
 
     // legacy fallback
     if (episodeNumber == null && episodeGroup.getEpisodeGroupType() == AIRED) {
-      episodeNumber = episodeNumbers.stream()
-          .filter(mediaEpisodeNumber -> mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == AIRED)
-          .findFirst()
-          .orElse(null);
+      for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+        if (mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == AIRED) {
+          episodeNumber = mediaEpisodeNumber;
+          break;
+        }
+      }
     }
 
     return episodeNumber;
@@ -574,10 +579,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the S/E number (or null when not available)
    */
   private MediaEpisodeNumber getEpisodeNumber(@NotNull MediaEpisodeGroup.EpisodeGroupType episodeGroupType) {
-    return episodeNumbers.stream()
-        .filter(mediaEpisodeNumber -> mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == episodeGroupType)
-        .findFirst()
-        .orElse(null);
+    for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+      if (mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == episodeGroupType) {
+        return mediaEpisodeNumber;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -632,9 +640,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   public void setEpisode(@NotNull MediaEpisodeNumber episode) {
     if (!episode.containsAnyNumber()) {
-      List<MediaEpisodeNumber> toRemove = episodeNumbers.stream()
-          .filter(mediaEpisodeNumber -> mediaEpisodeNumber.episodeGroup().equals(episode.episodeGroup()))
-          .toList();
+      List<MediaEpisodeNumber> toRemove = new ArrayList<>();
+
+      for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+        if (mediaEpisodeNumber.episodeGroup().equals(episode.episodeGroup())) {
+          toRemove.add(mediaEpisodeNumber);
+        }
+      }
+
       if (!toRemove.isEmpty()) {
         episodeNumbers.removeAll(toRemove);
         firePropertyChange(EPISODE, 0, -1);
@@ -645,13 +658,18 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // remove the given EG is needed
-    MediaEpisodeNumber existingEpisodeNumer = episodeNumbers.stream()
-        .filter(e -> e.episodeGroup().equals(episode.episodeGroup()))
-        .findFirst()
-        .orElse(null);
-    if (existingEpisodeNumer != null) {
-      int index = episodeNumbers.indexOf(existingEpisodeNumer);
-      episodeNumbers.remove(existingEpisodeNumer);
+    MediaEpisodeNumber existingEpisodeNumber = null;
+    for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+      if (mediaEpisodeNumber.episodeGroup().equals(episode.episodeGroup())) {
+        existingEpisodeNumber = mediaEpisodeNumber;
+        break;
+      }
+
+    }
+
+    if (existingEpisodeNumber != null) {
+      int index = episodeNumbers.indexOf(existingEpisodeNumber);
+      episodeNumbers.remove(existingEpisodeNumber);
       if (index >= 0) {
         episodeNumbers.add(index, episode);
       }
@@ -1333,7 +1351,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @Override
   public List<MediaFile> getImagesToCache() {
-    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).toList();
   }
 
   @Override
@@ -1626,7 +1644,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       return vid;
     }
 
-    // cannot happen - movie MUST always have a video file
+    // dummy episodes might not have a video file
     return MediaFile.EMPTY_MEDIAFILE;
   }
 
@@ -1657,7 +1675,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   public String getMediaInfoAspectRatioAsString() {
     DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
-    return df.format(getMainVideoFile().getAspectRatio()).replaceAll("\\.", "");
+    return df.format(getMainVideoFile().getAspectRatio()).replace(".", "");
   }
 
   @Override
@@ -1670,7 +1688,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     String formatedValue = "";
     if (aspectRatio2 != null) {
       DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
-      formatedValue = df.format(aspectRatio2).replaceAll("\\.", "");
+      formatedValue = df.format(aspectRatio2).replace(".", "");
     }
     return formatedValue;
   }
@@ -1702,8 +1720,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public List<String> getMediaInfoAudioChannelList() {
-    List<String> lang = new ArrayList<>();
-    lang.addAll(getMainVideoFile().getAudioChannelsList());
+    List<String> lang = new ArrayList<>(getMainVideoFile().getAudioChannelsList());
 
     for (MediaFile mf : getMediaFiles(MediaFileType.AUDIO)) {
       lang.addAll(mf.getAudioChannelsList());
