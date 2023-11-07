@@ -150,6 +150,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private String                             otherIds              = "";
   private Date                               lastWatched           = null;
   private boolean                            dummy                 = false;
+  private MediaEpisodeNumber                 mainEpisodeNumber     = null;
 
   // LEGACY
   @JsonIgnore
@@ -492,6 +493,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   public void setEpisodeNumbers(Map<MediaEpisodeGroup, MediaEpisodeNumber> newValues) {
     episodeNumbers.clear();
+    mainEpisodeNumber = null;
 
     if (newValues != null) {
       MediaEpisodeGroup tvShowEpisodeGroup = tvShow != null ? tvShow.getEpisodeGroup() : null;
@@ -536,7 +538,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the S/E number (or null when not available)
    */
   public MediaEpisodeNumber getEpisodeNumber() {
-    return getEpisodeNumber(getEpisodeGroup());
+    // use cache for faster lookup!
+    if (mainEpisodeNumber == null) {
+      mainEpisodeNumber = getEpisodeNumber(getEpisodeGroup());
+    }
+
+    return mainEpisodeNumber;
   }
 
   /**
