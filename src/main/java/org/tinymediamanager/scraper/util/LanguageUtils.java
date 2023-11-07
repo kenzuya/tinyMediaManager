@@ -476,7 +476,25 @@ public class LanguageUtils {
    * @return true/false
    */
   public static boolean doesStringEndWithLanguage(String string, String language) {
-    return string.equalsIgnoreCase(language) || string.matches("(?i).*[ _.-]+" + Pattern.quote(language) + "$");
+    String stringInLowercase = string.toLowerCase(Locale.ROOT);
+    String languageInLowercase = language.toLowerCase(Locale.ROOT);
+
+    if (stringInLowercase.equals(languageInLowercase)) {
+      return true;
+    }
+    if (StringUtils.endsWith(stringInLowercase, "." + languageInLowercase)) {
+      return true;
+    }
+    if (StringUtils.endsWith(stringInLowercase, "-" + languageInLowercase)) {
+      return true;
+    }
+    if (StringUtils.endsWith(stringInLowercase, "_" + languageInLowercase)) {
+      return true;
+    }
+    if (StringUtils.endsWith(stringInLowercase, " " + languageInLowercase)) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -519,11 +537,13 @@ public class LanguageUtils {
           if (doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
             return s;
           }
-        } catch (Exception ignored) {
+        }
+        catch (Exception ignored) {
           // no need to log
         }
       }
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
       // no need to log
     }
     return "";
