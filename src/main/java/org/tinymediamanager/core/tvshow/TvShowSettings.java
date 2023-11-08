@@ -201,14 +201,14 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        fetchAllRatings                        = false;
 
   // artwork scraper
-  final List<MediaLanguages> imageScraperLanguages = ObservableCollections.observableList(new ArrayList<>());
+  final List<MediaLanguages>                     imageScraperLanguages                  = ObservableCollections.observableList(new ArrayList<>());
 
-  boolean imageScraperOtherResolutions = true;
-  boolean imageScraperFallback = true;
-  boolean imageScraperPreferFanartWoText = true;
+  boolean                                        imageScraperOtherResolutions           = true;
+  boolean                                        imageScraperFallback                   = true;
+  boolean                                        imageScraperPreferFanartWoText         = true;
   MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
   MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
-  MediaArtwork.ThumbSizes imageThumbSize = MediaArtwork.ThumbSizes.MEDIUM;
+  MediaArtwork.ThumbSizes                        imageThumbSize                         = MediaArtwork.ThumbSizes.MEDIUM;
   boolean                                        scrapeBestImage                        = true;
   boolean                                        writeActorImages                       = false;
   boolean                                        imageExtraFanart                       = false;
@@ -441,6 +441,8 @@ public final class TvShowSettings extends AbstractSettings {
    */
   @Override
   protected void writeDefaultSettings() {
+    addDefaultEntries();
+
     // activate default scrapers
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
@@ -466,7 +468,6 @@ public final class TvShowSettings extends AbstractSettings {
       }
     }
 
-    addDefaultEntries();
     saveSettings();
   }
 
