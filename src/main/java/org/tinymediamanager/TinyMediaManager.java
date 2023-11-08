@@ -435,9 +435,11 @@ public final class TinyMediaManager {
     // just instantiate static - will block (takes a few secs)
     MediaProviders.loadMediaProviders();
 
-    if (Settings.getInstance().isNewConfig()) {
-      // add/set default scrapers
+    // add/set default scrapers
+    if (MovieModuleManager.getInstance().getSettings().isNewConfig()) {
       MovieSettingsDefaults.setDefaultScrapers();
+    }
+    if (TvShowModuleManager.getInstance().getSettings().isNewConfig()) {
       TvShowSettingsDefaults.setDefaultScrapers();
     }
   }
@@ -501,9 +503,9 @@ public final class TinyMediaManager {
 
   private void doPostStartupTasks() {
     // do upgrade tasks after database loading
-      updateProgress("splash.upgrade2", 80);
-      UpgradeTasks.performDbUpgradesForMovies();
-      UpgradeTasks.performDbUpgradesForShows();
+    updateProgress("splash.upgrade2", 80);
+    UpgradeTasks.performDbUpgradesForMovies();
+    UpgradeTasks.performDbUpgradesForShows();
   }
 
   /**
