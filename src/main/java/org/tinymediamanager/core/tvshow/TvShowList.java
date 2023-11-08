@@ -141,14 +141,14 @@ public final class TvShowList extends AbstractModelObject {
     // the tag listener: it's used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShow tvShow) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow tvShow) {
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource()instanceof TvShowEpisode episode) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode episode) {
         updateEpisodeTags(Collections.singleton(episode));
       }
       if ((MEDIA_FILES.equals(evt.getPropertyName()) || MEDIA_INFORMATION.equals(evt.getPropertyName()))
-          && evt.getSource()instanceof TvShowEpisode episode) {
+          && evt.getSource() instanceof TvShowEpisode episode) {
         updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
@@ -548,6 +548,7 @@ public final class TvShowList extends AbstractModelObject {
     //////////////////////////////////////////////////
     Set<TvShow> tvShowsFromDb = new HashSet<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
+    long dummyCnt = 0;
 
     List<UUID> toRemove = new ArrayList<>();
     long start = System.nanoTime();
@@ -588,6 +589,7 @@ public final class TvShowList extends AbstractModelObject {
     Map<UUID, TvShow> tvShowUuidMap = new HashMap<>();
     for (TvShow tvShow : tvShowsFromDb) {
       tvShowUuidMap.put(tvShow.getDbId(), tvShow);
+      dummyCnt += tvShow.getDummyEpisodes().size(); // want the RAW entries
     }
 
     //////////////////////////////////////////////////
@@ -684,7 +686,7 @@ public final class TvShowList extends AbstractModelObject {
     for (UUID uuid : toRemove) {
       episodesMap.remove(uuid);
     }
-    LOGGER.info("found {} episodes in database", episodesToCount.size());
+    LOGGER.info("found {} episodes in database (+ {} dummy w/o physical file)", episodesToCount.size(), dummyCnt);
     LOGGER.debug("took {} ms", (end - start) / 1000000);
 
     //////////////////////////////////////////////////
