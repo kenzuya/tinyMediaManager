@@ -346,6 +346,18 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
         return notation.substring(notation.indexOf('-') + 1);
       }
     }
+
+    // HK is not (yet) translated, but should be "traditional"
+    // Since java Locale maps zh_Hant to zh_TW, we try the same workaround
+    if (lang.equals("zh_HK-")) {
+      lang = "zh_TW-";
+      for (String notation : alternateNames) {
+        if (notation.startsWith(lang)) {
+          return notation.substring(notation.indexOf('-') + 1);
+        }
+      }
+    }
+
     // second try with language only (to replicate bundle parent lookup)
     lang = locale.getLanguage() + "-";
     for (String notation : alternateNames) {

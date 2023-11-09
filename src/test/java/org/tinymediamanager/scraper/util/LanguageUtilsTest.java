@@ -31,8 +31,8 @@ public class LanguageUtilsTest extends BasicTest {
     printLangu("zh_HK"); // traditional (no bundle avail, so fallback to ZH simple!)
     printLangu("zh_SG"); // simple
     printLangu("zh_TW"); // traditional (=Hant)
-    printLangu("zh_Hans"); // simple
-    printLangu("zh_Hant"); // traditional (=TW)
+    printLangu("zh_Hans"); // simple (Java translates this to zh_CN)
+    printLangu("zh_Hant"); // traditional (Java translates this to zh_TW)
   }
 
   private void printLangu(String key) {
