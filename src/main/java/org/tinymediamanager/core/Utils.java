@@ -1242,7 +1242,10 @@ public class Utils {
           if ("zh_Hant".equalsIgnoreCase(language)) {
             return Locale.TRADITIONAL_CHINESE;
           }
-          return LocaleUtils.toLocale(language.substring(0, 5));
+          if ("zh_Hans".equalsIgnoreCase(language)) {
+            return Locale.SIMPLIFIED_CHINESE;
+          }
+          // return LocaleUtils.toLocale(language.substring(0, language.indexOf('_'))); // fall through
         }
       }
     }

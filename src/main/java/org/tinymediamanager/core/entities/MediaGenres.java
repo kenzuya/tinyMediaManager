@@ -179,7 +179,8 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
       }
       ResourceBundle b = ResourceBundle.getBundle("messages", loc);
       try {
-        alt.add(loc.getLanguage() + "-" + b.getString("Genres." + propName)); // just genres
+        String country = loc.getCountry().isEmpty() ? "" : "_" + loc.getCountry();
+        alt.add(loc.getLanguage() + country + "-" + b.getString("Genres." + propName)); // just genres
       }
       catch (Exception e) {
         // not found or localized - ignore
@@ -248,14 +249,9 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
           return genre;
         }
         // only do the following check, if the notation start with ??-
-        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}-")) {
-          // first 3 chars are language like "de-"
-          if (notation.substring(3).equalsIgnoreCase(name)) {
-            return genre;
-          }
-
-          // match both names without prefix
-          if (name.length() > 3 && notation.substring(3).equalsIgnoreCase(name.substring(3))) {
+        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_-]")) {
+          // split on - for name
+          if (notation.substring(notation.indexOf('-') + 1).equalsIgnoreCase(name)) {
             return genre;
           }
         }
@@ -293,14 +289,9 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
           return true;
         }
         // only do the following check, if the notation start with ??-
-        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}-")) {
-          // first 3 chars are language like "de-"
-          if (notation.substring(3).equalsIgnoreCase(name)) {
-            return true;
-          }
-
-          // match both names without prefix
-          if (name.length() > 3 && notation.substring(3).equalsIgnoreCase(name.substring(3))) {
+        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_-]")) {
+          // split on - for name
+          if (notation.substring(notation.indexOf('-') + 1).equalsIgnoreCase(name)) {
             return true;
           }
         }
@@ -348,12 +339,21 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
    * @return the localized genre
    */
   public String getLocalizedName(Locale locale) {
-    String lang = locale.getLanguage() + "-";
+    String country = locale.getCountry().isEmpty() ? "" : "_" + locale.getCountry();
+    String lang = locale.getLanguage() + country + "-";
     for (String notation : alternateNames) {
       if (notation.startsWith(lang)) {
-        return notation.substring(3);
+        return notation.substring(notation.indexOf('-') + 1);
       }
     }
+    // second try with language only (to replicate bundle parent lookup)
+    lang = locale.getLanguage() + "-";
+    for (String notation : alternateNames) {
+      if (notation.startsWith(lang)) {
+        return notation.substring(notation.indexOf('-') + 1);
+      }
+    }
+    // else english
     return name;
   }
 
