@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--suppress UnresolvedMavenProperty -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
@@ -433,6 +433,14 @@
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <!-- need to get the translations into test classpath, for Utils.getLanguages() to work -->
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
             </testResource>
         </testResources>
         <pluginManagement>
