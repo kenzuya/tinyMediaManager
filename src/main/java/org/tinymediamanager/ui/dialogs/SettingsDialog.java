@@ -38,6 +38,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -92,8 +93,7 @@ public class SettingsDialog extends TmmDialog {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
       if (node != null) {
         // click on a settings node
-        if (node.getUserObject() instanceof TmmSettingsNode) {
-          TmmSettingsNode settingsNode = (TmmSettingsNode) node.getUserObject();
+        if (node.getUserObject() instanceof TmmSettingsNode settingsNode) {
           CardLayout cl = (CardLayout) rightPanel.getLayout();
           cl.show(rightPanel, settingsNode.getId());
           if (settingsNode.getComponent() != null) {
@@ -187,6 +187,15 @@ public class SettingsDialog extends TmmDialog {
       panelButtons.add(okButton);
       okButton.setAction(new CloseAction());
       getRootPane().setDefaultButton(okButton);
+    }
+  }
+
+  @Override
+  public void setVisible(boolean visible) {
+    super.setVisible(visible);
+
+    if (!visible) {
+      TmmModuleManager.getInstance().saveSettings();
     }
   }
 
