@@ -71,22 +71,7 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
         return SEASON_POSTER.getFilename(tvShowSeason, extension);
       }
 
-      String filename = seasonFoldername + File.separator;
-
-      if (tvShowSeason.getSeason() == -1) {
-        filename += "season-all." + extension;
-      }
-      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials." + extension;
-      }
-      else if (tvShowSeason.getSeason() > -1) {
-        filename += String.format("season%02d.%s", tvShowSeason.getSeason(), extension);
-      }
-      else {
-        filename = "";
-      }
-
-      return filename;
+      return seasonFoldername + File.separator + String.format("season%02d.%s", tvShowSeason.getSeason(), extension);
     }
   },
 

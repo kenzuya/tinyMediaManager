@@ -147,6 +147,11 @@ public class TvShowHelpers {
    * @return the path to the season folder relative to the TV show folder or the default season folder name from the renamer settings
    */
   public static String detectSeasonFolder(TvShow tvShow, int season) {
+    // there is no dedicated folder for season -1
+    if (season == -1) {
+      return "";
+    }
+
     List<String> subPaths = new ArrayList<>();
 
     Path tvShowPath = tvShow.getPathNIO();
@@ -178,7 +183,7 @@ public class TvShowHelpers {
     Map<String, Long> subPathCounts = subPaths.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
 
     // take the highest count
-      Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Map.Entry.comparingByValue()).get(); // NOSONAR
+    Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Map.Entry.comparingByValue()).get(); // NOSONAR
 
     // if there are at least 80% of all episodes having this subfolder, take it
     if (entry.getValue() >= 0.8 * episodes.size()) {
