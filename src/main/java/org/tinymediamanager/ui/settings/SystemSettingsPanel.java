@@ -78,11 +78,11 @@ import net.miginfocom.swing.MigLayout;
 class SystemSettingsPanel extends JPanel {
   private static final Logger  LOGGER            = LoggerFactory.getLogger(SystemSettingsPanel.class);
   private static final Pattern MEMORY_PATTERN    = Pattern.compile("-Xmx([0-9]*)(.)");
+  private static final Pattern DIRECT3D_PATTERN  = Pattern.compile("-Dsun.java2d.d3d=(true|false)");
 
   private final Settings       settings          = Settings.getInstance();
 
   private final ButtonGroup    buttonGroupFfmpeg = new ButtonGroup();
-  private final FFmpegAddon    fFmpegAddon       = new FFmpegAddon();
 
   private JTextField           tfProxyHost;
   private JTextField           tfProxyPort;
@@ -95,11 +95,10 @@ class SystemSettingsPanel extends JPanel {
   private JSlider              sliderMemory;
   private JLabel               lblMemory;
   private JCheckBox            chckbxIgnoreSSLProblems;
+  private JCheckBox            chckbxDisableD3d;
   private JSpinner             spMaximumDownloadThreads;
   private JRadioButton         rdbtnFfmpegInternal;
   private JRadioButton         rdbtnFFmpegExternal;
-  private JLabel               lblFfmpegVersion;
-  private JButton              btnDownloadFfmpeg;
   private JTextField           tfHttpPort;
   private JTextField           tfHttpApiKey;
   private JCheckBox            chkbxEnableHttpServer;
@@ -114,6 +113,7 @@ class SystemSettingsPanel extends JPanel {
     initDataBindings();
 
     initMemorySlider();
+    initDirect3d();
 
     // data init
     btnSearchMediaPlayer.addActionListener(arg0 -> {
@@ -142,6 +142,7 @@ class SystemSettingsPanel extends JPanel {
       rdbtnFFmpegExternal.setSelected(true);
     }
 
+    FFmpegAddon fFmpegAddon = new FFmpegAddon();
     if (fFmpegAddon.isAvailable()) {
       rdbtnFfmpegInternal.setEnabled(true);
     }
@@ -149,6 +150,21 @@ class SystemSettingsPanel extends JPanel {
       rdbtnFFmpegExternal.setSelected(true);
       rdbtnFfmpegInternal.setEnabled(false);
     }
+
+    // add a listener to write the actual memory state/direct3d setting to launcher-extra.yml
+    addHierarchyListener(new HierarchyListener() {
+      private boolean oldState = false;
+
+      @Override
+      public void hierarchyChanged(HierarchyEvent e) {
+        if (oldState != isShowing()) {
+          oldState = isShowing();
+          if (!isShowing()) {
+            writeLauncherExtraYml();
+          }
+        }
+      }
+    });
   }
 
   private void initComponents() {
@@ -324,7 +340,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][grow]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -346,6 +362,17 @@ class SystemSettingsPanel extends JPanel {
         tpSSLHint.setText(TmmResourceBundle.getString("Settings.ignoressl.desc"));
         TmmFontHelper.changeFont(tpSSLHint, L2);
         panelMisc.add(tpSSLHint, "cell 2 2,grow");
+
+        chckbxDisableD3d = new JCheckBox(TmmResourceBundle.getString("Settings.disabled3d"));
+        if (!SystemUtils.IS_OS_WINDOWS) {
+          chckbxDisableD3d.setEnabled(false);
+        }
+        panelMisc.add(chckbxDisableD3d, "cell 1 3 2 1");
+
+        JTextPane tpD3dHint = new ReadOnlyTextPane();
+        tpD3dHint.setText(TmmResourceBundle.getString("Settings.disabled3d.desc"));
+        TmmFontHelper.changeFont(tpD3dHint, L2);
+        panelMisc.add(tpD3dHint, "cell 2 4,grow");
       }
     }
   }
@@ -375,24 +402,9 @@ class SystemSettingsPanel extends JPanel {
     }
 
     sliderMemory.setValue(maxMemory);
-
-    // add a listener to write the actual memory state to extra.txt
-    addHierarchyListener(new HierarchyListener() {
-      private boolean oldState = false;
-
-      @Override
-      public void hierarchyChanged(HierarchyEvent e) {
-        if (oldState != isShowing()) {
-          oldState = isShowing();
-          if (!isShowing()) {
-            writeMemorySettings();
-          }
-        }
-      }
-    });
   }
 
-  private void writeMemorySettings() {
+  private void writeLauncherExtraYml() {
     int memoryAmount = sliderMemory.getValue();
 
     Path file = Paths.get(Globals.CONTENT_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
@@ -407,12 +419,41 @@ class SystemSettingsPanel extends JPanel {
         extraConfig.jvmOpts.add("-Xmx" + memoryAmount + "m");
       }
 
+      // delete any old direct3d setting
+      extraConfig.jvmOpts.removeIf(option -> DIRECT3D_PATTERN.matcher(option).find());
+
+      if (chckbxDisableD3d.isSelected()) {
+        extraConfig.jvmOpts.add("-Dsun.java2d.d3d=false");
+      }
+
       // and re-write the settings
       extraConfig.save();
     }
     catch (Exception e) {
       LOGGER.warn("Could not write memory settings - {}", e.getMessage());
     }
+  }
+
+  private void initDirect3d() {
+    Path file = Paths.get(Globals.CONTENT_FOLDER, LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+    boolean disableDirect3d = false;
+
+    if (Files.exists(file)) {
+      // parse out memory option from extra.txt
+      try {
+        LauncherExtraConfig extraConfig = LauncherExtraConfig.readFile(file.toFile());
+        Matcher matcher = DIRECT3D_PATTERN.matcher(String.join("\n", extraConfig.jvmOpts));
+        if (matcher.find()) {
+          boolean valueFromYml = Boolean.parseBoolean(matcher.group(1));
+          disableDirect3d = !valueFromYml;
+        }
+      }
+      catch (Exception e) {
+        // ingored
+      }
+    }
+
+    chckbxDisableD3d.setSelected(disableDirect3d);
   }
 
   protected void initDataBindings() {
