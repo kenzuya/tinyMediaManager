@@ -54,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowScrapeMetadataDialog extends TmmDialog {
-  private boolean                                                                      startScrape      = false;
+  private boolean                                                                      startScrape = false;
 
   /** UI components */
   private final JComboBox                                                              cbLanguage;
@@ -90,7 +90,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     cbLanguage.setSelectedItem(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
     panelContent.add(cbLanguage, "cell 1 0,growx");
 
-    if (!artworkOnly) {
+    if (!artworkOnly && tvShowMetadata) {
       JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
 
@@ -99,7 +99,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
           .getAvailableMediaScrapers()
           .stream()
           .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
-          .collect(Collectors.toList()));
+          .toList());
       panelContent.add(cbMetadataScraper, "cell 1 1,growx");
     }
 

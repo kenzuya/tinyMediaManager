@@ -259,6 +259,10 @@ class TvShowCommand implements Runnable {
           options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
           options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
         }
+        else {
+          LOGGER.warn("Could not scrape new episodes for '{}' - no recently scraped in tinyMediaManager", tvShow.getTitle());
+          continue;
+        }
 
         List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.getInstance()
             .getSettings()

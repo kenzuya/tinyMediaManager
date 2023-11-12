@@ -16,14 +16,23 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -44,9 +53,9 @@ public class TvShowScrapeEpisodesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<TvShowEpisode> episodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
+    final List<TvShowEpisode> episodesToScrape = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
-    if (episodes.isEmpty()) {
+    if (episodesToScrape.isEmpty()) {
       return;
     }
 
@@ -63,8 +72,30 @@ public class TvShowScrapeEpisodesAction extends TmmAction {
     List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
     boolean overwrite = dialog.getOverwriteExistingItems();
 
+    // re-group the episodes. If there is a "last used" scraper set for the show also take this into account for the episode
+    Map<TvShow, List<TvShowEpisode>> newEpisodes = new HashMap<>();
+    for (TvShowEpisode episode : episodesToScrape) {
+      List<TvShowEpisode> episodes = newEpisodes.computeIfAbsent(episode.getTvShow(), k -> new ArrayList<>());
+      episodes.add(episode);
+    }
+
     // scrape
-    TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodes, options, episodeScraperMetadataConfig, overwrite);
-    TmmTaskManager.getInstance().addUnnamedTask(task);
+    for (Map.Entry<TvShow, List<TvShowEpisode>> entry : newEpisodes.entrySet()) {
+      TvShow tvShow = entry.getKey();
+
+      // so for the known ones, we can directly start scraping
+      if (StringUtils.isNotBlank(tvShow.getLastScraperId())) {
+        options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
+      }
+      else {
+        // can not scrape - not scraped in tmm previously
+        MessageManager.instance
+            .pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowepisodefailed2", new String[] { tvShow.getTitle() }));
+        continue;
+      }
+
+      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig, overwrite);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
+    }
   }
 }
