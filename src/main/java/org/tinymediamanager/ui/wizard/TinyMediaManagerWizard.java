@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.tinymediamanager.Globals;
@@ -58,7 +59,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
   private JPanel             panelContent;
 
   public TinyMediaManagerWizard() {
-    super("tinyMediaManager Setup Wizard", "");
+    super((JFrame) null, "tinyMediaManager Setup Wizard", "");
     setMinimumSize(new Dimension(800, 600));
 
     initComponents();

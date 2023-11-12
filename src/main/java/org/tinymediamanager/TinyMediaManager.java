@@ -151,6 +151,13 @@ public final class TinyMediaManager {
               updateProgress("splash.ui", 80);
 
               SwingUtilities.invokeLater(() -> {
+                // wizard for new user
+                if (Settings.getInstance().isNewConfig()) {
+                  TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
+                  wizard.setLocationRelativeTo(null); // center
+                  wizard.setVisible(true);
+                }
+
                 systemUiInit();
 
                 MainWindow window = MainWindow.getInstance();
@@ -163,13 +170,6 @@ public final class TinyMediaManager {
                 TmmUILayoutStore.getInstance().loadSettings(window);
                 window.setVisible(true);
                 LOGGER.info("UI loaded");
-
-                // wizard for new user
-                if (Settings.getInstance().isNewConfig()) {
-                  TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
-                  wizard.setLocationRelativeTo(null); // center
-                  wizard.setVisible(true);
-                }
 
                 // register the shutdown handler
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
