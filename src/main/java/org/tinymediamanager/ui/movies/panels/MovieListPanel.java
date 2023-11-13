@@ -26,19 +26,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Locale;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableColumn;
@@ -55,11 +43,7 @@ import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.ITmmTabItem;
-import org.tinymediamanager.ui.ITmmUIModule;
-import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TablePopupListener;
-import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.*;
 import org.tinymediamanager.ui.actions.ClearFilterPresetAction;
 import org.tinymediamanager.ui.actions.FilterPresetAction;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
@@ -194,6 +178,9 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
         // do nothing
       }
     });
+
+    // add the hint for the table
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.rightclick"), movieTable, SwingConstants.TOP);
 
     selectionModel.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     add(btnExtendedFilter, "cell 1 0");

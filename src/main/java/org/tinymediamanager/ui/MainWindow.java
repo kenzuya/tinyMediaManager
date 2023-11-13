@@ -42,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
@@ -52,10 +53,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TinyMediaManager;
-import org.tinymediamanager.core.ITmmModule;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -189,9 +187,15 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     };
     splitPane.setLeftComponent(tabbedPane);
 
+    // add the hint for this part
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.module"), tabbedPane, SwingConstants.BOTTOM);
+
     detailPanel = new JPanel();
     detailPanel.setLayout(new CardLayout(0, 0));
     splitPane.setRightComponent(detailPanel);
+
+    // add the hint for this part
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.tabs"), detailPanel, SwingConstants.LEFT);
 
     JPanel panelStatusBar = new StatusBarPanel();
     rootPanel.add(panelStatusBar, "cell 0 1,grow");
@@ -205,7 +209,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
     ChangeListener changeListener = changeEvent -> {
       JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-      if (sourceTabbedPane.getSelectedComponent()instanceof ITmmTabItem activeTab) {
+      if (sourceTabbedPane.getSelectedComponent() instanceof ITmmTabItem activeTab) {
         toolbarPanel.setUIModule(activeTab.getUIModule());
         CardLayout cl = (CardLayout) detailPanel.getLayout();
         cl.show(detailPanel, activeTab.getUIModule().getModuleId());
@@ -227,7 +231,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
     // mouse event listener for context menu
     Toolkit.getDefaultToolkit().addAWTEventListener(arg0 -> {
-      if (arg0 instanceof MouseEvent mouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource()instanceof JTextComponent textComponent) {
+      if (arg0 instanceof MouseEvent mouseEvent && ((MouseEvent) arg0).isPopupTrigger() && arg0.getSource() instanceof JTextComponent textComponent) {
         if (mouseEvent.isPopupTrigger() && textComponent.getComponentPopupMenu() == null) {
           TextFieldPopupMenu.buildCutCopyPaste().show(textComponent, mouseEvent.getX(), mouseEvent.getY());
         }
@@ -250,6 +254,10 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
     // init the settings window
     SwingUtilities.invokeLater(SettingsDialog::getInstance);
+
+    if (Settings.getInstance().isNewConfig()) {
+      SwingUtilities.invokeLater(() -> HintManager.getInstance().showHints());
+    }
   }
 
   private void addModule(ITmmUIModule module) {

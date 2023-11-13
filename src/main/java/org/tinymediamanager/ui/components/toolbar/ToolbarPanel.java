@@ -35,6 +35,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
@@ -55,6 +56,7 @@ import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
+import org.tinymediamanager.ui.HintManager;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -208,6 +210,12 @@ public class ToolbarPanel extends JPanel {
     showHideUnlock();
 
     initUpgradeCheck();
+
+    // add the hint for the buttons
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.update"), btnUpdate, SwingConstants.BOTTOM);
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.scrape"), btnSearch, SwingConstants.BOTTOM);
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.edit"), btnEdit, SwingConstants.BOTTOM);
+    HintManager.getInstance().addHint(TmmResourceBundle.getString("hintmanager.rename"), btnRename, SwingConstants.BOTTOM);
   }
 
   private void showHideUnlock() {
