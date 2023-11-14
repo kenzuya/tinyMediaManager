@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -402,8 +403,13 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
-      // scrape providers till one artwork has been found
+      // scrape providers
       for (MediaScraper artworkScraper : artworkScrapers) {
+        if ("ffmpeg".equals(artworkScraper.getId())) {
+          // do not use FFmpeg here
+          continue;
+        }
+
         IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) artworkScraper.getMediaProvider();
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
@@ -432,7 +438,6 @@ public class MovieChooserModel extends AbstractModelObject {
 
       movieToScrape.setArtwork(artwork, config, overwrite);
     }
-
   }
 
   private class TrailerScrapeTask extends TmmTask {

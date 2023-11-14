@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -118,8 +119,13 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
           options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
           options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
-          // scrape selected providers till one artwork has been found
+          // scrape selected providers
           for (MediaScraper scraper : options.getArtworkScrapers()) {
+            if ("ffmpeg".equals(scraper.getId())) {
+              // do not use FFmpeg here
+              continue;
+            }
+
             IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) scraper.getMediaProvider();
             try {
               artwork.addAll(artworkProvider.getArtwork(options));
