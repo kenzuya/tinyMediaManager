@@ -277,6 +277,15 @@ public abstract class ImdbParser {
   }
 
   /**
+   * should we scrape local release date, or the "first" one?
+   *
+   * @return true/false
+   */
+  protected boolean isScrapeLocalReleaseDate() {
+    return config.getValueAsBool(LOCAL_RELEASE_DATE, true);
+  }
+
+  /**
    * get the maximum amount of keywords we should get from the keywords page
    *
    * @return the configured numer or {@link Integer}.MAX_VALUE
