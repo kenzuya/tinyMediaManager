@@ -90,9 +90,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     cbLanguage.setSelectedItem(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
     panelContent.add(cbLanguage, "cell 1 0,growx");
 
-    if (!artworkOnly && tvShowMetadata) {
+    if (!artworkOnly) {
       JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
-      panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
 
       cbMetadataScraper = new MediaScraperComboBox(TvShowModuleManager.getInstance()
           .getTvShowList()
@@ -100,7 +99,11 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
           .stream()
           .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
           .toList());
-      panelContent.add(cbMetadataScraper, "cell 1 1,growx");
+
+      if (tvShowMetadata) {
+        panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
+        panelContent.add(cbMetadataScraper, "cell 1 1,growx");
+      }
     }
 
     JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
