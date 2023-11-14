@@ -691,7 +691,7 @@ public class MovieSetArtworkHelper {
 
     if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
       for (MediaArtwork art : artwork) {
-        if (art.getType() == MediaArtwork.MediaArtworkType.BACKGROUND && art.getLanguage().equals("-")) {
+        if (art.getType() == MediaArtwork.MediaArtworkType.BACKGROUND && art.getLanguage().equals("")) {
           // right type
           for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
             // right size

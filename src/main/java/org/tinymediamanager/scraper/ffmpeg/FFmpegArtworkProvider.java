@@ -176,7 +176,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
               MediaArtwork.FanartSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-          still.setLanguage("-");
+          still.setLanguage("");
           still.setLikes(count - i);
           artworks.add(still);
         }
@@ -186,7 +186,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
               MediaArtwork.ThumbSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-          still.setLanguage("-");
+          still.setLanguage("");
           still.setLikes(count - i);
           artworks.add(still);
         }
@@ -268,7 +268,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
                 MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
@@ -278,7 +278,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
                 MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
@@ -350,7 +350,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
                 MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
@@ -360,7 +360,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
             still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
                 MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }

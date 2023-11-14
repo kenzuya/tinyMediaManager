@@ -200,7 +200,7 @@ class TmdbArtworkProvider {
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         if (StringUtils.isBlank(image.iso_639_1)) {
           // no text
-          ma.setLanguage("-");
+          ma.setLanguage("");
         }
         else {
           ma.setLanguage(image.iso_639_1);

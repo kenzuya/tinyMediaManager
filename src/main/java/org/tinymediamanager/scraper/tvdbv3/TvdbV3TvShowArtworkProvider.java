@@ -229,7 +229,7 @@ public class TvdbV3TvShowArtworkProvider extends TvdbV3MetadataProvider implemen
 
       if (StringUtils.isBlank(image.language)) {
         // no text
-        ma.setLanguage("-");
+        ma.setLanguage("");
       }
       else {
         ma.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(image.language));
