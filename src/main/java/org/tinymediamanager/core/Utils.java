@@ -85,7 +85,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.slf4j.Logger;
@@ -241,18 +240,6 @@ public class Utils {
     // we add isSym & isOther
     // the only portion what's left is the !dir - should be enough to check only for that ;)
     return !attr.isDirectory();
-  }
-
-  /**
-   * dumps a complete Object (incl sub-classes 5 levels deep) to System.out
-   * 
-   * @param o
-   *          the object to dump
-   */
-  public static void dumpObject(Object o) {
-    RecursiveToStringStyle style = new RecursiveToStringStyle(5);
-    System.out.println(ReflectionToStringBuilder.toString(o, style)); // NOSONAR
-    style.cleanup();
   }
 
   /**

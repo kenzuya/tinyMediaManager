@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -1389,10 +1390,16 @@ public class TvShowRenamer {
       case VIDEO_EXTRA:
         // this extra is for an episode -> move it at least to the season folder and try to replace the episode tokens
         MediaFile extra = new MediaFile(mf);
-        // try to detect the title of the extra file
-        String extraTitle = mf.getBasename().replace(oldVideoBasename, "");
-        extra.setFile(seasonFolder.resolve(newFilename + extraTitle + "." + mf.getExtension()));
-        newFiles.add(extra);
+        if (MediaFileHelper.isExtraInDedicatedFolder(mf, tvShow)) {
+          // do nothing
+          newFiles.add(extra);
+        }
+        else {
+          // try to detect the title of the extra file
+          String extraTitle = mf.getBasename().replace(oldVideoBasename, "");
+          extra.setFile(seasonFolder.resolve(newFilename + extraTitle + "." + mf.getExtension()));
+          newFiles.add(extra);
+        }
         break;
 
       ////////////////////////////////////////////////////////////////////////

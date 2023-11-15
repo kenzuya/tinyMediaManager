@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -493,6 +495,36 @@ public class MediaFileHelper {
     }
 
     return MediaFileType.GRAPHIC;
+  }
+
+  /**
+   * checks, if MediaFile is in its own dedicated "extras" folder, and not just an extras file...
+   * 
+   * @param mf
+   *          the mediafile to check
+   * @param entity
+   *          needed for relative path
+   * @return treu/false
+   */
+  public static boolean isExtraInDedicatedFolder(MediaFile mf, MediaEntity entity) {
+    if (mf.getType() != MediaFileType.EXTRA) {
+      return false;
+    }
+    Path rel = entity.getPathNIO().relativize(mf.getFileAsPath());
+    rel = rel.getParent();
+    if (rel == null) {
+      return false;
+    }
+
+    Iterator<Path> elements = rel.iterator();
+    while (elements.hasNext()) {
+      Path p = elements.next();
+      if (MediaFileHelper.EXTRA_FOLDERS.contains(p.getFileName().toString().toLowerCase(Locale.ROOT))) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

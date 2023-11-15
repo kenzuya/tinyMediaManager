@@ -72,6 +72,7 @@ public class MovieRenamerPreview {
       }
     }
     else {
+      String oldVideoBasename = movieClone.getVideoBasenameWithoutStacking();
       String newVideoBasename = "";
       if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
         // we are NOT renaming any files, so we keep the same name on renaming ;)
@@ -93,7 +94,7 @@ public class MovieRenamerPreview {
       // all the other MFs...
       for (MediaFile mf : movieClone.getMediaFilesExceptType(MediaFileType.VIDEO)) {
         oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
-        newFiles.addAll(MovieRenamer.generateFilename(movieClone, mf, newVideoBasename)); // N:M, with data from clone
+        newFiles.addAll(MovieRenamer.generateFilename(movieClone, mf, newVideoBasename, oldVideoBasename)); // N:M, with data from clone
       }
     }
 
