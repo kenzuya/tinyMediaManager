@@ -220,7 +220,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       if (!imageFiles.isEmpty()) {
-        imageFiles.forEach(ImageCache::cacheImageAsync);
+          imageFiles.forEach(ImageCache::cacheImageAsync);
       }
 
       if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
@@ -756,8 +756,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
     }
-    // if the title is not like the filename, we wouldn't find that inside TMM ;)
-    LOGGER.debug("Movie title after parsing NFO: {}", movie.getTitle());
+
     return movie;
   }
 
