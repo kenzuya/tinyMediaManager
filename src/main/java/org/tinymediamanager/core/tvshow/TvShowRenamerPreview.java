@@ -71,6 +71,9 @@ public class TvShowRenamerPreview {
       for (MediaFile omf : oldFiles.values()) {
         omf.replacePathForRenamedFolder(oldShowFolder, container.newPath);
       }
+
+      // do the same for (some) new files too, since EXTRAS in dedicated folder can not determine their new folder
+      newFiles.forEach(mf -> mf.replacePathForRenamedFolder(oldShowFolder, container.newPath));
     }
 
     // change status of MFs, if they have been added or not
