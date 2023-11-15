@@ -15,29 +15,9 @@
  */
 package org.tinymediamanager.core.tvshow.entities;
 
-import static org.tinymediamanager.core.Constants.ACTORS;
-import static org.tinymediamanager.core.Constants.DIRECTORS;
-import static org.tinymediamanager.core.Constants.DIRECTORS_AS_STRING;
-import static org.tinymediamanager.core.Constants.EPISODE;
-import static org.tinymediamanager.core.Constants.FIRST_AIRED;
-import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
-import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
-import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
-import static org.tinymediamanager.core.Constants.SEASON;
-import static org.tinymediamanager.core.Constants.SEASON_BANNER;
-import static org.tinymediamanager.core.Constants.SEASON_POSTER;
-import static org.tinymediamanager.core.Constants.SEASON_THUMB;
-import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
-import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
-import static org.tinymediamanager.core.Constants.TV_SHOW;
-import static org.tinymediamanager.core.Constants.WATCHED;
-import static org.tinymediamanager.core.Constants.WRITERS;
-import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
+import static org.tinymediamanager.core.Constants.*;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DISPLAY;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DVD;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.*;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -953,7 +933,34 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.SEASON_EPISODE) && (overwriteExistingItems || getEpisodeNumbers().isEmpty())) {
-      setEpisodeNumbers(metadata.getEpisodeNumbers());
+      // only set episode groups which are available in the TV show itself (e.g. when scraped via different scraper or w/o scraping TV show prior)
+      Map<MediaEpisodeGroup, MediaEpisodeNumber> newEpisodeNumbers = new HashMap<>();
+      for (var entry : metadata.getEpisodeNumbers().entrySet()) {
+        if (tvShow.getEpisodeGroups().contains(entry.getKey())) {
+          newEpisodeNumbers.put(entry.getKey(), entry.getValue());
+        }
+      }
+
+      if (newEpisodeNumbers.isEmpty()) {
+        // try at least to match the AIRED order
+        for (var entry : metadata.getEpisodeNumbers().entrySet()) {
+          if (entry.getKey().getEpisodeGroupType() == AIRED) {
+            MediaEpisodeGroup aired = null;
+            for (MediaEpisodeGroup episodeGroup : tvShow.getEpisodeGroups()) {
+              if (episodeGroup.getEpisodeGroupType() == AIRED) {
+                aired = episodeGroup;
+                break;
+              }
+            }
+
+            if (aired != null) {
+              newEpisodeNumbers.put(aired, entry.getValue());
+            }
+          }
+        }
+      }
+
+      setEpisodeNumbers(newEpisodeNumbers);
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.AIRED) && (overwriteExistingItems || getFirstAired() == null)) {

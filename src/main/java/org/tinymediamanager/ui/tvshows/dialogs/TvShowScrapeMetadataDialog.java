@@ -100,10 +100,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
           .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
           .toList());
 
-      if (tvShowMetadata) {
-        panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
-        panelContent.add(cbMetadataScraper, "cell 1 1,growx");
-      }
+      panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
+      panelContent.add(cbMetadataScraper, "cell 1 1,growx");
     }
 
     JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
