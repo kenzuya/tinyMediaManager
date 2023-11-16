@@ -36,7 +36,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.DateField;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -85,7 +84,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     comboBoxListener = e -> checkChanges();
 
     LocaleComboBox actualLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
+    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getNfoLanguage().toString());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
@@ -102,6 +101,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     // data init
     if (actualLocale != null) {
       cbNfoLanguage.setSelectedItem(actualLocale);
+      cbNfoLanguage.addItemListener(comboBoxListener);
     }
     // set default certification style when changing NFO style
     cbNfoFormat.addItemListener(e -> {
@@ -264,6 +264,14 @@ class MovieScraperNfoSettingsPanel extends JPanel {
    * check changes of checkboxes
    */
   private void checkChanges() {
+    LocaleComboBox loc = (LocaleComboBox) cbNfoLanguage.getSelectedItem();
+    if (loc != null) {
+      Locale actualLocale = settings.getNfoLanguage();
+      if (!loc.getLocale().equals(actualLocale)) {
+        settings.setNfoLanguage(loc.getLocale());
+      }
+    }
+
     // set NFO filenames
     settings.clearNfoFilenames();
     if (cbMovieNfoFilename1.isSelected()) {
