@@ -789,7 +789,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected void addGenres() {
     for (MediaGenres mediaGenre : tvShow.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(TvShowModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(TvShowModuleManager.getInstance().getSettings().getNfoLanguage()));
       root.appendChild(genre);
     }
   }

@@ -161,7 +161,7 @@ public final class TvShowSettings extends AbstractSettings {
   CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
   boolean                                        writeCleanNfo                          = false;
   DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
-  MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
+  Locale                                         nfoLanguage                            = Locale.ENGLISH;
   boolean                                        nfoWriteEpisodeguide                   = true;
   boolean                                        nfoWriteNewEpisodeguideStyle           = true;
   boolean                                        nfoWriteDateEnded                      = false;
@@ -461,7 +461,7 @@ public final class TvShowSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
-        setNfoLanguage(ml);
+        setNfoLanguage(ml.toLocale());
         imageScraperLanguages.clear();
         addImageScraperLanguage(ml);
         setSubtitleScraperLanguage(ml);
@@ -1697,12 +1697,12 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("nfoDateAddedField", oldValue, newValue);
   }
 
-  public MediaLanguages getNfoLanguage() {
+  public Locale getNfoLanguage() {
     return nfoLanguage;
   }
 
-  public void setNfoLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = nfoLanguage;
+  public void setNfoLanguage(Locale newValue) {
+    Locale oldValue = nfoLanguage;
     this.nfoLanguage = newValue;
     firePropertyChange("nfoLanguage", oldValue, newValue);
   }
