@@ -369,6 +369,7 @@ public class Url {
     catch (UnknownHostException e) {
       cleanup();
       LOGGER.error("proxy or host not found/reachable - {}", e.getMessage());
+      throw new HttpException(e.getMessage());
     }
     catch (HttpException e) {
       cleanup();
