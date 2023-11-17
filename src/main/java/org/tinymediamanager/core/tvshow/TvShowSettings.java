@@ -431,6 +431,8 @@ public final class TvShowSettings extends AbstractSettings {
    */
   @Override
   protected void writeDefaultSettings() {
+    addDefaultEntries();
+
     // activate default scrapers
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
@@ -452,7 +454,6 @@ public final class TvShowSettings extends AbstractSettings {
       }
     }
 
-    addDefaultEntries();
     saveSettings();
   }
 
