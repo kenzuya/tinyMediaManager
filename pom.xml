@@ -438,7 +438,6 @@
 				<directory>src/test/resources</directory>
 				<filtering>false</filtering>
 			</testResource>
-		</testResources>
         <testResource>
             <!-- need to get the translations into test classpath, for Utils.getLanguages() to work -->
             <directory>src/main/resources</directory>
@@ -447,6 +446,7 @@
                 <include>*.properties</include>
             </includes>
         </testResource>
+			</testResources>
 		<pluginManagement>
 			<plugins>
 				<plugin>
