@@ -30,6 +30,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.components.MenuScroller;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
 
 /**
  * This popup allows to select columns to be shown/hidden in the TmmTable
@@ -88,6 +89,13 @@ public class TmmTableColumnSelectionPopup {
       checkBox.setSelected(!tmmTableColumnModel.isColumnHidden(etc));
       checkBox.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
       checkBox.addActionListener(actionListener);
+
+      // disable for the tree node in tree tables
+      if (etc.getCellRenderer() instanceof TmmTreeTableCellRenderer) {
+        checkBox.setSelected(true);
+        checkBox.setEnabled(false);
+      }
+
       checkBoxMenuItems.add(checkBox);
 
       final JCheckBoxMenuItem checkBoxMenuItem = checkBox;
