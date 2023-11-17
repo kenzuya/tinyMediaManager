@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,7 @@ public class JsonUtils {
 
   public static <E> E parseObject(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
     if (jsonNode == null || jsonNode.isMissingNode()) {
-      LOGGER.warn("JsonNode NULL or missing");
+      LOGGER.warn("JsonNode NULL or missing (parsing {})", clazz.getCanonicalName());
       return null;
     }
     JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
@@ -34,7 +35,7 @@ public class JsonUtils {
 
   public static <E> List<E> parseList(ObjectMapper mapper, JsonNode jsonNode, Class<E> clazz) {
     if (jsonNode == null || jsonNode.isMissingNode()) {
-      LOGGER.warn("JsonNode NULL or missing");
+      LOGGER.warn("JsonNode NULL or missing (parsing {})", clazz.getCanonicalName());
       return Collections.emptyList();
     }
     JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
@@ -49,5 +50,20 @@ public class JsonUtils {
 
   public static <E> JavaType listType(ObjectMapper mapper, Class<E> clazz) {
     return mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+  }
+
+  /**
+   * replacement for JsonNode.at(), to get some logging...
+   * 
+   * @param node
+   * @param jsonPtrExpr
+   * @return
+   */
+  public static JsonNode at(JsonNode node, String jsonPtrExpr) {
+    JsonNode ret = node.at(JsonPointer.compile(jsonPtrExpr));
+    if (ret == null || ret.isMissingNode()) {
+      LOGGER.warn("Cannot parse JSON at '{}', because is was missing/empty/non-existent", jsonPtrExpr);
+    }
+    return ret;
   }
 }
