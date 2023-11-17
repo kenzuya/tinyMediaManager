@@ -1,3 +1,9 @@
+Version 4.3.15
+=======================
+x fix chinese language for simplified/traditional
+x ignore movies with invalid datasource in KodiRPC
+
+
 Version 4.3.14
 =======================
 x upgraded libmediainfo to 23.09
