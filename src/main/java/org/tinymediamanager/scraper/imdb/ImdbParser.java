@@ -277,6 +277,15 @@ public abstract class ImdbParser {
   }
 
   /**
+   * should we scrape local release date, or the "first" one?
+   *
+   * @return true/false
+   */
+  protected boolean isScrapeLocalReleaseDate() {
+    return config.getValueAsBool(LOCAL_RELEASE_DATE, true);
+  }
+
+  /**
    * get the maximum amount of keywords we should get from the keywords page
    *
    * @return the configured numer or {@link Integer}.MAX_VALUE
@@ -2045,7 +2054,7 @@ public abstract class ImdbParser {
         String extension = FilenameUtils.getExtension(image);
         // https://stackoverflow.com/a/73501833
         String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
-        artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
+        artwork.setLanguage("?"); // since we do not know which language the artwork is in, set it to a value which will never match
         artwork.addImageSize(width, height, defaultUrl, sizeOrder);
       }
     }
@@ -2055,7 +2064,7 @@ public abstract class ImdbParser {
       String extension = FilenameUtils.getExtension(image);
       // https://stackoverflow.com/a/73501833
       String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
-      artwork.setLanguage(""); // since we do not know which language the artwork is in, we set an empty string here
+      artwork.setLanguage("?"); // since we do not know which language the artwork is in, set it to a value which will never match
       artwork.addImageSize(width, height, defaultUrl, sizeOrder);
     }
   }

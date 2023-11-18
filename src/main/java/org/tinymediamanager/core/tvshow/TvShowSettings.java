@@ -161,7 +161,7 @@ public final class TvShowSettings extends AbstractSettings {
   CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
   boolean                                        writeCleanNfo                          = false;
   DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
-  MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
+  Locale                                         nfoLanguage                            = Locale.ENGLISH;
   boolean                                        nfoWriteEpisodeguide                   = true;
   boolean                                        nfoWriteNewEpisodeguideStyle           = true;
   boolean                                        nfoWriteDateEnded                      = false;
@@ -201,14 +201,14 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        fetchAllRatings                        = false;
 
   // artwork scraper
-  final List<MediaLanguages> imageScraperLanguages = ObservableCollections.observableList(new ArrayList<>());
+  final List<MediaLanguages>                     imageScraperLanguages                  = ObservableCollections.observableList(new ArrayList<>());
 
-  boolean imageScraperOtherResolutions = true;
-  boolean imageScraperFallback = true;
-  boolean imageScraperPreferFanartWoText = true;
+  boolean                                        imageScraperOtherResolutions           = true;
+  boolean                                        imageScraperFallback                   = true;
+  boolean                                        imageScraperPreferFanartWoText         = true;
   MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
   MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
-  MediaArtwork.ThumbSizes imageThumbSize = MediaArtwork.ThumbSizes.MEDIUM;
+  MediaArtwork.ThumbSizes                        imageThumbSize                         = MediaArtwork.ThumbSizes.MEDIUM;
   boolean                                        scrapeBestImage                        = true;
   boolean                                        writeActorImages                       = false;
   boolean                                        imageExtraFanart                       = false;
@@ -441,6 +441,8 @@ public final class TvShowSettings extends AbstractSettings {
    */
   @Override
   protected void writeDefaultSettings() {
+    addDefaultEntries();
+
     // activate default scrapers
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
@@ -459,14 +461,13 @@ public final class TvShowSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
-        setNfoLanguage(ml);
+        setNfoLanguage(ml.toLocale());
         imageScraperLanguages.clear();
         addImageScraperLanguage(ml);
         setSubtitleScraperLanguage(ml);
       }
     }
 
-    addDefaultEntries();
     saveSettings();
   }
 
@@ -1696,12 +1697,12 @@ public final class TvShowSettings extends AbstractSettings {
     firePropertyChange("nfoDateAddedField", oldValue, newValue);
   }
 
-  public MediaLanguages getNfoLanguage() {
+  public Locale getNfoLanguage() {
     return nfoLanguage;
   }
 
-  public void setNfoLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = nfoLanguage;
+  public void setNfoLanguage(Locale newValue) {
+    Locale oldValue = nfoLanguage;
     this.nfoLanguage = newValue;
     firePropertyChange("nfoLanguage", oldValue, newValue);
   }

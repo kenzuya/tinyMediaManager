@@ -109,7 +109,6 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = super.createMediaProviderInfo();
 
-    info.getConfig().addText("apiKey", "", true);
     info.getConfig().addBoolean("includeAdultShows", false);
     info.getConfig().addBoolean("scrapeLanguageNames", true);
     info.getConfig().addBoolean("titleFallback", false);
@@ -335,7 +334,19 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
 
           MediaEpisodeGroup.EpisodeGroupType eg = mapEpisodeGroup(episodeGroup.type);
           if (eg != null) {
-            episodeGroups.put(new MediaEpisodeGroup(eg, episodeGroup.name), episodeGroupsResponse.body().groups);
+            List<TvEpisodeGroupSeason> seasons = episodeGroupsResponse.body().groups;
+            for (int i = seasons.size() - 1; i >= 0; i--) {
+              // TMDB fault - remove EG season when no episodes are returned!
+              if (seasons.get(i).episodes.isEmpty()) {
+                seasons.remove(i);
+              }
+            }
+            if (!seasons.isEmpty()) {
+              episodeGroups.put(new MediaEpisodeGroup(eg, episodeGroup.name), seasons);
+            }
+            else {
+              LOGGER.warn("EpisodeGroup '{}' without episodes! {} ", episodeGroupsResponse.body().name, showResponse.body().name);
+            }
           }
         }
         catch (Exception e) {

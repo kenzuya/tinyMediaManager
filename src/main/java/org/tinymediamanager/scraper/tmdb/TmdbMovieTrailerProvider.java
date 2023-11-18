@@ -39,7 +39,6 @@ public class TmdbMovieTrailerProvider extends TmdbMetadataProvider implements IM
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo info = super.createMediaProviderInfo();
 
-    info.getConfig().addText("apiKey", "", true);
     info.getConfig().load();
 
     return info;

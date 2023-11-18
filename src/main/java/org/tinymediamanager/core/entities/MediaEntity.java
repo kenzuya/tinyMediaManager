@@ -1126,7 +1126,11 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
   public long getTotalFilesize() {
     try {
       readWriteLock.readLock().lock();
-      return mediaFiles.stream().mapToLong(MediaFile::getFilesize).sum();
+      long result = 0;
+      for (MediaFile mediaFile : mediaFiles) {
+        result += mediaFile.getFilesize();
+      }
+      return result;
     }
     finally {
       readWriteLock.readLock().unlock();

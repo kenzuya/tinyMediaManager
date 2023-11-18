@@ -260,6 +260,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
   private String prepareUrlToLog(String url) {
     return url.replaceAll("api_key=\\w+", "api_key=<API_KEY>")
         .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
-        .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
+        .replaceAll("apikey=\\w+", "apikey=<API_KEY>")
+        .replaceAll("client=\\w+", "client=<API_KEY>")
+        .replaceAll("clientver=\\w+", "clientver=<API_KEY>");
   }
 }

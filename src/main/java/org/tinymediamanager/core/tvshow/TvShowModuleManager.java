@@ -509,9 +509,15 @@ public final class TvShowModuleManager implements ITmmModule {
   public void dump(TvShowEpisode ep) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
-      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(epNode);
-      LOGGER.info("Dumping TvShowEpisode: {}\n{}", ep.getDbId(), s);
+      if (episodeMap.get(ep.getDbId()) != null) {
+        ObjectNode epNode = mapper.readValue(episodeMap.get(ep.getDbId()), ObjectNode.class);
+        String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(epNode);
+        LOGGER.info("Dumping TvShowEpisode: {}\n{}", ep.getDbId(), s);
+      }
+      else {
+        // dummy?
+        LOGGER.warn("Cannot dump DummyEpisode - check them on show level!");
+      }
     }
     catch (Exception e) {
       LOGGER.error("Cannot parse JSON!", e);

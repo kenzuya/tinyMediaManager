@@ -64,12 +64,16 @@ public class TvShowRenamerPreview {
     // generate all episode filenames
     processEpisodes();
 
-    if (!container.newPath.equals(container.oldPath)) {
+    Path oldShowFolder = tvShow.getPathNIO();
+    if (!oldShowFolder.equals(container.newPath)) {
       container.needsRename = true;
-      // update all files with new path, so we can simply do a contains check ;)
-      for (MediaFile omf : newFiles) {
-        omf.replacePathForRenamedFolder(container.oldPath, container.newPath);
+      // update already the "old" files with new path, so we can simply do a contains check ;)
+      for (MediaFile omf : oldFiles.values()) {
+        omf.replacePathForRenamedFolder(oldShowFolder, container.newPath);
       }
+
+      // do the same for (some) new files too, since EXTRAS in dedicated folder can not determine their new folder
+      newFiles.forEach(mf -> mf.replacePathForRenamedFolder(oldShowFolder, container.newPath));
     }
 
     // change status of MFs, if they have been added or not
@@ -89,16 +93,19 @@ public class TvShowRenamerPreview {
 
     container.oldMediaFiles.addAll(oldFiles.values());
     container.newMediaFiles.addAll(newFiles);
-
     return container;
   }
 
   private void processTvShow() {
     for (MediaFile mf : tvShow.getMediaFiles()) {
       MediaFile oldMf = new MediaFile(mf);
-      oldMf.replacePathForRenamedFolder(container.oldPath, container.newPath); // already replace the path for an easy .contains() check
       oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
-      newFiles.addAll(TvShowRenamer.generateFilename(tvShow, mf));
+
+      TvShow clone = new TvShow();
+      clone.merge(tvShow);
+      clone.setDataSource(tvShow.getDataSource());
+      clone.setPath(container.newPath.toString());
+      newFiles.addAll(TvShowRenamer.generateFilename(clone, new MediaFile(mf)));
     }
   }
 
@@ -126,9 +133,9 @@ public class TvShowRenamerPreview {
       }
       else if (episode.isDisc()) {
         String seasonFoldername = getSeasonFoldername(episode.getTvShow(), episode);
-        Path seasonFolder = episode.getTvShow().getPathNIO();
+        Path seasonFolder = container.newPath;
         if (StringUtils.isNotBlank(seasonFoldername)) {
-          seasonFolder = episode.getTvShow().getPathNIO().resolve(seasonFoldername);
+          seasonFolder = container.newPath.resolve(seasonFoldername);
         }
 
         String newFoldername = FilenameUtils.getBaseName(generateFoldername(episode.getTvShow(), mainVideoFile)); // w/o extension
@@ -136,7 +143,6 @@ public class TvShowRenamerPreview {
 
         for (MediaFile mf : episode.getMediaFiles()) {
           MediaFile oldMf = new MediaFile(mf);
-          oldMf.replacePathForRenamedFolder(container.oldPath, container.newPath); // already replace the path for an easy .contains() check
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
 
           MediaFile newMf = new MediaFile(mf);
@@ -148,10 +154,13 @@ public class TvShowRenamerPreview {
       else {
         for (MediaFile mf : episode.getMediaFiles()) {
           MediaFile oldMf = new MediaFile(mf);
-          oldMf.replacePathForRenamedFolder(container.oldPath, container.newPath); // already replace the path for an easy .contains() check
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
 
-          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(tvShow, mf, oldVideoBasename));
+          TvShow clone = new TvShow();
+          clone.merge(tvShow);
+          clone.setDataSource(tvShow.getDataSource());
+          clone.setPath(container.newPath.toString());
+          newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(clone, new MediaFile(mf), oldVideoBasename));
         }
       }
     }

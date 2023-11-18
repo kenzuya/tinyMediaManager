@@ -15,6 +15,15 @@
  */
 package org.tinymediamanager.core.tvshow.entities;
 
+import static org.tinymediamanager.core.Constants.ADDED_EPISODE;
+import static org.tinymediamanager.core.Constants.ADDED_SEASON;
+import static org.tinymediamanager.core.Constants.FIRST_AIRED;
+import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
+import static org.tinymediamanager.core.Constants.MEDIA_FILES;
+import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
+import static org.tinymediamanager.core.Constants.SEASON;
+import static org.tinymediamanager.core.Constants.TV_SHOW;
+
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,11 +51,9 @@ import org.tinymediamanager.core.tvshow.connector.TvShowSeasonToEmbyConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tinymediamanager.scraper.util.ListUtils;
 
-import static org.tinymediamanager.core.Constants.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * The Class TvShowSeason.
@@ -104,7 +111,7 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
 
   private void init() {
     listener = evt -> {
-      if (evt.getSource()instanceof TvShowEpisode episode) {
+      if (evt.getSource() instanceof TvShowEpisode episode) {
         switch (evt.getPropertyName()) {
           case MEDIA_FILES -> firePropertyChange(MEDIA_FILES, null, evt.getNewValue());
           case SEASON -> {
@@ -521,6 +528,14 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
       default -> null;
     };
 
+  }
+
+  @Override
+  public String getTitle() {
+    if (this.title.isEmpty() && tvShow != null) {
+      return tvShow.getSeasonName(season); // could also be blank, but handled in TvShowTreeDataProvider
+    }
+    return this.title;
   }
 
   @Override

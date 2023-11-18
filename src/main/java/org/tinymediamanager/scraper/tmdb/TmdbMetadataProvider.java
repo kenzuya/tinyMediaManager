@@ -74,9 +74,14 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
   protected abstract String getSubId();
 
   protected MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo(ID, getSubId(), "themoviedb.org",
+    MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "themoviedb.org",
         "<html><h3>The Movie Database (TMDb)</h3><br />The largest free movie database maintained by the community. It provides metadata and artwork<br />in many different languages. Thus it is the first choice for non english users<br /><br />Available languages: multiple</html>",
         TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.svg"), 50);
+
+    info.getConfig().addText("apiKey", "", true);
+    info.getConfig().addBoolean("alternateServer", false);
+
+    return info;
   }
 
   public boolean isActive() {
@@ -97,6 +102,10 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
         // force re-initialization with new key
         api = null;
       }
+      else if (providerInfo.getConfig().getValueAsBool("alternateServer") != api.isAlternateServer()) {
+        // force re-initialization with other server
+        api = null;
+      }
     }
 
     // create a new instance of the tmdb api
@@ -107,7 +116,8 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
       try {
         String userApiKey = providerInfo.getUserApiKey();
-        api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey());
+        api = new TmdbController(StringUtils.isNotBlank(userApiKey) ? userApiKey : getApiKey(),
+            providerInfo.getConfig().getValueAsBool("alternateServer"));
         Response<Configuration> response = api.configurationService().configuration().execute();
         if (response.code() == 401) {
           throw new ScrapeException("Invalid TMDB API key");

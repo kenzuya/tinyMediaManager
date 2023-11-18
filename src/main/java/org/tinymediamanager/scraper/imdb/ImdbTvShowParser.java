@@ -401,6 +401,9 @@ public class ImdbTvShowParser extends ImdbParser {
             md.setCastMembers(md2.getCastMembers()); // overwrite all
             md.setTop250(md2.getTop250());
             md2.getCertifications().forEach(md::addCertification); // reference page has more certifications
+            if (md.getReleaseDate() == null || !isScrapeLocalReleaseDate()) {
+              md.setReleaseDate(md2.getReleaseDate());
+            }
           }
 
           if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {

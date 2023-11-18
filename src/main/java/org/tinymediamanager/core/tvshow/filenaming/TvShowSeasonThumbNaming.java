@@ -94,22 +94,7 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
         return SEASON_THUMB.getFilename(tvShowSeason, extension);
       }
 
-      String filename = seasonFoldername + File.separator;
-
-      if (tvShowSeason.getSeason() == -1) {
-        filename += "season-all-thumb." + extension;
-      }
-      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials-thumb." + extension;
-      }
-      else if (tvShowSeason.getSeason() > -1) {
-        filename += String.format("season%02d-thumb.%s", tvShowSeason.getSeason(), extension);
-      }
-      else {
-        filename = "";
-      }
-
-      return filename;
+      return seasonFoldername + File.separator + String.format("season%02d-thumb.%s", tvShowSeason.getSeason(), extension);
     }
   },
 
@@ -127,25 +112,10 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
       // check whether the season folder name exists or not; do not create it just for the artwork!
       if (StringUtils.isBlank(seasonFoldername)) {
         // no season folder name in the templates found - fall back to the show base filename style
-        return SEASON_THUMB.getFilename(tvShowSeason, extension);
+        return SEASON_LANDSCAPE.getFilename(tvShowSeason, extension);
       }
 
-      String filename = seasonFoldername + File.separator;
-
-      if (tvShowSeason.getSeason() == -1) {
-        filename += "season-all-landscape." + extension;
-      }
-      else if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
-        filename += "season-specials-landscape." + extension;
-      }
-      else if (tvShowSeason.getSeason() > -1) {
-        filename += String.format("season%02d-landscape.%s", tvShowSeason.getSeason(), extension);
-      }
-      else {
-        filename = "";
-      }
-
-      return filename;
+      return seasonFoldername + File.separator + String.format("season%02d-landscape.%s", tvShowSeason.getSeason(), extension);
     }
   }
 }

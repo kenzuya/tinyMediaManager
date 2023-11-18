@@ -224,34 +224,10 @@ public class UpgradeTasks {
           tvShow.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
         }
 
-        for (TvShowEpisode episode : tvShow.getEpisodes()) {
-          // create season and EGs, if we read it in "old" style
-          if (!episode.additionalProperties.isEmpty() && episode.getEpisodeNumbers().isEmpty()) {
-            // V4 style
-            int s = MetadataUtil.parseInt(episode.additionalProperties.get("season"), -2);
-            int e = MetadataUtil.parseInt(episode.additionalProperties.get("episode"), -2);
-            if (s > -2 && e > -2) {
-              // also record -1/-1 episodes
-              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, s, e));
-            }
-
-            s = MetadataUtil.parseInt(episode.additionalProperties.get("dvdSeason"), -1);
-            e = MetadataUtil.parseInt(episode.additionalProperties.get("dvdEpisode"), -1);
-            if (s > -1 && e > -1) {
-              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, s, e));
-            }
-
-            s = MetadataUtil.parseInt(episode.additionalProperties.get("displaySeason"), -1);
-            e = MetadataUtil.parseInt(episode.additionalProperties.get("displayEpisode"), -1);
-            if (s > -1 && e > -1) {
-              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, s, e));
-            }
-
-            episode.saveToDb();
-          }
-        }
+        tvShow.getEpisodes().forEach(TvShowEpisode::saveToDb); // re-save
         tvShow.saveToDb();
       } // end foreach show
+
       module.setDbVersion(5002);
     }
 
@@ -260,6 +236,31 @@ public class UpgradeTasks {
     //
     // module.setDbVersion(50xx);
     // }
+  }
+
+  public static void upgradeEpisodeNumbers(TvShowEpisode episode) {
+    // create season and EGs, if we read it in "old" style
+    if (!episode.additionalProperties.isEmpty() && episode.getEpisodeNumbers().isEmpty()) {
+      // V4 style
+      int s = MetadataUtil.parseInt(episode.additionalProperties.get("season"), -2);
+      int e = MetadataUtil.parseInt(episode.additionalProperties.get("episode"), -2);
+      if (s > -2 && e > -2) {
+        // also record -1/-1 episodes
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, s, e));
+      }
+
+      s = MetadataUtil.parseInt(episode.additionalProperties.get("dvdSeason"), -1);
+      e = MetadataUtil.parseInt(episode.additionalProperties.get("dvdEpisode"), -1);
+      if (s > -1 && e > -1) {
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, s, e));
+      }
+
+      s = MetadataUtil.parseInt(episode.additionalProperties.get("displaySeason"), -1);
+      e = MetadataUtil.parseInt(episode.additionalProperties.get("displayEpisode"), -1);
+      if (s > -1 && e > -1) {
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, s, e));
+      }
+    }
   }
 
   /**
@@ -306,6 +307,17 @@ public class UpgradeTasks {
             LOGGER.warn("could not copy file '{}' from v4 - '{}'", file.getName(), e.getMessage());
           }
         }
+      }
+    }
+
+    // and copy over the launcher-extra.yml
+    Path launcherExtra = path.getParent().resolve("launcher-extra.yml");
+    if (launcherExtra.toFile().exists() && launcherExtra.toFile().isFile()) {
+      try {
+        Utils.copyFileSafe(launcherExtra, Paths.get(Globals.DATA_FOLDER, launcherExtra.toFile().getName()), true);
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not copy file '{}' from v4 - '{}'", launcherExtra.toFile().getName(), e.getMessage());
       }
     }
 

@@ -423,7 +423,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
     if (StringUtils.isBlank(image.language)) {
       // no text
-      ma.setLanguage("-");
+      ma.setLanguage("");
     }
     else {
       ma.setLanguage(LanguageUtils.getIso2LanguageFromLocalizedString(image.language));

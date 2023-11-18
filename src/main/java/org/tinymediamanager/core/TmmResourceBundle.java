@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -39,7 +40,7 @@ public class TmmResourceBundle {
     // no need for locking here, if there is multi thread access to a null value of instance,
     // the same instance will be returned by ResourceBundle
     if (instance == null) {
-      instance = ResourceBundle.getBundle("messages");
+      instance = ResourceBundle.getBundle("messages", Locale.getDefault());
     }
 
     try {
@@ -48,5 +49,10 @@ public class TmmResourceBundle {
     catch (Exception e) {
       return "???";
     }
+  }
+
+  public static void clearCache() {
+    ResourceBundle.clearCache();
+    instance = null;
   }
 }

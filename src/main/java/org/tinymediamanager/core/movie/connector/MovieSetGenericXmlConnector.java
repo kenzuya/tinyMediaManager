@@ -429,7 +429,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
   protected void addGenres() {
     for (MediaGenres mediaGenre : movieSet.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage()));
       root.appendChild(genre);
     }
   }

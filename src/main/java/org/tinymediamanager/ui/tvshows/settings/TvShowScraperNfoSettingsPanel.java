@@ -19,6 +19,8 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,6 +42,7 @@ import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -47,13 +50,13 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LocaleComboBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -73,7 +76,8 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private JComboBox<TvShowConnectors>          cbNfoFormat;
   private JComboBox<CertificationStyleWrapper> cbCertificationStyle;
   private JCheckBox                            chckbxWriteCleanNfo;
-  private JComboBox<MediaLanguages>            cbNfoLanguage;
+  private final List<LocaleComboBox>           locales  = new ArrayList<>();
+  private JComboBox                            cbNfoLanguage;
   private JComboBox<DateField>                 cbDatefield;
   private JCheckBox                            chckbxEpisodeNfo1;
   private JCheckBox                            chckbxTvShowNfo1;
@@ -92,11 +96,26 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     checkBoxListener = e -> checkChanges();
     comboBoxListener = e -> checkChanges();
 
+    LocaleComboBox actualLocale = null;
+    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getNfoLanguage().toString());
+    for (Locale l : Utils.getLanguages()) {
+      LocaleComboBox localeComboBox = new LocaleComboBox(l);
+      locales.add(localeComboBox);
+      if (l.equals(settingsLang)) {
+        actualLocale = localeComboBox;
+      }
+    }
+    Collections.sort(locales);
+
     // UI init
     initComponents();
     initDataBindings();
 
     // data init
+    if (actualLocale != null) {
+      cbNfoLanguage.setSelectedItem(actualLocale);
+      cbNfoLanguage.addItemListener(comboBoxListener);
+    }
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
@@ -166,7 +185,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
-        cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
+        cbNfoLanguage = new JComboBox(locales.toArray());
         panelNfo.add(cbNfoLanguage, "cell 1 5 2 1");
 
         JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
@@ -221,6 +240,14 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
    * check changes of checkboxes
    */
   private void checkChanges() {
+    LocaleComboBox loc = (LocaleComboBox) cbNfoLanguage.getSelectedItem();
+    if (loc != null) {
+      Locale actualLocale = settings.getNfoLanguage();
+      if (!loc.getLocale().equals(actualLocale)) {
+        settings.setNfoLanguage(loc.getLocale());
+      }
+    }
+
     CertificationStyleWrapper wrapper = (CertificationStyleWrapper) cbCertificationStyle.getSelectedItem();
     if (wrapper != null && settings.getCertificationStyle() != wrapper.style) {
       settings.setCertificationStyle(wrapper.style);
@@ -318,11 +345,6 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, chckbxWriteCleanNfo,
         jCheckBoxBeanProperty);
     autoBinding_2.bind();
-    //
-    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("nfoLanguage");
-    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, cbNfoLanguage,
-        jComboBoxBeanProperty);
-    autoBinding_4.bind();
     //
     Property tvShowSettingsBeanProperty_3 = BeanProperty.create("nfoDateAddedField");
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbDatefield,

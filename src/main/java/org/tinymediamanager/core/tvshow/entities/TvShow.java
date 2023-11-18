@@ -189,7 +189,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     super();
 
     propertyChangeListener = evt -> {
-      if (evt.getSource()instanceof TvShowEpisode episode) {
+      if (evt.getSource() instanceof TvShowEpisode episode) {
 
         switch (evt.getPropertyName()) {
           case TAGS, MEDIA_INFORMATION, MEDIA_FILES, SUBTITLES, "hasSubtitles":
@@ -715,7 +715,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return a {@link List} of all episodes
    */
   public List<TvShowEpisode> getEpisodesForSeason(int season) {
-    return episodes.stream().filter(episode -> episode.getSeason() == season).toList();
+    List<TvShowEpisode> eps = new ArrayList<>();
+
+    for (TvShowEpisode episode : episodes) {
+      if (episode.getSeason() == season) {
+        eps.add(episode);
+      }
+    }
+
+    return eps;
   }
 
   /**
@@ -2053,7 +2061,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       return Collections.emptyList();
     }
 
-    return this.episodes.stream().filter(e -> e.getSeason() == season && e.getEpisode() == episode).toList();
+    List<TvShowEpisode> eps = new ArrayList<>();
+
+    for (TvShowEpisode ep : episodes) {
+      if (ep.getSeason() == season && ep.getEpisode() == episode) {
+        eps.add(ep);
+      }
+    }
+
+    return eps;
   }
 
   /**
@@ -2478,7 +2494,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if ("seasonTitleMap".equals(property) && value instanceof Map<?, ?> seasonTitleMap) {
       for (var entry : seasonTitleMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue()instanceof String seasonTitle) {
+        if (seasonNumber > -1 && entry.getValue() instanceof String seasonTitle) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setTitle(seasonTitle);
         }
@@ -2487,7 +2503,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonPosterUrlMap".equals(property) && value instanceof Map<?, ?> seasonPosterUrlMap) {
       for (var entry : seasonPosterUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue()instanceof String seasonPosterUrl) {
+        if (seasonNumber > -1 && entry.getValue() instanceof String seasonPosterUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonPosterUrl, MediaFileType.SEASON_POSTER);
         }
@@ -2496,7 +2512,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonBannerUrlMap".equals(property) && value instanceof Map<?, ?> seasonBannerUrlMap) {
       for (var entry : seasonBannerUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue()instanceof String seasonBannerUrl) {
+        if (seasonNumber > -1 && entry.getValue() instanceof String seasonBannerUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonBannerUrl, MediaFileType.SEASON_BANNER);
         }
@@ -2505,7 +2521,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonThumbUrlMap".equals(property) && value instanceof Map<?, ?> seasonThumbUrlMap) {
       for (var entry : seasonThumbUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue()instanceof String seasonThumbUrl) {
+        if (seasonNumber > -1 && entry.getValue() instanceof String seasonThumbUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonThumbUrl, MediaFileType.SEASON_THUMB);
         }
@@ -2514,7 +2530,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     else if ("seasonFanartUrlMap".equals(property) && value instanceof Map<?, ?> seasonFanartUrlMap) {
       for (var entry : seasonFanartUrlMap.entrySet()) {
         int seasonNumber = TvUtils.parseInt(entry.getKey());
-        if (seasonNumber > -1 && entry.getValue()instanceof String seasonFanartUrl) {
+        if (seasonNumber > -1 && entry.getValue() instanceof String seasonFanartUrl) {
           TvShowSeason season = getOrCreateSeason(seasonNumber);
           season.setArtworkUrl(seasonFanartUrl, MediaFileType.SEASON_FANART);
         }

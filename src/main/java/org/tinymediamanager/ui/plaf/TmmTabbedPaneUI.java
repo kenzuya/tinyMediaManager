@@ -193,57 +193,13 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
     return insets;
   }
 
-  // @Override
-  // protected void paintTopTabBorder(int tabIndex, Graphics g, int x1, int y1, int x2, int y2, boolean isSelected) {
-  // }
-
-  // @Override
-  // protected void paintText(Graphics g, int tabPlacement, Font font, FontMetrics metrics, int tabIndex, String title, Rectangle textRect,
-  // boolean isSelected) {
-  // Graphics2D g2D = (Graphics2D) g;
-  // Object savedRenderingHint = null;
-  // if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
-  // savedRenderingHint = g2D.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-  // g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AbstractLookAndFeel.getTheme().getTextAntiAliasingHint());
-  // }
-  //
-  // // plain text
-  // g.setFont(font);
-  // int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
-  //
-  // if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
-  // if (isSelected) {
-  // g.setColor(AbstractLookAndFeel.getTheme().getTabSelectionForegroundColor());
-  // }
-  // else {
-  // g.setColor(AbstractLookAndFeel.getTheme().getTabForegroundColor());
-  // }
-  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
-  // }
-  // else { // tab disabled
-  // g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
-  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
-  // g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
-  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x - 1, textRect.y + metrics.getAscent() - 1);
-  // }
-  //
-  // if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
-  // g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedRenderingHint);
-  // }
-  // }
-  //
-  // @Override
-  // protected int getTabLabelShiftY(int tabPlacement, int tabIndex, boolean isSelected) {
-  // return 0;
-  // }
-
   @Override
   protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
     // redraw the black border
     Rectangle clipRect = g.getClipBounds();
     if (clipRect.y < maxTabHeight) {
       g.setColor(tabPane.getBackground());
-      g.fillRect(0, 0, tabPane.getWidth(), maxTabHeight);
+      g.fillRect(0, -1, tabPane.getWidth(), maxTabHeight + 1);
     }
 
     super.paintTabArea(g, tabPlacement, selectedIndex);
@@ -257,7 +213,7 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
     Rectangle clipRect = g.getClipBounds();
     if (clipRect.y < maxTabHeight) {
       g.setColor(tabPane.getBackground());
-      g.fillRect(0, 0, tabPane.getWidth(), maxTabHeight);
+      g.fillRect(0, -1, tabPane.getWidth(), maxTabHeight + 1);
     }
   }
 }

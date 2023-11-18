@@ -396,7 +396,7 @@ public class TvShowArtworkHelper {
     // https://kodi.wiki/view/Artwork_types#fanart
     MediaArtwork.ImageSizeAndUrl fanartWoText = null;
     for (MediaArtwork art : artwork) {
-      if (art.getType() == BACKGROUND && art.getLanguage().equals("-")) {
+      if (art.getType() == BACKGROUND && art.getLanguage().equals("")) {
         // right type
         for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
           // right size

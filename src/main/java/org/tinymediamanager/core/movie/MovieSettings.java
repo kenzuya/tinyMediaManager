@@ -145,7 +145,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   nfoDiscFolderInside                    = true;
   boolean                                   writeCleanNfo                          = false;
   DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
-  MediaLanguages                            nfoLanguage                            = MediaLanguages.en;
+  Locale                                    nfoLanguage                            = Locale.ENGLISH;
   boolean                                   createOutline                          = true;
   boolean                                   outlineFirstSentence                   = false;
   boolean                                   nfoWriteSingleStudio                   = false;
@@ -252,7 +252,7 @@ public final class MovieSettings extends AbstractSettings {
   @JsonAlias("movieSetArtworkFolder")
   String                                    movieSetDataFolder                     = "";
   boolean                                   scrapeBestImageMovieSet                = true;
-  String movieSetTitleCharacterReplacement = "_";
+  String                                    movieSetTitleCharacterReplacement      = "_";
 
   // movie set artwork
   final List<MovieSetPosterNaming>          movieSetPosterFilenames                = new ArrayList<>();
@@ -454,7 +454,7 @@ public final class MovieSettings extends AbstractSettings {
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
         setScraperLanguage(ml);
-        setNfoLanguage(ml);
+        setNfoLanguage(ml.toLocale());
         imageScraperLanguages.clear();
         addImageScraperLanguage(ml);
         setSubtitleScraperLanguage(ml);
@@ -1704,12 +1704,12 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("nfoWriteLockdata", oldValue, newValue);
   }
 
-  public MediaLanguages getNfoLanguage() {
+  public Locale getNfoLanguage() {
     return nfoLanguage;
   }
 
-  public void setNfoLanguage(MediaLanguages newValue) {
-    MediaLanguages oldValue = nfoLanguage;
+  public void setNfoLanguage(Locale newValue) {
+    Locale oldValue = nfoLanguage;
     this.nfoLanguage = newValue;
     firePropertyChange("nfoLanguage", oldValue, newValue);
   }

@@ -3,10 +3,13 @@ package org.tinymediamanager.scraper.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaGenres;
 
 public class LanguageUtilsTest extends BasicTest {
 
@@ -14,6 +17,30 @@ public class LanguageUtilsTest extends BasicTest {
   public void setup() throws Exception {
     super.setup();
     Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @Test
+  public void asiaLangu() {
+    printLangu("en");
+    printLangu("fr");
+    printLangu("de");
+
+    printLangu("zh"); // simple
+    printLangu("zh_"); // invalid -> EN
+    printLangu("zh_CN"); // simple
+    printLangu("zh_HK"); // traditional (no bundle avail, so fallback to ZH simple!)
+    printLangu("zh_SG"); // simple
+    printLangu("zh_TW"); // traditional (=Hant)
+    printLangu("zh_Hans"); // simple (Java translates this to zh_CN)
+    printLangu("zh_Hant"); // traditional (Java translates this to zh_TW)
+  }
+
+  private void printLangu(String key) {
+    MediaGenres genre = MediaGenres.ANIMAL;
+    Locale loc = Utils.getLocaleFromLanguage(key);
+    ResourceBundle b = ResourceBundle.getBundle("messages", loc);
+    String nfo = genre.getLocalizedName(loc);
+    System.out.println(key + "   Bundle:" + b.getString("Genres." + genre.name()) + "   nfo:" + nfo);
   }
 
   @Test

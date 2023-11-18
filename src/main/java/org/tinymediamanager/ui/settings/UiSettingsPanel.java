@@ -36,8 +36,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -59,6 +57,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.LinkTextArea;
+import org.tinymediamanager.ui.components.LocaleComboBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -347,7 +346,7 @@ class UiSettingsPanel extends JPanel {
   private void checkChanges() {
     LocaleComboBox loc = (LocaleComboBox) cbLanguage.getSelectedItem();
     if (loc != null) {
-      Locale locale = loc.loc;
+      Locale locale = loc.getLocale();
       Locale actualLocale = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
       if (!locale.equals(actualLocale)) {
         Settings.getInstance().setLanguage(locale.toString());
@@ -392,54 +391,6 @@ class UiSettingsPanel extends JPanel {
     }
     else {
       lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
-    }
-  }
-
-  /**
-   * Helper class for customized toString() method, to get the Name in localized language.
-   */
-  private static class LocaleComboBox implements Comparable<LocaleComboBox> {
-    private final Locale       loc;
-    private final List<Locale> countries;
-
-    LocaleComboBox(Locale loc) {
-      this.loc = loc;
-      countries = LocaleUtils.countriesByLanguage(loc.getLanguage().toLowerCase(Locale.ROOT));
-    }
-
-    public Locale getLocale() {
-      return loc;
-    }
-
-    @Override
-    public String toString() {
-      // display country name if needed
-      // not needed when language == country
-      if (loc.getLanguage().equalsIgnoreCase(loc.getCountry())) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // special exceptions (which do not have language == country)
-      if (loc.toString().equals("en_US")) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // not needed, when this language is only in one country
-      if (countries.size() == 1) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // output country if available
-      if (StringUtils.isNotBlank(loc.getDisplayCountry(loc))) {
-        return loc.getDisplayLanguage(loc) + " (" + loc.getDisplayCountry(loc) + ")";
-      }
-
-      return loc.getDisplayLanguage(loc);
-    }
-
-    @Override
-    public int compareTo(LocaleComboBox o) {
-      return toString().toLowerCase(Locale.ROOT).compareTo(o.toString().toLowerCase(Locale.ROOT));
     }
   }
 

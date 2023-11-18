@@ -335,7 +335,7 @@ public class MovieRenamer {
     }
     else {
       // since we rename, generate the new basename
-      MediaFile ftr = generateFilename(movie, movie.getMediaFiles(MediaFileType.VIDEO).get(0), newVideoBasename).get(0); // there can be only one
+      MediaFile ftr = generateFilename(movie, movie.getMediaFiles(MediaFileType.VIDEO).get(0), newVideoBasename, oldVideoBasename).get(0);
       newVideoBasename = FilenameUtils.getBaseName(ftr.getFilenameWithoutStacking());
     }
     LOGGER.debug("Our new basename for renaming: {}", newVideoBasename);
@@ -398,7 +398,7 @@ public class MovieRenamer {
               Files.copy(oldCache, newCache);
             }
             catch (IOException e) {
-                LOGGER.warn("Error moving cached file - '{}'", e.getMessage());
+              LOGGER.warn("Error moving cached file - '{}'", e.getMessage());
             }
           }
         }
@@ -461,7 +461,7 @@ public class MovieRenamer {
     for (MediaFile other : mfs) {
       LOGGER.trace("Rename 1:1 {} - {}", other.getType(), other.getFileAsPath());
 
-      List<MediaFile> newMFs = generateFilename(movie, other, newVideoBasename); // 1:N
+      List<MediaFile> newMFs = generateFilename(movie, other, newVideoBasename, oldVideoBasename); // 1:N
       newMFs.removeAll(Collections.singleton(null)); // remove all NULL ones!
       for (MediaFile newMF : newMFs) {
         boolean ok = copyFile(other.getFileAsPath(), newMF.getFileAsPath());
@@ -837,6 +837,22 @@ public class MovieRenamer {
             }
             newFiles.add(trail);
           }
+        }
+        break;
+
+      case EXTRA:
+      case VIDEO_EXTRA:
+        // this extra is for an episode -> move it at least to the season folder and try to replace the episode tokens
+        MediaFile extra = new MediaFile(mf);
+        if (MediaFileHelper.isExtraInDedicatedFolder(mf, movie)) {
+          // do nothing
+          newFiles.add(defaultMF);
+        }
+        else {
+          // try to detect the title of the extra file
+          String extraTitle = mf.getBasename().replace(oldVideoFileName, "");
+          extra.setFile(newMovieDir.resolve(newFilename + extraTitle + "." + mf.getExtension()));
+          newFiles.add(extra);
         }
         break;
 

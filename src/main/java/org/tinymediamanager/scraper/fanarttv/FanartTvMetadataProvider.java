@@ -234,7 +234,7 @@ abstract class FanartTvMetadataProvider implements IMediaProvider {
 
       if ("00".equals(image.lang) || StringUtils.isBlank(image.lang)) {
         // no text
-        ma.setLanguage("-");
+        ma.setLanguage("");
       }
       else {
         ma.setLanguage(image.lang);

@@ -237,6 +237,7 @@ class UiSettingsPanel extends JPanel {
       Locale actualLocale = Utils.getLocaleFromLanguage(settings.getLanguage());
       if (!locale.equals(actualLocale)) {
         settings.setLanguage(locale.toString());
+        TmmResourceBundle.clearCache();
       }
     }
 

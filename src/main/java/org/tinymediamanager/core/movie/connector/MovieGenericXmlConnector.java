@@ -600,7 +600,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   protected void addGenres() {
     for (MediaGenres mediaGenre : movie.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage()));
       root.appendChild(genre);
     }
   }
@@ -743,8 +743,8 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     // prepare the languages to be printed in localized form
     List<String> translatedLanguages = new ArrayList<>();
     for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
-      String translated = LanguageUtils
-          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(), langu.trim());
+      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage(),
+          langu.trim());
       translatedLanguages.add(translated);
     }
 

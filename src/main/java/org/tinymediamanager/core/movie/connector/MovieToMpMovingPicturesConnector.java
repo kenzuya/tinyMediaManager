@@ -125,8 +125,7 @@ public class MovieToMpMovingPicturesConnector extends MovieGenericXmlConnector {
     // prepare spoken language for MP - try to extract the iso codes to the UI language separated by a pipe
     List<String> languages = new ArrayList<>();
     for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
-      String translated = LanguageUtils
-          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(),
+      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage(),
           langu.trim());
       languages.add(translated);
     }

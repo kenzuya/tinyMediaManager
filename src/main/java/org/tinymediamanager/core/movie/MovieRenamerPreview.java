@@ -53,58 +53,65 @@ public class MovieRenamerPreview {
       newDestIsMultiMovieDir = !MovieRenamer.isFolderPatternUnique(pattern);
     }
 
+    // temporary for generating preview!
+    Movie movieClone = new Movie();
+    movieClone.merge(movie);
+    movieClone.setDataSource(movie.getDataSource());
+    movieClone.setPath(movie.getPath());
+    movieClone.setDisc(movie.isDisc());
+    movieClone.setStacked(movie.isStacked());
+    movieClone.setMultiMovieDir(newDestIsMultiMovieDir);
+    movieClone.addToMediaFiles(movie.getMediaFiles());
+
     // do not rename disc FILES - add them 1:1 without renaming
-    if (movie.isDisc()) {
-      for (MediaFile mf : movie.getMediaFiles()) {
+    if (movieClone.isDisc()) {
+      for (MediaFile mf : movieClone.getMediaFiles()) {
         oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf)); // clone
-        newFiles.add(mf);
+        MediaFile ftr = MovieRenamer.generateFilename(movieClone, mf, "").get(0); // there can be only one
+        newFiles.add(ftr);
       }
     }
     else {
+      String oldVideoBasename = movieClone.getVideoBasenameWithoutStacking();
       String newVideoBasename = "";
       if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
         // we are NOT renaming any files, so we keep the same name on renaming ;)
-        newVideoBasename = movie.getVideoBasenameWithoutStacking();
+        newVideoBasename = movieClone.getVideoBasenameWithoutStacking();
       }
       else {
         // since we rename, generate the new basename
-        MediaFile ftr = MovieRenamer.generateFilename(movie, movie.getMainVideoFile(), newVideoBasename).get(0);
+        MediaFile ftr = MovieRenamer.generateFilename(movieClone, movieClone.getMainVideoFile(), newVideoBasename).get(0);
         newVideoBasename = FilenameUtils.getBaseName(ftr.getFilenameWithoutStacking());
       }
 
       // VIDEO needs to be renamed first, since all others depend on that name!!!
-      for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-        oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
-        MediaFile ftr = MovieRenamer.generateFilename(movie, mf, newVideoBasename).get(0); // there can be only one
+      for (MediaFile mf : movieClone.getMediaFiles(MediaFileType.VIDEO)) {
+        oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf)); // clone
+        MediaFile ftr = MovieRenamer.generateFilename(movieClone, mf, newVideoBasename).get(0); // there can be only one
         newFiles.add(ftr);
       }
 
-      // temporary for generating preview!
-      // would need to change ALL the filenaming classes just for that...
-      boolean old = movie.isMultiMovieDir();
-      movie.setMultiMovieDir(newDestIsMultiMovieDir);
       // all the other MFs...
-      for (MediaFile mf : movie.getMediaFilesExceptType(MediaFileType.VIDEO)) {
+      for (MediaFile mf : movieClone.getMediaFilesExceptType(MediaFileType.VIDEO)) {
         oldFiles.put(mf.getFileAsPath().toString(), new MediaFile(mf));
-        newFiles.addAll(MovieRenamer.generateFilename(movie, mf, newVideoBasename)); // N:M
+        newFiles.addAll(MovieRenamer.generateFilename(movieClone, mf, newVideoBasename, oldVideoBasename)); // N:M, with data from clone
       }
-      movie.setMultiMovieDir(old); // set back
     }
 
     // movie folder needs a rename?
-    Path oldMovieFolder = movie.getPathNIO();
+    Path oldMovieFolder = movieClone.getPathNIO();
     // String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
     if (pattern.isEmpty()) {
       // same
-      container.newPath = movie.getPathNIO();
+      container.newPath = movieClone.getPathNIO();
     }
     else {
       try {
-        container.newPath = Paths.get(movie.getDataSource(), MovieRenamer.createDestinationForFoldername(pattern, movie));
+        container.newPath = Paths.get(movieClone.getDataSource(), MovieRenamer.createDestinationForFoldername(pattern, movieClone));
       }
       catch (Exception e) {
         // new folder name is invalid
-        container.newPath = movie.getPathNIO();
+        container.newPath = movieClone.getPathNIO();
       }
     }
 

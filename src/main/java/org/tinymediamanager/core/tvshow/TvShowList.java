@@ -51,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.UpgradeTasks;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -540,11 +541,14 @@ public final class TvShowList extends AbstractModelObject {
    * Load tv shows from database.
    */
   void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> seasonMap, MVMap<UUID, String> episodesMap) {
+    TvShowModuleManager module = TvShowModuleManager.getInstance();
+
     //////////////////////////////////////////////////
     // load all TV shows from the database
     //////////////////////////////////////////////////
     Set<TvShow> tvShowsFromDb = new HashSet<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
+    long dummyCnt = 0;
 
     List<UUID> toRemove = new ArrayList<>();
     long start = System.nanoTime();
@@ -554,6 +558,12 @@ public final class TvShowList extends AbstractModelObject {
         json = tvShowMap.get(uuid);
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
+
+        // inline upgrade from v4 - performance!
+        if (module.getDbVersion() < 5002) {
+          tvShow.getDummyEpisodes().forEach(UpgradeTasks::upgradeEpisodeNumbers);
+        }
+
         // for performance reasons we add tv shows after loading the episodes
         if (!tvShowsFromDb.add(tvShow)) {
           // already in there?! remove dupe
@@ -579,6 +589,7 @@ public final class TvShowList extends AbstractModelObject {
     Map<UUID, TvShow> tvShowUuidMap = new HashMap<>();
     for (TvShow tvShow : tvShowsFromDb) {
       tvShowUuidMap.put(tvShow.getDbId(), tvShow);
+      dummyCnt += tvShow.getDummyEpisodes().size(); // want the RAW entries
     }
 
     //////////////////////////////////////////////////
@@ -647,6 +658,11 @@ public final class TvShowList extends AbstractModelObject {
           return;
         }
 
+        // inline upgrade from v4 - performance!
+        if (module.getDbVersion() < 5002) {
+          UpgradeTasks.upgradeEpisodeNumbers(episode);
+        }
+
         // assign it to the right TV show
         TvShow tvShow = tvShowUuidMap.get(episode.getTvShowDbId());
         if (tvShow != null) {
@@ -670,7 +686,7 @@ public final class TvShowList extends AbstractModelObject {
     for (UUID uuid : toRemove) {
       episodesMap.remove(uuid);
     }
-    LOGGER.info("found {} episodes in database", episodesToCount.size());
+    LOGGER.info("found {} episodes in database (+ {} dummy w/o physical file)", episodesToCount.size(), dummyCnt);
     LOGGER.debug("took {} ms", (end - start) / 1000000);
 
     //////////////////////////////////////////////////

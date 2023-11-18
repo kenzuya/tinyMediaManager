@@ -18,10 +18,7 @@ package org.tinymediamanager.scraper.ffmpeg;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -44,12 +41,24 @@ import org.tinymediamanager.thirdparty.FFmpeg;
  * @author Manuel Laggner
  */
 abstract class FFmpegArtworkProvider implements IMediaProvider {
-  static final String             ID = "ffmpeg";
+  private static final long       IMAGE_TTL = 10 * 60 * 1000L; // 10 min
+  static final String             ID        = "ffmpeg";
 
   private final MediaProviderInfo providerInfo;
+  private final Map<String, Long> createdStills;
 
   FFmpegArtworkProvider() {
     providerInfo = createMediaProviderInfo();
+    createdStills = new HashMap<>();
+
+    TimerTask databaseWriteTask = new TimerTask() {
+      @Override
+      public void run() {
+        cleanupOldStills();
+      }
+    };
+    Timer cleanupTimer = new Timer();
+    cleanupTimer.schedule(databaseWriteTask, 5 * 60 * 1000L, 5 * 60 * 1000L);
   }
 
   /**
@@ -87,9 +96,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
     // the file must be available
     Object obj = options.getIds().get("mediaFile");
-    if (obj instanceof MediaFile) {
+    if (obj instanceof MediaFile mediaFile) {
       // single file
-      MediaFile mediaFile = (MediaFile) obj;
       if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
         return Collections.emptyList();
       }
@@ -165,6 +173,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       try {
         Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second + variance);
+        createdStills.put(mediaFile.getFile().toAbsolutePath().toString(), System.currentTimeMillis());
 
         // set the artwork type depending on the configured type
         int width = mediaFile.getVideoWidth();
@@ -173,20 +182,18 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
             || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-              MediaArtwork.FanartSizes.getSizeOrder(width));
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.FanartSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-          still.setLanguage("-");
+          still.setLanguage("");
           still.setLikes(count - i);
           artworks.add(still);
         }
         if (isThumbEnabled()
             && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
           MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-              MediaArtwork.ThumbSizes.getSizeOrder(width));
+          still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.ThumbSizes.getSizeOrder(width));
           still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-          still.setLanguage("-");
+          still.setLanguage("");
           still.setLikes(count - i);
           artworks.add(still);
         }
@@ -257,6 +264,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         try {
           Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
           FFmpeg.createStill(mf.getFile(), tempFile, second + variance);
+          createdStills.put(mf.getFile().toAbsolutePath().toString(), System.currentTimeMillis());
 
           // set the artwork type depending on the configured type
           int width = mf.getVideoWidth();
@@ -265,20 +273,18 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
               || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-                MediaArtwork.FanartSizes.getSizeOrder(width));
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
           if (isThumbEnabled()
               && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-                MediaArtwork.ThumbSizes.getSizeOrder(width));
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
@@ -339,6 +345,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         try {
           Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
           FFmpeg.createStill(path, tempFile, second);
+          createdStills.put(path.toAbsolutePath().toString(), System.currentTimeMillis());
 
           // set the artwork type depending on the configured type
           int width = mediaFile.getVideoWidth();
@@ -347,20 +354,18 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
           if (isFanartEnabled() && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL
               || options.getArtworkType() == MediaArtwork.MediaArtworkType.BACKGROUND)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-                MediaArtwork.FanartSizes.getSizeOrder(width));
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.FanartSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
           if (isThumbEnabled()
               && (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.THUMB)) {
             MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(),
-                MediaArtwork.ThumbSizes.getSizeOrder(width));
+            still.addImageSize(width, height, "file:/" + tempFile.toAbsolutePath(), MediaArtwork.ThumbSizes.getSizeOrder(width));
             still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
-            still.setLanguage("-");
+            still.setLanguage("");
             still.setLikes(count - stillCounter);
             artworks.add(still);
           }
@@ -388,4 +393,19 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
    * @return true/false
    */
   protected abstract boolean isThumbEnabled();
+
+  /**
+   * delete old stills where the TTL is expired
+   */
+  private void cleanupOldStills() {
+    long now = System.currentTimeMillis();
+
+    Map<String, Long> pending = new HashMap<>(createdStills);
+    for (var entry : pending.entrySet()) {
+      if (entry.getValue() < (now - IMAGE_TTL)) {
+        Utils.deleteFileSafely(Paths.get(entry.getKey()));
+        createdStills.remove(entry.getKey());
+      }
+    }
+  }
 }

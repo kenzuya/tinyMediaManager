@@ -30,6 +30,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.components.MenuScroller;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableModel;
 
 /**
@@ -78,7 +79,9 @@ public class TmmTableColumnSelectionPopup {
       // tooltip text
       if (table.getModel() instanceof TmmTableModel<?> tmmTableModel && StringUtils.isNotBlank(tmmTableModel.getHeaderTooltip(etc.getModelIndex()))) {
         columnName = tmmTableModel.getHeaderTooltip(etc.getModelIndex());
-      } else if (table.getModel() instanceof TmmTreeTableModel tmmTreeTableModel && StringUtils.isNotBlank(tmmTreeTableModel.getHeaderTooltip(etc.getModelIndex()))) {
+      }
+      else if (table.getModel() instanceof TmmTreeTableModel tmmTreeTableModel
+          && StringUtils.isNotBlank(tmmTreeTableModel.getHeaderTooltip(etc.getModelIndex()))) {
         columnName = tmmTreeTableModel.getHeaderTooltip(etc.getModelIndex());
       }
 
@@ -88,7 +91,7 @@ public class TmmTableColumnSelectionPopup {
       }
 
       // header value
-      if (StringUtils.isBlank(columnName) && etc.getHeaderValue()instanceof String value) {
+      if (StringUtils.isBlank(columnName) && etc.getHeaderValue() instanceof String value) {
         columnName = value;
       }
 
@@ -102,6 +105,13 @@ public class TmmTableColumnSelectionPopup {
       checkBox.setSelected(!tmmTableColumnModel.isColumnHidden(etc));
       checkBox.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
       checkBox.addActionListener(actionListener);
+
+      // disable for the tree node in tree tables
+      if (etc.getCellRenderer() instanceof TmmTreeTableCellRenderer) {
+        checkBox.setSelected(true);
+        checkBox.setEnabled(false);
+      }
+
       checkBoxMenuItems.add(checkBox);
 
       final JCheckBoxMenuItem checkBoxMenuItem = checkBox;

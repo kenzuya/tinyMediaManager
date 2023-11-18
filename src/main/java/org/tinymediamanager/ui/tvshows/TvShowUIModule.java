@@ -90,6 +90,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedRatingTraktTvAc
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowTitleToEntityMatcher;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowTrailerDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUnlockAction;
@@ -428,6 +429,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.addSeparator();
     enhancedEditMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowTitleToEntityMatcher.class));
     popupMenu.add(enhancedEditMenu);
 
     JMenu downloadMenu = new JMenu(TmmResourceBundle.getString("tmm.download"));
