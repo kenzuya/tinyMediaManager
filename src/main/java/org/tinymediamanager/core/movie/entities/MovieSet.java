@@ -180,7 +180,7 @@ public class MovieSet extends MediaEntity {
   public void setTmdbId(int newValue) {
     int oldValue = getTmdbId();
     ids.put(MediaMetadata.TMDB_SET, newValue);
-    firePropertyChange(MediaMetadata.TMDB, oldValue, newValue);
+    firePropertyChange(MediaMetadata.TMDB + "Id", oldValue, newValue);
   }
 
   /**
