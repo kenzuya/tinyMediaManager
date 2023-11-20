@@ -31,7 +31,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SpinnerDateModel;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -734,7 +746,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
   private boolean isDeleteConfirmed(String attribute) {
     Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int dialogResult = JOptionPane.showOptionDialog(null, MessageFormat.format(TmmResourceBundle.getString("message.bulkedit.delete"), attribute),
+    int dialogResult = JOptionPane.showOptionDialog(MovieBulkEditorDialog.this, MessageFormat.format(TmmResourceBundle.getString("message.bulkedit.delete"), attribute),
         TmmResourceBundle.getString("message.bulkedit.warning"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (dialogResult == JOptionPane.YES_OPTION) {
       return true;

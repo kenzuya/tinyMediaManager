@@ -69,7 +69,7 @@ public class WolDevicePanel extends AbstractModalInputPanel {
   protected void onClose() {
     // check whether both fields are filled
     if (StringUtils.isBlank(tfName.getText()) || StringUtils.isBlank(tfMacAddress.getText())) {
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.missingitems"));
+      JOptionPane.showMessageDialog(this, TmmResourceBundle.getString("message.missingitems"));
       return;
     }
 
@@ -77,7 +77,7 @@ public class WolDevicePanel extends AbstractModalInputPanel {
     Pattern pattern = Pattern.compile("^([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})$");
     Matcher matcher = pattern.matcher(tfMacAddress.getText());
     if (!matcher.matches()) {
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.invalidmac"));
+      JOptionPane.showMessageDialog(this, TmmResourceBundle.getString("message.invalidmac"));
       return;
     }
 

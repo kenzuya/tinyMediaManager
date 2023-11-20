@@ -91,7 +91,7 @@ class TvShowSettingsPanel extends JPanel {
     // logic initializations
     btnClearTraktTvShows.addActionListener(e -> {
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("Settings.trakt.cleartvshows.hint"),
+      int confirm = JOptionPane.showOptionDialog(this, TmmResourceBundle.getString("Settings.trakt.cleartvshows.hint"),
           TmmResourceBundle.getString("Settings.trakt.cleartvshows"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
         TmmTask task = new TvShowClearTraktTvTask();

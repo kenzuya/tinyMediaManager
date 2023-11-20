@@ -123,7 +123,7 @@ class FileTypesSettingsPanel extends JPanel {
           Pattern.compile(tfCleanupFiletype.getText());
         }
         catch (PatternSyntaxException ex) {
-          JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
+          JOptionPane.showMessageDialog(this, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
         Settings.getInstance().addCleanupFileType(tfCleanupFiletype.getText());

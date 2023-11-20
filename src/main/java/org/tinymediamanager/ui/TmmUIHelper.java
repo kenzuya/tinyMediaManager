@@ -764,7 +764,7 @@ public class TmmUIHelper {
             else if (Globals.isSelfUpdatable()) {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
+              int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.message"),
                   TmmResourceBundle.getString("tmm.update.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
                 LOGGER.info("Updating...");
@@ -778,7 +778,7 @@ public class TmmUIHelper {
         else {
           // no update found
           if (delayInSeconds == 0) { // show no update dialog only when manually triggered
-            JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
+            JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
                 JOptionPane.INFORMATION_MESSAGE);
           }
         }

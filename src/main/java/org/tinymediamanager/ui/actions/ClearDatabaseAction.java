@@ -62,10 +62,10 @@ public class ClearDatabaseAction extends TmmAction {
       TmmModuleManager.getInstance().shutDown();
       TmmModuleManager.getInstance().initializeDatabase();
       MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.cleardatabase.info"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.cleardatabase.info"));
     }
     catch (Exception e) {
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.cleardatabase.error"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.cleardatabase.error"));
       // open the tmm folder
       Path path = Paths.get("");
       try {

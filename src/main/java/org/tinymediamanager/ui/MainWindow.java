@@ -53,7 +53,11 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TinyMediaManager;
-import org.tinymediamanager.core.*;
+import org.tinymediamanager.core.ITmmModule;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -274,7 +278,7 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     // if there are some threads running, display exit confirmation
     if (TmmTaskManager.getInstance().poolRunning()) {
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.exit.runningtasks"),
+      confirm = JOptionPane.showOptionDialog(MainWindow.this, TmmResourceBundle.getString("tmm.exit.runningtasks"),
           TmmResourceBundle.getString("tmm.exit.confirmation"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); // $NON-NLS-1$
     }
     if (confirm == JOptionPane.YES_OPTION) {

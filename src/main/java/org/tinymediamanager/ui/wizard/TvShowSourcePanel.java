@@ -110,7 +110,7 @@ class TvShowSourcePanel extends JPanel {
       if (row != -1) { // nothing selected
         String path = settings.getTvShowDataSource().get(row);
         String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
-        int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.tvshowdatasource.remove.info"), path),
+        int decision = JOptionPane.showOptionDialog(this, String.format(TmmResourceBundle.getString("Settings.tvshowdatasource.remove.info"), path),
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {

@@ -48,7 +48,7 @@ public class MovieRebuildImageCacheAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     if (!Settings.getInstance().isImageCache()) {
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }
 

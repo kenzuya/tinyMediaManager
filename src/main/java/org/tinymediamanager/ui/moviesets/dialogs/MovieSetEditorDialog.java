@@ -15,13 +15,7 @@
  */
 package org.tinymediamanager.ui.moviesets.dialogs;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.*;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -792,7 +786,7 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
         }
       }
       catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("movieset.tmdb.error"));
+        JOptionPane.showMessageDialog(MovieSetEditorDialog.this, TmmResourceBundle.getString("movieset.tmdb.error"));
       }
     }
   }

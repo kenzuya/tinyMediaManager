@@ -45,6 +45,7 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.dialogs.SettingsDialog;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -87,7 +88,7 @@ public class MovieSettingsPanel extends JPanel {
 
     btnClearTraktData.addActionListener(e -> {
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("Settings.trakt.clearmovies.hint"),
+      int confirm = JOptionPane.showOptionDialog(SettingsDialog.getInstance(), TmmResourceBundle.getString("Settings.trakt.clearmovies.hint"),
           TmmResourceBundle.getString("Settings.trakt.clearmovies"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
         TmmTask task = new MovieClearTraktTvTask();
