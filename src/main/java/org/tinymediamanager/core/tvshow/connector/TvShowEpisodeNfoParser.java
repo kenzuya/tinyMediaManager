@@ -16,9 +16,7 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
-import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
-import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.core.entities.Person.Type.*;
 
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
@@ -1598,7 +1596,7 @@ public class TvShowEpisodeNfoParser {
       else {
         // no - just add the S/E from the old style NFO
         episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, this.season, this.episode));
-        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, displayseason, displayepisode));
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, this.displayseason, this.displayepisode));
       }
 
       for (Map.Entry<String, TvShowEpisodeNfoParser.Rating> entry : ratings.entrySet()) {
