@@ -15,7 +15,13 @@
  */
 package org.tinymediamanager.ui.moviesets.dialogs;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.*;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -30,7 +36,6 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -49,24 +54,16 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -260,10 +257,6 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
       panelContent.add(lblFanart, "cell 2 7,grow");
       lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
               e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, MediaFileType.FANART));
-
-      JButton btnSearchTmdbId = new JButton("");
-      btnSearchTmdbId.setAction(new SearchIdAction());
-      panelContent.add(btnSearchTmdbId, "cell 1 1");
 
       JButton btnRemoveMovie = new JButton("");
       btnRemoveMovie.setAction(new RemoveMovieAction());
@@ -741,53 +734,6 @@ public class MovieSetEditorDialog extends AbstractEditorDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       setVisible(false);
-    }
-  }
-
-  private class SearchIdAction extends AbstractAction {
-    SearchIdAction() {
-      putValue(NAME, TmmResourceBundle.getString("movieset.tmdb.find"));
-      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.tmdb.desc"));
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      // search for a tmdbId
-      try {
-        MediaScraper scraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
-        IMovieMetadataProvider mp = (IMovieMetadataProvider) scraper.getMediaProvider();
-
-        for (Movie movie : moviesInSet) {
-          if (MediaIdUtil.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
-            MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-            options.setTmdbId(movie.getTmdbId());
-            options.setImdbId(movie.getImdbId());
-            options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
-            options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
-            options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
-
-            try {
-              MediaMetadata md = mp.getMetadata(options);
-              if ((int) md.getId(MediaMetadata.TMDB_SET) > 0) {
-                tfTmdbId.setText(String.valueOf(md.getId(MediaMetadata.TMDB_SET)));
-                break;
-              }
-            }
-            catch (MissingIdException ex) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
-            }
-            catch (ScrapeException ex) {
-              LOGGER.error("getMetadata", ex);
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "message.scrape.metadatamoviesetfailed",
-                  new String[] { ":", ex.getLocalizedMessage() }));
-            }
-          }
-        }
-      }
-      catch (Exception ex) {
-        JOptionPane.showMessageDialog(MovieSetEditorDialog.this, TmmResourceBundle.getString("movieset.tmdb.error"));
-      }
     }
   }
 
