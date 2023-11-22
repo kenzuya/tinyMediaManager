@@ -247,7 +247,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * certification (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.certification"),"certification",this::getCertification, MediaCertification.class);
+    col = new Column(TmmResourceBundle.getString("metatag.certification"), "certification", this::getCertification, MediaCertification.class);
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
@@ -416,6 +416,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
     col.setHeaderIcon(IconManager.NEW);
     col.setColumnResizeable(false);
+    col.setCellTooltip(this::newTooltip);
     col.setColumnComparator(imageComparator);
     addColumn(col);
 
@@ -554,13 +555,44 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private ImageIcon getNewIcon(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return getNewIcon(tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes());
+      if (tvShow.isNewlyAdded()) {
+        return IconManager.NEW_GREEN;
+      }
+      else if (tvShow.hasNewlyAddedEpisodes()) {
+        return IconManager.NEW_ORANGE;
+      }
     }
     else if (userObject instanceof TvShowSeason season) {
       return getNewIcon(season.isNewlyAdded());
     }
     else if (userObject instanceof TvShowEpisode episode) {
       return getNewIcon(episode.isNewlyAdded());
+    }
+    return null;
+  }
+
+  private String newTooltip(TmmTreeNode node) {
+    if (!settings.isShowTvShowTableTooltips()) {
+      return null;
+    }
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow tvShow) {
+      if (tvShow.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshow.new");
+      }
+      else if (tvShow.hasNewlyAddedEpisodes()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
+    }
+    else if (userObject instanceof TvShowSeason season) {
+      if (season.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
+    }
+    else if (userObject instanceof TvShowEpisode episode) {
+      if (episode.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
     }
     return null;
   }
@@ -682,9 +714,11 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getMediaSource();
-    } else if (userObject instanceof TvShowSeason season) {
+    }
+    else if (userObject instanceof TvShowSeason season) {
       return detectUniqueSource(season.getEpisodes());
-    } else if (userObject instanceof TvShow tvShow) {
+    }
+    else if (userObject instanceof TvShow tvShow) {
       return detectUniqueSource(tvShow.getEpisodes());
     }
     return null;
@@ -710,7 +744,8 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getRuntimeFromMediaFilesInMinutes();
-    } else if (userObject instanceof TvShow show) {
+    }
+    else if (userObject instanceof TvShow show) {
       // show the scraped runtime here
       return show.getRuntime();
     }

@@ -159,6 +159,7 @@ public class IconManager {
   public static final ImageIcon              INFO                         = createSVGIcon("circle-info.svg");
   public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
   public static final ImageIcon              NEW_GREEN                    = createSVGIcon("circle-plus.svg", new Color(31, 187, 0));
+  public static final ImageIcon              NEW_ORANGE                   = createSVGIcon("circle-plus.svg", new Color(204, 120, 50));
   public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
   public static final ImageIcon              SAVE                         = createSVGIcon("save.svg");
   public static final ImageIcon              SEARCH_GREY                  = createSVGIcon("search.svg");
