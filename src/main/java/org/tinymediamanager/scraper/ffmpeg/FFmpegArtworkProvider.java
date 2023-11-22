@@ -18,7 +18,14 @@ package org.tinymediamanager.scraper.ffmpeg;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.addon.FFmpegAddon;
@@ -173,7 +180,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
       try {
         Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second + variance);
-        createdStills.put(mediaFile.getFile().toAbsolutePath().toString(), System.currentTimeMillis());
+        createdStills.put(tempFile.toString(), System.currentTimeMillis());
 
         // set the artwork type depending on the configured type
         int width = mediaFile.getVideoWidth();
@@ -264,7 +271,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         try {
           Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
           FFmpeg.createStill(mf.getFile(), tempFile, second + variance);
-          createdStills.put(mf.getFile().toAbsolutePath().toString(), System.currentTimeMillis());
+          createdStills.put(tempFile.toString(), System.currentTimeMillis());
 
           // set the artwork type depending on the configured type
           int width = mf.getVideoWidth();
@@ -345,7 +352,7 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
         try {
           Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
           FFmpeg.createStill(path, tempFile, second);
-          createdStills.put(path.toAbsolutePath().toString(), System.currentTimeMillis());
+          createdStills.put(tempFile.toString(), System.currentTimeMillis());
 
           // set the artwork type depending on the configured type
           int width = mediaFile.getVideoWidth();
