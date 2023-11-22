@@ -17,8 +17,9 @@ package org.tinymediamanager.ui;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
@@ -49,6 +50,20 @@ public interface ITmmUIModule {
    * @return the tab title
    */
   String getTabTitle();
+
+  /**
+   * get the menu icon
+   * 
+   * @return the menu icon
+   */
+  ImageIcon getMenuIcon();
+
+  /**
+   * get the menu active icon
+   *
+   * @return the menu icon
+   */
+  ImageIcon getMenuActiveIcon();
 
   /**
    * get the detail panel (right panel in the main view)
@@ -83,7 +98,7 @@ public interface ITmmUIModule {
    * 
    * @return the search popup menu
    */
-  JPopupMenu getSearchMenu();
+  JMenu getSearchMenu();
 
   /**
    * get the edit action (which will be triggered when pressing the edit button in the toolbar)
@@ -97,7 +112,7 @@ public interface ITmmUIModule {
    * 
    * @return the edit popup menu
    */
-  JPopupMenu getEditMenu();
+  JMenu getEditMenu();
 
   /**
    * get the update action (which will be triggered when pressing the update button in the toolbar)
@@ -111,7 +126,7 @@ public interface ITmmUIModule {
    * 
    * @return the update popup menu
    */
-  JPopupMenu getUpdateMenu();
+  JMenu getUpdateMenu();
 
   /**
    * get the rename action (which will be triggered when pressing the rename button in the toolbar)
@@ -125,7 +140,7 @@ public interface ITmmUIModule {
    * 
    * @return the rename popup menu
    */
-  JPopupMenu getRenameMenu();
+  JMenu getRenameMenu();
 
   /**
    * get the settings node for the settings dialog

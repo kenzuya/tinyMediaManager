@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
@@ -37,12 +38,12 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   protected Action                      renameAction = null;
 
   protected JPopupMenu                  popupMenu;
-  protected JPopupMenu                  updatePopupMenu;
-  protected JPopupMenu                  searchPopupMenu;
-  protected JPopupMenu                  editPopupMenu;
-  protected JPopupMenu                  renamePopupMenu;
+  protected JMenu                       updateMenu;
+  protected JMenu                       searchMenu;
+  protected JMenu                       editMenu;
+  protected JMenu                       renameMenu;
 
-  public AbstractTmmUIModule() {
+  protected AbstractTmmUIModule() {
   }
 
   /**
@@ -90,8 +91,8 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   }
 
   @Override
-  public JPopupMenu getSearchMenu() {
-    return searchPopupMenu;
+  public JMenu getSearchMenu() {
+    return searchMenu;
   }
 
   @Override
@@ -100,8 +101,8 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   }
 
   @Override
-  public JPopupMenu getEditMenu() {
-    return editPopupMenu;
+  public JMenu getEditMenu() {
+    return editMenu;
   }
 
   @Override
@@ -110,8 +111,8 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   }
 
   @Override
-  public JPopupMenu getUpdateMenu() {
-    return updatePopupMenu;
+  public JMenu getUpdateMenu() {
+    return updateMenu;
   }
 
   @Override
@@ -120,8 +121,8 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   }
 
   @Override
-  public JPopupMenu getRenameMenu() {
-    return renamePopupMenu;
+  public JMenu getRenameMenu() {
+    return renameMenu;
   }
 
   @Override

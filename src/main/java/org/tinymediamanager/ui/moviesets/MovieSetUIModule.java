@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.moviesets;
 import java.awt.CardLayout;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -252,8 +253,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     treePanel.setPopupMenu(popupMenu);
 
     // dummy popupmenu to infer the text
-    updatePopupMenu = new JPopupMenu(TmmResourceBundle.getString("movieset.add"));
-    updatePopupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
+    updateMenu = new JMenu(TmmResourceBundle.getString("movieset.add"));
+    updateMenu.setIcon(IconManager.ADD);
+    updateMenu.add(createAndRegisterAction(MovieSetAddAction.class));
   }
 
   @Override
@@ -269,6 +271,16 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
   @Override
   public String getTabTitle() {
     return TmmResourceBundle.getString("tmm.moviesets");
+  }
+
+  @Override
+  public ImageIcon getMenuIcon() {
+    return IconManager.MENU_MOVIESETS;
+  }
+
+  @Override
+  public ImageIcon getMenuActiveIcon() {
+    return IconManager.MENU_MOVIESETS_ACTIVE;
   }
 
   @Override

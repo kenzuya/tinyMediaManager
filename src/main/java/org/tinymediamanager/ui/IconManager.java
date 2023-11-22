@@ -52,6 +52,9 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_ABOUT_HOVER          = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET        = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER  = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_ALERT                = createSVGIcon("icn_alert.svg", new Dimension(17, 19), true);
+  public static final ImageIcon              TOOLBAR_ALERT_RED            = createSVGIcon("icn_alert_active.svg", new Dimension(17, 19), Color.RED,
+      true);
   public static final ImageIcon              TOOLBAR_DOWNLOAD             = createSVGIcon("icn_download.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_EDIT                 = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
   public static final ImageIcon              TOOLBAR_EDIT_HOVER           = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
@@ -70,6 +73,14 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_RENEW                = createSVGIcon("icn_renew.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
+  public static final ImageIcon              TOOLBAR_MORE                 = createSVGIcon("icn_more.svg", new Dimension(24, 24));
+
+  public static final ImageIcon              MENU_MOVIES                  = createSVGIcon("icn_movies.svg", new Dimension(26, 26));
+  public static final ImageIcon              MENU_MOVIES_ACTIVE           = createSVGIcon("icn_movies_active.svg", new Dimension(26, 26));
+  public static final ImageIcon              MENU_MOVIESETS               = createSVGIcon("icn_moviesets.svg", new Dimension(38, 28));
+  public static final ImageIcon              MENU_MOVIESETS_ACTIVE        = createSVGIcon("icn_moviesets_active.svg", new Dimension(38, 28));
+  public static final ImageIcon              MENU_TV_SHOWS                = createSVGIcon("icn_tvshows.svg", new Dimension(29, 21));
+  public static final ImageIcon              MENU_TV_SHOWS_ACTIVE         = createSVGIcon("icn_tvshows_active.svg", new Dimension(29, 21));
 
   // rating icons
   public static final ImageIcon              STAR_FILLED                  = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
@@ -83,10 +94,9 @@ public class IconManager {
   public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(36, 36), true);
   public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(53, 36), true);
   public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(36, 36), true);
-  public static final ImageIcon              RATING_LETTERBOXD            = createSVGIcon("rating-letterboxd.svg", new Dimension(53,36),true);
-  public static final ImageIcon              RATING_MAL                   = createSVGIcon("rating-myanimelist.svg", new Dimension(53,36),true);
-  public static final ImageIcon              RATING_ROGEREBERT            = createSVGIcon("rating-roger_ebert.svg", new Dimension(53,36),true);
-
+  public static final ImageIcon              RATING_LETTERBOXD            = createSVGIcon("rating-letterboxd.svg", new Dimension(53, 36), true);
+  public static final ImageIcon              RATING_MAL                   = createSVGIcon("rating-myanimelist.svg", new Dimension(53, 36), true);
+  public static final ImageIcon              RATING_ROGEREBERT            = createSVGIcon("rating-roger_ebert.svg", new Dimension(53, 36), true);
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
@@ -143,10 +153,9 @@ public class IconManager {
   public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
   public static final ImageIcon              DATE_PICKER                  = createSVGIcon("calendar-lines.svg");
   public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
-  public static final ImageIcon              ERROR                        = createSVGIcon("circle-xmark.svg");
+  public static final ImageIcon              ERROR                        = createSVGIcon("circle-xmark.svg", Color.RED);
   public static final ImageIcon              EXPANDED                     = createSVGIcon("square-chevron-right.svg");
   public static final ImageIcon              WARN                         = createSVGIcon("triangle-exclamation.svg");
-  public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("triangle-exclamation.svg", Color.RED);
   public static final ImageIcon              INFO                         = createSVGIcon("circle-info.svg");
   public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
   public static final ImageIcon              NEW_GREEN                    = createSVGIcon("circle-plus.svg", new Color(31, 187, 0));
@@ -333,15 +342,28 @@ public class IconManager {
   }
 
   private static ImageIcon createSVGIcon(String name, Dimension size) {
-    return createSVGIcon(name, size, false);
+    return createSVGIcon(name, size, null, false);
   }
 
   private static ImageIcon createSVGIcon(String name, Dimension size, boolean autoSize) {
+    return createSVGIcon(name, size, null, autoSize);
+  }
+
+  private static ImageIcon createSVGIcon(String name, Dimension size, String colorReference) {
+    return createSVGIcon(name, size, UIManager.getColor(colorReference), false);
+  }
+
+  private static ImageIcon createSVGIcon(String name, Dimension size, Color color, boolean autoSize) {
     try {
       // create the icon
       URI uri = IconManager.class.getResource("images/svg/" + name).toURI();
       TmmSvgIcon icon = new TmmSvgIcon(uri);
       icon.setPreferredSize(size);
+
+      if (color != null) {
+        icon.setColor(color);
+      }
+
       if (!autoSize) {
         icon.setAutosize(SVGIcon.AUTOSIZE_NONE);
       }

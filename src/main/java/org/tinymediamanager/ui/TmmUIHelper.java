@@ -419,6 +419,26 @@ public class TmmUIHelper {
   }
 
   /**
+   * opens a folder in the default file manager
+   * 
+   * @param path
+   *          the {@link Path} to the folder to open
+   */
+  public static void openFolder(Path path) {
+    try {
+      // check whether this location exists
+      if (Files.exists(path) && Files.isDirectory(path)) {
+        TmmUIHelper.openFile(path);
+      }
+    }
+    catch (Exception ex) {
+      LOGGER.error("open filemanager", ex);
+      MessageManager.instance
+          .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+    }
+  }
+
+  /**
    * browse to the url
    *
    * @param url
@@ -778,8 +798,8 @@ public class TmmUIHelper {
         else {
           // no update found
           if (delayInSeconds == 0) { // show no update dialog only when manually triggered
-            JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.notfound"),
+                TmmResourceBundle.getString("tmm.update.title"), JOptionPane.INFORMATION_MESSAGE);
           }
         }
       }

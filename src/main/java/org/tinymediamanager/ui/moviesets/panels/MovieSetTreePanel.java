@@ -61,9 +61,7 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIFilter;
-import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -89,8 +87,8 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 import net.miginfocom.swing.MigLayout;
 
-public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
-  private final MovieList              movieList        = MovieModuleManager.getInstance().getMovieList();
+public class MovieSetTreePanel extends TmmListPanel {
+  private final MovieList              movieList = MovieModuleManager.getInstance().getMovieList();
   private final MovieSetSelectionModel selectionModel;
 
   private int                          rowcount;
@@ -488,11 +486,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
         + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
         + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
     lblSelectedMovieCount.setToolTipText(selectedEpisodesHint);
-  }
-
-  @Override
-  public ITmmUIModule getUIModule() {
-    return MovieSetUIModule.getInstance();
   }
 
   public TmmTreeTable getTreeTable() {

@@ -18,6 +18,7 @@ package org.tinymediamanager.ui;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -35,8 +36,16 @@ public class TmmUIMenuHelper {
     throw new IllegalAccessError();
   }
 
-  static JMenu morphJPopupMenuToJMenu(final JPopupMenu source, String title) {
+  public static JMenu morphJPopupMenuToJMenu(final JPopupMenu source, String title) {
+    return morphJPopupMenuToJMenu(source, title, null);
+  }
+
+  public static JMenu morphJPopupMenuToJMenu(final JPopupMenu source, String title, Icon icon) {
     final JMenu destination = new JMenu(title);
+
+    if (icon != null) {
+      destination.setIcon(icon);
+    }
 
     for (Component component : source.getComponents()) {
       if (component instanceof JMenuItem menuItem) {

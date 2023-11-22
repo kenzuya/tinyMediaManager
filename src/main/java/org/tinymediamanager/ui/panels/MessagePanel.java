@@ -16,13 +16,13 @@
 
 package org.tinymediamanager.ui.panels;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DateFormat;
 import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 
@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import net.miginfocom.swing.MigLayout;
 
 public class MessagePanel extends JPanel {
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
 
   private JLabel                      lblTitle;
   private JTextPane                   taMessage;
@@ -49,19 +49,17 @@ public class MessagePanel extends JPanel {
     setOpaque(false);
     initComponents();
     // init data
-    DateFormat dateFormat = TmmDateFormat.SHORT_DATE_MEDIUM_TIME_FORMAT;
+    DateFormat dateFormat = TmmDateFormat.MEDIUM_TIME_FORMAT;
     lblDate.setText(dateFormat.format(message.getMessageDate()));
 
     String text = "";
-    if (message.getMessageSender() instanceof MediaEntity) {
+    if (message.getMessageSender() instanceof MediaEntity mediaEntity) {
       // mediaEntity title: eg. Movie title
-      MediaEntity me = (MediaEntity) message.getMessageSender();
-      text = me.getTitle();
+      text = mediaEntity.getTitle();
     }
-    else if (message.getMessageSender() instanceof MediaFile) {
+    else if (message.getMessageSender() instanceof MediaFile mediaFile) {
       // mediaFile: filename
-      MediaFile mf = (MediaFile) message.getMessageSender();
-      text = mf.getFilename();
+      text = mediaFile.getFilename();
     }
     else {
       try {
@@ -104,20 +102,14 @@ public class MessagePanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[300lp:450lp,grow]", "[][]"));
+    setLayout(new MigLayout("", "[150lp:200lp,grow][]", "[][shrink 0]"));
 
     lblDate = new JLabel("");
-    add(lblDate, "cell 0 0,aligny top");
-    JPanel innerPanel = new RoundedPanel() {
-      private static final long serialVersionUID = -6407635030887890673L;
+    add(lblDate, "cell 1 0");
 
-      {
-        arcs = new Dimension(10, 10);
-        drawShadow = false;
-      }
-    };
-    add(innerPanel, "cell 0 1,growx");
-    innerPanel.setLayout(new MigLayout("", "[1px][][300lp:350lp,grow]", "[][]"));
+    JPanel innerPanel = new JPanel();
+    add(innerPanel, "cell 0 0,growx");
+    innerPanel.setLayout(new MigLayout("", "[1px][][150lp:200lp,grow]", "[][]"));
 
     lblIcon = new JLabel("");
     lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
@@ -130,5 +122,7 @@ public class MessagePanel extends JPanel {
 
     taMessage = new ReadOnlyTextPane();
     innerPanel.add(taMessage, "cell 2 1,wmin 0,grow");
+
+    add(new JSeparator(), "cell 0 1 2 1,growx");
   }
 }

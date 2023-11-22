@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows;
 import java.awt.CardLayout;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -244,6 +245,16 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   }
 
   @Override
+  public ImageIcon getMenuIcon() {
+    return IconManager.MENU_TV_SHOWS;
+  }
+
+  @Override
+  public ImageIcon getMenuActiveIcon() {
+    return IconManager.MENU_TV_SHOWS_ACTIVE;
+  }
+
+  @Override
   public JPanel getDetailPanel() {
     return detailPanel;
   }
@@ -265,8 +276,9 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   }
 
   private void createMenus() {
-    updatePopupMenu = new JPopupMenu();
-    updatePopupMenu.add(createAndRegisterAction(TvShowUpdateDatasourcesAction.class));
+    updateMenu = new JMenu(TmmResourceBundle.getString("Toolbar.update"));
+    updateMenu.setIcon(IconManager.REFRESH);
+    updateMenu.add(createAndRegisterAction(TvShowUpdateDatasourcesAction.class));
 
     JMenu datasourcesMenu = new JMenu(TmmResourceBundle.getString("metatag.datasource"));
     datasourcesMenu.setIcon(IconManager.MENU);
@@ -291,50 +303,52 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         // nothing to do
       }
     });
-    updatePopupMenu.add(datasourcesMenu);
+    updateMenu.add(datasourcesMenu);
 
-    updatePopupMenu.addSeparator();
-    updatePopupMenu.add(new TvShowUpdateAction());
-    updatePopupMenu.addSeparator();
-    updatePopupMenu.add(createAndRegisterAction(TvShowAddDatasourceAction.class));
+    updateMenu.addSeparator();
+    updateMenu.add(new TvShowUpdateAction());
+    updateMenu.addSeparator();
+    updateMenu.add(createAndRegisterAction(TvShowAddDatasourceAction.class));
 
     // scrape popup menu
-    searchPopupMenu = new JPopupMenu();
-    searchPopupMenu.add(createAndRegisterAction(TvShowSingleScrapeAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowSelectedScrapeAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowSelectedScrapeMetadataAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowScrapeEpisodesAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowScrapeNewItemsAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowScrapeMissingEpisodesAction.class));
-    searchPopupMenu.add(createAndRegisterAction(TvShowMissingEpisodeListAction.class));
+    searchMenu = new JMenu(TmmResourceBundle.getString("Toolbar.search"));
+    searchMenu.setIcon(IconManager.SEARCH);
+    searchMenu.add(createAndRegisterAction(TvShowSingleScrapeAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowSelectedScrapeAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowSelectedScrapeMetadataAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowScrapeEpisodesAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowScrapeNewItemsAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowScrapeMissingEpisodesAction.class));
+    searchMenu.add(createAndRegisterAction(TvShowMissingEpisodeListAction.class));
 
     // edit popupmenu
-    editPopupMenu = new JPopupMenu();
-    editPopupMenu.add(createAndRegisterAction(TvShowEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowLockAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowFetchImdbTop250.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
+    editMenu = new JMenu(TmmResourceBundle.getString("Toolbar.edit"));
+    editMenu.setIcon(IconManager.EDIT);
+    editMenu.add(createAndRegisterAction(TvShowEditAction.class));
+    editMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
+    editMenu.add(createAndRegisterAction(TvShowLockAction.class));
+    editMenu.add(createAndRegisterAction(TvShowUnlockAction.class));
+    editMenu.add(createAndRegisterAction(TvShowFetchRatingsAction.class));
+    editMenu.add(createAndRegisterAction(TvShowFetchImdbTop250.class));
+    editMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
+    editMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
+    editMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
+    editMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
+    editMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
+    editMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
+    editMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
 
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
+    editMenu.addSeparator();
+    editMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
+    editMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
     // editPopupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
+    editMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
 
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
+    editMenu.addSeparator();
+    editMenu.add(createAndRegisterAction(TvShowRebuildImageCacheAction.class));
+    editMenu.add(createAndRegisterAction(TvShowResetNewFlagAction.class));
 
-    editPopupMenu.addSeparator();
+    editMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
@@ -343,18 +357,18 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedCollectionTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
-    editPopupMenu.add(traktMenu);
+    editMenu.add(traktMenu);
 
-    editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(TvShowExportAction.class));
+    editMenu.addSeparator();
+    editMenu.add(createAndRegisterAction(TvShowExportAction.class));
 
     // rename popup menu
-    renamePopupMenu = new JPopupMenu();
-    renamePopupMenu.add(createAndRegisterAction(TvShowRenameAction.class));
-    renamePopupMenu.add(createAndRegisterAction(TvShowRenamePreviewAction.class));
-    renamePopupMenu.addSeparator();
-    renamePopupMenu.add(createAndRegisterAction(TvShowCleanUpFilesAction.class));
-    renamePopupMenu.add(createAndRegisterAction(TvShowClearImageCacheAction.class));
+    renameMenu = new JMenu(TmmResourceBundle.getString("Toolbar.rename"));
+    renameMenu.add(createAndRegisterAction(TvShowRenameAction.class));
+    renameMenu.add(createAndRegisterAction(TvShowRenamePreviewAction.class));
+    renameMenu.addSeparator();
+    renameMenu.add(createAndRegisterAction(TvShowCleanUpFilesAction.class));
+    renameMenu.add(createAndRegisterAction(TvShowClearImageCacheAction.class));
   }
 
   private void createPopupMenu() {
