@@ -46,6 +46,7 @@ Version 5.0
 + added ImdbId, TmdbId and TraktId Filter for movies
 + added an alternate API server for TMDB (api.tmdb.org)
 + added an action to match uncategorized episodes by its title only.
++ added trailer.ext renaming format #2368
 x fixed displaying missing season metadata #2238
 x fixed downloading of season artwork #2258
 x better handling of image cache upon rename
