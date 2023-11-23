@@ -378,7 +378,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   public static class FileSizeComparator implements Comparator<String> {
-    Pattern pattern = Pattern.compile("(.*) (.*?)");
+    Pattern pattern = Pattern.compile("(.*) ([kMGT]?)");
 
     @Override
     public int compare(String arg0, String arg1) {
@@ -398,13 +398,19 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       Matcher matcher = pattern.matcher(sizeAsString);
       if (matcher.find()) {
         try {
-          float value = Float.parseFloat(matcher.group(1));
+          float value = Float.parseFloat(matcher.group(1).replace(",","."));  // fix DE format
           String unit = matcher.group(2);
-          if ("G".equals(unit)) {
+          if ("T".equals(unit)) {
+            size = (long) (value * 1000 * 1000 * 1000 * 1000);
+          }
+          else if ("G".equals(unit)) {
             size = (long) (value * 1000 * 1000 * 1000);
           }
           else if ("M".equals(unit)) {
             size = (long) (value * 1000 * 1000);
+          }
+          else if ("k".equals(unit)) {
+            size = (long) (value * 1000);
           }
           else {
             size = (long) value;

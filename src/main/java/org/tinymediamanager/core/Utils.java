@@ -2383,8 +2383,16 @@ public class Utils {
   public static String formatFileSizeForDisplay(long filesize) {
     if (!Settings.getInstance().isFileSizeDisplayHumanReadable()) {
       // in MB
-      DecimalFormat df = new DecimalFormat("#0.##");
-      return df.format(filesize / (1000.0 * 1000.0)) + " M";
+      double sizeInMb = filesize / (1000.0 * 1000.0);
+      DecimalFormat df;
+
+      if(sizeInMb < 1){
+        df = new DecimalFormat("#0.00");
+      } else {
+        df = new DecimalFormat("#0");
+      }
+
+      return df.format(sizeInMb) + " M";
     }
 
     long bytes = filesize;
