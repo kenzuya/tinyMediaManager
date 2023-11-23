@@ -415,6 +415,9 @@ class UiSettingsPanel extends JPanel {
     // image chooser folder
     settings.setImageChooserUseEntityFolder(chckbxImageChooserEntityFolder.isSelected());
 
+    // file size display
+    settings.setFileSizeDisplayHumanReadable(chckbxFileSizeH.isSelected());
+
     // update
     if (chckbxAutomaticUpdates.isSelected()) {
       lblUpdateHint.setText("");
