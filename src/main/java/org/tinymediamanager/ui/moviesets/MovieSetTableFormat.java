@@ -28,6 +28,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -355,8 +356,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
     else if (userObject instanceof Movie movie) {
-      long size = movie.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(movie.getVideoFilesize());
     }
     return null;
   }
@@ -367,8 +367,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
     else if (userObject instanceof Movie movie) {
-      long size = movie.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(movie.getTotalFilesize());
     }
     return null;
   }

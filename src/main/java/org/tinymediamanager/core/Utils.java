@@ -53,8 +53,11 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.CodeSource;
+import java.text.CharacterIterator;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.text.StringCharacterIterator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -2368,5 +2371,35 @@ public class Utils {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Format any file size according the preferred UI setting
+   * 
+   * @param filesize
+   *          the file size in bytes
+   * @return the formatted file size as {@link String}
+   */
+  public static String formatFileSizeForDisplay(long filesize) {
+    if (!Settings.getInstance().isFileSizeDisplayHumanReadable()) {
+      // in MB
+      DecimalFormat df = new DecimalFormat("#0.##");
+      return df.format(filesize / (1000.0 * 1000.0)) + " M";
+    }
+
+    long bytes = filesize;
+
+    if (-1000 < bytes && bytes < 1000) {
+      return bytes + " B";
+    }
+
+    CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+    while (bytes <= -999_950 || bytes >= 999_950) {
+      bytes /= 1000;
+      ci.next();
+    }
+
+    DecimalFormat df = new DecimalFormat("#0.00");
+    return df.format(bytes / 1000.0) + " " + ci.current();
   }
 }

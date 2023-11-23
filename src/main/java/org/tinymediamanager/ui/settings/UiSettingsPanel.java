@@ -85,6 +85,8 @@ class UiSettingsPanel extends JPanel {
   private JLabel                     lblThemeHint;
   private JCheckBox                  chckbxShowMemory;
   private JComboBox                  cbDatefield;
+  private JCheckBox                  chckbxFileSizeH;
+  private JCheckBox                  chckbxFileSizeM;
   private JCheckBox                  chckbxImageChooserLastFolder;
   private JCheckBox                  chckbxImageChooserEntityFolder;
   private JSpinner                   spUpdateInterval;
@@ -180,9 +182,26 @@ class UiSettingsPanel extends JPanel {
     if (settings.isImageChooserUseEntityFolder()) {
       chckbxImageChooserEntityFolder.setSelected(true);
     }
+    else {
+      chckbxImageChooserLastFolder.setSelected(true);
+    }
 
     chckbxImageChooserLastFolder.addActionListener(actionListener);
     chckbxImageChooserEntityFolder.addActionListener(actionListener);
+
+    buttonGroup = new ButtonGroup();
+    buttonGroup.add(chckbxFileSizeH);
+    buttonGroup.add(chckbxFileSizeM);
+
+    if (settings.isFileSizeDisplayHumanReadable()) {
+      chckbxFileSizeH.setSelected(true);
+    }
+    else {
+      chckbxFileSizeM.setSelected(true);
+    }
+
+    chckbxFileSizeH.addActionListener(actionListener);
+    chckbxFileSizeM.addActionListener(actionListener);
 
     if (!chckbxAutomaticUpdates.isSelected()) {
       lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
@@ -276,7 +295,8 @@ class UiSettingsPanel extends JPanel {
 
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][][][10lp!][][]")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][][][10lp!][][][][10lp!][][]")); // 16lp ~ width
+                                                                                                                                       // of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -287,28 +307,38 @@ class UiSettingsPanel extends JPanel {
         panelMisc.add(lblDatefield, "cell 1 0 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
-        panelMisc.add(cbDatefield, "cell 1 0");
+        panelMisc.add(cbDatefield, "cell 1 0 2 1");
 
         JLabel lblDatefieldHint = new JLabel(TmmResourceBundle.getString("Settings.datefield.desc"));
         panelMisc.add(lblDatefieldHint, "cell 2 1");
       }
       {
+        JLabel lblFileSizeT = new JLabel(TmmResourceBundle.getString("Settings.filesize"));
+        panelMisc.add(lblFileSizeT, "cell 1 3 2 1");
+
+        chckbxFileSizeH = new JCheckBox(TmmResourceBundle.getString("Settings.filesize.human"));
+        panelMisc.add(chckbxFileSizeH, "cell 2 4");
+
+        chckbxFileSizeM = new JCheckBox(TmmResourceBundle.getString("Settings.filesize.megabyte"));
+        panelMisc.add(chckbxFileSizeM, "cell 2 5");
+      }
+      {
         JLabel lblImageChooserDefaultFolderT = new JLabel(TmmResourceBundle.getString("Settings.imagechooser.folder"));
-        panelMisc.add(lblImageChooserDefaultFolderT, "cell 1 3 2 1");
+        panelMisc.add(lblImageChooserDefaultFolderT, "cell 1 7 2 1");
 
         chckbxImageChooserLastFolder = new JCheckBox(TmmResourceBundle.getString("Settings.imagechooser.last"));
-        panelMisc.add(chckbxImageChooserLastFolder, "cell 2 4");
+        panelMisc.add(chckbxImageChooserLastFolder, "cell 2 8");
 
         chckbxImageChooserEntityFolder = new JCheckBox(TmmResourceBundle.getString("Settings.imagechooser.entity"));
-        panelMisc.add(chckbxImageChooserEntityFolder, "cell 2 5");
+        panelMisc.add(chckbxImageChooserEntityFolder, "cell 2 9");
       }
       {
         chckbxStoreWindowPreferences = new JCheckBox(TmmResourceBundle.getString("Settings.storewindowpreferences"));
-        panelMisc.add(chckbxStoreWindowPreferences, "cell 1 7 2 1");
+        panelMisc.add(chckbxStoreWindowPreferences, "cell 1 11 2 1");
       }
       {
         chckbxShowMemory = new JCheckBox(TmmResourceBundle.getString("Settings.showmemory"));
-        panelMisc.add(chckbxShowMemory, "cell 1 8 2 1");
+        panelMisc.add(chckbxShowMemory, "cell 1 12 2 1");
       }
     }
     {

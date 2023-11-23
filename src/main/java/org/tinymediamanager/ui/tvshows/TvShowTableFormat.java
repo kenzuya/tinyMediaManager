@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaSource;
@@ -763,35 +764,29 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private String getVideoFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      long size = tvShow.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(tvShow.getVideoFilesize());
     }
     if (userObject instanceof TvShowSeason season) {
-      long size = season.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(season.getVideoFilesize());
     }
     if (userObject instanceof TvShowEpisode episode) {
-      long size = episode.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(episode.getVideoFilesize());
     }
-    return "";
+    return null;
   }
 
   private String getTotalFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      long size = tvShow.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(tvShow.getTotalFilesize());
     }
     if (userObject instanceof TvShowSeason season) {
-      long size = season.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(season.getTotalFilesize());
     }
     if (userObject instanceof TvShowEpisode episode) {
-      long size = episode.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(episode.getTotalFilesize());
     }
-    return "";
+    return null;
   }
 
   private Float getAspectRatio(TmmTreeNode node) {

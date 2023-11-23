@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -432,7 +433,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * main video file size (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.videofilesize"), "fileSize",
-        movie -> (int) (movie.getVideoFilesize() / (1000.0 * 1000.0)) + " M", String.class);
+        movie -> Utils.formatFileSizeForDisplay(movie.getVideoFilesize()), String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -445,7 +446,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * total file size (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.totalfilesize"), "totalFileSize",
-        movie -> (int) (movie.getTotalFilesize() / (1000.0 * 1000.0)) + " M", String.class);
+        movie -> Utils.formatFileSizeForDisplay(movie.getTotalFilesize()), String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());

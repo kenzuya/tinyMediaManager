@@ -22,7 +22,6 @@ import static org.tinymediamanager.core.MediaFileHelper.getFirstEntryViaScanner;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -585,11 +584,6 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.filesize = newValue;
     firePropertyChange("filesize", oldValue, newValue);
     firePropertyChange("filesizeInMegabytes", oldValue, newValue);
-  }
-
-  public String getFilesizeInMegabytes() {
-    DecimalFormat df = new DecimalFormat("#0.00");
-    return df.format(filesize / (1000.0 * 1000.0)) + " M";
   }
 
   public MediaFileType getType() {
