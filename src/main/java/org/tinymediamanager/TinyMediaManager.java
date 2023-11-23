@@ -340,7 +340,7 @@ public final class TinyMediaManager {
 
     // set GUI default language
     LOGGER.info("System language  : {}_{}", System.getProperty("user.language"), System.getProperty("user.country"));
-    LOGGER.info("GUI language     : {}_{}", Locale.getDefault().getLanguage(), Locale.getDefault().getCountry());
+    LOGGER.info("GUI language     : {}", Locale.getDefault().toLanguageTag());
     LOGGER.info("tmm.datafolder   : {} ", Globals.DATA_FOLDER);
     LOGGER.info("tmm.cachefolder  : {} ", Globals.CACHE_FOLDER);
     LOGGER.info("tmm.backupfolder : {} ", Globals.BACKUP_FOLDER);
