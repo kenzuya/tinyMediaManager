@@ -33,6 +33,8 @@ public class LanguageUtilsTest extends BasicTest {
     printLangu("zh_TW"); // traditional (=Hant)
     printLangu("zh_Hans"); // simple (Java translates this to zh_CN)
     printLangu("zh_Hant"); // traditional (Java translates this to zh_TW)
+    printLangu("zh__#Hans"); // simple (no country, but script variant)
+    printLangu("zh__#Hant"); // traditional (no country, but script variant)
   }
 
   private void printLangu(String key) {
@@ -53,6 +55,16 @@ public class LanguageUtilsTest extends BasicTest {
       ResourceBundle b = ResourceBundle.getBundle("messages", l);
       String nfo = genre.getLocalizedName(l);
       System.out.println(l + "   Bundle:" + b.getString("Genres." + genre.name()) + "   nfo:" + nfo);
+    }
+  }
+
+  @Test
+  public void trans() {
+    for (String s : Utils.getAllTranslationsFor("metatag.season")) {
+      System.out.println(s);
+    }
+    for (String s : Utils.getAllTranslationsFor("metatag.episode")) {
+      System.out.println(s);
     }
   }
 

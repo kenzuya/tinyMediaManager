@@ -73,6 +73,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1306,6 +1307,29 @@ public class Utils {
     }
 
     return new Locale(language); // let java decide..?
+  }
+
+  /**
+   * returns all known translations for a key, like "metatag.title"
+   * 
+   * @param key
+   * @return list of translated values
+   */
+  public static List<String> getAllTranslationsFor(String key) {
+    List<String> ret = new ArrayList<>();
+    for (Locale l : getLanguages()) {
+      ResourceBundle b = ResourceBundle.getBundle("messages", l);
+      try {
+        String value = b.getString(key);
+        if (!ret.contains(value)) {
+          ret.add(value);
+        }
+      }
+      catch (Exception e) {
+        // eg not found - ignore
+      }
+    }
+    return ret;
   }
 
   /**
