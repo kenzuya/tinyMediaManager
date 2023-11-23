@@ -44,6 +44,19 @@ public class LanguageUtilsTest extends BasicTest {
   }
 
   @Test
+  public void chin() {
+    for (Locale l : Utils.getLanguages()) {
+      System.out.println("Name: " + l.getDisplayName() + "   Lang: " + l.getDisplayLanguage() + "   Tag: " + l.toLanguageTag());
+    }
+    for (Locale l : Utils.getLanguages()) {
+      MediaGenres genre = MediaGenres.ANIMAL;
+      ResourceBundle b = ResourceBundle.getBundle("messages", l);
+      String nfo = genre.getLocalizedName(l);
+      System.out.println(l + "   Bundle:" + b.getString("Genres." + genre.name()) + "   nfo:" + nfo);
+    }
+  }
+
+  @Test
   public void localizedCountries() {
     assertEqual("", LanguageUtils.getLocalizedCountry());
     System.out.println(LanguageUtils.getLocalizedCountry("German", "dE"));

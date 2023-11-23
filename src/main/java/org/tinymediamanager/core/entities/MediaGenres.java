@@ -179,8 +179,7 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
       }
       ResourceBundle b = ResourceBundle.getBundle("messages", loc);
       try {
-        String country = loc.getCountry().isEmpty() ? "" : "_" + loc.getCountry();
-        alt.add(loc.getLanguage() + country + "-" + b.getString("Genres." + propName)); // just genres
+        alt.add(loc.toLanguageTag() + "|" + b.getString("Genres." + propName)); // just genres
       }
       catch (Exception e) {
         // not found or localized - ignore
@@ -248,10 +247,10 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
         if (notation.equalsIgnoreCase(name)) {
           return genre;
         }
-        // only do the following check, if the notation start with ??-
-        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_-]")) {
-          // split on - for name
-          if (notation.substring(notation.indexOf('-') + 1).equalsIgnoreCase(name)) {
+        // only do the following check, if the notation start with ??|
+        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_|-]")) {
+          // split on | for name
+          if (notation.substring(notation.indexOf('|') + 1).equalsIgnoreCase(name)) {
             return genre;
           }
         }
@@ -288,10 +287,10 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
         if (notation.equalsIgnoreCase(name)) {
           return true;
         }
-        // only do the following check, if the notation start with ??-
-        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_-]")) {
+        // only do the following check, if the notation start with ??|
+        if (notation.length() > 3 && notation.substring(0, 3).matches(".{2}[_|-]")) {
           // split on - for name
-          if (notation.substring(notation.indexOf('-') + 1).equalsIgnoreCase(name)) {
+          if (notation.substring(notation.indexOf('|') + 1).equalsIgnoreCase(name)) {
             return true;
           }
         }
@@ -323,7 +322,7 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
   /**
    * Gets the genre name with default Locale<br>
    * or just name if not found<br>
-   * eg: Name = "de-Abenteuer"
+   * eg: Name = "de|Abenteuer"
    * 
    * @return the localized genre
    */
@@ -334,35 +333,23 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
   /**
    * Gets the genre name with given Locale<br>
    * or just name if not found<br>
-   * eg: Name = "de-Abenteuer"
+   * eg: Name = "de|Abenteuer"
    *
    * @return the localized genre
    */
   public String getLocalizedName(Locale locale) {
-    String country = locale.getCountry().isEmpty() ? "" : "_" + locale.getCountry();
-    String lang = locale.getLanguage() + country + "-";
+    String lang = locale.toLanguageTag() + "|";
     for (String notation : alternateNames) {
       if (notation.startsWith(lang)) {
-        return notation.substring(notation.indexOf('-') + 1);
-      }
-    }
-
-    // HK is not (yet) translated, but should be "traditional"
-    // Since java Locale maps zh_Hant to zh_TW, we try the same workaround
-    if (lang.equals("zh_HK-")) {
-      lang = "zh_TW-";
-      for (String notation : alternateNames) {
-        if (notation.startsWith(lang)) {
-          return notation.substring(notation.indexOf('-') + 1);
-        }
+        return notation.substring(notation.indexOf('|') + 1);
       }
     }
 
     // second try with language only (to replicate bundle parent lookup)
-    lang = locale.getLanguage() + "-";
+    lang = locale.getLanguage() + "|";
     for (String notation : alternateNames) {
       if (notation.startsWith(lang)) {
-        return notation.substring(notation.indexOf('-') + 1);
+        return notation.substring(notation.indexOf('|') + 1);
       }
     }
     // else english
