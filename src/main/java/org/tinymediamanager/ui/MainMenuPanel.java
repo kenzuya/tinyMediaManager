@@ -98,7 +98,7 @@ public class MainMenuPanel extends JPanel {
     buttons = new ButtonGroup();
     setLayout(new BorderLayout());
 
-    contentPanel = new JPanel(new MigLayout("insets 0, gapy 15lp, wrap", "[center]", "30lp[]"));
+    contentPanel = new JPanel(new MigLayout("insets 0, gapy 15lp, wrap", "[center]", "32lp[]"));
     contentPanel.setOpaque(false);
     add(contentPanel, BorderLayout.CENTER);
 
@@ -109,7 +109,7 @@ public class MainMenuPanel extends JPanel {
     menuTools = buildToolsMenu();
     JButton btnTools = new ToolbarButton(IconManager.TOOLBAR_TOOLS, IconManager.TOOLBAR_TOOLS_HOVER, menuTools);
     btnTools.setToolTipText(TmmResourceBundle.getString("Toolbar.tools"));
-    bottomPanel.add(btnTools, "gapx 5lp 5lp");
+    bottomPanel.add(btnTools, "growx");
 
     JButton btnSettings = new ToolbarButton(IconManager.TOOLBAR_SETTINGS, IconManager.TOOLBAR_SETTINGS_HOVER);
 
@@ -118,12 +118,12 @@ public class MainMenuPanel extends JPanel {
       JDialog settingsDialog = SettingsDialog.getInstance();
       settingsDialog.setVisible(true);
     });
-    bottomPanel.add(btnSettings, "gapx 5lp 5lp");
+    bottomPanel.add(btnSettings, "growx");
 
     menuInfo = buildInfoMenu();
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, menuInfo);
     btnInfo.setToolTipText(TmmResourceBundle.getString("Toolbar.help"));
-    bottomPanel.add(btnInfo, "gapx 5lp 5lp");
+    bottomPanel.add(btnInfo, "growx");
   }
 
   @Override
@@ -135,7 +135,7 @@ public class MainMenuPanel extends JPanel {
   public void addModule(ITmmUIModule module) {
     JToggleButton btnModule = new ModuleButton(module);
     btnModule.setToolTipText(module.getTabTitle());
-    contentPanel.add(btnModule, "gapx 5lp 5lp");
+    contentPanel.add(btnModule, "gapx 1lp 1lp");
 
     buttons.add(btnModule);
 

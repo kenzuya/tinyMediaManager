@@ -59,7 +59,7 @@ public class ToolbarButton extends FlatButton {
       @Override
       public void mouseClicked(MouseEvent arg0) {
         if (ToolbarButton.this.popupMenu != null) {
-          ToolbarButton.this.popupMenu.show(ToolbarButton.this, ToolbarButton.this.getWidth(), arg0.getY());
+          ToolbarButton.this.popupMenu.show(ToolbarButton.this, ToolbarButton.this.getWidth(), 0);
         }
       }
     });
