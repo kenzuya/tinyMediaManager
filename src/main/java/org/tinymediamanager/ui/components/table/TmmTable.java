@@ -147,10 +147,10 @@ public class TmmTable extends JTable {
   public List<String> getHiddenColumns() {
     List<String> hiddenColumns = new ArrayList<>();
 
-    if (getColumnModel()instanceof TmmTableColumnModel tableColumnModel) {
+    if (getColumnModel() instanceof TmmTableColumnModel tableColumnModel) {
       List<TableColumn> cols = tableColumnModel.getHiddenColumns();
       for (TableColumn col : cols) {
-        if (col.getIdentifier()instanceof String identifier && StringUtils.isNotBlank(identifier)) {
+        if (col.getIdentifier() instanceof String identifier && StringUtils.isNotBlank(identifier)) {
           hiddenColumns.add(identifier);
         }
       }
@@ -160,13 +160,13 @@ public class TmmTable extends JTable {
   }
 
   public void readHiddenColumns(List<String> hiddenColumns) {
-    if (getColumnModel()instanceof TmmTableColumnModel tmmTableColumnModel) {
+    if (getColumnModel() instanceof TmmTableColumnModel tmmTableColumnModel) {
       tmmTableColumnModel.setHiddenColumns(hiddenColumns);
     }
   }
 
   public void setDefaultHiddenColumns() {
-    if (getColumnModel() instanceof TmmTableColumnModel && getModel()instanceof TmmTableModel<?> tableModel) {
+    if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTableModel<?> tableModel) {
       TmmTableFormat<?> tableFormat = (TmmTableFormat<?>) tableModel.getTableFormat();
 
       List<String> hiddenColumns = new ArrayList<>();
@@ -434,7 +434,7 @@ public class TmmTable extends JTable {
    */
   @Override
   public String getToolTipText(@NotNull MouseEvent e) {
-    if (!(getModel()instanceof TmmTableModel<?> tableModel)) {
+    if (!(getModel() instanceof TmmTableModel<?> tableModel)) {
       return super.getToolTipText(e);
     }
 

@@ -16,28 +16,19 @@
 package org.tinymediamanager.ui.renderer;
 
 import java.awt.Component;
-import java.text.DateFormat;
-import java.util.Date;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.tinymediamanager.core.TmmDateFormat;
-
 /**
- * This renderer is used to display Dates in a customizeable way
+ * This renderer is used to display {@link Integer}s - hide zero values
  * 
  * @author Manuel Laggner
  */
-public class DateTableCellRenderer extends DefaultTableCellRenderer {
-  private final DateFormat dateFormat;
+public class IntegerTableCellRenderer extends DefaultTableCellRenderer {
 
-  /**
-   * Create a new DateTableCellRenderer that renders Dates as formatted Strings.
-   */
-  public DateTableCellRenderer() {
-    this.dateFormat = TmmDateFormat.MEDIUM_DATE_FORMAT;
-    setHorizontalAlignment(CENTER);
+  public IntegerTableCellRenderer() {
+    setHorizontalAlignment(RIGHT);
   }
 
   /**
@@ -46,9 +37,13 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
   @Override
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
     super.getTableCellRendererComponent(table, null, isSelected, hasFocus, row, column);
-    if (value != null) {
-      String prettyDate = dateFormat.format((Date) value);
-      setText(prettyDate);
+    if (value instanceof Integer integer) {
+      if (integer > 0) {
+        setText(String.valueOf(integer));
+      }
+      else {
+        setText(null);
+      }
     }
     else {
       setText(null);
