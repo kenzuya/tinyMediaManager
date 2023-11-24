@@ -18,6 +18,9 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,43 +42,46 @@ import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LocaleComboBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
 
 /**
- * The class {@link TvShowScraperSettingsPanel} is used to display NFO related settings.
+ * The class {@link TvShowScraperNfoSettingsPanel} is used to display NFO related settings.
  * 
  * @author Manuel Laggner
  */
 class TvShowScraperNfoSettingsPanel extends JPanel {
-  private static final long                    serialVersionUID = 4999827736720726395L;
-  private static final Logger                  LOGGER           = LoggerFactory.getLogger(TvShowScraperNfoSettingsPanel.class);
+  private static final Logger                  LOGGER   = LoggerFactory.getLogger(TvShowScraperNfoSettingsPanel.class);
 
-  private final TvShowSettings                 settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings                 settings = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 
   private JComboBox<TvShowConnectors>          cbNfoFormat;
   private JComboBox<CertificationStyleWrapper> cbCertificationStyle;
   private JCheckBox                            chckbxWriteCleanNfo;
-  private JComboBox<MediaLanguages>            cbNfoLanguage;
+  private final List<LocaleComboBox>           locales  = new ArrayList<>();
+  private JComboBox                            cbNfoLanguage;
   private JComboBox<DateField>                 cbDatefield;
   private JCheckBox                            chckbxEpisodeNfo1;
   private JCheckBox                            chckbxTvShowNfo1;
+  private JCheckBox                            chckbxSeasonNfo1;
   private JCheckBox                            chckbxWriteEpisodeguide;
   private JCheckBox                            chckbxWriteDateEnded;
   private JCheckBox                            chckbxEmbedAllActors;
@@ -90,11 +96,34 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     checkBoxListener = e -> checkChanges();
     comboBoxListener = e -> checkChanges();
 
+    LocaleComboBox actualLocale = null;
+    LocaleComboBox fallbackLocale = null;
+    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getNfoLanguage().toString());
+    for (Locale l : Utils.getLanguages()) {
+      LocaleComboBox localeComboBox = new LocaleComboBox(l);
+      locales.add(localeComboBox);
+      if (l.equals(settingsLang)) {
+        actualLocale = localeComboBox;
+      }
+      // match by langu only, if no direct match
+      if (settingsLang.getLanguage().equals(l.getLanguage())) {
+        fallbackLocale = localeComboBox;
+      }
+    }
+    Collections.sort(locales);
+
     // UI init
     initComponents();
     initDataBindings();
 
     // data init
+    if (actualLocale != null) {
+      cbNfoLanguage.setSelectedItem(actualLocale);
+    }
+    else {
+      cbNfoLanguage.setSelectedItem(fallbackLocale);
+    }
+    cbNfoLanguage.addItemListener(comboBoxListener);
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
@@ -134,7 +163,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
 
           JPanel panel = new JPanel();
           panelNfo.add(panel, "cell 2 2");
-          panel.setLayout(new MigLayout("insets 0", "[][]", ""));
+          panel.setLayout(new MigLayout("insets 0", "[][]", "[][][]"));
 
           JLabel lblTvShow = new JLabel(TmmResourceBundle.getString("metatag.tvshow"));
           panel.add(lblTvShow, "cell 0 0");
@@ -142,11 +171,17 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
           chckbxTvShowNfo1 = new JCheckBox("tvshow.nfo");
           panel.add(chckbxTvShowNfo1, "cell 1 0");
 
+          JLabel lblSeason = new JLabel(TmmResourceBundle.getString("metatag.season"));
+          panel.add(lblSeason, "cell 0 1");
+
+          chckbxSeasonNfo1 = new JCheckBox("<season_folder>" + File.separator + "season.nfo");
+          panel.add(chckbxSeasonNfo1, "cell 1 1");
+
           JLabel lblEpisode = new JLabel(TmmResourceBundle.getString("metatag.episode"));
-          panel.add(lblEpisode, "cell 0 1");
+          panel.add(lblEpisode, "cell 0 2");
 
           chckbxEpisodeNfo1 = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.episodename") + ".nfo");
-          panel.add(chckbxEpisodeNfo1, "cell 1 1");
+          panel.add(chckbxEpisodeNfo1, "cell 1 2");
         }
 
         JLabel lblNfoDatefield = new JLabel(TmmResourceBundle.getString("Settings.dateadded"));
@@ -158,7 +193,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
-        cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
+        cbNfoLanguage = new JComboBox(locales.toArray());
         panelNfo.add(cbNfoLanguage, "cell 1 5 2 1");
 
         JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
@@ -213,6 +248,14 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
    * check changes of checkboxes
    */
   private void checkChanges() {
+    LocaleComboBox loc = (LocaleComboBox) cbNfoLanguage.getSelectedItem();
+    if (loc != null) {
+      Locale actualLocale = settings.getNfoLanguage();
+      if (!loc.getLocale().equals(actualLocale)) {
+        settings.setNfoLanguage(loc.getLocale());
+      }
+    }
+
     CertificationStyleWrapper wrapper = (CertificationStyleWrapper) cbCertificationStyle.getSelectedItem();
     if (wrapper != null && settings.getCertificationStyle() != wrapper.style) {
       settings.setCertificationStyle(wrapper.style);
@@ -222,6 +265,11 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     settings.clearNfoFilenames();
     if (chckbxTvShowNfo1.isSelected()) {
       settings.addNfoFilename(TvShowNfoNaming.TV_SHOW);
+    }
+
+    settings.clearSeasonNfoFilenames();
+    if (chckbxSeasonNfo1.isSelected()) {
+      settings.addSeasonNfoFilename(TvShowSeasonNfoNaming.SEASON_FOLDER);
     }
 
     settings.clearEpisodeNfoFilenames();
@@ -249,13 +297,19 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
 
   private void buildCheckBoxes() {
     chckbxTvShowNfo1.removeItemListener(checkBoxListener);
+    chckbxSeasonNfo1.removeItemListener(checkBoxListener);
     chckbxEpisodeNfo1.removeItemListener(checkBoxListener);
-    clearSelection(chckbxTvShowNfo1, chckbxEpisodeNfo1);
+    clearSelection(chckbxTvShowNfo1, chckbxSeasonNfo1, chckbxEpisodeNfo1);
 
     // NFO filenames
     List<TvShowNfoNaming> tvShowNfoNamings = settings.getNfoFilenames();
     if (tvShowNfoNamings.contains(TvShowNfoNaming.TV_SHOW)) {
       chckbxTvShowNfo1.setSelected(true);
+    }
+
+    List<TvShowSeasonNfoNaming> seasonNfoNamings = settings.getSeasonNfoFilenames();
+    if (seasonNfoNamings.contains(TvShowSeasonNfoNaming.SEASON_FOLDER)) {
+      chckbxSeasonNfo1.setSelected(true);
     }
 
     List<TvShowEpisodeNfoNaming> TvShowEpisodeNfoNamings = settings.getEpisodeNfoFilenames();
@@ -264,6 +318,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     }
 
     chckbxTvShowNfo1.addItemListener(checkBoxListener);
+    chckbxSeasonNfo1.addItemListener(checkBoxListener);
     chckbxEpisodeNfo1.addItemListener(checkBoxListener);
   }
 
@@ -298,11 +353,6 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, chckbxWriteCleanNfo,
         jCheckBoxBeanProperty);
     autoBinding_2.bind();
-    //
-    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("nfoLanguage");
-    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, cbNfoLanguage,
-        jComboBoxBeanProperty);
-    autoBinding_4.bind();
     //
     Property tvShowSettingsBeanProperty_3 = BeanProperty.create("nfoDateAddedField");
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbDatefield,
