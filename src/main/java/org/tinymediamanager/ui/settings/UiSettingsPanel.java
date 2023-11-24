@@ -70,7 +70,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class UiSettingsPanel extends JPanel {
   private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
-  private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
+  private static final Integer[]     DEFAULT_FONT_SIZES = { 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 26, 28 };
 
   private final Settings             settings           = Settings.getInstance();
   private final List<LocaleComboBox> locales            = new ArrayList<>();
