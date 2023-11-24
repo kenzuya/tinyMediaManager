@@ -101,20 +101,20 @@ public class ToolbarPanel extends JPanel {
     btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
     Action unlockAction = new UnlockAction();
     btnUnlock.setAction(unlockAction);
-    panelCenter.add(btnUnlock, "cell 11 0, alignx center, aligny bottom");
+    panelCenter.add(btnUnlock, "cell 11 0 1 2, center");
 
     btnRenewLicense = new ToolbarButton(IconManager.TOOLBAR_RENEW, IconManager.TOOLBAR_RENEW);
     btnRenewLicense.setAction(unlockAction);
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
-    panelCenter.add(btnRenewLicense, "cell 12 0, alignx center, aligny bottom, gap 10lp");
+    panelCenter.add(btnRenewLicense, "cell 12 0 1 2, center, gap 10lp");
 
     btnUpdateFound = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
     btnUpdateFound.setAction(new CheckForUpdateAction());
     btnUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
-    panelCenter.add(btnUpdateFound, "cell 13 0, alignx center, aligny bottom, gap 10lp");
+    panelCenter.add(btnUpdateFound, "cell 13 0 1 2, center, gap 10lp");
 
     JButton btnNotifications = new ToolbarButton(IconManager.TOOLBAR_ALERT);
-    panelCenter.add(btnNotifications, "cell 14 0, alignx center, aligny bottom, gap 10lp");
+    panelCenter.add(btnNotifications, "cell 14 0 1 2, center, gap 10lp");
 
     btnNotifications.addActionListener(e -> {
       MessageHistoryDialog dialog = MessageHistoryDialog.getInstance();
