@@ -18,8 +18,8 @@ package org.tinymediamanager.ui;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
@@ -98,7 +98,7 @@ public interface ITmmUIModule {
    * 
    * @return the search popup menu
    */
-  JMenu getSearchMenu();
+  JPopupMenu getSearchMenu();
 
   /**
    * get the edit action (which will be triggered when pressing the edit button in the toolbar)
@@ -112,7 +112,7 @@ public interface ITmmUIModule {
    * 
    * @return the edit popup menu
    */
-  JMenu getEditMenu();
+  JPopupMenu getEditMenu();
 
   /**
    * get the update action (which will be triggered when pressing the update button in the toolbar)
@@ -126,7 +126,7 @@ public interface ITmmUIModule {
    * 
    * @return the update popup menu
    */
-  JMenu getUpdateMenu();
+  JPopupMenu getUpdateMenu();
 
   /**
    * get the rename action (which will be triggered when pressing the rename button in the toolbar)
@@ -140,7 +140,7 @@ public interface ITmmUIModule {
    * 
    * @return the rename popup menu
    */
-  JMenu getRenameMenu();
+  JPopupMenu getRenameMenu();
 
   /**
    * get the settings node for the settings dialog

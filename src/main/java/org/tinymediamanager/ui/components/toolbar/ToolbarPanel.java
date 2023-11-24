@@ -26,7 +26,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -64,10 +63,14 @@ public class ToolbarPanel extends JPanel {
   private final ToolbarButton btnEdit;
   private final ToolbarButton btnUpdate;
   private final ToolbarButton btnRename;
-  private final ToolbarButton btnMore;
   private final ToolbarButton btnUnlock;
   private final ToolbarButton btnRenewLicense;
   private final ToolbarButton btnUpdateFound;
+
+  private final ToolbarMenu   menuUpdate;
+  private final ToolbarMenu   menuSearch;
+  private final ToolbarMenu   menuEdit;
+  private final ToolbarMenu   menuRename;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -75,52 +78,60 @@ public class ToolbarPanel extends JPanel {
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter
-        .setLayout(new MigLayout("insets 0, hidemode 3", "[][]40lp[]20lp[]20lp[]20lp[]20lp[][grow]15lp[]15lp[]15lp[][][][][][15lp:n]", "[50lp]"));
+    panelCenter.setLayout(
+        new MigLayout("insets 0, hidemode 3", "[][]20lp[]20lp[]20lp[]20lp[]20lp[][grow]15lp[]15lp[]15lp[][][][][][15lp:n]", "[45lp]1lp[]5lp"));
 
-    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx left, aligny center");
+    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx left, aligny bottom");
     JLabel lblVersion = new ToolbarLabel(ReleaseInfo.getRealVersion());
     TmmFontHelper.changeFont(lblVersion, TmmFontHelper.L1, Font.BOLD);
-    panelCenter.add(lblVersion, "cell 1 0, alignx left, aligny center");
+    panelCenter.add(lblVersion, "cell 1 1, alignx center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
-    panelCenter.add(btnUpdate, "cell 2 0,grow, center");
+    panelCenter.add(btnUpdate, "cell 2 0,grow, alignx center, aligny bottom");
 
     btnSearch = new ToolbarButton(IconManager.TOOLBAR_SEARCH, IconManager.TOOLBAR_SEARCH_HOVER);
-    panelCenter.add(btnSearch, "cell 3 0,grow, center");
+    panelCenter.add(btnSearch, "cell 3 0,grow, alignx center, aligny bottom");
 
     btnEdit = new ToolbarButton(IconManager.TOOLBAR_EDIT, IconManager.TOOLBAR_EDIT_HOVER);
-    panelCenter.add(btnEdit, "cell 4 0,grow, center");
+    panelCenter.add(btnEdit, "cell 4 0,grow, alignx center, aligny bottom");
 
     btnRename = new ToolbarButton(IconManager.TOOLBAR_RENAME, IconManager.TOOLBAR_RENAME_HOVER);
-    panelCenter.add(btnRename, "cell 5 0,grow, center");
-
-    btnMore = new ToolbarButton(IconManager.TOOLBAR_MORE);
-    panelCenter.add(btnMore, "cell 6 0, center");
+    panelCenter.add(btnRename, "cell 5 0,grow, alignx center, aligny bottom");
 
     btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
     Action unlockAction = new UnlockAction();
     btnUnlock.setAction(unlockAction);
-    panelCenter.add(btnUnlock, "cell 11 0, center");
+    panelCenter.add(btnUnlock, "cell 11 0, alignx center, aligny bottom");
 
     btnRenewLicense = new ToolbarButton(IconManager.TOOLBAR_RENEW, IconManager.TOOLBAR_RENEW);
     btnRenewLicense.setAction(unlockAction);
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
-    panelCenter.add(btnRenewLicense, "cell 12 0, center, gap 10lp");
+    panelCenter.add(btnRenewLicense, "cell 12 0, alignx center, aligny bottom, gap 10lp");
 
     btnUpdateFound = new ToolbarButton(IconManager.TOOLBAR_DOWNLOAD, IconManager.TOOLBAR_DOWNLOAD);
     btnUpdateFound.setAction(new CheckForUpdateAction());
     btnUpdateFound.setToolTipText(TmmResourceBundle.getString("tmm.update.message.toolbar"));
-    panelCenter.add(btnUpdateFound, "cell 13 0, center, gap 10lp");
+    panelCenter.add(btnUpdateFound, "cell 13 0, alignx center, aligny bottom, gap 10lp");
 
     JButton btnNotifications = new ToolbarButton(IconManager.TOOLBAR_ALERT);
-
-    panelCenter.add(btnNotifications, "cell 14 0, center, gap 10lp");
+    panelCenter.add(btnNotifications, "cell 14 0, alignx center, aligny bottom, gap 10lp");
 
     btnNotifications.addActionListener(e -> {
       MessageHistoryDialog dialog = MessageHistoryDialog.getInstance();
       dialog.setVisible(true);
     });
+
+    menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
+    panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
+
+    menuSearch = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.search"));
+    panelCenter.add(menuSearch, "cell 3 1,alignx center, wmin 0");
+
+    menuEdit = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.edit"));
+    panelCenter.add(menuEdit, "cell 4 1,alignx center, wmin 0");
+
+    menuRename = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.rename"));
+    panelCenter.add(menuRename, "cell 5 1,alignx center, wmin 0");
 
     // listener for messages change
     TmmUIMessageCollector.instance.addPropertyChangeListener(evt -> {
@@ -215,20 +226,9 @@ public class ToolbarPanel extends JPanel {
     btnEdit.setAction(module.getEditAction());
     btnRename.setAction(module.getRenameAction());
 
-    JPopupMenu popupMenu = new JPopupMenu();
-    if (module.getUpdateMenu() != null) {
-      popupMenu.add(module.getUpdateMenu());
-    }
-    if (module.getSearchMenu() != null) {
-      popupMenu.add(module.getSearchMenu());
-    }
-    if (module.getEditMenu() != null) {
-      popupMenu.add(module.getEditMenu());
-    }
-    if (module.getRenameMenu() != null) {
-      popupMenu.add(module.getRenameMenu());
-    }
-
-    btnMore.setPopupMenu(popupMenu);
+    menuUpdate.setPopupMenu(module.getUpdateMenu());
+    menuSearch.setPopupMenu(module.getSearchMenu());
+    menuEdit.setPopupMenu(module.getEditMenu());
+    menuRename.setPopupMenu(module.getRenameMenu());
   }
 }

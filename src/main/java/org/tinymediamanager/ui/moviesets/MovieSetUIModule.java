@@ -253,9 +253,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     treePanel.setPopupMenu(popupMenu);
 
     // dummy popupmenu to infer the text
-    updateMenu = new JMenu(TmmResourceBundle.getString("movieset.add"));
-    updateMenu.setIcon(IconManager.ADD);
-    updateMenu.add(createAndRegisterAction(MovieSetAddAction.class));
+    updatePopupMenu = new JPopupMenu(TmmResourceBundle.getString("movieset.add"));
+    updatePopupMenu.setToolTipText(TmmResourceBundle.getString("movieset.add"));
+    updatePopupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
   }
 
   @Override

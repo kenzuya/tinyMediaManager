@@ -354,22 +354,22 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
 
       // update data sources
       if (uiModule.getUpdateMenu() != null) {
-        topMenuBar.add(TmmUIMenuHelper.cloneMenu(uiModule.getUpdateMenu()));
+        topMenuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getUpdateMenu(), TmmResourceBundle.getString("Toolbar.update")));
       }
 
       // search & scrape
       if (uiModule.getSearchMenu() != null) {
-        topMenuBar.add(TmmUIMenuHelper.cloneMenu(uiModule.getSearchMenu()));
+        topMenuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getSearchMenu(), TmmResourceBundle.getString("Toolbar.search")));
       }
 
       // edit
       if (uiModule.getEditMenu() != null) {
-        topMenuBar.add(TmmUIMenuHelper.cloneMenu(uiModule.getEditMenu()));
+        topMenuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getEditMenu(), TmmResourceBundle.getString("Toolbar.edit")));
       }
 
       // rename
       if (uiModule.getRenameMenu() != null) {
-        topMenuBar.add(TmmUIMenuHelper.cloneMenu(uiModule.getRenameMenu()));
+        topMenuBar.add(TmmUIMenuHelper.morphJPopupMenuToJMenu(uiModule.getRenameMenu(), TmmResourceBundle.getString("Toolbar.rename")));
       }
 
       // tools

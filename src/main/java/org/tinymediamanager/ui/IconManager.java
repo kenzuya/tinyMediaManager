@@ -73,7 +73,6 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_RENEW                = createSVGIcon("icn_renew.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
-  public static final ImageIcon              TOOLBAR_MORE                 = createSVGIcon("icn_more.svg", new Dimension(24, 24));
 
   public static final ImageIcon              MENU_MOVIES                  = createSVGIcon("icn_movies.svg", new Dimension(26, 26));
   public static final ImageIcon              MENU_MOVIES_ACTIVE           = createSVGIcon("icn_movies_active.svg", new Dimension(26, 26));
