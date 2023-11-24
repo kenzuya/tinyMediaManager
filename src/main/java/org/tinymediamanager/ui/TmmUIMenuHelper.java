@@ -36,6 +36,21 @@ public class TmmUIMenuHelper {
     throw new IllegalAccessError();
   }
 
+  public static JMenu cloneMenu(final JMenu menu) {
+    final JMenu destination = new JMenu(menu.getText());
+    destination.setIcon(menu.getIcon());
+
+    for (Component component : menu.getMenuComponents()) {
+      if (component instanceof JMenuItem menuItem) {
+        destination.add(cloneMenuItem(menuItem));
+      } else if (component instanceof JSeparator) {
+        destination.addSeparator();
+      }
+    }
+
+    return destination;
+  }
+
   public static JMenu morphJPopupMenuToJMenu(final JPopupMenu source, String title) {
     return morphJPopupMenuToJMenu(source, title, null);
   }
