@@ -25,13 +25,28 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlSpan;
+import org.jsoup.Connection;
+import org.jsoup.Connection.Method;
+import org.jsoup.Connection.Response;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
@@ -60,6 +75,62 @@ public class ITImdbMetadataProviderTest extends BasicITest {
   public void setup() throws Exception {
     super.setup();
     MediaProviders.loadMediaProviders();
+  }
+
+  @Test
+  public void testDynamicReload() throws Exception {
+    Document doc = get("https://www.imdb.com/title/tt0105941/episodes/?season=1");
+    Document json = get("https://www.imdb.com/tr/?pt=title&spt=episodes&const=tt0105941&ht=actionOnly&pageAction=ttep-seemore");
+
+    // https://caching.graphql.imdb.com/?operationName=TitleEpisodesSubPagePagination&variables={"after":"dHQwNTEzMjAy","const":"tt0105941","filter":{"includeSeasons":["1"]},"first":50,"locale":"de-DE","originalTitleText":false,"returnUrl":"https://www.imdb.com/close_me"}&extensions={"persistedQuery":{"sha256Hash":"ecdbd1a3df08b6a3903b16662bc636e6cbaf6a6e4fcbf64496ab4da46b8038e2","version":1}}
+    Document json2 = opt(
+        "https://caching.graphql.imdb.com/?operationName=TitleEpisodesSubPagePagination&variables=%7B%22after%22%3A%22dHQwNTEzMjAy%22%2C%22const%22%3A%22tt0105941%22%2C%22filter%22%3A%7B%22includeSeasons%22%3A%5B%221%22%5D%7D%2C%22first%22%3A50%2C%22locale%22%3A%22de-DE%22%2C%22originalTitleText%22%3Afalse%2C%22returnUrl%22%3A%22https%3A%2F%2Fwww.imdb.com%2Fclose_me%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22ecdbd1a3df08b6a3903b16662bc636e6cbaf6a6e4fcbf64496ab4da46b8038e2%22%2C%22version%22%3A1%7D%7D");
+    Document json3 = get(
+        "https://caching.graphql.imdb.com/?operationName=TitleEpisodesSubPagePagination&variables=%7B%22after%22%3A%22dHQwNTEzMjAy%22%2C%22const%22%3A%22tt0105941%22%2C%22filter%22%3A%7B%22includeSeasons%22%3A%5B%221%22%5D%7D%2C%22first%22%3A50%2C%22locale%22%3A%22de-DE%22%2C%22originalTitleText%22%3Afalse%2C%22returnUrl%22%3A%22https%3A%2F%2Fwww.imdb.com%2Fclose_me%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22ecdbd1a3df08b6a3903b16662bc636e6cbaf6a6e4fcbf64496ab4da46b8038e2%22%2C%22version%22%3A1%7D%7D");
+    System.out.println(json3.body());
+  }
+
+  private Map<String, String> cookies = new HashMap<String, String>();
+
+  public Document get(String url) throws IOException {
+    Connection connection = Jsoup.connect(url).ignoreContentType(true);
+    for (Entry<String, String> cookie : cookies.entrySet()) {
+      connection.cookie(cookie.getKey(), cookie.getValue());
+    }
+    connection.header("Origin", "https://www.imdb.com");
+    connection.header("Referer", "https://www.imdb.com");
+    Response response = connection.execute();
+    cookies.putAll(response.cookies());
+    return response.parse();
+  }
+
+  public Document opt(String url) throws IOException {
+    Connection connection = Jsoup.connect(url).ignoreContentType(true);
+    for (Entry<String, String> cookie : cookies.entrySet()) {
+      connection.cookie(cookie.getKey(), cookie.getValue());
+    }
+    connection.header("Origin", "https://www.imdb.com");
+    connection.header("Referer", "https://www.imdb.com");
+    connection.method(Method.OPTIONS);
+    Response response = connection.execute();
+    cookies.putAll(response.cookies());
+    return response.parse();
+  }
+
+  @Test
+  public void webdriver() throws FailingHttpStatusCodeException, MalformedURLException, IOException {
+    WebClient webClient = new WebClient();
+    webClient.getOptions().setThrowExceptionOnScriptError(false); // woah
+
+    HtmlPage myPage = webClient.getPage("https://www.imdb.com/title/tt0105941/episodes/?season=1");
+
+    HtmlSpan span = myPage.getFirstByXPath("//span[contains(@class, 'single-page-see-more-button')]");
+
+    HtmlButton htmlButton = (HtmlButton) span.getFirstElementChild();
+    HtmlPage pageAfterClick = (HtmlPage) htmlButton.click();
+    webClient.waitForBackgroundJavaScript(5000 * 2);
+    System.out.println(pageAfterClick.asXml());
+
   }
 
   @Test

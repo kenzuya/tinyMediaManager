@@ -63,3 +63,5 @@ x (FFmpeg) do not show generated artwork twice in the image chooser #2270
 x fix plot formatting with line-breaks #2286
 x fix loading season-specials.nfo #2343
 x fixed detection of widescreen 576p #2344
+x fix creation of -mediainfo.xml with special characters #2376
+
