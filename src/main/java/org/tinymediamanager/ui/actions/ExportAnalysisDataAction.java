@@ -30,6 +30,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +164,8 @@ public class ExportAnalysisDataAction extends TmmAction {
     return zipParameters;
   }
 
-  private Path exportMovieDatasources() {
+  // DOES NOT WORK - NOT CREATING DIRS !!!
+  private Path exportMovieDatasources7z() {
     Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_moviefiles.7z");
     Utils.deleteFileSafely(exportFile);
 
@@ -172,41 +175,86 @@ public class ExportAnalysisDataAction extends TmmAction {
         for (MediaFile mf : movie.getMediaFiles()) {
           String rel = Utils.relPath(datasource, mf.getFileAsPath());
           SevenZArchiveEntry entry = new SevenZArchiveEntry();
-          entry.setName(datasource.getFileName().toString() + "/" + rel);
+          entry.setName(datasource.getFileName().toString() + File.separatorChar + rel);
           archive.putArchiveEntry(entry);
           archive.closeArchiveEntry();
         }
       }
     }
     catch (Exception e) {
-      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+      LOGGER.error("Failed to create 7zip file: {}", e.getMessage()); // NOSONAR
     }
 
     return exportFile;
   }
 
-  private Path exportTvShowDatasources() {
+  // DOES NOT WORK - NOT CREATING DIRS !!!
+  private Path exportTvShowDatasources7z() {
     Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_tvshowfiles.7z");
     Utils.deleteFileSafely(exportFile);
 
     try (SevenZOutputFile archive = new SevenZOutputFile(exportFile.toFile())) {
       for (TvShow show : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
         Path datasource = Paths.get(show.getDataSource());
+
         List<MediaFile> mfs = show.getMediaFiles();
         mfs.addAll(show.getEpisodesMediaFiles());
         for (MediaFile mf : mfs) {
           String rel = Utils.relPath(datasource, mf.getFileAsPath());
-          SevenZArchiveEntry entry = new SevenZArchiveEntry();
-          entry.setName(datasource.getFileName().toString() + "/" + rel);
+          SevenZArchiveEntry entry = archive.createArchiveEntry(mf.getFileAsPath().toFile(),
+              datasource.getFileName().toString() + File.separatorChar + rel);
+          // entry.setName(datasource.getFileName().toString() + "/" + rel);
           archive.putArchiveEntry(entry);
           archive.closeArchiveEntry();
         }
       }
     }
     catch (Exception e) {
-      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+      LOGGER.error("Failed to create 7zip file: {}", e.getMessage()); // NOSONAR
     }
 
+    return exportFile;
+  }
+
+  private Path exportMovieDatasources() {
+    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_moviefiles.zip");
+    try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(exportFile.toFile())) {
+      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
+        Path datasource = Paths.get(movie.getDataSource());
+        for (MediaFile mf : movie.getMediaFiles()) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          ZipArchiveEntry entry = new ZipArchiveEntry(datasource.getFileName().toString() + File.separatorChar + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+      archive.finish();
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+    return exportFile;
+  }
+
+  private Path exportTvShowDatasources() {
+    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_tvshowfiles.zip");
+    try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(exportFile.toFile())) {
+      for (TvShow show : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+        Path datasource = Paths.get(show.getDataSource());
+        List<MediaFile> mfs = show.getMediaFiles();
+        mfs.addAll(show.getEpisodesMediaFiles());
+        for (MediaFile mf : mfs) {
+          String rel = Utils.relPath(datasource, mf.getFileAsPath());
+          ZipArchiveEntry entry = new ZipArchiveEntry(datasource.getFileName().toString() + File.separatorChar + rel);
+          archive.putArchiveEntry(entry);
+          archive.closeArchiveEntry();
+        }
+      }
+      archive.finish();
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
     return exportFile;
   }
 }
