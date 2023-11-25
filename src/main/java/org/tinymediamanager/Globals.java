@@ -208,16 +208,6 @@ public final class Globals {
     if (ReleaseInfo.isGitBuild()) {
       return false;
     }
-
-    if (isSelfUpdatable()) {
-      return true;
-    }
-
-    // no update is forced
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
-      return false;
-    }
-
     return true;
   }
 }
