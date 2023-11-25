@@ -32,7 +32,6 @@ import javax.swing.UIManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
@@ -182,35 +181,39 @@ public class ToolbarPanel extends JPanel {
   private void initUpgradeCheck() {
     btnUpdateFound.setVisible(false);
 
+    Runnable runnable = () -> {
+      // only update if the last update check is more than the specified interval ago
+      if (shouldCheckForUpdate()) {
+        try {
+          UpdateCheck updateCheck = new UpdateCheck();
+          if (updateCheck.isUpdateAvailable()) {
+            btnUpdateFound.setVisible(true);
+            LOGGER.info("update available");
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("Update check failed - {}", e.getMessage());
+        }
+      }
+    };
+
     if (!Settings.getInstance().isNewConfig()) {
       // if the wizard is not run, check for an update
       // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is
       // showing, the wizard will no more appear
       // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the
       // next startup
-      if (Globals.canCheckForUpdates()) {
-        // only update if the last update check is more than the specified interval ago
-        if (shouldCheckForUpdate()) {
-          Runnable runnable = () -> {
-            try {
-              UpdateCheck updateCheck = new UpdateCheck();
-              if (updateCheck.isUpdateAvailable()) {
-                btnUpdateFound.setVisible(true);
-                LOGGER.info("update available");
-              }
-            }
-            catch (Exception e) {
-              LOGGER.warn("Update check failed - {}", e.getMessage());
-            }
-          };
 
-          // update task start a few secs after GUI...
-          Timer timer = new Timer(10 * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
-          timer.setRepeats(false);
-          timer.start();
-        }
-      }
+      // update task start a few secs after GUI...
+      Timer timer = new Timer(10 * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
+      timer.setRepeats(false);
+      timer.start();
     }
+
+    // for long-running instances (like docker) trigger an update check every day
+    Timer timer = new Timer(24 * 60 * 60 * 1000, e -> TmmTaskManager.getInstance().addUnnamedTask(runnable));
+    timer.setRepeats(true);
+    timer.start();
   }
 
   @Override
