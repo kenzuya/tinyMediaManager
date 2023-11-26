@@ -28,8 +28,6 @@ import java.util.List;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -162,58 +160,6 @@ public class ExportAnalysisDataAction extends TmmAction {
     zipParameters.setEncryptFiles(true);
 
     return zipParameters;
-  }
-
-  // DOES NOT WORK - NOT CREATING DIRS !!!
-  private Path exportMovieDatasources7z() {
-    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_moviefiles.7z");
-    Utils.deleteFileSafely(exportFile);
-
-    try (SevenZOutputFile archive = new SevenZOutputFile(exportFile.toFile())) {
-      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
-        Path datasource = Paths.get(movie.getDataSource());
-        for (MediaFile mf : movie.getMediaFiles()) {
-          String rel = Utils.relPath(datasource, mf.getFileAsPath());
-          SevenZArchiveEntry entry = new SevenZArchiveEntry();
-          entry.setName(datasource.getFileName().toString() + File.separatorChar + rel);
-          archive.putArchiveEntry(entry);
-          archive.closeArchiveEntry();
-        }
-      }
-    }
-    catch (Exception e) {
-      LOGGER.error("Failed to create 7zip file: {}", e.getMessage()); // NOSONAR
-    }
-
-    return exportFile;
-  }
-
-  // DOES NOT WORK - NOT CREATING DIRS !!!
-  private Path exportTvShowDatasources7z() {
-    Path exportFile = Paths.get(Utils.getTempFolder(), "tmm_tvshowfiles.7z");
-    Utils.deleteFileSafely(exportFile);
-
-    try (SevenZOutputFile archive = new SevenZOutputFile(exportFile.toFile())) {
-      for (TvShow show : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
-        Path datasource = Paths.get(show.getDataSource());
-
-        List<MediaFile> mfs = show.getMediaFiles();
-        mfs.addAll(show.getEpisodesMediaFiles());
-        for (MediaFile mf : mfs) {
-          String rel = Utils.relPath(datasource, mf.getFileAsPath());
-          SevenZArchiveEntry entry = archive.createArchiveEntry(mf.getFileAsPath().toFile(),
-              datasource.getFileName().toString() + File.separatorChar + rel);
-          // entry.setName(datasource.getFileName().toString() + "/" + rel);
-          archive.putArchiveEntry(entry);
-          archive.closeArchiveEntry();
-        }
-      }
-    }
-    catch (Exception e) {
-      LOGGER.error("Failed to create 7zip file: {}", e.getMessage()); // NOSONAR
-    }
-
-    return exportFile;
   }
 
   private Path exportMovieDatasources() {
