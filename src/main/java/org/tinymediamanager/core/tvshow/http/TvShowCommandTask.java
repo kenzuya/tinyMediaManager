@@ -108,6 +108,8 @@ class TvShowCommandTask extends TmmThreadPool {
 
   private void updateDataSources() {
     Set<String> dataSources = new TreeSet<>();
+    Set<Path> tvShowFolders = new TreeSet<>();
+
     List<TvShow> existingTvShows = new ArrayList<>(tvShowList.getTvShows());
     List<TvShowEpisode> existingEpisodes = new ArrayList<>();
     for (TvShow tvShow : existingTvShows) {
@@ -117,6 +119,7 @@ class TvShowCommandTask extends TmmThreadPool {
     for (AbstractCommandHandler.Command command : commands) {
       if ("update".equals(command.action)) {
         dataSources.addAll(getDataSourcesForScope(command.scope));
+        tvShowFolders.addAll(getTvShowFoldersForScope(command.scope));
       }
     }
 
@@ -124,7 +127,7 @@ class TvShowCommandTask extends TmmThreadPool {
       setTaskName(TmmResourceBundle.getString("update.datasource"));
       publishState(TmmResourceBundle.getString("update.datasource"), getProgressDone());
 
-      activeTask = new TvShowUpdateDatasourceTask(dataSources);
+      activeTask = new TvShowUpdateDatasourceTask(dataSources, new ArrayList<>(tvShowFolders));
       activeTask.run(); // blocking
 
       // done
@@ -175,6 +178,25 @@ class TvShowCommandTask extends TmmThreadPool {
     }
 
     return dataSources;
+  }
+
+  private List<Path> getTvShowFoldersForScope(CommandScope scope) {
+    List<Path> tvShowFolders = new ArrayList<>();
+
+    switch (scope.name) {
+      case "show":
+        for (String path : ListUtils.nullSafe(Arrays.asList(scope.args))) {
+          for (TvShow tvShow : tvShowList.getTvShows()) {
+            if (tvShow.getPathNIO().toAbsolutePath().toString().equals(path)) {
+              tvShowFolders.add(tvShow.getPathNIO());
+              break;
+            }
+          }
+        }
+        break;
+    }
+
+    return tvShowFolders;
   }
 
   private void scrape() {
@@ -507,10 +529,7 @@ class TvShowCommandTask extends TmmThreadPool {
             paths.add(Path.of(path).toAbsolutePath());
           }
 
-          for (TvShow tvShow : tvShowList.getTvShows()
-              .stream()
-                  .filter(tvShow -> paths.contains(tvShow.getPathNIO().toAbsolutePath()))
-                  .toList()) {
+          for (TvShow tvShow : tvShowList.getTvShows().stream().filter(tvShow -> paths.contains(tvShow.getPathNIO().toAbsolutePath())).toList()) {
             episodesToProcess.addAll(tvShow.getEpisodes());
           }
         }
@@ -520,10 +539,7 @@ class TvShowCommandTask extends TmmThreadPool {
         if (scope.args != null && scope.args.length > 0) {
           List<String> dataSources = Arrays.asList(scope.args);
 
-          for (TvShow tvShow : tvShowList.getTvShows()
-              .stream()
-                  .filter(tvShow -> dataSources.contains(tvShow.getDataSource()))
-                  .toList()) {
+          for (TvShow tvShow : tvShowList.getTvShows().stream().filter(tvShow -> dataSources.contains(tvShow.getDataSource())).toList()) {
             episodesToProcess.addAll(tvShow.getEpisodes());
           }
         }
