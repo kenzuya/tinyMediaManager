@@ -739,11 +739,15 @@ public class TmmUIHelper {
    * checks for our automatic update setting interval <br>
    * Nightly users are always true!
    *
-   * @return
+   * @return true/false
    */
   public static boolean shouldCheckForUpdate() {
     if (ReleaseInfo.isNightly()) {
       return true;
+    }
+
+    if (!Settings.getInstance().isEnableAutomaticUpdate()) {
+      return false;
     }
 
     try {
@@ -755,7 +759,8 @@ public class TmmUIHelper {
 
       return now > old + (long) Settings.getInstance().getAutomaticUpdateInterval() * 1000 * 3600 * 24F;
     }
-    catch (Exception ignored) {
+    catch (Exception e) {
+      LOGGER.debug("Could not check the update interval - '{}'", e.getMessage());
       return true;
     }
   }

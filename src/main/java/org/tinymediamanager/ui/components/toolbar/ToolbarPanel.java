@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.ui.components.toolbar;
 
-import static org.tinymediamanager.ui.TmmUIHelper.shouldCheckForUpdate;
-
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.time.LocalDate;
@@ -42,6 +40,7 @@ import org.tinymediamanager.ui.HintManager;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
 import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.UnlockAction;
@@ -183,7 +182,7 @@ public class ToolbarPanel extends JPanel {
 
     Runnable runnable = () -> {
       // only update if the last update check is more than the specified interval ago
-      if (shouldCheckForUpdate()) {
+      if (TmmUIHelper.shouldCheckForUpdate()) {
         try {
           UpdateCheck updateCheck = new UpdateCheck();
           if (updateCheck.isUpdateAvailable()) {
