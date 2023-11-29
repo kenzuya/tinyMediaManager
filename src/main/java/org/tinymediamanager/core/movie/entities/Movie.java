@@ -172,7 +172,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private MediaCertification                    certification              = MediaCertification.UNKNOWN;
   @JsonProperty
+  @Deprecated
   private UUID                                  movieSetId;
+  @JsonProperty
+  private List<UUID>                            movieSetIds                = new ArrayList<>();
   @JsonProperty
   private MovieEdition                          edition                    = MovieEdition.NONE;
   @JsonProperty
@@ -199,7 +202,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private final List<String>                    showlinks                  = new CopyOnWriteArrayList<>();
 
+  @Deprecated
   private MovieSet                              movieSet;
+  private List<MovieSet>                        movieSets                  = new ArrayList<>();
   private String                                titleSortable              = "";
   private String                                originalTitleSortable      = "";
   private String                                otherIds                   = "";
@@ -252,7 +257,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setRuntime(runtime == 0 || force ? other.runtime : runtime);
     setTop250(top250 == 0 || force ? other.top250 : top250);
     setReleaseDate(releaseDate == null || force ? other.releaseDate : releaseDate);
-    setMovieSet(movieSet == null || force ? other.movieSet : movieSet);
+    setMovieSet(movieSet == null || force ? other.movieSet : movieSet); // uh-oh - set is not updated?!
+    // FIXME: merge set list based on IDs or objects?!
     setMediaSource(mediaSource == MediaSource.UNKNOWN || force ? other.mediaSource : mediaSource);
     setCertification(certification == MediaCertification.UNKNOWN || force ? other.certification : certification);
     setEdition(edition == MovieEdition.NONE || force ? other.edition : edition);
@@ -492,9 +498,24 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void initializeAfterLoading() {
     super.initializeAfterLoading();
 
-    // link with movie set
+    // migration
     if (movieSetId != null) {
-      movieSet = MovieModuleManager.getInstance().getMovieList().lookupMovieSet(movieSetId);
+      // add old to new list
+      if (!movieSetIds.contains(movieSetId)) {
+        movieSetIds.add(movieSetId);
+      }
+    }
+
+    // add to new lists
+    if (!movieSetIds.isEmpty()) {
+      for (UUID uuid : movieSetIds) {
+        MovieSet movieSet = MovieModuleManager.getInstance().getMovieList().lookupMovieSet(uuid);
+        if (movieSet != null) {
+          if (!movieSets.contains(movieSet)) {
+            movieSets.add(movieSet);
+          }
+        }
+      }
     }
   }
 
@@ -1659,9 +1680,20 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * Gets the movie set.
    * 
    * @return the movieset
+   * @deprecated use {@link Movie#getMovieSets()}
    */
+  @Deprecated
   public MovieSet getMovieSet() {
-    return movieSet;
+    return getMovieSets().isEmpty() ? null : getMovieSets().get(0);
+  }
+
+  /**
+   * Gets a list of movie sets, where this movie is in
+   * 
+   * @return the movieset list
+   */
+  public List<MovieSet> getMovieSets() {
+    return movieSets;
   }
 
   /**
@@ -1685,6 +1717,19 @@ public class Movie extends MediaEntity implements IMediaInformation {
     firePropertyChange(MOVIESET_TITLE, oldValue, newValue);
   }
 
+  public void addMovieSet(MovieSet newValue) {
+    if (newValue != null) {
+      if (!movieSetIds.contains(newValue.getDbId())) {
+        movieSetIds.add(newValue.getDbId());
+      }
+      if (!movieSets.contains(newValue)) {
+        movieSets.add(newValue);
+      }
+      firePropertyChange(MOVIESET, null, newValue);
+      firePropertyChange(MOVIESET_TITLE, null, newValue);
+    }
+  }
+
   public void movieSetTitleChanged() {
     firePropertyChange(MOVIESET_TITLE, null, "");
   }
@@ -1704,6 +1749,14 @@ public class Movie extends MediaEntity implements IMediaInformation {
       movieSet.removeMovie(this, true);
     }
     setMovieSet(null);
+  }
+
+  public void removeAllMovieSets() {
+    for (MovieSet set : movieSets) {
+      set.removeMovie(this, false);
+    }
+    movieSetIds.clear();
+    movieSets.clear();
   }
 
   /**
