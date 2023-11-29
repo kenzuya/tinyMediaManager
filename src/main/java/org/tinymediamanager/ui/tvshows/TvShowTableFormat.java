@@ -493,45 +493,41 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
   }
 
-  private String getYear(TmmTreeNode node) {
+  private int getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      int year = tvShow.getYear();
-      if (year > 0) {
-        return String.valueOf(year);
-      }
-      return null;
+      return tvShow.getYear();
     }
     else if (userObject instanceof TvShowSeason season) {
       Date firstAired = season.getFirstAired();
       if (firstAired != null) {
         calendar.setTime(firstAired);
-        return String.valueOf(calendar.get(Calendar.YEAR));
+        return calendar.get(Calendar.YEAR);
       }
-      return null;
+      return 0;
     }
-    return null;
+    return 0;
   }
 
-  private String getSeasons(TmmTreeNode node) {
+  private int getSeasons(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return String.valueOf(tvShow.getSeasonCount());
+      return tvShow.getSeasonCount();
     }
-    return null;
+    return 0;
   }
 
-  private String getEpisodes(TmmTreeNode node) {
+  private int getEpisodes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return String.valueOf(tvShow.getEpisodeCount());
+      return tvShow.getEpisodeCount();
     }
     if (userObject instanceof TvShowSeason season) {
       if (!season.getEpisodes().isEmpty()) {
-        return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
+        return season.getEpisodes().size();
       }
     }
-    return null;
+    return 0;
   }
 
   private String getFileName(TmmTreeNode node) {
