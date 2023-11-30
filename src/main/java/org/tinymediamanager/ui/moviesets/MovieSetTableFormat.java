@@ -109,7 +109,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * movie count
      */
-    Column col = new Column(TmmResourceBundle.getString("movieset.moviecount"), "seasons", this::getMovieCount, String.class);
+    Column col = new Column(TmmResourceBundle.getString("movieset.moviecount"), "seasons", this::getMovieCount, Integer.class);
     col.setHeaderIcon(IconManager.COUNT);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
@@ -121,10 +121,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * year
      */
     col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
-    col.setColumnComparator(integerComparator);
-    col.setCellRenderer(new IntegerTableCellRenderer());
+    col.setColumnComparator(stringComparator);
+    // col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("2000") + 10);
+    col.setMinWidth(fontMetrics.stringWidth("2000 - 2000") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -331,12 +331,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
   }
 
-  private String getMovieCount(TmmTreeNode node) {
+  private Integer getMovieCount(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof MovieSet movieSet) {
       int size = movieSet.getMovies().size();
       if (size > 0) {
-        return String.valueOf(size);
+        return size;
       }
     }
     return null;
