@@ -123,7 +123,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * year
      */
-    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, Integer.class);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("2000") + 10);
@@ -133,7 +133,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * season count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.season.count"), "seasons", this::getSeasons, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.season.count"), "seasons", this::getSeasons, Integer.class);
     col.setHeaderIcon(IconManager.SEASONS);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
@@ -144,7 +144,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * episode count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.episode.count"), "episodes", this::getEpisodes, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.episode.count"), "episodes", this::getEpisodes, Integer.class);
     col.setHeaderIcon(IconManager.EPISODES);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
@@ -493,7 +493,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
   }
 
-  private int getYear(TmmTreeNode node) {
+  private Integer getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
       return tvShow.getYear();
@@ -504,20 +504,20 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         calendar.setTime(firstAired);
         return calendar.get(Calendar.YEAR);
       }
-      return 0;
+      return null;
     }
-    return 0;
+    return null;
   }
 
-  private int getSeasons(TmmTreeNode node) {
+  private Integer getSeasons(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
       return tvShow.getSeasonCount();
     }
-    return 0;
+    return null;
   }
 
-  private int getEpisodes(TmmTreeNode node) {
+  private Integer getEpisodes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
       return tvShow.getEpisodeCount();
@@ -527,7 +527,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return season.getEpisodes().size();
       }
     }
-    return 0;
+    return null;
   }
 
   private String getFileName(TmmTreeNode node) {

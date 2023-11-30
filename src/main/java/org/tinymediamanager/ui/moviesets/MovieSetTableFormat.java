@@ -122,7 +122,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
     col.setColumnComparator(stringComparator);
-    // col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("2000 - 2000") + 10);
     col.setDefaultHidden(true);
@@ -487,14 +486,14 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon isWatched(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof MovieSet) {
-      return getCheckIcon(((MovieSet) userObject).isWatched());
+    if (userObject instanceof MovieSet movieSet) {
+      return getCheckIcon(movieSet.isWatched());
     }
     else if (userObject instanceof MovieSet.MovieSetMovie) {
       return null;
     }
-    else if (userObject instanceof Movie) {
-      return getCheckIcon(((Movie) userObject).isWatched());
+    else if (userObject instanceof Movie movie) {
+      return getCheckIcon(movie.isWatched());
     }
     return null;
   }
@@ -502,8 +501,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private Integer getRuntime(TmmTreeNode node) {
     Object userObject = node.getUserObject();
 
-    if (userObject instanceof Movie) {
-      int runtime = ((Movie) userObject).getRuntime();
+    if (userObject instanceof Movie movie) {
+      int runtime = movie.getRuntime();
 
       if (runtime > 0) {
         return runtime;
@@ -516,15 +515,15 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private String getYear(TmmTreeNode node) {
     Object userobject = node.getUserObject();
 
-    if (userobject instanceof MovieSet) {
-      String years = ((MovieSet) userobject).getYears();
+    if (userobject instanceof MovieSet movieSet) {
+      String years = movieSet.getYears();
       if (StringUtils.isNotBlank(years)) {
         return years;
       }
     }
 
-    if (userobject instanceof Movie) {
-      int year = ((Movie) userobject).getYear();
+    if (userobject instanceof Movie movie) {
+      int year = movie.getYear();
 
       if (year > 0) {
         return String.valueOf(year);
@@ -541,8 +540,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMediaInfoVideoFormat();
+    if (userObject instanceof Movie movie) {
+      return movie.getMediaInfoVideoFormat();
     }
 
     return null;
@@ -555,8 +554,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMediaInfoVideoCodec();
+    if (userObject instanceof Movie movie) {
+      return movie.getMediaInfoVideoCodec();
     }
 
     return null;
@@ -569,8 +568,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return String.valueOf(((Movie) userObject).getMediaInfoVideoBitrate());
+    if (userObject instanceof Movie movie) {
+      return String.valueOf(movie.getMediaInfoVideoBitrate());
     }
 
     return null;
@@ -582,8 +581,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      MediaRating mediaRating = ((MediaEntity) userObject).getUserRating();
+    if (userObject instanceof Movie movie) {
+      MediaRating mediaRating = movie.getUserRating();
       if (mediaRating != null && mediaRating.getRating() > 0) {
         return String.valueOf(mediaRating.getRating());
       }
@@ -599,8 +598,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return String.valueOf(((MediaEntity) userObject).getRating().getVotes());
+    if (userObject instanceof Movie movie) {
+      return String.valueOf(movie.getRating().getVotes());
     }
 
     return null;
@@ -613,8 +612,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((MediaEntity) userObject).getDateAddedForUi();
+    if (userObject instanceof Movie movie) {
+      return movie.getDateAddedForUi();
     }
 
     return null;
@@ -627,8 +626,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      List<MediaFile> videos = ((MediaEntity) userObject).getMediaFiles(MediaFileType.VIDEO);
+    if (userObject instanceof Movie movie) {
+      List<MediaFile> videos = movie.getMediaFiles(MediaFileType.VIDEO);
       if (!videos.isEmpty()) {
         MediaFile mediaFile = videos.get(0);
         if (StringUtils.isNotBlank(mediaFile.getAudioCodec())) {
@@ -647,8 +646,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((MediaEntity) userObject).getPathNIO().toString();
+    if (userObject instanceof Movie movie) {
+      return movie.getPathNIO().toString();
     }
 
     return null;
@@ -661,8 +660,8 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return null;
     }
 
-    if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMainVideoFile().getFilename();
+    if (userObject instanceof Movie movie) {
+      return movie.getMainVideoFile().getFilename();
     }
 
     return null;
