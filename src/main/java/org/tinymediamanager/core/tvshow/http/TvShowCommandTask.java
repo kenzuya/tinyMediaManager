@@ -127,7 +127,18 @@ class TvShowCommandTask extends TmmThreadPool {
       setTaskName(TmmResourceBundle.getString("update.datasource"));
       publishState(TmmResourceBundle.getString("update.datasource"), getProgressDone());
 
-      activeTask = new TvShowUpdateDatasourceTask(dataSources, new ArrayList<>(tvShowFolders));
+      activeTask = new TvShowUpdateDatasourceTask(dataSources);
+      activeTask.run(); // blocking
+
+      // done
+      activeTask = null;
+    }
+
+    if (!tvShowFolders.isEmpty()) {
+      setTaskName(TmmResourceBundle.getString("update.datasource"));
+      publishState(TmmResourceBundle.getString("update.datasource"), getProgressDone());
+
+      activeTask = new TvShowUpdateDatasourceTask(new ArrayList<>(tvShowFolders));
       activeTask.run(); // blocking
 
       // done

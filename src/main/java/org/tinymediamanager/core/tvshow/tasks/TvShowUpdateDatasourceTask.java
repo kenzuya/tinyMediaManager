@@ -166,7 +166,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     this(Collections.emptyList(), tvShowFolders);
   }
 
-  public TvShowUpdateDatasourceTask(Collection<String> dataSources, List<Path> tvShowFolders) {
+  private TvShowUpdateDatasourceTask(Collection<String> dataSources, List<Path> tvShowFolders) {
     super(TmmResourceBundle.getString("update.datasource"));
     this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     this.dataSources.addAll(dataSources);
