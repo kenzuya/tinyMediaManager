@@ -24,6 +24,7 @@ public final class Constants {
   public static final String DS_TRASH_FOLDER        = ".deletedByTMM";
 
   public static final String ACTORS                 = "actors";
+  public static final String ACTORS_AS_STRING       = "actorsAsString";
   public static final String ADDED_EPISODE          = "addedEpisode";
   public static final String ADDED_MOVIE            = "addedMovie";
   public static final String ADDED_MOVIE_SET        = "addedMovieSet";
@@ -77,6 +78,7 @@ public final class Constants {
   public static final String POSTER                 = "poster";
   public static final String POSTER_URL             = "posterUrl";
   public static final String PRODUCERS              = "producers";
+  public static final String PRODUCERS_AS_STRING    = "producersAsString";
   public static final String PRODUCTION_COMPANY     = "productionCompany";
   public static final String RATING                 = "rating";
   public static final String RELEASE_DATE           = "releaseDate";
