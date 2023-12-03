@@ -35,8 +35,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
@@ -46,6 +44,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.LocaleComboBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
 import net.miginfocom.swing.MigLayout;
@@ -76,12 +75,17 @@ class UiSettingsPanel extends JPanel {
 
   public UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
+    LocaleComboBox fallbackLocale = null;
     Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
       if (l.equals(settingsLang)) {
         actualLocale = localeComboBox;
+      }
+      // match by langu only, if no direct match
+      if (settingsLang.getLanguage().equals(l.getLanguage())) {
+        fallbackLocale = localeComboBox;
       }
     }
 
@@ -90,6 +94,9 @@ class UiSettingsPanel extends JPanel {
     // data init
     if (actualLocale != null) {
       cbLanguage.setSelectedItem(actualLocale);
+    }
+    else {
+      cbLanguage.setSelectedItem(fallbackLocale);
     }
 
     cbFontFamily.setSelectedItem(settings.getFontFamily());
@@ -233,7 +240,7 @@ class UiSettingsPanel extends JPanel {
   private void checkChanges() {
     LocaleComboBox loc = (LocaleComboBox) cbLanguage.getSelectedItem();
     if (loc != null) {
-      Locale locale = loc.loc;
+      Locale locale = loc.getLocale();
       Locale actualLocale = Utils.getLocaleFromLanguage(settings.getLanguage());
       if (!locale.equals(actualLocale)) {
         settings.setLanguage(locale.toString());
@@ -292,49 +299,6 @@ class UiSettingsPanel extends JPanel {
     else {
       spUpdateInterval.setEnabled(false);
       lblUpdateHint.setText(TmmResourceBundle.getString("Settings.updatecheck.hint"));
-    }
-  }
-
-  /**
-   * Helper class for customized toString() method, to get the Name in localized language.
-   */
-  private static class LocaleComboBox {
-    private final Locale       loc;
-    private final List<Locale> countries;
-
-    LocaleComboBox(Locale loc) {
-      this.loc = loc;
-      countries = LocaleUtils.countriesByLanguage(loc.getLanguage().toLowerCase(Locale.ROOT));
-    }
-
-    public Locale getLocale() {
-      return loc;
-    }
-
-    @Override
-    public String toString() {
-      // display country name if needed
-      // not needed when language == country
-      if (loc.getLanguage().equalsIgnoreCase(loc.getCountry())) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // special exceptions (which do not have language == country)
-      if (loc.toString().equals("en_US")) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // not needed, when this language is only in one country
-      if (countries.size() == 1) {
-        return loc.getDisplayLanguage(loc);
-      }
-
-      // output country if available
-      if (StringUtils.isNotBlank(loc.getDisplayCountry(loc))) {
-        return loc.getDisplayLanguage(loc) + " (" + loc.getDisplayCountry(loc) + ")";
-      }
-
-      return loc.getDisplayLanguage(loc);
     }
   }
 }

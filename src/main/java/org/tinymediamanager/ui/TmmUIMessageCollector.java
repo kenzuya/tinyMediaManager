@@ -69,7 +69,7 @@ public class TmmUIMessageCollector extends AbstractModelObject implements IMessa
           text = String.valueOf(message.getMessageId());
         }
 
-        JOptionPane.showMessageDialog(null, text, sender, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(MainWindow.getInstance(), text, sender, JOptionPane.ERROR_MESSAGE);
       });
     }
     else {

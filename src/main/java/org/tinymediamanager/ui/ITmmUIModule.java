@@ -17,6 +17,7 @@ package org.tinymediamanager.ui;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
@@ -49,6 +50,20 @@ public interface ITmmUIModule {
    * @return the tab title
    */
   String getTabTitle();
+
+  /**
+   * get the menu icon
+   * 
+   * @return the menu icon
+   */
+  ImageIcon getMenuIcon();
+
+  /**
+   * get the menu active icon
+   *
+   * @return the menu icon
+   */
+  ImageIcon getMenuActiveIcon();
 
   /**
    * get the detail panel (right panel in the main view)

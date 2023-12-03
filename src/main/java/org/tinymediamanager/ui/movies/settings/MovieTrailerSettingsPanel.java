@@ -90,6 +90,7 @@ class MovieTrailerSettingsPanel extends JPanel {
   private JCheckBox                  cbTrailerFilename1;
   private JCheckBox                  cbTrailerFilename2;
   private JCheckBox                  cbTrailerFilename3;
+  private JCheckBox                  cbTrailerFilename4;
   private JLabel                     lblAutomaticTrailerDownloadHint;
 
   MovieTrailerSettingsPanel() {
@@ -180,7 +181,8 @@ class MovieTrailerSettingsPanel extends JPanel {
     cbTrailerFilename1.removeItemListener(checkBoxListener);
     cbTrailerFilename2.removeItemListener(checkBoxListener);
     cbTrailerFilename3.removeItemListener(checkBoxListener);
-    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3);
+    cbTrailerFilename4.removeItemListener(checkBoxListener);
+    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3, cbTrailerFilename4);
 
     // trailer filenames
     List<MovieTrailerNaming> movieTrailerFilenames = settings.getTrailerFilenames();
@@ -193,10 +195,14 @@ class MovieTrailerSettingsPanel extends JPanel {
     else if (movieTrailerFilenames.contains(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER)) {
       cbTrailerFilename3.setSelected(true);
     }
+    else if (movieTrailerFilenames.contains(MovieTrailerNaming.TRAILER)) {
+      cbTrailerFilename4.setSelected(true);
+    }
 
     cbTrailerFilename1.addItemListener(checkBoxListener);
     cbTrailerFilename2.addItemListener(checkBoxListener);
     cbTrailerFilename3.addItemListener(checkBoxListener);
+    cbTrailerFilename4.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -219,6 +225,9 @@ class MovieTrailerSettingsPanel extends JPanel {
     }
     if (cbTrailerFilename3.isSelected()) {
       settings.addTrailerFilename(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER);
+    }
+    if (cbTrailerFilename4.isSelected()) {
+      settings.addTrailerFilename(MovieTrailerNaming.TRAILER);
     }
   }
 
@@ -314,6 +323,10 @@ class MovieTrailerSettingsPanel extends JPanel {
             + TmmResourceBundle.getString("Settings.artwork.extension"));
         trailerFilenameButtonGroup.add(cbTrailerFilename3);
         panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
+
+        cbTrailerFilename4 = new JCheckBox("trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename4);
+        panelTrailerFilenames.add(cbTrailerFilename4, "cell 1 3");
       }
     }
   }

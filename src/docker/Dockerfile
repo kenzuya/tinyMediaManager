@@ -33,4 +33,4 @@ RUN \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data", "-noupdate=true"]
+CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data"]

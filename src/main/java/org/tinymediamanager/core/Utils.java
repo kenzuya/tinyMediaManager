@@ -53,8 +53,11 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.CodeSource;
+import java.text.CharacterIterator;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.text.StringCharacterIterator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,6 +73,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1278,45 +1282,54 @@ public class Utils {
     if (StringUtils.isBlank(language)) {
       return Locale.getDefault();
     }
-    // do we have a newer locale settings style?
+
+    // don't mess around; at least fixate this
+    if ("en".equalsIgnoreCase(language)) {
+      return Locale.US;
+    }
+    // fixate Chinese ones based on script, not country!
+    if ("zh_Hant".equalsIgnoreCase(language) || "zh__#Hant".equalsIgnoreCase(language) || "zh_HK".equalsIgnoreCase(language)
+        || "zh_TW".equalsIgnoreCase(language)) {
+      return new Locale.Builder().setLanguage("zh").setScript("Hant").build();
+    }
+    if ("zh".equalsIgnoreCase(language) || "zh__#Hans".equalsIgnoreCase(language) || "zh_Hans".equalsIgnoreCase(language)
+        || "zh_CN".equalsIgnoreCase(language) || "zh_SG".equalsIgnoreCase(language)) {
+      return new Locale.Builder().setLanguage("zh").setScript("Hans").build();
+    }
+
     if (language.length() > 2) {
       try {
         return LocaleUtils.toLocale(language);
       }
       catch (Exception e) {
-        // Whoopsie. try to fix string....
-        if (language.matches("^\\w\\w_\\w\\w.*")) {
-          // okay, maybe some special locale - try to detect all exceptions
-          if ("zh_Hant".equalsIgnoreCase(language)) {
-            return Locale.TRADITIONAL_CHINESE;
-          }
-          if ("zh_Hans".equalsIgnoreCase(language)) {
-            return Locale.SIMPLIFIED_CHINESE;
-          }
-          // return LocaleUtils.toLocale(language.substring(0, language.indexOf('_'))); // fall through
+        LOGGER.warn("Could not parse language {}", language);
+      }
+    }
+
+    return new Locale(language); // let java decide..?
+  }
+
+  /**
+   * returns all known translations for a key, like "metatag.title"
+   * 
+   * @param key
+   * @return list of translated values
+   */
+  public static List<String> getAllTranslationsFor(String key) {
+    List<String> ret = new ArrayList<>();
+    for (Locale l : getLanguages()) {
+      ResourceBundle b = ResourceBundle.getBundle("messages", l);
+      try {
+        String value = b.getString(key);
+        if (!ret.contains(value)) {
+          ret.add(value);
         }
       }
-    }
-    if (language.equalsIgnoreCase("en")) {
-      return Locale.US; // don't mess around; at least fixate this
-    }
-
-    // try to find country based locale
-    Locale l = null;
-    List<Locale> countries = LocaleUtils.countriesByLanguage(language.toLowerCase(Locale.ROOT));
-    for (Locale locale : countries) {
-      if (locale.getCountry().equalsIgnoreCase(language) && locale.getScript().isEmpty()) {
-        // map to main countries; de->de_DE (and not de_CH)
-        // only take empty script ones, else we get mostly some #Latn variants
-        l = locale;
-        break;
+      catch (Exception e) {
+        // eg not found - ignore
       }
     }
-
-    if (l == null) {
-      l = new Locale(language); // let java decide..?
-    }
-    return l;
+    return ret;
   }
 
   /**
@@ -2368,5 +2381,44 @@ public class Utils {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Format any file size according the preferred UI setting
+   * 
+   * @param filesize
+   *          the file size in bytes
+   * @return the formatted file size as {@link String}
+   */
+  public static String formatFileSizeForDisplay(long filesize) {
+    if (!Settings.getInstance().isFileSizeDisplayHumanReadable()) {
+      // in MB
+      double sizeInMb = filesize / (1000.0 * 1000.0);
+      DecimalFormat df;
+
+      if (sizeInMb < 1) {
+        df = new DecimalFormat("#0.00");
+      }
+      else {
+        df = new DecimalFormat("#0");
+      }
+
+      return df.format(sizeInMb) + " M";
+    }
+
+    long bytes = filesize;
+
+    if (-1000 < bytes && bytes < 1000) {
+      return bytes + " B";
+    }
+
+    CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+    while (bytes <= -999_950 || bytes >= 999_950) {
+      bytes /= 1000;
+      ci.next();
+    }
+
+    DecimalFormat df = new DecimalFormat("#0.00");
+    return df.format(bytes / 1000.0) + " " + ci.current();
   }
 }

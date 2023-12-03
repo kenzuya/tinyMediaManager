@@ -17,7 +17,7 @@ stages:
 
 test:jdk17:
   stage: test
-  image: tinymediamanager/testing:jdk17-20220926090140
+  image: tinymediamanager/testing:jdk17-20231123152215
   rules:
     - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
       when: never
@@ -30,24 +30,9 @@ test:jdk17:
   artifacts:
     expire_in: 1 days
 
-test:jdk18:
+test:jdk21:
   stage: test
-  image: tinymediamanager/testing:jdk18-20221002133514
-  rules:
-    - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "devel"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  tags:
-    - tmm # force running on own runners
-  script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
-  artifacts:
-    expire_in: 1 days
-
-test:jdk19:
-  stage: test
-  image: tinymediamanager/testing:jdk19-20221002133519
+  image: tinymediamanager/testing:jdk21-20231123152217
   rules:
     - if: $CI_PROJECT_NAMESPACE != "tinyMediaManager" # do not run on forks
       when: never

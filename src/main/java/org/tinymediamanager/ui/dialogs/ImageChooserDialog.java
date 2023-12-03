@@ -1034,7 +1034,7 @@ public class ImageChooserDialog extends TmmDialog {
 
       // nothing selected
       if (artwork == null && selectedExtraFanarts.isEmpty() && selectedExtraThumbs.isEmpty()) {
-        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.noneselected"));
+        JOptionPane.showMessageDialog(ImageChooserDialog.this, TmmResourceBundle.getString("image.noneselected"));
         return;
       }
 
@@ -1162,7 +1162,7 @@ public class ImageChooserDialog extends TmmDialog {
     @Override
     public Void doInBackground() {
       if (ids.isEmpty()) {
-        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.download.noid"));
+        JOptionPane.showMessageDialog(ImageChooserDialog.this, TmmResourceBundle.getString("image.download.noid"));
         return null;
       }
 

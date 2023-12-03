@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Settings;
@@ -35,6 +35,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.ui.MainWindow;
 
 /**
  * The RebuildImageCacheAction to rebuild the whole image cache
@@ -50,7 +51,7 @@ public class RebuildImageCacheAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     if (!Settings.getInstance().isImageCache()) {
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }
 

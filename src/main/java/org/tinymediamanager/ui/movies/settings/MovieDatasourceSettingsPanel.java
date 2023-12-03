@@ -97,7 +97,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
       if (row != -1) { // nothing selected
         String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
         String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
-        int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
+        int decision = JOptionPane.showOptionDialog(
+            this, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
@@ -165,7 +166,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
           Pattern.compile(tfAddBadword.getText());
         }
         catch (PatternSyntaxException ex) {
-          JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
+          JOptionPane.showMessageDialog(this, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
         MovieModuleManager.getInstance().getSettings().addBadWord(tfAddBadword.getText());

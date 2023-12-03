@@ -55,5 +55,16 @@ public enum MovieTrailerNaming implements IFileNaming {
     public String getFilename(String basename, String extension) {
       return StringUtils.isNotBlank(basename) ? "trailers" + File.separator + basename + "-trailer." + extension : "";
     }
+  },
+
+  /**
+   * trailer.*
+   */
+  TRAILER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "trailer." + extension;
+    }
   }
+
 }

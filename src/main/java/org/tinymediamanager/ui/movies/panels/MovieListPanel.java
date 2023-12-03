@@ -26,7 +26,20 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Locale;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableColumn;
@@ -43,7 +56,10 @@ import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.*;
+import org.tinymediamanager.ui.HintManager;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TablePopupListener;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.actions.ClearFilterPresetAction;
 import org.tinymediamanager.ui.actions.FilterPresetAction;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
@@ -72,18 +88,18 @@ import net.miginfocom.swing.MigLayout;
 /**
  * @author Manuel Laggner
  */
-public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
-  MovieSelectionModel       selectionModel;
+public class MovieListPanel extends TmmListPanel {
+  MovieSelectionModel selectionModel;
 
-  private MovieList         movieList;
+  private MovieList   movieList;
 
-  private TmmTable          movieTable;
-  private JLabel            lblMovieCountFiltered;
-  private JLabel            lblMovieCountTotal;
-  private SplitButton       btnExtendedFilter;
-  private JLabel            lblSelectedCount;
+  private TmmTable    movieTable;
+  private JLabel      lblMovieCountFiltered;
+  private JLabel      lblMovieCountTotal;
+  private SplitButton btnExtendedFilter;
+  private JLabel      lblSelectedCount;
 
-  private JPopupMenu        popupMenu;
+  private JPopupMenu  popupMenu;
 
   public MovieListPanel() {
     initComponents();
@@ -375,11 +391,6 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   public MovieSelectionModel getSelectionModel() {
     return selectionModel;
-  }
-
-  @Override
-  public ITmmUIModule getUIModule() {
-    return MovieUIModule.getInstance();
   }
 
   @Override

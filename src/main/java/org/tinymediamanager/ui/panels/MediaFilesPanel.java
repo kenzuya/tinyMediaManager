@@ -144,7 +144,7 @@ public class MediaFilesPanel extends JPanel {
       /*
        * file size
        */
-      col = new Column(TmmResourceBundle.getString("metatag.size"), "filesize", MediaFile::getFilesizeInMegabytes, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.size"), "filesize", mediaFile -> Utils.formatFileSizeForDisplay(mediaFile.getFilesize()), String.class);
       col.setCellRenderer(new RightAlignTableCellRenderer());
       addColumn(col);
 

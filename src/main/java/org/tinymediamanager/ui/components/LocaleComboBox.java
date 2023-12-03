@@ -1,17 +1,12 @@
 package org.tinymediamanager.ui.components;
 
-import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang3.LocaleUtils;
-
 public class LocaleComboBox implements Comparable<LocaleComboBox> {
-  private final Locale       loc;
-  private final List<Locale> countries;
+  private final Locale loc;
 
   public LocaleComboBox(Locale loc) {
     this.loc = loc;
-    countries = LocaleUtils.countriesByLanguage(loc.getLanguage().toLowerCase(Locale.ROOT));
   }
 
   public Locale getLocale() {
@@ -20,12 +15,7 @@ public class LocaleComboBox implements Comparable<LocaleComboBox> {
 
   @Override
   public String toString() {
-    String code = " (" + loc.getLanguage();
-    if (!loc.getCountry().isBlank()) {
-      code += "-" + loc.getCountry();
-    }
-    code += ")";
-    return loc.getDisplayLanguage() + code;
+    return loc.getDisplayName() + " (" + loc.toLanguageTag() + ")";
   }
 
   @Override

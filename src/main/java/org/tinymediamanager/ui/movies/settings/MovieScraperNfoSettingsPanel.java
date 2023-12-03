@@ -84,12 +84,17 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     comboBoxListener = e -> checkChanges();
 
     LocaleComboBox actualLocale = null;
+    LocaleComboBox fallbackLocale = null;
     Locale settingsLang = Utils.getLocaleFromLanguage(settings.getNfoLanguage().toString());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
       if (l.equals(settingsLang)) {
         actualLocale = localeComboBox;
+      }
+      // match by langu only, if no direct match
+      if (settingsLang.getLanguage().equals(l.getLanguage())) {
+        fallbackLocale = localeComboBox;
       }
     }
     Collections.sort(locales);
@@ -101,8 +106,12 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     // data init
     if (actualLocale != null) {
       cbNfoLanguage.setSelectedItem(actualLocale);
-      cbNfoLanguage.addItemListener(comboBoxListener);
     }
+    else {
+      cbNfoLanguage.setSelectedItem(fallbackLocale);
+    }
+    cbNfoLanguage.addItemListener(comboBoxListener);
+
     // set default certification style when changing NFO style
     cbNfoFormat.addItemListener(e -> {
       if (cbNfoFormat.getSelectedItem() == MovieConnectors.MP) {

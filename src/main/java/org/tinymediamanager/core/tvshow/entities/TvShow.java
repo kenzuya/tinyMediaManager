@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.tvshow.entities;
 
 import static org.tinymediamanager.core.Constants.ACTORS;
+import static org.tinymediamanager.core.Constants.ACTORS_AS_STRING;
 import static org.tinymediamanager.core.Constants.ADDED_EPISODE;
 import static org.tinymediamanager.core.Constants.ADDED_SEASON;
 import static org.tinymediamanager.core.Constants.CERTIFICATION;
@@ -441,6 +442,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // also rebuild the seasons and fire the event for all episodes too
     if (!oldValue.equals(newValue)) {
+      LOGGER.info("Switched episodeGroup '{}' -> '{}'", oldValue, newValue);
       // remove all episodes from all seasons
       seasons.forEach(TvShowSeason::removeAllEpisodes);
 
@@ -1673,6 +1675,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     actors.addAll(newItems);
     firePropertyChange(ACTORS, null, actors);
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -1685,11 +1688,25 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * get the actors as string
+   *
+   * @return a string containing all actors; separated by ,
+   */
+  public String getActorsAsString() {
+    List<String> actorNames = new ArrayList<>();
+    for (Person actor : actors) {
+      actorNames.add(actor.getName());
+    }
+    return StringUtils.join(actorNames, ", ");
+  }
+
+  /**
    * Removes all actors.
    */
   public void removeActors() {
     actors.clear();
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -1702,7 +1719,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public void setActors(List<Person> newActors) {
     // two way sync of actors
     mergePersons(actors, newActors);
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**

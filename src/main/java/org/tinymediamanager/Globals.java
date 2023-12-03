@@ -209,10 +209,6 @@ public final class Globals {
       return false;
     }
 
-    if (isSelfUpdatable()) {
-      return true;
-    }
-
     // no update is forced
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
       return false;

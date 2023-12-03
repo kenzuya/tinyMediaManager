@@ -37,6 +37,7 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
    */
   public DateTableCellRenderer() {
     this.dateFormat = TmmDateFormat.MEDIUM_DATE_FORMAT;
+    setHorizontalAlignment(CENTER);
   }
 
   /**
@@ -50,7 +51,7 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
       setText(prettyDate);
     }
     else {
-      setText("");
+      setText(null);
     }
     return this;
   }

@@ -49,107 +49,108 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * @author Manuel Laggner
  */
 public final class Settings extends AbstractSettings {
-  private static final Logger                              LOGGER                      = LoggerFactory.getLogger(Settings.class);
+  private static final Logger                              LOGGER                       = LoggerFactory.getLogger(Settings.class);
 
   /**
    * Constants mainly for events
    */
-  private static final String                              TITLE_PREFIX                = "titlePrefixes";
-  private static final String                              VIDEO_FILE_TYPE             = "videoFileType";
-  private static final String                              AUDIO_FILE_TYPE             = "audioFileType";
-  private static final String                              SUBTITLE_FILE_TYPE          = "subtitleFileType";
-  private static final String                              CLEANUP_FILE_TYPE           = "cleanupFileType";
-  private static final String                              WOL_DEVICES                 = "wolDevices";
-  private static final String                              CUSTOM_ASPECT_RATIOS        = "customAspectRatios";
+  private static final String                              TITLE_PREFIX                 = "titlePrefixes";
+  private static final String                              VIDEO_FILE_TYPE              = "videoFileType";
+  private static final String                              AUDIO_FILE_TYPE              = "audioFileType";
+  private static final String                              SUBTITLE_FILE_TYPE           = "subtitleFileType";
+  private static final String                              CLEANUP_FILE_TYPE            = "cleanupFileType";
+  private static final String                              WOL_DEVICES                  = "wolDevices";
+  private static final String                              CUSTOM_ASPECT_RATIOS         = "customAspectRatios";
 
   /**
    * statics
    */
-  private static final String                              CONFIG_FILE                 = "tmm.json";
+  private static final String                              CONFIG_FILE                  = "tmm.json";
 
   private static Settings                                  instance;
 
-  private final List<String>                               titlePrefixes               = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>                               videoFileTypes              = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>                               audioFileTypes              = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>                               subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>                               cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
-  private final List<WolDevice>                            wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>                               customAspectRatios          = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               titlePrefixes                = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               videoFileTypes               = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               audioFileTypes               = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               subtitleFileTypes            = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               cleanupFileTypes             = ObservableCollections.observableList(new ArrayList<>());
+  private final List<WolDevice>                            wolDevices                   = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               customAspectRatios           = ObservableCollections.observableList(new ArrayList<>());
 
-  private String                                           version                     = "";
+  private String                                           version                      = "";
 
   private String                                           proxyHost;
   private String                                           proxyPort;
   private String                                           proxyUsername;
   private String                                           proxyPassword;
-  private int                                              maximumDownloadThreads      = 2;
+  private int                                              maximumDownloadThreads       = 2;
 
-  private String                                           traktAccessToken            = "";
-  private String                                           traktRefreshToken           = "";
-  private DateField                                        traktDateField              = DateField.DATE_ADDED;
+  private String                                           traktAccessToken             = "";
+  private String                                           traktRefreshToken            = "";
+  private DateField                                        traktDateField               = DateField.DATE_ADDED;
 
-  private String                                           kodiHost                    = "";
-  private int                                              kodiHttpPort                = 8080;
-  private int                                              kodiTcpPort                 = 9090;
-  private String                                           kodiUsername                = "";
-  private String                                           kodiPassword                = "";
+  private String                                           kodiHost                     = "";
+  private int                                              kodiHttpPort                 = 8080;
+  private int                                              kodiTcpPort                  = 9090;
+  private String                                           kodiUsername                 = "";
+  private String                                           kodiPassword                 = "";
 
-  private boolean                                          imageCache                  = true;
-  private CacheSize                                        imageCacheSize              = CacheSize.BIG;
-  private CacheType                                        imageCacheType              = CacheType.QUALITY;
+  private boolean                                          imageCache                   = true;
+  private CacheSize                                        imageCacheSize               = CacheSize.BIG;
+  private CacheType                                        imageCacheType               = CacheType.QUALITY;
 
   // language 2 char - saved to config
   private String                                           language;
-  private String                                           mediaPlayer                 = "";
-  private boolean                                          useInternalMediaFramework   = true;
-  private String                                           mediaFramework              = "";
-  private Integer                                          ffmpegPercentage            = 50;
+  private String                                           mediaPlayer                  = "";
+  private boolean                                          useInternalMediaFramework    = true;
+  private String                                           mediaFramework               = "";
+  private Integer                                          ffmpegPercentage             = 50;
 
-  private String                                           theme                       = "Light";
-  private int                                              fontSize                    = 12;
-  private String                                           fontFamily                  = "Dialog";
+  private String                                           theme                        = "Light";
+  private int                                              fontSize                     = 12;
+  private String                                           fontFamily                   = "Dialog";
 
-  private boolean                                          imageChooserUseEntityFolder = false;
-  private boolean                                          storeWindowPreferences      = true;
-  private DateField                                        dateField                   = DateField.DATE_ADDED;
+  private boolean                                          imageChooserUseEntityFolder  = false;
+  private boolean                                          storeWindowPreferences       = true;
+  private DateField                                        dateField                    = DateField.DATE_ADDED;
+  private boolean                                          fileSizeDisplayHumanReadable = true;
 
-  private boolean                                          enableTrash                 = true;
-  private boolean                                          deleteTrashOnExit           = false;
-  private boolean                                          showMemory                  = true;
+  private boolean                                          enableTrash                  = true;
+  private boolean                                          deleteTrashOnExit            = false;
+  private boolean                                          showMemory                   = true;
 
-  private boolean                                          enableHttpServer            = false;
-  private int                                              httpServerPort              = 7878;
-  private String                                           httpApiKey                  = UUID.randomUUID().toString();
+  private boolean                                          enableHttpServer             = false;
+  private int                                              httpServerPort               = 7878;
+  private String                                           httpApiKey                   = UUID.randomUUID().toString();
 
-  private boolean                                          upnpShareLibrary            = false;
-  private boolean                                          upnpRemotePlay              = false;
+  private boolean                                          upnpShareLibrary             = false;
+  private boolean                                          upnpRemotePlay               = false;
 
-  private boolean                                          ignoreSSLProblems           = true;
+  private boolean                                          ignoreSSLProblems            = true;
 
-  private boolean                                          writeMediaInfoXml           = false;
+  private boolean                                          writeMediaInfoXml            = false;
 
   // aspect ratio detector
-  boolean                                                  ardEnabled                  = false;
-  private ArdSettings.Mode                                 ardMode                     = ArdSettings.Mode.DEFAULT;
-  private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings           = ArdSettings.defaultSampleSettings();
-  private float                                            ardIgnoreBeginningPct       = 2f;
-  private float                                            ardIgnoreEndPct             = 8f;
-  private boolean                                          ardRoundUp                  = false;
-  private float                                            ardRoundUpThresholdPct      = 4f;
-  private int                                              ardMFMode                   = 0;
-  private float                                            ardMFThresholdPct           = 6f;
-  private float                                            ardPlausiWidthPct           = 50f;
-  private float                                            ardPlausiHeightPct          = 60f;
-  private float                                            ardPlausiWidthDeltaPct      = 1.5f;
-  private float                                            ardPlausiHeightDeltaPct     = 2f;
-  private float                                            ardSecondaryDelta           = 0.15f;
-  private float                                            ardDarkLevelPct             = 7f;
-  private float                                            ardDarkLevelMaxPct          = 13f;
+  boolean                                                  ardEnabled                   = false;
+  private ArdSettings.Mode                                 ardMode                      = ArdSettings.Mode.DEFAULT;
+  private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings            = ArdSettings.defaultSampleSettings();
+  private float                                            ardIgnoreBeginningPct        = 2f;
+  private float                                            ardIgnoreEndPct              = 8f;
+  private boolean                                          ardRoundUp                   = false;
+  private float                                            ardRoundUpThresholdPct       = 4f;
+  private int                                              ardMFMode                    = 0;
+  private float                                            ardMFThresholdPct            = 6f;
+  private float                                            ardPlausiWidthPct            = 50f;
+  private float                                            ardPlausiHeightPct           = 60f;
+  private float                                            ardPlausiWidthDeltaPct       = 1.5f;
+  private float                                            ardPlausiHeightDeltaPct      = 2f;
+  private float                                            ardSecondaryDelta            = 0.15f;
+  private float                                            ardDarkLevelPct              = 7f;
+  private float                                            ardDarkLevelMaxPct           = 13f;
 
-  private boolean                                          enableAutomaticUpdate       = true;
-  private int                                              automaticUpdateInterval     = 1;
-  private String                                           mdbListApiKey               = "";
+  private boolean                                          enableAutomaticUpdate        = true;
+  private int                                              automaticUpdateInterval      = 1;
+  private String                                           mdbListApiKey                = "";
 
   /**
    * Instantiates a new settings.
@@ -1070,6 +1071,16 @@ public final class Settings extends AbstractSettings {
     DateField oldValue = this.dateField;
     this.dateField = newValue;
     firePropertyChange("dateField", oldValue, newValue);
+  }
+
+  public boolean isFileSizeDisplayHumanReadable() {
+    return fileSizeDisplayHumanReadable;
+  }
+
+  public void setFileSizeDisplayHumanReadable(boolean newValue) {
+    boolean oldValue = this.fileSizeDisplayHumanReadable;
+    fileSizeDisplayHumanReadable = newValue;
+    firePropertyChange("fileSizeDisplayHumanReadable", oldValue, newValue);
   }
 
   /**

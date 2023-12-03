@@ -15,9 +15,30 @@
  */
 package org.tinymediamanager.core.tvshow.entities;
 
-import static org.tinymediamanager.core.Constants.*;
+import static org.tinymediamanager.core.Constants.ACTORS;
+import static org.tinymediamanager.core.Constants.ACTORS_AS_STRING;
+import static org.tinymediamanager.core.Constants.DIRECTORS;
+import static org.tinymediamanager.core.Constants.DIRECTORS_AS_STRING;
+import static org.tinymediamanager.core.Constants.EPISODE;
+import static org.tinymediamanager.core.Constants.FIRST_AIRED;
+import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
+import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
+import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
+import static org.tinymediamanager.core.Constants.SEASON;
+import static org.tinymediamanager.core.Constants.SEASON_BANNER;
+import static org.tinymediamanager.core.Constants.SEASON_POSTER;
+import static org.tinymediamanager.core.Constants.SEASON_THUMB;
+import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
+import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
+import static org.tinymediamanager.core.Constants.TV_SHOW;
+import static org.tinymediamanager.core.Constants.WATCHED;
+import static org.tinymediamanager.core.Constants.WRITERS;
+import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 import static org.tinymediamanager.core.Utils.returnOneWhenFilled;
-import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.*;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DISPLAY;
+import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.DVD;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -1093,6 +1114,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     actors.addAll(newItems);
     firePropertyChange(ACTORS, null, actors);
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -1100,7 +1122,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void removeActors() {
     actors.clear();
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -1113,6 +1136,19 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
+   * get the actors as string
+   *
+   * @return a string containing all actors; separated by ,
+   */
+  public String getActorsAsString() {
+    List<String> actorNames = new ArrayList<>();
+    for (Person actor : actors) {
+      actorNames.add(actor.getName());
+    }
+    return StringUtils.join(actorNames, ", ");
+  }
+
+  /**
    * Sets the actors.
    * 
    * @param newActors
@@ -1122,7 +1158,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public void setActors(List<Person> newActors) {
     // two way sync of actors
     mergePersons(actors, newActors);
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**

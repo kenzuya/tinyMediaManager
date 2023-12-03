@@ -60,9 +60,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
-import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIFilter;
-import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -93,7 +91,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author Manuel Laggner
  */
-public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
+public class TvShowTreePanel extends TmmListPanel {
   private final TvShowList           tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
   private final TvShowSelectionModel selectionModel;
 
@@ -131,7 +129,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
       switch (e.getPropertyName()) {
         case "tvShowCheckMetadata", "tvShowCheckArtwork", "seasonCheckArtwork", "episodeCheckMetadata", "episodeCheckArtwork",
-                "episodeSpecialsCheckMissingMetadata", "episodeSpecialsCheckMissingArtwork" -> tree.invalidate();
+            "episodeSpecialsCheckMissingMetadata", "episodeSpecialsCheckMissingArtwork" ->
+          tree.invalidate();
       }
     });
   }
@@ -508,11 +507,6 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         + TmmResourceBundle.getString("tmm.selected.hint1").replace("{}", String.format("%.2f G", videoFileSize)) + " / "
         + TmmResourceBundle.getString("tmm.selected.hint2").replace("{}", String.format("%.2f G", totalFileSize)) + ")";
     lblSelectedEpisodeCount.setToolTipText(selectedEpisodesHint);
-  }
-
-  @Override
-  public ITmmUIModule getUIModule() {
-    return TvShowUIModule.getInstance();
   }
 
   public TmmTreeTable getTreeTable() {

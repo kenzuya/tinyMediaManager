@@ -339,7 +339,7 @@ public class MediaFileHelper {
     if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
       if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?(\\d)*$") || basename.equalsIgnoreCase("movie-trailer")
-          || TRAILER_FOLDERS.contains(foldername)) {
+          || basename.equalsIgnoreCase("trailer") || TRAILER_FOLDERS.contains(foldername)) {
         return MediaFileType.TRAILER;
       }
 

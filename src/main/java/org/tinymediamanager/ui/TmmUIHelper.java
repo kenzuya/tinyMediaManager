@@ -419,6 +419,26 @@ public class TmmUIHelper {
   }
 
   /**
+   * opens a folder in the default file manager
+   * 
+   * @param path
+   *          the {@link Path} to the folder to open
+   */
+  public static void openFolder(Path path) {
+    try {
+      // check whether this location exists
+      if (Files.exists(path) && Files.isDirectory(path)) {
+        TmmUIHelper.openFile(path);
+      }
+    }
+    catch (Exception ex) {
+      LOGGER.error("open filemanager", ex);
+      MessageManager.instance
+          .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+    }
+  }
+
+  /**
    * browse to the url
    *
    * @param url
@@ -719,11 +739,15 @@ public class TmmUIHelper {
    * checks for our automatic update setting interval <br>
    * Nightly users are always true!
    *
-   * @return
+   * @return true/false
    */
   public static boolean shouldCheckForUpdate() {
     if (ReleaseInfo.isNightly()) {
       return true;
+    }
+
+    if (!Settings.getInstance().isEnableAutomaticUpdate()) {
+      return false;
     }
 
     try {
@@ -735,7 +759,8 @@ public class TmmUIHelper {
 
       return now > old + (long) Settings.getInstance().getAutomaticUpdateInterval() * 1000 * 3600 * 24F;
     }
-    catch (Exception ignored) {
+    catch (Exception e) {
+      LOGGER.debug("Could not check the update interval - '{}'", e.getMessage());
       return true;
     }
   }
@@ -764,7 +789,7 @@ public class TmmUIHelper {
             else if (Globals.isSelfUpdatable()) {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
+              int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.message"),
                   TmmResourceBundle.getString("tmm.update.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
                 LOGGER.info("Updating...");
@@ -778,8 +803,8 @@ public class TmmUIHelper {
         else {
           // no update found
           if (delayInSeconds == 0) { // show no update dialog only when manually triggered
-            JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.update.notfound"),
+                TmmResourceBundle.getString("tmm.update.title"), JOptionPane.INFORMATION_MESSAGE);
           }
         }
       }

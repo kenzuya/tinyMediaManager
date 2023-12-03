@@ -193,7 +193,7 @@ class SystemSettingsPanel extends JPanel {
     {
       JPanel panelMediaFramework = new JPanel();
       panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][400lp,grow][]", "[][][][]"));
-      JLabel lblMediaFrameworkT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaframework"), H3);
+      JLabel lblMediaFrameworkT = new TmmLabel("FFmpeg", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaFramework, lblMediaFrameworkT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
 

@@ -21,7 +21,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -53,7 +52,6 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class TmmDialog extends JDialog implements IModalPopupPanelProvider {
-  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
   protected BindingGroup                bindingGroup = null;
 

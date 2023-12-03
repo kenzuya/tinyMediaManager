@@ -21,16 +21,18 @@ import java.awt.BorderLayout;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
+import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
+import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.panels.MessagePanel;
 
 import ca.odell.glazedlists.EventList;
@@ -57,18 +59,29 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
 
     messageMap = new HashMap<>();
 
+    JPanel panelNorth = new JPanel();
+    panelNorth.setLayout(new MigLayout("", "[grow][]", "[][shrink 0]"));
+    getContentPane().add(panelNorth, BorderLayout.NORTH);
+
+    panelNorth.add(new TmmLabel("Message history"), "cell 0 0, grow");
+
+    LinkLabel lblClearAll = new LinkLabel("Clear all");
+    panelNorth.add(lblClearAll, "cell 1 0");
+
+    panelNorth.add(new JSeparator(), "cell 0 1 2 1, grow");
+
     JPanel panelContent = new JPanel();
+    panelContent.setLayout(new MigLayout("", "[150lp:450lp,grow]", "[100lp:400lp,grow]"));
     getContentPane().add(panelContent, BorderLayout.CENTER);
 
     messagesPanel = new JPanel();
     messagesPanel.setOpaque(false);
-    messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.PAGE_AXIS));
+    messagesPanel.setLayout(new MigLayout("wrap", "[grow]", "[]"));
 
     JScrollPane scrollPane = new NoBorderScrollPane();
     scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
     scrollPane.setViewportView(messagesPanel);
     scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-    panelContent.setLayout(new MigLayout("", "[300lp:600lp,grow]", "[200lp:400lp,grow]"));
     panelContent.add(scrollPane, "cell 0 0,grow, wmin 0");
 
     JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
@@ -77,6 +90,13 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
 
     TmmUIMessageCollector.instance.getMessages().addListEventListener(this);
     updatePanel();
+
+    lblClearAll.addActionListener(arg0 -> {
+      messageMap.clear();
+      messagesPanel.removeAll();
+      messagesPanel.revalidate();
+      messagesPanel.repaint();
+    });
   }
 
   public static MessageHistoryDialog getInstance() {
@@ -105,7 +125,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
         if (!messageMap.containsKey(message)) {
           MessagePanel panel = new MessagePanel(message);
           messageMap.put(message, panel);
-          messagesPanel.add(panel);
+          messagesPanel.add(panel, "grow");
         }
       }
       messagesPanel.revalidate();

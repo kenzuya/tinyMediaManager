@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -77,6 +78,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
   private final JLabel                                   lblDatasource;
   private final JLabel                                   lblFolderOld;
   private final JLabel                                   lblFolderNew;
+  private final JCheckBox                                cbFilter;
 
   public TvShowRenamerPreviewDialog(final List<TvShow> selectedTvShows) {
     super(TmmResourceBundle.getString("movie.renamerpreview"), "tvShowRenamerPreview");
@@ -183,6 +185,17 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       }
     }
     {
+      {
+        cbFilter = new JCheckBox(TmmResourceBundle.getString("renamer.hideunchanged"));
+        cbFilter.addActionListener(l -> resultSelectionModel.updateSelectedResult());
+
+        JPanel bottomPanel = new JPanel(new MigLayout("", "[]", "[]"));
+        bottomPanel.add(cbFilter, "cell 0 0");
+
+        setBottomInformationPanel(bottomPanel);
+      }
+    }
+    {
       JButton btnRename = new JButton(TmmResourceBundle.getString("Button.rename"));
       btnRename.setToolTipText(TmmResourceBundle.getString("movie.rename"));
       btnRename.addActionListener(arg0 -> {
@@ -284,14 +297,7 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       emptyResult = new TvShowRenamerPreviewContainer(new TvShow());
     }
 
-    synchronized void setSelectedResult(TvShowRenamerPreviewContainer newValue) {
-      if (newValue == null) {
-        selectedResult = emptyResult;
-      }
-      else {
-        selectedResult = newValue;
-      }
-
+    void updateSelectedResult() {
       lblTitle.setText(selectedResult.getTvShow().getTitleSortable());
       lblDatasource.setText(selectedResult.getTvShow().getDataSource());
 
@@ -312,8 +318,8 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
         for (MediaFile mf : selectedResult.getOldMediaFiles()) {
           boolean found = false;
           MediaFileContainer container = new MediaFileContainer();
-          container.filename = selectedResult.getNewPath().relativize(mf.getFileAsPath()).toString(); // newPath here, since we already faked the
-                                                                                                      // files in the renamer
+          // newPath here, since we already faked the files in the renamer
+          container.filename = selectedResult.getNewPath().relativize(mf.getFileAsPath()).toString();
 
           if (selectedResult.getNewMediaFiles().contains(mf)) {
             found = true;
@@ -322,7 +328,13 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
           if (!found) {
             container.icon = IconManager.REMOVE;
           }
-          oldMediaFileEventList.add(container);
+
+          if (found && cbFilter.isSelected()) {
+            // same - do not add
+          }
+          else {
+            oldMediaFileEventList.add(container);
+          }
         }
       }
       catch (Exception ignored) {
@@ -346,8 +358,14 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
 
           if (!found) {
             container.icon = IconManager.ADD;
+
           }
-          newMediaFileEventList.add(container);
+          if (found && cbFilter.isSelected()) {
+            // same - do not add
+          }
+          else {
+            newMediaFileEventList.add(container);
+          }
         }
       }
       catch (Exception ignored) {
@@ -356,6 +374,17 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       finally {
         newMediaFileEventList.getReadWriteLock().writeLock().unlock();
       }
+    }
+
+    synchronized void setSelectedResult(TvShowRenamerPreviewContainer newValue) {
+      if (newValue == null) {
+        selectedResult = emptyResult;
+      }
+      else {
+        selectedResult = newValue;
+      }
+
+      updateSelectedResult();
     }
 
     @Override

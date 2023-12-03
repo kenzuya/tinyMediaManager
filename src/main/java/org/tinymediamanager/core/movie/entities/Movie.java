@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.movie.entities;
 
 import static org.tinymediamanager.core.Constants.ACTORS;
+import static org.tinymediamanager.core.Constants.ACTORS_AS_STRING;
 import static org.tinymediamanager.core.Constants.CERTIFICATION;
 import static org.tinymediamanager.core.Constants.COUNTRY;
 import static org.tinymediamanager.core.Constants.DIRECTORS;
@@ -29,6 +30,7 @@ import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.MOVIESET;
 import static org.tinymediamanager.core.Constants.MOVIESET_TITLE;
 import static org.tinymediamanager.core.Constants.PRODUCERS;
+import static org.tinymediamanager.core.Constants.PRODUCERS_AS_STRING;
 import static org.tinymediamanager.core.Constants.RELEASE_DATE;
 import static org.tinymediamanager.core.Constants.RELEASE_DATE_AS_STRING;
 import static org.tinymediamanager.core.Constants.RUNTIME;
@@ -2109,7 +2111,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     actors.addAll(newItems);
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -2117,7 +2120,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   public void removeActors() {
     actors.clear();
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -2130,7 +2134,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void setActors(List<Person> newActors) {
     // two way sync of actors
     mergePersons(actors, newActors);
-    firePropertyChange(ACTORS, null, this.getActors());
+    firePropertyChange(ACTORS, null, getActors());
+    firePropertyChange(ACTORS_AS_STRING, null, getActorsAsString());
   }
 
   /**
@@ -2140,6 +2145,19 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   public List<Person> getActors() {
     return this.actors;
+  }
+
+  /**
+   * get the actors as string
+   *
+   * @return a string containing all actors; separated by ,
+   */
+  public String getActorsAsString() {
+    List<String> actorNames = new ArrayList<>();
+    for (Person actor : actors) {
+      actorNames.add(actor.getName());
+    }
+    return StringUtils.join(actorNames, ", ");
   }
 
   /**
@@ -2168,7 +2186,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     producers.addAll(newItems);
-    firePropertyChange(PRODUCERS, null, producers);
+    firePropertyChange(PRODUCERS, null, getProducers());
+    firePropertyChange(PRODUCERS_AS_STRING, null, getProducersAsString());
   }
 
   /**
@@ -2176,11 +2195,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   public void removeProducers() {
     producers.clear();
-    firePropertyChange(PRODUCERS, null, producers);
+    firePropertyChange(PRODUCERS, null, getProducers());
+    firePropertyChange(PRODUCERS_AS_STRING, null, getProducersAsString());
   }
 
   /**
-   * set the producers. This will do a two way sync of the list to be added and the given list, to do not re-add existing producers (better for
+   * set the producers. This will do a two-way sync of the list to be added and the given list, to do not re-add existing producers (better for
    * binding)
    *
    * @param newProducers
@@ -2190,7 +2210,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void setProducers(List<Person> newProducers) {
     // two way sync of producers
     mergePersons(producers, newProducers);
-    firePropertyChange(PRODUCERS, null, producers);
+    firePropertyChange(PRODUCERS, null, getProducers());
+    firePropertyChange(PRODUCERS_AS_STRING, null, getProducersAsString());
   }
 
   /**
@@ -2200,6 +2221,19 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   public List<Person> getProducers() {
     return this.producers;
+  }
+
+  /**
+   * get the producers as string
+   *
+   * @return a string containing all producers; separated by ,
+   */
+  public String getProducersAsString() {
+    List<String> producerNames = new ArrayList<>();
+    for (Person producer : producers) {
+      producerNames.add(producer.getName());
+    }
+    return StringUtils.join(producerNames, ", ");
   }
 
   /**

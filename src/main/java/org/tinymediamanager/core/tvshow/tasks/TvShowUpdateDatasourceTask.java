@@ -113,7 +113,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private static long                  postDir       = 0;
   private static long                  visFile       = 0;
 
-  private final List<String>           dataSources;
+  private final List<String>           dataSources   = new ArrayList<>();
   private final List<Pattern>          skipFolders   = new ArrayList<>();
   private final List<Path>             tvShowFolders = new ArrayList<>();
   private final TvShowList             tvShowList;
@@ -127,7 +127,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   public TvShowUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
     this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
-    this.dataSources = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
+    this.dataSources.addAll(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
 
     init();
   }
@@ -141,7 +141,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   public TvShowUpdateDatasourceTask(String datasource) {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
-    this.dataSources = Collections.singletonList(datasource);
+    this.dataSources.add(datasource);
 
     init();
   }
@@ -153,11 +153,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    *          the data sources to start the task for
    */
   public TvShowUpdateDatasourceTask(Collection<String> datasources) {
-    super(TmmResourceBundle.getString("update.datasource"));
-    this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
-    this.dataSources = new ArrayList<>(datasources);
-
-    init();
+    this(datasources, Collections.emptyList());
   }
 
   /**
@@ -167,9 +163,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    *          a list of TV show folders to start the task for
    */
   public TvShowUpdateDatasourceTask(List<Path> tvShowFolders) {
+    this(Collections.emptyList(), tvShowFolders);
+  }
+
+  private TvShowUpdateDatasourceTask(Collection<String> dataSources, List<Path> tvShowFolders) {
     super(TmmResourceBundle.getString("update.datasource"));
     this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
-    this.dataSources = new ArrayList<>(0);
+    this.dataSources.addAll(dataSources);
     this.tvShowFolders.addAll(tvShowFolders);
 
     init();

@@ -86,6 +86,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
   private JCheckBox                  cbTrailerFilename1;
   private JCheckBox                  cbTrailerFilename2;
   private JCheckBox                  cbTrailerFilename3;
+  private JCheckBox                  cbTrailerFilename4;
 
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -123,20 +124,19 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableTrailerScraper, 5);
 
-    tableTrailerScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            ScraperInTable changedScraper = scrapers.get(row);
-            if (changedScraper.getActive()) {
-              settings.addTvShowTrailerScraper(changedScraper.getScraperId());
-            }
-            else {
-              settings.removeTvShowTrailerScraper(changedScraper.getScraperId());
-            }
-          }
-        });
+    tableTrailerScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive()) {
+          settings.addTvShowTrailerScraper(changedScraper.getScraperId());
+        }
+        else {
+          settings.removeTvShowTrailerScraper(changedScraper.getScraperId());
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableTrailerScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -177,7 +177,8 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     cbTrailerFilename1.removeItemListener(checkBoxListener);
     cbTrailerFilename2.removeItemListener(checkBoxListener);
     cbTrailerFilename3.removeItemListener(checkBoxListener);
-    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3);
+    cbTrailerFilename4.removeItemListener(checkBoxListener);
+    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3, cbTrailerFilename4);
 
     // trailer filenames
     List<TvShowTrailerNaming> trailerFilenames = settings.getTrailerFilenames();
@@ -190,10 +191,14 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     else if (trailerFilenames.contains(TvShowTrailerNaming.TRAILERS_TVSHOWNAME_TRAILER)) {
       cbTrailerFilename3.setSelected(true);
     }
+    else if (trailerFilenames.contains(TvShowTrailerNaming.TRAILER)) {
+      cbTrailerFilename4.setSelected(true);
+    }
 
     cbTrailerFilename1.addItemListener(checkBoxListener);
     cbTrailerFilename2.addItemListener(checkBoxListener);
     cbTrailerFilename3.addItemListener(checkBoxListener);
+    cbTrailerFilename4.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -213,6 +218,9 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     }
     if (cbTrailerFilename3.isSelected()) {
       settings.addTrailerFilename(TvShowTrailerNaming.TRAILERS_TVSHOWNAME_TRAILER);
+    }
+    if (cbTrailerFilename4.isSelected()) {
+      settings.addTrailerFilename(TvShowTrailerNaming.TRAILER);
     }
   }
 
@@ -308,6 +316,10 @@ public class TvShowTrailerSettingsPanel extends JPanel {
             + TmmResourceBundle.getString("Settings.artwork.extension"));
         trailerFilenameButtonGroup.add(cbTrailerFilename3);
         panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
+
+        cbTrailerFilename4 = new JCheckBox("trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename4);
+        panelTrailerFilenames.add(cbTrailerFilename4, "cell 1 2");
       }
     }
   }

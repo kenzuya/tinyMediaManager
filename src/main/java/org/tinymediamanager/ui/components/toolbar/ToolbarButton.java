@@ -26,18 +26,18 @@ import javax.swing.SwingConstants;
 
 import org.tinymediamanager.ui.components.FlatButton;
 
-class ToolbarButton extends FlatButton {
-  private final JPopupMenu popupMenu;
+public class ToolbarButton extends FlatButton {
+  private JPopupMenu popupMenu;
 
   ToolbarButton(Icon baseIcon) {
     this(baseIcon, null, null);
   }
 
-  ToolbarButton(Icon baseIcon, Icon hoverIcon) {
+  public ToolbarButton(Icon baseIcon, Icon hoverIcon) {
     this(baseIcon, hoverIcon, null);
   }
 
-  ToolbarButton(Icon baseIcon, Icon hoverIcon, JPopupMenu popupMenu) {
+  public ToolbarButton(Icon baseIcon, Icon hoverIcon, JPopupMenu popupMenu) {
     super(baseIcon);
     this.popupMenu = popupMenu;
 
@@ -59,11 +59,14 @@ class ToolbarButton extends FlatButton {
       @Override
       public void mouseClicked(MouseEvent arg0) {
         if (ToolbarButton.this.popupMenu != null) {
-          ToolbarButton.this.popupMenu.show(ToolbarButton.this,
-              ToolbarButton.this.getWidth() - (int) ToolbarButton.this.popupMenu.getPreferredSize().getWidth(), ToolbarButton.this.getHeight());
+          ToolbarButton.this.popupMenu.show(ToolbarButton.this, ToolbarButton.this.getWidth(), 0);
         }
       }
     });
+  }
+
+  public void setPopupMenu(JPopupMenu popupMenu) {
+    this.popupMenu = popupMenu;
   }
 
   @Override

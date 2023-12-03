@@ -71,7 +71,7 @@ public class TvShowPostProcessDialog extends PostProcessDialog {
   protected void save() {
     if (StringUtils.isBlank(tfProcessName.getText()) || (StringUtils.isBlank(tfCommand.getText()) && StringUtils.isBlank(tfPath.getText()))) {
 
-      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.missingitems"));
+      JOptionPane.showMessageDialog(TvShowPostProcessDialog.this, TmmResourceBundle.getString("message.missingitems"));
       return;
     }
 

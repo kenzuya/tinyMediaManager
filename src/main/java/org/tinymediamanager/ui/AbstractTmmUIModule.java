@@ -42,7 +42,7 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
   protected JPopupMenu                  editPopupMenu;
   protected JPopupMenu                  renamePopupMenu;
 
-  public AbstractTmmUIModule() {
+  protected AbstractTmmUIModule() {
   }
 
   /**

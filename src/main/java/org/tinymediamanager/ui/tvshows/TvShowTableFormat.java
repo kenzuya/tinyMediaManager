@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaSource;
@@ -45,6 +46,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
+import org.tinymediamanager.ui.renderer.IntegerTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
 
@@ -121,31 +123,32 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * year
      */
-    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, Integer.class);
+    col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("2000") + 10);
     col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
      * season count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.season.count"), "seasons", this::getSeasons, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.season.count"), "seasons", this::getSeasons, Integer.class);
     col.setHeaderIcon(IconManager.SEASONS);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f));
+    col.setMinWidth(fontMetrics.stringWidth("99") + 10);
     col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
      * episode count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.episode.count"), "episodes", this::getEpisodes, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.episode.count"), "episodes", this::getEpisodes, Integer.class);
     col.setHeaderIcon(IconManager.EPISODES);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("999") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("999") + 10);
     col.setColumnComparator(integerComparator);
     addColumn(col);
 
@@ -174,7 +177,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
+    col.setMinWidth(fontMetrics.stringWidth("99.9") + 10);
     col.setColumnComparator(floatComparator);
     addColumn(col);
 
@@ -185,7 +188,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VOTES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("1000000") + 10);
     col.setDefaultHidden(true);
     col.setColumnComparator(integerComparator);
     addColumn(col);
@@ -197,7 +200,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
+    col.setMinWidth(fontMetrics.stringWidth("99.9") + 10);
     col.setColumnComparator(floatComparator);
     col.setDefaultHidden(true);
     addColumn(col);
@@ -210,7 +213,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - IMDb");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("9.9") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -223,7 +226,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f));
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 10);
     }
     catch (Exception ignored) {
       // ignored
@@ -240,14 +243,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.top250"));
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("250") * 1.2f + 5));
+    col.setMinWidth(fontMetrics.stringWidth("250") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * certification (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.certification"),"certification",this::getCertification, MediaCertification.class);
+    col = new Column(TmmResourceBundle.getString("metatag.certification"), "certification", this::getCertification, MediaCertification.class);
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
@@ -264,7 +267,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 10);
     }
     catch (Exception ignored) {
       // ignored
@@ -282,7 +285,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 10);
     }
     catch (Exception ignored) {
       // ignored
@@ -298,7 +301,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("200") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -310,7 +313,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("4:00") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -319,10 +322,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.format"), "format", this::getFormat, String.class);
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
-    col.setDefaultHidden(true);
     col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth(fontMetrics.stringWidth("1080p") + 10);
+    col.setDefaultHidden(true);
     col.setColumnComparator(videoFormatComparator);
     addColumn(col);
 
@@ -341,7 +344,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getVideoCodec, String.class);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
-    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + 10);
     col.setDefaultHidden(true);
     col.setColumnComparator(stringComparator);
     addColumn(col);
@@ -351,7 +354,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getVideoBitrate, Integer.class);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
-    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("20000") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -361,7 +364,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudio, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.AUDIO);
-    col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + 10);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -372,7 +375,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth(fontMetrics.stringWidth("50000M") + 10);
     col.setDefaultHidden(true);
     col.setColumnComparator(fileSizeComparator);
     addColumn(col);
@@ -384,7 +387,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth(fontMetrics.stringWidth("50000M") + 10);
     col.setDefaultHidden(true);
     col.setColumnComparator(fileSizeComparator);
     addColumn(col);
@@ -396,7 +399,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.ASPECT_RATIO);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("1.78") * 1.2f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("1.78") + 10);
     col.setDefaultHidden(true);
     col.setColumnComparator(floatComparator);
     addColumn(col);
@@ -416,6 +419,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
     col.setHeaderIcon(IconManager.NEW);
     col.setColumnResizeable(false);
+    col.setCellTooltip(this::newTooltip);
     col.setColumnComparator(imageComparator);
     addColumn(col);
 
@@ -489,42 +493,38 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
   }
 
-  private String getYear(TmmTreeNode node) {
+  private Integer getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      int year = tvShow.getYear();
-      if (year > 0) {
-        return String.valueOf(year);
-      }
-      return null;
+      return tvShow.getYear();
     }
     else if (userObject instanceof TvShowSeason season) {
       Date firstAired = season.getFirstAired();
       if (firstAired != null) {
         calendar.setTime(firstAired);
-        return String.valueOf(calendar.get(Calendar.YEAR));
+        return calendar.get(Calendar.YEAR);
       }
       return null;
     }
     return null;
   }
 
-  private String getSeasons(TmmTreeNode node) {
+  private Integer getSeasons(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return String.valueOf(tvShow.getSeasonCount());
+      return tvShow.getSeasonCount();
     }
     return null;
   }
 
-  private String getEpisodes(TmmTreeNode node) {
+  private Integer getEpisodes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return String.valueOf(tvShow.getEpisodeCount());
+      return tvShow.getEpisodeCount();
     }
     if (userObject instanceof TvShowSeason season) {
       if (!season.getEpisodes().isEmpty()) {
-        return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
+        return season.getEpisodes().size();
       }
     }
     return null;
@@ -554,13 +554,44 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private ImageIcon getNewIcon(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      return getNewIcon(tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes());
+      if (tvShow.isNewlyAdded()) {
+        return IconManager.NEW_GREEN;
+      }
+      else if (tvShow.hasNewlyAddedEpisodes()) {
+        return IconManager.NEW_ORANGE;
+      }
     }
     else if (userObject instanceof TvShowSeason season) {
       return getNewIcon(season.isNewlyAdded());
     }
     else if (userObject instanceof TvShowEpisode episode) {
       return getNewIcon(episode.isNewlyAdded());
+    }
+    return null;
+  }
+
+  private String newTooltip(TmmTreeNode node) {
+    if (!settings.isShowTvShowTableTooltips()) {
+      return null;
+    }
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow tvShow) {
+      if (tvShow.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshow.new");
+      }
+      else if (tvShow.hasNewlyAddedEpisodes()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
+    }
+    else if (userObject instanceof TvShowSeason season) {
+      if (season.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
+    }
+    else if (userObject instanceof TvShowEpisode episode) {
+      if (episode.isNewlyAdded()) {
+        return TmmResourceBundle.getString("tvshowepisode.new");
+      }
     }
     return null;
   }
@@ -682,9 +713,11 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getMediaSource();
-    } else if (userObject instanceof TvShowSeason season) {
+    }
+    else if (userObject instanceof TvShowSeason season) {
       return detectUniqueSource(season.getEpisodes());
-    } else if (userObject instanceof TvShow tvShow) {
+    }
+    else if (userObject instanceof TvShow tvShow) {
       return detectUniqueSource(tvShow.getEpisodes());
     }
     return null;
@@ -710,7 +743,8 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode episode) {
       return episode.getRuntimeFromMediaFilesInMinutes();
-    } else if (userObject instanceof TvShow show) {
+    }
+    else if (userObject instanceof TvShow show) {
       // show the scraped runtime here
       return show.getRuntime();
     }
@@ -728,35 +762,29 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private String getVideoFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      long size = tvShow.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(tvShow.getVideoFilesize());
     }
     if (userObject instanceof TvShowSeason season) {
-      long size = season.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(season.getVideoFilesize());
     }
     if (userObject instanceof TvShowEpisode episode) {
-      long size = episode.getVideoFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(episode.getVideoFilesize());
     }
-    return "";
+    return null;
   }
 
   private String getTotalFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow tvShow) {
-      long size = tvShow.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(tvShow.getTotalFilesize());
     }
     if (userObject instanceof TvShowSeason season) {
-      long size = season.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(season.getTotalFilesize());
     }
     if (userObject instanceof TvShowEpisode episode) {
-      long size = episode.getTotalFilesize();
-      return (int) (size / (1000.0 * 1000.0)) + " M";
+      return Utils.formatFileSizeForDisplay(episode.getTotalFilesize());
     }
-    return "";
+    return null;
   }
 
   private Float getAspectRatio(TmmTreeNode node) {

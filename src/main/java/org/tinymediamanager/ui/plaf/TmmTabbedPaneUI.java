@@ -107,11 +107,13 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
       // repaint selection because the arrow is painted in the content area
       if (selectedIndex >= 0) {
         Rectangle tabRect = getTabBounds(tabPane, selectedIndex);
-        g2D.setColor(selectedBackground);
-        int[] xPoints = { tabRect.x + (tabRect.width / 2 + 10), tabRect.x + (tabRect.width / 2 - 10), tabRect.x + (tabRect.width / 2) };
-        int[] yPoints = { tabRect.y + tabRect.height, tabRect.y + tabRect.height, tabRect.y + tabRect.height + 10 };
-        g2D.fillPolygon(xPoints, yPoints, xPoints.length);
-
+        Insets tabInsets = getTabInsets(tabPlacement, selectedIndex);
+        if (tabRect.width > (tabInsets.left + tabInsets.right)) {
+          g2D.setColor(selectedBackground);
+          int[] xPoints = { tabRect.x + (tabRect.width / 2 + 10), tabRect.x + (tabRect.width / 2 - 10), tabRect.x + (tabRect.width / 2) };
+          int[] yPoints = { tabRect.y + tabRect.height, tabRect.y + tabRect.height, tabRect.y + tabRect.height + 10 };
+          g2D.fillPolygon(xPoints, yPoints, xPoints.length);
+        }
       }
 
     }

@@ -45,6 +45,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
+import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
+
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.ui.FlatDropShadowBorder;
 import com.formdev.flatlaf.ui.FlatEmptyBorder;
@@ -52,8 +55,6 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.UIScale;
 
 import net.miginfocom.swing.MigLayout;
-import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * the class {@link HintManager} is used to show balloon like tooltips to help the user starting with tinyMediaManager

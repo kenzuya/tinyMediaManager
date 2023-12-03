@@ -48,6 +48,15 @@ public class MediaInfo implements Closeable {
   private Pointer             handle;
 
   /**
+   * checks if libmediainfo could be loaded
+   * 
+   * @return true/false
+   */
+  public static boolean isMediaInfoAvailable() {
+    return MediaInfoLibrary.INSTANCE != null;
+  }
+
+  /**
    * checks if the internal handle is null.
    * 
    * @return true/false
