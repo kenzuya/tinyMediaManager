@@ -362,8 +362,9 @@ public class KodiRPCMenu {
 
     JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.all"), IconManager.REFRESH);
     i.addActionListener(event -> KodiRPC.getInstance().scanVideoLibrary());
-    i.setEnabled(false);
+    i.setEnabled(true);
     m.add(i);
+
     if (!KodiRPC.getInstance().getVideoDataSources().isEmpty()) {
       i.setEnabled(true);
       for (Map.Entry<String, String> ds : KodiRPC.getInstance().getVideoDataSources().entrySet()) {
