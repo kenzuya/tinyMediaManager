@@ -85,7 +85,7 @@ public abstract class MediaInformationPanel extends JPanel {
   protected TmmTable                        tableAudioStreams;
   protected TmmTable                        tableSubtitles;
 
-  public MediaInformationPanel() {
+  protected MediaInformationPanel() {
     mediaFileEventList = GlazedListsSwing.swingThreadProxyList(
         new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class)));
     audioStreamEventList = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
@@ -255,6 +255,7 @@ public abstract class MediaInformationPanel extends JPanel {
     public MediaFileAudioStream audioStream;
 
     public AudioStreamContainer() {
+      // to be accessible from inherited classes
     }
   }
 
@@ -328,7 +329,7 @@ public abstract class MediaInformationPanel extends JPanel {
     public MediaFileSubtitle subtitle;
 
     public SubtitleContainer() {
-      // to be accessible
+      // to be accessible from inherited classes
     }
   }
 

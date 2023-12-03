@@ -74,8 +74,8 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
-import org.tinymediamanager.ui.components.MediaFileAudioStreamTable;
-import org.tinymediamanager.ui.components.MediaFileSubtitleTable;
+import org.tinymediamanager.ui.components.MediaFileAudioStreamEditTable;
+import org.tinymediamanager.ui.components.MediaFileSubtitleEditTable;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -101,8 +101,8 @@ public class MediaFileEditorPanel extends JPanel {
   private final JTextField                      tfContainerFormat;
   private final JTextField                      tfWidth;
   private final JTextField                      tfHeight;
-  private final MediaFileAudioStreamTable       tableAudioStreams;
-  private final MediaFileSubtitleTable          tableSubtitles;
+  private final MediaFileAudioStreamEditTable   tableAudioStreams;
+  private final MediaFileSubtitleEditTable      tableSubtitles;
   private final JButton                         btnAddAudioStream;
   private final JButton                         btnRemoveAudioStream;
   private final JButton                         btnAddSubtitle;
@@ -279,7 +279,7 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
-          tableAudioStreams = new MediaFileAudioStreamTable(audioStreams, true);
+          tableAudioStreams = new MediaFileAudioStreamEditTable(audioStreams);
           tableAudioStreams.configureScrollPane(scrollPane);
         }
         {
@@ -289,7 +289,7 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 7 8 1,grow");
 
-          tableSubtitles = new MediaFileSubtitleTable(subtitles, true);
+          tableSubtitles = new MediaFileSubtitleEditTable(subtitles);
           tableSubtitles.configureScrollPane(scrollPane);
         }
         {
@@ -337,9 +337,11 @@ public class MediaFileEditorPanel extends JPanel {
 
           audioStreams.clear();
           audioStreams.addAll(container.getAudioStreams());
+          tableAudioStreams.adjustColumnPreferredWidths(6);
 
           subtitles.clear();
           subtitles.addAll(container.getSubtitles());
+          tableSubtitles.adjustColumnPreferredWidths(6);
         }
       }
     });

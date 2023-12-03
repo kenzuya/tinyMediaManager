@@ -34,23 +34,19 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
- * the class {@link MediaFileSubtitleTable} is used to display all subtitles in a table
+ * the class {@link MediaFileSubtitleEditTable} is used to display all subtitles in a table
  * 
  * @author Manuel Laggner
  */
-public class MediaFileSubtitleTable extends TmmEditorTable {
+public class MediaFileSubtitleEditTable extends TmmEditorTable {
   private final EventList<MediaFileSubtitle> subtitleEventList;
 
-  public MediaFileSubtitleTable(EventList<MediaFileSubtitle> subtitleEventList) {
-    this(subtitleEventList, false);
-  }
-
-  public MediaFileSubtitleTable(EventList<MediaFileSubtitle> subtitleEventList, boolean editable) {
+  public MediaFileSubtitleEditTable(EventList<MediaFileSubtitle> subtitleEventList) {
     super();
 
     this.subtitleEventList = subtitleEventList;
 
-    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat(editable)));
+    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
 
     adjustColumnPreferredWidths(3);
   }
@@ -123,7 +119,7 @@ public class MediaFileSubtitleTable extends TmmEditorTable {
    * helper classes
    */
   private static class SubtitleTableFormat extends TmmTableFormat<MediaFileSubtitle> {
-    private SubtitleTableFormat(boolean editable) {
+    private SubtitleTableFormat() {
       /*
        * language
        */
@@ -156,18 +152,15 @@ public class MediaFileSubtitleTable extends TmmEditorTable {
        * title
        */
       col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MediaFileSubtitle::getTitle, String.class);
-      col.setColumnResizeable(true);
       addColumn(col);
 
       /*
        * edit
        */
-      if (editable) {
-        col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
-        col.setColumnResizeable(false);
-        col.setHeaderIcon(IconManager.EDIT_HEADER);
-        addColumn(col);
-      }
+      col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
+      col.setColumnResizeable(false);
+      col.setHeaderIcon(IconManager.EDIT_HEADER);
+      addColumn(col);
     }
   }
 }
