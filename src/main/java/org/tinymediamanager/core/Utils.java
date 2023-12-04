@@ -2283,11 +2283,7 @@ public class Utils {
 
   public static void clearTempFolder() {
     try {
-      deleteDirectoryRecursive(Paths.get(tempFolder));
-    }
-    catch (AccessDeniedException e) {
-      // propagate to UI by logging with error
-      LOGGER.error("ACCESS DENIED (delete temp folder) - '{}'", e.getMessage());
+      FileUtils.forceDeleteOnExit(Paths.get(tempFolder).toFile());
     }
     catch (Exception ignored) {
       // just ignore
