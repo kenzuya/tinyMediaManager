@@ -43,6 +43,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Person extends AbstractModelObject implements IPrintable {
   public static final String ACTOR_DIR = ".actors";
+  public static final String PRODUCER_DIR = ".producers";
 
   public enum Type {
     ACTOR,
