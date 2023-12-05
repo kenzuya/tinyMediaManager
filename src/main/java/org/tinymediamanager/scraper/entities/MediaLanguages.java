@@ -22,7 +22,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 
 /**
@@ -34,103 +34,114 @@ import org.tinymediamanager.scraper.util.LanguageUtils;
  */
 public enum MediaLanguages {
 
-  //@formatter:off
-  af("Afrikaans"),
-  ar("العَرَبِيَّة"),
-  az("Azərbaycan"),
-  be("беларуская мова"),
-  bg("български език"),
-  bm("Bamanankan"),
-  bn("বাংলা"),
-  bs("Bosanski"),
-  ca("Català"),
-  ch("Finu' Chamorro"),
-  cn("广州话 / 廣州話"),
-  cs("Český"),
-  cy("Cymraeg"),
-  da("Dansk"),
-  de("Deutsch"),
-  ee("Èʋegbe"),
-  el("Ελληνικά"),
-  en("English"),
-  es("Español"),
-  es_MX("Español (Mexico)"),
-  et("Eesti"),
-  eu("Euskera"),
-  fa("فارسی"),
-  fi("Suomi"),
-  fr("Française"),
-  fr_CA("Français canadien"),
-  ff("Fulfulde"),
-  ga("Gaeilge"),
-  gl("Galego"),
-  ha("Hausa"),
-  he("עברית"),
-  hi("हिन्दी"),
-  hr("hrvatski jezik"),
-  hu("Magyar"),
-  hy("Հայերեն"),
-  id("Bahasa Indonesia"),
-  is("Íslenska"),
-  it("Italiano"),
-  ja("日本語"),
-  ka("ქართული"),
-  kk("қазақ"),
-  ko("한국어"),
-  la("Latin"),
-  lv("Latviešu"),
-  lt("Lietuvių"),
-  mk("македонски јазик"),
-  ms("Bahasa melayu"),
-  mt("Malti"),
-  nb("Bokmål"),
-  nl("Nederlands, Vlaams"),
-  no("Norsk"),
-  pa("ਪੰਜਾਬੀ"),
-  pl("Polski"),
-  ps("پښتو"),
-  pt("Português"),
-  pt_BR("Português (Brasil)"),
-  rn("Kirundi"),
-  ro("Română"),
-  ru("Русский"),
-  rw("Kinyarwanda"),
-  si("සිංහල"),
-  sk("Slovenčina"),
-  sl("Slovenščina"),
-  so("Somali"),
-  sq("Shqip"),
-  sr("српски / Srpski"),
-  sv("Svenska"),
-  sw("Kiswahili"),
-  ta("தமிழ்"),
-  te("తెలుగు"),
-  th("ภาษาไทย"),
-  tr("Türkçe"),
-  uk("Українська"),
-  ur("اردو"),
-  uz("ozbek"),
-  vi("Tiếng Việt"),
-  wo("Wolof"),
-  yo("Èdè Yorùbá"),
-  zh("中文"),
-  zh_CN("大陆简体"),
-  zh_HK("香港繁體"),
-  zh_SG("新加坡简体"),
-  zh_TW("臺灣繁體"),
-  zu("isiZulu"),
+  af,
+  ar,
+  az,
+  be,
+  bg,
+  bm,
+  bn,
+  bs,
+  ca,
+  ch,
+  cn,
+  cs,
+  cy,
+  da,
+  de,
+  ee,
+  el,
+  en,
+  es,
+  es_MX,
+  et,
+  eu,
+  fa,
+  fi,
+  fr,
+  fr_CA,
+  ff,
+  ga,
+  gl,
+  ha,
+  he,
+  hi,
+  hr,
+  hu,
+  hy,
+  id,
+  is,
+  it,
+  ja,
+  ka,
+  kk,
+  ko,
+  la,
+  lv,
+  lt,
+  mk,
+  ms,
+  mt,
+  nb,
+  nl,
+  no,
+  pa,
+  pl,
+  ps,
+  pt,
+  pt_BR,
+  rn,
+  ro,
+  ru,
+  rw,
+  si,
+  sk,
+  sl,
+  so,
+  sq,
+  sr,
+  sv,
+  sw,
+  ta,
+  te,
+  th,
+  tr,
+  uk,
+  ur,
+  uz,
+  vi,
+  wo,
+  yo,
+  zh,
+  zh_CN,
+  zh_HK,
+  zh_SG,
+  zh_TW,
+  zu,
   none("-");
-  //@formatter:on
 
   private final String                             title;
   private final String                             displayTitle;
 
   private static final Map<String, MediaLanguages> lookup = prepareLookup();
 
+  MediaLanguages() {
+    Locale locale = Utils.getLocaleFromLanguage(name());
+    this.title = locale.getDisplayLanguage();
+    this.displayTitle = locale.getDisplayName();
+  }
+
+  MediaLanguages(String title) {
+    this.title = title;
+    this.displayTitle = title;
+  }
+
   private static Map<String, MediaLanguages> prepareLookup() {
     Map<String, MediaLanguages> mlMap = new HashMap<>();
     for (MediaLanguages lang : MediaLanguages.values()) {
-      mlMap.put(lang.getTitle(), lang);
+      if (!lang.getTitle().isBlank()) {
+        mlMap.put(lang.getTitle(), lang);
+      }
       mlMap.put(lang.name(), lang);
     }
     return mlMap;
@@ -157,17 +168,6 @@ public enum MediaLanguages {
     }
 
     return entry;
-  }
-
-  MediaLanguages(String title) {
-    this.title = title;
-    Locale locale = Locale.forLanguageTag(name());
-    if (locale != null && StringUtils.isNotBlank(locale.getDisplayLanguage()) && !name().equals(locale.getDisplayLanguage())) {
-      this.displayTitle = locale.getDisplayLanguage();
-    }
-    else {
-      this.displayTitle = title;
-    }
   }
 
   /**
