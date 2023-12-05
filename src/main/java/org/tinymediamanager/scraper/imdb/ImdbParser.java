@@ -123,7 +123,6 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_ADULT            = "includeAdultResults";
   static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
-  static final String                 SCRAPE_COLLETION_INFO    = "scrapeCollectionInfo";
   static final String                 SCRAPE_KEYWORDS_PAGE     = "scrapeKeywordsPage";
   static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
   static final String                 SCRAPE_LANGUAGE_NAMES    = "scrapeLanguageNames";
@@ -227,15 +226,6 @@ public abstract class ImdbParser {
    */
   protected boolean isScrapeLanguageNames() {
     return config.getValueAsBool(SCRAPE_LANGUAGE_NAMES, false);
-  }
-
-  /**
-   * should we scrape also the collection info
-   *
-   * @return true/false
-   */
-  protected boolean isScrapeCollectionInfo() {
-    return config.getValueAsBool(SCRAPE_COLLETION_INFO, false);
   }
 
   /**
