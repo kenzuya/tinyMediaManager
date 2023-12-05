@@ -125,7 +125,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
   // MMD detected as single movie in a structured folder such as /A/, /2010/ or decade
   public final static String           FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
-  private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
+  private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ .,_\\(\\[-]3D[ .,_\\)\\]-]?");
 
   private final List<String>           dataSources;
   private final List<Pattern>          skipFolders      = new ArrayList<>();
@@ -220,7 +220,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       if (!imageFiles.isEmpty()) {
-          imageFiles.forEach(ImageCache::cacheImageAsync);
+        imageFiles.forEach(ImageCache::cacheImageAsync);
       }
 
       if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
