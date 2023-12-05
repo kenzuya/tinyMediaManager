@@ -193,7 +193,7 @@ public enum MediaLanguages {
 
   @Override
   public String toString() {
-    return displayTitle; // localized title, not the one from enum
+    return displayTitle + " (" + name() + ")"; // localized title, not the one from enum
   }
 
   public Locale toLocale() {
