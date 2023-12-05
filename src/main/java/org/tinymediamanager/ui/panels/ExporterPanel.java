@@ -34,14 +34,19 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPaneHTML;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -57,6 +62,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class ExporterPanel extends AbstractModalInputPanel {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExporterPanel.class);
 
   protected final JTextField            tfExportDir;
   protected final JList<ExportTemplate> list;
@@ -84,7 +90,7 @@ public abstract class ExporterPanel extends AbstractModalInputPanel {
 
     JPanel panelExporterDetails = new JPanel();
     splitPane.setRightComponent(panelExporterDetails);
-    panelExporterDetails.setLayout(new MigLayout("", "[100lp,grow]", "[][][][200lp,grow]"));
+    panelExporterDetails.setLayout(new MigLayout("", "[100lp,grow]", "[][][][200lp,grow][]"));
 
     JLabel lblTemplateName = new JLabel("");
     TmmFontHelper.changeFont(lblTemplateName, TmmFontHelper.H1);
@@ -105,6 +111,28 @@ public abstract class ExporterPanel extends AbstractModalInputPanel {
 
     JLabel lblDetails = new TmmLabel(TmmResourceBundle.getString("export.detail"));
     panelExporterDetails.add(lblDetails, "cell 0 2,growx,aligny center");
+
+    LinkTextArea taSource = new LinkTextArea();
+    panelExporterDetails.add(taSource, "cell 0 4,growx");
+
+    taSource.addActionListener(arg0 -> {
+      if (!StringUtils.isEmpty(taSource.getText())) {
+        // get the location from the label
+        Path path = Paths.get(taSource.getText());
+        try {
+          // check whether this location exists
+          if (Files.exists(path)) {
+            TmmUIHelper.openFile(path);
+          }
+        }
+        catch (Exception ex) {
+          LOGGER.error("open filemanager", ex);
+          MessageManager.instance
+              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+        }
+      }
+    });
+
     splitPane.setDividerLocation(300);
 
     tfExportDir = new JTextField(TmmProperties.getInstance().getProperty(panelId + ".path"));
@@ -141,12 +169,14 @@ public abstract class ExporterPanel extends AbstractModalInputPanel {
         taDescription.setText("");
         lblUrl.setText("");
         chckbxTemplateWithDetail.setSelected(false);
+        taSource.setText("");
       }
       else {
         lblTemplateName.setText(exportTemplate.getName());
         taDescription.setText(exportTemplate.getDescription());
         lblUrl.setText(exportTemplate.getUrl());
         chckbxTemplateWithDetail.setSelected(exportTemplate.isDetail());
+        taSource.setText(exportTemplate.getPath());
       }
     });
   }

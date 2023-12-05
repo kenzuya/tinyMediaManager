@@ -166,11 +166,11 @@ public abstract class MediaEntityExporter {
 
     // search in template folder for templates
     // first in tmm dir
-    Path templateInTmmDir = Paths.get(TEMPLATE_DIRECTORY);
+    Path templateInTmmDir = Paths.get(TEMPLATE_DIRECTORY).toAbsolutePath();
     templatesFound.addAll(findTemplatesInFolder(templateInTmmDir, type));
 
     // and on content dir
-    Path templateInContentDir = Paths.get(Globals.CONTENT_FOLDER, TEMPLATE_DIRECTORY);
+    Path templateInContentDir = Paths.get(Globals.CONTENT_FOLDER, TEMPLATE_DIRECTORY).toAbsolutePath();
     if (!templateInContentDir.equals(templateInTmmDir)) {
       templatesFound.addAll(findTemplatesInFolder(templateInContentDir, type));
     }

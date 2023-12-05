@@ -61,14 +61,14 @@ public final class Globals {
         contentFolder = ".";
       }
     }
-    CONTENT_FOLDER = contentFolder;
+    CONTENT_FOLDER =  Paths.get(contentFolder).toAbsolutePath().normalize().toString();
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {
       DATA_FOLDER = dataFolder;
     }
     else {
-      DATA_FOLDER = Paths.get(contentFolder, "data").toAbsolutePath().toString();
+      DATA_FOLDER = Paths.get(contentFolder, "data").toAbsolutePath().normalize().toString();
     }
 
     // cache
@@ -76,7 +76,7 @@ public final class Globals {
       CACHE_FOLDER = cacheFolder;
     }
     else {
-      CACHE_FOLDER = Paths.get(contentFolder, "cache").toAbsolutePath().toString();
+      CACHE_FOLDER = Paths.get(contentFolder, "cache").toAbsolutePath().normalize().toString();
     }
 
     // backup
@@ -84,7 +84,7 @@ public final class Globals {
       BACKUP_FOLDER = backupFolder;
     }
     else {
-      BACKUP_FOLDER = Paths.get(contentFolder, "backup").toAbsolutePath().toString();
+      BACKUP_FOLDER = Paths.get(contentFolder, "backup").toAbsolutePath().normalize().toString();
     }
 
     // logs
@@ -92,7 +92,7 @@ public final class Globals {
       LOG_FOLDER = logFolder;
     }
     else {
-      LOG_FOLDER = Paths.get(contentFolder, "logs").toAbsolutePath().toString();
+      LOG_FOLDER = Paths.get(contentFolder, "logs").toAbsolutePath().normalize().toString();
     }
   }
 
