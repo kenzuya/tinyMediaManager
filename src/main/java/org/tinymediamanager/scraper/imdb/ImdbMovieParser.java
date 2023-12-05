@@ -33,17 +33,13 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.MediaProviders;
-import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -234,52 +230,6 @@ public class ImdbMovieParser extends ImdbParser {
       }
     }
 
-    // get data from tmdb?
-    Future<MediaMetadata> futureTmdb = null;
-    if (isUseTmdbForMovies() || isScrapeCollectionInfo()) {
-      Callable<MediaMetadata> worker2 = new TmdbMovieWorker(options);
-      futureTmdb = executor.submit(worker2);
-      try {
-        MediaMetadata tmdbMd = futureTmdb.get();
-        if (tmdbMd != null) {
-          // provide all IDs
-          for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
-            md.setId(entry.getKey(), entry.getValue());
-          }
-
-          if (isUseTmdbForMovies()) {
-            // title
-            if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
-              md.setTitle(tmdbMd.getTitle());
-            }
-            // original title
-            if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
-              md.setOriginalTitle(tmdbMd.getOriginalTitle());
-            }
-            // tagline
-            if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
-              md.setTagline(tmdbMd.getTagline());
-            }
-            // plot
-            if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
-              md.setPlot(tmdbMd.getPlot());
-            }
-            // collection info
-            if (StringUtils.isNotBlank(tmdbMd.getCollectionName())) {
-              md.setCollectionName(tmdbMd.getCollectionName());
-            }
-          }
-
-          if (Boolean.TRUE.equals(config.getValueAsBool("scrapeCollectionInfo"))) {
-            md.setCollectionName(tmdbMd.getCollectionName());
-          }
-        }
-      }
-      catch (Exception e) {
-        getLogger().debug("could not get data from tmdb: {}", e.getMessage());
-      }
-    }
-
     // if we have still no original title, take the title
     if (StringUtils.isBlank(md.getOriginalTitle())) {
       md.setOriginalTitle(md.getTitle());
@@ -423,31 +373,5 @@ public class ImdbMovieParser extends ImdbParser {
 
   public Map<String, Integer> getMovieTop250() {
     return parseTop250("/chart/top/");
-  }
-
-  private static class TmdbMovieWorker implements Callable<MediaMetadata> {
-    private final MovieSearchAndScrapeOptions options;
-
-    TmdbMovieWorker(MovieSearchAndScrapeOptions options) {
-      this.options = options;
-    }
-
-    @Override
-    public MediaMetadata call() {
-      try {
-        IMovieMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, IMovieMetadataProvider.class);
-        if (tmdb == null) {
-          return null;
-        }
-
-        MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions(this.options);
-        options.setMetadataScraper(new MediaScraper(ScraperType.MOVIE, tmdb));
-        return tmdb.getMetadata(options);
-      }
-      catch (Exception e) {
-        LOGGER.debug("could fetch TMDB API - '{}'", e.getMessage());
-        return null;
-      }
-    }
   }
 }

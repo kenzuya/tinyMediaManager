@@ -22,7 +22,6 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.MAX_KEYWORD_COUNT;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_KEYWORDS_PAGE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_LANGUAGE_NAMES;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_UNCREDITED_ACTORS;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_TV_SHOWS;
 
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,6 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
     providerInfo.getConfig().addBoolean(INCLUDE_PODCAST, false);
     providerInfo.getConfig().addBoolean(INCLUDE_ADULT, false);
 
-    providerInfo.getConfig().addBoolean(USE_TMDB_FOR_TV_SHOWS, false);
     providerInfo.getConfig().addBoolean(LOCAL_RELEASE_DATE, true);
     providerInfo.getConfig().addBoolean(SCRAPE_UNCREDITED_ACTORS, true);
     providerInfo.getConfig().addBoolean(SCRAPE_LANGUAGE_NAMES, true);

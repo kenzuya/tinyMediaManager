@@ -123,8 +123,6 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_ADULT            = "includeAdultResults";
   static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
-  static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
-  static final String                 USE_TMDB_FOR_TV_SHOWS    = "useTmdbForTvShows";
   static final String                 SCRAPE_COLLETION_INFO    = "scrapeCollectionInfo";
   static final String                 SCRAPE_KEYWORDS_PAGE     = "scrapeKeywordsPage";
   static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
@@ -211,24 +209,6 @@ public abstract class ImdbParser {
    */
   protected boolean isIncludePodcastResults() {
     return config.getValueAsBool(INCLUDE_PODCAST, false);
-  }
-
-  /**
-   * scrape tmdb for movies too?
-   *
-   * @return true/false
-   */
-  protected boolean isUseTmdbForMovies() {
-    return config.getValueAsBool(USE_TMDB_FOR_MOVIES, false);
-  }
-
-  /**
-   * scrape tmdb for tv shows too?
-   *
-   * @return true/false
-   */
-  protected boolean isUseTmdbForTvShows() {
-    return config.getValueAsBool(USE_TMDB_FOR_TV_SHOWS, false);
   }
 
   /**
@@ -1286,7 +1266,7 @@ public abstract class ImdbParser {
         parseKeywords(element, md);
       }
 
-      if (elementText.equals("Taglines") && !isUseTmdbForMovies()) {
+      if (elementText.equals("Taglines")) {
         Element taglineElement = element.nextElementSibling();
         if (taglineElement != null) {
           String tagline = cleanString(taglineElement.ownText().replace("»", ""));

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -46,10 +45,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.MediaProviders;
-import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
@@ -62,7 +58,6 @@ import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbEpisodeList;
 import org.tinymediamanager.scraper.imdb.entities.ImdbIdValueType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.JsonUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -241,44 +236,6 @@ public class ImdbTvShowParser extends ImdbParser {
     // populate id
     md.setId(ImdbMetadataProvider.ID, imdbId);
 
-    // get data from tmdb?
-    // worker for tmdb request
-    if (isUseTmdbForTvShows()) {
-      Future<MediaMetadata> futureTmdb = null;
-      Callable<MediaMetadata> worker2 = new TmdbTvShowWorker(options);
-      futureTmdb = executor.submit(worker2);
-      if (futureTmdb != null) {
-        try {
-          MediaMetadata tmdbMd = futureTmdb.get();
-          if (tmdbMd != null) {
-            // provide all IDs
-            for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
-              md.setId(entry.getKey(), entry.getValue());
-            }
-            // title
-            if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
-              md.setTitle(tmdbMd.getTitle());
-            }
-            // original title
-            if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
-              md.setOriginalTitle(tmdbMd.getOriginalTitle());
-            }
-            // tagline
-            if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
-              md.setTagline(tmdbMd.getTagline());
-            }
-            // plot
-            if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
-              md.setPlot(tmdbMd.getPlot());
-            }
-          }
-        }
-        catch (Exception e) {
-          LOGGER.debug("could not fetch data from TMDB: {}", e.getMessage());
-        }
-      }
-    }
-
     return md;
   }
 
@@ -344,10 +301,6 @@ public class ImdbTvShowParser extends ImdbParser {
       LOGGER.warn("episode not found");
       throw new NothingFoundException();
     }
-
-    // worker for tmdb request
-    ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
-    Future<MediaMetadata> futureTmdb = null;
 
     // match via episodelist found
     if (wantedEpisode != null && wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
@@ -442,50 +395,6 @@ public class ImdbTvShowParser extends ImdbParser {
       }
     }
 
-    // get data from tmdb?
-    if (isUseTmdbForTvShows()) {
-      Callable<MediaMetadata> worker2 = new TmdbTvShowEpisodeWorker(options);
-      futureTmdb = compSvcTmdb.submit(worker2);
-      if (futureTmdb != null) {
-        try {
-          MediaMetadata tmdbMd = futureTmdb.get();
-          if (tmdbMd != null) {
-            // provide all IDs
-            for (Map.Entry<String, Object> entry : tmdbMd.getIds().entrySet()) {
-              md.setId(entry.getKey(), entry.getValue());
-            }
-            // title
-            if (StringUtils.isNotBlank(tmdbMd.getTitle())) {
-              md.setTitle(tmdbMd.getTitle());
-            }
-            // original title
-            if (StringUtils.isNotBlank(tmdbMd.getOriginalTitle())) {
-              md.setOriginalTitle(tmdbMd.getOriginalTitle());
-            }
-            // tagline
-            if (StringUtils.isNotBlank(tmdbMd.getTagline())) {
-              md.setTagline(tmdbMd.getTagline());
-            }
-            // plot
-            if (StringUtils.isNotBlank(tmdbMd.getPlot())) {
-              md.setPlot(tmdbMd.getPlot());
-            }
-            // thumb (if nothing has been found in imdb)
-            if (md.getMediaArt(THUMB).isEmpty() && !tmdbMd.getMediaArt(THUMB).isEmpty()) {
-              MediaArtwork thumb = tmdbMd.getMediaArt(THUMB).get(0);
-              md.addMediaArt(thumb);
-            }
-          }
-        }
-        catch (InterruptedException e) {
-          // do not swallow these Exceptions
-          Thread.currentThread().interrupt();
-        }
-        catch (Exception e) {
-          LOGGER.warn("could not get cast page: {}", e.getMessage());
-        }
-      }
-    }
     return md;
   }
 
@@ -965,55 +874,5 @@ public class ImdbTvShowParser extends ImdbParser {
 
   public Map<String, Integer> getTvShowTop250() {
     return parseTop250("/chart/toptv/");
-  }
-
-  private static class TmdbTvShowWorker implements Callable<MediaMetadata> {
-    private final TvShowSearchAndScrapeOptions options;
-
-    TmdbTvShowWorker(TvShowSearchAndScrapeOptions options) {
-      this.options = options;
-    }
-
-    @Override
-    public MediaMetadata call() {
-      try {
-        ITvShowMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, ITvShowMetadataProvider.class);
-        if (tmdb == null) {
-          return null;
-        }
-
-        TvShowSearchAndScrapeOptions scrapeOptions = new TvShowSearchAndScrapeOptions(this.options);
-        scrapeOptions.setMetadataScraper(new MediaScraper(ScraperType.TV_SHOW, tmdb));
-        return tmdb.getMetadata(scrapeOptions);
-      }
-      catch (Exception e) {
-        return null;
-      }
-    }
-  }
-
-  private static class TmdbTvShowEpisodeWorker implements Callable<MediaMetadata> {
-    private final TvShowEpisodeSearchAndScrapeOptions options;
-
-    TmdbTvShowEpisodeWorker(TvShowEpisodeSearchAndScrapeOptions options) {
-      this.options = options;
-    }
-
-    @Override
-    public MediaMetadata call() {
-      try {
-        ITvShowMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, ITvShowMetadataProvider.class);
-        if (tmdb == null) {
-          return null;
-        }
-
-        TvShowEpisodeSearchAndScrapeOptions scrapeOptions = new TvShowEpisodeSearchAndScrapeOptions(this.options);
-        scrapeOptions.setMetadataScraper(new MediaScraper(ScraperType.TV_SHOW, tmdb));
-        return tmdb.getMetadata(scrapeOptions);
-      }
-      catch (Exception e) {
-        return null;
-      }
-    }
   }
 }
