@@ -71,6 +71,7 @@ import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCategory;
 import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
@@ -84,6 +85,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbReleaseDate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbSectionItem;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
@@ -1631,6 +1633,34 @@ public abstract class ImdbParser {
           }
         }
       }
+    }
+  }
+
+  protected void parseReleaseinfoPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      System.out.println(json);
+      JsonNode node = mapper.readTree(json);
+
+      JsonNode itemsNode = JsonUtils.at(node, "/props/pageProps/contentData/categories");
+      for (ImdbCategory cat : JsonUtils.parseList(mapper, itemsNode, ImdbCategory.class)) {
+        if (cat.section != null) {
+          if (cat.section.items.size() > 0) {
+            ImdbSectionItem item = cat.section.items.get(0);
+            if (item.listContent.size() > 0) {
+              Date parsedDate = parseDate(item.listContent.get(0).text);
+              if (parsedDate != null) {
+                md.setReleaseDate(parsedDate);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing ReleaseinfoPageJson: '{}'", e);
+      throw e;
     }
   }
 

@@ -149,6 +149,13 @@ public class ImdbTvShowParser extends ImdbParser {
       futureKeywords = executor.submit(worker);
     }
 
+    Future<Document> futureReleaseInfo = null;
+    if (!isScrapeLocalReleaseDate()) {
+      worker = new ImdbWorker(constructUrl("title/", imdbId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2(), true);
+      futureReleaseInfo = executor.submit(worker);
+    }
+
     try {
       doc = futureDetail.get();
       parseDetailPageJson(doc, options, md);
@@ -180,6 +187,18 @@ public class ImdbTvShowParser extends ImdbParser {
             }
           }
         }
+
+        // if we want to scrape NOT the local release date, we take the FIRST from releaseinfo page
+        if (!isScrapeLocalReleaseDate()) {
+          if (futureReleaseInfo != null) {
+            doc = futureReleaseInfo.get();
+            if (doc != null) {
+              parseReleaseinfoPageJson(doc, options, md2);
+              md.setReleaseDate(md2.getReleaseDate());
+            }
+          }
+        }
+
       }
       catch (Exception e) {
         LOGGER.warn("Could not parse page: {}", e.getMessage());
@@ -334,6 +353,13 @@ public class ImdbTvShowParser extends ImdbParser {
         futureKeywords = executor.submit(worker);
       }
 
+      Future<Document> futureReleaseInfo = null;
+      if (!isScrapeLocalReleaseDate()) {
+        worker = new ImdbWorker(constructUrl("title/", episodeId, decode("L3JlbGVhc2VpbmZv")), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2(), true);
+        futureReleaseInfo = executor.submit(worker);
+      }
+
       try {
         doc = futureDetail.get();
         parseDetailPageJson(doc, options, md);
@@ -354,9 +380,6 @@ public class ImdbTvShowParser extends ImdbParser {
             md.setCastMembers(md2.getCastMembers()); // overwrite all
             md.setTop250(md2.getTop250());
             md2.getCertifications().forEach(md::addCertification); // reference page has more certifications
-            if (md.getReleaseDate() == null || !isScrapeLocalReleaseDate()) {
-              md.setReleaseDate(md2.getReleaseDate());
-            }
           }
 
           if (isScrapeKeywordsPage() && getMaxKeywordCount() > 5) {
@@ -365,6 +388,17 @@ public class ImdbTvShowParser extends ImdbParser {
               if (doc != null) {
                 parseKeywordsPage(doc, options, md2);
                 md.setTags(md2.getTags());// overwrite all
+              }
+            }
+          }
+
+          // if we want to scrape NOT the local release date, we take the FIRST from releaseinfo page
+          if (!isScrapeLocalReleaseDate()) {
+            if (futureReleaseInfo != null) {
+              doc = futureReleaseInfo.get();
+              if (doc != null) {
+                parseReleaseinfoPageJson(doc, options, md2);
+                md.setReleaseDate(md2.getReleaseDate());
               }
             }
           }
