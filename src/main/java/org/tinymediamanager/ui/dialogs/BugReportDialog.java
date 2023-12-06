@@ -42,9 +42,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class BugReportDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(BugReportDialog.class);
+  private static final Logger LOGGER    = LoggerFactory.getLogger(BugReportDialog.class);
 
-  private static final String DIALOG_ID        = "bugReportdialog";
+  private static final String DIALOG_ID = "bugReportdialog";
 
   /**
    * Instantiates a new feedback dialog.

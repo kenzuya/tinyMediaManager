@@ -16,7 +16,6 @@
 package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;

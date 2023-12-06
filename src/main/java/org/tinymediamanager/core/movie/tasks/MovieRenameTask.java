@@ -75,11 +75,11 @@ public class MovieRenameTask extends TmmThreadPool {
       }
 
       for (Movie movie : moviesToRename) {
-          imageFiles.addAll(movie.getMediaFiles().stream().filter(MediaFile::isGraphic).toList());
+        imageFiles.addAll(movie.getMediaFiles().stream().filter(MediaFile::isGraphic).toList());
       }
       // re-build the image cache afterwards in an own thread
       if (Settings.getInstance().isImageCache() && !imageFiles.isEmpty()) {
-          imageFiles.forEach(ImageCache::cacheImageAsync);
+        imageFiles.forEach(ImageCache::cacheImageAsync);
       }
 
       LOGGER.info("Done renaming movies)");

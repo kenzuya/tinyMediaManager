@@ -44,13 +44,13 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MiscSettingsPanel extends JPanel {
-  private final Settings    settings         = Settings.getInstance();
-  private JComboBox         cbImageCacheQuality;
-  private JCheckBox         chckbxImageCache;
-  private JCheckBox         chckbxDeleteTrash;
-  private JCheckBox         chckbxMediaInfoXml;
-  private JComboBox         cbImageCacheSize;
-  private JCheckBox         chckbxEnableTrash;
+  private final Settings settings = Settings.getInstance();
+  private JComboBox      cbImageCacheQuality;
+  private JCheckBox      chckbxImageCache;
+  private JCheckBox      chckbxDeleteTrash;
+  private JCheckBox      chckbxMediaInfoXml;
+  private JComboBox      cbImageCacheSize;
+  private JCheckBox      chckbxEnableTrash;
 
   /**
    * Instantiates a new general settings panel.

@@ -53,7 +53,7 @@ public class TmmUILayoutStore {
   private final TmmProperties     properties;
   private final Set<String>       componentSet;
 
-  private boolean skipSaving = false;
+  private boolean                 skipSaving = false;
 
   private TmmUILayoutStore() {
     properties = TmmProperties.getInstance();
@@ -88,7 +88,8 @@ public class TmmUILayoutStore {
 
     if (component instanceof JSplitPane splitPane) {
       installJSplitPane(splitPane);
-    } else if (component instanceof TmmTable tmmTable) {
+    }
+    else if (component instanceof TmmTable tmmTable) {
       installTmmTable(tmmTable);
     }
 
@@ -269,7 +270,8 @@ public class TmmUILayoutStore {
   private void saveComponent(Component component) {
     if (component instanceof JSplitPane splitPane) {
       saveJSplitPane(splitPane);
-    } else if (component instanceof TmmTable tmmTable) {
+    }
+    else if (component instanceof TmmTable tmmTable) {
       saveTmmTable(tmmTable);
     }
   }

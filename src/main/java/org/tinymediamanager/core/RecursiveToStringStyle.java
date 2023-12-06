@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class RecursiveToStringStyle extends ToStringStyle {
-  private static final RecursiveToStringStyle INSTANCE         = new RecursiveToStringStyle(13);
+  private static final RecursiveToStringStyle INSTANCE = new RecursiveToStringStyle(13);
 
   public static ToStringStyle getInstance() {
     return INSTANCE;

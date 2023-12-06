@@ -67,8 +67,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperSettingsPanel extends JPanel {
-  private final MovieSettings      settings         = MovieModuleManager.getInstance().getSettings();
-  private final List<MovieScraper> scrapers         = new ArrayList<>();
+  private final MovieSettings      settings = MovieModuleManager.getInstance().getSettings();
+  private final List<MovieScraper> scrapers = new ArrayList<>();
 
   /**
    * UI Elements

@@ -44,9 +44,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ExchangeDatasourceDialog extends TmmDialog {
 
-  
-
-  private JLabel                      lblNewDatasource;
+  private JLabel lblNewDatasource;
 
   public ExchangeDatasourceDialog(String datasource) {
     super(SettingsDialog.getInstance(), TmmResourceBundle.getString("Settings.exchangedatasource"), "exchangeDatasource");

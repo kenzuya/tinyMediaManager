@@ -65,8 +65,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperPanel extends JPanel {
-  private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
-  private final List<MovieScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final MovieSettings        settings = MovieModuleManager.getInstance().getSettings();
+  private final List<MovieScraper>   scrapers = ObservableCollections.observableList(new ArrayList<>());
 
   private JTable                     tableScraper;
   private JComboBox<MediaLanguages>  cbScraperLanguage;

@@ -27,9 +27,9 @@ import org.apache.commons.lang3.StringUtils;
  * @since 3.0
  */
 public class HttpException extends IOException {
-  private final String      url;
-  private final int         statusCode;
-  private final String      message;
+  private final String url;
+  private final int    statusCode;
+  private final String message;
 
   public HttpException(String message) {
     this(null, 0, message);

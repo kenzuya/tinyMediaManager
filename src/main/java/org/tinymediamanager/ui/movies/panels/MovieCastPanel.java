@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
@@ -97,9 +96,9 @@ public class MovieCastPanel extends JPanel {
 
     // selectionlistener for the selected producer
     tableProducer.getSelectionModel().addListSelectionListener(arg0 -> {
-      if(!arg0.getValueIsAdjusting()) {
+      if (!arg0.getValueIsAdjusting()) {
         int selectedRow = tableProducer.convertRowIndexToModel(tableProducer.getSelectedRow());
-        if (selectedRow >= 0 && selectedRow < producerEventList .size()) {
+        if (selectedRow >= 0 && selectedRow < producerEventList.size()) {
           Person producer = producerEventList.get(selectedRow);
           lblProducerThumb.setProducer(selectionModel.getSelectedMovie(), producer);
         }

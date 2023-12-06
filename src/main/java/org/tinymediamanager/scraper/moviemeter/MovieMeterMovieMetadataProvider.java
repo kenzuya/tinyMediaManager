@@ -84,7 +84,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
   @Override
   public boolean isActive() {
-      return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
   // thread safe initialization of the API
@@ -103,7 +103,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
       }
     }
 
-      String userApiKey = providerInfo.getUserApiKey();
+    String userApiKey = providerInfo.getUserApiKey();
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey)) {

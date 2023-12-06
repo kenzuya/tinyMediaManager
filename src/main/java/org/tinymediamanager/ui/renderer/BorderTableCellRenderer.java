@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author Manuel Laggner
  */
 public class BorderTableCellRenderer extends DefaultTableCellRenderer {
-  private final Border      border;
+  private final Border border;
 
   /**
    * create the CellRenderer with the default inset (2 px left)

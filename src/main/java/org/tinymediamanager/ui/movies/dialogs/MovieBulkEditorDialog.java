@@ -478,7 +478,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
       }
       {
         JLabel lblDateAddedT = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
-        panelContent.add(lblDateAddedT,"cell 0 12,alignx trailing");
+        panelContent.add(lblDateAddedT, "cell 0 12,alignx trailing");
 
         JSpinner spDateAdded = new JSpinner(new SpinnerDateModel());
         panelContent.add(spDateAdded, "cell 1 12");
@@ -746,7 +746,8 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
   private boolean isDeleteConfirmed(String attribute) {
     Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int dialogResult = JOptionPane.showOptionDialog(MovieBulkEditorDialog.this, MessageFormat.format(TmmResourceBundle.getString("message.bulkedit.delete"), attribute),
+    int dialogResult = JOptionPane.showOptionDialog(MovieBulkEditorDialog.this,
+        MessageFormat.format(TmmResourceBundle.getString("message.bulkedit.delete"), attribute),
         TmmResourceBundle.getString("message.bulkedit.warning"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (dialogResult == JOptionPane.YES_OPTION) {
       return true;

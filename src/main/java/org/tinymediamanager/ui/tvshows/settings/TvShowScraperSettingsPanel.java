@@ -68,8 +68,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowScraperSettingsPanel extends JPanel {
-  private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
-  private final List<TvShowScraper> scrapers         = new ArrayList<>();
+  private final TvShowSettings      settings = TvShowModuleManager.getInstance().getSettings();
+  private final List<TvShowScraper> scrapers = new ArrayList<>();
 
   /** UI components */
   private TmmTable                  tableScraper;
@@ -122,22 +122,21 @@ class TvShowScraperSettingsPanel extends JPanel {
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            TvShowScraper changedScraper = scrapers.get(row);
-            if (changedScraper.getDefaultScraper()) {
-              settings.setScraper(changedScraper.getScraperId());
-              for (TvShowScraper scraper : scrapers) {
-                if (scraper != changedScraper) {
-                  scraper.setDefaultScraper(Boolean.FALSE);
-                }
-              }
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        TvShowScraper changedScraper = scrapers.get(row);
+        if (changedScraper.getDefaultScraper()) {
+          settings.setScraper(changedScraper.getScraperId());
+          for (TvShowScraper scraper : scrapers) {
+            if (scraper != changedScraper) {
+              scraper.setDefaultScraper(Boolean.FALSE);
             }
           }
-        });
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {

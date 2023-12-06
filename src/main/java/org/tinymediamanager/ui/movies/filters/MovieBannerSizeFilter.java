@@ -1,11 +1,12 @@
 package org.tinymediamanager.ui.movies.filters;
 
+import javax.swing.JLabel;
+import javax.swing.SpinnerNumberModel;
+
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
-
-import javax.swing.*;
 
 public class MovieBannerSizeFilter extends AbstractNumberMovieFilter {
 

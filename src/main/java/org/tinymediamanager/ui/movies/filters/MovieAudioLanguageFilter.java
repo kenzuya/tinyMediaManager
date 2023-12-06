@@ -33,65 +33,65 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * this class is used for a movie languages
- * from mediainfo
+ * this class is used for a movie languages from mediainfo
+ * 
  * @author Wolfgang Janes
  */
 public class MovieAudioLanguageFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
   private MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
-    public MovieAudioLanguageFilter() {
-        super();
-        checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-        buildAudioLanguageArray();
-        movieList.addPropertyChangeListener(Constants.AUDIO_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildAudioLanguageArray));
-    }
+  public MovieAudioLanguageFilter() {
+    super();
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
+    buildAudioLanguageArray();
+    movieList.addPropertyChangeListener(Constants.AUDIO_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildAudioLanguageArray));
+  }
 
-    @Override
-    protected String parseTypeToString(String type) throws Exception {
-        return type;
-    }
+  @Override
+  protected String parseTypeToString(String type) throws Exception {
+    return type;
+  }
 
-    @Override
-    protected String parseStringToType(String string) throws Exception {
-        return string;
-    }
+  @Override
+  protected String parseStringToType(String string) throws Exception {
+    return string;
+  }
 
-    @Override
-    protected JLabel createLabel() {
-        return new TmmLabel(TmmResourceBundle.getString("metatag.language"));
-    }
+  @Override
+  protected JLabel createLabel() {
+    return new TmmLabel(TmmResourceBundle.getString("metatag.language"));
+  }
 
-    @Override
-    public String getId() {
-        return "movieAudioLanguage";
-    }
+  @Override
+  public String getId() {
+    return "movieAudioLanguage";
+  }
 
-    @Override
-    public boolean accept(Movie movie) {
+  @Override
+  public boolean accept(Movie movie) {
 
-        List<String> selectedItems = checkComboBox.getSelectedItems();
-        List<MediaFile> mediaFileList = movie.getMediaFiles(MediaFileType.VIDEO);
+    List<String> selectedItems = checkComboBox.getSelectedItems();
+    List<MediaFile> mediaFileList = movie.getMediaFiles(MediaFileType.VIDEO);
 
-        for(MediaFile mf : mediaFileList) {
-            // check for explicit empty search
-            if (selectedItems.isEmpty() && mf.getAudioLanguagesList().isEmpty()) {
-                return true;
-            }
-            for (String lang : mf.getAudioLanguagesList()) {
-                if (selectedItems.contains(lang)) {
-                    return true;
-                }
-            }
+    for (MediaFile mf : mediaFileList) {
+      // check for explicit empty search
+      if (selectedItems.isEmpty() && mf.getAudioLanguagesList().isEmpty()) {
+        return true;
+      }
+      for (String lang : mf.getAudioLanguagesList()) {
+        if (selectedItems.contains(lang)) {
+          return true;
         }
-
-        return false;
+      }
     }
 
-    private void buildAudioLanguageArray() {
-        List<String> audioLanguages = new ArrayList<>(movieList.getAudioLanguagesInMovies());
-        Collections.sort(audioLanguages);
-        setValues(audioLanguages);
-    }
+    return false;
+  }
+
+  private void buildAudioLanguageArray() {
+    List<String> audioLanguages = new ArrayList<>(movieList.getAudioLanguagesInMovies());
+    Collections.sort(audioLanguages);
+    setValues(audioLanguages);
+  }
 }

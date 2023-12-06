@@ -38,15 +38,16 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowRenameTask extends TmmThreadPool {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowRenameTask.class);
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
 
-  private final List<TvShow> tvShowsToRename = new ArrayList<>();
+  private final List<TvShow>        tvShowsToRename  = new ArrayList<>();
   private final List<TvShowEpisode> episodesToRename = new ArrayList<>();
 
   /**
    * Rename just the given {@link TvShow} root (and {@link org.tinymediamanager.core.entities.MediaFile}s)
    *
-   * @param tvShowToRename the {@link TvShow} to rename
+   * @param tvShowToRename
+   *          the {@link TvShow} to rename
    */
   public TvShowRenameTask(TvShow tvShowToRename) {
     this(Collections.singletonList(tvShowToRename), null);
@@ -55,7 +56,8 @@ public class TvShowRenameTask extends TmmThreadPool {
   /**
    * Rename just the given {@link TvShow} roots (and {@link org.tinymediamanager.core.entities.MediaFile}s)
    *
-   * @param tvShowsToRename the {@link TvShow}s to rename
+   * @param tvShowsToRename
+   *          the {@link TvShow}s to rename
    */
   public TvShowRenameTask(Collection<TvShow> tvShowsToRename) {
     this(tvShowsToRename, null);

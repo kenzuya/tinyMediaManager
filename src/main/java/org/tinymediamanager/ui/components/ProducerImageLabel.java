@@ -33,8 +33,8 @@ import org.tinymediamanager.core.entities.Person;
  * @author Manuel Laggner
  */
 public class ProducerImageLabel extends ImageLabel {
-  private SwingWorker<Void, Void> producerWorker      = null;
-  private Person                  producer            = null;
+  private SwingWorker<Void, Void> producerWorker = null;
+  private Person                  producer       = null;
 
   public void setProducer(MediaEntity mediaEntity, Person producer) {
     clearImage();

@@ -44,7 +44,7 @@ import org.tinymediamanager.ui.images.TmmSvgIcon;
  */
 public class MediaScraperComboBox extends JComboBox<MediaScraper> {
   private Map<URI, ImageIcon> imageCache;
-  private int                 listWidth        = 0;
+  private int                 listWidth = 0;
 
   public MediaScraperComboBox() {
     super();

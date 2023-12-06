@@ -184,8 +184,10 @@ public abstract class MediaEntityExporter {
   /**
    * search for {@link ExportTemplate}s in the given {@link Path}
    *
-   * @param folder the {@link Path} to search templates for
-   * @param type   the {@link TemplateType}
+   * @param folder
+   *          the {@link Path} to search templates for
+   * @param type
+   *          the {@link TemplateType}
    * @return a {@link List} of found {@link ExportTemplate}s
    */
   private static List<ExportTemplate> findTemplatesInFolder(Path folder, TemplateType type) {

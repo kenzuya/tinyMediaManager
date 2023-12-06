@@ -61,7 +61,7 @@ public final class Globals {
         contentFolder = ".";
       }
     }
-    CONTENT_FOLDER =  Paths.get(contentFolder).toAbsolutePath().normalize().toString();
+    CONTENT_FOLDER = Paths.get(contentFolder).toAbsolutePath().normalize().toString();
 
     // data
     if (StringUtils.isNotBlank(dataFolder)) {

@@ -58,7 +58,7 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer()instanceof JComponent headerRenderer) {
+    if (column.getHeaderRenderer() instanceof JComponent headerRenderer) {
       headerRenderer.setToolTipText(getHeaderTooltip(columnIndex));
     }
 

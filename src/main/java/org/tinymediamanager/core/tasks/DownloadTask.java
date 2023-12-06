@@ -268,7 +268,8 @@ public abstract class DownloadTask extends TmmTask {
           }
         }
       }
-    } catch (AccessDeniedException e) {
+    }
+    catch (AccessDeniedException e) {
       // propagate to UI by logging with error
       LOGGER.error("ACCESS DENIED (trailer download) - '{}'", e.getMessage());
       // re-throw

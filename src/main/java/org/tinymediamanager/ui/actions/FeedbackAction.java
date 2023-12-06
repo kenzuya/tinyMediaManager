@@ -33,7 +33,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class FeedbackAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(FeedbackAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackAction.class);
 
   public FeedbackAction() {
     putValue(NAME, TmmResourceBundle.getString("Feedback"));

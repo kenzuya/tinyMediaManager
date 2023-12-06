@@ -25,7 +25,6 @@ import org.tinymediamanager.ui.settings.TmmSettingsNode;
  * @author Manuel Laggner
  */
 public class MovieSetSettingsNode extends TmmSettingsNode {
-  
 
   public MovieSetSettingsNode() {
     super(TmmResourceBundle.getString("Settings.moviesets"), new MovieSetSettingsPanel());

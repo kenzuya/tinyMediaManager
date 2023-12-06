@@ -119,8 +119,10 @@ public interface TvSeasonsService {
   /**
    * Get the translations that have been added to a TV season
    *
-   * @param tvShowId           A Tv Show TvSeason TMDb id.
-   * @param tvShowSeasonNumber TvSeason Number.
+   * @param tvShowId
+   *          A Tv Show TvSeason TMDb id.
+   * @param tvShowSeasonNumber
+   *          TvSeason Number.
    */
   @GET("tv/{tv_id}/season/{season_number}/translations")
   Call<Translations> translations(@Path("tv_id") int tvShowId, @Path("season_number") int tvShowSeasonNumber);

@@ -1,6 +1,7 @@
 package org.tinymediamanager.ui.movies.filters;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;

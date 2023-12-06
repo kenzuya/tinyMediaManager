@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
 // implemented own method, but included this to be more generic
 // https://github.com/jeevatkm/generic-repo/blob/master/genericComparator/src/main/java/com/myjeeva/comparator/GenericComparator.java
 public class DynaComparator<E> implements Comparator<E>, Serializable {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(DynaComparator.class);
+  private static final Logger LOGGER  = LoggerFactory.getLogger(DynaComparator.class);
 
-  private static final int    LESSER           = -1;
-  private static final int    EQUAL            = 0;
-  private static final int    GREATER          = 1;
+  private static final int    LESSER  = -1;
+  private static final int    EQUAL   = 0;
+  private static final int    GREATER = 1;
 
   private enum CompareMode {
     EQUAL,

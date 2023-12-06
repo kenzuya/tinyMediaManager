@@ -110,14 +110,13 @@ public class MovieAllInOneFilter extends AbstractTextMovieUIFilter {
       return true;
     }
 
-
-    //plot
-    if(filterFields.contains(PLOT) && filterField(movie.getPlot())) {
+    // plot
+    if (filterFields.contains(PLOT) && filterField(movie.getPlot())) {
       return true;
     }
 
-    //tagline
-    if(filterFields.contains(TAGLINE) && filterField(movie.getTagline())) {
+    // tagline
+    if (filterFields.contains(TAGLINE) && filterField(movie.getTagline())) {
       return true;
     }
 

@@ -37,12 +37,12 @@ import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import net.miginfocom.swing.MigLayout;
 
 public class LogDialog extends TmmDialog implements ActionListener {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(LogDialog.class);
-  private static final int    REFRESH_PERIOD   = 1000;
+  private static final Logger LOGGER         = LoggerFactory.getLogger(LogDialog.class);
+  private static final int    REFRESH_PERIOD = 1000;
 
   private JTextArea           taLogs;
 
-  private int                 logByteCount     = 0;
+  private int                 logByteCount   = 0;
   private final Timer         timerRefresh;
 
   public LogDialog() {

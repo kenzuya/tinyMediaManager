@@ -184,7 +184,7 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
       setState(TaskState.FINISHED);
     }
     thread = null;
-      listeners.clear();  // avoid leak
+    listeners.clear(); // avoid leak
   }
 
   @Override

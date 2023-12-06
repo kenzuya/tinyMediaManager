@@ -131,9 +131,11 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
     switch (code) {
       case HttpURLConnection.HTTP_OK:
         return;
+
       case HttpURLConnection.HTTP_FORBIDDEN:
       case HttpURLConnection.HTTP_USE_PROXY:
         break;
+
       case HttpURLConnection.HTTP_PROXY_AUTH:
         break;
     }

@@ -47,7 +47,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MessageDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MessageDialog.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageDialog.class);
 
   private final JLabel        lblImage;
   private final JTextPane     tpText;

@@ -50,7 +50,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
   private final MediaScraperCheckComboBox                                      cbArtworkScraper;
   private final ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
 
-  private boolean                                                        startScrape      = false;
+  private boolean                                                              startScrape = false;
 
   public MovieDownloadMissingArtworkDialog() {
     super(TmmResourceBundle.getString("movie.downloadmissingartwork"), "downloadMissingArtwork");

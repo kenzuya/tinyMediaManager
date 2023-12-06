@@ -24,10 +24,8 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -51,7 +49,8 @@ public class ITMoviemeterMetadataProviderTest extends BasicITest {
         assertThat(result.getTitle()).isNotNull().isNotEmpty();
         assertThat(result.getId()).isNotNull();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -89,7 +88,8 @@ public class ITMoviemeterMetadataProviderTest extends BasicITest {
       assertThat(md.getGenres().size()).isGreaterThanOrEqualTo(1);
       assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(1);
       assertThat(md.getCastMembers(DIRECTOR).size()).isGreaterThanOrEqualTo(1);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

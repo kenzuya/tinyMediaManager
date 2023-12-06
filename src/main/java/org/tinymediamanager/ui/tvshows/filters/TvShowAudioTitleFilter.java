@@ -42,63 +42,63 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class TvShowAudioTitleFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
 
-    private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
-    public TvShowAudioTitleFilter() {
-        super();
-        checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-        buildAudioTitleArray();
-        tvShowList.addPropertyChangeListener(Constants.AUDIO_TITLE, evt -> SwingUtilities.invokeLater(this::buildAudioTitleArray));
-    }
+  public TvShowAudioTitleFilter() {
+    super();
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
+    buildAudioTitleArray();
+    tvShowList.addPropertyChangeListener(Constants.AUDIO_TITLE, evt -> SwingUtilities.invokeLater(this::buildAudioTitleArray));
+  }
 
-    @Override
-    protected JLabel createLabel() {
-        return new TmmLabel(TmmResourceBundle.getString("metatag.audiotitle"));
-    }
+  @Override
+  protected JLabel createLabel() {
+    return new TmmLabel(TmmResourceBundle.getString("metatag.audiotitle"));
+  }
 
-    @Override
-    public String getId() {
-        return "tvShowAudioTitle";
-    }
+  @Override
+  public String getId() {
+    return "tvShowAudioTitle";
+  }
 
-    @Override
-    protected String parseTypeToString(String type) throws Exception {
-        return type;
-    }
+  @Override
+  protected String parseTypeToString(String type) throws Exception {
+    return type;
+  }
 
-    @Override
-    protected String parseStringToType(String string) throws Exception {
-        return string;
-    }
+  @Override
+  protected String parseStringToType(String string) throws Exception {
+    return string;
+  }
 
-    @Override
-    protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
+  @Override
+  protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
 
-        List<String> selectedItems = checkComboBox.getSelectedItems();
+    List<String> selectedItems = checkComboBox.getSelectedItems();
 
-        for (TvShowEpisode episode : episodes) {
-            List<MediaFile> mfs = episode.getMediaFiles(VIDEO, AUDIO);
-            for (MediaFile mf : mfs) {
-                // check for explicit empty search
-                if (!invert && (selectedItems.isEmpty() && mf.getAudioTitleList().isEmpty())) {
-                    return true;
-                }
-                else if (invert && (selectedItems.isEmpty() && !mf.getAudioTitleList().isEmpty())) {
-                    return true;
-                }
-
-                if (invert == Collections.disjoint(selectedItems, mf.getAudioTitleList())) {
-                    return true;
-                }
-            }
+    for (TvShowEpisode episode : episodes) {
+      List<MediaFile> mfs = episode.getMediaFiles(VIDEO, AUDIO);
+      for (MediaFile mf : mfs) {
+        // check for explicit empty search
+        if (!invert && (selectedItems.isEmpty() && mf.getAudioTitleList().isEmpty())) {
+          return true;
+        }
+        else if (invert && (selectedItems.isEmpty() && !mf.getAudioTitleList().isEmpty())) {
+          return true;
         }
 
-        return false;
+        if (invert == Collections.disjoint(selectedItems, mf.getAudioTitleList())) {
+          return true;
+        }
+      }
     }
 
-    private void buildAudioTitleArray() {
-        List<String> titles = new ArrayList<>(tvShowList.getAudioTitlesInEpisodes());
-        Collections.sort(titles);
-        setValues(titles);
-    }
+    return false;
+  }
+
+  private void buildAudioTitleArray() {
+    List<String> titles = new ArrayList<>(tvShowList.getAudioTitlesInEpisodes());
+    Collections.sort(titles);
+    setValues(titles);
+  }
 }

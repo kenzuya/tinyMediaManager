@@ -78,8 +78,8 @@ public class MediaArtwork {
     SMALL(TmmResourceBundle.getString("Settings.image.small"), 185, 278, 1);
 
     private final String text;
-    private final int width;
-    private final int height;
+    private final int    width;
+    private final int    height;
     private final int    order;
 
     PosterSizes(String text, int width, int height, int order) {
@@ -129,8 +129,8 @@ public class MediaArtwork {
     SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
 
     private final String text;
-    private final int width;
-    private final int height;
+    private final int    width;
+    private final int    height;
     private final int    order;
 
     FanartSizes(String text, int width, int height, int order) {
@@ -181,9 +181,9 @@ public class MediaArtwork {
     SMALL(TmmResourceBundle.getString("Settings.image.small"), 300, 168, 1);
 
     private final String text;
-    private final int width;
-    private final int height;
-    private final int order;
+    private final int    width;
+    private final int    height;
+    private final int    order;
 
     ThumbSizes(String text, int width, int height, int order) {
       this.text = text + ": ~" + width + "x" + height + "px";
@@ -535,7 +535,7 @@ public class MediaArtwork {
   public static class ImageSizeAndUrl implements Comparable<ImageSizeAndUrl> {
     private final int    width;
     private final int    height;
-    private final int sizeOrder;
+    private final int    sizeOrder;
     private final String url;
 
     public ImageSizeAndUrl(int width, int height, String url) {

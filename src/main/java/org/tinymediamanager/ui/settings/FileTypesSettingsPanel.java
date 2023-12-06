@@ -51,23 +51,23 @@ import net.miginfocom.swing.MigLayout;
 class FileTypesSettingsPanel extends JPanel {
   private final Settings settings = Settings.getInstance();
 
-  private JTextField        tfVideoFiletype;
-  private JList<String>     listVideoFiletypes;
-  private JTextField        tfSubtitleFiletype;
-  private JList<String>     listSubtitleFiletypes;
-  private JTextField        tfAudioFiletype;
-  private JList<String>     listAudioFiletypes;
-  private JTextField        tfCleanupFiletype;
-  private JList<String>     listCleanupFiletypes;
+  private JTextField     tfVideoFiletype;
+  private JList<String>  listVideoFiletypes;
+  private JTextField     tfSubtitleFiletype;
+  private JList<String>  listSubtitleFiletypes;
+  private JTextField     tfAudioFiletype;
+  private JList<String>  listAudioFiletypes;
+  private JTextField     tfCleanupFiletype;
+  private JList<String>  listCleanupFiletypes;
 
-  private JButton           btnAddAudioFiletype;
-  private JButton           btnAddSubtitleFiletype;
-  private JButton           btnAddVideoFiletype;
-  private JButton           btnAddCleanupFiletype;
-  private JButton           btnRemoveCleanupFiletype;
-  private JButton           btnRemoveAudioFiletype;
-  private JButton           btnRemoveSubtitleFiletype;
-  private JButton           btnRemoveVideoFiletype;
+  private JButton        btnAddAudioFiletype;
+  private JButton        btnAddSubtitleFiletype;
+  private JButton        btnAddVideoFiletype;
+  private JButton        btnAddCleanupFiletype;
+  private JButton        btnRemoveCleanupFiletype;
+  private JButton        btnRemoveAudioFiletype;
+  private JButton        btnRemoveSubtitleFiletype;
+  private JButton        btnRemoveVideoFiletype;
 
   /**
    * Instantiates a new general settings panel.

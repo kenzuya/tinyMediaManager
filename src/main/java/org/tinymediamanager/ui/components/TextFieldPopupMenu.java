@@ -30,7 +30,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public class TextFieldPopupMenu {
 
-
   private static JMenuItem getCutMenuItem(final JPopupMenu menu) {
     final JMenuItem mntmCut = new JMenuItem(TmmResourceBundle.getString("menuitem.cut"));
     mntmCut.addActionListener(e -> {

@@ -43,8 +43,7 @@ public class MovieCountSubtitleFilter extends AbstractCheckComboBoxMovieUIFilter
 
   public MovieCountSubtitleFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s)
-        .startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildCountSubtitleArray();
     movieList.addPropertyChangeListener(Constants.SUBTITLES_COUNT, evt -> SwingUtilities.invokeLater(this::buildCountSubtitleArray));
   }
@@ -77,13 +76,11 @@ public class MovieCountSubtitleFilter extends AbstractCheckComboBoxMovieUIFilter
 
     for (MediaFile mf : mediaFileList) {
       // check for explicit empty search
-      if (selectedItems.isEmpty() && mf.getSubtitles()
-          .isEmpty()) {
+      if (selectedItems.isEmpty() && mf.getSubtitles().isEmpty()) {
         return true;
       }
 
-      if (selectedItems.contains(mf.getSubtitles()
-          .size())) {
+      if (selectedItems.contains(mf.getSubtitles().size())) {
         return true;
       }
 

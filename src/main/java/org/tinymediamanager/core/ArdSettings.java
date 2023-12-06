@@ -54,9 +54,9 @@ public class ArdSettings {
 
   public static class SampleSetting implements Serializable {
 
-    private int duration = 2;
+    private int duration  = 2;
     private int minNumber = 6;
-    private int maxGap = 900;
+    private int maxGap    = 900;
 
     public int getDuration() {
       return duration;

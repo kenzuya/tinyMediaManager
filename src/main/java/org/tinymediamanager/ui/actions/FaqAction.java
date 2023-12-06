@@ -33,7 +33,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class FaqAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(FaqAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FaqAction.class);
 
   public FaqAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.faq"));

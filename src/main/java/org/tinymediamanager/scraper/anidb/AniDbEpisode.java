@@ -27,14 +27,14 @@ import javax.annotation.Nonnull;
  * @author Manuel Laggner
  */
 class AniDbEpisode {
-  int id;
-  int episode;
-  int season;
-  int runtime;
-  Date airdate;
-  float rating;
-  int votes;
-  String summary;
+  int                 id;
+  int                 episode;
+  int                 season;
+  int                 runtime;
+  Date                airdate;
+  float               rating;
+  int                 votes;
+  String              summary;
   Map<String, String> titles;
 
   private AniDbEpisode(Builder builder) {
@@ -50,15 +50,15 @@ class AniDbEpisode {
   }
 
   static final class Builder {
-    private int id = -1;
-    private int episode = -1;
-    private int season = -1;
-    private int runtime = 0;
-    private Date airdate = null;
-    private float rating = 0;
-    private int votes = 0;
-    private String summary = "";
-    private Map<String, String> titles = new HashMap<>();
+    private int                 id      = -1;
+    private int                 episode = -1;
+    private int                 season  = -1;
+    private int                 runtime = 0;
+    private Date                airdate = null;
+    private float               rating  = 0;
+    private int                 votes   = 0;
+    private String              summary = "";
+    private Map<String, String> titles  = new HashMap<>();
 
     @Nonnull
     public Builder id(int val) {

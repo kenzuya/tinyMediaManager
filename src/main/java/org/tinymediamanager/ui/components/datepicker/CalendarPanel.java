@@ -39,12 +39,12 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @author Manuel Laggner
  */
 class CalendarPanel extends JPanel implements PropertyChangeListener {
-  private Calendar          calendar;
-  protected Locale          locale;
+  private Calendar calendar;
+  protected Locale locale;
 
-  MonthComboBox             monthComboBox;
-  YearSpinner               yearSpinner;
-  DayPanel                  dayPanel;
+  MonthComboBox    monthComboBox;
+  YearSpinner      yearSpinner;
+  DayPanel         dayPanel;
 
   public CalendarPanel(Date date) {
     setLayout(new BorderLayout());

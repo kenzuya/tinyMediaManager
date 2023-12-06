@@ -51,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieSourcePanel extends JPanel {
-  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings settings = MovieModuleManager.getInstance().getSettings();
 
   private JList<String>       listDataSources;
 

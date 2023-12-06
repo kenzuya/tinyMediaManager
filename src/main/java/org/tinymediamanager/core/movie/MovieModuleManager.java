@@ -69,7 +69,7 @@ public final class MovieModuleManager implements ITmmModule {
   private static final Logger          LOGGER               = LoggerFactory.getLogger(MovieModuleManager.class);
   private static final int             COMMIT_DELAY         = 2000;
 
-    private static final String METADATA_VERSION = "VERSION";
+  private static final String          METADATA_VERSION     = "VERSION";
 
   private static MovieModuleManager    instance;
 
@@ -87,7 +87,7 @@ public final class MovieModuleManager implements ITmmModule {
 
   private MVMap<UUID, String>          movieMap;
   private MVMap<UUID, String>          movieSetMap;
-    private MVMap<String, String> metadataMap;
+  private MVMap<String, String>        metadataMap;
 
   private Timer                        databaseTimer;
 
@@ -292,7 +292,7 @@ public final class MovieModuleManager implements ITmmModule {
 
           movieMap = mvStore.openMap("movies");
           movieSetMap = mvStore.openMap("movieSets");
-            metadataMap = mvStore.openMap("metadata");
+          metadataMap = mvStore.openMap("metadata");
 
           for (Movie movie : getMovieList().getMovies()) {
             persistMovie(movie);
@@ -319,7 +319,7 @@ public final class MovieModuleManager implements ITmmModule {
 
     movieMap = mvStore.openMap("movies");
     movieSetMap = mvStore.openMap("movieSets");
-      metadataMap = mvStore.openMap("metadata");
+    metadataMap = mvStore.openMap("metadata");
 
     getMovieList().loadMoviesFromDatabase(movieMap);
     getMovieList().loadMovieSetsFromDatabase(movieSetMap);
@@ -526,11 +526,11 @@ public final class MovieModuleManager implements ITmmModule {
     return movieSetObjectReader;
   }
 
-    public int getDbVersion() {
-        return MetadataUtil.parseInt(metadataMap.get(METADATA_VERSION), 0);
-    }
+  public int getDbVersion() {
+    return MetadataUtil.parseInt(metadataMap.get(METADATA_VERSION), 0);
+  }
 
-    public void setDbVersion(int ver) {
-        metadataMap.put(METADATA_VERSION, String.valueOf(ver));
-    }
+  public void setDbVersion(int ver) {
+    metadataMap.put(METADATA_VERSION, String.valueOf(ver));
+  }
 }

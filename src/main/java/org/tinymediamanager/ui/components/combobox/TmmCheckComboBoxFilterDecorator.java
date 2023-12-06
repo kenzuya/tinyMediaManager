@@ -87,10 +87,12 @@ class TmmCheckComboBoxFilterDecorator<E> {
         switch (keyCode) {
           case KeyEvent.VK_DELETE:
             return;
+
           case KeyEvent.VK_ENTER:
             resetFilterPopup();
             e.consume();
             return;
+
           case KeyEvent.VK_ESCAPE:
             if (selectedItem != null) {
               comboBox.setSelectedItem(selectedItem);
@@ -98,9 +100,11 @@ class TmmCheckComboBoxFilterDecorator<E> {
             resetFilterPopup();
             e.consume();
             return;
+
           case KeyEvent.VK_BACK_SPACE:
             textHandler.removeCharAtEnd();
             break;
+
           default:
             textHandler.add(keyChar);
         }

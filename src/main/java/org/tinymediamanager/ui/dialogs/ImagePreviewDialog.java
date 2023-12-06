@@ -53,10 +53,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePreviewDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
+  private static final Logger LOGGER     = LoggerFactory.getLogger(ImagePreviewDialog.class);
 
-  private final JPanel        imagePanel       = new JPanel();
-  private final ImageViewer   imgViewer        = new ImageViewer();
+  private final JPanel        imagePanel = new JPanel();
+  private final ImageViewer   imgViewer  = new ImageViewer();
 
   private String              imageUrl;
   private String              imagePath;

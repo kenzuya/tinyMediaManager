@@ -37,7 +37,8 @@ public class MdbListController {
     builder.registerTypeAdapter(Integer.class, (JsonDeserializer<Integer>) (json, typeOfT, context) -> {
       try {
         return json.getAsInt();
-      } catch (NumberFormatException e) {
+      }
+      catch (NumberFormatException e) {
         return 0;
       }
     });
@@ -47,9 +48,9 @@ public class MdbListController {
 
   private Retrofit buildRetrofitInstance(OkHttpClient client) {
     return new Retrofit.Builder().client(client)
-            .baseUrl("https://mdblist.com/")
-            .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create()))
-            .build();
+        .baseUrl("https://mdblist.com/")
+        .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create()))
+        .build();
   }
 
   private MdbListService getService() {

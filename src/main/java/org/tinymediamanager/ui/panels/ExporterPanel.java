@@ -62,7 +62,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class ExporterPanel extends AbstractModalInputPanel {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ExporterPanel.class);
+  private static final Logger           LOGGER = LoggerFactory.getLogger(ExporterPanel.class);
 
   protected final JTextField            tfExportDir;
   protected final JList<ExportTemplate> list;

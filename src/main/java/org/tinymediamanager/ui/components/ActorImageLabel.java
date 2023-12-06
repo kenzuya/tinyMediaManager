@@ -33,8 +33,8 @@ import org.tinymediamanager.core.entities.Person;
  * @author Manuel Laggner
  */
 public class ActorImageLabel extends ImageLabel {
-  private SwingWorker<Void, Void> actorWorker      = null;
-  private Person                  actor            = null;
+  private SwingWorker<Void, Void> actorWorker = null;
+  private Person                  actor       = null;
 
   public void setActor(MediaEntity mediaEntity, Person actor) {
     clearImage();

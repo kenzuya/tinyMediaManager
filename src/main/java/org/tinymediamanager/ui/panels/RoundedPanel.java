@@ -37,16 +37,16 @@ import org.tinymediamanager.ui.thirdparty.ShadowRenderer;
  * @author Manuel Laggner
  */
 public class RoundedPanel extends JPanel {
-  protected Dimension       arcs             = new Dimension(20, 20);
+  protected Dimension      arcs = new Dimension(20, 20);
 
-  protected boolean         drawShadow;
-  protected Color           shadowColor;
-  protected int             shadowSize;
-  protected float           shadowOpacity;
-  protected Insets          insets;
+  protected boolean        drawShadow;
+  protected Color          shadowColor;
+  protected int            shadowSize;
+  protected float          shadowOpacity;
+  protected Insets         insets;
 
-  protected ShadowRenderer  shadowRenderer;
-  protected BufferedImage   shadowBuffer;
+  protected ShadowRenderer shadowRenderer;
+  protected BufferedImage  shadowBuffer;
 
   public RoundedPanel() {
     this(true, Color.BLACK, 0.5f, 8);
@@ -96,8 +96,7 @@ public class RoundedPanel extends JPanel {
           || (bounds.getHeight() + shadowSize != shadowBuffer.getHeight())) {
         BufferedImage img = createCompatibleImage(bounds.width, bounds.height);
         RoundRectangle2D shadowShape = new RoundRectangle2D.Float(bounds.x, bounds.y, bounds.width + (float) shadowSize,
-            bounds.height - (float) shadowSize,
-            arcs.width, arcs.height);
+            bounds.height - (float) shadowSize, arcs.width, arcs.height);
         Graphics2D tg2d = img.createGraphics();
         setRenderingHints(g2d);
         tg2d.setColor(Color.BLACK);

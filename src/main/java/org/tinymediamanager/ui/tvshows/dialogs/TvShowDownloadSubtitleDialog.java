@@ -49,7 +49,7 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
   private final TmmCheckComboBox<MediaLanguages> cbLanguage;
   private final JCheckBox                        chckbxForceBestSubtitle;
 
-  private boolean                                startDownload    = false;
+  private boolean                                startDownload = false;
 
   public TvShowDownloadSubtitleDialog(String title) {
     super(title, "downloadSubtitle");

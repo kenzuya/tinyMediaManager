@@ -26,7 +26,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class DocsAction extends TmmAction {
-  public static final String          DOCS_URL         = "https://www.tinymediamanager.org/docs";
+  public static final String DOCS_URL = "https://www.tinymediamanager.org/docs";
 
   public DocsAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.docs"));

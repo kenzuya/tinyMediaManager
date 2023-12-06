@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.SwingUtilities;

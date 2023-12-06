@@ -43,8 +43,7 @@ public class MovieCountAudioStreamFilter extends AbstractCheckComboBoxMovieUIFil
 
   public MovieCountAudioStreamFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s)
-        .startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildCountAudioStreamArray();
     movieList.addPropertyChangeListener(Constants.AUDIOSTREAMS_COUNT, evt -> SwingUtilities.invokeLater(this::buildCountAudioStreamArray));
   }
@@ -77,13 +76,11 @@ public class MovieCountAudioStreamFilter extends AbstractCheckComboBoxMovieUIFil
 
     for (MediaFile mf : mediaFileList) {
       // check for explicit empty search
-      if (selectedItems.isEmpty() && mf.getAudioStreams()
-          .isEmpty()) {
+      if (selectedItems.isEmpty() && mf.getAudioStreams().isEmpty()) {
         return true;
       }
 
-      if (selectedItems.contains(mf.getAudioStreams()
-          .size())) {
+      if (selectedItems.contains(mf.getAudioStreams().size())) {
         return true;
       }
 

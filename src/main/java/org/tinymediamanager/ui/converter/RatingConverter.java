@@ -28,7 +28,7 @@ import org.tinymediamanager.core.entities.MediaRating;
  */
 public class RatingConverter<T extends MediaRating> extends Converter<T, String> {
 
-  private final Locale                locale = Locale.getDefault();
+  private final Locale locale = Locale.getDefault();
 
   @Override
   public String convertForward(T rating) {

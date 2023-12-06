@@ -38,12 +38,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TaskListComponent extends JPanel {
-  private TmmTaskHandle               taskHandle;
+  private TmmTaskHandle taskHandle;
 
-  private JLabel                      mainLabel;
-  private JLabel                      dynaLabel;
-  private JProgressBar                bar;
-  private JButton                     closeButton;
+  private JLabel        mainLabel;
+  private JLabel        dynaLabel;
+  private JProgressBar  bar;
+  private JButton       closeButton;
 
   public TaskListComponent() {
     initComponents();

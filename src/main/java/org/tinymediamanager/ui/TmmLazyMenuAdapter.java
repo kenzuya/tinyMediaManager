@@ -33,7 +33,7 @@ public abstract class TmmLazyMenuAdapter implements PopupMenuListener, MenuListe
 
   @Override
   public void menuSelected(MenuEvent e) {
-    if (e.getSource()instanceof JMenu menu) {
+    if (e.getSource() instanceof JMenu menu) {
       menuWillBecomeVisible(menu);
     }
   }
@@ -50,7 +50,7 @@ public abstract class TmmLazyMenuAdapter implements PopupMenuListener, MenuListe
 
   @Override
   public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-    if (e.getSource()instanceof JPopupMenu popupMenu && popupMenu.getInvoker()instanceof JMenu menu) {
+    if (e.getSource() instanceof JPopupMenu popupMenu && popupMenu.getInvoker() instanceof JMenu menu) {
       menuWillBecomeVisible(menu);
     }
   }

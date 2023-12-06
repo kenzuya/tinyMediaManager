@@ -61,8 +61,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner*
  */
 class TvShowScraperPanel extends JPanel {
-  private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
-  private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings      settings = TvShowModuleManager.getInstance().getSettings();
+  private final List<TvShowScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());
 
   private JTable                    tableScraper;
   private JComboBox<MediaLanguages> cbScraperLanguage;

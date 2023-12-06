@@ -147,15 +147,19 @@ final class TmmTreeTableEventBroadcaster implements TableModelListener, TreeMode
         case NODES_CHANGED:
           listener.treeNodesChanged(e);
           break;
+
         case NODES_INSERTED:
           listener.treeNodesInserted(e);
           break;
+
         case NODES_REMOVED:
           listener.treeNodesRemoved(e);
           break;
+
         case STRUCTURE_CHANGED:
           listener.treeStructureChanged(e);
           break;
+
         default:
           assert false;
       }
@@ -332,8 +336,10 @@ final class TmmTreeTableEventBroadcaster implements TableModelListener, TreeMode
           case NODES_INSERTED:
           case NODES_REMOVED:
             return new TableModelEvent[] { new TableModelEvent(getModel(), row, row, 0, TableModelEvent.UPDATE) };
+
           case NODES_CHANGED:
             return new TableModelEvent[] { new TableModelEvent(getModel(), row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE) };
+
           default:
             assert false : "Unknown event type " + type;
         }
@@ -360,12 +366,15 @@ final class TmmTreeTableEventBroadcaster implements TableModelListener, TreeMode
         case NODES_CHANGED:
           result[i] = createTableChangeEvent(e, currBlock);
           break;
+
         case NODES_INSERTED:
           result[i] = createTableInsertionEvent(e, currBlock);
           break;
+
         case NODES_REMOVED:
           result[i] = createTableDeletionEvent(e, currBlock);
           break;
+
         default:
           assert false : "Unknown event type: " + type;
       }

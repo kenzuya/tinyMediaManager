@@ -20,10 +20,8 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.moviemeter.services.FilmService;
 import org.tinymediamanager.scraper.moviemeter.services.SearchService;
@@ -53,7 +51,8 @@ public class ITMovieMeterServiceTest extends BasicITest {
       assertThat(film).isNotNull();
       assertThat(film.title).isEqualTo("Avatar");
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

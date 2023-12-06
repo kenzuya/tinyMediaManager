@@ -28,7 +28,6 @@ import org.tinymediamanager.core.threading.TmmTask;
 public class TvShowClearTraktTvTask extends TmmTask {
   private static final Logger LOGGER = LoggerFactory.getLogger(TvShowClearTraktTvTask.class);
 
-
   public TvShowClearTraktTvTask() {
     super(TmmResourceBundle.getString("trakt.clear"), 0, TaskType.BACKGROUND_TASK);
   }

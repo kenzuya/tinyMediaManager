@@ -39,7 +39,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowOpenFolderAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(TvShowOpenFolderAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowOpenFolderAction.class);
 
   public TvShowOpenFolderAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.openfolder"));

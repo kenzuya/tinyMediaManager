@@ -18,10 +18,8 @@ package org.tinymediamanager.thirdparty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 
 import com.sun.jna.Platform;
 

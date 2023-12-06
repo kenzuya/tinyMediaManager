@@ -21,10 +21,8 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
@@ -53,7 +51,8 @@ public class ITHDTrailersNetTrailerProviderTest extends BasicITest {
       assertThat(trailer.getUrl()).isNotEmpty();
       assertThat(trailer.getProvider()).isNotEmpty();
       assertThat(trailer.getQuality()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       fail(e.getMessage());
     }
   }

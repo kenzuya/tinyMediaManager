@@ -64,13 +64,13 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePanel extends JPanel implements HierarchyListener {
-  private static final Logger   LOGGER           = LoggerFactory.getLogger(ImagePanel.class);
+  private static final Logger   LOGGER       = LoggerFactory.getLogger(ImagePanel.class);
 
   private final List<MediaFile> mediaFiles;
 
-  protected int                 maxWidth         = 300;
-  protected int                 maxHeight        = 100;
-  private ImageLoader           activeWorker     = null;
+  protected int                 maxWidth     = 300;
+  protected int                 maxHeight    = 100;
+  private ImageLoader           activeWorker = null;
 
   /**
    * UI components

@@ -173,19 +173,20 @@ public class ImageCache {
     return cacheImage(mediaFile, false);
   }
 
-    /**
-     * cache the given {@link MediaFile} in an own thread
-     *
-     * @param mediaFile the {@link MediaFile} to cache
-     */
-    public static void cacheImageAsync(MediaFile mediaFile) {
-        if (!Settings.getInstance().isImageCache() || !mediaFile.isGraphic()) {
-            // we can only cache when the cache is enabled AND this is an image
-            return;
-        }
-
-        TmmTaskManager.getInstance().addImageCacheTask(new ImageCacheTask(mediaFile));
+  /**
+   * cache the given {@link MediaFile} in an own thread
+   *
+   * @param mediaFile
+   *          the {@link MediaFile} to cache
+   */
+  public static void cacheImageAsync(MediaFile mediaFile) {
+    if (!Settings.getInstance().isImageCache() || !mediaFile.isGraphic()) {
+      // we can only cache when the cache is enabled AND this is an image
+      return;
     }
+
+    TmmTaskManager.getInstance().addImageCacheTask(new ImageCacheTask(mediaFile));
+  }
 
   /**
    * Cache image.

@@ -8,16 +8,16 @@ public class MdbListRatings {
   public String source;
 
   @SerializedName("value")
-  public Float value;
+  public Float  value;
 
   @SerializedName("score")
-  public int score;
+  public int    score;
 
   @SerializedName("votes")
-  public int votes;
+  public int    votes;
 
   @SerializedName("popular")
-  public int popular;
+  public int    popular;
 
   @SerializedName("url")
   public String url;

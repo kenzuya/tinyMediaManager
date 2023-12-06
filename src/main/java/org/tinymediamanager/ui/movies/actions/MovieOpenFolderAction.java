@@ -39,7 +39,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieOpenFolderAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MovieOpenFolderAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieOpenFolderAction.class);
 
   public MovieOpenFolderAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.openfolder"));

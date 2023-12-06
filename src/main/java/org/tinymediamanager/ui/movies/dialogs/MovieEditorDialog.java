@@ -228,7 +228,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
    */
   public MovieEditorDialog(Movie movie, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("movie.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + movie.getPathNIO()
-            + " >", "movieEditor", movie);
+        + " >", "movieEditor", movie);
 
     // creation of lists
     cast = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -920,7 +920,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
       artworkPanel.setLayout(new MigLayout("", "[20%:35%:35%,grow][20lp:n][20%:35%:35%,grow][20lp:n][15%:30%:30%,grow]",
-              "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][150lp:30%:30%,grow]"));
+          "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][150lp:30%:30%,grow]"));
       {
         JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
         artworkPanel.add(lblKeyartT, "cell 4 0");
@@ -1017,7 +1017,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
-                    movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
+                movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
 
             dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
 
@@ -1033,7 +1033,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
         lblClearart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         artworkPanel.add(lblClearart, "cell 2 1,grow");
         lblClearart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-                e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
+            e -> setImageSizeAndCreateLink(lblClearartSize, lblClearart, btnDeleteClearart, MediaFileType.CLEARART));
 
       }
       {
@@ -1395,7 +1395,7 @@ public class MovieEditorDialog extends AbstractEditorDialog {
       // set extrathumbs
       // the list may be empty if just the thumb has been exchanged
       if (extrathumbs != null && !extrathumbs.isEmpty() && (extrathumbs.size() != movieToEdit.getExtraThumbs().size()
-              || !extrathumbs.containsAll(movieToEdit.getExtraThumbs()) || !movieToEdit.getExtraThumbs().containsAll(extrathumbs))) {
+          || !extrathumbs.containsAll(movieToEdit.getExtraThumbs()) || !movieToEdit.getExtraThumbs().containsAll(extrathumbs))) {
         movieToEdit.setExtraThumbs(extrathumbs);
         movieToEdit.downloadArtwork(MediaFileType.EXTRATHUMB);
       }

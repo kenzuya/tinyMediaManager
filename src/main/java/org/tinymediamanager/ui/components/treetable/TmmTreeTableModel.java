@@ -219,7 +219,7 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer()instanceof JComponent headerRenderer) {
+    if (column.getHeaderRenderer() instanceof JComponent headerRenderer) {
       headerRenderer.setToolTipText(getHeaderTooltip(columnIndex + 1)); // because inside the method an explicit -1 is already done as above
     }
 

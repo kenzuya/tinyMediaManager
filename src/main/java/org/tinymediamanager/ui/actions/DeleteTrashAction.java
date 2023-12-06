@@ -33,7 +33,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
  * @author Manuel Laggner
  */
 public class DeleteTrashAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(DeleteTrashAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DeleteTrashAction.class);
 
   public DeleteTrashAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.deletetrash"));

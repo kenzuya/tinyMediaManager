@@ -101,7 +101,8 @@ public class ITAniDBTvShowMetadataProviderTest extends BasicITest {
       assertEquals("Corona", member.getRole());
       assertEquals("Chiba Saeko", member.getName());
       assertEquals("http://img7.anidb.net/pics/anime/44706.jpg", member.getThumbUrl());
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -118,7 +119,8 @@ public class ITAniDBTvShowMetadataProviderTest extends BasicITest {
 
     try {
       MediaMetadata md = mp.getMetadata(options);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }

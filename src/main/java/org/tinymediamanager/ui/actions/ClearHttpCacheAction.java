@@ -29,7 +29,7 @@ import org.tinymediamanager.scraper.http.TmmHttpClient;
  * @author Manuel Laggner
  */
 public class ClearHttpCacheAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearHttpCacheAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClearHttpCacheAction.class);
 
   public ClearHttpCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.clearhttpcache"));

@@ -33,7 +33,7 @@ public enum TrailerSources {
   AOL("Aol", Collections.singletonList("aol")),
   HDTRAILERS("HD Trailers", Collections.singletonList("hdtrailers"));  // @formatter:on
 
-  private String displayText;
+  private String       displayText;
   private List<String> possibleSources;
 
   TrailerSources(String text, List<String> sources) {

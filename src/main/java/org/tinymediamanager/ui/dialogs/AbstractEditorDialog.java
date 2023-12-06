@@ -40,10 +40,10 @@ import org.tinymediamanager.ui.components.LinkLabel;
 public abstract class AbstractEditorDialog extends TmmDialog {
   private final MediaEntity mediaEntity;
 
-  protected boolean continueQueue = true;
-  protected boolean navigateBack = false;
-  protected int queueIndex;
-  protected int queueSize;
+  protected boolean         continueQueue = true;
+  protected boolean         navigateBack  = false;
+  protected int             queueIndex;
+  protected int             queueSize;
 
   protected AbstractEditorDialog(String title, String id, MediaEntity mediaEntity) {
     super(title, id);
@@ -85,14 +85,16 @@ public abstract class AbstractEditorDialog extends TmmDialog {
     // check if there is a change in the artwork - in this case take the dimension from the imagelabel
     if (StringUtils.isNotBlank(imageLabel.getImageUrl()) && !imageLabel.getImageUrl().equals(mediaEntity.getArtworkUrl(type))) {
       dimension = imageLabel.getOriginalImageSize();
-    } else {
+    }
+    else {
       // take from the existing artwork
       dimension = mediaEntity.getArtworkDimension(type);
     }
 
     if (dimension.width == 0 && dimension.height == 0) {
       lblSize.setText(imageLabel.getOriginalImageSize().width + "x" + imageLabel.getOriginalImageSize().height);
-    } else {
+    }
+    else {
       lblSize.setText(dimension.width + "x" + dimension.height);
     }
 

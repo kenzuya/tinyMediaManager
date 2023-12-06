@@ -77,8 +77,7 @@ public class UIUtils {
    * @return a visible area rectangle
    */
   public static Rectangle getScreenRectangle(int x, int y) {
-    GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment()
-        .getScreenDevices();
+    GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
     if (devices.length == 0) {
       return new Rectangle(x, y, 0, 0);
     }
@@ -165,8 +164,7 @@ public class UIUtils {
   }
 
   private static Insets calcInsets(GraphicsConfiguration gc) {
-    return Toolkit.getDefaultToolkit()
-        .getScreenInsets(gc);
+    return Toolkit.getDefaultToolkit().getScreenInsets(gc);
   }
 
   /**

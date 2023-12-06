@@ -58,6 +58,7 @@ import org.tinymediamanager.ui.movies.filters.MovieAudioChannelFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioCodecFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioTitleFilter;
+import org.tinymediamanager.ui.movies.filters.MovieBannerSizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
 import org.tinymediamanager.ui.movies.filters.MovieClearArtSizeFilter;
@@ -110,7 +111,6 @@ import org.tinymediamanager.ui.movies.filters.MovieVideoFilesizeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieVideoFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieWatchedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
-import org.tinymediamanager.ui.movies.filters.MovieBannerSizeFilter;
 import org.tinymediamanager.ui.panels.FilterSavePanel;
 import org.tinymediamanager.ui.panels.ModalPopupPanel;
 
@@ -206,7 +206,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieEditionFilter(), panelMetadata);
         addFilter(new MovieNoteFilter(), panelMetadata);
 
-        panelMetadata.add(Box.createHorizontalGlue(),"wrap");
+        panelMetadata.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new MovieImdbIdFilter(), panelMetadata);
         addFilter(new MovieTmdbIdFilter(), panelMetadata);

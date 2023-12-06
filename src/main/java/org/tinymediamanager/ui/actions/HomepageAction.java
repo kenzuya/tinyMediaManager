@@ -33,7 +33,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class HomepageAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(HomepageAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HomepageAction.class);
 
   public HomepageAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.homepage.long"));

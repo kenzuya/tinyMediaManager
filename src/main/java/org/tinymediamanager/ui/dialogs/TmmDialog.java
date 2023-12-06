@@ -53,13 +53,13 @@ import net.miginfocom.swing.MigLayout;
  */
 public abstract class TmmDialog extends JDialog implements IModalPopupPanelProvider {
 
-  protected BindingGroup                bindingGroup = null;
+  protected BindingGroup bindingGroup = null;
 
-  protected JPanel                      topPanel     = null;
-  protected JPanel                      bottomPanel  = null;
-  protected JPanel                      buttonPanel  = null;
+  protected JPanel       topPanel     = null;
+  protected JPanel       bottomPanel  = null;
+  protected JPanel       buttonPanel  = null;
 
-  private int                           popupIndex   = JLayeredPane.MODAL_LAYER;
+  private int            popupIndex   = JLayeredPane.MODAL_LAYER;
 
   /**
    * @wbp.parser.constructor
