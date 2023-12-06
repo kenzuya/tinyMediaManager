@@ -25,7 +25,11 @@ public class JsonUtils {
     }
     JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
     try {
-      return mapper.readValue(jsonParser, clazz);
+      E ret = mapper.readValue(jsonParser, clazz);
+      if (ret == null) {
+        LOGGER.warn("JsonNode returning NULL (readValue {})", clazz.getCanonicalName());
+      }
+      return ret;
     }
     catch (Exception e) {
       LOGGER.warn("mapping to {} failed: {}", clazz, e);
@@ -40,7 +44,11 @@ public class JsonUtils {
     }
     JsonParser jsonParser = mapper.treeAsTokens(jsonNode);
     try {
-      return mapper.readValue(jsonParser, JsonUtils.listType(mapper, clazz));
+      List<E> ret = mapper.readValue(jsonParser, JsonUtils.listType(mapper, clazz));
+      if (ret == null) {
+        LOGGER.warn("JsonNode returning NULL (readValue {})", clazz.getCanonicalName());
+      }
+      return ret;
     }
     catch (Exception e) {
       LOGGER.warn("mapping to {} failed: {}", clazz, e);

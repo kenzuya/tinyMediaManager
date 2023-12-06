@@ -912,7 +912,9 @@ public abstract class ImdbParser {
 
       JsonNode releaseDateNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/releaseDate");
       ImdbReleaseDate relDate = JsonUtils.parseObject(mapper, releaseDateNode, ImdbReleaseDate.class);
-      md.setReleaseDate(relDate.toDate());
+      if (relDate != null) {
+        md.setReleaseDate(relDate.toDate());
+      }
 
       md.setRuntime(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
       // fallback
