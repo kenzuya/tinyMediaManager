@@ -1639,7 +1639,6 @@ public abstract class ImdbParser {
   protected void parseReleaseinfoPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
     try {
       String json = doc.getElementById("__NEXT_DATA__").data();
-      System.out.println(json);
       JsonNode node = mapper.readTree(json);
 
       JsonNode itemsNode = JsonUtils.at(node, "/props/pageProps/contentData/categories");
