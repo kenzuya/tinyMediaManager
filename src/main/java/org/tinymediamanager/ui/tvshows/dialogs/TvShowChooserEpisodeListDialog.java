@@ -173,9 +173,9 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
     public void calculateScore() {
       float score = 0;
       if (StringUtils.isNotBlank(title)) {
-        TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
-            .detectEpisodeFromFilename(tvShowEpisode.getMainVideoFile().getFilename(), tvShowEpisode.getTvShow().getTitle());
-        score = MetadataUtil.calculateScore(title, result.cleanedName);
+        String cleanedName = TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(tvShowEpisode.getMainVideoFile().getBasename(),
+            tvShowEpisode.getTvShow().getTitle());
+        score = MetadataUtil.calculateScore(title, cleanedName);
       }
 
       float oldValue = this.score;
