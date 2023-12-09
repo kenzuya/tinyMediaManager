@@ -112,9 +112,9 @@ public enum MediaCertification {
     AU_G(CountryCode.AU, "G", new String[] { "G" }),
     AU_PG(CountryCode.AU, "PG", new String[] { "PG" }),
     AU_M(CountryCode.AU, "M", new String[] { "M" }),
-    AU_MA15(CountryCode.AU, "MA15+", new String[] { "MA15+" }),
-    AU_R18(CountryCode.AU, "R18+", new String[] { "R18+" }),
-    AU_X18(CountryCode.AU, "X18+", new String[] { "X18+" }),
+    AU_MA15(CountryCode.AU, "MA15+", new String[] { "MA15+", "MA 15+" }),
+    AU_R18(CountryCode.AU, "R18+", new String[] { "R18+", "R 18+" }),
+    AU_X18(CountryCode.AU, "X18+", new String[] { "X18+", "X 18+" }),
     AU_RC(CountryCode.AU, "RC", new String[] { "RC" }),
 
     CZ_U(CountryCode.CZ, "U", new String[] { "U" }),
