@@ -51,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.UpgradeTasks;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
@@ -559,6 +560,13 @@ public final class TvShowList extends AbstractModelObject {
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
 
+        // sanity check: can the current OS handle the storage path?
+        if (TmmOsUtils.hasInvalidCharactersForFilesystem(tvShow.getPath())) {
+          LOGGER.info("tvshow \"{}\" with invalid characters in path found - dropping", tvShow.getPath());
+          toRemove.add(uuid);
+          return;
+        }
+
         // inline upgrade from v4 - performance!
         if (module.getDbVersion() < 5002) {
           tvShow.getDummyEpisodes().forEach(UpgradeTasks::upgradeEpisodeNumbers);
@@ -608,6 +616,13 @@ public final class TvShowList extends AbstractModelObject {
         TvShowSeason season = seasonObjectReader.readValue(json);
         season.setDbId(uuid);
 
+        // sanity check: can the current OS handle the storage path?
+        if (TmmOsUtils.hasInvalidCharactersForFilesystem(season.getPath())) {
+          LOGGER.info("season \"{}\" with invalid characters in path found - dropping", season.getPath());
+          toRemove.add(uuid);
+          return;
+        }
+
         // assign it to the right TV show
         TvShow tvShow = tvShowUuidMap.get(season.getTvShowDbId());
         if (tvShow != null) {
@@ -654,6 +669,13 @@ public final class TvShowList extends AbstractModelObject {
         if (isEpisodeCorrupt(episode)) {
           // no video file? drop it
           LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
+          toRemove.add(uuid);
+          return;
+        }
+
+        // sanity check: can the current OS handle the storage path?
+        if (TmmOsUtils.hasInvalidCharactersForFilesystem(episode.getPath())) {
+          LOGGER.info("episode \"{}\" with invalid characters in path found - dropping", episode.getPath());
           toRemove.add(uuid);
           return;
         }

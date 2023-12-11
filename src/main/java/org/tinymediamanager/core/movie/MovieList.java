@@ -52,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -448,6 +449,14 @@ public final class MovieList extends AbstractModelObject {
           // no video file or path or datasource? drop it
           LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
           toRemove.add(uuid);
+          return;
+        }
+
+        // sanity check: can the current OS handle the storage path?
+        if (TmmOsUtils.hasInvalidCharactersForFilesystem(movie.getPath())) {
+          LOGGER.info("movie \"{}\" with invalid characters in path found - dropping", movie.getPath());
+          toRemove.add(uuid);
+          // TODO: check every MF and their path/filename too?!
           return;
         }
 

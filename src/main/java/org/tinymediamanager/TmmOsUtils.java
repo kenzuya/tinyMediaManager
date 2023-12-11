@@ -236,4 +236,23 @@ public class TmmOsUtils {
 
     return userDir;
   }
+
+  /**
+   * Test for illegal characters not supported by OS, crashing the process.<br>
+   * This does NOT check for all known variants; but creating such in Linux and opening in Windows should be possible
+   * 
+   * @param name
+   * @return
+   */
+  public static boolean hasInvalidCharactersForFilesystem(String name) {
+    // https://stackoverflow.com/a/31976060
+    boolean ret = false;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      ret = name.matches(".*[\\\":<>|?*].*");
+      if (ret == false) {
+        ret = name.endsWith(".") || name.endsWith(" ");
+      }
+    }
+    return ret;
+  }
 }
