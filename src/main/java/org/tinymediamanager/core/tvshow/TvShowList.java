@@ -560,9 +560,9 @@ public final class TvShowList extends AbstractModelObject {
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
 
-        // sanity check: can the current OS handle the storage path?
-        if (TmmOsUtils.hasInvalidCharactersForFilesystem(tvShow.getPath())) {
-          LOGGER.info("tvshow \"{}\" with invalid characters in path found - dropping", tvShow.getPath());
+        // some sanity checks
+        if (isCorrupt(tvShow)) {
+          LOGGER.error("Removing corrupt show: {}", json);
           toRemove.add(uuid);
           return;
         }
@@ -616,13 +616,6 @@ public final class TvShowList extends AbstractModelObject {
         TvShowSeason season = seasonObjectReader.readValue(json);
         season.setDbId(uuid);
 
-        // sanity check: can the current OS handle the storage path?
-        if (TmmOsUtils.hasInvalidCharactersForFilesystem(season.getPath())) {
-          LOGGER.info("season \"{}\" with invalid characters in path found - dropping", season.getPath());
-          toRemove.add(uuid);
-          return;
-        }
-
         // assign it to the right TV show
         TvShow tvShow = tvShowUuidMap.get(season.getTvShowDbId());
         if (tvShow != null) {
@@ -665,17 +658,9 @@ public final class TvShowList extends AbstractModelObject {
         TvShowEpisode episode = episodeObjectReader.readValue(json);
         episode.setDbId(uuid);
 
-        // sanity check: only episodes with a video file are valid
-        if (isEpisodeCorrupt(episode)) {
-          // no video file? drop it
-          LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
-          toRemove.add(uuid);
-          return;
-        }
-
-        // sanity check: can the current OS handle the storage path?
-        if (TmmOsUtils.hasInvalidCharactersForFilesystem(episode.getPath())) {
-          LOGGER.info("episode \"{}\" with invalid characters in path found - dropping", episode.getPath());
+        // some sanity checks
+        if (isCorrupt(episode)) {
+          LOGGER.error("Removing corrupt episode: {}", json);
           toRemove.add(uuid);
           return;
         }
@@ -758,8 +743,36 @@ public final class TvShowList extends AbstractModelObject {
     updateMediaInformationLists(episodes);
   }
 
-  private boolean isEpisodeCorrupt(TvShowEpisode episode) {
-    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty();
+  private boolean isCorrupt(TvShow show) {
+    if (StringUtils.isBlank(show.getPath())) {
+      LOGGER.error("TvShow without path - dropping");
+      return true;
+    }
+    if (StringUtils.isBlank(show.getDataSource())) {
+      LOGGER.error("TvShow without datasource - dropping");
+      return true;
+    }
+    if (TmmOsUtils.hasInvalidCharactersForFilesystem(show.getPath())) {
+      LOGGER.error("TvShow with invalid characters for this OS - dropping");
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isCorrupt(TvShowEpisode episode) {
+    if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+      LOGGER.error("Episode S{} E{} without MediaFiles - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    if (StringUtils.isBlank(episode.getPath())) {
+      LOGGER.error("Episode S{} E{} without path - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    if (TmmOsUtils.hasInvalidCharactersForFilesystem(episode.getPath())) {
+      LOGGER.error("Episode S{} E{} with invalid characters for this OS - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    return false;
   }
 
   public void persistTvShow(TvShow tvShow) {
@@ -795,10 +808,9 @@ public final class TvShowList extends AbstractModelObject {
 
   public void persistEpisode(TvShowEpisode episode) {
     // sanity check
-    if (isEpisodeCorrupt(episode)) {
+    if (isCorrupt(episode)) {
       // remove corrupt episode
-      LOGGER.info("episode {} - \"S{}E{}\" without video file/path - dropping", episode.getTvShow().getTitle(), episode.getSeason(),
-          episode.getEpisode());
+      LOGGER.info("Cannot persist episode {} - \"S{}E{}\" - dropping", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode());
       removeEpisodeFromDb(episode);
     }
     else {

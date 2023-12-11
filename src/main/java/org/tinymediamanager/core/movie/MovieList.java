@@ -444,19 +444,10 @@ public final class MovieList extends AbstractModelObject {
         Movie movie = movieObjectReader.readValue(json);
         movie.setDbId(uuid);
 
-        // sanity check: only movies with a video file are valid
-        if (isMovieCorrupt(movie)) {
-          // no video file or path or datasource? drop it
-          LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
+        // some sanity checks
+        if (isCorrupt(movie)) {
+          LOGGER.error("Removing corrupt movie: {}", json);
           toRemove.add(uuid);
-          return;
-        }
-
-        // sanity check: can the current OS handle the storage path?
-        if (TmmOsUtils.hasInvalidCharactersForFilesystem(movie.getPath())) {
-          LOGGER.info("movie \"{}\" with invalid characters in path found - dropping", movie.getPath());
-          toRemove.add(uuid);
-          // TODO: check every MF and their path/filename too?!
           return;
         }
 
@@ -546,8 +537,24 @@ public final class MovieList extends AbstractModelObject {
     }
   }
 
-  private boolean isMovieCorrupt(Movie movie) {
-    return movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource());
+  private boolean isCorrupt(MediaEntity movie) {
+    if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+      LOGGER.error("Movie without MediaFiles - dropping");
+      return true;
+    }
+    if (StringUtils.isBlank(movie.getPath())) {
+      LOGGER.error("Movie without path - dropping");
+      return true;
+    }
+    if (StringUtils.isBlank(movie.getDataSource())) {
+      LOGGER.error("Movie without datasource - dropping");
+      return true;
+    }
+    if (TmmOsUtils.hasInvalidCharactersForFilesystem(movie.getPath())) {
+      LOGGER.error("Movie with invalid characters for this OS - dropping");
+      return true;
+    }
+    return false;
   }
 
   public void persistMovie(Movie movie) {
@@ -562,9 +569,9 @@ public final class MovieList extends AbstractModelObject {
       return;
     }
 
-    if (isMovieCorrupt(movie)) {
+    if (isCorrupt(movie)) {
       // not valid -> remove
-      LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
+      LOGGER.info("Cannot persist movie \"{}\" - dropping", movie.getTitle());
       removeMovies(Collections.singletonList(movie));
     }
     else {
