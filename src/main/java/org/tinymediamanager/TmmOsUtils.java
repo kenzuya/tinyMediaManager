@@ -248,10 +248,12 @@ public class TmmOsUtils {
     // https://stackoverflow.com/a/31976060
     boolean ret = false;
     if (SystemUtils.IS_OS_WINDOWS) {
-      ret = name.matches(".*[\\\":<>|?*].*");
-      if (ret == false) {
-        ret = name.endsWith(".") || name.endsWith(" ");
+      if (name.length() > 2 && name.charAt(1) == ':') {
+        name = name.substring(2); // w/o drive letter!!!
       }
+      // ret = name.matches(".*[\":<>|?*].*"); // naa, bad perf
+      ret = name.contains(":") || name.contains("\"") || name.contains("<") || name.contains(">") || name.contains("|") || name.contains("?")
+          || name.contains("*") || name.endsWith(".") || name.endsWith(" ");
     }
     return ret;
   }
