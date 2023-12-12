@@ -68,7 +68,7 @@
             <pattern>%d{ISO8601} %-5level [%thread] %logger{40}:%L - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${logfolder}/tmm.%d.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${logfolder}/trace.%d.%i.log.gz</fileNamePattern>
             <maxFileSize>50MB</maxFileSize>
             <maxHistory>2</maxHistory>
             <totalSizeCap>500MB</totalSizeCap>
@@ -93,7 +93,7 @@
         </encoder>
     </appender>
     <appender name="STARTUP" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>500</queueSize>
+        <queueSize>10</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>true</includeCallerData>
         <appender-ref ref="FILE_STARTUP"/>
