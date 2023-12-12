@@ -165,6 +165,7 @@ public final class TinyMediaManager {
                 // finished ////////////////////////////////////////////////////
                 updateProgress("finished starting :)", 100);
 
+                stopStartupAppender();
                 splashScreen.setVisible(false);
 
                 TmmUILayoutStore.getInstance().loadSettings(window);
@@ -641,6 +642,16 @@ public final class TinyMediaManager {
         consoleAppender.clearAllFilters();
         consoleAppender.addFilter(filter);
       }
+    }
+  }
+
+  private void stopStartupAppender() {
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+    // get the console appender
+    Appender<ILoggingEvent> appender = lc.getLogger("ROOT").getAppender("STARTUP");
+    if (appender != null) {
+      appender.stop();
     }
   }
 }

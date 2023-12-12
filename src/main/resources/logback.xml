@@ -46,7 +46,7 @@
             <fileNamePattern>${logfolder}/tmm.%d.%i.log.gz</fileNamePattern>
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>7</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+            <totalSizeCap>100MB</totalSizeCap>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
     </appender>
@@ -58,7 +58,7 @@
     </appender>
 
     <!-- file appender - for our trace logging; instead of InMemory keep a logfile per session -->
-    <appender name="FILE_TRACE" class="ch.qos.logback.core.FileAppender">
+    <appender name="FILE_TRACE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>TRACE</level>
         </filter>
@@ -67,12 +67,36 @@
         <encoder>
             <pattern>%d{ISO8601} %-5level [%thread] %logger{40}:%L - %msg%n</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logfolder}/tmm.%d.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>2</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
     </appender>
     <appender name="ASYNC_TRACE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>5000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>true</includeCallerData>
         <appender-ref ref="FILE_TRACE"/>
+    </appender>
+
+    <appender name="FILE_STARTUP" class="ch.qos.logback.core.FileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>${logfolder}/startup.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{ISO8601} %-5level [%thread] %logger{40}:%L - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="STARTUP" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="FILE_STARTUP"/>
     </appender>
 
     <!-- default settings -->
@@ -83,6 +107,7 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ASYNC_TRACE"/>
+        <appender-ref ref="STARTUP"/>
     </root>
 
 </configuration>
