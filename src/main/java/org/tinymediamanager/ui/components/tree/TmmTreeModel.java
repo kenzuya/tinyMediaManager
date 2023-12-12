@@ -427,10 +427,10 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
       parentNode.removeAllChildren();
 
       // Filtering and sorting raw children
-      final List<E> realChildren = filterAndSort(parentNode, children);
+      // final List<E> realChildren = filterAndSort(parentNode, children);
 
       // Inserting new children
-      for (final E child : realChildren) {
+      for (final E child : newChildren) {
         parentNode.add(child);
       }
     }
@@ -467,7 +467,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   protected List<E> filterAndSort(final E parentNode, List<E> children) {
     // Simply return an empty array if there is no children
     if (children == null || children.isEmpty()) {
-      return new ArrayList<>(0);
+      return Collections.emptyList();
     }
 
     // get cache

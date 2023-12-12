@@ -92,10 +92,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
 
       switch (evt.getPropertyName()) {
-        case Constants.ADDED_SEASON:
-          season = (TvShowSeason) evt.getNewValue();
-          addTvShowSeason(season);
-          break;
+//        case Constants.ADDED_SEASON:
+//          season = (TvShowSeason) evt.getNewValue();
+//          addTvShowSeason(season);
+//          break;
 
         case Constants.REMOVED_SEASON:
           season = (TvShowSeason) evt.getNewValue();
