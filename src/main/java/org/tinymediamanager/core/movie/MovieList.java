@@ -537,7 +537,7 @@ public final class MovieList extends AbstractModelObject {
     }
   }
 
-  private boolean isCorrupt(MediaEntity movie) {
+  private boolean isCorrupt(Movie movie) {
     if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
       LOGGER.error("Movie without MediaFiles - dropping");
       return true;
