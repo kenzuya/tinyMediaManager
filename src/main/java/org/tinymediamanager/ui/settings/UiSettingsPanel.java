@@ -97,7 +97,7 @@ class UiSettingsPanel extends JPanel {
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
     LocaleComboBox fallbackLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
+    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
@@ -123,7 +123,7 @@ class UiSettingsPanel extends JPanel {
       cbLanguage.setSelectedItem(fallbackLocale);
     }
 
-    cbFontFamily.setSelectedItem(Settings.getInstance().getFontFamily());
+    cbFontFamily.setSelectedItem(settings.getFontFamily());
     int index = cbFontFamily.getSelectedIndex();
     if (index < 0) {
       cbFontFamily.setSelectedItem("Dialog");
@@ -132,12 +132,12 @@ class UiSettingsPanel extends JPanel {
     if (index < 0) {
       cbFontFamily.setSelectedIndex(0);
     }
-    cbFontSize.setSelectedItem(Settings.getInstance().getFontSize());
+    cbFontSize.setSelectedItem(settings.getFontSize());
     index = cbFontSize.getSelectedIndex();
     if (index < 0) {
       cbFontSize.setSelectedIndex(0);
     }
-    cbTheme.setSelectedItem(Settings.getInstance().getTheme());
+    cbTheme.setSelectedItem(settings.getTheme());
     index = cbTheme.getSelectedIndex();
     if (index < 0) {
       cbTheme.setSelectedIndex(0);
@@ -161,23 +161,23 @@ class UiSettingsPanel extends JPanel {
     cbTheme.addActionListener(actionListener);
     chckbxAutomaticUpdates.addActionListener(actionListener);
 
-    Settings.getInstance().addPropertyChangeListener(evt -> {
+    settings.addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
         case "theme":
-          if (!Settings.getInstance().getTheme().equals(cbTheme.getSelectedItem())) {
-            cbTheme.setSelectedItem(Settings.getInstance().getTheme());
+          if (!settings.getTheme().equals(cbTheme.getSelectedItem())) {
+            cbTheme.setSelectedItem(settings.getTheme());
           }
           break;
 
         case "fontSize":
-          if (cbFontSize.getSelectedItem() != null && Settings.getInstance().getFontSize() != (Integer) cbFontSize.getSelectedItem()) {
-            cbFontSize.setSelectedItem(Settings.getInstance().getFontSize());
+          if (cbFontSize.getSelectedItem() != null && settings.getFontSize() != (Integer) cbFontSize.getSelectedItem()) {
+            cbFontSize.setSelectedItem(settings.getFontSize());
           }
           break;
 
         case "fontFamily":
-          if (!Settings.getInstance().getFontFamily().equals(cbFontFamily.getSelectedItem())) {
-            cbFontFamily.setSelectedItem(Settings.getInstance().getFontFamily());
+          if (!settings.getFontFamily().equals(cbFontFamily.getSelectedItem())) {
+            cbFontFamily.setSelectedItem(settings.getFontFamily());
           }
           break;
       }
@@ -385,17 +385,17 @@ class UiSettingsPanel extends JPanel {
     LocaleComboBox loc = (LocaleComboBox) cbLanguage.getSelectedItem();
     if (loc != null) {
       Locale locale = loc.getLocale();
-      Locale actualLocale = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
+      Locale actualLocale = Utils.getLocaleFromLanguage(settings.getLanguage());
       if (!locale.equals(actualLocale)) {
-        Settings.getInstance().setLanguage(locale.toString());
+        settings.setLanguage(locale.toString());
         lblLanguageChangeHint.setText(TmmResourceBundle.getString("Settings.languagehint"));
       }
     }
 
     // theme
     String theme = (String) cbTheme.getSelectedItem();
-    if (!Settings.getInstance().getTheme().equals(theme)) {
-      Settings.getInstance().setTheme(theme);
+    if (!settings.getTheme().equals(theme)) {
+      settings.setTheme(theme);
       try {
         TmmUIHelper.setTheme();
         TmmUIHelper.updateUI();
@@ -408,10 +408,9 @@ class UiSettingsPanel extends JPanel {
     // fonts
     String fontFamily = (String) cbFontFamily.getSelectedItem();
     Integer fontSize = (Integer) cbFontSize.getSelectedItem();
-    if ((fontFamily != null && !fontFamily.equals(Settings.getInstance().getFontFamily()))
-        || (fontSize != null && fontSize != Settings.getInstance().getFontSize())) {
-      Settings.getInstance().setFontFamily(fontFamily);
-      Settings.getInstance().setFontSize(fontSize);
+    if ((fontFamily != null && !fontFamily.equals(settings.getFontFamily())) || (fontSize != null && fontSize != settings.getFontSize())) {
+      settings.setFontFamily(fontFamily);
+      settings.setFontSize(fontSize);
 
       Font font = UIManager.getFont("defaultFont");
       Font newFont = new Font(fontFamily, font.getStyle(), fontSize);
