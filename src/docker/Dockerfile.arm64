@@ -1,5 +1,22 @@
 # Building application container
-FROM max06net/base-gui:0.5.0-bullseye-slim
+FROM tinymediamanager/base-arm64:latest
+
+ENV APP=tinyMediaManager
+ENV ALLOW_DIRECT_VNC=true
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LC_TIME=C.UTF-8
+
+# libmediainfo
+ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.41/libzen0v5_0.4.41-1_arm64.Raspbian_11.deb
+ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/23.11/libmediainfo0v5_23.11-1_arm64.Raspbian_11.deb
+
+RUN \
+    wget -q ${LIBZEN} && \
+    wget -q ${LIBMEDIAINFO} && \
+    dpkg -i *.deb && \
+    # Remove some unneeded stuff.
+    rm *.deb
 
 LABEL "org.opencontainers.image.version"="${human.version}"
 LABEL "org.opencontainers.image.title"="${project.artifactId}"
@@ -10,27 +27,8 @@ LABEL "org.opencontainers.image.revision"="${buildNumber}"
 LABEL "org.opencontainers.image.documentation"="https://www.tinymediamanager.org/docs/docker"
 LABEL "org.opencontainers.image.source "="${project.scm.url}"
 
-ENV APP=tinyMediaManager
-ENV ALLOW_DIRECT_VNC=true
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LC_TIME=C.UTF-8
-
 # Install tmm & requirements
 ADD tinyMediaManager /app
-RUN \
-    apt-get update && \
-    apt-get install --no-install-recommends -y \
-        wget \
-        ca-certificates \
-        libcurl3-gnutls \
-        libmms0 \
-        yad \
-        fonts-wqy-zenhei \
-        libxtst6 && \
-    mkdir -p /data/data && \
-    # Remove some unneeded stuff.
-    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 CMD ["/app/tinyMediaManager", "-Dtmm.contentfolder=/data"]

@@ -129,7 +129,7 @@ deploy-docker-amd64:
     - |
       /kaniko/executor \
       --context "${CI_PROJECT_DIR}/target/docker" \
-      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile.amd64" \
       --custom-platform=linux/amd64/ \
       --destination "${IMAGE_NAME}:${TMM_VERSION}-amd64"
 
@@ -160,7 +160,7 @@ deploy-docker-arm64:
     - |
       /kaniko/executor \
       --context "${CI_PROJECT_DIR}/target/docker" \
-      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile" \
+      --dockerfile "${CI_PROJECT_DIR}/target/docker/Dockerfile.arm64" \
       --custom-platform=linux/arm64/ \
       --destination "${IMAGE_NAME}:${TMM_VERSION}-arm64"
 
