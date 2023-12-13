@@ -59,6 +59,7 @@ public final class Settings extends AbstractSettings {
   private static final String                              AUDIO_FILE_TYPE              = "audioFileType";
   private static final String                              SUBTITLE_FILE_TYPE           = "subtitleFileType";
   private static final String                              CLEANUP_FILE_TYPE            = "cleanupFileType";
+  private static final String                              RELEASE_INFORMATION_TAGS     = "releaseInformationTags";
   private static final String                              WOL_DEVICES                  = "wolDevices";
   private static final String                              CUSTOM_ASPECT_RATIOS         = "customAspectRatios";
 
@@ -74,6 +75,7 @@ public final class Settings extends AbstractSettings {
   private final List<String>                               audioFileTypes               = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                               subtitleFileTypes            = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                               cleanupFileTypes             = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>                               releaseInformationTags       = ObservableCollections.observableList(new ArrayList<>());
   private final List<WolDevice>                            wolDevices                   = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                               customAspectRatios           = ObservableCollections.observableList(new ArrayList<>());
 
@@ -493,6 +495,22 @@ public final class Settings extends AbstractSettings {
    */
   public List<String> getCleanupFileType() {
     return cleanupFileTypes;
+  }
+
+  public void addReleaseInformationTag(String tag) {
+    if (!releaseInformationTags.contains(tag)) {
+      releaseInformationTags.add(tag);
+      firePropertyChange(RELEASE_INFORMATION_TAGS, null, releaseInformationTags);
+    }
+  }
+
+  public void removeReleaseInformationTag(String tag) {
+    releaseInformationTags.remove(tag);
+    firePropertyChange(RELEASE_INFORMATION_TAGS, null, releaseInformationTags);
+  }
+
+  public List<String> getReleaseInformationTags() {
+    return releaseInformationTags;
   }
 
   /**

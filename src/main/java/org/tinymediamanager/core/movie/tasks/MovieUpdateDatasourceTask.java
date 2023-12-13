@@ -843,6 +843,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
       else if (mf.getType() == MediaFileType.VIDEO) {
         videoName = mf.getBasename();
+
+        // detect releaseInfo tags
+        for (String name : Settings.getInstance().getReleaseInformationTags()) {
+          // NEED some delims around!!!
+          // FIXME performance!!!
+          if (mf.getFileAsPath().toString().matches("(?i).*\\W" + name + "\\W.*")) {
+            movie.addReleaseInformation(name);
+          }
+        }
       }
     }
     if (isDiscFolder) {
@@ -1226,6 +1235,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       for (MediaFile mediaFiles : movie.getMediaFiles(MediaFileType.VIDEO)) {
         if ("disc".equalsIgnoreCase(mediaFiles.getExtension())) {
           isOffline = true;
+        }
+
+        // detect releaseInfo tags
+        for (String name : Settings.getInstance().getReleaseInformationTags()) {
+          // NEED some delims around!!!
+          // FIXME performance!!!
+          if (mf.getFileAsPath().toString().matches("(?i).*\\W" + name + "\\W.*")) {
+            movie.addReleaseInformation(name);
+          }
         }
       }
       movie.setOffline(isOffline);

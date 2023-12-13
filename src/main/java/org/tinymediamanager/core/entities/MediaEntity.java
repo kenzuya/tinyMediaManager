@@ -38,6 +38,8 @@ import static org.tinymediamanager.core.Constants.PLOT;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.Constants.RATING;
+import static org.tinymediamanager.core.Constants.RELEASE_INFORMATION;
+import static org.tinymediamanager.core.Constants.RELEASE_INFORMATION_AS_STRING;
 import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.THUMB;
@@ -132,6 +134,8 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
   @JsonProperty
   protected final List<String>         tags               = new CopyOnWriteArrayList<>();
   @JsonProperty
+  protected final List<String>         releaseInformation = new CopyOnWriteArrayList<>();
+  @JsonProperty
   protected Map<MediaFileType, String> artworkUrlMap      = new EnumMap<>(MediaFileType.class);
 
   @JsonProperty
@@ -201,12 +205,14 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       ids.clear();
       ratings.clear();
       tags.clear();
+      releaseInformation.clear();
 
       artworkUrlMap.clear();
     }
 
     setRatings(other.ratings);
     setTags(other.tags);
+    setReleaseInformation(other.releaseInformation);
 
     for (String key : other.getIds().keySet()) {
       if (!ids.containsKey(key)) {
@@ -1460,6 +1466,104 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     tags.clear();
     firePropertyChange(TAGS, null, tags);
     firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
+
+  public void addReleaseInformation(String newReleaseInformation) {
+    if (!releaseInformation.contains(newReleaseInformation)) {
+      releaseInformation.add(newReleaseInformation);
+      firePropertyChange(RELEASE_INFORMATION, null, releaseInformation);
+      firePropertyChange(RELEASE_INFORMATION_AS_STRING, null, releaseInformation);
+    }
+  }
+
+  /**
+   * Adds the given {@link Collection} the to release information list.
+   *
+   * @param newTags
+   *          the new tags
+   */
+  public void addToReleaseInformation(Collection<String> newReleaseInformation) {
+    Set<String> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or empty tags
+    for (String info : ListUtils.nullSafe(newReleaseInformation)) {
+      if (StringUtils.isBlank(info) || releaseInformation.stream().anyMatch(info::equalsIgnoreCase)) {
+        continue;
+      }
+      newItems.add(info);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    releaseInformation.addAll(newItems);
+    firePropertyChange(RELEASE_INFORMATION, null, releaseInformation);
+    firePropertyChange(RELEASE_INFORMATION_AS_STRING, null, releaseInformation);
+  }
+
+  /**
+   * Removes from release information .
+   *
+   * @param info
+   *          release information to remove
+   */
+  public void removeFromReleaseInformation(String info) {
+    if (releaseInformation.remove(info)) {
+      firePropertyChange(RELEASE_INFORMATION, null, info);
+      firePropertyChange(RELEASE_INFORMATION_AS_STRING, null, info);
+    }
+  }
+
+  /**
+   * Sets the release information .
+   *
+   * @param newReleaseInformation
+   *          the new release information
+   */
+  @JsonSetter
+  public void setReleaseInformation(List<String> newReleaseInformation) {
+    // two way sync of tags
+    ListUtils.mergeLists(releaseInformation, newReleaseInformation);
+    Utils.removeEmptyStringsFromList(releaseInformation);
+    Utils.removeDuplicateStringFromCollectionIgnoreCase(releaseInformation);
+
+    firePropertyChange(RELEASE_INFORMATION, null, newReleaseInformation);
+    firePropertyChange(RELEASE_INFORMATION_AS_STRING, null, newReleaseInformation);
+  }
+
+  /**
+   * Gets the release information as string.
+   *
+   * @return the release information as string
+   */
+  public String getReleaseInformationAsString() {
+    StringBuilder sb = new StringBuilder();
+    for (String info : releaseInformation) {
+      if (!StringUtils.isBlank(sb)) {
+        sb.append(", ");
+      }
+      sb.append(info);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Gets the release information .
+   *
+   * @return the release information
+   */
+  public List<String> getReleaseInformation() {
+    return this.releaseInformation;
+  }
+
+  /**
+   * Remove all release information from List
+   */
+  public void removeAllReleaseInformation() {
+    releaseInformation.clear();
+    firePropertyChange(RELEASE_INFORMATION, null, releaseInformation);
+    firePropertyChange(RELEASE_INFORMATION_AS_STRING, null, releaseInformation);
   }
 
   public abstract void saveToDb();
