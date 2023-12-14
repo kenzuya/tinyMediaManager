@@ -147,13 +147,15 @@ public class ImageChooserDialog extends TmmDialog {
   private TmmCheckComboBox<ImageSizeAndUrl> cbSize;
   private TmmCheckComboBox<MediaLanguages>  cbLanguage;
 
-  private JLabel                            labelThumbs;
+  private JLabel                            lblThumbs;
   private JButton                           btnMarkExtrathumbs;
   private JButton                           btnUnMarkExtrathumbs;
+  private JLabel                            lblExtrathumbsSelected;
 
-  private JLabel                            labelFanart;
+  private JLabel                            lblFanart;
   private JButton                           btnMarkExtrafanart;
   private JButton                           btnUnMarkExtrafanart;
+  private JLabel                            lblExtrafanartSelected;
 
   /**
    * Instantiates a new image chooser dialog.
@@ -334,9 +336,9 @@ public class ImageChooserDialog extends TmmDialog {
     {
       // add buttons to select/deselect all extrafanarts/extrathumbs
       if (type == BACKGROUND || type == THUMB) {
-        labelThumbs = new JLabel(TmmResourceBundle.getString("mediafiletype.extrathumb") + ":");
-        contentPanel.add(labelThumbs, "flowx,cell 0 5");
-        labelThumbs.setVisible(false);
+        lblThumbs = new JLabel(TmmResourceBundle.getString("mediafiletype.extrathumb") + ":");
+        contentPanel.add(lblThumbs, "flowx,cell 0 5");
+        lblThumbs.setVisible(false);
 
         btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
         contentPanel.add(btnMarkExtrathumbs, "cell 0 5");
@@ -344,32 +346,35 @@ public class ImageChooserDialog extends TmmDialog {
         btnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.markall"));
         btnMarkExtrathumbs.addActionListener(arg0 -> {
           for (JToggleButton button : buttons) {
-            if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
-              JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrathumb");
+            if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox chkbx) {
               chkbx.setSelected(true);
+              updateExtrathumbSelectedCount();
             }
           }
         });
 
         btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
-        contentPanel.add(btnUnMarkExtrathumbs, "cell 0 5, gapx n 50lp");
+        contentPanel.add(btnUnMarkExtrathumbs, "cell 0 5");
         btnUnMarkExtrathumbs.setVisible(false);
         btnUnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.unmarkall"));
         btnUnMarkExtrathumbs.addActionListener(arg0 -> {
           for (JToggleButton button : buttons) {
-            if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
-              JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrathumb");
+            if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox chkbx) {
               chkbx.setSelected(false);
+              updateExtrathumbSelectedCount();
             }
           }
         });
+
+        lblExtrathumbsSelected = new JLabel("");
+        contentPanel.add(lblExtrathumbsSelected, "cell 0 5, gapx n 100lp");
       }
     }
     {
       if (type == BACKGROUND) {
-        labelFanart = new JLabel(TmmResourceBundle.getString("mediafiletype.extrafanart") + ":");
-        contentPanel.add(labelFanart, "flowx,cell 0 5");
-        labelFanart.setVisible(false);
+        lblFanart = new JLabel(TmmResourceBundle.getString("mediafiletype.extrafanart") + ":");
+        contentPanel.add(lblFanart, "flowx,cell 0 5");
+        lblFanart.setVisible(false);
 
         btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
         contentPanel.add(btnMarkExtrafanart, "cell 0 5");
@@ -377,9 +382,9 @@ public class ImageChooserDialog extends TmmDialog {
         btnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.markall"));
         btnMarkExtrafanart.addActionListener(arg0 -> {
           for (JToggleButton button : buttons) {
-            if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
-              JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
+            if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox chkbx) {
               chkbx.setSelected(true);
+              updateExtraFanartSelectedCount();
             }
           }
         });
@@ -390,12 +395,15 @@ public class ImageChooserDialog extends TmmDialog {
         btnUnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.unmarkall"));
         btnUnMarkExtrafanart.addActionListener(arg0 -> {
           for (JToggleButton button : buttons) {
-            if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
-              JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
+            if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox chkbx) {
               chkbx.setSelected(false);
+              updateExtraFanartSelectedCount();
             }
           }
         });
+
+        lblExtrafanartSelected = new JLabel("");
+        contentPanel.add(lblExtrafanartSelected, "cell 0 5");
       }
     }
 
@@ -434,6 +442,40 @@ public class ImageChooserDialog extends TmmDialog {
     task.execute();
   }
 
+  private void updateExtrathumbSelectedCount() {
+    int count = 0;
+    for (JToggleButton btn : buttons) {
+      if (btn.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox checkBox) {
+        if (checkBox.isSelected()) {
+          count++;
+        }
+      }
+    }
+    if (count > 0) {
+      lblExtrathumbsSelected.setText(count + " " + TmmResourceBundle.getString("tmm.selected"));
+    }
+    else {
+      lblExtrathumbsSelected.setText("");
+    }
+  }
+
+  private void updateExtraFanartSelectedCount() {
+    int count = 0;
+    for (JToggleButton btn : buttons) {
+      if (btn.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox checkBox) {
+        if (checkBox.isSelected()) {
+          count++;
+        }
+      }
+    }
+    if (count > 0) {
+      lblExtrafanartSelected.setText(count + " " + TmmResourceBundle.getString("tmm.selected"));
+    }
+    else {
+      lblExtrafanartSelected.setText("");
+    }
+  }
+
   public void bindExtraThumbs(List<String> extraThumbs) {
     if (type != BACKGROUND && type != THUMB) {
       return;
@@ -442,12 +484,12 @@ public class ImageChooserDialog extends TmmDialog {
     this.extraThumbs = extraThumbs;
 
     if (extraThumbs != null) {
-      labelThumbs.setVisible(true);
+      lblThumbs.setVisible(true);
       btnMarkExtrathumbs.setVisible(true);
       btnUnMarkExtrathumbs.setVisible(true);
     }
     else {
-      labelThumbs.setVisible(false);
+      lblThumbs.setVisible(false);
       btnMarkExtrathumbs.setVisible(false);
       btnUnMarkExtrathumbs.setVisible(false);
     }
@@ -461,12 +503,12 @@ public class ImageChooserDialog extends TmmDialog {
     this.extraFanarts = extraFanarts;
 
     if (extraFanarts != null) {
-      labelFanart.setVisible(true);
+      lblFanart.setVisible(true);
       btnMarkExtrafanart.setVisible(true);
       btnUnMarkExtrafanart.setVisible(true);
     }
     else {
-      labelFanart.setVisible(false);
+      lblFanart.setVisible(false);
       btnMarkExtrafanart.setVisible(false);
       btnUnMarkExtrafanart.setVisible(false);
     }
@@ -614,6 +656,7 @@ public class ImageChooserDialog extends TmmDialog {
       gbc.insets = new Insets(0, 5, 0, 5);
       JCheckBox chkbx = new JCheckBox();
       button.putClientProperty("MediaArtworkExtrathumb", chkbx);
+      chkbx.addActionListener(l -> updateExtrathumbSelectedCount());
       imagePanel.add(chkbx, gbc);
     }
 
@@ -634,6 +677,7 @@ public class ImageChooserDialog extends TmmDialog {
       gbc.insets = new Insets(0, 5, 0, 5);
       JCheckBox chkbx = new JCheckBox();
       button.putClientProperty("MediaArtworkExtrafanart", chkbx);
+      chkbx.addActionListener(l -> updateExtraFanartSelectedCount());
       imagePanel.add(chkbx, gbc);
     }
 
