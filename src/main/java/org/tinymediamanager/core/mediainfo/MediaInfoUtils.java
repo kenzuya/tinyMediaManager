@@ -16,8 +16,6 @@
 
 package org.tinymediamanager.core.mediainfo;
 
-import org.tinymediamanager.thirdparty.MediaInfo;
-
 /**
  * common helpers for Mediainfo
  * 
@@ -36,6 +34,6 @@ public class MediaInfoUtils {
    * @return true/false
    */
   public static boolean useMediaInfo() {
-    return USE_LIBMEDIAINFO && MediaInfo.isMediaInfoAvailable();
+    return USE_LIBMEDIAINFO;
   }
 }
