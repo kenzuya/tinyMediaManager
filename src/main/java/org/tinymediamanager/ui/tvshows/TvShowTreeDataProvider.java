@@ -92,10 +92,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
 
       switch (evt.getPropertyName()) {
-//        case Constants.ADDED_SEASON:
-//          season = (TvShowSeason) evt.getNewValue();
-//          addTvShowSeason(season);
-//          break;
+        case Constants.ADDED_SEASON:
+          season = (TvShowSeason) evt.getNewValue();
+          addTvShowSeason(season);
+          break;
 
         case Constants.REMOVED_SEASON:
           season = (TvShowSeason) evt.getNewValue();
@@ -354,15 +354,19 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       return cachedNode;
     }
 
-    // add a new node
-    TmmTreeNode node = new TvShowSeasonTreeNode(season, this);
-    putNodeToCache(season, node);
-    firePropertyChange(NODE_INSERTED, null, node);
-
     // add a propertychangelistener for this season
     season.addPropertyChangeListener(seasonPropertyChangeListener);
 
-    return node;
+    // add a new node (only if there is at least one EP inside)
+    if (!season.getEpisodesForDisplay().isEmpty()) {
+      TmmTreeNode node = new TvShowSeasonTreeNode(season, this);
+      putNodeToCache(season, node);
+      firePropertyChange(NODE_INSERTED, null, node);
+
+      return node;
+    }
+
+    return null;
   }
 
   private void addTvShowEpisode(TvShowEpisode episode) {
