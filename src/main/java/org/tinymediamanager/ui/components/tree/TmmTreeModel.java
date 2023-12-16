@@ -427,10 +427,10 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
       parentNode.removeAllChildren();
 
       // Filtering and sorting raw children
-      // final List<E> realChildren = filterAndSort(parentNode, children);
+      final List<E> realChildren = filterAndSort(parentNode, children);
 
       // Inserting new children
-      for (final E child : newChildren) {
+      for (final E child : realChildren) {
         parentNode.add(child);
       }
     }

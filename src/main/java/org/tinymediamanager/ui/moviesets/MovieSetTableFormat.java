@@ -62,49 +62,9 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     FontMetrics fontMetrics = getFontMetrics();
 
-    Comparator<String> integerComparator = (o1, o2) -> {
-      int value1 = 0;
-      int value2 = 0;
-
-      try {
-        value1 = Integer.parseInt(o1);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-      try {
-        value2 = Integer.parseInt(o2);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-
-      return Integer.compare(value1, value2);
-    };
-    Comparator<String> floatComparator = (o1, o2) -> {
-      float value1 = 0;
-      float value2 = 0;
-
-      try {
-        value1 = Float.parseFloat(o1);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-      try {
-        value2 = Float.parseFloat(o2);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-
-      return Float.compare(value1, value2);
-    };
-    Comparator<String> videoFormatComparator = new VideoFormatComparator();
-    Comparator<String> fileSizeComparator = new FileSizeComparator();
+    Comparator<Integer> integerComparator = Integer::compare;
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<String> stringComparator = new StringComparator();
-    Comparator<Date> dateTimeComparator = new DateTimeComparator();
 
     /*
      * movie count
@@ -131,7 +91,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * file name (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getVideoFilename, String.class);
-    col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setCellTooltip(this::getVideoFilename);
     col.setDefaultHidden(true);
@@ -141,7 +100,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * folder name (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getMoviePath, String.class);
-    col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setCellTooltip(this::getMoviePath);
     col.setDefaultHidden(true);
@@ -156,14 +114,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("99.9") + 10);
     col.setDefaultHidden(true);
-    col.setColumnComparator(floatComparator);
     addColumn(col);
 
     /*
      * user rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, String.class);
-    col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -174,10 +130,9 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * votes (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, String.class);
-    col.setColumnComparator(integerComparator);
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, Integer.class);
     col.setHeaderIcon(IconManager.VOTES);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("1000000") + 10);
     col.setDefaultHidden(true);
@@ -187,7 +142,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * date added (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
-    col.setColumnComparator(dateTimeComparator);
     col.setHeaderIcon(IconManager.DATE_ADDED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
@@ -205,7 +159,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * runtime (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, Integer.class);
-    col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
@@ -217,7 +170,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * runtime HH:MM (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, Integer.class);
-    col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
     col.setColumnResizeable(false);
@@ -233,14 +185,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("1080p") + 10);
-    col.setColumnComparator(videoFormatComparator);
     addColumn(col);
 
     /*
      * video codec (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getMediaInfoVideoCodec, String.class);
-    col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
     col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + 10);
     col.setDefaultHidden(true);
@@ -250,7 +200,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * video bitrate (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getMediaInfoVideoBitrate, String.class);
-    col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
     col.setMinWidth(fontMetrics.stringWidth("20000") + 10);
     col.setDefaultHidden(true);
@@ -260,7 +209,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * audio codec and channels(hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudioInformation, String.class);
-    col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.AUDIO);
     col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + 10);
     col.setDefaultHidden(true);
@@ -274,7 +222,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("50000M") + 10);
-    col.setColumnComparator(fileSizeComparator);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -287,7 +234,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("50000M") + 10);
     col.setDefaultHidden(true);
-    col.setColumnComparator(fileSizeComparator);
     addColumn(col);
 
     /*
@@ -591,7 +537,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private String getVotes(TmmTreeNode node) {
+  private Integer getVotes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
 
     if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
@@ -599,7 +545,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
 
     if (userObject instanceof Movie movie) {
-      return String.valueOf(movie.getRating().getVotes());
+      return movie.getRating().getVotes();
     }
 
     return null;
