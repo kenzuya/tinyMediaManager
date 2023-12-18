@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.Constants.FIRST_AIRED;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
+import static org.tinymediamanager.core.Constants.REMOVED_SEASON;
 import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.TV_SHOW;
 
@@ -265,6 +266,10 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
           firePropertyChange(FIRST_AIRED, null, getFirstAired());
         }
       }
+    }
+
+    if (getEpisodesForDisplay().isEmpty()) {
+      firePropertyChange(REMOVED_SEASON, null, this);
     }
   }
 

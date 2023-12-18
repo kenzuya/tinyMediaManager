@@ -130,6 +130,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           addTvShowSeason((TvShowSeason) evt.getNewValue());
           break;
 
+        case Constants.REMOVED_SEASON:
+          removeTvShowSeason((TvShowSeason) evt.getNewValue());
+          break;
+
         case Constants.ADDED_EPISODE:
           addTvShowEpisode((TvShowEpisode) evt.getNewValue());
           break;
@@ -390,11 +394,9 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     episode.removePropertyChangeListener(episodePropertyChangeListener);
 
     TmmTreeNode cachedNode = removeNodeFromCache(episode);
-    if (cachedNode == null) {
-      return;
+    if (cachedNode != null) {
+      firePropertyChange(NODE_REMOVED, null, cachedNode);
     }
-
-    firePropertyChange(NODE_REMOVED, null, cachedNode);
 
     // okay, we've removed the episode; now check which seasons we have to remove too
     if (episode.getTvShowSeason().getEpisodesForDisplay().isEmpty()) {

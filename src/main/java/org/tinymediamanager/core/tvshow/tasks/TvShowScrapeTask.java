@@ -218,6 +218,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
               }
               catch (Exception e) {
                 LOGGER.debug("could not fetch episode list - '{}'", e.getMessage());
+                tvShow.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+              }
+              finally {
+                tvShow.setEpisodeGroups(md.getEpisodeGroups());
               }
 
               tvShow.setMetadata(md, tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
