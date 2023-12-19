@@ -47,9 +47,9 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class TvShowScraperMetadataPanel extends JPanel {
-  private static final int                                         COL_COUNT        = 5;
+  private static final int                                         COL_COUNT = 5;
 
-  private final TvShowSettings                                     settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings                                     settings  = TvShowModuleManager.getInstance().getSettings();
   private final Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;
   private final Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeCheckboxes;
 

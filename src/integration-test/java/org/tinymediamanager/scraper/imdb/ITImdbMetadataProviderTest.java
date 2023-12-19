@@ -276,41 +276,6 @@ public class ITImdbMetadataProviderTest extends BasicITest {
   }
 
   @Test
-  public void testTvShowScrapeWithTmdb() {
-    ITvShowMetadataProvider mp = null;
-    TvShowSearchAndScrapeOptions options = null;
-    MediaMetadata md = null;
-
-    MediaProviders.loadMediaProviders();
-
-    /*
-     * test on akas.imdb.com - Psych (tt0491738)
-     */
-    try {
-      mp = new ImdbTvShowMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue(ImdbParser.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
-      options = new TvShowSearchAndScrapeOptions();
-      options.setImdbId("tt0491738");
-      options.setLanguage(MediaLanguages.de);
-      options.setCertificationCountry(CountryCode.US);
-      options.setReleaseDateCountry("US");
-
-      md = mp.getMetadata(options);
-
-      // did we get metadata?
-      assertNotNull("MediaMetadata", md);
-
-      assertEquals("Psych", md.getTitle());
-      assertThat(md.getIds().size()).isGreaterThanOrEqualTo(1);
-      assertThat(md.getPlot()).startsWith("Shawn Spencer ist selbsternannter Detektiv");
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
-  }
-
-  @Test
   public void testEpisodeScrape() {
     ITvShowMetadataProvider mp = null;
     TvShowEpisodeSearchAndScrapeOptions options = null;
@@ -419,59 +384,6 @@ public class ITImdbMetadataProviderTest extends BasicITest {
     assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
 
     assertThat(md.getCastMembers()).isNotEmpty();
-  }
-
-  @Test
-  public void testEpisodeScrapeWithTmdb() {
-    ITvShowMetadataProvider mp = null;
-    TvShowEpisodeSearchAndScrapeOptions options = null;
-    MediaMetadata md = null;
-    SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", Locale.US);
-
-    MediaProviders.loadMediaProviders();
-
-    /*
-     * test on akas.imdb.com - Psych (tt0491738)
-     */
-    // S1E1
-    try {
-      mp = new ImdbTvShowMetadataProvider();
-      options = new TvShowEpisodeSearchAndScrapeOptions();
-      mp.getProviderInfo().getConfig().setValue(ImdbParser.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
-      options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
-      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
-      options.setLanguage(MediaLanguages.de);
-      options.setId(MediaMetadata.SEASON_NR, "1");
-      options.setId(MediaMetadata.EPISODE_NR, "1");
-      md = mp.getMetadata(options);
-
-      // did we get metadata?
-      assertNotNull("MediaMetadata", md);
-
-      assertEquals("Mit einer Ausrede fängt es an", md.getTitle());
-      assertThat(md.getPlot()).contains("Shawn", "Polizei");
-      assertEquals("30 October 2007", sdf.format(md.getReleaseDate())); // DE release, but in EN style, eeew
-      assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(27);
-      assertEquals(1, md.getCastMembers(DIRECTOR).size());
-      assertEquals("Michael Engler", md.getCastMembers(DIRECTOR).get(0).getName());
-      assertEquals(1, md.getCastMembers(WRITER).size());
-      assertEquals("Steve Franks", md.getCastMembers(WRITER).get(0).getName());
-      assertThat(md.getIds().size()).isGreaterThan(1);
-
-      assertThat(md.getRatings()).isNotEmpty();
-      MediaRating mediaRating = md.getRatings().get(0);
-      assertThat(mediaRating.getId()).isNotEmpty();
-      assertThat(mediaRating.getRating()).isGreaterThan(0);
-      assertThat(mediaRating.getVotes()).isGreaterThan(0);
-      assertThat(mediaRating.getMaxValue()).isEqualTo(10);
-
-      assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
-      assertThat(md.getIds()).containsKeys(MediaMetadata.TMDB);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
   }
 
   private void checkSearchResult(String title, int year, String imdbId, List<MediaSearchResult> results) {

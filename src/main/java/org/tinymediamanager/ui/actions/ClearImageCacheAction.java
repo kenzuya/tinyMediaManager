@@ -31,7 +31,7 @@ import org.tinymediamanager.core.Utils;
  * @author Manuel Laggner
  */
 public class ClearImageCacheAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearImageCacheAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClearImageCacheAction.class);
 
   public ClearImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.clearimagecache"));

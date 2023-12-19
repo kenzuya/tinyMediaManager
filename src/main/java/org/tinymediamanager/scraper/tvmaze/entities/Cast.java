@@ -19,52 +19,50 @@ import com.google.gson.annotations.SerializedName;
 
 public class Cast {
 
-    @SerializedName("person")
-    public Person person;
-    @SerializedName("character")
-    public Character character;
+  @SerializedName("person")
+  public Person    person;
+  @SerializedName("character")
+  public Character character;
 
+  public class Person {
 
+    @SerializedName("id")
+    public int     id;
+    @SerializedName("url")
+    public String  url;
+    @SerializedName("name")
+    public String  name;
+    @SerializedName("country")
+    public Country country;
+    @SerializedName("birthdate")
+    public String  birthdate;
+    @SerializedName("image")
+    public Image   image;
+  }
 
-    public class Person {
+  public class Character {
 
-        @SerializedName("id")
-        public int id;
-        @SerializedName("url")
-        public String url;
-        @SerializedName("name")
-        public String name;
-        @SerializedName("country")
-        public Country country;
-        @SerializedName("birthdate")
-        public String birthdate;
-        @SerializedName("image")
-        public Image image;
-    }
+    @SerializedName("id")
+    public int    id;
+    @SerializedName("url")
+    public String url;
+    @SerializedName("name")
+    public String name;
+    @SerializedName("image")
+    public Image  image;
+  }
 
-    public class Character {
+  public class Country {
+    @SerializedName("name")
+    public String name;
+  }
 
-        @SerializedName("id")
-        public int id;
-        @SerializedName("url")
-        public String url;
-        @SerializedName("name")
-        public String name;
-        @SerializedName("image")
-        public Image image;
-    }
+  public class Image {
+    @SerializedName("medium")
+    public String medium;
 
-    public class Country {
-        @SerializedName("name")
-        public String name;
-    }
-
-    public class Image {
-        @SerializedName("medium")
-        public String medium;
-
-        @SerializedName("original")
-        public String original;
-    }
+    @SerializedName("original")
+    public String original;
+  }
 
 }

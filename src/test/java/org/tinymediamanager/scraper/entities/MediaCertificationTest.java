@@ -41,6 +41,7 @@ public class MediaCertificationTest extends BasicTest {
 
     assertThat(MediaCertification.findCertification("")).isEqualTo(MediaCertification.UNKNOWN);
     assertThat(MediaCertification.findCertification("asdf")).isEqualTo(MediaCertification.UNKNOWN);
+    assertThat(MediaCertification.findCertification("MA 15+")).isEqualTo(MediaCertification.AU_MA15);
   }
 
 }

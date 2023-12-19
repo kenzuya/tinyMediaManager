@@ -19,15 +19,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class Episode {
   @SerializedName("id")
-  public int id;
+  public int    id;
   @SerializedName("url")
   public String url;
   @SerializedName("name")
   public String name;
   @SerializedName("season")
-  public int season;
+  public int    season;
   @SerializedName("number")
-  public int episode;
+  public int    episode;
   @SerializedName("airdate")
   public String airdate;
   @SerializedName("airtime")
@@ -35,7 +35,7 @@ public class Episode {
   @SerializedName("airstamp")
   public String airstamp;
   @SerializedName("runtime")
-  public int runtime;
+  public int    runtime;
   @SerializedName("summary")
   public String summary;
 

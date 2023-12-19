@@ -38,7 +38,7 @@ public class TableSpinnerEditor extends DefaultCellEditor {
   private final JSpinner.DefaultEditor editor;
   private final JTextField             textField;
 
-  private boolean                valueSet;
+  private boolean                      valueSet;
 
   // Initializes the spinner.
   public TableSpinnerEditor() {

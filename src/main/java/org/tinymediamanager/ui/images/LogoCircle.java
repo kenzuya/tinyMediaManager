@@ -45,7 +45,7 @@ public class LogoCircle implements javax.swing.Icon {
   private final int        height;
 
   /** The rendered image. */
-  private BufferedImage image;
+  private BufferedImage    image;
 
   /**
    * Creates a new transcoded SVG image.

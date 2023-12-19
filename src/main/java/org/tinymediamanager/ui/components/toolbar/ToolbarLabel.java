@@ -30,8 +30,8 @@ public class ToolbarLabel extends JLabel {
   public static final Color COLOR       = Color.GRAY;
   public static final Color COLOR_HOVER = Color.WHITE;
 
-  protected final String defaultText;
-  private ActionListener action      = null;
+  protected final String    defaultText;
+  private ActionListener    action      = null;
 
   public ToolbarLabel(String text) {
     super(text, SwingConstants.CENTER);

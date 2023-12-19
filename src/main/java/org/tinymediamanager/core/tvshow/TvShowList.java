@@ -51,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.UpgradeTasks;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
@@ -559,6 +560,13 @@ public final class TvShowList extends AbstractModelObject {
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
 
+        // some sanity checks
+        if (isCorrupt(tvShow)) {
+          LOGGER.error("Removing corrupt show: {}", json);
+          toRemove.add(uuid);
+          return;
+        }
+
         // inline upgrade from v4 - performance!
         if (module.getDbVersion() < 5002) {
           tvShow.getDummyEpisodes().forEach(UpgradeTasks::upgradeEpisodeNumbers);
@@ -650,10 +658,9 @@ public final class TvShowList extends AbstractModelObject {
         TvShowEpisode episode = episodeObjectReader.readValue(json);
         episode.setDbId(uuid);
 
-        // sanity check: only episodes with a video file are valid
-        if (isEpisodeCorrupt(episode)) {
-          // no video file? drop it
-          LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
+        // some sanity checks
+        if (isCorrupt(episode)) {
+          LOGGER.error("Removing corrupt episode: {}", json);
           toRemove.add(uuid);
           return;
         }
@@ -736,8 +743,36 @@ public final class TvShowList extends AbstractModelObject {
     updateMediaInformationLists(episodes);
   }
 
-  private boolean isEpisodeCorrupt(TvShowEpisode episode) {
-    return episode.getMediaFiles(MediaFileType.VIDEO).isEmpty();
+  private boolean isCorrupt(TvShow show) {
+    if (StringUtils.isBlank(show.getPath())) {
+      LOGGER.error("TvShow without path - dropping");
+      return true;
+    }
+    if (StringUtils.isBlank(show.getDataSource())) {
+      LOGGER.error("TvShow without datasource - dropping");
+      return true;
+    }
+    if (TmmOsUtils.hasInvalidCharactersForFilesystem(show.getPath())) {
+      LOGGER.error("TvShow with invalid characters for this OS - dropping");
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isCorrupt(TvShowEpisode episode) {
+    if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+      LOGGER.error("Episode S{} E{} without MediaFiles - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    if (StringUtils.isBlank(episode.getPath())) {
+      LOGGER.error("Episode S{} E{} without path - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    if (TmmOsUtils.hasInvalidCharactersForFilesystem(episode.getPath())) {
+      LOGGER.error("Episode S{} E{} with invalid characters for this OS - dropping", episode.getSeason(), episode.getEpisode());
+      return true;
+    }
+    return false;
   }
 
   public void persistTvShow(TvShow tvShow) {
@@ -773,10 +808,9 @@ public final class TvShowList extends AbstractModelObject {
 
   public void persistEpisode(TvShowEpisode episode) {
     // sanity check
-    if (isEpisodeCorrupt(episode)) {
+    if (isCorrupt(episode)) {
       // remove corrupt episode
-      LOGGER.info("episode {} - \"S{}E{}\" without video file/path - dropping", episode.getTvShow().getTitle(), episode.getSeason(),
-          episode.getEpisode());
+      LOGGER.info("Cannot persist episode {} - \"S{}E{}\" - dropping", episode.getTvShow().getTitle(), episode.getSeason(), episode.getEpisode());
       removeEpisodeFromDb(episode);
     }
     else {

@@ -125,7 +125,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
                 if (!info.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
                   int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
                   List<MediaArtwork.ImageSizeAndUrl> sortedPosters = MovieArtworkHelper.sortArtworkUrls(info.getMediaArt(), MediaArtworkType.POSTER,
-                          preferredSizeOrder);
+                      preferredSizeOrder);
                   if (!sortedPosters.isEmpty()) {
                     movieSet.setArtworkUrl(sortedPosters.get(0).getUrl(), MediaFileType.POSTER);
                   }
@@ -133,7 +133,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
                 if (!info.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
                   int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
                   List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = MovieArtworkHelper.sortArtworkUrls(info.getMediaArt(),
-                          MediaArtworkType.BACKGROUND, preferredSizeOrder);
+                      MediaArtworkType.BACKGROUND, preferredSizeOrder);
                   if (!sortedFanarts.isEmpty()) {
                     movieSet.setArtworkUrl(sortedFanarts.get(0).getUrl(), MediaFileType.FANART);
                   }

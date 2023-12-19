@@ -32,7 +32,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class ForumAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ForumAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ForumAction.class);
 
   public ForumAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.forum"));

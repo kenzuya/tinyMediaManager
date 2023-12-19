@@ -51,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class AboutDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(AboutDialog.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AboutDialog.class);
 
   public AboutDialog() {
     super(TmmResourceBundle.getString("tmm.about"), "aboutDialog");

@@ -86,7 +86,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListener {
-  private static final Logger                                    LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
+  private static final Logger                                    LOGGER = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
 
   private final TvShowEpisode                                    episode;
   private final MediaScraper                                     mediaScraper;

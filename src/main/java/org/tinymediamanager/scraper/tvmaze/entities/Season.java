@@ -20,24 +20,23 @@ import com.google.gson.annotations.SerializedName;
 public class Season {
 
   @SerializedName("id")
-  int id;
+  int    id;
   @SerializedName("url")
   String url;
   @SerializedName("number")
-  int number;
+  int    number;
   @SerializedName("name")
   String name;
   @SerializedName("episodeOrder")
-  int episodeOrder;
+  int    episodeOrder;
   @SerializedName("premiereDate")
   String premiereDate;
   @SerializedName("endDate")
   String endDate;
   @SerializedName("image")
-  Image image;
+  Image  image;
   @SerializedName("summary")
   String summary;
-
 
   class Image {
     @SerializedName("medium")

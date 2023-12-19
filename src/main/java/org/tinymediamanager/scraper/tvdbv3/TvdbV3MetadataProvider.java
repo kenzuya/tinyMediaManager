@@ -198,8 +198,10 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
   /**
    * get the size order of the given artwork
    *
-   * @param type  the {@link MediaArtwork.MediaArtworkType}
-   * @param width the width
+   * @param type
+   *          the {@link MediaArtwork.MediaArtworkType}
+   * @param width
+   *          the width
    * @return the size order
    */
   protected int getSizeOrder(MediaArtwork.MediaArtworkType type, int width) {
@@ -210,11 +212,14 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       case POSTER:
         if (width >= 1000) {
           sizeOrder = MediaArtwork.PosterSizes.LARGE.getOrder();
-        } else if (width >= 500) {
+        }
+        else if (width >= 500) {
           sizeOrder = MediaArtwork.PosterSizes.BIG.getOrder();
-        } else if (width >= 342) {
+        }
+        else if (width >= 342) {
           sizeOrder = MediaArtwork.PosterSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.PosterSizes.SMALL.getOrder();
         }
         break;
@@ -222,11 +227,14 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       case BACKGROUND:
         if (width >= 3840) {
           sizeOrder = MediaArtwork.FanartSizes.XLARGE.getOrder();
-        } else if (width >= 1920) {
+        }
+        else if (width >= 1920) {
           sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
-        } else if (width >= 1280) {
+        }
+        else if (width >= 1280) {
           sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.FanartSizes.SMALL.getOrder();
         }
         break;
@@ -234,13 +242,17 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
       case THUMB:
         if (width >= 3840) {
           sizeOrder = MediaArtwork.ThumbSizes.XLARGE.getOrder();
-        } else if (width >= 1920) {
+        }
+        else if (width >= 1920) {
           sizeOrder = MediaArtwork.ThumbSizes.LARGE.getOrder();
-        } else if (width >= 1280) {
+        }
+        else if (width >= 1280) {
           sizeOrder = MediaArtwork.ThumbSizes.BIG.getOrder();
-        } else if (width >= 960) {
+        }
+        else if (width >= 960) {
           sizeOrder = MediaArtwork.ThumbSizes.MEDIUM.getOrder();
-        } else {
+        }
+        else {
           sizeOrder = MediaArtwork.ThumbSizes.SMALL.getOrder();
         }
         break;
@@ -252,7 +264,8 @@ abstract class TvdbV3MetadataProvider implements IMediaProvider {
     // set size for banner & season poster (resolution not in api)
     if (type == SEASON_BANNER || type == SEASON_POSTER) {
       sizeOrder = MediaArtwork.FanartSizes.LARGE.getOrder();
-    } else if (type == BANNER) {
+    }
+    else if (type == BANNER) {
       sizeOrder = MediaArtwork.FanartSizes.MEDIUM.getOrder();
     }
 

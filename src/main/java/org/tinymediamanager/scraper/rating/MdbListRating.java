@@ -18,7 +18,6 @@ package org.tinymediamanager.scraper.rating;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,11 +98,11 @@ class MdbListRating {
         // Loop over result to get all Ratings and add them to list of media ratings
         for (MdbListRatings ratings : ListUtils.nullSafe(ratingEntity.ratings)) {
 
-          if (ratings.source == null || ratings.value == null ) {
+          if (ratings.source == null || ratings.value == null) {
             continue;
           }
 
-          MediaRating mediaRating = new MediaRating(ratings.source,ratings.value,ratings.votes);
+          MediaRating mediaRating = new MediaRating(ratings.source, ratings.value, ratings.votes);
           mediaRatingList.add(mediaRating);
 
         }

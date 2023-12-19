@@ -47,7 +47,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowCastPanel extends JPanel {
   private final TvShowSelectionModel selectionModel;
-  private EventList<Person>          actorEventList   = null;
+  private EventList<Person>          actorEventList = null;
 
   /**
    * UI elements

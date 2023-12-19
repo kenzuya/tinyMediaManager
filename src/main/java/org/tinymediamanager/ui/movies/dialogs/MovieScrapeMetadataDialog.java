@@ -60,7 +60,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
   private final ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
   private final JHintCheckBox                                                  chckbxDoNotOverwrite;
 
-  private boolean                                                              startScrape      = false;
+  private boolean                                                              startScrape = false;
 
   /**
    * Instantiates a new movie scrape metadata.

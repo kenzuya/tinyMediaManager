@@ -220,7 +220,8 @@ public class MediaInformationLogosPanel extends JPanel {
     int audioChannelsInt;
     try {
       audioChannelsInt = Integer.parseInt(mediaInformationSource.getMediaInfoAudioChannels().replace("ch", ""));
-    } catch (NumberFormatException ignored) {
+    }
+    catch (NumberFormatException ignored) {
       return null;
     }
 
@@ -314,9 +315,10 @@ public class MediaInformationLogosPanel extends JPanel {
   private Icon getHfrIcon() {
     double framerate = mediaInformationSource.getMediaInfoFrameRate();
     try {
-      return ( framerate >= 48.0 ) ? new MediaInfoIcon("video/hfr.svg") : null;
-    } catch (Exception e) {
+      return (framerate >= 48.0) ? new MediaInfoIcon("video/hfr.svg") : null;
+    }
+    catch (Exception e) {
       return null;
-      }
     }
   }
+}

@@ -757,7 +757,8 @@ public class TmmTreeTable extends TmmTable {
           for (int row : selectedRows) {
             getSelectionModel().addSelectionInterval(row, row);
           }
-        } else {
+        }
+        else {
           setAdjusting(false);
         }
         long end = System.currentTimeMillis();

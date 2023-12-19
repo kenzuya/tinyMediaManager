@@ -20,7 +20,6 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +59,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -246,6 +246,14 @@ public class MovieChooserModel extends AbstractModelObject {
       LOGGER.info("=====================================================");
       try {
         metadata = ((IMovieMetadataProvider) metadataProvider.getMediaProvider()).getMetadata(options);
+
+        // if movie set is requested, but the scraper is NOT TMDB, we need to call TMDB too
+        if (metadata.getIdAsInt(MediaMetadata.TMDB_SET) == 0 && !metadataProvider.getId().equals(MediaMetadata.TMDB)) {
+          int movieSetId = MetadataUtil.getMovieSetId(metadata.getIds());
+          if (movieSetId > 0) {
+            metadata.setId(MediaMetadata.TMDB_SET, movieSetId);
+          }
+        }
 
         // also inject other ids
         MediaIdUtil.injectMissingIds(metadata.getIds(), MediaType.MOVIE);

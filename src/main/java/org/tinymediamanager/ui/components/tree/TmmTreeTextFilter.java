@@ -39,8 +39,8 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  * @param <E>
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
-  protected String          filterText       = "";
-  protected Pattern         filterPattern;
+  protected String  filterText = "";
+  protected Pattern filterPattern;
 
   public TmmTreeTextFilter() {
     super(TmmResourceBundle.getString("tmm.searchfield"), IconManager.SEARCH_GREY);

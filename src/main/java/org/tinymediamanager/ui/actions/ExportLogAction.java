@@ -150,7 +150,8 @@ public class ExportLogAction extends TmmAction {
         zos.putNextEntry(zipParameters);
         IOUtils.copy(in, zos);
         zos.closeEntry();
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         LOGGER.warn("unable to attach env.txt - {}", e.getMessage());
       }
     }

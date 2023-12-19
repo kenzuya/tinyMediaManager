@@ -184,10 +184,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
         return null;
       }
 
-      SubtitleSearchResult hashMatch = searchResults.stream()
-          .filter(result -> result.getScore() == 1)
-          .findFirst()
-          .orElse(null);
+      SubtitleSearchResult hashMatch = searchResults.stream().filter(result -> result.getScore() == 1).findFirst().orElse(null);
       // if not forceBestMatch, we take only 100% (hash matched) results
       if (hashMatch != null || !forceBestMatch) {
         return hashMatch;

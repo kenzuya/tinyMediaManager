@@ -1321,6 +1321,17 @@ public class MediaMetadata {
   }
 
   /**
+   * set all given {@link MediaEpisodeGroup}s
+   * 
+   * @param episodeGroups
+   *          a {@link Set} os {@link MediaEpisodeGroup}s to set
+   */
+  public void setEpisodeGroups(Set<MediaEpisodeGroup> episodeGroups) {
+    this.episodeGroups.clear();
+    this.episodeGroups.addAll(episodeGroups);
+  }
+
+  /**
    * get the {@link MediaSearchAndScrapeOptions} used when creating this {@link MediaMetadata}
    * 
    * @return the set {@link MediaSearchAndScrapeOptions} or null if unset

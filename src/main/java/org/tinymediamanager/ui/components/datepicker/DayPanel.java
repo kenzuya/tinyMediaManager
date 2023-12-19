@@ -38,19 +38,19 @@ import javax.swing.UIManager;
  * @author Manuel Laggner
  */
 class DayPanel extends JPanel {
-  private final Calendar    today;
-  private final JLabel[]    dayNames;
-  private final JLabel[]    days;
-  private final Color       transparentBackgroundColor;
-  private final Color       selectedColor;
-  private final Color       sundayForeground;
-  private final Color       weekdayForeground;
+  private final Calendar today;
+  private final JLabel[] dayNames;
+  private final JLabel[] days;
+  private final Color    transparentBackgroundColor;
+  private final Color    selectedColor;
+  private final Color    sundayForeground;
+  private final Color    weekdayForeground;
 
-  private int               day;
-  private Calendar          calendar;
-  private Locale            locale;
+  private int            day;
+  private Calendar       calendar;
+  private Locale         locale;
 
-  private JLabel            selectedDay;
+  private JLabel         selectedDay;
 
   DayPanel() {
     setBackground(Color.blue);

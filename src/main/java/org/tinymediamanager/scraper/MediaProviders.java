@@ -187,7 +187,7 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
-    //loadProvider(TvdbV3TvShowMetadataProvider.class);
+    // loadProvider(TvdbV3TvShowMetadataProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
@@ -220,7 +220,7 @@ public class MediaProviders {
     loadProvider(TmdbTvShowArtworkProvider.class);
     loadProvider(ImdbTvShowArtworkProvider.class);
     loadProvider(FFmpegTvShowArtworkProvider.class);
-    //loadProvider(TvdbV3TvShowArtworkProvider.class);
+    // loadProvider(TvdbV3TvShowArtworkProvider.class);
 
     // addons
     loadAddonsForInterface(addons, ITvShowArtworkProvider.class);

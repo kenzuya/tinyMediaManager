@@ -64,8 +64,8 @@ public class UnlockDialog extends TmmDialog {
 
       LocalDate validUntil = License.getInstance().validUntil();
       if (validUntil != null) {
-        text += "==> " + TmmResourceBundle.getString("tmm.license.validuntil") + ": " + TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil))
-                + " <==\n\n";
+        text += "==> " + TmmResourceBundle.getString("tmm.license.validuntil") + ": "
+            + TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil)) + " <==\n\n";
       }
 
       text += TmmResourceBundle.getString("tmm.license.hint2");

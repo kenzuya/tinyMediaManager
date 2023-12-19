@@ -35,7 +35,7 @@ import javax.swing.border.Border;
  */
 public class JHintCheckBox extends JCheckBox {
   private final Insets       dummyInsets;
-  private final MouseAdapter tooltipAdapter   = createMouseAdapter();
+  private final MouseAdapter tooltipAdapter = createMouseAdapter();
 
   private Icon               hintIcon;
 

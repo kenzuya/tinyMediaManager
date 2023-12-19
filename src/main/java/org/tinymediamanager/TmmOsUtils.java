@@ -236,4 +236,35 @@ public class TmmOsUtils {
 
     return userDir;
   }
+
+  /**
+   * Constructs parameter as Java Path() - and if this fails, we cannot support that.<br>
+   * Test for illegal characters not supported by OS, potentially crashing the process.
+   * 
+   * @param name
+   *          must be some valid path/filename combination, as we try to create a Java Path() out of it
+   * @return true/false
+   */
+  public static boolean hasInvalidCharactersForFilesystem(String name) {
+    // https://stackoverflow.com/a/31976060
+    // boolean ret = false;
+    // if (SystemUtils.IS_OS_WINDOWS) {
+    // if (name.length() > 2 && name.charAt(1) == ':') {
+    // name = name.substring(2); // w/o drive letter!!!
+    // }
+    // // ret = name.matches(".*[\":<>|?*].*"); // naa, bad perf
+    // ret = name.contains(":") || name.contains("\"") || name.contains("<") || name.contains(">") || name.contains("|") || name.contains("?")
+    // || name.contains("*") || name.endsWith(".") || name.endsWith(" ");
+    // }
+    // return ret;
+
+    // better approach
+    try {
+      Paths.get(name);
+      return false;
+    }
+    catch (Exception e) {
+      return true;
+    }
+  }
 }

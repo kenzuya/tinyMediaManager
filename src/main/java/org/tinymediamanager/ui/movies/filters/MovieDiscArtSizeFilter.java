@@ -22,6 +22,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
+
 /**
  * the class {@link MovieDiscArtSizeFilter} provides a filter for movie clearart width
  *

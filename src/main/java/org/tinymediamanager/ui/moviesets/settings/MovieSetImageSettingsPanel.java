@@ -57,9 +57,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieSetImageSettingsPanel extends JPanel {
-  private final MovieSettings settings = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings settings             = MovieModuleManager.getInstance().getSettings();
   private final ItemListener  checkBoxListener;
-  private final List<String> characterReplacement = new ArrayList<>(Arrays.asList(" ", "_"));
+  private final List<String>  characterReplacement = new ArrayList<>(Arrays.asList(" ", "_"));
 
   private JCheckBox           chckbxPoster1;
   private JCheckBox           chckbxPoster2;
@@ -102,7 +102,7 @@ class MovieSetImageSettingsPanel extends JPanel {
   private JCheckBox           chckbxDiscart7;
   private JCheckBox           chckbxDiscart8;
   private JCheckBox           chckbxAutomaticScrape;
-  private JComboBox cbReplacement;
+  private JComboBox           cbReplacement;
 
   /**
    * Instantiates a new movie image settings panel.
@@ -392,7 +392,7 @@ class MovieSetImageSettingsPanel extends JPanel {
     {
 
       JPanel panelMovieSet = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][][20lp!][][20lp!][][20lp!][grow]",
-              "[][][10lp!][][10lp!][][10lp!][][20lp!][10lp!][][][10lp!][][][10lp!][][][10lp!][][][10lp!][][][10lp!][][][][][10lp!][][][][][10lp!][][][][][20lp!][]"));
+          "[][][10lp!][][10lp!][][10lp!][][20lp!][10lp!][][][10lp!][][][10lp!][][][10lp!][][][10lp!][][][10lp!][][][][][10lp!][][][][][10lp!][][][][][20lp!][]"));
 
       JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("Settings.movieset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMovieSet, lblTitle, true);
@@ -825,7 +825,7 @@ class MovieSetImageSettingsPanel extends JPanel {
     Property movieSettingsBeanProperty_1 = BeanProperty.create("movieSetTitleCharacterReplacement");
     Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbReplacement,
-            jComboBoxBeanProperty);
+        jComboBoxBeanProperty);
     autoBinding_1.bind();
   }
 }

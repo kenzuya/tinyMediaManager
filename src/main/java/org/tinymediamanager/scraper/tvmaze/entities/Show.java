@@ -25,31 +25,31 @@ import com.google.gson.annotations.SerializedName;
 public class Show {
 
   @SerializedName("id")
-  public int id;
+  public int          id;
   @SerializedName("url")
-  public String url;
+  public String       url;
   @SerializedName("name")
-  public String title;
+  public String       title;
   @SerializedName("type")
-  public String type;
+  public String       type;
   @SerializedName("language")
-  public String language;
+  public String       language;
   @SerializedName("genres")
   public List<String> genres;
   @SerializedName("status")
-  public String status;
+  public String       status;
   @SerializedName("runtime")
-  public int runtime;
+  public int          runtime;
   @SerializedName("premiered")
-  public String premiered;
+  public String       premiered;
   @SerializedName("rating")
-  public Rating rating;
+  public Rating       rating;
   @SerializedName("externals")
-  public TvShowIds tvShowIds;
+  public TvShowIds    tvShowIds;
   @SerializedName("image")
-  public Image image;
+  public Image        image;
   @SerializedName("summary")
-  public String summary;
+  public String       summary;
 
   /**
    * Rating
@@ -67,9 +67,9 @@ public class Show {
   public static class TvShowIds {
 
     @SerializedName("tvrage")
-    public int tvrage;
+    public int    tvrage;
     @SerializedName("thetvdb")
-    public int thetvdb;
+    public int    thetvdb;
     @SerializedName("imdb")
     public String imdb;
 
@@ -84,5 +84,3 @@ public class Show {
   }
 
 }
-
-

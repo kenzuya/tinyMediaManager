@@ -84,7 +84,7 @@ public class TvShowRebuildImageCacheAction extends TmmAction {
 
         ImageCache.clearImageCache(imageFiles);
 
-          imageFiles.forEach(ImageCache::cacheImageAsync);
+        imageFiles.forEach(ImageCache::cacheImageAsync);
       }
     };
 

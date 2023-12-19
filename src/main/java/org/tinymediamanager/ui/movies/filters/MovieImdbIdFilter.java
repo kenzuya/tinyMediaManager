@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.movies.filters;
 
 import java.util.regex.Matcher;
 
-import javax.print.DocFlavor;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;

@@ -59,7 +59,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationPanel extends JPanel {
-  private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
+  private static final Logger        LOGGER = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private final TvShowSelectionModel selectionModel;
   private final EventList<MediaFile> mediaFileEventList;

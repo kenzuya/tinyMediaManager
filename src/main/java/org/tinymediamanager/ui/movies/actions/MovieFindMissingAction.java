@@ -32,7 +32,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * 
  */
 public class MovieFindMissingAction extends TmmAction {
-  private String                      datasource       = null;
+  private String datasource = null;
 
   /**
    * find missing movies in the given datasource

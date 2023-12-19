@@ -40,7 +40,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MoviePlayAction extends TmmAction {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(MoviePlayAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MoviePlayAction.class);
 
   public MoviePlayAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.play"));

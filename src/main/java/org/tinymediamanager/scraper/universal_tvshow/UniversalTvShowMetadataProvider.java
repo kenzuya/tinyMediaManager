@@ -458,6 +458,12 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
         assignValue(scrapers, md, metadataMap, entry.getKey());
       }
     }
+
+    // the episode group needs to be the same source as the episode/season numbers
+    String episodeGroupProviderId = providerInfo.getConfig().getValue("episodes");
+    if (StringUtils.isNotBlank(episodeGroupProviderId)) {
+      assignValue(Collections.singletonList(episodeGroupProviderId), md, metadataMap, "episodeGroups");
+    }
   }
 
   private void assignValue(List<String> scrapers, MediaMetadata md, Map<String, MediaMetadata> metadataMap, String field) {
@@ -466,8 +472,9 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
       MediaMetadata mediaMetadata = metadataMap.get(scraper);
       if (mediaMetadata != null) {
         try {
-          Method getter = new PropertyDescriptor(field, MediaMetadata.class).getReadMethod();
-          Method setter = new PropertyDescriptor(field, MediaMetadata.class).getWriteMethod();
+          PropertyDescriptor propertyDescriptor = new PropertyDescriptor(field, MediaMetadata.class);
+          Method getter = propertyDescriptor.getReadMethod();
+          Method setter = propertyDescriptor.getWriteMethod();
 
           Object value = getter.invoke(mediaMetadata);
 
@@ -566,8 +573,9 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
           String episodeField = Introspector.decapitalize(entry.getKey().replace("episode", ""));
           // all specified fields should be filled from the desired scraper
           try {
-            Method getter = new PropertyDescriptor(episodeField, MediaMetadata.class).getReadMethod();
-            Method setter = new PropertyDescriptor(episodeField, MediaMetadata.class).getWriteMethod();
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(episodeField, MediaMetadata.class);
+            Method getter = propertyDescriptor.getReadMethod();
+            Method setter = propertyDescriptor.getWriteMethod();
 
             setter.invoke(md, getter.invoke(mediaMetadata));
           }

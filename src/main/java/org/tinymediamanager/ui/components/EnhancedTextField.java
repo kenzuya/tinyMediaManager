@@ -43,7 +43,7 @@ import com.formdev.flatlaf.FlatClientProperties;
  * @author Manuel Laggner
  */
 public class EnhancedTextField extends JTextField {
-  protected JLabel          lblIcon;
+  protected JLabel lblIcon;
 
   /**
    * just create a simple JTextField

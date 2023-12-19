@@ -108,7 +108,7 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
    */
   public TvShowSeasonEditorDialog(TvShowSeason tvShowSeason, int queueIndex, int queueSize, int selectedTab) {
     super(TmmResourceBundle.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor",
-            tvShowSeason);
+        tvShowSeason);
 
     this.tvShowSeasonToEdit = tvShowSeason;
     this.queueIndex = queueIndex;
@@ -202,7 +202,7 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
 
         detailsPanel.add(lblPoster, "cell 3 1,grow");
         lblPoster.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-                e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, btnDeletePoster, SEASON_POSTER));
+            e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, btnDeletePoster, SEASON_POSTER));
       }
     }
 
@@ -240,7 +240,7 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
 
         artworkPanel.add(lblFanart, "cell 1 1,grow");
         lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-                e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, SEASON_FANART));
+            e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, btnDeleteFanart, SEASON_FANART));
       }
       {
         JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
@@ -296,7 +296,7 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
         artworkPanel.add(btnDeleteBanner, "cell 1 3");
 
         lblBanner.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
-                e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, btnDeleteBanner, SEASON_BANNER));
+            e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, btnDeleteBanner, SEASON_BANNER));
       }
     }
 

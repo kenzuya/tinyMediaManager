@@ -24,10 +24,8 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicITest;
-import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;

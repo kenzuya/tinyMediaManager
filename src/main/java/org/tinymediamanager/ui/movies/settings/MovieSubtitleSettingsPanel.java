@@ -69,8 +69,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieSubtitleSettingsPanel extends JPanel {
-  private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
-  private final List<ScraperInTable> scrapers         = new ArrayList<>();
+  private final MovieSettings        settings = MovieModuleManager.getInstance().getSettings();
+  private final List<ScraperInTable> scrapers = new ArrayList<>();
 
   private TmmTable                   tableScraper;
   private JTextPane                  tpScraperDescription;
@@ -116,20 +116,19 @@ class MovieSubtitleSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
-    tableScraper.getModel()
-        .addTableModelListener(arg0 -> {
-          // click on the checkbox
-          if (arg0.getColumn() == 0) {
-            int row = arg0.getFirstRow();
-            ScraperInTable changedScraper = scrapers.get(row);
-            if (changedScraper.getActive()) {
-              settings.addMovieSubtitleScraper(changedScraper.getScraperId());
-            }
-            else {
-              settings.removeMovieSubtitleScraper(changedScraper.getScraperId());
-            }
-          }
-        });
+    tableScraper.getModel().addTableModelListener(arg0 -> {
+      // click on the checkbox
+      if (arg0.getColumn() == 0) {
+        int row = arg0.getFirstRow();
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive()) {
+          settings.addMovieSubtitleScraper(changedScraper.getScraperId());
+        }
+        else {
+          settings.removeMovieSubtitleScraper(changedScraper.getScraperId());
+        }
+      }
+    });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {

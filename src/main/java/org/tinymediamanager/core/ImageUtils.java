@@ -359,7 +359,8 @@ public class ImageUtils {
 
       // give it a few milliseconds to finish writing on the file system
       Thread.sleep(150);
-    } catch (AccessDeniedException e) {
+    }
+    catch (AccessDeniedException e) {
       // propagate to UI by logging with error
       LOGGER.error("ACCESS DENIED (download artwork) - '{}'", e.getMessage());
       // re-throw

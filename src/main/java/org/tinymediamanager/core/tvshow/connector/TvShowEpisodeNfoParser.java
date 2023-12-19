@@ -16,7 +16,9 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.core.entities.Person.Type.*;
+import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;

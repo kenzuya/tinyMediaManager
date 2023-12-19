@@ -154,6 +154,10 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
       return tvShowEpisode.getSeason();
     }
 
+    public String getEpisodeTitle() {
+      return tvShowEpisode.getTitle();
+    }
+
     public String getTitle() {
       return title;
     }
@@ -173,9 +177,13 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
     public void calculateScore() {
       float score = 0;
       if (StringUtils.isNotBlank(title)) {
-        TvShowEpisodeAndSeasonParser.EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser
-            .detectEpisodeFromFilename(tvShowEpisode.getMainVideoFile().getFilename(), tvShowEpisode.getTvShow().getTitle());
-        score = MetadataUtil.calculateScore(title, result.cleanedName);
+        float titleScore = MetadataUtil.calculateScore(title, tvShowEpisode.getTitle());
+
+        String cleanedFilename = TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(tvShowEpisode.getMainVideoFile().getBasename(),
+            tvShowEpisode.getTvShow().getTitle());
+        float filenameScore = MetadataUtil.calculateScore(title, cleanedFilename);
+
+        score = Math.max(titleScore, filenameScore);
       }
 
       float oldValue = this.score;
@@ -205,9 +213,15 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
       addColumn(col);
 
       /*
-       * title
+       * local EP title
        */
-      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", EpisodeContainer::getTitle, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "localTitle", EpisodeContainer::getEpisodeTitle, String.class);
+      addColumn(col);
+
+      /*
+       * EP title from EG
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.episode.group"), "title", EpisodeContainer::getTitle, String.class);
       addColumn(col);
 
       /*

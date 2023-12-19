@@ -23,7 +23,7 @@ package org.tinymediamanager.scraper.exceptions;
  * @since 3.0
  */
 public class MissingIdException extends ScrapeException {
-  private final String[]    ids;
+  private final String[] ids;
 
   /**
    * the following ids are supported with this scraper, but no one has been given

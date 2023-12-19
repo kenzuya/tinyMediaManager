@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowChangeDatasourceDialog extends TmmDialog {
   private final List<TvShow> tvShowsToEdit = new ArrayList<>();
 
-  private JComboBox<String>           cbDatasource;
+  private JComboBox<String>  cbDatasource;
 
   public TvShowChangeDatasourceDialog(final List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("tvshow.changedatasource"), "tvShowDatasourceEditor");

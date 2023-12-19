@@ -19,9 +19,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class Image {
   @SerializedName("id")
-  public int id;
+  public int         id;
   @SerializedName("type")
-  public String type;
+  public String      type;
   @SerializedName("resolutions")
   public Resolutions resolutions;
 
@@ -30,7 +30,7 @@ public class Image {
     @SerializedName("original")
     public Original original;
     @SerializedName("medium")
-    public Medium medium;
+    public Medium   medium;
 
   }
 
@@ -38,17 +38,17 @@ public class Image {
     @SerializedName("url")
     public String url;
     @SerializedName("width")
-    public int width;
+    public int    width;
     @SerializedName("height")
-    public int height;
+    public int    height;
   }
 
   public static class Medium {
     @SerializedName("url")
     public String url;
     @SerializedName("width")
-    public int width;
+    public int    width;
     @SerializedName("height")
-    public int height;
+    public int    height;
   }
 }

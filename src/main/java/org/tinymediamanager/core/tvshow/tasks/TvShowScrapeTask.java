@@ -51,6 +51,7 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -185,6 +186,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
             // scrape metadata if wanted
             MediaMetadata md = null;
+            List<MediaMetadata> episodeList = null;
 
             if (ScraperMetadataConfig.containsAnyMetadata(tvShowScrapeParams.tvShowScraperMetadataConfig)
                 || ScraperMetadataConfig.containsAnyCast(tvShowScrapeParams.tvShowScraperMetadataConfig)) {
@@ -207,6 +209,21 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 }
               }
 
+              try {
+                episodeList = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getEpisodeList(options);
+
+                List<MediaEpisodeGroup> episodeGroups = new ArrayList<>(md.getEpisodeGroups());
+                Collections.sort(episodeGroups);
+                tvShow.setEpisodeGroup(TvShowHelpers.findBestMatchingEpisodeGroup(tvShow, episodeGroups, episodeList));
+              }
+              catch (Exception e) {
+                LOGGER.debug("could not fetch episode list - '{}'", e.getMessage());
+                tvShow.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
+              }
+              finally {
+                tvShow.setEpisodeGroups(md.getEpisodeGroups());
+              }
+
               tvShow.setMetadata(md, tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
               tvShow.setLastScraperId(tvShowScrapeParams.scrapeOptions.getMetadataScraper().getId());
               tvShow.setLastScrapeLanguage(tvShowScrapeParams.scrapeOptions.getLanguage().name());
@@ -215,7 +232,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
             // always add all episode data (for missing episodes and episode list)
             List<TvShowEpisode> episodes = new ArrayList<>();
             try {
-              for (MediaMetadata me : ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getEpisodeList(options)) {
+              if (episodeList == null) {
+                episodeList = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getEpisodeList(options);
+              }
+              for (MediaMetadata me : episodeList) {
                 TvShowEpisode ep = new TvShowEpisode();
                 ep.setEpisodeNumbers(me.getEpisodeNumbers());
                 ep.setFirstAired(me.getReleaseDate());

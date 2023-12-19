@@ -467,7 +467,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   protected List<E> filterAndSort(final E parentNode, List<E> children) {
     // Simply return an empty array if there is no children
     if (children == null || children.isEmpty()) {
-      return new ArrayList<>(0);
+      return Collections.emptyList();
     }
 
     // get cache

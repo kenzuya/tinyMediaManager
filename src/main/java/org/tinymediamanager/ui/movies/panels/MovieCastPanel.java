@@ -23,6 +23,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -33,6 +34,7 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
+import org.tinymediamanager.ui.components.ProducerImageLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
@@ -60,6 +62,7 @@ public class MovieCastPanel extends JPanel {
   private JLabel                    lblDirector;
   private JLabel                    lblWriter;
   private ActorImageLabel           lblActorThumb;
+  private ProducerImageLabel        lblProducerThumb;
   private TmmTable                  tableProducer;
   private TmmTable                  tableActors;
 
@@ -72,7 +75,10 @@ public class MovieCastPanel extends JPanel {
     initDataBindings();
 
     lblActorThumb.enableLightbox();
+    lblProducerThumb.enableLightbox();
+
     lblActorThumb.setCacheUrl(true);
+    lblProducerThumb.setCacheUrl(true);
 
     // selectionlistener for the selected actor
     tableActors.getSelectionModel().addListSelectionListener(arg0 -> {
@@ -84,6 +90,20 @@ public class MovieCastPanel extends JPanel {
         }
         else {
           lblActorThumb.clearImage();
+        }
+      }
+    });
+
+    // selectionlistener for the selected producer
+    tableProducer.getSelectionModel().addListSelectionListener(arg0 -> {
+      if (!arg0.getValueIsAdjusting()) {
+        int selectedRow = tableProducer.convertRowIndexToModel(tableProducer.getSelectedRow());
+        if (selectedRow >= 0 && selectedRow < producerEventList.size()) {
+          Person producer = producerEventList.get(selectedRow);
+          lblProducerThumb.setProducer(selectionModel.getSelectedMovie(), producer);
+        }
+        else {
+          lblProducerThumb.clearImage();
         }
       }
     });
@@ -123,7 +143,7 @@ public class MovieCastPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[][][100lp:150lp,grow][150lp:200lp,grow]"));
+    setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[][][150lp:200lp,grow][][150lp:200lp,grow]"));
     {
       JLabel lblDirectorT = new TmmLabel(TmmResourceBundle.getString("metatag.director"));
       add(lblDirectorT, "cell 0 0");
@@ -159,8 +179,16 @@ public class MovieCastPanel extends JPanel {
       add(scrollPanePerson, "cell 1 2,grow");
     }
     {
+      lblProducerThumb = new ProducerImageLabel();
+      add(lblProducerThumb, "cell 2 2,grow");
+    }
+    {
+      JSeparator separator = new JSeparator();
+      add(separator, "cell 0 3 3 1, growx");
+    }
+    {
       JLabel lblActorsT = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
-      add(lblActorsT, "cell 0 3,aligny top");
+      add(lblActorsT, "cell 0 4,aligny top");
 
       tableActors = new PersonTable(actorEventList) {
         @Override
@@ -174,11 +202,11 @@ public class MovieCastPanel extends JPanel {
       TmmUILayoutStore.getInstance().install(tableActors);
       JScrollPane scrollPanePersons = new JScrollPane();
       tableActors.configureScrollPane(scrollPanePersons);
-      add(scrollPanePersons, "cell 1 3,grow");
+      add(scrollPanePersons, "cell 1 4,grow");
     }
     {
       lblActorThumb = new ActorImageLabel();
-      add(lblActorThumb, "cell 2 3,grow");
+      add(lblActorThumb, "cell 2 4,grow");
     }
   }
 

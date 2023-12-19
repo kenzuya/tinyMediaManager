@@ -84,7 +84,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetInformationPanel extends JPanel {
-  private static final Logger          LOGGER           = LoggerFactory.getLogger(MovieSetInformationPanel.class);
+  private static final Logger          LOGGER = LoggerFactory.getLogger(MovieSetInformationPanel.class);
 
   private final MovieSetSelectionModel selectionModel;
   private final EventList<Movie>       movieEventList;

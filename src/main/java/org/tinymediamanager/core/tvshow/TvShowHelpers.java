@@ -46,6 +46,7 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowTrailerProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * a collection of various helpers for the TV show module
@@ -370,8 +371,49 @@ public class TvShowHelpers {
    */
   public static MediaEpisodeGroup findBestMatchingEpisodeGroup(TvShow tvShow, List<MediaEpisodeGroup> episodeGroups,
       List<MediaMetadata> episodeList) {
-    // FIXME find a good algorithm to detect the episode group
-    return null;
+
+    // just remember the episode group with the best score and most matched episodes
+    float matchedEpisodes = 0;
+    float score = 0;
+    MediaEpisodeGroup episodeGroup = null;
+
+    for (MediaEpisodeGroup eg : episodeGroups) {
+      int episodeCount = 0;
+      float scoreSum = 0;
+
+      // try to find the best matching episode in the given episode group
+      for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        for (MediaMetadata md : episodeList) {
+          MediaEpisodeNumber episodeNumber = md.getEpisodeNumber(eg);
+          if (episodeNumber == null) {
+            continue;
+          }
+
+          if (episode.getSeason() == episodeNumber.season() && episode.getEpisode() == episodeNumber.episode()) {
+            float titleScore = MetadataUtil.calculateScore(md.getTitle(), episode.getTitle());
+
+            String cleanedFilename = TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(episode.getMainVideoFile().getBasename(),
+                episode.getTvShow().getTitle());
+            float filenameScore = MetadataUtil.calculateScore(md.getTitle(), cleanedFilename);
+
+            scoreSum += Math.max(titleScore, filenameScore);
+
+            episodeCount++;
+            break;
+          }
+        }
+      }
+
+      if (episodeCount > 0) {
+        if (episodeCount > matchedEpisodes || (episodeCount == matchedEpisodes && score < scoreSum / episodeCount)) {
+          episodeGroup = eg;
+          score = scoreSum / episodeCount;
+          matchedEpisodes = episodeCount;
+        }
+      }
+    }
+
+    return episodeGroup;
   }
 
   /**

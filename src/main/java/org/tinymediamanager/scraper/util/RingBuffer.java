@@ -337,6 +337,7 @@ public class RingBuffer<T> {
           case START: {
             return true;
           }
+
           default: {
             return false;
           }

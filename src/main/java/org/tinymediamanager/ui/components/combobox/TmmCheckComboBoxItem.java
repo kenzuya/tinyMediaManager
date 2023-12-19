@@ -23,7 +23,7 @@ import javax.swing.JCheckBox;
  * @author Manuel Laggner
  */
 class TmmCheckComboBoxItem<E> extends JCheckBox {
-  private final E           userObject;
+  private final E userObject;
 
   /**
    * create an item with the given user object

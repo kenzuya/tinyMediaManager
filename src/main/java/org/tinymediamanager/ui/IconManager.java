@@ -196,7 +196,7 @@ public class IconManager {
   public static final ImageIcon              DATE_CREATED                 = createTableHeaderIcon("calendar-star.svg");
   public static final ImageIcon              EDITION                      = createTableHeaderIcon("compact-disc.svg");
   public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
-  public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
+  public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.4);
   public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
   public static final ImageIcon              HDR                          = createTableHeaderIcon("delicious-brands.svg");
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
@@ -207,7 +207,7 @@ public class IconManager {
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-lines.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
   public static final ImageIcon              RUNTIME                      = createTableHeaderIcon("clock.svg");
-  public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
+  public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.4);
   public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");

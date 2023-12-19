@@ -30,7 +30,7 @@ import org.tinymediamanager.scraper.config.MediaProviderConfig;
  * @since 1.0
  */
 public class MediaProviderInfo {
-  public static final String API_KEY = "apiKey";
+  public static final String        API_KEY        = "apiKey";
   private static final URL          EMPTY_LOGO     = MediaProviderInfo.class.getResource("emtpyLogo.png");
 
   private final String              id;

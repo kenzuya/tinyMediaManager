@@ -51,12 +51,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class SortTitleSettingsPanel extends JPanel {
-  private final Settings    settings         = Settings.getInstance();
+  private final Settings settings = Settings.getInstance();
 
-  private JList<String>     listSortPrefixes;
-  private JTextField        tfSortPrefix;
-  private JButton           btnRemoveSortPrefix;
-  private JButton           btnAddSortPrefix;
+  private JList<String>  listSortPrefixes;
+  private JTextField     tfSortPrefix;
+  private JButton        btnRemoveSortPrefix;
+  private JButton        btnAddSortPrefix;
 
   SortTitleSettingsPanel() {
     // init UI

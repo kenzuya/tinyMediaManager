@@ -31,20 +31,21 @@ import org.tinymediamanager.core.entities.MediaEntity;
  * @author Alex Bruns, Kai Werner, Manuel Laggner
  */
 public class TmmTaskChain implements TmmTaskListener {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TmmTaskChain.class);
+  private static final Logger                         LOGGER             = LoggerFactory.getLogger(TmmTaskChain.class);
 
   private static final Map<MediaEntity, TmmTaskChain> ACTIVE_TASK_CHAINS = new HashMap<>();
 
-  private final MediaEntity mediaEntity;
-  private final Queue<TmmTask> tasks = new LinkedList<>();
-  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  private final MediaEntity                           mediaEntity;
+  private final Queue<TmmTask>                        tasks              = new LinkedList<>();
+  private final ReentrantReadWriteLock                lock               = new ReentrantReadWriteLock();
 
-  private boolean running = false;
+  private boolean                                     running            = false;
 
   /**
    * get the {@link TmmTaskChain} for the given {@link MediaEntity}
    *
-   * @param mediaEntity the {@link MediaEntity} to get the {@link TmmTaskChain} for
+   * @param mediaEntity
+   *          the {@link MediaEntity} to get the {@link TmmTaskChain} for
    * @return the {@link TmmTaskChain}
    */
   public static TmmTaskChain getInstance(MediaEntity mediaEntity) {
@@ -70,7 +71,8 @@ public class TmmTaskChain implements TmmTaskListener {
   /**
    * add a new {@link TmmTask} to the task queue
    *
-   * @param task the {@link TmmTask} to add
+   * @param task
+   *          the {@link TmmTask} to add
    * @return the {@link TmmTaskChain} instance
    */
   public TmmTaskChain add(TmmTask task) {
@@ -128,7 +130,8 @@ public class TmmTaskChain implements TmmTaskListener {
         // add to the unnamed queue
         TmmTaskManager.getInstance().addUnnamedTask(nextTask);
       }
-    } else {
+    }
+    else {
       // finished
       synchronized (ACTIVE_TASK_CHAINS) {
         ACTIVE_TASK_CHAINS.remove(mediaEntity);

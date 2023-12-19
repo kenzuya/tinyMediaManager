@@ -37,8 +37,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 public class LinkTextArea extends ReadOnlyTextArea {
-  protected String          link;
-  protected ActionListener  activeListener   = null;
+  protected String         link;
+  protected ActionListener activeListener = null;
 
   /**
    * Creates a new LinkLabel with the given text.

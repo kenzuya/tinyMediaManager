@@ -25,7 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class TmmTreeNode extends DefaultMutableTreeNode {
   protected TmmTreeDataProvider<TmmTreeNode> dataProvider;
 
-  private final String          id;
+  private final String                       id;
 
   public TmmTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
     super.setUserObject(userObject);

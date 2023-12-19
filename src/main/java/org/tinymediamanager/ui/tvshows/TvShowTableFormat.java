@@ -68,25 +68,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     Comparator<MediaCertification> certificationComparator = new CertificationComparator();
     Comparator<String> stringComparator = new StringComparator();
-    Comparator<String> integerComparator = (o1, o2) -> {
-      int value1 = 0;
-      int value2 = 0;
-
-      try {
-        value1 = Integer.parseInt(o1);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-      try {
-        value2 = Integer.parseInt(o2);
-      }
-      catch (Exception ignored) {
-        // do nothing
-      }
-
-      return Integer.compare(value1, value2);
-    };
+    Comparator<Integer> integerComparator = Comparator.comparingInt(o -> o);
     Comparator<String> floatComparator = (o1, o2) -> {
       float value1 = 0;
       float value2 = 0;
@@ -156,7 +138,6 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * file name (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getFileName, String.class);
-    col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setDefaultHidden(true);
     addColumn(col);
@@ -184,9 +165,9 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * votes (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, Integer.class);
     col.setHeaderIcon(IconManager.VOTES);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth(fontMetrics.stringWidth("1000000") + 10);
     col.setDefaultHidden(true);
@@ -607,12 +588,12 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private String getVotes(TmmTreeNode node) {
+  private Integer getVotes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
       MediaRating mediaRating = ((MediaEntity) userObject).getRating();
       if (mediaRating != null && mediaRating != MediaMetadata.EMPTY_RATING && mediaRating.getRating() > 0) {
-        return String.valueOf(mediaRating.getVotes());
+        return mediaRating.getVotes();
       }
     }
     return null;

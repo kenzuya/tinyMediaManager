@@ -42,9 +42,7 @@ public class TvShowCertificationFilter extends AbstractCheckComboBoxTvShowUIFilt
 
   public TvShowCertificationFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> s.toString()
-        .toLowerCase(Locale.ROOT)
-        .startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildAndInstallCertificationArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallCertificationArray();
     tvShowList.addPropertyChangeListener(Constants.CERTIFICATION, propertyChangeListener);

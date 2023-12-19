@@ -23,11 +23,9 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_MOVIE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_VIDEOGAME;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.LOCAL_RELEASE_DATE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.MAX_KEYWORD_COUNT;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_COLLETION_INFO;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_KEYWORDS_PAGE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_LANGUAGE_NAMES;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_UNCREDITED_ACTORS;
-import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_MOVIES;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,8 +67,6 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
     providerInfo.getConfig().addBoolean(INCLUDE_ADULT, false);
 
     providerInfo.getConfig().addBoolean(INCLUDE_METACRITIC, true);
-    providerInfo.getConfig().addBoolean(USE_TMDB_FOR_MOVIES, false);
-    providerInfo.getConfig().addBoolean(SCRAPE_COLLETION_INFO, false);
     providerInfo.getConfig().addBoolean(LOCAL_RELEASE_DATE, true);
     providerInfo.getConfig().addBoolean(INCLUDE_PREMIERE_DATE, true);
     providerInfo.getConfig().addBoolean(SCRAPE_UNCREDITED_ACTORS, true);

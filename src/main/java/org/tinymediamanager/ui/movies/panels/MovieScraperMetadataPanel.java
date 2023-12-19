@@ -41,13 +41,12 @@ import org.tinymediamanager.ui.components.JHintCheckBox;
  * @author Manuel Laggner
  */
 public class MovieScraperMetadataPanel extends JPanel {
-  private static final int                           COL_COUNT        = 6;
+  private static final int                                 COL_COUNT = 6;
   /**
    * @wbp.nls.resourceBundle messages
    */
 
-
-  private final MovieSettings                              settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings                              settings  = MovieModuleManager.getInstance().getSettings();
   private final Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;
 
   public MovieScraperMetadataPanel() {

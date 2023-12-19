@@ -38,8 +38,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 public class LinkLabel extends JLabel {
-  protected String          link;
-  protected ActionListener  activeListener   = null;
+  protected String         link;
+  protected ActionListener activeListener = null;
 
   /**
    * Creates a new LinkLabel with the given text.

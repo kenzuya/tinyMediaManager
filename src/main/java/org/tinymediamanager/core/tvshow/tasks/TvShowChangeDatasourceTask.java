@@ -37,11 +37,10 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowChangeDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER          = LoggerFactory.getLogger(TvShowChangeDatasourceTask.class);
+  private static final Logger LOGGER          = LoggerFactory.getLogger(TvShowChangeDatasourceTask.class);
 
-
-  private final String                datasource;
-  private final List<TvShow>          tvShowsToChange = new ArrayList<>();
+  private final String        datasource;
+  private final List<TvShow>  tvShowsToChange = new ArrayList<>();
 
   public TvShowChangeDatasourceTask(List<TvShow> tvShowsToChange, String datasource) {
     super(TmmResourceBundle.getString("tvshow.changedatasource"));

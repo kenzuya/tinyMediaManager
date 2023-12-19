@@ -30,27 +30,31 @@ import org.tinymediamanager.core.entities.MediaFile;
  * @author Manuel Laggner
  */
 public class ImageCacheTask implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageCacheTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ImageCacheTask.class);
 
-    private final MediaFile mediaFile;
+  private final MediaFile     mediaFile;
 
-    public ImageCacheTask(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
+  public ImageCacheTask(MediaFile mediaFile) {
+    this.mediaFile = mediaFile;
   }
 
   @Override
   public void run() {
-      try {
-          ImageCache.cacheImage(mediaFile);
-      } catch (EmptyFileException e) {
-          LOGGER.debug("failed to cache file (file is empty): {}", mediaFile);
-      } catch (FileNotFoundException e) {
-          // silently ignore
-      } catch (InterruptedException | InterruptedIOException e) {
-          // do not swallow these Exceptions
-          Thread.currentThread().interrupt();
-      } catch (Exception e) {
-          LOGGER.warn("failed to cache file: {} - {}", mediaFile.getFile(), e.getMessage());
+    try {
+      ImageCache.cacheImage(mediaFile);
+    }
+    catch (EmptyFileException e) {
+      LOGGER.debug("failed to cache file (file is empty): {}", mediaFile);
+    }
+    catch (FileNotFoundException e) {
+      // silently ignore
+    }
+    catch (InterruptedException | InterruptedIOException e) {
+      // do not swallow these Exceptions
+      Thread.currentThread().interrupt();
+    }
+    catch (Exception e) {
+      LOGGER.warn("failed to cache file: {} - {}", mediaFile.getFile(), e.getMessage());
     }
   }
 }

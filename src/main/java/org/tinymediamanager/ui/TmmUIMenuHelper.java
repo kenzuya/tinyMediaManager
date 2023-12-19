@@ -43,7 +43,8 @@ public class TmmUIMenuHelper {
     for (Component component : menu.getMenuComponents()) {
       if (component instanceof JMenuItem menuItem) {
         destination.add(cloneMenuItem(menuItem));
-      } else if (component instanceof JSeparator) {
+      }
+      else if (component instanceof JSeparator) {
         destination.addSeparator();
       }
     }

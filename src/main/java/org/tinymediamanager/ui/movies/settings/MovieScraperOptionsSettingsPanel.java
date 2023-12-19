@@ -56,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperOptionsSettingsPanel extends JPanel {
-  private final MovieSettings       settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings       settings = MovieModuleManager.getInstance().getSettings();
 
   private JSlider                   sliderThreshold;
   private JCheckBox                 chckbxAutomaticallyScrapeImages;

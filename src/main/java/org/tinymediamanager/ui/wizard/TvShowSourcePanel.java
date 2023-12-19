@@ -54,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowSourcePanel extends JPanel {
-  private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
+  private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   private JList<String>        listDataSources;
   private JCheckBox            cbDvdOrder;

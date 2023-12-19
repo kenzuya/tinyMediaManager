@@ -29,8 +29,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  */
 public class NonEmptyToStringStyle extends ToStringStyle {
-  private boolean           ignoreNegativeNumber = true;
-  private boolean           ignoreEmptyString    = true; // won't trim()
+  private boolean ignoreNegativeNumber = true;
+  private boolean ignoreEmptyString    = true; // won't trim()
 
   public NonEmptyToStringStyle() {
     super();

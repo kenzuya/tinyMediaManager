@@ -29,7 +29,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class TvShowUpdateSingleDatasourceAction extends TmmAction {
-  private final String      datasource;
+  private final String datasource;
 
   public TvShowUpdateSingleDatasourceAction(String datasource) {
     this.datasource = datasource;

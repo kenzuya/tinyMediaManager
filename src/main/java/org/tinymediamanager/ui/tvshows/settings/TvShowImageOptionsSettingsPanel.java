@@ -56,18 +56,18 @@ class TvShowImageOptionsSettingsPanel extends JPanel {
 
   private JComboBox                 cbImagePosterSize;
   private JComboBox                 cbImageFanartSize;
-  private JComboBox cbImageThumbSize;
+  private JComboBox                 cbImageThumbSize;
 
   private JComboBox<MediaLanguages> cbScraperLanguage;
 
-  private JList listLanguages;
-  private JButton btnAddLanguage;
-  private JButton btnRemoveLanguage;
-  private JButton btnMoveLanguageUp;
-  private JButton btnMoveLanguageDown;
-  private JCheckBox chckbxResolutions;
-  private JCheckBox chckbxFallback;
-  private JCheckBox chckbxFanartWoText;
+  private JList                     listLanguages;
+  private JButton                   btnAddLanguage;
+  private JButton                   btnRemoveLanguage;
+  private JButton                   btnMoveLanguageUp;
+  private JButton                   btnMoveLanguageDown;
+  private JCheckBox                 chckbxResolutions;
+  private JCheckBox                 chckbxFallback;
+  private JCheckBox                 chckbxFanartWoText;
 
   TvShowImageOptionsSettingsPanel() {
     // UI init
@@ -193,12 +193,12 @@ class TvShowImageOptionsSettingsPanel extends JPanel {
     Property settingsBeanProperty_5 = BeanProperty.create("imagePosterSize");
     Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_5, cbImagePosterSize,
-            jComboBoxBeanProperty);
+        jComboBoxBeanProperty);
     autoBinding_4.bind();
     //
     Property settingsBeanProperty_6 = BeanProperty.create("imageFanartSize");
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_6, cbImageFanartSize,
-            jComboBoxBeanProperty);
+        jComboBoxBeanProperty);
     autoBinding_5.bind();
     //
     Property tvShowSettingsBeanProperty = BeanProperty.create("imageScraperLanguages");
@@ -218,12 +218,12 @@ class TvShowImageOptionsSettingsPanel extends JPanel {
     //
     Property tvShowSettingsBeanProperty_3 = BeanProperty.create("imageScraperFallback");
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, chckbxFallback,
-            jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
     Property tvShowSettingsBeanProperty_4 = BeanProperty.create("imageThumbSize");
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, cbImageThumbSize,
-            jComboBoxBeanProperty);
+        jComboBoxBeanProperty);
     autoBinding_3.bind();
   }
 }

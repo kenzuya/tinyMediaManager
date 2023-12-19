@@ -218,17 +218,17 @@ class TmdbArtworkProvider {
         // w500
         if (500 < image.width) {
           ma.addImageSize(500, Math.round(image.height * 500f / image.width), baseUrl + "w500" + image.file_path,
-                  MediaArtwork.PosterSizes.getSizeOrder(500));
+              MediaArtwork.PosterSizes.getSizeOrder(500));
         }
         // w342
         if (342 < image.width) {
           ma.addImageSize(342, Math.round(image.height * 342f / image.width), baseUrl + "w342" + image.file_path,
-                  MediaArtwork.PosterSizes.getSizeOrder(342));
+              MediaArtwork.PosterSizes.getSizeOrder(342));
         }
         // w185
         if (185 < image.width) {
           ma.addImageSize(185, Math.round(image.height * 185f / image.width), baseUrl + "w185" + image.file_path,
-                  MediaArtwork.PosterSizes.getSizeOrder(185));
+              MediaArtwork.PosterSizes.getSizeOrder(185));
         }
 
         artwork.add(ma);
@@ -254,12 +254,12 @@ class TmdbArtworkProvider {
         // 1280x720
         if (1280 < image.width) {
           ma.addImageSize(1280, Math.round(image.height * 1280f / image.width), baseUrl + "w1280" + image.file_path,
-                  MediaArtwork.FanartSizes.getSizeOrder(1280));
+              MediaArtwork.FanartSizes.getSizeOrder(1280));
         }
         // w300
         if (300 < image.width) {
           ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path,
-                  MediaArtwork.FanartSizes.getSizeOrder(300));
+              MediaArtwork.FanartSizes.getSizeOrder(300));
         }
 
         artwork.add(ma);
@@ -282,7 +282,7 @@ class TmdbArtworkProvider {
         // w300
         if (300 < image.width) {
           ma.addImageSize(300, Math.round(image.height * 300f / image.width), baseUrl + "w300" + image.file_path,
-                  MediaArtwork.ThumbSizes.getSizeOrder(300));
+              MediaArtwork.ThumbSizes.getSizeOrder(300));
         }
 
         artwork.add(ma);

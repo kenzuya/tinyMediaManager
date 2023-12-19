@@ -175,6 +175,7 @@ public class EqualsLayout implements LayoutManager, SwingConstants {
           children[i].setBounds(insets.left + (maxWidth + gap) * i, insets.top, maxWidth, maxHeight);
         }
         break;
+
       case RIGHT:
       case BOTTOM:
         for (int i = 0, c = children.length; i < c; i++) {

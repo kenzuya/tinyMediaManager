@@ -20,6 +20,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -76,7 +77,7 @@ class UiSettingsPanel extends JPanel {
   public UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
     LocaleComboBox fallbackLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
+    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
@@ -88,6 +89,7 @@ class UiSettingsPanel extends JPanel {
         fallbackLocale = localeComboBox;
       }
     }
+    Collections.sort(locales);
 
     initComponents();
 

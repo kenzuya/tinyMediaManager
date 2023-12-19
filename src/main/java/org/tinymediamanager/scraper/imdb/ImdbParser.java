@@ -71,6 +71,7 @@ import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCast;
+import org.tinymediamanager.scraper.imdb.entities.ImdbCategory;
 import org.tinymediamanager.scraper.imdb.entities.ImdbChartTitleEdge;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCountry;
 import org.tinymediamanager.scraper.imdb.entities.ImdbCredits;
@@ -84,6 +85,7 @@ import org.tinymediamanager.scraper.imdb.entities.ImdbPlaintext;
 import org.tinymediamanager.scraper.imdb.entities.ImdbPlaybackUrl;
 import org.tinymediamanager.scraper.imdb.entities.ImdbReleaseDate;
 import org.tinymediamanager.scraper.imdb.entities.ImdbSearchResult;
+import org.tinymediamanager.scraper.imdb.entities.ImdbSectionItem;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleKeyword;
 import org.tinymediamanager.scraper.imdb.entities.ImdbTitleType;
 import org.tinymediamanager.scraper.imdb.entities.ImdbVideo;
@@ -123,9 +125,6 @@ public abstract class ImdbParser {
   static final String                 INCLUDE_ADULT            = "includeAdultResults";
   static final String                 INCLUDE_METACRITIC       = "includeMetacritic";
 
-  static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
-  static final String                 USE_TMDB_FOR_TV_SHOWS    = "useTmdbForTvShows";
-  static final String                 SCRAPE_COLLETION_INFO    = "scrapeCollectionInfo";
   static final String                 SCRAPE_KEYWORDS_PAGE     = "scrapeKeywordsPage";
   static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
   static final String                 SCRAPE_LANGUAGE_NAMES    = "scrapeLanguageNames";
@@ -214,24 +213,6 @@ public abstract class ImdbParser {
   }
 
   /**
-   * scrape tmdb for movies too?
-   *
-   * @return true/false
-   */
-  protected boolean isUseTmdbForMovies() {
-    return config.getValueAsBool(USE_TMDB_FOR_MOVIES, false);
-  }
-
-  /**
-   * scrape tmdb for tv shows too?
-   *
-   * @return true/false
-   */
-  protected boolean isUseTmdbForTvShows() {
-    return config.getValueAsBool(USE_TMDB_FOR_TV_SHOWS, false);
-  }
-
-  /**
    * should we scrape uncredited actors
    *
    * @return true/false
@@ -247,15 +228,6 @@ public abstract class ImdbParser {
    */
   protected boolean isScrapeLanguageNames() {
     return config.getValueAsBool(SCRAPE_LANGUAGE_NAMES, false);
-  }
-
-  /**
-   * should we scrape also the collection info
-   *
-   * @return true/false
-   */
-  protected boolean isScrapeCollectionInfo() {
-    return config.getValueAsBool(SCRAPE_COLLETION_INFO, false);
   }
 
   /**
@@ -942,7 +914,9 @@ public abstract class ImdbParser {
 
       JsonNode releaseDateNode = JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/releaseDate");
       ImdbReleaseDate relDate = JsonUtils.parseObject(mapper, releaseDateNode, ImdbReleaseDate.class);
-      md.setReleaseDate(relDate.toDate());
+      if (relDate != null) {
+        md.setReleaseDate(relDate.toDate());
+      }
 
       md.setRuntime(JsonUtils.at(node, "/props/pageProps/aboveTheFoldData/runtime/seconds").asInt(0) / 60);
       // fallback
@@ -1286,7 +1260,7 @@ public abstract class ImdbParser {
         parseKeywords(element, md);
       }
 
-      if (elementText.equals("Taglines") && !isUseTmdbForMovies()) {
+      if (elementText.equals("Taglines")) {
         Element taglineElement = element.nextElementSibling();
         if (taglineElement != null) {
           String tagline = cleanString(taglineElement.ownText().replace("»", ""));
@@ -1659,6 +1633,33 @@ public abstract class ImdbParser {
           }
         }
       }
+    }
+  }
+
+  protected void parseReleaseinfoPageJson(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) throws Exception {
+    try {
+      String json = doc.getElementById("__NEXT_DATA__").data();
+      JsonNode node = mapper.readTree(json);
+
+      JsonNode itemsNode = JsonUtils.at(node, "/props/pageProps/contentData/categories");
+      for (ImdbCategory cat : JsonUtils.parseList(mapper, itemsNode, ImdbCategory.class)) {
+        if (cat.section != null) {
+          if (cat.section.items.size() > 0) {
+            ImdbSectionItem item = cat.section.items.get(0);
+            if (item.listContent.size() > 0) {
+              Date parsedDate = parseDate(item.listContent.get(0).text);
+              if (parsedDate != null) {
+                md.setReleaseDate(parsedDate);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    catch (Exception e) {
+      getLogger().warn("Error parsing ReleaseinfoPageJson: '{}'", e);
+      throw e;
     }
   }
 

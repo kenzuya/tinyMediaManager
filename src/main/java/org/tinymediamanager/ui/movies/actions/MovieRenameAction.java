@@ -67,8 +67,8 @@ public class MovieRenameAction extends TmmAction {
 
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
       Object[] params = { TmmResourceBundle.getString("movie.rename.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.rename"), JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE, null, options, null);
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.rename"),
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
       if (checkBox.isSelected()) {

@@ -63,9 +63,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetSettingsPanel extends JPanel {
-  private static final int                                    COL_COUNT        = 7;
+  private static final int                                    COL_COUNT = 7;
 
-  private final MovieSettings                                 settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings                                 settings  = MovieModuleManager.getInstance().getSettings();
 
   private JCheckBox                                           chckbxShowMissingMovies;
   private JCheckBox                                           chckbxTvShowTableTooltips;

@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -57,6 +56,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 
@@ -206,6 +206,14 @@ public class MovieScrapeTask extends TmmThreadPool {
             LOGGER.info("=====================================================");
             try {
               md = ((IMovieMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
+
+              if (movieScrapeParams.scraperMetadataConfig.contains(MovieScraperMetadataConfig.COLLECTION)
+                  && md.getIdAsInt(MediaMetadata.TMDB_SET) == 0 && !mediaMetadataScraper.getId().equals(MediaMetadata.TMDB)) {
+                int movieSetId = MetadataUtil.getMovieSetId(md.getIds());
+                if (movieSetId > 0) {
+                  md.setId(MediaMetadata.TMDB_SET, movieSetId);
+                }
+              }
 
               // also inject other ids
               MediaIdUtil.injectMissingIds(md.getIds(), MediaType.MOVIE);

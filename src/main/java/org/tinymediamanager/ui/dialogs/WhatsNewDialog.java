@@ -51,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class WhatsNewDialog extends TmmDialog {
-  private static final Logger LOGGER           = LoggerFactory.getLogger(WhatsNewDialog.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WhatsNewDialog.class);
 
   public WhatsNewDialog(String changelog) {
     super(TmmResourceBundle.getString("whatsnew.title"), "whatsnew");

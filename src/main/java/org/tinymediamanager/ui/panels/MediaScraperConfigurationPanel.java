@@ -57,13 +57,13 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaScraperConfigurationPanel extends JPanel {
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
+  private static final Logger         LOGGER = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
   private final IMediaProvider        mediaProvider;
   private final JPanel                configPanel;
 
-  private boolean                     dirty            = false;
+  private boolean                     dirty  = false;
 
   public MediaScraperConfigurationPanel(IMediaProvider mediaProvider) {
     this.mediaProvider = mediaProvider;

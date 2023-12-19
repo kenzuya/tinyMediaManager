@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +24,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
 /**
  * The class MetadataUtil. Here are some helper utils for managing meta data
@@ -253,5 +261,29 @@ public class MetadataUtil {
    */
   public static double unboxDouble(Double original) {
     return Optional.ofNullable(original).orElse(0d);
+  }
+
+  /**
+   * get the movie set id for the given movie id(s)
+   * 
+   * @return the movie set id or 0
+   */
+  public static int getMovieSetId(Map<String, Object> ids) {
+    try {
+      MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
+      options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
+      options.setIds(new HashMap<>(ids));
+
+      MediaMetadata mediaMetadata = ((IMovieMetadataProvider) MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE)
+          .getMediaProvider()).getMetadata(options);
+      if (mediaMetadata.getIdAsInt(MediaMetadata.TMDB_SET) > 0) {
+        return mediaMetadata.getIdAsInt(MediaMetadata.TMDB_SET);
+      }
+    }
+    catch (Exception e) {
+      LOGGER.debug("could not get movie set id - '{}'", e.getMessage());
+    }
+    return 0;
   }
 }

@@ -535,7 +535,8 @@ public abstract class YTDownloadTask extends TmmTask {
         rangeStart = rangeStart + chunkSize + 1;
       }
       Utils.flushFileOutputStreamToDisk(fileOutputStream);
-    } catch (AccessDeniedException e) {
+    }
+    catch (AccessDeniedException e) {
       // propagate to UI by logging with error
       LOGGER.error("ACCESS DENIED (writing trailer) - '{}'", e.getMessage());
       // re-throw
