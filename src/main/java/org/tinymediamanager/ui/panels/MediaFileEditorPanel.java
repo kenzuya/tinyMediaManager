@@ -279,7 +279,17 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
-          tableAudioStreams = new MediaFileAudioStreamEditTable(audioStreams);
+          tableAudioStreams = new MediaFileAudioStreamEditTable(audioStreams) {
+            @Override
+            public void onAddAudioStream() {
+              syncAudioStreams();
+            }
+
+            @Override
+            public void onEditAudioStream() {
+              syncAudioStreams();
+            }
+          };
           tableAudioStreams.configureScrollPane(scrollPane);
         }
         {
@@ -289,7 +299,17 @@ public class MediaFileEditorPanel extends JPanel {
           JScrollPane scrollPane = new JScrollPane();
           panelDetails.add(scrollPane, "cell 1 7 8 1,grow");
 
-          tableSubtitles = new MediaFileSubtitleEditTable(subtitles);
+          tableSubtitles = new MediaFileSubtitleEditTable(subtitles) {
+            @Override
+            public void onEditSubtitle() {
+              syncSubtitles();
+            }
+
+            @Override
+            public void onAddSubtitle() {
+              syncSubtitles();
+            }
+          };
           tableSubtitles.configureScrollPane(scrollPane);
         }
         {

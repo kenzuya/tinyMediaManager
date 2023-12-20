@@ -38,7 +38,7 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * 
  * @author Manuel Laggner
  */
-public class MediaFileAudioStreamEditTable extends TmmEditorTable {
+public abstract class MediaFileAudioStreamEditTable extends TmmEditorTable {
   private final EventList<MediaFileAudioStream> audioStreamEventList;
 
   public MediaFileAudioStreamEditTable(EventList<MediaFileAudioStream> audioStreamEventList) {
@@ -63,10 +63,14 @@ public class MediaFileAudioStreamEditTable extends TmmEditorTable {
     ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
     popupPanel.setTitle(TmmResourceBundle.getString("audiostream.edit"));
 
+    popupPanel.setOnCloseHandler(this::onEditAudioStream);
+
     MediaFileAudioStreamEditorPanel audioStreamEditorPanel = new MediaFileAudioStreamEditorPanel(audioStream);
     popupPanel.setContent(audioStreamEditorPanel);
     iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
   }
+
+  public abstract void onEditAudioStream();
 
   /**
    * Utility to get the right {@link MediaFileAudioStream} for the given row
@@ -108,12 +112,17 @@ public class MediaFileAudioStreamEditTable extends TmmEditorTable {
     ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
     popupPanel.setTitle(TmmResourceBundle.getString("audiostream.add"));
 
-    popupPanel.setOnCloseHandler(() -> audioStreamEventList.add(audioStream));
+    popupPanel.setOnCloseHandler(() -> {
+      audioStreamEventList.add(audioStream);
+      onAddAudioStream();
+    });
 
     MediaFileAudioStreamEditorPanel audioStreamEditorPanel = new MediaFileAudioStreamEditorPanel(audioStream);
     popupPanel.setContent(audioStreamEditorPanel);
     iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
   }
+
+  public abstract void onAddAudioStream();
 
   /**
    * helper classes

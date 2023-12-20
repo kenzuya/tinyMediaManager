@@ -38,7 +38,7 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * 
  * @author Manuel Laggner
  */
-public class MediaFileSubtitleEditTable extends TmmEditorTable {
+public abstract class MediaFileSubtitleEditTable extends TmmEditorTable {
   private final EventList<MediaFileSubtitle> subtitleEventList;
 
   public MediaFileSubtitleEditTable(EventList<MediaFileSubtitle> subtitleEventList) {
@@ -63,10 +63,14 @@ public class MediaFileSubtitleEditTable extends TmmEditorTable {
     ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
     popupPanel.setTitle(TmmResourceBundle.getString("subtitle.edit"));
 
+    popupPanel.setOnCloseHandler(this::onEditSubtitle);
+
     MediaFileSubtitleEditorPanel subtitleEditorPanel = new MediaFileSubtitleEditorPanel(subtitle);
     popupPanel.setContent(subtitleEditorPanel);
     iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
   }
+
+  public abstract void onEditSubtitle();
 
   /**
    * Utility to get the right {@link MediaFileSubtitle} for the given row
@@ -108,12 +112,17 @@ public class MediaFileSubtitleEditTable extends TmmEditorTable {
     ModalPopupPanel popupPanel = iModalPopupPanelProvider.createModalPopupPanel();
     popupPanel.setTitle(TmmResourceBundle.getString("subtitle.add"));
 
-    popupPanel.setOnCloseHandler(() -> subtitleEventList.add(subtitle));
+    popupPanel.setOnCloseHandler(() -> {
+      subtitleEventList.add(subtitle);
+      onAddSubtitle();
+    });
 
     MediaFileSubtitleEditorPanel subtitleEditorPanel = new MediaFileSubtitleEditorPanel(subtitle);
     popupPanel.setContent(subtitleEditorPanel);
     iModalPopupPanelProvider.showModalPopupPanel(popupPanel);
   }
+
+  public abstract void onAddSubtitle();
 
   /**
    * helper classes
