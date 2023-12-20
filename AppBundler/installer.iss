@@ -16,7 +16,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{2184DD8F-1056-4C7C-8A68-011ECEA03AF9}
+AppId={{DA6AE47C-B91D-4C9D-A582-9B8DD433256C}
 AppName={#MyAppName}
 AppVersion={#MyAppVersionText}
 AppVerName={#MyAppName} {#MyAppVersionText}
@@ -26,7 +26,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 VersionInfoCopyright=© 2012-{#Year} {#MyAppPublisher}
 VersionInfoVersion={#MyAppVersionNum}
-DefaultDirName={userpf}\{#MyAppName}
+DefaultDirName={userpf}\{#MyAppName}V5
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
