@@ -301,6 +301,9 @@ public class TvShowChooserModel extends AbstractModelObject {
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.metadatatvshowfailed",
           new String[] { ":", e.getLocalizedMessage() }));
     }
+    catch (Exception e) {
+      LOGGER.error("unforeseen error: ", e);
+    }
   }
 
   public List<TvShowEpisode> getEpisodesForDisplay() {
