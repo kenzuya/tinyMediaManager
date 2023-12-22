@@ -813,6 +813,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
       movie.setNewlyAdded(true);
     }
+    movie.setDisc(isDiscFolder);
 
     // ***************************************************************
     // second round - try to parse additional files
@@ -1781,6 +1782,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private class AllFilesRecursive extends AbstractFileVisitor {
     private final Set<Path> fFound = new HashSet<>();
+    private int             deep   = 0;
 
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       if (cancel) {
@@ -1833,6 +1835,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       incPreDir();
+      deep++;
 
       try {
         // getFilename returns null on DS root!
@@ -1848,7 +1851,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // don't go below a disc folder
-        if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+        // so a /ds/movie/BDMV/STREAM folder would skip, b/c parent is a known disc folder
+        // unfortunately, if your datasource is named like that, it won't see the disc at all!
+        // so the workaround is, to not execute this check on disc root (deep = 1)
+        if (deep > 1 && dir.getParent() != null && dir.getParent().getFileName() != null
+            && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
           return SKIP_SUBTREE;
         }
       }
@@ -1866,6 +1873,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       incPostDir();
+      deep--;
 
       return CONTINUE;
     }
