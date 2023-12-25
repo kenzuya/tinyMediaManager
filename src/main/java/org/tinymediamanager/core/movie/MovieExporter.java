@@ -88,7 +88,13 @@ public class MovieExporter extends MediaEntityExporter {
     }
 
     // prepare listfile
-    Path listExportFile = exportDir.resolve("movielist." + fileExtension);
+    Path listExportFile;
+    if (StringUtils.isNotBlank(fileName)) {
+      listExportFile = exportDir.resolve(fileName + "." + fileExtension);
+    }
+    else {
+      listExportFile = exportDir.resolve("movielist." + fileExtension);
+    }
 
     // create list
     LOGGER.info("generating movie list");

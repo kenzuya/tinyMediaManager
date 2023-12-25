@@ -18,7 +18,6 @@ package org.tinymediamanager.scraper.thetvdb;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.entities.MediaEpisodeGroup.EpisodeGroupType.AIRED;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -327,7 +326,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
             md.addSeasonOverview(mediaEpisodeGroup, seasonBaseRecord.number, fallbackTranslation.overview);
           }
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOGGER.error("failed to get season meta data: {}", e.getMessage());
           throw new ScrapeException(e);
         }
@@ -1000,6 +999,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
   }
 
   private MediaEpisodeGroup.EpisodeGroupType mapEpisodeGroup(SeasonType type) {
+    if (type == null) {
+      return null;
+    }
+
     return switch (type) {
       case DEFAULT, OFFICIAL -> MediaEpisodeGroup.EpisodeGroupType.AIRED;
       case ABSOLUTE -> MediaEpisodeGroup.EpisodeGroupType.ABSOLUTE;

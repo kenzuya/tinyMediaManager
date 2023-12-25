@@ -277,6 +277,10 @@ public class MovieChooserModel extends AbstractModelObject {
             new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.metadatamoviefailed", new String[] { ":", e.getLocalizedMessage() }));
         return;
       }
+      catch (Exception e) {
+        LOGGER.error("unforeseen error: ", e);
+        return;
+      }
 
       if (StringUtils.isNotBlank(metadata.getTitle())) {
         // re-set this because the scrape could get a better title than the search

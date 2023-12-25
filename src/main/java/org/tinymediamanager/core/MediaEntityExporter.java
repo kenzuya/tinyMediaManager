@@ -62,6 +62,7 @@ public abstract class MediaEntityExporter {
 
   protected Engine              engine;
   protected Properties          properties;
+  protected String              fileName;
   protected String              fileExtension;
   protected String              listTemplate       = "";
   protected String              detailTemplate     = "";
@@ -106,6 +107,7 @@ public abstract class MediaEntityExporter {
 
     // get other settings
     String detailTemplateFile = properties.getProperty("detail");
+    fileName = StringUtils.isBlank(properties.getProperty("filename")) ? "" : properties.getProperty("filename");
     fileExtension = StringUtils.isBlank(properties.getProperty("extension")) ? "html" : properties.getProperty("extension").toLowerCase();
 
     // set up engine

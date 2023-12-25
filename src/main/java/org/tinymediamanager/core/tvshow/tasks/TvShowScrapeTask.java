@@ -265,6 +265,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
               MessageManager.instance.pushMessage(
                   new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
             }
+            catch (Exception e) {
+              LOGGER.error("unforeseen error: ", e);
+            }
+
             tvShow.setDummyEpisodes(episodes);
             tvShow.saveToDb();
 
