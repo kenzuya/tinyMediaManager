@@ -90,7 +90,13 @@ public class TvShowExporter extends MediaEntityExporter {
     }
 
     // prepare listfile
-    Path listExportFile = exportDir.resolve("tvshows." + fileExtension);
+    Path listExportFile;
+    if (StringUtils.isNotBlank(fileName)) {
+      listExportFile = exportDir.resolve(fileName + "." + fileExtension);
+    }
+    else {
+      listExportFile = exportDir.resolve("tvshows." + fileExtension);
+    }
 
     // load episode template
     String episodeTemplateFile = properties.getProperty("episode");
