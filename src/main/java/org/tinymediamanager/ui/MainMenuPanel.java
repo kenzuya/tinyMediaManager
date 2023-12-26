@@ -57,6 +57,7 @@ import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearDatabaseAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
+import org.tinymediamanager.ui.actions.CloseTmmAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
 import org.tinymediamanager.ui.actions.DeleteTrashAction;
 import org.tinymediamanager.ui.actions.DocsAction;
@@ -298,9 +299,13 @@ public class MainMenuPanel extends JPanel {
 
     menu.addSeparator();
     menu.add(new ClearDatabaseAction());
-
-    menu.addSeparator();
     menu.add(new ImportV4DataAction());
+
+    // a dedicated close action brecause on XWayland sometimes the window decorations are missing
+    if (SystemUtils.IS_OS_LINUX) {
+      menu.addSeparator();
+      menu.add(new CloseTmmAction());
+    }
 
     return menu;
   }
