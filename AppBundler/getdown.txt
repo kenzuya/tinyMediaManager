@@ -51,8 +51,6 @@ resource = [linux-aarch64] native/arm/addons/ffmpeg-linux_aarch64.tar.xz
 
 # mediainfo native libs
 resource = [windows-amd64] native/windows/MediaInfo.dll
-resource = [linux-amd64] native/linux/libmediainfo.so
-resource = [linux-amd64] native/linux/libzen.so
 resource = [linux-aarch64] native/arm/libmediainfo.so
 resource = [linux-aarch64] native/arm/libzen.so
 
