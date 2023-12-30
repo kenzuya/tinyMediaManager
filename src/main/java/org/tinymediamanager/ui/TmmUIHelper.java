@@ -697,7 +697,7 @@ public class TmmUIHelper {
           break;
 
         case MediaMetadata.TVDB:
-          url = "https://thetvdb.com/dereferrer/series/" + value;
+          url = "https://thetvdb.com/dereferrer/episode/" + value;
           break;
 
         default:
