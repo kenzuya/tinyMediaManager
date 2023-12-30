@@ -513,6 +513,17 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * lazily add a {@link MediaEpisodeGroup} to this TV show. This will only be called from within the
+   * {@link TvShowEpisode#setMetadata(MediaMetadata, List, boolean)} method
+   * 
+   * @param episodeGroup
+   *          the {@link MediaEpisodeGroup} to add
+   */
+  public void addEpisodeGroup(MediaEpisodeGroup episodeGroup) {
+    episodeGroups.add(episodeGroup);
+  }
+
+  /**
    * set all season names
    *
    * @param newValue
