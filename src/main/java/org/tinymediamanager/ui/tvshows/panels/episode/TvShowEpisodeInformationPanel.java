@@ -208,8 +208,8 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
       else {
         // via show ID + S/EE
         int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTraktId();
-        int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
-        int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
+        int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getAiredSeason();
+        int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getAiredEpisode();
         url = "https://trakt.tv/shows/" + tvShowId + "/seasons/" + seasonId + "/episodes/" + episodeId;
       }
       try {
@@ -251,13 +251,10 @@ public class TvShowEpisodeInformationPanel extends InformationPanel {
 
     // TMDB
     lblTmdbId.addActionListener(arg0 -> {
-
       int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTmdbId();
-      int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
-      int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
-
+      int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getAiredSeason();
+      int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getAiredEpisode();
       String url = "https://www.themoviedb.org/tv/" + tvShowId + "/season/" + seasonId + "/episode/" + episodeId;
-
       try {
         TmmUIHelper.browseUrl(url);
       }

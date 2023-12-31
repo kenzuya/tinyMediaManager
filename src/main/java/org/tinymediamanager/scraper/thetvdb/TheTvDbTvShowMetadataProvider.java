@@ -378,10 +378,27 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     int episodeTvdbId = options.getIdAsIntOrDefault(TVDB, 0);
 
-    // get episode number and season number
-    int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
-    int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
     MediaEpisodeGroup episodeGroup = options.getEpisodeGroup();
+
+    // get episode number and season number
+    int seasonNr = -1;
+    int episodeNr = -1;
+    // new style
+    if (options.getIds().get(MediaMetadata.EPISODE_NR) instanceof List<?> episodeNumbers) {
+      for (Object obj : episodeNumbers) {
+        if (obj instanceof MediaEpisodeNumber episodeNumber && episodeNumber.episodeGroup() == episodeGroup) {
+          episodeNr = episodeNumber.episode();
+          seasonNr = episodeNumber.season();
+          break;
+        }
+      }
+    }
+
+    // old style
+    if (seasonNr == -1 && episodeNr == -1) {
+      seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
+      episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
+    }
 
     Date releaseDate = null;
     if (options.getMetadata() != null && options.getMetadata().getReleaseDate() != null) {

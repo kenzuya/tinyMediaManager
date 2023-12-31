@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -42,8 +43,23 @@ public class TvShowEpisodeNumberEditorPanel extends AbstractModalInputPanel {
 
   private MediaEpisodeNumber                 episodeNumber;
 
-  public TvShowEpisodeNumberEditorPanel(MediaEpisodeNumber episodeNumber, List<MediaEpisodeGroup> episodeGroups) {
+  public TvShowEpisodeNumberEditorPanel(MediaEpisodeNumber episodeNumber, List<MediaEpisodeGroup> episodeGroupsInTvShow) {
     super();
+
+    List<MediaEpisodeGroup> episodeGroups = new ArrayList<>(episodeGroupsInTvShow);
+    // also add display order
+    boolean found = false;
+
+    for (MediaEpisodeGroup episodeGroup : episodeGroupsInTvShow) {
+      if (episodeGroup.getEpisodeGroupType().equals(MediaEpisodeGroup.EpisodeGroupType.DISPLAY)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      episodeGroups.add(MediaEpisodeGroup.DEFAULT_DISPLAY);
+    }
 
     {
       setLayout(new MigLayout("", "[][]", "[][][]"));

@@ -957,9 +957,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       // only set episode groups which are available in the TV show itself (e.g. when scraped via different scraper or w/o scraping TV show prior)
       Map<MediaEpisodeGroup, MediaEpisodeNumber> newEpisodeNumbers = new HashMap<>();
       for (var entry : metadata.getEpisodeNumbers().entrySet()) {
-        if (tvShow.getEpisodeGroups().contains(entry.getKey())) {
-          newEpisodeNumbers.put(entry.getKey(), entry.getValue());
+        if (!tvShow.getEpisodeGroups().contains(entry.getKey())) {
+          // add this EG to the show too (not for AIRED! we use the fallback here)
+          if (entry.getKey().getEpisodeGroupType() == AIRED) {
+            continue;
+          }
+
+          tvShow.addEpisodeGroup(entry.getKey());
         }
+        newEpisodeNumbers.put(entry.getKey(), entry.getValue());
       }
 
       if (newEpisodeNumbers.isEmpty()) {
