@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -149,9 +150,12 @@ public class TmmUILayoutStore {
         frame.setBounds(rect);
 
         // was the main window maximized?
-        if (Boolean.TRUE.equals(properties.getPropertyAsBoolean("mainWindowMaximized"))) {
-          frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
-          frame.validate();
+        // do not set this on linux (Wayland problem with missing window decorations)
+        if (!SystemUtils.IS_OS_LINUX) {
+          if (Boolean.TRUE.equals(properties.getPropertyAsBoolean("mainWindowMaximized"))) {
+            frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
+            frame.validate();
+          }
         }
       }
       else {
