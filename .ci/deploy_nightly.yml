@@ -57,8 +57,7 @@ build-mac:
     - tmm-mac # force running on own macOS runners
   script:
     # remove linux build (no need to upload this twice)
-    - rm dist/tinyMediaManager*linux-amd64.tar.xz
-    - rm dist/tinyMediaManager*linux-arm64.tar.xz
+    - rm -f dist/*
 
     # create macOS bundles
     - sh AppBundler/create_mac_image.sh
