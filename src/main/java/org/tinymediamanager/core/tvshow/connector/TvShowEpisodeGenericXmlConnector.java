@@ -21,6 +21,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,14 +67,15 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisodeConnector {
-  private static final Logger         LOGGER               = LoggerFactory.getLogger(TvShowEpisodeGenericXmlConnector.class);
+  private static final Logger                 LOGGER                 = LoggerFactory.getLogger(TvShowEpisodeGenericXmlConnector.class);
 
-  protected static final String       ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String               ORACLE_IS_STANDALONE   = "http://www.oracle.com/xml/is-standalone";
+  protected static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
 
-  protected final List<TvShowEpisode> episodes;
+  protected final List<TvShowEpisode>         episodes;
 
-  protected Document                  document;
-  protected Element                   root;
+  protected Document                          document;
+  protected Element                           root;
 
   protected TvShowEpisodeGenericXmlConnector(List<TvShowEpisode> episodes) {
     this.episodes = episodes;
@@ -393,7 +396,8 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     }
 
     Element UserRating = document.createElement("userrating");
-    UserRating.setTextContent(String.format(Locale.US, "%.1f", rating10));
+    DecimalFormat df = new DecimalFormat("#.#", DECIMAL_FORMAT_SYMBOLS);
+    UserRating.setTextContent(df.format(rating10));
     root.appendChild(UserRating);
   }
 

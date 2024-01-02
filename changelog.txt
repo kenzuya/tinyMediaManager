@@ -1,6 +1,7 @@
 Version 5.0.1
 =======================
 x fixed missing window decorations on Wayland
+x (NFO) prefer to write user rating without decimals
 
 
 Version 5.0
