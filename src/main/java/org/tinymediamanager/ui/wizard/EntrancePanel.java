@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.wizard;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -22,6 +23,7 @@ import javax.swing.JTextPane;
 import org.jsoup.Jsoup;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.actions.ImportV4DataAction;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.images.Logo;
 
@@ -41,7 +43,7 @@ class EntrancePanel extends JPanel {
    * init UI components
    */
   private void initComponents() {
-    setLayout(new MigLayout("", "[50lp:50lp,grow][][10lp][][50lp:50lp,grow]", "[grow][25lp!][][20lp:20lp][][50lp:50lp,grow]"));
+    setLayout(new MigLayout("", "[50lp:50lp,grow][][10lp][][50lp:50lp,grow]", "[grow][25lp!][][20lp:20lp][][40lp][50lp:50lp,grow]"));
 
     JLabel lblLogo = new JLabel("");
     lblLogo.setIcon(new Logo(256));
@@ -54,5 +56,10 @@ class EntrancePanel extends JPanel {
 
     JTextPane tpGreetingText = new ReadOnlyTextPane(TmmResourceBundle.getString("wizard.greeting.text"));
     add(tpGreetingText, "cell 3 4,grow");
+
+    JButton btnImportData = new JButton(TmmResourceBundle.getString("wizard.import"));
+    add(btnImportData, "cell 3 6,alignx center,aligny center");
+
+    btnImportData.addActionListener(new ImportV4DataAction());
   }
 }
