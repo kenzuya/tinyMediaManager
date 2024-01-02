@@ -308,7 +308,7 @@ public final class TinyMediaManager {
 
   private void printLogHeader() {
     LOGGER.info("=======================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012 - 2023 Manuel Laggner ===");
+    LOGGER.info("=== tinyMediaManager (c) 2012 - 2024 Manuel Laggner ===");
     LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     if (!ReleaseInfo.isGitBuild()) {
