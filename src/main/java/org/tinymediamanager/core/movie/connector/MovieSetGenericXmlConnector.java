@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,14 +71,15 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector {
-  private static final Logger   LOGGER               = LoggerFactory.getLogger(MovieSetGenericXmlConnector.class);
-  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  private static final Logger                 LOGGER                 = LoggerFactory.getLogger(MovieSetGenericXmlConnector.class);
+  protected static final String               ORACLE_IS_STANDALONE   = "http://www.oracle.com/xml/is-standalone";
+  protected static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
 
-  protected final MovieSet      movieSet;
-  protected MovieNfoParser      parser               = null;
+  protected final MovieSet                    movieSet;
+  protected MovieNfoParser                    parser                 = null;
 
-  protected Document            document;
-  protected Element             root;
+  protected Document                          document;
+  protected Element                           root;
 
   protected MovieSetGenericXmlConnector(MovieSet movieSet) {
     this.movieSet = movieSet;
@@ -293,7 +296,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
   }
 
   /**
-   * add the userrating in the form <userrating>xxx</userrating> (floating point with one decimal)
+   * add the userrating in the form <userrating>xxx</userrating> (floating point with at max one decimal)
    */
   protected void addUserrating() {
     // get main rating and calculate the rating value to a base of 10
@@ -309,7 +312,8 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
     }
 
     Element UserRating = document.createElement("userrating");
-    UserRating.setTextContent(String.format(Locale.US, "%.1f", rating10));
+    DecimalFormat df = new DecimalFormat("#.#", DECIMAL_FORMAT_SYMBOLS);
+    UserRating.setTextContent(df.format(rating10));
     root.appendChild(UserRating);
   }
 

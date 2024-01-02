@@ -8,7 +8,7 @@ x added the array renderer to the export templates too #2407
 Version 4.3.14
 =======================
 x upgraded libmediainfo to 23.09
-x adapt IMDB parsing due to changed site 
+x adapt IMDB parsing due to changed site
 x dropping DavesTrailerPage scraper, since Apple closed their trailer site
 x removed Apple trailers from hd-trailers.net and TMDB scraper
 x remove any leading/trailing spaces from user API keys #2303
