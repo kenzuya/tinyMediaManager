@@ -293,7 +293,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelPatterns.add(lblMoviePath, "cell 1 0 2 1,alignx right");
 
         tfMoviePath = new TmmRoundTextArea();
-        panelPatterns.add(tfMoviePath, "cell 3 0,growx");
+        panelPatterns.add(tfMoviePath, "cell 3 0, growx, wmin 0");
 
         JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
         btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
@@ -313,7 +313,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelPatterns.add(lblMovieFilename, "cell 1 2 2 1,alignx right");
 
         tfMovieFilename = new TmmRoundTextArea();
-        panelPatterns.add(tfMovieFilename, "cell 3 2,growx");
+        panelPatterns.add(tfMovieFilename, "cell 3 2, growx, wmin 0");
 
         JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
         btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));

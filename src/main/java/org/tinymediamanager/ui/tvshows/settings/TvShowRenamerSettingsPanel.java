@@ -314,7 +314,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelPatterns.add(lblTvShowFolder, "cell 1 0 2 1,alignx right");
 
         tfTvShowFolder = new TmmRoundTextArea();
-        panelPatterns.add(tfTvShowFolder, "cell 3 0 2 1,growx");
+        panelPatterns.add(tfTvShowFolder, "cell 3 0 2 1, growx, wmin 0");
 
         JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
         btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
@@ -334,7 +334,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelPatterns.add(lblSeasonFolderName, "cell 1 2 2 1,alignx right");
 
         tfSeasonFolderName = new TmmRoundTextArea();
-        panelPatterns.add(tfSeasonFolderName, "cell 3 2 2 1,growx");
+        panelPatterns.add(tfSeasonFolderName, "cell 3 2 2 1, growx, wmin 0");
 
         JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
         btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
@@ -354,7 +354,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelPatterns.add(lblEpisodeFileName, "cell 1 4 2 1,alignx right");
 
         tfEpisodeFilename = new TmmRoundTextArea();
-        panelPatterns.add(tfEpisodeFilename, "cell 3 4 2 1,growx");
+        panelPatterns.add(tfEpisodeFilename, "cell 3 4 2 1, growx, wmin 0");
 
         JButton btnReset = new FlatButton(IconManager.UNDO_GREY);
         btnReset.setToolTipText(TmmResourceBundle.getString("Settings.renamer.reverttodefault"));
