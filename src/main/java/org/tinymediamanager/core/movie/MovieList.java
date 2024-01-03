@@ -1386,7 +1386,7 @@ public final class MovieList extends AbstractModelObject {
       Map<String, Object> ids = movie.getIds();
       for (var entry : ids.entrySet()) {
         // ignore collection "IDs" (tmdbcol is from Ember)
-        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || "tmdbcol".equalsIgnoreCase(entry.getKey())) {
+        if (MediaMetadata.TMDB_SET.equalsIgnoreCase(entry.getKey()) || entry.getKey().toLowerCase(Locale.US).startsWith("tmdbcol")) {
           continue;
         }
 
