@@ -314,7 +314,7 @@ public class UpgradeTasks {
     Path launcherExtra = path.getParent().resolve("launcher-extra.yml");
     if (launcherExtra.toFile().exists() && launcherExtra.toFile().isFile()) {
       try {
-        Utils.copyFileSafe(launcherExtra, Paths.get(Globals.DATA_FOLDER, launcherExtra.toFile().getName()), true);
+        Utils.copyFileSafe(launcherExtra, Paths.get(Globals.CONTENT_FOLDER, launcherExtra.toFile().getName()), true);
       }
       catch (Exception e) {
         LOGGER.warn("could not copy file '{}' from v4 - '{}'", launcherExtra.toFile().getName(), e.getMessage());
