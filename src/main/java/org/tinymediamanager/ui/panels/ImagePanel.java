@@ -19,6 +19,7 @@ import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import static javax.swing.SwingConstants.CENTER;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -196,6 +197,8 @@ public class ImagePanel extends JPanel implements HierarchyListener {
             if (isCancelled() || imageLabel == null) {
               return null;
             }
+
+            imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             publish(new ImageChunk(mediaFile.getFileAsPath().toString(), mediaFile.getType(), imageLabel));
           }

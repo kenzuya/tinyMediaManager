@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.panels.ImagePanel;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
@@ -53,10 +54,12 @@ public class TvShowArtworkPanel extends JPanel {
       if ("selectedTvShow".equals(property) || MEDIA_FILES.equals(property)) {
         synchronized (mediaFiles) {
           mediaFiles.clear();
-          for (MediaFile mediafile : new ArrayList<>(selectionModel.getSelectedTvShow().getMediaFiles())) {
-            if (mediafile.isGraphic()) {
-              mediaFiles.add(mediafile);
-            }
+          // TV show
+          mediaFiles.addAll(selectionModel.getSelectedTvShow().getMediaFiles().stream().filter(MediaFile::isGraphic).toList());
+
+          // season
+          for (TvShowSeason season : selectionModel.getSelectedTvShow().getSeasons()) {
+            mediaFiles.addAll(season.getMediaFiles().stream().filter(MediaFile::isGraphic).toList());
           }
           imagePanel.rebuildPanel();
         }
