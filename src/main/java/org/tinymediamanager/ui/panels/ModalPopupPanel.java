@@ -20,6 +20,7 @@ import static javax.swing.SwingConstants.CENTER;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,6 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 
 import javax.swing.JComponent;
@@ -161,6 +164,17 @@ public class ModalPopupPanel extends JPanel {
     }
     if (panel.getCloseButton() != null) {
       buttonPanel.add(panel.getCloseButton());
+
+      for (Component component : content.getComponents()) {
+        component.addKeyListener(new KeyAdapter() {
+          @Override
+          public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+              panel.getCloseButton().doClick();
+            }
+          }
+        });
+      }
     }
   }
 
