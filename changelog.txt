@@ -3,12 +3,13 @@ Version 4.3.15
 x fix chinese language for simplified/traditional
 x ignore movies with invalid datasource in KodiRPC
 x added the array renderer to the export templates too #2407
+x (NFO) prefer to write user rating without decimals
 
 
 Version 4.3.14
 =======================
 x upgraded libmediainfo to 23.09
-x adapt IMDB parsing due to changed site
+x adapt IMDB parsing due to changed site 
 x dropping DavesTrailerPage scraper, since Apple closed their trailer site
 x removed Apple trailers from hd-trailers.net and TMDB scraper
 x remove any leading/trailing spaces from user API keys #2303
