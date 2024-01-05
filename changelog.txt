@@ -4,6 +4,8 @@ x fixed missing window decorations on Wayland
 x (NFO) prefer to write user rating without decimals
 x (v4 data import) copy the launcher-extra.yml to the correct folder #2412
 x embed season artwork into the TV show artwork panel
+x avoid exceptions on "update data sources" #2409
+
 
 Version 5.0
 =======================
