@@ -1930,12 +1930,9 @@ public class MediaFileHelper {
         String line;
         while ((line = br.readLine()) != null) {
           String lang = "";
-
           if (line.startsWith("id:")) {
+            // first entry wins
             lang = StrgUtils.substr(line, "id: (.*?),");
-          }
-          if (line.startsWith("# alt:")) {
-            lang = StrgUtils.substr(line, "^# alt: (.*?)$");
           }
           if (!lang.isEmpty()) {
             sub.setLanguage(LanguageUtils.findLanguageInString(lang));

@@ -549,6 +549,7 @@ public class MediaInfoTest extends BasicTest {
     compareSubtitle("moviename.german-director.srt", "german", "director");
     compareSubtitle("moviename.english-director.srt", "english", "director");
     compareSubtitle("moviename.srt", "");
+    compareSubtitle("multi.not.eng.sub", "de");
   }
 
   private void compareSubtitle(String filename, String expectedLanguage) throws Exception {
