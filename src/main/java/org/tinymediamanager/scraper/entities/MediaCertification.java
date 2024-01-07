@@ -30,6 +30,8 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @since 1.0
  */
 public enum MediaCertification {
+  // https://en.wikipedia.org/wiki/Television_content_rating_system
+  // https://en.wikipedia.org/wiki/Motion_picture_content_rating_system
 
   // @formatter:off
     US_G(CountryCode.US, "G", new String[] { "G", "Rated G" }),
@@ -95,7 +97,8 @@ public enum MediaCertification {
     GR_K17(CountryCode.GR, "K-17", new String[] { "K-17", "K17" }),
     GR_E(CountryCode.GR, "E", new String[] { "E" }),
 
-    FR_U(CountryCode.FR, "U", new String[] { "U" }),
+    FR_TP(CountryCode.FR, "TP", new String[] { "TP" }), // Movie 0-11
+    FR_U(CountryCode.FR, "U", new String[] { "U" }), // TV 0-9
     FR_10(CountryCode.FR, "10", new String[] { "10" }),
     FR_12(CountryCode.FR, "12", new String[] { "12" }),
     FR_16(CountryCode.FR, "16", new String[] { "16" }),
