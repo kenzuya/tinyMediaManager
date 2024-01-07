@@ -3133,7 +3133,7 @@ public class MediaFileHelper {
       else {
         // split the shortname into chunks
         List<String> chunks = ParserUtils.splitByPunctuation(shortname);
-        int languageIndex = 0;
+        int languageIndex = -1;
         // parse forward, since language is more significant
         for (int i = 0; i < chunks.size(); i++) {
           if (chunks.get(i).equalsIgnoreCase("und")) {
@@ -3156,6 +3156,9 @@ public class MediaFileHelper {
             if (poscc > 0 && poscc < languageIndex) {
               languageIndex--; // just decrement by one, since we removed a former tag
             }
+            else {
+              languageIndex = poscc; // langu not yet set
+            }
             chunks.remove("cc");
 
             // remove HI
@@ -3168,7 +3171,7 @@ public class MediaFileHelper {
             // set flag
             flags.add(Flags.FLAG_HEARING_IMPAIRED);
 
-            languageIndex++; // increment index to be after langu
+            // languageIndex++; // increment index to be after langu
           }
           else {
             // HI langu
@@ -3184,14 +3187,18 @@ public class MediaFileHelper {
           }
         }
         else {
-          // no hicc found - increment to next pos
-          if (languageIndex > 0) {
+          // no hicc found (but langu) - increment to next pos
+          if (languageIndex >= 0) {
             languageIndex++;
           }
         }
-        if (languageIndex < chunks.size()) {
+        if (languageIndex < 0 && !hicc) {
+          // no langu AND no hicc?
+          title = "";
+        }
+        else if (languageIndex < chunks.size()) {
           // the language index was not the last chunk. Save the part between the language index and the last chunk as title
-          title = String.join(" ", chunks.subList(languageIndex + 1, chunks.size()));
+          title = String.join(" ", chunks.subList(languageIndex, chunks.size()));
         }
       }
     }
