@@ -68,12 +68,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.IPrintable;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
@@ -1353,6 +1355,36 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
 
     for (MediaFile mediaFile : mfs) {
       mediaFile.gatherMediaInformation(force);
+    }
+
+    // for all subtitle and audio tracks, evaluate language from FILENAME (since we need the video basename here!!!)
+    String video = FilenameUtils.getBaseName(getMainFile().getFilenameWithoutStacking());
+    for (MediaFile mediaFile : mfs) {
+      if (mediaFile.getType() == MediaFileType.SUBTITLE || mediaFile.getType() == MediaFileType.AUDIO) {
+
+        MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(mediaFile.getBasename(), video);
+        if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+          MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
+          // if we have detected a locale (which is more specific than language alone) us this
+          if (sub.getLanguage().isEmpty() || info.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
+            sub.setLanguage(info.getLanguage());
+          }
+          sub.setTitle(info.getTitle());
+          sub.set(info.getFlags());
+        }
+        else if (mediaFile.getType() == MediaFileType.AUDIO && mediaFile.getAudioChannels().isEmpty()) {
+          MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
+          // if we have detected a locale (which is more specific than language alone) us this
+          if (StringUtils.isBlank(audio.getLanguage()) || info.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
+            audio.setLanguage(info.getLanguage());
+          }
+          if (StringUtils.isBlank(audio.getTitle())) {
+            audio.setTitle(info.getTitle());
+          }
+          audio.set(info.getFlags());
+        }
+
+      }
     }
 
     firePropertyChange(MEDIA_INFORMATION, false, true);

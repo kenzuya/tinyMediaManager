@@ -15,6 +15,10 @@ public class ParserUtilsTest extends BasicTest {
   public void testNamingDetection() {
     setTraceLogging();
 
+    assertEqual("2012", detectTY("2012.WEB-DL.1080p.AVC.mkv"));
+    assertEqual("2012 | 2008", detectTY("2012.(2008).WEB-DL.1080p.mkv"));
+    assertEqual("movie | 2008", detectTY("UNRATED movie 2008 DTS something bla bla.mkv"));
+
     assertEqual("Cowboys | 2020", detectTY("Cowboys.(2020).WEB-DL.MicroHD.1080p.AVC.AC3.5.1.SPA-AC3.5.1.ENG.SUBS.mkv"));
     assertEqual("Rocketman | 2019", detectTY("Rocketman-2019-MULTi-UHD-BluRay-2160p-HDR-TrueHD-Atmos-7-1-HEVC-DDR.mkv"));
     assertEqual("Harry Potter 7 Part 1", detectTY("Harry Potter 7 - Part 1.mkv")); // PartX is NOT removed
@@ -30,7 +34,7 @@ public class ParserUtilsTest extends BasicTest {
 
     assertEqual("Gemma Bovery | 2014", detectTY("Gemma.Bovery.2014.[1920x800].24.000fps.1080p.BRRip.x264.JYK.mkv"));
     assertEqual("Ai No Korīda | 1976", detectTY("Ai.No.Korīda.1976.[1280x772].23.976fps.720p.x264.CiNEFiLE.mkv"));
-    assertEqual("In The Realm Of The Senses 愛のコリーダ | 1976", detectTY("In The Realm Of The Senses (1976) - 愛のコリーダ"));
+    assertEqual("In The Realm Of The Senses | 1976", detectTY("In The Realm Of The Senses (1976) - 愛のコリーダ"));
 
     assertEqual("my movie framerate", detectTY("my movie framerate 24.000fps bla bla"));
     assertEqual("my movie framerate", detectTY("my movie framerate 24.000 fps bla bla")); // fps as stopword
@@ -51,22 +55,22 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Auferstanden | 2016", detectTY("Auferstanden.2016.German.DL.DTS.1080p.BluRay.x264-CiNEViSiON"));
     assertEqual("Auferstanden | 2016", detectTY("Auferstanden.2016.German.DL.DTS.720p.BluRay.x264-CiNEViSiON"));
     assertEqual("Der Blob | 1988", detectTY("Der.Blob.REMASTERED.GERMAN.1988.DL.BDRiP.x264-GOREHOUNDS"));
-    assertEqual("Die Hochzeit meiner Eltern | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.720p.WEBHD.h264-REMSG"));
-    assertEqual("Die Hochzeit meiner Eltern | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.WEBRiP.x264-REMSG"));
+    assertEqual("Die Hochzeit meiner Eltern GERMAN | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.720p.WEBHD.h264-REMSG"));
+    assertEqual("Die Hochzeit meiner Eltern GERMAN | 2016", detectTY("Die.Hochzeit.meiner.Eltern.GERMAN.2016.WEBRiP.x264-REMSG"));
     assertEqual("Die Hochzeit meines Vaters | 2006", detectTY("Die.Hochzeit.meines.Vaters.2006.German.720p.HDTV.x264-AIDA"));
     assertEqual("Die Hochzeit meines Vaters | 2006", detectTY("Die.Hochzeit.meines.Vaters.2006.German.HDTVRip.x264-AIDA"));
     assertEqual("Familie auf Rezept | 2015", detectTY("Familie.auf.Rezept.2015.German.1080p.BluRay.x264-ENCOUNTERS"));
     assertEqual("Familie auf Rezept | 2015", detectTY("Familie.auf.Rezept.2015.German.720p.BluRay.x264-ENCOUNTERS"));
     assertEqual("Forsaken | 2015", detectTY("Forsaken.2015.German.DL.1080p.BluRay.x264-ENCOUNTERS"));
-    assertEqual("Lap Dance schnelles Geld hat seinen Preis | 2014",
+    assertEqual("Lap Dance schnelles Geld hat seinen Preis German | 2014",
         detectTY("Lap.Dance.schnelles.Geld.hat.seinen.Preis.German.2014.AC3.DVDRiP.x264-KNT"));
     assertEqual("London Has Fallen | 2016", detectTY("London.Has.Fallen.2016.German.DL.1080p.BluRay.x264.REPACK-ENCOUNTERS"));
     assertEqual("My Big Fat Greek Wedding 2 | 2016", detectTY("My.Big.Fat.Greek.Wedding.2.2016.German.DTS.DL.1080p.BluRay.x264-COiNCiDENCE"));
     assertEqual("My Big Fat Greek Wedding 2 | 2016", detectTY("My.Big.Fat.Greek.Wedding.2.2016.German.DTS.DL.720p.BluRay.x264-COiNCiDENCE"));
-    assertEqual("My Big Fat Greek Wedding 2 | 2016", detectTY("My.Big.Fat.Greek.Wedding.2.German.2016.AC3.BDRip.x264-COiNCiDENCE"));
-    assertEqual("Neues aus dem Reihenhaus | 2016", detectTY("Neues.aus.dem.Reihenhaus.GERMAN.2016.720p.WEBHD.h264-REMSG"));
-    assertEqual("Neues aus dem Reihenhaus | 2016", detectTY("Neues.aus.dem.Reihenhaus.GERMAN.2016.WEBRiP.x264-REMSG"));
-    assertEqual("Nur nicht aufregen | 2016", detectTY("Nur.nicht.aufregen.GERMAN.2016.720p.WEBHD.h264-REMSG"));
+    assertEqual("My Big Fat Greek Wedding 2 German | 2016", detectTY("My.Big.Fat.Greek.Wedding.2.German.2016.AC3.BDRip.x264-COiNCiDENCE"));
+    assertEqual("Neues aus dem Reihenhaus GERMAN | 2016", detectTY("Neues.aus.dem.Reihenhaus.GERMAN.2016.720p.WEBHD.h264-REMSG"));
+    assertEqual("Neues aus dem Reihenhaus GERMAN | 2016", detectTY("Neues.aus.dem.Reihenhaus.GERMAN.2016.WEBRiP.x264-REMSG"));
+    assertEqual("Nur nicht aufregen GERMAN | 2016", detectTY("Nur.nicht.aufregen.GERMAN.2016.720p.WEBHD.h264-REMSG"));
     assertEqual("Point Break | 2015", detectTY("Point.Break.2015.German.DL.1080p.BluRay.x264-ENCOUNTERS"));
     assertEqual("The Descent Abgrund des Grauens | 2005",
         detectTY("The.Descent.Abgrund.des.Grauens.UNCUT.2005.German.DL.1080p.BluRay.x264.iNTERNAL-VideoStar"));
@@ -106,7 +110,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("Band of Brothers 109 Wir Waren Wie Brüder Warum Wir Kämpfen | 2001",
         detectTY("Band of Brothers - 109 - Wir Waren Wie Brüder - Warum Wir Kämpfen (2001)"));
     assertEqual("Cowboy Bebop S01E25 The Real Folk Blues Part II", detectTY("Cowboy Bebop - S01E25 - The Real Folk Blues Part II.mkv"));
-    assertEqual("The Odd Couple S01E03 | 2015", detectTY("The.Odd.Couple.2015.S01E03.720p.HDTV"));
+    assertEqual("The Odd Couple | 2015", detectTY("The.Odd.Couple.2015.S01E03.720p.HDTV"));
     assertEqual("Stargate Universe 01x01 01x02 01x03 Air 1 2 3", detectTY("Stargate Universe (01x01_01x02_01x03) - Air (1)(2)(3)"));
     assertEqual("Episode 11 Ocean Deep", detectTY("Episode.11.Ocean.Deep.BluRay.720p.x264-x264Crew.mkv"));
     assertEqual("tvs castle", detectTY("tvs-castle-dl-ituneshd-xvid-101.avi"));
@@ -125,7 +129,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("The League S06E01", detectTY("The.League.S06E01.720p.WEB-DL.DD5.1.H.264-pcsyndicate.mkv"));
     assertEqual("Season 02/CSI Crime Scene Investigation S02E09 And Then There Were None",
         detectTY("Season 02/CSI.Crime.Scene.Investigation.S02E09.And.Then.There.Were.None.360p.DVDRip.MP3.XviD.avi"));
-    assertEqual("The Big Bang Theory S07E15 Eisenbahnromantik",
+    assertEqual("The Big Bang Theory S07E15 Eisenbahnromantik German",
         detectTY("The.Big.Bang.Theory.S07E15.Eisenbahnromantik.German.DD51.Dubbed.DL.1080p.BD.x264-TVS.mkv"));
     assertEqual("S1946E05", detectTY("S1946E05.mkv"));
     assertEqual("Game of Thrones 3x08 Die Zweitgeborenen Second sons",

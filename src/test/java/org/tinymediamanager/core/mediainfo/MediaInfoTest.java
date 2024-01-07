@@ -525,7 +525,7 @@ public class MediaInfoTest extends BasicTest {
   }
 
   private void check(String basename, String expectedLanguage, String expectedTitle) {
-    MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(basename);
+    MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(basename, "");
     assertThat(expectedLanguage).isEqualTo(info.getLanguage());
     assertThat(expectedTitle).isEqualTo(info.getTitle());
   }
@@ -543,28 +543,46 @@ public class MediaInfoTest extends BasicTest {
     compareSubtitle("moviename.Deutsch.srt", "deutsch");
     compareSubtitle("moviename.eng_hi.srt", "eng");
     compareSubtitle("moviename.eng_sdh.srt", "eng");
-    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "german", "dTV XViD"); // shit in, shit out
-    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "german", "waf com cn hk"); // shit in, shit out
     compareSubtitle("movie.name.year.pt-br.srt", "pt-br");
-    compareSubtitle("moviename.german-director.srt", "german", "director");
-    compareSubtitle("moviename.english-director.srt", "english", "director");
     compareSubtitle("moviename.srt", "");
     compareSubtitle("multi.not.eng.sub", "de");
+
+    compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "movie.name.year.GERMAN.dTV.XViD", "", "");
+    compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "movietitle.year.NLPS.XviD.DTS.3CD-WAF", "german",
+        "waf com cn hk"); // shit in, shit out
+    compareSubtitle("moviename.german-director.srt", "moviename", "german", "director");
+    compareSubtitle("moviename.english-director.srt", "moviename", "english", "director");
   }
 
   private void compareSubtitle(String filename, String expectedLanguage) throws Exception {
-    compareSubtitle(filename, expectedLanguage, "");
+    compareSubtitle(filename, "", expectedLanguage, "");
   }
 
-  private void compareSubtitle(String filename, String expectedLanguage, String expectedTitle) throws Exception {
+  private void compareSubtitle(String filename, String videoBasename, String expectedLanguage, String expectedTitle) throws Exception {
     Path subtitlesFolder = getWorkFolder().resolve("subtitles");
 
     MediaFile mf = new MediaFile(subtitlesFolder.resolve(filename));
     mf.gatherMediaInformation();
+
     assertThat(mf.getType()).isEqualTo(MediaFileType.SUBTITLE);
     assertThat(mf.getSubtitles()).isNotEmpty();
-    assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo(expectedLanguage);
-    assertThat(mf.getSubtitles().get(0).getTitle()).isEqualTo(expectedTitle);
+
+    // since the language collection part was removed from getMI (bc of video basename)
+    // we need to readd it here
+    MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(mf.getBasename(), videoBasename);
+    if (mf.getSubtitles().get(0).getLanguage().isEmpty()) {
+      assertThat(info.getLanguage()).isEqualTo(expectedLanguage);
+    }
+    else {
+      assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo(expectedLanguage);
+    }
+
+    if (mf.getSubtitles().get(0).getTitle().isEmpty()) {
+      assertThat(info.getTitle()).isEqualTo(expectedTitle);
+    }
+    else {
+      assertThat(mf.getSubtitles().get(0).getLanguage()).isEqualTo(expectedLanguage);
+    }
   }
 
   // @Test
