@@ -48,6 +48,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -80,6 +81,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
+import org.tinymediamanager.core.threading.ThreadUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.Engine;
@@ -506,7 +508,7 @@ public class MovieRenamer {
     // ## invalidate image cache
     // ######################################################################
     for (MediaFile gfx : movie.getMediaFiles()) {
-      if (gfx.isGraphic()) {
+      if (gfx.isGraphic() && !needed.contains(gfx)) {
         ImageCache.invalidateCachedImage(gfx);
       }
     }
@@ -517,6 +519,19 @@ public class MovieRenamer {
     needed.addAll(newMFs);
 
     movie.removeAllMediaFiles();
+
+    // ######################################################################
+    // ## build up image cache
+    // ######################################################################
+    if (Settings.getInstance().isImageCache()) {
+      for (MediaFile gfx : needed) {
+        ImageCache.cacheImageSilently(gfx, false);
+      }
+    }
+
+    // give the file system a bit to write the files
+    ThreadUtils.sleep(250);
+
     movie.addToMediaFiles(needed);
     movie.setPath(newPathname);
 

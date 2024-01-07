@@ -72,6 +72,7 @@ import org.tinymediamanager.core.jmte.RegexpProcessor;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
 import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
+import org.tinymediamanager.core.threading.ThreadUtils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -424,16 +425,20 @@ public class TvShowRenamer {
       LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
     }
 
+    tvShow.removeAllMediaFiles();
+
     // ######################################################################
     // ## build up image cache
     // ######################################################################
     if (Settings.getInstance().isImageCache()) {
-      for (MediaFile gfx : tvShow.getMediaFiles()) {
+      for (MediaFile gfx : needed) {
         ImageCache.cacheImageSilently(gfx, false);
       }
     }
 
-    tvShow.removeAllMediaFiles();
+    // give the file system a bit to write the files
+    ThreadUtils.sleep(250);
+
     tvShow.addToMediaFiles(needed);
   }
 
