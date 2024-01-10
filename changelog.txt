@@ -8,6 +8,7 @@ x avoid exceptions on "update data sources" #2409
 + add French TP certificate #2424
 x rework subtitle lnaguage and title parsing
 x fix sorting of empty MovieSets
+x re-set new flag on "Update selected movie(s)" too #2430
 
 
 Version 5.0

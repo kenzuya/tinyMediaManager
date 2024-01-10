@@ -502,6 +502,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
         movieDirs.add(movie.getPathNIO());
         moviesToCleanup.add(movie);
+
+        // should we re-set all new flags?
+        if (MovieModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
+          movie.setNewlyAdded(false);
+        }
       }
 
       for (Path path : movieDirs) {
