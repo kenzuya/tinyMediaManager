@@ -7,6 +7,7 @@ x embed season artwork into the TV show artwork panel
 x avoid exceptions on "update data sources" #2409
 + add French TP certificate #2424
 x rework subtitle lnaguage and title parsing
+x fix sorting of empty MovieSets
 
 
 Version 5.0

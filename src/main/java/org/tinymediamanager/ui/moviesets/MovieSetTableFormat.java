@@ -284,7 +284,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return size;
       }
     }
-    return null;
+    return 0;
   }
 
   private String getRating(TmmTreeNode node) {
