@@ -184,6 +184,10 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
     }
   }
 
+  void removeDummyEpisodes() {
+    dummyEpisodes.clear();
+  }
+
   boolean isEmpty() {
     return episodes.isEmpty() && dummyEpisodes.isEmpty();
   }

@@ -660,6 +660,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // also mix in the episodes if activated
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      seasons.forEach(TvShowSeason::removeDummyEpisodes);
+
       for (TvShowEpisode episode : dummyEpisodes) {
         TvShowSeason season = getSeasonForEpisode(episode);
         season.addEpisode(episode);
