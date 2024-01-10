@@ -62,7 +62,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     FontMetrics fontMetrics = getFontMetrics();
 
-    Comparator<Integer> integerComparator = Integer::compare;
+    Comparator<Integer> integerComparator = new IntegerComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<String> stringComparator = new StringComparator();
 
@@ -284,7 +284,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return size;
       }
     }
-    return 0;
+    return null;
   }
 
   private String getRating(TmmTreeNode node) {
