@@ -46,7 +46,7 @@ public class TmmOsUtils {
   public static final String  DESKTOP_FILE = "tinyMediaManager.desktop";
 
   private TmmOsUtils() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -199,7 +199,7 @@ public class TmmOsUtils {
     }
     // linux
     else if (SystemUtils.IS_OS_LINUX) {
-      if (System.getProperty("os.arch").contains("arm")) {
+      if (System.getProperty("os.arch").contains("arm") || System.getProperty("os.arch").contains("aarch")) {
         nativepath += "arm";
       }
       else {
