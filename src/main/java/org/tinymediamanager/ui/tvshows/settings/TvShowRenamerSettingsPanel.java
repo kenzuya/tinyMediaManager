@@ -243,7 +243,6 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${videoResolution}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio2}"));
-    exampleEventList.add(new TvShowRenamerExample("${videoFormat}"));
     exampleEventList.add(new TvShowRenamerExample("${videoCodec}"));
     exampleEventList.add(new TvShowRenamerExample("${videoFormat}"));
     exampleEventList.add(new TvShowRenamerExample("${videoBitDepth}"));
