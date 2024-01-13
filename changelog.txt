@@ -12,6 +12,7 @@ x fix sorting of empty MovieSets
 x re-set new flag on "Update selected movie(s)" too #2430
 x do not add dummy episodes multiple times to a season #2427
 x fixed loading native libs in aarch64/amd64 Docker container #2434
+x prefer existing data when downloading missing artwork
 
 
 Version 5.0

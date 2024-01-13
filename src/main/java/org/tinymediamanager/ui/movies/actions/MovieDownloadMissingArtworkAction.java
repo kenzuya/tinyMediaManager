@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.movies.dialogs.MovieDownloadMissingArtworkDialog;
 
 /**
- * The class MovieDownloadMissingArtworkAction is used to download missing artwork for the selected movies
+ * The class {@link MovieDownloadMissingArtworkAction} is used to download missing artwork (via scraping) for the selected movies
  * 
  * @author Manuel Laggner
  */
