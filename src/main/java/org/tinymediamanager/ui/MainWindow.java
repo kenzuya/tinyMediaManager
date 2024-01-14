@@ -181,7 +181,6 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     splitPane.setResizeWeight(0.5);
     splitPane.setOneTouchExpandable(true);
     splitPane.setName("mainWindow.splitPane");
-    TmmUILayoutStore.getInstance().install(splitPane);
     rootPanel.add(splitPane, "cell 1 0, grow");
 
     masterPanel = new JPanel();
@@ -241,6 +240,9 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     if (Settings.getInstance().isNewConfig()) {
       SwingUtilities.invokeLater(() -> HintManager.getInstance().showHints());
     }
+
+    // set the splitter position after everything has been initialized
+    TmmUILayoutStore.getInstance().install(splitPane);
   }
 
   private void addModule(ITmmUIModule module) {
