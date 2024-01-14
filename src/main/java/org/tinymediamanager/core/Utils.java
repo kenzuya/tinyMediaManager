@@ -306,15 +306,22 @@ public class Utils {
    * @return the title/originaltitle in its sortable format
    */
   public static String getSortableName(String title) {
-    if (title == null || title.isEmpty()) {
+    if (StringUtils.isBlank(title)) {
       return "";
     }
+    if (title.startsWith("LA ")) {
+      // means Los Angeles
+      return title;
+    }
+
     if (title.toLowerCase(Locale.ROOT).matches("^die hard$") || title.toLowerCase(Locale.ROOT).matches("^die hard[:\\s].*")) {
       return title;
     }
+
     if (title.toLowerCase(Locale.ROOT).matches("^die another day$") || title.toLowerCase(Locale.ROOT).matches("^die another day[:\\s].*")) {
       return title;
     }
+
     for (String prfx : Settings.getInstance().getTitlePrefix()) {
       String delim = "\\s+"; // one or more spaces needed
       if (prfx.matches(".*['`´]$")) { // ends with hand-picked delim, so no space might be possible
@@ -327,6 +334,7 @@ public class Utils {
         break;
       }
     }
+
     return title.trim();
   }
 
