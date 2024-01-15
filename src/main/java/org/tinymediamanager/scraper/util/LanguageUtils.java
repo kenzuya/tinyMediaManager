@@ -141,6 +141,12 @@ public class LanguageUtils {
     langArray.put("ptb", new Locale("pt", "BR"));
     langArray.put("pt-br", new Locale("pt", "BR"));
 
+    // some chinese exceptions
+    langArray.put("chs", Locale.SIMPLIFIED_CHINESE);
+    langArray.put("cht", Locale.TRADITIONAL_CHINESE);
+    langArray.put("zh-chs", Locale.SIMPLIFIED_CHINESE);
+    langArray.put("zh-cht", Locale.TRADITIONAL_CHINESE);
+
     // also sort in all language tags from available locales
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale base = new Locale(locale.getLanguage());
