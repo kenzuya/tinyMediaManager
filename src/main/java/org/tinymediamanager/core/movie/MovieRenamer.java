@@ -669,7 +669,7 @@ public class MovieRenamer {
             Files.createDirectories(destDir);
           }
           catch (Exception e) {
-            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie)", destDir);
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie) - {}", destDir, e.getMessage());
             // well, better not to rename
             return false;
           }
@@ -694,7 +694,7 @@ public class MovieRenamer {
             Files.createDirectories(destDir);
           }
           catch (Exception e) {
-            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie)", destDir);
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie) - {}", destDir, e.getMessage());
             // well, better not to rename
             return false;
           }
@@ -1230,7 +1230,7 @@ public class MovieRenamer {
       return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
-      LOGGER.warn("unable to process token: {}", token);
+      LOGGER.warn("unable to process token: {} - {}", token, e.getMessage());
       return token;
     }
   }

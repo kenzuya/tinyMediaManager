@@ -1579,7 +1579,7 @@ public class TvShowRenamer {
       return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
-      LOGGER.warn("unable to process token: {}", token);
+      LOGGER.warn("unable to process token: {} - {}", token, e.getMessage());
       return token;
     }
   }
