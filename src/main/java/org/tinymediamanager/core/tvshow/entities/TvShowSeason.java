@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,6 +182,10 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
       firePropertyChange(REMOVED_EPISODE, null, episode);
       firePropertyChange(FIRST_AIRED, null, getFirstAired());
     }
+  }
+
+  void removeDummyEpisodes() {
+    dummyEpisodes.clear();
   }
 
   boolean isEmpty() {

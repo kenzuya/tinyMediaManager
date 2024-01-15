@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ import org.tinymediamanager.core.movie.entities.Movie;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES     = 91;
+  private static final int NUMBER_OF_EXPECTED_MOVIES     = 100;
   private static final int NUMBER_OF_STACKED_MOVIES      = 14;
   private static final int NUMBER_OF_DISC_MOVIES         = 7;
-  private static final int NUMBER_OF_MOVIES_IN_MMD       = 47;
-  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 215;
+  private static final int NUMBER_OF_MOVIES_IN_MMD       = 56;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 224;
 
   @Before
   public void setup() throws Exception {

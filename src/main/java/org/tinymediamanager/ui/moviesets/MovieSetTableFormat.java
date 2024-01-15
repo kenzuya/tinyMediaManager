@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     FontMetrics fontMetrics = getFontMetrics();
 
-    Comparator<Integer> integerComparator = Integer::compare;
+    Comparator<Integer> integerComparator = new IntegerComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
     Comparator<String> stringComparator = new StringComparator();
 

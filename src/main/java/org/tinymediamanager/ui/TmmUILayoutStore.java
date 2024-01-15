@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -149,9 +150,12 @@ public class TmmUILayoutStore {
         frame.setBounds(rect);
 
         // was the main window maximized?
-        if (Boolean.TRUE.equals(properties.getPropertyAsBoolean("mainWindowMaximized"))) {
-          frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
-          frame.validate();
+        // do not set this on linux (Wayland problem with missing window decorations)
+        if (!SystemUtils.IS_OS_LINUX) {
+          if (Boolean.TRUE.equals(properties.getPropertyAsBoolean("mainWindowMaximized"))) {
+            frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
+            frame.validate();
+          }
         }
       }
       else {
@@ -278,7 +282,10 @@ public class TmmUILayoutStore {
 
   private void saveJSplitPane(JSplitPane splitPane) {
     String componentName = splitPane.getName();
-    addParam(componentName + ".dividerLocation", splitPane.getDividerLocation());
+    if (splitPane.getLastDividerLocation() != -1) {
+      // workaround for #2432, where the splitPane is always 7px drifting
+      addParam(componentName + ".dividerLocation", splitPane.getDividerLocation());
+    }
   }
 
   private void saveTmmTable(TmmTable table) {

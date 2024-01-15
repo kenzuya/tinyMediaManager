@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -883,15 +883,27 @@ public class MovieArtworkHelper {
    * find the "best" poster in the list of artwork, assign it to the movie and download it
    */
   private static void setBestPoster(Movie movie, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+    boolean posterFound = false;
 
-    // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
+    // use existing data if available
+    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
+      posterFound = true;
+    }
+    else {
+      // sort artwork due to our preferences
+      int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+      List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
 
-    // assign and download the poster
-    if (!sortedPosters.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
-      movie.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
+      // assign and download the poster
+      if (!sortedPosters.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
+        movie.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
+        posterFound = true;
+      }
+    }
+
+    // and download
+    if (posterFound && !MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
       downloadArtwork(movie, MediaFileType.POSTER);
     }
   }
@@ -900,40 +912,52 @@ public class MovieArtworkHelper {
    * find the "best" fanart in the list of artwork, assign it to the movie and download it
    */
   private static void setBestFanart(Movie movie, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    boolean fanartFound = false;
 
-    // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
-    // resolution) first
-    // https://kodi.wiki/view/Artwork_types#fanart
-    MediaArtwork.ImageSizeAndUrl fanartWoText = null;
+    // use existing data if available
+    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
+      fanartFound = true;
+    }
+    else {
+      int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
 
-    if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
-      for (MediaArtwork art : artwork) {
-        if (art.getType() == MediaArtworkType.BACKGROUND && art.getLanguage().equals("")) {
-          // right type
-          for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
-            // right size
-            if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
-              fanartWoText = imageSizeAndUrl;
-              break;
+      // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
+      // resolution) first
+      // https://kodi.wiki/view/Artwork_types#fanart
+      MediaArtwork.ImageSizeAndUrl fanartWoText = null;
+
+      if (MovieModuleManager.getInstance().getSettings().isImageScraperPreferFanartWoText()) {
+        for (MediaArtwork art : artwork) {
+          if (art.getType() == MediaArtworkType.BACKGROUND && StringUtils.isBlank(art.getLanguage())) {
+            // right type
+            for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+              // right size
+              if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
+                fanartWoText = imageSizeAndUrl;
+                break;
+              }
             }
           }
         }
       }
+
+      // sort artwork due to our preferences
+      List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder);
+
+      // and insert the text-less in the front
+      if (fanartWoText != null) {
+        sortedFanarts.add(0, fanartWoText);
+      }
+
+      // assign and download the fanart
+      if (!sortedFanarts.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
+        movie.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
+        fanartFound = true;
+      }
     }
-
-    // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, MediaArtworkType.BACKGROUND, preferredSizeOrder);
-
-    // and insert the text-less in the front
-    if (fanartWoText != null) {
-      sortedFanarts.add(0, fanartWoText);
-    }
-
-    // assign and download the fanart
-    if (!sortedFanarts.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
-      movie.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
+    // and download
+    if (fanartFound && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
       downloadArtwork(movie, MediaFileType.FANART);
     }
   }
@@ -1027,17 +1051,28 @@ public class MovieArtworkHelper {
    *          indicates, whether to download and add, OR JUST SAVE THE URL for a later download
    */
   private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
-    // sort artwork due to our preferences
-    // this is everything but the poster/fanart - so we must not use the fanart size here
-    int preferredSizeOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER; // big enough to catch _all_ sizes
-    List<MediaArtwork.ImageSizeAndUrl> sortedArtworks = sortArtworkUrls(artwork, type, preferredSizeOrder);
+    boolean artworkFound = false;
 
-    if (!sortedArtworks.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtworks.get(0);
-      movie.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
-      if (download) {
-        downloadArtwork(movie, MediaFileType.getMediaFileType(type));
+    // use existing data if available
+    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
+      artworkFound = true;
+    }
+    else {
+      // sort artwork due to our preferences
+      // this is everything but the poster/fanart - so we must not use the fanart size here
+      int preferredSizeOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER; // big enough to catch _all_ sizes
+      List<MediaArtwork.ImageSizeAndUrl> sortedArtworks = sortArtworkUrls(artwork, type, preferredSizeOrder);
+
+      if (!sortedArtworks.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtworks.get(0);
+        movie.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
+        artworkFound = true;
       }
+    }
+
+    // and download
+    if (download && artworkFound) {
+      downloadArtwork(movie, MediaFileType.getMediaFileType(type));
     }
   }
 

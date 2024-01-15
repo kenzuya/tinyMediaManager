@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -189,7 +190,8 @@ public abstract class DynaEnum<E extends DynaEnum<E>> {
    */
   @SuppressWarnings("unchecked")
   public static <E> E[] values(Class<E> enumType) {
-    Collection<DynaEnum<?>> values = elements.get(enumType).values();
+    // to make it thread-safe
+    Collection<DynaEnum<?>> values = new ArrayList<>(elements.get(enumType).values());
     int n = values.size();
     E[] typedValues = (E[]) Array.newInstance(enumType, n);
     int i = 0;

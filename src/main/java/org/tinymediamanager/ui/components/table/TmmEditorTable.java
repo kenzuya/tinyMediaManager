@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,6 +130,11 @@ public abstract class TmmEditorTable extends TmmTable {
       int row = table.rowAtPoint(point);
       int col = table.columnAtPoint(point);
 
+      if (row == -1 || col == -1) {
+        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        return;
+      }
+
       if (isLinkCell(row, col)) {
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
       }
@@ -141,6 +146,11 @@ public abstract class TmmEditorTable extends TmmTable {
       int row = table.rowAtPoint(point);
       int col = table.columnAtPoint(point);
 
+      if (row == -1 || col == -1) {
+        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        return;
+      }
+
       if (!isLinkCell(row, col)) {
         table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
       }
@@ -151,6 +161,11 @@ public abstract class TmmEditorTable extends TmmTable {
       Point point = new Point(e.getX(), e.getY());
       int row = table.rowAtPoint(point);
       int col = table.columnAtPoint(point);
+
+      if (row == -1 || col == -1) {
+        table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        return;
+      }
 
       if (!isLinkCell(row, col) && table.getCursor().getType() == Cursor.HAND_CURSOR) {
         table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));

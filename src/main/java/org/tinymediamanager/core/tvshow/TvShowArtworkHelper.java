@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -269,16 +269,27 @@ public class TvShowArtworkHelper {
   }
 
   private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+    boolean posterFound = false;
 
-    // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
+    // use existing data if available
+    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
+      posterFound = true;
+    }
+    else {
+      // sort artwork due to our preferences
+      int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+      List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, MediaArtworkType.POSTER, preferredSizeOrder);
 
-    // assign and download the poster
-    if (!sortedPosters.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
-      tvShow.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
+      // assign and download the poster
+      if (!sortedPosters.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl foundPoster = sortedPosters.get(0);
+        tvShow.setArtworkUrl(foundPoster.getUrl(), MediaFileType.POSTER);
+        posterFound = true;
+      }
+    }
 
+    // and download
+    if (posterFound && !TvShowModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
       downloadArtwork(tvShow, MediaFileType.POSTER);
     }
   }
@@ -370,12 +381,24 @@ public class TvShowArtworkHelper {
    *          the type to download
    */
   private static void setBestArtwork(TvShow tvShow, List<MediaArtwork> artwork, MediaArtworkType type) {
-    int preferredSizeOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER; // big enough to catch _all_ sizes
-    List<MediaArtwork.ImageSizeAndUrl> sortedArtwork = sortArtworkUrls(artwork, type, preferredSizeOrder);
+    boolean artworkFound = false;
 
-    if (!sortedArtwork.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtwork.get(0);
-      tvShow.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
+    // use existing data if available
+    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
+      artworkFound = true;
+    }
+    else {
+      int preferredSizeOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER; // big enough to catch _all_ sizes
+      List<MediaArtwork.ImageSizeAndUrl> sortedArtwork = sortArtworkUrls(artwork, type, preferredSizeOrder);
+
+      if (!sortedArtwork.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl bestArtwork = sortedArtwork.get(0);
+        tvShow.setArtworkUrl(bestArtwork.getUrl(), MediaFileType.getMediaFileType(type));
+        artworkFound = true;
+      }
+    }
+
+    if (artworkFound) {
       downloadArtwork(tvShow, MediaFileType.getMediaFileType(type));
     }
   }
@@ -389,51 +412,75 @@ public class TvShowArtworkHelper {
    *          the artwork list
    */
   private static void setBestFanart(TvShow tvShow, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    boolean fanartFound = false;
 
-    // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
-    // resolution) first
-    // https://kodi.wiki/view/Artwork_types#fanart
-    MediaArtwork.ImageSizeAndUrl fanartWoText = null;
-    for (MediaArtwork art : artwork) {
-      if (art.getType() == BACKGROUND && art.getLanguage().equals("")) {
-        // right type
-        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
-          // right size
-          if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
-            fanartWoText = imageSizeAndUrl;
-            break;
+    // use existing data if available
+    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
+      fanartFound = true;
+    }
+    else {
+      int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+
+      // according to the kodi specifications the fanart _should_ be without any text on it - so we try to get the text-less image (in the right
+      // resolution) first
+      // https://kodi.wiki/view/Artwork_types#fanart
+      MediaArtwork.ImageSizeAndUrl fanartWoText = null;
+      for (MediaArtwork art : artwork) {
+        if (art.getType() == BACKGROUND && art.getLanguage().equals("")) {
+          // right type
+          for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+            // right size
+            if (imageSizeAndUrl.getSizeOrder() == preferredSizeOrder) {
+              fanartWoText = imageSizeAndUrl;
+              break;
+            }
           }
         }
       }
+
+      // sort artwork due to our preferences
+      List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, BACKGROUND, preferredSizeOrder);
+
+      if (fanartWoText != null) {
+        sortedFanarts.add(0, fanartWoText);
+      }
+
+      // assign and download the fanart
+      if (!sortedFanarts.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
+        tvShow.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
+        fanartFound = true;
+      }
     }
 
-    // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedFanarts = sortArtworkUrls(artwork, BACKGROUND, preferredSizeOrder);
-
-    if (fanartWoText != null) {
-      sortedFanarts.add(0, fanartWoText);
-    }
-
-    // assign and download the fanart
-    if (!sortedFanarts.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl foundfanart = sortedFanarts.get(0);
-      tvShow.setArtworkUrl(foundfanart.getUrl(), MediaFileType.FANART);
+    // and download
+    if (fanartFound && !TvShowModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
       downloadArtwork(tvShow, MediaFileType.FANART);
     }
   }
 
   private static void setBestThumb(TvShow tvShow, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+    boolean thumbFound = false;
 
-    // sort artwork due to our preferences
-    List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, THUMB, preferredSizeOrder);
+    // use existing data if available
+    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.THUMB))) {
+      thumbFound = true;
+    }
+    else {
+      // sort artwork due to our preferences
+      int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImageThumbSize().getOrder();
+      List<MediaArtwork.ImageSizeAndUrl> sortedPosters = sortArtworkUrls(artwork, THUMB, preferredSizeOrder);
 
-    // assign and download the poster
-    if (!sortedPosters.isEmpty()) {
-      MediaArtwork.ImageSizeAndUrl foundThumb = sortedPosters.get(0);
-      tvShow.setArtworkUrl(foundThumb.getUrl(), MediaFileType.THUMB);
+      // assign and download the poster
+      if (!sortedPosters.isEmpty()) {
+        MediaArtwork.ImageSizeAndUrl foundThumb = sortedPosters.get(0);
+        tvShow.setArtworkUrl(foundThumb.getUrl(), MediaFileType.THUMB);
+        thumbFound = true;
+      }
+    }
 
+    // and download
+    if (thumbFound && !TvShowModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty()) {
       downloadArtwork(tvShow, MediaFileType.THUMB);
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,7 +314,7 @@ public class UpgradeTasks {
     Path launcherExtra = path.getParent().resolve("launcher-extra.yml");
     if (launcherExtra.toFile().exists() && launcherExtra.toFile().isFile()) {
       try {
-        Utils.copyFileSafe(launcherExtra, Paths.get(Globals.DATA_FOLDER, launcherExtra.toFile().getName()), true);
+        Utils.copyFileSafe(launcherExtra, Paths.get(Globals.CONTENT_FOLDER, launcherExtra.toFile().getName()), true);
       }
       catch (Exception e) {
         LOGGER.warn("could not copy file '{}' from v4 - '{}'", launcherExtra.toFile().getName(), e.getMessage());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -502,6 +502,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
         movieDirs.add(movie.getPathNIO());
         moviesToCleanup.add(movie);
+
+        // should we re-set all new flags?
+        if (MovieModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
+          movie.setNewlyAdded(false);
+        }
       }
 
       for (Path path : movieDirs) {

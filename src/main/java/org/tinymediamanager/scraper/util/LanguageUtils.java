@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,12 @@ public class LanguageUtils {
     langArray.put("pob", new Locale("pt", "BR"));
     langArray.put("ptb", new Locale("pt", "BR"));
     langArray.put("pt-br", new Locale("pt", "BR"));
+
+    // some chinese exceptions
+    langArray.put("chs", Locale.SIMPLIFIED_CHINESE);
+    langArray.put("cht", Locale.TRADITIONAL_CHINESE);
+    langArray.put("zh-chs", Locale.SIMPLIFIED_CHINESE);
+    langArray.put("zh-cht", Locale.TRADITIONAL_CHINESE);
 
     // also sort in all language tags from available locales
     for (Locale locale : Locale.getAvailableLocales()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 
 /**
@@ -74,6 +80,35 @@ public class MediaFileInformationFetcherTask implements Runnable {
       Thread.currentThread().setName(name);
 
       mediaFile.gatherMediaInformation(forceUpdate);
+
+      if (mediaFile.getType() == MediaFileType.SUBTITLE || mediaFile.getType() == MediaFileType.AUDIO) {
+        // also re-evaluate language from NAME
+        MediaFile mainVideoFile = mediaEntity.getMainFile();
+        if (StringUtils.isNotBlank(mainVideoFile.getBasename()) && mediaFile.getFilename().startsWith(mainVideoFile.getBasename())) {
+
+          MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(mediaFile.getBasename(), mainVideoFile.getBasename());
+          if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+            MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
+            // if we have detected a locale (which is more specific than language alone) us this
+            if (sub.getLanguage().isEmpty() || info.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
+              sub.setLanguage(info.getLanguage());
+            }
+            sub.setTitle(info.getTitle());
+            sub.set(info.getFlags());
+          }
+          else if (mediaFile.getType() == MediaFileType.AUDIO && mediaFile.getAudioChannels().isEmpty()) {
+            MediaFileAudioStream audio = mediaFile.getAudioStreams().get(0);
+            // if we have detected a locale (which is more specific than language alone) us this
+            if (StringUtils.isBlank(audio.getLanguage()) || info.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
+              audio.setLanguage(info.getLanguage());
+            }
+            if (StringUtils.isBlank(audio.getTitle())) {
+              audio.setTitle(info.getTitle());
+            }
+            audio.set(info.getFlags());
+          }
+        }
+      }
 
       if (mediaFile.hasSubtitles()) {
         mediaEntity.firePropertyChange("hasSubtitles", false, true);

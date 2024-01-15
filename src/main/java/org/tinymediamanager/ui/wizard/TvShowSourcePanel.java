@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -30,10 +28,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
@@ -57,7 +54,6 @@ class TvShowSourcePanel extends JPanel {
   private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   private JList<String>        listDataSources;
-  private JCheckBox            cbDvdOrder;
 
   public TvShowSourcePanel() {
     initComponents();
@@ -76,7 +72,7 @@ class TvShowSourcePanel extends JPanel {
 
     JPanel panelTvShowDataSources = new JPanel();
     add(panelTvShowDataSources, "cell 0 1,grow");
-    panelTvShowDataSources.setLayout(new MigLayout("", "[grow][]", "[][grow][]"));
+    panelTvShowDataSources.setLayout(new MigLayout("", "[grow][]", "[][grow]"));
 
     JTextArea tpDatasourceHint = new ReadOnlyTextArea(TmmResourceBundle.getString("wizard.datasource.hint"));
     panelTvShowDataSources.add(tpDatasourceHint, "cell 0 0 2 1,growx");
@@ -86,9 +82,6 @@ class TvShowSourcePanel extends JPanel {
 
     listDataSources = new JList<>();
     scrollPaneDataSources.setViewportView(listDataSources);
-
-    cbDvdOrder = new JCheckBox(TmmResourceBundle.getString("Settings.dvdorder"));
-    panelTvShowDataSources.add(cbDvdOrder, "flowx,cell 0 2");
 
     JButton btnAdd = new SquareIconButton(IconManager.ADD_INV);
     panelTvShowDataSources.add(btnAdd, "flowy,cell 1 1,aligny top");
@@ -122,20 +115,9 @@ class TvShowSourcePanel extends JPanel {
     });
   }
 
-  /*
-   * init data bindings
-   */
-  @SuppressWarnings("rawtypes")
   protected void initDataBindings() {
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    BeanProperty<TvShowSettings, Boolean> settingsBeanProperty_1 = BeanProperty.create("dvdOrder");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_1, cbDvdOrder, jCheckBoxBeanProperty);
-    autoBinding_1.bind();
-    //
-    BeanProperty<TvShowSettings, List<String>> settingsBeanProperty_2 = BeanProperty.create("tvShowDataSource");
-    JListBinding<String, TvShowSettings, JList> jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_2, listDataSources);
+    Property settingsBeanProperty_2 = BeanProperty.create("tvShowDataSource");
+    JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2, listDataSources);
     jListBinding.bind();
   }
 }

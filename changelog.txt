@@ -1,8 +1,27 @@
+Version 5.0.1
+=======================
++ add French TP certificate #2424
++ detect some more known audio codecs
+x fixed missing window decorations on Wayland
+x (NFO) prefer to write user rating without decimals
+x (v4 data import) copy the launcher-extra.yml to the correct folder #2412
+x embed season artwork into the TV show artwork panel
+x avoid exceptions on "update data sources" #2409
+x enhanced re-building the image cache after renaming #2423
+x rework subtitle language and title parsing
+x fix sorting of empty MovieSets
+x re-set new flag on "Update selected movie(s)" too #2430
+x do not add dummy episodes multiple times to a season #2427
+x fixed loading native libs in aarch64/amd64 Docker container #2434
+x prefer existing data when downloading missing artwork
+x fix UI divider drifting a few pixels after each restart #2432
+
+
 Version 5.0
 =======================
 + Adopted storage locations to the operating system defaults (for new installations):
   - macOS: ~/Library/Application Support/tinyMediaManager
-  - Windows: Users home\AppData\Roaming
+  - Windows: Users home\AppData\Roaming\tinyMediaManager
   - Linux: ~/.local/share/tinyMediaManager
   - added an extra portable build for local storage
 + Subtitle handling rework: 

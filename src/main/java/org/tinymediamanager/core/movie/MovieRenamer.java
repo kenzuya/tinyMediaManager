@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -80,6 +81,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
+import org.tinymediamanager.core.threading.ThreadUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.Engine;
@@ -506,7 +508,7 @@ public class MovieRenamer {
     // ## invalidate image cache
     // ######################################################################
     for (MediaFile gfx : movie.getMediaFiles()) {
-      if (gfx.isGraphic()) {
+      if (gfx.isGraphic() && !needed.contains(gfx)) {
         ImageCache.invalidateCachedImage(gfx);
       }
     }
@@ -517,6 +519,19 @@ public class MovieRenamer {
     needed.addAll(newMFs);
 
     movie.removeAllMediaFiles();
+
+    // ######################################################################
+    // ## build up image cache
+    // ######################################################################
+    if (Settings.getInstance().isImageCache()) {
+      for (MediaFile gfx : needed) {
+        ImageCache.cacheImageSilently(gfx, false);
+      }
+    }
+
+    // give the file system a bit to write the files
+    ThreadUtils.sleep(250);
+
     movie.addToMediaFiles(needed);
     movie.setPath(newPathname);
 
@@ -654,7 +669,7 @@ public class MovieRenamer {
             Files.createDirectories(destDir);
           }
           catch (Exception e) {
-            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie)", destDir);
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('upgrade' movie) - {}", destDir, e.getMessage());
             // well, better not to rename
             return false;
           }
@@ -679,7 +694,7 @@ public class MovieRenamer {
             Files.createDirectories(destDir);
           }
           catch (Exception e) {
-            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie)", destDir);
+            LOGGER.error("Could not create destination '{}' - NOT renaming folder ('MMD' movie) - {}", destDir, e.getMessage());
             // well, better not to rename
             return false;
           }
@@ -1215,7 +1230,7 @@ public class MovieRenamer {
       return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
-      LOGGER.warn("unable to process token: {}", token);
+      LOGGER.warn("unable to process token: {} - {}", token, e.getMessage());
       return token;
     }
   }

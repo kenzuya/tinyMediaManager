@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -72,15 +74,16 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
-  private static final Logger   LOGGER               = LoggerFactory.getLogger(TvShowGenericXmlConnector.class);
+  private static final Logger                 LOGGER                 = LoggerFactory.getLogger(TvShowGenericXmlConnector.class);
 
-  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String               ORACLE_IS_STANDALONE   = "http://www.oracle.com/xml/is-standalone";
+  protected static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
 
-  protected final TvShow        tvShow;
-  protected TvShowNfoParser     parser               = null;
+  protected final TvShow                      tvShow;
+  protected TvShowNfoParser                   parser                 = null;
 
-  protected Document            document;
-  protected Element             root;
+  protected Document                          document;
+  protected Element                           root;
 
   protected TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;
@@ -322,7 +325,8 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     }
 
     Element UserRating = document.createElement("userrating");
-    UserRating.setTextContent(String.format(Locale.US, "%.1f", rating10));
+    DecimalFormat df = new DecimalFormat("#.#", DECIMAL_FORMAT_SYMBOLS);
+    UserRating.setTextContent(df.format(rating10));
     root.appendChild(UserRating);
   }
 

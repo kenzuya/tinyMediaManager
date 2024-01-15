@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,8 +164,8 @@ public class MediaFileHelper {
         ".wmv", ".webm", ".xvid");
 
     DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
-        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".tta",
-        ".thd", ".wav", ".wave", ".wma");
+        ".dts", ".dtshd", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram",
+        ".tta", ".thd", ".wav", ".wave", ".wma");
 
     DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
         ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub", ".vtt");
@@ -1917,7 +1917,7 @@ public class MediaFileHelper {
    * @param mediaFile
    *          the media file
    */
-  private static MediaFileSubtitle gatherSubtitleInformationFromFilename(MediaFile mediaFile) {
+  public static MediaFileSubtitle gatherSubtitleLanguageFromFile(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
     String path = mediaFile.getPath();
     MediaFileSubtitle sub = new MediaFileSubtitle();
@@ -1930,12 +1930,9 @@ public class MediaFileHelper {
         String line;
         while ((line = br.readLine()) != null) {
           String lang = "";
-
           if (line.startsWith("id:")) {
+            // first entry wins
             lang = StrgUtils.substr(line, "id: (.*?),");
-          }
-          if (line.startsWith("# alt:")) {
-            lang = StrgUtils.substr(line, "^# alt: (.*?)$");
           }
           if (!lang.isEmpty()) {
             sub.setLanguage(LanguageUtils.findLanguageInString(lang));
@@ -1947,23 +1944,6 @@ public class MediaFileHelper {
         LOGGER.debug("could not read idx file: {}", e.getMessage());
       }
     }
-
-    // override with file infos
-    MediaStreamInfo file = gatherLanguageInformation(mediaFile.getBasename());
-    if (sub.getLanguage().isEmpty()) {
-      sub.setLanguage(file.getLanguage());
-    }
-    else {
-      // if we have detected a locale (which is more specific than language alone) us this
-      if (!file.getLanguage().isEmpty() && file.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
-        sub.setLanguage(file.getLanguage());
-      }
-    }
-    // only set filename detected "title" on external file!
-    if (mediaFile.getType() == MediaFileType.SUBTITLE && sub.getTitle().isEmpty()) {
-      sub.setTitle(file.getTitle());
-    }
-    sub.set(file.getFlags());
     sub.setCodec(mediaFile.getExtension());
     return sub;
   }
@@ -2009,25 +1989,22 @@ public class MediaFileHelper {
 
     // subtitle FILE, can have ONE stream, or just parse filename
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      // 1. MediaInfo
       MediaFileSubtitle sub = new MediaFileSubtitle();
       if (streams > 0) {
         MediaFileSubtitle stream = gatherSubtitleInformationFromMediainfo(miSnapshot, 0);
         sub = stream;
       }
-      // overwrite with file infos
-      MediaFileSubtitle file = gatherSubtitleInformationFromFilename(mediaFile);
+
+      // 2. IDX file
       if (sub.getLanguage().isEmpty()) {
+        MediaFileSubtitle file = MediaFileHelper.gatherSubtitleLanguageFromFile(mediaFile);
         sub.setLanguage(file.getLanguage());
       }
-      if (sub.getTitle().isEmpty()) {
-        sub.setTitle(file.getTitle());
-      }
-      if (file.isSdh()) {
-        sub.setSdh(true);
-      }
-      if (file.isForced()) {
-        sub.setForced(true);
-      }
+
+      // 3. Language from Filename // NOOO, not here - we need the video basename for that!
+      // MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(mediaFile.getBasename(), mainVideoFile.getBasename());
+
       mediaFile.setSubtitles(Collections.singletonList(sub));
     }
     else {
@@ -2086,6 +2063,9 @@ public class MediaFileHelper {
             if (addFeature.endsWith("X")) {
               audioCodec = "DTS-X";
             }
+            else if (addFeature.endsWith("IMAX")) {
+              audioCodec = "DTS-X-IMAX";
+            }
             else {
               audioCodec = "DTSHD-MA";
             }
@@ -2095,6 +2075,9 @@ public class MediaFileHelper {
           }
           if (addFeature.equals("XBR")) {
             audioCodec = "DTSHD-HRA";
+          }
+          if (addFeature.equals("X96")) {
+            audioCodec = "DTS-96/24";
           }
           // stays DTS
         }
@@ -2231,20 +2214,19 @@ public class MediaFileHelper {
       audioStreams.add(stream);
     }
 
+    // 3. Language from Filename // NOOO, not here - we need the video basename for that!
     // we might parse the language from file, IF we have only ONE stream
-    if (audioStreams.size() == 1) {
-      MediaFileAudioStream audio = audioStreams.get(0);
-      MediaStreamInfo info = gatherLanguageInformation(mediaFile.getBasename());
-
-      if (StringUtils.isBlank(audio.getLanguage())) {
-        audio.setLanguage(info.getLanguage());
-      }
-
-      // only set filename detected "title" on external file!
-      if (mediaFile.getType() == MediaFileType.AUDIO && StringUtils.isBlank(audio.getTitle())) {
-        audio.setTitle(info.getTitle());
-      }
-    }
+    // if (audioStreams.size() == 1) {
+    // MediaFileAudioStream audio = audioStreams.get(0);
+    // MediaStreamInfo info = gatherLanguageInformation(mediaFile.getBasename(), "");
+    // if (StringUtils.isBlank(audio.getLanguage())) {
+    // audio.setLanguage(info.getLanguage());
+    // }
+    // // only set filename detected "title" on external file!
+    // if (mediaFile.getType() == MediaFileType.AUDIO && StringUtils.isBlank(audio.getTitle())) {
+    // audio.setTitle(info.getTitle());
+    // }
+    // }
 
     mediaFile.setAudioStreams(audioStreams);
   }
@@ -3094,8 +3076,8 @@ public class MediaFileHelper {
    * @param commonPart
    *          the common part of the filename which is shared with the video file
    */
-  public static MediaStreamInfo gatherLanguageInformation(String basename) {
-    String shortname = basename; // .replace(commonPart, "");
+  public static MediaStreamInfo gatherLanguageInformation(String basename, String commonPart) {
+    String shortname = basename.replace(commonPart, "");
     String language = "";
     String title = "";
     List<Flags> flags = new ArrayList<>();
@@ -3157,7 +3139,7 @@ public class MediaFileHelper {
       else {
         // split the shortname into chunks
         List<String> chunks = ParserUtils.splitByPunctuation(shortname);
-        int languageIndex = 0;
+        int languageIndex = -1;
         // parse forward, since language is more significant
         for (int i = 0; i < chunks.size(); i++) {
           if (chunks.get(i).equalsIgnoreCase("und")) {
@@ -3180,6 +3162,9 @@ public class MediaFileHelper {
             if (poscc > 0 && poscc < languageIndex) {
               languageIndex--; // just decrement by one, since we removed a former tag
             }
+            else {
+              languageIndex = poscc; // langu not yet set
+            }
             chunks.remove("cc");
 
             // remove HI
@@ -3192,7 +3177,7 @@ public class MediaFileHelper {
             // set flag
             flags.add(Flags.FLAG_HEARING_IMPAIRED);
 
-            languageIndex++; // increment index to be after langu
+            // languageIndex++; // increment index to be after langu
           }
           else {
             // HI langu
@@ -3208,12 +3193,16 @@ public class MediaFileHelper {
           }
         }
         else {
-          // no hicc found - increment to next pos
-          if (languageIndex > 0) {
+          // no hicc found (but langu) - increment to next pos
+          if (languageIndex >= 0) {
             languageIndex++;
           }
         }
-        if (languageIndex > 0 && languageIndex < chunks.size()) {
+        if (languageIndex < 0 && !hicc) {
+          // no langu AND no hicc?
+          title = "";
+        }
+        else if (languageIndex < chunks.size()) {
           // the language index was not the last chunk. Save the part between the language index and the last chunk as title
           title = String.join(" ", chunks.subList(languageIndex, chunks.size()));
         }

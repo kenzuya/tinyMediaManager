@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,6 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     splitPane.setResizeWeight(0.5);
     splitPane.setOneTouchExpandable(true);
     splitPane.setName("mainWindow.splitPane");
-    TmmUILayoutStore.getInstance().install(splitPane);
     rootPanel.add(splitPane, "cell 1 0, grow");
 
     masterPanel = new JPanel();
@@ -241,6 +240,9 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     if (Settings.getInstance().isNewConfig()) {
       SwingUtilities.invokeLater(() -> HintManager.getInstance().showHints());
     }
+
+    // set the splitter position after everything has been initialized
+    TmmUILayoutStore.getInstance().install(splitPane);
   }
 
   private void addModule(ITmmUIModule module) {

@@ -236,18 +236,15 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     ep.setTvShow(show);
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     show.addEpisode(ep);
 
     renameTvShow(show);
@@ -300,21 +297,18 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setPath(destination.toAbsolutePath().toString());
 
     mf = new MediaFile(destination.resolve("S01E01.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("extras/S01E01 - cut scenes.mkv").toAbsolutePath(), MediaFileType.EXTRA);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("S01E01 - sample.avi").toAbsolutePath(), MediaFileType.SAMPLE);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("S01E01 - something else.mkv").toAbsolutePath(), MediaFileType.EXTRA);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     ep.setTvShow(show);
     show.addEpisode(ep);
 
@@ -324,13 +318,12 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 2));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("Season 1/S01E02.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
     mf = new MediaFile(destination.resolve("Season 1/extras/S01E02 - takeouts.mkv").toAbsolutePath(), MediaFileType.EXTRA);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
 
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     ep.setTvShow(show);
     show.addEpisode(ep);
 
@@ -388,17 +381,14 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     ep.setTvShow(show);
     show.addEpisode(ep);
 
@@ -408,17 +398,14 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 2));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     ep.setTvShow(show);
     show.addEpisode(ep);
 
@@ -467,22 +454,18 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.part1.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.part2.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     ep.setTvShow(show);
     ep.reEvaluateStacking();
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     show.addEpisode(ep);
 
     renameTvShow(show);
@@ -532,28 +515,22 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     MediaFile mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.part1.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.part2.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.sub").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.idx").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     ep.setTvShow(show);
     ep.reEvaluateStacking();
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     show.addEpisode(ep);
 
     ep = new TvShowEpisode();
@@ -562,28 +539,22 @@ public class TvShowRenamerTest extends BasicTvShowTest {
     ep.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DVD, 1, 1));
     ep.setPath(destination.toAbsolutePath().toString());
     mf = new MediaFile(destination.resolve("S01E01E02.jpg").toAbsolutePath(), MediaFileType.THUMB);
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.part1.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.part2.mkv").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.nfo").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.de.srt").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.sub").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     mf = new MediaFile(destination.resolve("S01E01E02.idx").toAbsolutePath());
-    mf.gatherMediaInformation();
     ep.addToMediaFiles(mf);
     ep.setTvShow(show);
     ep.reEvaluateStacking();
+    ep.gatherMediaFileInformation(false); // add langu from filenames
     show.addEpisode(ep);
 
     renameTvShow(show);

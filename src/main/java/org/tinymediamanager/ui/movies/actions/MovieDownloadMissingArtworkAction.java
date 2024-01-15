@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.movies.dialogs.MovieDownloadMissingArtworkDialog;
 
 /**
- * The class MovieDownloadMissingArtworkAction is used to download missing artwork for the selected movies
+ * The class {@link MovieDownloadMissingArtworkAction} is used to download missing artwork (via scraping) for the selected movies
  * 
  * @author Manuel Laggner
  */

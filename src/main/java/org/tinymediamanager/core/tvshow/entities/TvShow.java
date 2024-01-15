@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -660,6 +660,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // also mix in the episodes if activated
     if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+      seasons.forEach(TvShowSeason::removeDummyEpisodes);
+
       for (TvShowEpisode episode : dummyEpisodes) {
         TvShowSeason season = getSeasonForEpisode(episode);
         season.addEpisode(episode);

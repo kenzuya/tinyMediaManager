@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 Manuel Laggner
+ * Copyright 2012 - 2024 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,7 +308,7 @@ public final class TinyMediaManager {
 
   private void printLogHeader() {
     LOGGER.info("=======================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012 - 2023 Manuel Laggner ===");
+    LOGGER.info("=== tinyMediaManager (c) 2012 - 2024 Manuel Laggner ===");
     LOGGER.info("=======================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     if (!ReleaseInfo.isGitBuild()) {
