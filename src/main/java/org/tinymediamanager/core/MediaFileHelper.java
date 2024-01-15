@@ -164,8 +164,8 @@ public class MediaFileHelper {
         ".wmv", ".webm", ".xvid");
 
     DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
-        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".tta",
-        ".thd", ".wav", ".wave", ".wma");
+        ".dts", ".dtshd", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram",
+        ".tta", ".thd", ".wav", ".wave", ".wma");
 
     DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
         ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub", ".vtt");
@@ -2063,6 +2063,9 @@ public class MediaFileHelper {
             if (addFeature.endsWith("X")) {
               audioCodec = "DTS-X";
             }
+            else if (addFeature.endsWith("IMAX")) {
+              audioCodec = "DTS-X-IMAX";
+            }
             else {
               audioCodec = "DTSHD-MA";
             }
@@ -2072,6 +2075,9 @@ public class MediaFileHelper {
           }
           if (addFeature.equals("XBR")) {
             audioCodec = "DTSHD-HRA";
+          }
+          if (addFeature.equals("X96")) {
+            audioCodec = "DTS-96/24";
           }
           // stays DTS
         }
