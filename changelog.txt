@@ -14,6 +14,7 @@ x re-set new flag on "Update selected movie(s)" too #2430
 x do not add dummy episodes multiple times to a season #2427
 x fixed loading native libs in aarch64/amd64 Docker container #2434
 x prefer existing data when downloading missing artwork
+x fix UI divider drifting a few pixels after each restart #2432
 
 
 Version 5.0

@@ -282,7 +282,10 @@ public class TmmUILayoutStore {
 
   private void saveJSplitPane(JSplitPane splitPane) {
     String componentName = splitPane.getName();
-    addParam(componentName + ".dividerLocation", splitPane.getDividerLocation());
+    if (splitPane.getLastDividerLocation() != -1) {
+      // workaround for #2432, where the splitPane is always 7px drifting
+      addParam(componentName + ".dividerLocation", splitPane.getDividerLocation());
+    }
   }
 
   private void saveTmmTable(TmmTable table) {
