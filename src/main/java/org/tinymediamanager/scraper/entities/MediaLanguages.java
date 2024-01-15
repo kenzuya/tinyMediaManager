@@ -44,7 +44,6 @@ public enum MediaLanguages {
   bs,
   ca,
   ch,
-  cn,
   cs,
   cy,
   da,
@@ -112,6 +111,7 @@ public enum MediaLanguages {
   vi,
   wo,
   yo,
+  yue, // cn is invalid!
   zh,
   zh_CN,
   zh_HK,
