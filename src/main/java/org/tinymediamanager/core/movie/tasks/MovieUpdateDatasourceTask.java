@@ -54,6 +54,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
@@ -291,7 +292,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
-      List<Path> rootFiles = new ArrayList<>();
+      Set<Path> rootFiles = new TreeSet<>(); // avoid duplicates
       for (Path path : rootList) {
         if (Files.isDirectory(path)) {
           String name = path.getFileName().toString();
@@ -318,17 +319,27 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       LOGGER.debug("Processing '{}' existing, '{}' new movies and '{}' root files", existingMovieDirs.size(), newMovieDirs.size(), rootFiles.size());
 
+      // parse folders inside the DS recursively
       for (Path path : newMovieDirs) {
         searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
       }
       for (Path path : existingMovieDirs) {
         searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
       }
-      if (!rootFiles.isEmpty()) {
-        submitTask(new ParseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), rootFiles));
-      }
 
+      // wait here because on a really _slow_ machine, there could be concurrent lists from the folder level AND root level
       waitForCompletionOrCancel();
+
+      // parse root recursively
+      if (!rootFiles.isEmpty()) {
+        initThreadPool(1, "update");
+        setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
+        publishState();
+
+        submitTask(new ParseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), new ArrayList<>(rootFiles)));
+
+        waitForCompletionOrCancel();
+      }
 
       // print stats
       LOGGER.info("FilesFound: {}", filesFound.size());
@@ -1033,15 +1044,20 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
     if (videoAvailable) {
       LOGGER.debug("| store movie into DB as: {}", movie.getTitle());
-      movieList.addMovie(movie);
-
-      movie.setOffline(isOffline);
-      movie.reEvaluateDiscfolder();
-      movie.reEvaluateStacking();
-      movie.saveToDb();
+      if (movieList.addMovie(movie)) {
+        movie.setOffline(isOffline);
+        movie.reEvaluateDiscfolder();
+        movie.reEvaluateStacking();
+        movie.saveToDb();
+      }
+      else {
+        LOGGER.warn("movie (path/file) has already been added with a different object!");
+        return;
+      }
     }
     else {
       LOGGER.error("could not add '{}' because no VIDEO file found", movieDir);
+      return;
     }
 
     // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
@@ -1258,8 +1274,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
-      movieList.addMovie(movie);
-      movie.saveToDb();
+      if (movieList.addMovie(movie)) {
+        movie.saveToDb();
+      }
+      else {
+        LOGGER.warn("movie (path/file) has already been added with a different object!");
+      }
     } // end foreach VIDEO MF
 
     // check stacking on all movie from this dir (it might have changed!)

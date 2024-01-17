@@ -66,6 +66,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -3039,5 +3040,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     Movie movie = (Movie) o;
     return path.equals(movie.path) && getMainFile().getFile().equals(movie.getMainFile().getFile());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(path, getMainFile().getFile());
   }
 }
