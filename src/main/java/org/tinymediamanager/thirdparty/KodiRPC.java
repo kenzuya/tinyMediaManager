@@ -319,15 +319,20 @@ public class KodiRPC {
       // TMM ds|dir=id
       LOGGER.debug("TMM {} shows", TvShowModuleManager.getInstance().getTvShowList().getTvShows().size());
       for (TvShow tmmShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
-        Path ds = Paths.get(tmmShow.getDataSource());
-        String dsName = ds.getFileName().toString();
-        String rel = Utils.relPath(ds, tmmShow.getPathNIO());
-        rel = rel.replaceAll(SEPARATOR_REGEX, "/"); // normalize separators
+        try {
+          Path ds = Paths.get(tmmShow.getDataSource());
+          String dsName = ds.getFileName().toString();
+          String rel = Utils.relPath(ds, tmmShow.getPathNIO());
+          rel = rel.replaceAll(SEPARATOR_REGEX, "/"); // normalize separators
 
-        Integer kodiId = kodiDsAndFolder.get(dsName + "|" + rel);
-        if (kodiId != null && kodiId > 0) {
-          // we have a match!
-          tvshowmappings.put(tmmShow.getDbId(), kodiId);
+          Integer kodiId = kodiDsAndFolder.get(dsName + "|" + rel);
+          if (kodiId != null && kodiId > 0) {
+            // we have a match!
+            tvshowmappings.put(tmmShow.getDbId(), kodiId);
+          }
+        }
+        catch (Exception e) {
+          LOGGER.error("Error mapping TvShow: {} on {}", e.getMessage(), tmmShow);
         }
       }
       LOGGER.debug("mapped {} shows", tvshowmappings.size());
