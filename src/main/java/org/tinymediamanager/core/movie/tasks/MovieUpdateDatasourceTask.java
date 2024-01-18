@@ -1017,11 +1017,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           movie.setOriginalFilename(vid.getFilename());
         }
 
-        // if the new file has a source identifier in its filename, update the source too
-        MediaSource newSource = MediaSource.parseMediaSource(Utils.relPath(movie.getDataSource(), vid.getFileAsPath().toString()));
-        if (newSource != MediaSource.UNKNOWN) {
-          // source has been found in the filename - update
-          movie.setMediaSource(newSource);
+        // if the new file has a source identifier in its filename, update the source too (but only if there is noone yet)
+        if (movie.getMediaSource() == MediaSource.UNKNOWN) {
+          MediaSource newSource = MediaSource.parseMediaSource(Utils.relPath(movie.getDataSource(), vid.getFileAsPath().toString()));
+          if (newSource != MediaSource.UNKNOWN) {
+            // source has been found in the filename - update
+            movie.setMediaSource(newSource);
+          }
         }
       }
 
