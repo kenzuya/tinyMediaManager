@@ -212,7 +212,6 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(lblAspectT, "cell 6 2,alignx right");
 
           cbAspectRatio = new JComboBox(getAspectRatios().toArray(new AspectRatioContainer[0]));
-          cbAspectRatio.setEditable(true);
           panelDetails.add(cbAspectRatio, "cell 7 2");
         }
         {
@@ -220,7 +219,6 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(lblAspectT, "cell 6 3,alignx right");
 
           cbAspectRatio2 = new JComboBox(getAspectRatios2().toArray(new AspectRatioContainer[0]));
-          cbAspectRatio2.setEditable(true);
           panelDetails.add(cbAspectRatio2, "cell 7 3");
         }
         {
@@ -729,7 +727,7 @@ public class MediaFileEditorPanel extends JPanel {
     }
   }
 
-  private static class AspectRatioContainer {
+  public static class AspectRatioContainer {
     private final Float  aspectRatio;
     private final String customText;
 
