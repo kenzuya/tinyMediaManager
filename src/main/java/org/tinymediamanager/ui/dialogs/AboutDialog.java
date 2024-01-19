@@ -56,6 +56,8 @@ public class AboutDialog extends TmmDialog {
   public AboutDialog() {
     super(TmmResourceBundle.getString("tmm.about"), "aboutDialog");
 
+    LocalDate validUntil = License.getInstance().validUntil();
+
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new MigLayout("", "[][20lp:n][300lp,grow]", "[][10lp:n][][20lp:n][][][][10lp:n][][10lp:n][][][][][]"));
@@ -74,7 +76,13 @@ public class AboutDialog extends TmmDialog {
       contentPanel.add(lblByManuel, "cell 2 2,alignx center");
     }
     {
-      JLabel lblVersion = new JLabel(TmmResourceBundle.getString("tmm.version") + ": " + ReleaseInfo.getRealVersion());
+      String version = TmmResourceBundle.getString("tmm.version") + ": " + ReleaseInfo.getRealVersion();
+
+      if (validUntil != null) {
+        version += " / " + License.getInstance().ref();
+      }
+
+      JLabel lblVersion = new JLabel(version);
       contentPanel.add(lblVersion, "cell 2 4");
     }
     {
@@ -86,7 +94,6 @@ public class AboutDialog extends TmmDialog {
       TmmFontHelper.changeFont(lblLicense, Font.BOLD);
       contentPanel.add(lblLicense, "cell 2 6");
 
-      LocalDate validUntil = License.getInstance().validUntil();
       if (validUntil != null) {
         lblLicense.setText(
             TmmResourceBundle.getString("tmm.license.validuntil") + ": " + TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil)));
