@@ -110,7 +110,7 @@ public final class TinyMediaManager {
         License.getInstance().setLicenseCode(Utils.readFileToString(license));
       }
       catch (Exception e) {
-        LOGGER.warn("unable to decode license file - {}", e.getMessage());
+        LOGGER.debug("unable to decode license file - {}", e.getMessage());
       }
     }
 
