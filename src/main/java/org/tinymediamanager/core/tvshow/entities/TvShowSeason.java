@@ -136,6 +136,11 @@ public class TvShowSeason extends MediaEntity implements Comparable<TvShowSeason
   }
 
   @Override
+  public String getDataSource() {
+    return tvShow == null ? "" : tvShow.getDataSource();
+  }
+
+  @Override
   public Date getReleaseDate() {
     return null;
   }
