@@ -152,6 +152,8 @@ deploy:
     url: https://prerelease.tinymediamanager.org
   tags:
     - tmm # force running on own runners
+  variables:
+    PURGE_CF_CACHE: 'curl -X POST https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache -H "Content-Type: application/json" -H "Authorization:Bearer $CF_BEARER" --data "{\"purge_everything\":true}"'
   script:
     # and publish the files on the webserver
     - curl https://prerelease.tinymediamanager.org/${PUBLISH_ENDPOINT_V5}
