@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.0.1.1-SNAPSHOT</version>
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
     <url>https://www.tinymediamanager.org/</url>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>license</artifactId>
-            <version>2.1.16</version>
+            <version>2.1.17</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
