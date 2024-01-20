@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--suppress UnresolvedMavenProperty -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.0.1.1-SNAPSHOT</version>
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
     <url>https://www.tinymediamanager.org/</url>
@@ -94,7 +95,7 @@
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>license</artifactId>
-            <version>2.1.16</version>
+            <version>2.1.17</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -1187,10 +1188,10 @@
                         <configuration>
                             <exportAntProperties>true</exportAntProperties>
                             <target>
-                                <property name="tmmRevision" value="${buildNumber}" />
-                                <property name="tmmTimestamp" value="${timestamp}" />
+                                <property name="tmmRevision" value="${buildNumber}"/>
+                                <property name="tmmTimestamp" value="${timestamp}"/>
                                 <ant antfile="${project.basedir}/ant-getdown.xml">
-                                    <target name="getdown" />
+                                    <target name="getdown"/>
                                 </ant>
                             </target>
                         </configuration>
