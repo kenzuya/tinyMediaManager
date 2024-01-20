@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--suppress UnresolvedMavenProperty -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.1</version>
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
     <url>https://www.tinymediamanager.org/</url>
@@ -60,7 +59,7 @@
         <url>https://gitlab.com/tinyMediaManager/${project.artifactId}</url>
         <connection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</connection>
         <developerConnection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>tinyMediaManager-5.0.1</tag>
     </scm>
     <ciManagement>
         <system>GitLab CI</system>
@@ -1188,10 +1187,10 @@
                         <configuration>
                             <exportAntProperties>true</exportAntProperties>
                             <target>
-                                <property name="tmmRevision" value="${buildNumber}"/>
-                                <property name="tmmTimestamp" value="${timestamp}"/>
+                                <property name="tmmRevision" value="${buildNumber}" />
+                                <property name="tmmTimestamp" value="${timestamp}" />
                                 <ant antfile="${project.basedir}/ant-getdown.xml">
-                                    <target name="getdown"/>
+                                    <target name="getdown" />
                                 </ant>
                             </target>
                         </configuration>
