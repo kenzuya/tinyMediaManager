@@ -18,8 +18,6 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,17 +35,16 @@ import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaCertification;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
-import org.tinymediamanager.ui.components.LocaleComboBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -58,7 +55,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperNfoSettingsPanel extends JPanel {
-  private final MovieSettings                  settings = MovieModuleManager.getInstance().getSettings();
+  private static final long                    serialVersionUID = -299825914193235308L;
+
+  private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 
@@ -67,8 +66,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   private JCheckBox                            cbMovieNfoFilename2;
   private JComboBox<CertificationStyleWrapper> cbCertificationStyle;
   private JCheckBox                            chckbxWriteCleanNfo;
-  private final List<LocaleComboBox>           locales  = new ArrayList<>();
-  private JComboBox                            cbNfoLanguage;
+  private JComboBox<MediaLanguages>            cbNfoLanguage;
   private JComboBox<DateField>                 cbDatefield;
   private JHintCheckBox                        chckbxCreateOutline;
   private JCheckBox                            chckbxOutlineFirstSentence;
@@ -83,35 +81,11 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     checkBoxListener = e -> checkChanges();
     comboBoxListener = e -> checkChanges();
 
-    LocaleComboBox actualLocale = null;
-    LocaleComboBox fallbackLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(settings.getNfoLanguage().toString());
-    for (Locale l : Utils.getLanguages()) {
-      LocaleComboBox localeComboBox = new LocaleComboBox(l);
-      locales.add(localeComboBox);
-      if (l.equals(settingsLang)) {
-        actualLocale = localeComboBox;
-      }
-      // match by langu only, if no direct match
-      if (settingsLang.getLanguage().equals(l.getLanguage())) {
-        fallbackLocale = localeComboBox;
-      }
-    }
-    Collections.sort(locales);
-
     // UI init
     initComponents();
     initDataBindings();
 
     // data init
-    if (actualLocale != null) {
-      cbNfoLanguage.setSelectedItem(actualLocale);
-    }
-    else {
-      cbNfoLanguage.setSelectedItem(fallbackLocale);
-    }
-    cbNfoLanguage.addItemListener(comboBoxListener);
-
     // set default certification style when changing NFO style
     cbNfoFormat.addItemListener(e -> {
       if (cbNfoFormat.getSelectedItem() == MovieConnectors.MP) {
@@ -238,7 +212,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 6 2 1");
 
-        cbNfoLanguage = new JComboBox(locales.toArray());
+        cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelNfo.add(cbNfoLanguage, "cell 1 6 2 1");
 
         JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
@@ -273,14 +247,6 @@ class MovieScraperNfoSettingsPanel extends JPanel {
    * check changes of checkboxes
    */
   private void checkChanges() {
-    LocaleComboBox loc = (LocaleComboBox) cbNfoLanguage.getSelectedItem();
-    if (loc != null) {
-      Locale actualLocale = settings.getNfoLanguage();
-      if (!loc.getLocale().equals(actualLocale)) {
-        settings.setNfoLanguage(loc.getLocale());
-      }
-    }
-
     // set NFO filenames
     settings.clearNfoFilenames();
     if (cbMovieNfoFilename1.isSelected()) {
@@ -322,6 +288,12 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("nfoLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbNfoLanguage,
+        jComboBoxBeanProperty);
+    autoBinding_3.bind();
+    //
     Property movieSettingsBeanProperty_2 = BeanProperty.create("createOutline");
     Property jHintCheckBoxBeanProperty = BeanProperty.create("selected");
     AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxCreateOutline,
@@ -339,7 +311,6 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     autoBinding_4.bind();
     //
     Property movieSettingsBeanProperty_4 = BeanProperty.create("nfoDateAddedField");
-    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4, cbDatefield,
         jComboBoxBeanProperty);
     autoBinding_5.bind();

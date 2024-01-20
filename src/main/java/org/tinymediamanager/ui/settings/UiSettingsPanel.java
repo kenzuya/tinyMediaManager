@@ -96,17 +96,12 @@ class UiSettingsPanel extends JPanel {
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
-    LocaleComboBox fallbackLocale = null;
     Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
       if (l.equals(settingsLang)) {
         actualLocale = localeComboBox;
-      }
-      // match by langu only, if no direct match
-      if (settingsLang.getLanguage().equals(l.getLanguage())) {
-        fallbackLocale = localeComboBox;
       }
     }
     Collections.sort(locales);
@@ -118,9 +113,6 @@ class UiSettingsPanel extends JPanel {
     // data init
     if (actualLocale != null) {
       cbLanguage.setSelectedItem(actualLocale);
-    }
-    else {
-      cbLanguage.setSelectedItem(fallbackLocale);
     }
 
     cbFontFamily.setSelectedItem(Settings.getInstance().getFontFamily());
