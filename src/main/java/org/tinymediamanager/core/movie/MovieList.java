@@ -228,8 +228,10 @@ public final class MovieList extends AbstractModelObject {
    * 
    * @param movie
    *          the movie
+   * 
+   * @return true if the movie has been added; false if the movie was already there
    */
-  public void addMovie(Movie movie) {
+  public boolean addMovie(Movie movie) {
     if (!movieList.contains(movie)) {
       int oldValue = movieList.size();
       movieList.add(movie);
@@ -238,7 +240,10 @@ public final class MovieList extends AbstractModelObject {
       movie.addPropertyChangeListener(movieListener);
       firePropertyChange("movies", null, movieList);
       firePropertyChange("movieCount", oldValue, movieList.size());
+      return true;
     }
+
+    return false;
   }
 
   /**
