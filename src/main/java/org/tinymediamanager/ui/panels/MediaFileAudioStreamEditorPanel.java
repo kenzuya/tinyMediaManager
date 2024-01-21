@@ -26,7 +26,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -124,8 +123,10 @@ public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
     spChannels.setValue(audioStream.getAudioChannels());
     spBitrate.setValue(audioStream.getBitrate());
     spBitdepth.setValue(audioStream.getBitDepth());
-    cbLanguage.setSelectedItem(new LanguageContainer(LocaleUtils.toLocale(audioStream.getLanguage())));
     tfTitle.setText(audioStream.getTitle());
+
+    LanguageContainer foundByValue = languages.stream().filter(v -> v.value.equalsIgnoreCase(audioStream.getLanguage())).findFirst().get();
+    cbLanguage.setSelectedItem(foundByValue);
 
     // set focus to the first combobox
     SwingUtilities.invokeLater(tfCodec::requestFocus);
@@ -140,10 +141,10 @@ public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
 
     Object obj = cbLanguage.getSelectedItem();
     if (obj instanceof LanguageContainer localeContainer) {
-      audioStream.setLanguage(localeContainer.iso3);
+      audioStream.setLanguage(localeContainer.value.trim());
     }
     else if (obj instanceof String language) {
-      audioStream.setLanguage(language);
+      audioStream.setLanguage(language.trim());
     }
 
     audioStream.setTitle(tfTitle.getText());
@@ -152,12 +153,24 @@ public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
   }
 
   private static class LanguageContainer {
-    private final String iso3;
+    private final String value;
+    private Locale       locale;
     private final String description;
 
     public LanguageContainer(@NotNull Locale locale) {
-      this.iso3 = LanguageUtils.getIso3Language(locale);
-      this.description = StringUtils.isNotBlank(locale.getDisplayLanguage()) ? locale.getDisplayLanguage() + " (" + this.iso3 + ")" : "";
+      this.locale = locale;
+      this.value = locale.getISO3Language();
+      this.description = StringUtils.isNotBlank(locale.getDisplayLanguage()) ? locale.getDisplayLanguage() + " (" + this.value + ")" : "";
+    }
+
+    public LanguageContainer(@NotNull String locale) {
+      Locale tmp = LanguageUtils.KEY_TO_LOCALE_MAP.get(locale);
+      // if WE dont have it in our array, it is not valid!
+      if (tmp != null) {
+        this.locale = tmp;
+      }
+      this.value = locale;
+      this.description = this.locale != null ? value + " (" + this.locale.getISO3Language() + ")" : value;
     }
 
     @Override
@@ -174,12 +187,12 @@ public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
         return false;
       }
       LanguageContainer that = (LanguageContainer) o;
-      return iso3.equals(that.iso3);
+      return value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(iso3);
+      return Objects.hash(value);
     }
   }
 }
