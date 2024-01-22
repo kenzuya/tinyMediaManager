@@ -1,5 +1,6 @@
 Version 5.0.2
 =======================
+x improve performance of update datasources in better excluding locked objects 
 
 
 Version 5.0.1.1

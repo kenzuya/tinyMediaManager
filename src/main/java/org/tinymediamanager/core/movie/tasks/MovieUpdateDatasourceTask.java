@@ -800,17 +800,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movieDir = movieDir.getParent();
     }
 
-    Set<Path> allFiles = getAllFilesRecursiveButNoDiscFiles(movieDir);
-    fileLock.writeLock().lock();
-    filesFound.add(movieDir.toAbsolutePath()); // our global cache
-    filesFound.addAll(allFiles); // our global cache
-    fileLock.writeLock().unlock();
-
     Movie movie = movieList.getMovieByPath(movieDir);
     if (movie != null && movie.isLocked()) {
       LOGGER.info("movie '{}' found in uds, but is locked", movie.getPath());
       return;
     }
+
+    Set<Path> allFiles = getAllFilesRecursiveButNoDiscFiles(movieDir);
+    fileLock.writeLock().lock();
+    filesFound.add(movieDir.toAbsolutePath()); // our global cache
+    filesFound.addAll(allFiles); // our global cache
+    fileLock.writeLock().unlock();
 
     // convert to MFs (we need it anyways at the end)
     List<MediaFile> mfs = new ArrayList<>();
