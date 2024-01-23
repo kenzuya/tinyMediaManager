@@ -781,7 +781,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = ratings.get(TvShowModuleManager.getInstance().getSettings().getPreferredRating());
+    MediaRating mediaRating = null;
+
+    for (String ratingSource : TvShowModuleManager.getInstance().getSettings().getRatingSources()) {
+      mediaRating = ratings.get(ratingSource);
+      if (mediaRating != null) {
+        break;
+      }
+    }
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
