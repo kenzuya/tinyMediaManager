@@ -431,14 +431,9 @@ public final class MovieModuleManager implements ITmmModule {
    *          the movie to make the dump for
    */
   public void dump(Movie movie) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      Object json = mapper.readValue(movieMap.get(movie.getDbId()), Object.class);
-      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-      LOGGER.info("Dumping Movie: {}\n{}", movie.getDbId(), s);
-    }
-    catch (Exception e) {
-      LOGGER.error("Cannot parse JSON!", e);
+    String d = getMovieJsonFromDB(movie);
+    if (!d.isEmpty()) {
+      LOGGER.info("Dumping Movie: {}\n{}", movie.getDbId(), d);
     }
   }
 
@@ -449,15 +444,48 @@ public final class MovieModuleManager implements ITmmModule {
    *          the movieset to make the dump for
    */
   public void dump(MovieSet movieSet) {
+    String d = getMovieSetJsonFromDB(movieSet);
+    if (!d.isEmpty()) {
+      LOGGER.info("Dumping MovieSet: {}\n{}", movieSet.getDbId(), d);
+    }
+  }
+
+  /**
+   * gets the JSON out of the DB from specified movie
+   * 
+   * @param movie
+   * @return JSON string
+   */
+  public String getMovieJsonFromDB(Movie movie) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      Object json = mapper.readValue(movieSetMap.get(movieSet.getDbId()), Object.class);
+      Object json = mapper.readValue(movieMap.get(movie.getDbId()), Object.class);
       String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-      LOGGER.info("Dumping MovieSet: {}\n{}", movieSet.getDbId(), s);
+      return s;
     }
     catch (Exception e) {
       LOGGER.error("Cannot parse JSON!", e);
     }
+    return "";
+  }
+
+  /**
+   * gets the JSON out of the DB from specified movieSet
+   * 
+   * @param movieSet
+   * @return JSON string
+   */
+  public String getMovieSetJsonFromDB(MovieSet movieSet) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      Object json = mapper.readValue(movieSetMap.get(movieSet.getDbId()), Object.class);
+      String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+      return s;
+    }
+    catch (Exception e) {
+      LOGGER.error("Cannot parse JSON!", e);
+    }
+    return "";
   }
 
   void persistMovie(Movie movie) {

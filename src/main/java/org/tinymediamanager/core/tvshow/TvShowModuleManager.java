@@ -440,12 +440,12 @@ public final class TvShowModuleManager implements ITmmModule {
   }
 
   /**
-   * dumps a whole TV show to logfile
+   * gets the JSON out of the DB from specified tvShow
    * 
-   * @param tvshow
-   *          the TV show to dump the data for
+   * @param tvShow
+   * @return JSON string
    */
-  public void dump(TvShow tvshow, boolean withChilds) {
+  public String getTvShowJsonFromDB(TvShow tvshow, boolean withChilds) {
     try {
       ObjectMapper mapper = new ObjectMapper();
       ObjectNode showNode = mapper.readValue(tvShowMap.get(tvshow.getDbId()), ObjectNode.class);
@@ -467,10 +467,24 @@ public final class TvShowModuleManager implements ITmmModule {
         showNode.set("seasons", seasons);
       }
       String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(showNode);
-      LOGGER.info("Dumping TvShow: {}\n{}", tvshow.getDbId(), s);
+      return s;
     }
     catch (Exception e) {
       LOGGER.error("Cannot parse JSON!", e);
+    }
+    return "";
+  }
+
+  /**
+   * dumps a whole TV show to logfile
+   * 
+   * @param tvshow
+   *          the TV show to dump the data for
+   */
+  public void dump(TvShow tvshow, boolean withChilds) {
+    String d = getTvShowJsonFromDB(tvshow, withChilds);
+    if (!d.isEmpty()) {
+      LOGGER.info("Dumping TvShow: {}\n{}", tvshow.getDbId(), d);
     }
   }
 
