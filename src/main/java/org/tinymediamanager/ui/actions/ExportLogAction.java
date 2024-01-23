@@ -73,12 +73,12 @@ public class ExportLogAction extends TmmAction {
   private TvShow              show;
 
   public ExportLogAction() {
-    putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportlogs.desc"));
+    this(null, null);
   }
 
   public ExportLogAction(Movie movieId, TvShow showId) {
-    this();
+    putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportlogs.desc"));
     this.movie = movieId;
     this.show = showId;
   }
