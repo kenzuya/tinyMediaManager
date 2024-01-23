@@ -1,6 +1,7 @@
 Version 5.0.2
 =======================
-x improve performance of update datasources in better excluding locked objects 
+x improve performance of update data sources in better excluding locked objects
+x reverted #2296 - pre-set of filters in the image chooser
 
 
 Version 5.0.1.1

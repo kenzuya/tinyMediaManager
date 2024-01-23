@@ -89,7 +89,6 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.ScraperType;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
@@ -403,10 +402,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), POSTER,
                 movieList.getDefaultArtworkScrapers(), lblPoster, MediaType.MOVIE);
 
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-            MediaArtwork.PosterSizes posterSize = MovieModuleManager.getInstance().getSettings().getImagePosterSize();
-            dialog.setImageSizeFilter(posterSize.getWidth(), posterSize.getHeight());
-
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -552,10 +547,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
 
             dialog.bindExtraFanarts(extrafanarts);
             dialog.bindExtraThumbs(extrathumbs);
-
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-            MediaArtwork.FanartSizes fanartSizes = MovieModuleManager.getInstance().getSettings().getImageFanartSize();
-            dialog.setImageSizeFilter(fanartSizes.getWidth(), fanartSizes.getHeight());
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
@@ -943,8 +934,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), KEYART,
                 movieList.getDefaultArtworkScrapers(), lblKeyart, MediaType.MOVIE);
 
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -981,8 +970,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARLOGO,
                 movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE);
 
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -1018,8 +1005,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
                 movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
-
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
@@ -1058,8 +1043,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), BANNER,
                 movieList.getDefaultArtworkScrapers(), lblBanner, MediaType.MOVIE);
 
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
@@ -1095,8 +1078,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), THUMB,
                 movieList.getDefaultArtworkScrapers(), lblThumb, MediaType.MOVIE);
-
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
 
             dialog.bindExtraThumbs(extrathumbs);
 
@@ -1135,8 +1116,6 @@ public class MovieEditorDialog extends AbstractEditorDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), DISC,
                 movieList.getDefaultArtworkScrapers(), lblDisc, MediaType.MOVIE);
-
-            dialog.setImageLanguageFilter(MovieModuleManager.getInstance().getSettings().getImageScraperLanguages());
 
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());

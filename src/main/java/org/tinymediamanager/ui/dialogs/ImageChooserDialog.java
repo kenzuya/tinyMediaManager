@@ -952,34 +952,6 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   /**
-   * pre-set the artwork size filter to initially show only a part of the results
-   *
-   * @param width
-   *          the image width
-   * @param height
-   *          the image height
-   */
-  public void setImageSizeFilter(int width, int height) {
-    ImageSizeAndUrl imageSizeAndUrl = new ImageSizeAndUrl(width, height, "");
-    List<ImageSizeAndUrl> items = new ArrayList<>();
-    items.add(imageSizeAndUrl);
-    cbSize.setItems(items);
-    cbSize.setSelectedItems(items);
-  }
-
-  /**
-   * pre-set the language filter to initially show only a part of the results
-   *
-   * @param languages
-   *          the languages
-   */
-  public void setImageLanguageFilter(List<MediaLanguages> languages) {
-    List<MediaLanguages> items = new ArrayList<>(languages);
-    cbLanguage.setItems(items);
-    cbLanguage.setSelectedItems(items);
-  }
-
-  /**
    * call a new image chooser dialog without extrathumbs and extrafanart usage.<br />
    * this method also checks if there are valid IDs for scraping
    *
