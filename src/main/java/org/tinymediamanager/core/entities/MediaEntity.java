@@ -1363,7 +1363,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       if (mediaFile.getType() == MediaFileType.SUBTITLE || mediaFile.getType() == MediaFileType.AUDIO) {
 
         MediaStreamInfo info = MediaFileHelper.gatherLanguageInformation(mediaFile.getBasename(), video);
-        if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+        if (mediaFile.getType() == MediaFileType.SUBTITLE && !mediaFile.getSubtitles().isEmpty()) {
           MediaFileSubtitle sub = mediaFile.getSubtitles().get(0);
           // if we have detected a locale (which is more specific than language alone) us this
           if (sub.getLanguage().isEmpty() || info.getLanguage().matches("[a-zA-Z][a-zA-Z][_-].*")) {
