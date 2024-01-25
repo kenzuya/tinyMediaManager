@@ -379,6 +379,9 @@ public final class TvShowSettings extends AbstractSettings {
     episodeCheckArtwork.clear();
     addEpisodeCheckArtwork(TvShowEpisodeScraperMetadataConfig.THUMB);
 
+    ratingSources.clear();
+    addRatingSource(MediaMetadata.IMDB);
+
     trailerFilenames.clear();
     addTrailerFilename(TvShowTrailerNaming.TVSHOW_TRAILER);
 
