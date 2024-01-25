@@ -73,6 +73,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -85,6 +86,8 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.rating.RatingProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -508,6 +511,16 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           // set scraped metadata
           List<MovieScraperMetadataConfig> scraperConfig = cbScraperConfig.getSelectedItems();
           boolean overwrite = !chckbxDoNotOverwrite.isSelected();
+
+          // get other ratings too?
+          if (MovieModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+            for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(md.getIds(), MediaType.MOVIE))) {
+              if (!md.getRatings().contains(rating)) {
+                md.addRating(rating);
+              }
+            }
+          }
+
           movieToScrape.setMetadata(md, scraperConfig, overwrite);
           movieToScrape.setLastScraperId(model.getMetadataProvider().getId());
           movieToScrape.setLastScrapeLanguage(model.getLanguage().name());

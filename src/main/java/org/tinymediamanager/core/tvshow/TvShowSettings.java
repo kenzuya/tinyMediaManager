@@ -268,6 +268,7 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        title                                  = true;
   boolean                                        originalTitle                          = true;
   boolean                                        note                                   = false;
+  final List<String>                             ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
 
   public TvShowSettings() {
     super();
@@ -377,6 +378,9 @@ public final class TvShowSettings extends AbstractSettings {
 
     episodeCheckArtwork.clear();
     addEpisodeCheckArtwork(TvShowEpisodeScraperMetadataConfig.THUMB);
+
+    ratingSources.clear();
+    addRatingSource(MediaMetadata.IMDB);
 
     trailerFilenames.clear();
     addTrailerFilename(TvShowTrailerNaming.TVSHOW_TRAILER);
@@ -2012,4 +2016,35 @@ public final class TvShowSettings extends AbstractSettings {
     this.resetNewFlagOnUds = newValue;
     firePropertyChange("resetNewFlagOnUds", oldValue, newValue);
   }
+
+  public List<String> getRatingSources() {
+    return ratingSources;
+  }
+
+  public void setRatingSources(List<String> newValue) {
+    ratingSources.clear();
+    ratingSources.addAll(newValue);
+    firePropertyChange("ratingSources", null, ratingSources);
+  }
+
+  public void addRatingSource(String ratingSource) {
+    if (!ratingSources.contains(ratingSource)) {
+      ratingSources.add(ratingSource);
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
+  }
+
+  public void removeRatingSource(String ratingSource) {
+    if (ratingSources.remove(ratingSource)) {
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
+  }
+
+  public void swapRatingSources(int pos1, int pos2) {
+    String tmp = ratingSources.get(pos1);
+    ratingSources.set(pos1, ratingSources.get(pos2));
+    ratingSources.set(pos2, tmp);
+    firePropertyChange("ratingSources", null, ratingSources);
+  }
+
 }

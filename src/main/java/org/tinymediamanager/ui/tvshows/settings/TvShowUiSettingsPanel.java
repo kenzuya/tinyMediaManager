@@ -26,6 +26,7 @@ import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.T
 import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
@@ -36,9 +37,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -46,10 +52,13 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.jdesktop.swingbinding.JListBinding;
+import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -60,7 +69,9 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.JHintLabel;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
 import net.miginfocom.swing.MigLayout;
@@ -77,9 +88,13 @@ class TvShowUiSettingsPanel extends JPanel {
   private final ItemListener                                       checkBoxListener;
   private JCheckBox                                                chckbxShowMissingEpisodes;
   private AutocompleteComboBox<String>                             cbRating;
+  private JList                                                    listRatings;
+  private JButton                                                  btnAddRating;
+  private JButton                                                  btnRemoveRating;
+  private JButton                                                  btnMoveRatingUp;
+  private JButton                                                  btnMoveRatingDown;
   private JCheckBox                                                chckbxShowMissingSpecials;
   private JCheckBox                                                chckbxTvShowTableTooltips;
-  private JCheckBox                                                chckbxSeasonArtworkFallback;
   private JCheckBox                                                chckbxStoreFilter;
 
   private JCheckBox                                                chckbxNode;
@@ -135,6 +150,62 @@ class TvShowUiSettingsPanel extends JPanel {
     // UI initializations
     initComponents();
     initDataBindings();
+
+    // logic initializations
+    btnAddRating.addActionListener(arg0 -> {
+      Object selectedItem = cbRating.getSelectedItem();
+
+      // check, if text is selected (from auto completion), in this case we just
+      // remove the selection
+      Component editorComponent = cbRating.getEditor().getEditorComponent();
+      if (editorComponent instanceof JTextField) {
+        JTextField tf = (JTextField) editorComponent;
+        String selectedText = tf.getSelectedText();
+        if (selectedText != null) {
+          tf.setSelectionStart(0);
+          tf.setSelectionEnd(0);
+          tf.setCaretPosition(tf.getText().length());
+          return;
+        }
+      }
+      TvShowModuleManager.getInstance().getSettings().addRatingSource((String) selectedItem);
+
+      // set text combobox text input to ""
+      if (editorComponent instanceof JTextField) {
+        AutoCompleteSupport<String> autoCompleteSupport = cbRating.getAutoCompleteSupport();
+        autoCompleteSupport.setFirstItem(null);
+        cbRating.setSelectedIndex(0);
+        autoCompleteSupport.removeFirstItem();
+      }
+    });
+
+    btnRemoveRating.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1) { // nothing selected
+        String ratingSource = settings.getRatingSources().get(row);
+        TvShowModuleManager.getInstance().getSettings().removeRatingSource(ratingSource);
+      }
+    });
+
+    btnMoveRatingUp.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1 && row != 0) {
+        settings.swapRatingSources(row, row - 1);
+        row = row - 1;
+        listRatings.setSelectedIndex(row);
+        listRatings.updateUI();
+      }
+    });
+
+    btnMoveRatingDown.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1 && row < listRatings.getModel().getSize() - 1) {
+        settings.swapRatingSources(row, row + 1);
+        row = row + 1;
+        listRatings.setSelectedIndex(row);
+        listRatings.updateUI();
+      }
+    });
 
     buildCheckBoxes();
   }
@@ -747,18 +818,44 @@ class TvShowUiSettingsPanel extends JPanel {
 
           panelUiSettings.add(panelCheckArtwork, "cell 2 11");
         }
-      }
-      {
-        chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
-        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 13 2 1");
-      }
+        {
+          JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
+          panelUiSettings.add(lblRating, "cell 1 14 2 1");
 
-      JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-      panelUiSettings.add(lblRating, "cell 1 14 2 1");
+          JPanel panelRatingSource = new JPanel();
+          panelUiSettings.add(panelRatingSource, "cell 2 15,grow");
+          panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
+          {
+            listRatings = new JList();
+            listRatings.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-      cbRating = new AutocompleteComboBox(Arrays.asList(MediaMetadata.TVDB, MediaMetadata.TMDB, MediaMetadata.IMDB, MediaMetadata.TRAKT_TV,
-          "metascore", "rottenTomatoes", MediaMetadata.ANIDB));
-      panelUiSettings.add(cbRating, "cell 1 14 2 1");
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setViewportView(listRatings);
+            panelRatingSource.add(scrollPane, "cell 0 0,grow");
+
+            btnMoveRatingUp = new SquareIconButton(IconManager.ARROW_UP_INV);
+            btnMoveRatingUp.setToolTipText(TmmResourceBundle.getString("Button.moveup"));
+            panelRatingSource.add(btnMoveRatingUp, "flowy,cell 1 0,aligny bottom");
+
+            btnMoveRatingDown = new SquareIconButton(IconManager.ARROW_DOWN_INV);
+            btnMoveRatingDown.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
+            panelRatingSource.add(btnMoveRatingDown, "cell 1 0,aligny bottom");
+
+            cbRating = new AutocompleteComboBox(Arrays.asList(MediaMetadata.TVDB, MediaMetadata.TMDB, MediaMetadata.IMDB, MediaMetadata.TRAKT_TV,
+                "metascore", "rottenTomatoes", MediaMetadata.ANIDB));
+
+            panelRatingSource.add(cbRating, "cell 0 1,growx");
+
+            btnRemoveRating = new SquareIconButton(IconManager.REMOVE_INV);
+            btnRemoveRating.setToolTipText(TmmResourceBundle.getString("Button.remove"));
+            panelRatingSource.add(btnRemoveRating, "cell 1 0");
+
+            btnAddRating = new SquareIconButton(IconManager.ADD_INV);
+            btnAddRating.setToolTipText(TmmResourceBundle.getString("Button.add"));
+            panelRatingSource.add(btnAddRating, "cell 1 1");
+          }
+        }
+      }
     }
     {
       JPanel panelFilter = new JPanel();
@@ -851,12 +948,16 @@ class TvShowUiSettingsPanel extends JPanel {
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2,
         chckbxShowMissingEpisodes, jCheckBoxBeanProperty);
     autoBinding_3.bind();
-    //
+
     Property tvShowSettingsBeanProperty_3 = BeanProperty.create("preferredRating");
     Property autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbRating,
         autocompleteComboBoxBeanProperty);
     autoBinding_4.bind();
+    //
+    Property tvShowSettingsBeanProperty_5 = BeanProperty.create("ratingSources");
+    JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, listRatings);
+    jListBinding.bind();
     //
     Property jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxShowMissingEpisodes, jCheckBoxBeanProperty,
@@ -872,11 +973,6 @@ class TvShowUiSettingsPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
         chckbxTvShowTableTooltips, jCheckBoxBeanProperty);
     autoBinding_2.bind();
-    //
-    Property tvShowSettingsBeanProperty_14 = BeanProperty.create("seasonArtworkFallback");
-    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_14,
-        chckbxSeasonArtworkFallback, jCheckBoxBeanProperty);
-    autoBinding_19.bind();
     //
     Property tvShowSettingsBeanProperty_4 = BeanProperty.create("storeUiFilters");
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, chckbxStoreFilter,

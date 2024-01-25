@@ -19,6 +19,7 @@ import java.awt.BorderLayout;
 import java.net.URLEncoder;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -30,6 +31,11 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.ExportLogAction;
@@ -54,7 +60,7 @@ public class BugReportDialog extends TmmDialog {
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
-    panelContent.setLayout(new MigLayout("", "[][][450lp,grow]", "[][20lp][][][20lp][][][]"));
+    panelContent.setLayout(new MigLayout("", "[][][450lp,grow]", "[][20lp][][][][][20lp][][][]"));
 
     final JTextArea taDescription = new JTextArea();
     taDescription.setOpaque(false);
@@ -75,12 +81,36 @@ public class BugReportDialog extends TmmDialog {
     taStep1.setEditable(false);
     panelContent.add(taStep1, "cell 2 2,growx");
 
+    JComboBox<EntityContainer> cbMovieList = new JComboBox<EntityContainer>();
+    Movie dummym = new Movie();
+    dummym.setTitle("- select movie -");
+    dummym.setDbId(null);
+    cbMovieList.addItem(new EntityContainer(dummym)); // fix first entry!
+    for (MediaEntity m : MovieModuleManager.getInstance().getMovieList().getMovies()) {
+      cbMovieList.addItem(new EntityContainer(m));
+    }
+    panelContent.add(cbMovieList, "cell 2 3,growx");
+    JComboBox<EntityContainer> cbTvshowList = new JComboBox<EntityContainer>();
+    TvShow dummys = new TvShow();
+    dummys.setTitle("- select tvShow -");
+    dummys.setDbId(null);
+    cbTvshowList.addItem(new EntityContainer(dummys)); // fix first entry!
+    for (TvShow s : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
+      cbTvshowList.addItem(new EntityContainer(s));
+    }
+    panelContent.add(cbTvshowList, "cell 2 4,growx");
+
     final JButton btnSaveLogs = new JButton(TmmResourceBundle.getString("BugReport.createlogs"));
-    btnSaveLogs.addActionListener(new ExportLogAction());
-    panelContent.add(btnSaveLogs, "cell 2 3");
+    btnSaveLogs.addActionListener(e -> {
+      Movie m = (Movie) ((EntityContainer) cbMovieList.getSelectedItem()).entity;
+      TvShow s = (TvShow) ((EntityContainer) cbTvshowList.getSelectedItem()).entity;
+      ExportLogAction ela = new ExportLogAction(m, s);
+      ela.actionPerformed(e); // run
+    });
+    panelContent.add(btnSaveLogs, "cell 2 5");
 
     final JLabel lblStep2 = new JLabel(TmmResourceBundle.getString("BugReport.step2"));
-    panelContent.add(lblStep2, "cell 0 5,alignx left,aligny top");
+    panelContent.add(lblStep2, "cell 0 7");
 
     final JTextArea taStep2 = new JTextArea();
     taStep2.setLineWrap(true);
@@ -88,7 +118,7 @@ public class BugReportDialog extends TmmDialog {
     taStep2.setOpaque(false);
     taStep2.setEditable(false);
     taStep2.setText(TmmResourceBundle.getString("BugReport.step2.description"));
-    panelContent.add(taStep2, "cell 2 5,growx");
+    panelContent.add(taStep2, "cell 2 7,growx");
 
     final JButton btnCreateIssue = new JButton(TmmResourceBundle.getString("BugReport.craeteissue"));
     btnCreateIssue.addActionListener(e -> {
@@ -110,18 +140,31 @@ public class BugReportDialog extends TmmDialog {
             .pushMessage(new Message(MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e1.getLocalizedMessage() }));
       }
     });
-    panelContent.add(btnCreateIssue, "cell 2 6,alignx left,aligny center");
+    panelContent.add(btnCreateIssue, "cell 2 8,alignx left,aligny center");
 
     final JLabel lblHintIcon = new JLabel(IconManager.HINT);
-    panelContent.add(lblHintIcon, "cell 1 7,alignx left,aligny center");
+    panelContent.add(lblHintIcon, "cell 1 9,alignx left,aligny center");
 
     final JLabel lblHint = new JLabel(TmmResourceBundle.getString("BugReport.languagehint"));
-    panelContent.add(lblHint, "cell 2 7,growx,aligny top");
+    panelContent.add(lblHint, "cell 2 9,growx,aligny top");
 
     JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
     btnClose.setIcon(IconManager.CANCEL_INV);
     btnClose.addActionListener(e -> setVisible(false));
     addDefaultButton(btnClose);
+  }
+
+  class EntityContainer {
+    MediaEntity entity;
+
+    EntityContainer(MediaEntity entity) {
+      this.entity = entity;
+    }
+
+    @Override
+    public String toString() {
+      return entity.getTitle();
+    }
   }
 
 }

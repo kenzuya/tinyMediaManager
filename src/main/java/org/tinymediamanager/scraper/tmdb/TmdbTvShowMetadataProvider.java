@@ -855,7 +855,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider implements 
       // get full episode data
       Response<TvEpisode> episodeResponse = api.tvEpisodesService()
           .episode(showTmdbId, seasonNr, episodeNr, language,
-              new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.CREDITS, AppendToResponseItem.IMAGES))
+              new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.CREDITS, AppendToResponseItem.IMAGES),
+              Collections.singletonMap("include_image_language", "null"))
           .execute();
 
       if (!episodeResponse.isSuccessful()) {

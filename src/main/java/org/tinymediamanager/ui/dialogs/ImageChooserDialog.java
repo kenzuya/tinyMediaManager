@@ -81,6 +81,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -208,7 +209,11 @@ public class ImageChooserDialog extends TmmDialog {
 
       case SEASON_POSTER:
         Object season = ids.get("tvShowSeason");
-        if (season != null) {
+        if (season instanceof TvShowSeason tvShowSeason) {
+          setTitle(TmmResourceBundle.getString("image.choose.season") + " - " + TmmResourceBundle.getString("metatag.season") + " "
+              + tvShowSeason.getSeason());
+        }
+        else if (season instanceof Integer) {
           setTitle(TmmResourceBundle.getString("image.choose.season") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
@@ -218,7 +223,11 @@ public class ImageChooserDialog extends TmmDialog {
 
       case SEASON_FANART:
         season = ids.get("tvShowSeason");
-        if (season != null) {
+        if (season instanceof TvShowSeason tvShowSeason) {
+          setTitle(TmmResourceBundle.getString("image.choose.season.fanart") + " - " + TmmResourceBundle.getString("metatag.season") + " "
+              + tvShowSeason.getSeason());
+        }
+        else if (season instanceof Integer) {
           setTitle(TmmResourceBundle.getString("image.choose.season.fanart") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
@@ -228,7 +237,11 @@ public class ImageChooserDialog extends TmmDialog {
 
       case SEASON_BANNER:
         season = ids.get("tvShowSeason");
-        if (season != null) {
+        if (season instanceof TvShowSeason tvShowSeason) {
+          setTitle(TmmResourceBundle.getString("image.choose.season.banner") + " - " + TmmResourceBundle.getString("metatag.season") + " "
+              + tvShowSeason.getSeason());
+        }
+        else if (season instanceof Integer) {
           setTitle(TmmResourceBundle.getString("image.choose.season.banner") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
@@ -238,7 +251,11 @@ public class ImageChooserDialog extends TmmDialog {
 
       case SEASON_THUMB:
         season = ids.get("tvShowSeason");
-        if (season != null) {
+        if (season instanceof TvShowSeason tvShowSeason) {
+          setTitle(TmmResourceBundle.getString("image.choose.season.thumb") + " - " + TmmResourceBundle.getString("metatag.season") + " "
+              + tvShowSeason.getSeason());
+        }
+        else if (season instanceof Integer) {
           setTitle(TmmResourceBundle.getString("image.choose.season.thumb") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
@@ -949,34 +966,6 @@ public class ImageChooserDialog extends TmmDialog {
       }
     };
     task.run();
-  }
-
-  /**
-   * pre-set the artwork size filter to initially show only a part of the results
-   *
-   * @param width
-   *          the image width
-   * @param height
-   *          the image height
-   */
-  public void setImageSizeFilter(int width, int height) {
-    ImageSizeAndUrl imageSizeAndUrl = new ImageSizeAndUrl(width, height, "");
-    List<ImageSizeAndUrl> items = new ArrayList<>();
-    items.add(imageSizeAndUrl);
-    cbSize.setItems(items);
-    cbSize.setSelectedItems(items);
-  }
-
-  /**
-   * pre-set the language filter to initially show only a part of the results
-   *
-   * @param languages
-   *          the languages
-   */
-  public void setImageLanguageFilter(List<MediaLanguages> languages) {
-    List<MediaLanguages> items = new ArrayList<>(languages);
-    cbLanguage.setItems(items);
-    cbLanguage.setSelectedItems(items);
   }
 
   /**

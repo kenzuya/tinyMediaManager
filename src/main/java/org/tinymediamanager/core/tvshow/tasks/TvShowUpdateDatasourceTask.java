@@ -659,6 +659,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return "";
       }
 
+      TvShow tvShow = tvShowList.getTvShowByPath(showDir);
+      if (tvShow != null && tvShow.isLocked()) {
+        LOGGER.info("TV show '{}' found in uds, but is locked", tvShow.getPath());
+        return "";
+      }
+
       Set<Path> allFiles = getAllFilesRecursive(showDir, Integer.MAX_VALUE);
       if (allFiles == null || allFiles.isEmpty()) {
         LOGGER.info("skip empty directory: {}", showDir);
@@ -695,11 +701,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // ******************************
       // STEP 1 - get (or create) TvShow object
       // ******************************
-      TvShow tvShow = tvShowList.getTvShowByPath(showDir);
-      if (tvShow != null && tvShow.isLocked()) {
-        LOGGER.info("TV show '{}' found in uds, but is locked", tvShow.getPath());
-        return "";
-      }
 
       // SHOW_NFO
       MediaFile showNFO = new MediaFile(showDir.resolve("tvshow.nfo"), MediaFileType.NFO); // fixate

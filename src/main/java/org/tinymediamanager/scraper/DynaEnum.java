@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * The class DynaEnum is used to create a "dynamic" enum - an enum which is extensible at runtime
@@ -36,8 +37,9 @@ import java.util.Set;
  * @since 1.0
  */
 public abstract class DynaEnum<E extends DynaEnum<E>> {
-  private static Map<Class<? extends DynaEnum<?>>, Map<String, DynaEnum<?>>>   elements  = new LinkedHashMap<>();
-  private static Map<Class<? extends DynaEnum<?>>, Set<DynaEnumEventListener>> listeners = new LinkedHashMap<>();
+  private static Map<Class<? extends DynaEnum<?>>, Map<String, DynaEnum<?>>>   elements      = new LinkedHashMap<>();
+  private static Map<Class<? extends DynaEnum<?>>, Set<DynaEnumEventListener>> listeners     = new LinkedHashMap<>();
+  private static ReentrantReadWriteLock                                        readWriteLock = new ReentrantReadWriteLock();
   private final String                                                         name;
   protected final int                                                          ordinal;
 
@@ -71,12 +73,14 @@ public abstract class DynaEnum<E extends DynaEnum<E>> {
    * add this element to the list of elements
    */
   protected void addElement() {
+    readWriteLock.writeLock().lock();
     Map<String, DynaEnum<?>> typeElements = elements.get(getClass());
     if (typeElements == null) {
       typeElements = new LinkedHashMap<>();
       elements.put(getDynaEnumClass(), typeElements);
     }
     typeElements.put(name, this);
+    readWriteLock.writeLock().unlock();
 
     valueAdded(getClass(), this);
   }
@@ -140,7 +144,13 @@ public abstract class DynaEnum<E extends DynaEnum<E>> {
    */
   @SuppressWarnings("unchecked")
   public static <T extends DynaEnum<T>> T valueOf(Class<T> enumType, String name) {
-    return (T) elements.get(enumType).get(name);
+    try {
+      readWriteLock.readLock().lock();
+      return (T) elements.get(enumType).get(name);
+    }
+    finally {
+      readWriteLock.readLock().unlock();
+    }
   }
 
   /**
@@ -190,8 +200,10 @@ public abstract class DynaEnum<E extends DynaEnum<E>> {
    */
   @SuppressWarnings("unchecked")
   public static <E> E[] values(Class<E> enumType) {
-    // to make it thread-safe
+    readWriteLock.readLock().lock();
     Collection<DynaEnum<?>> values = new ArrayList<>(elements.get(enumType).values());
+    readWriteLock.readLock().unlock();
+
     int n = values.size();
     E[] typedValues = (E[]) Array.newInstance(enumType, n);
     int i = 0;

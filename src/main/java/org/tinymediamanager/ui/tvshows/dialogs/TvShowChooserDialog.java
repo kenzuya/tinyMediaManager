@@ -74,6 +74,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -93,6 +94,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.rating.RatingProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
@@ -569,6 +571,15 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             tvShowToScrape.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
           }
           tvShowToScrape.setEpisodeGroups(model.getEpisodeGroups());
+
+          // get other ratings too?
+          if (TvShowModuleManager.getInstance().getSettings().isFetchAllRatings()) {
+            for (MediaRating rating : ListUtils.nullSafe(RatingProvider.getRatings(md.getIds(), MediaType.TV_SHOW))) {
+              if (!md.getRatings().contains(rating)) {
+                md.addRating(rating);
+              }
+            }
+          }
 
           // set scraped metadata
           tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);

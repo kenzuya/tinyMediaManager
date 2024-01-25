@@ -380,8 +380,6 @@ public class TvShowEpisodeEditorDialog extends AbstractEditorDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
                 lblThumb, MediaType.TV_EPISODE);
 
-            dialog.setImageLanguageFilter(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
             if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(episodeToEdit.getPathNIO().toAbsolutePath().toString());
             }

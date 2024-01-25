@@ -48,6 +48,10 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.license.ZipArchiveHelper;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -65,10 +69,18 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
  */
 public class ExportLogAction extends TmmAction {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportLogAction.class);
+  private Movie               movie;
+  private TvShow              show;
 
   public ExportLogAction() {
+    this(null, null);
+  }
+
+  public ExportLogAction(Movie movieId, TvShow showId) {
     putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportlogs.desc"));
+    this.movie = movieId;
+    this.show = showId;
   }
 
   @Override
@@ -153,6 +165,26 @@ public class ExportLogAction extends TmmAction {
       }
       catch (Exception e) {
         LOGGER.warn("unable to attach env.txt - {}", e.getMessage());
+      }
+
+      // write single entity DB dumps (if we have an DB id)
+      if (movie != null && movie.getDbId() != null) {
+        String json = MovieModuleManager.getInstance().getMovieJsonFromDB(movie);
+        if (!json.isEmpty()) {
+          zipParameters.setFileNameInZip("movie.json");
+          zos.putNextEntry(zipParameters);
+          zos.write(json.getBytes());
+          zos.closeEntry();
+        }
+      }
+      if (show != null && show.getDbId() != null) {
+        String json = TvShowModuleManager.getInstance().getTvShowJsonFromDB(show, true);
+        if (!json.isEmpty()) {
+          zipParameters.setFileNameInZip("tvshow.json");
+          zos.putNextEntry(zipParameters);
+          zos.write(json.getBytes());
+          zos.closeEntry();
+        }
       }
     }
   }

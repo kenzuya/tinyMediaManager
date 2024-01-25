@@ -370,8 +370,6 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
     ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, artworkType, tvShowList.getDefaultArtworkScrapers(), label,
         MediaType.TV_SHOW);
 
-    dialog.setImageLanguageFilter(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguages());
-
     if (Settings.getInstance().isImageChooserUseEntityFolder()) {
       TvShow tvShow = tvShowSeasonToEdit.getTvShow();
       Path seasonPath = tvShow.getPathNIO().resolve(TvShowHelpers.detectSeasonFolder(tvShow, tvShowSeasonToEdit.getSeason())).toAbsolutePath();
