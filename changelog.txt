@@ -3,6 +3,7 @@ Version 5.0.2
 x improve performance of update data sources in better excluding locked objects
 x reverted #2296 - pre-set of filters in the image chooser
 x fixed multi threading access problems for genres #2444
+x (TMDB) fetch all episode stills #2387
 x changed preferred rating to rating list (same as in the movie ui settings) #2405
 x fixed crash on empty subtitle objects #2452
 
