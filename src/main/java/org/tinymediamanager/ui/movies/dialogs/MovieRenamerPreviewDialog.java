@@ -79,6 +79,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
   private final JLabel                                  lblFolderNew;
   private final JCheckBox                               cbFilter;
 
+  private final MoviePreviewWorker                      worker;
+
   public MovieRenamerPreviewDialog(final List<Movie> selectedMovies) {
     super(TmmResourceBundle.getString("movie.renamerpreview"), "movieRenamerPreview");
 
@@ -217,8 +219,20 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
     }
 
     // start calculation of the preview
-    MoviePreviewWorker worker = new MoviePreviewWorker(selectedMovies);
+    worker = new MoviePreviewWorker(selectedMovies);
     worker.execute();
+  }
+
+  @Override
+  public void setVisible(boolean visible) {
+    if (!visible) {
+      // window closing
+      if (worker != null && !worker.isDone()) {
+        worker.cancel(true);
+      }
+    }
+
+    super.setVisible(visible);
   }
 
   /**********************************************************************
@@ -267,6 +281,10 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       moviesToProcess.sort(new MovieComparator());
       // rename them
       for (Movie movie : moviesToProcess) {
+        if (isCancelled()) {
+          return null;
+        }
+
         MovieRenamerPreviewContainer container = MovieRenamerPreview.renameMovie(movie);
         if (container.isNeedsRename()) {
           results.add(container);
