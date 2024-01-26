@@ -60,7 +60,7 @@ public class TmmMuxer {
     Movie movie = null;
 
     // try to use FFmpeg if available
-    if (StringUtils.isNotBlank(Settings.getInstance().getMediaFramework())) {
+    if (FFmpeg.isAvailable()) {
       try {
         FFmpeg.muxVideoAndAudio(videoFile, audioFile, destination);
         return;
