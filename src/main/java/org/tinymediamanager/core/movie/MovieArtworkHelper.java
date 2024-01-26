@@ -232,42 +232,44 @@ public class MovieArtworkHelper {
 
     // poster
     if (metadataConfig.contains(MovieScraperMetadataConfig.POSTER) && movie.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
-      setBestPoster(movie, artwork);
+      setBestPoster(movie, artwork, false);
     }
 
     // fanart
     if (metadataConfig.contains(MovieScraperMetadataConfig.FANART) && movie.getMediaFiles(MediaFileType.FANART).isEmpty()) {
-      setBestFanart(movie, artwork);
+      setBestFanart(movie, artwork, false);
     }
 
     // clearlogo
     if (metadataConfig.contains(MovieScraperMetadataConfig.CLEARLOGO) && movie.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty(),
+          false);
     }
 
     // clearart
     if (metadataConfig.contains(MovieScraperMetadataConfig.CLEARART) && movie.getMediaFiles(MediaFileType.CLEARART).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.CLEARART, !MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.CLEARART, !MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty(),
+          false);
     }
 
     // banner
     if (metadataConfig.contains(MovieScraperMetadataConfig.BANNER) && movie.getMediaFiles(MediaFileType.BANNER).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.BANNER, !MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.BANNER, !MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty(), false);
     }
 
     // thumb
     if (metadataConfig.contains(MovieScraperMetadataConfig.THUMB) && movie.getMediaFiles(MediaFileType.THUMB).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.THUMB, !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.THUMB, !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty(), false);
     }
 
     // discart
     if (metadataConfig.contains(MovieScraperMetadataConfig.DISCART) && movie.getMediaFiles(MediaFileType.DISC).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.DISC, !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.DISC, !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty(), false);
     }
 
     // keyart
     if (metadataConfig.contains(MovieScraperMetadataConfig.KEYART) && movie.getMediaFiles(MediaFileType.KEYART).isEmpty()) {
-      setBestArtwork(movie, artwork, MediaArtworkType.KEYART, !MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.KEYART, !MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty(), false);
     }
 
     // extrathumbs
@@ -785,39 +787,45 @@ public class MovieArtworkHelper {
 
     // poster
     if (config.contains(MovieScraperMetadataConfig.POSTER) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.POSTER)))) {
-      setBestPoster(movie, artwork);
+      setBestPoster(movie, artwork, overwrite);
     }
 
     // fanart
     if (config.contains(MovieScraperMetadataConfig.FANART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.FANART)))) {
-      setBestFanart(movie, artwork);
+      setBestFanart(movie, artwork, overwrite);
     }
 
     // works now for single & multimovie
     if (config.contains(MovieScraperMetadataConfig.CLEARLOGO)
         && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty(),
+          overwrite);
     }
 
     if (config.contains(MovieScraperMetadataConfig.CLEARART)
         && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARART)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.CLEARART, !MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.CLEARART, !MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty(),
+          overwrite);
     }
 
     if (config.contains(MovieScraperMetadataConfig.BANNER) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.BANNER)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.BANNER, !MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.BANNER, !MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty(),
+          overwrite);
     }
 
     if (config.contains(MovieScraperMetadataConfig.THUMB) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.THUMB)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.THUMB, !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.THUMB, !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty(),
+          overwrite);
     }
 
     if (config.contains(MovieScraperMetadataConfig.DISCART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.DISC)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.DISC, !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.DISC, !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty(),
+          overwrite);
     }
 
     if (config.contains(MovieScraperMetadataConfig.KEYART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.KEYART)))) {
-      setBestArtwork(movie, artwork, MediaArtworkType.KEYART, !MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty());
+      setBestArtwork(movie, artwork, MediaArtworkType.KEYART, !MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty(),
+          overwrite);
     }
 
     // extrathumbs
@@ -882,11 +890,11 @@ public class MovieArtworkHelper {
   /*
    * find the "best" poster in the list of artwork, assign it to the movie and download it
    */
-  private static void setBestPoster(Movie movie, List<MediaArtwork> artwork) {
+  private static void setBestPoster(Movie movie, List<MediaArtwork> artwork, boolean overwrite) {
     boolean posterFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
+    if (!overwrite && StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
       posterFound = true;
     }
     else {
@@ -911,11 +919,11 @@ public class MovieArtworkHelper {
   /*
    * find the "best" fanart in the list of artwork, assign it to the movie and download it
    */
-  private static void setBestFanart(Movie movie, List<MediaArtwork> artwork) {
+  private static void setBestFanart(Movie movie, List<MediaArtwork> artwork, boolean overwrite) {
     boolean fanartFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
+    if (!overwrite && StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.POSTER))) {
       fanartFound = true;
     }
     else {
@@ -1049,12 +1057,14 @@ public class MovieArtworkHelper {
    *          the type to download
    * @param download
    *          indicates, whether to download and add, OR JUST SAVE THE URL for a later download
+   * @param overwrite
+   *          indicates that we might be able to overwrite existing artwork
    */
-  private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
+  private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download, boolean overwrite) {
     boolean artworkFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
+    if (!overwrite && StringUtils.isNotBlank(movie.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
       artworkFound = true;
     }
     else {

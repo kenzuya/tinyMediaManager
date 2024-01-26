@@ -10,6 +10,7 @@ x fixed crash on empty subtitle objects #2452
 x fixed some Docker related problems #2445
 x enhanced language detection for audio streams
 x fixed detection of season posters (folder.jpg)
+x fixed downloading of artwork #2454
 
 
 Version 5.0.1.1
