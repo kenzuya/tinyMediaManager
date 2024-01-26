@@ -11,6 +11,7 @@ x fixed some Docker related problems #2445
 x enhanced language detection for audio streams
 x fixed detection of season posters (folder.jpg)
 x fixed downloading of artwork #2454
+x fixed opening trailers twice when pressing the play button
 
 
 Version 5.0.1.1
