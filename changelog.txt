@@ -9,6 +9,7 @@ x changed preferred rating to rating list (same as in the movie ui settings) #24
 x fixed crash on empty subtitle objects #2452
 x fixed some Docker related problems #2445
 x enhanced language detection for audio streams
+x fixed detection of season posters (folder.jpg)
 
 
 Version 5.0.1.1

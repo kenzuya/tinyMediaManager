@@ -1199,6 +1199,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // tvShow.addToMediaFiles(mfs); // add remaining
       // not so fast - try to parse S/E from remaining first!
       for (MediaFile mf : mfs) {
+        // case poster.ext -> do not add to the TV show itself when it is NOT in the TV show root!
+        if (mf.getType() == MediaFileType.POSTER && !mf.getPath().equals(tvShow.getPath())) {
+          // probably season poster
+          mf.setType(MediaFileType.SEASON_POSTER);
+        }
+
         // a season poster/fanart/banner/thumb does not belong to any episode - they need to be added to a TvShowSeason
         if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_FANART || mf.getType() == MediaFileType.SEASON_BANNER
             || mf.getType() == MediaFileType.SEASON_THUMB) {

@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -229,6 +230,35 @@ public class UpgradeTasks {
       } // end foreach show
 
       module.setDbVersion(5002);
+    }
+
+    // migrate folder.ext in TV shows to seasons
+    if (module.getDbVersion() < 5003) {
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        List<MediaFile> toRemove = new ArrayList<>();
+
+        for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.POSTER)) {
+          if (!mf.getPath().equals(tvShow.getPath())) {
+            // probably season poster
+            mf.setType(MediaFileType.SEASON_POSTER);
+
+            String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
+            int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
+            if (season != Integer.MIN_VALUE) {
+              TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
+              tvShowSeason.addToMediaFiles(mf);
+              toRemove.add(mf);
+            }
+          }
+        } // end foreach mediafile
+
+        if (!toRemove.isEmpty()) {
+          toRemove.forEach(tvShow::removeFromMediaFiles);
+          tvShow.saveToDb();
+        }
+      } // end foreach show
+
+      module.setDbVersion(5003);
     }
 
     // if (module.getDbVersion() < 50xx) {
