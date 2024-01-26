@@ -397,6 +397,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               break;
             }
             TvShow tvShow = tvShowList.getTvShows().get(i);
+
+            // do not process locked TV shows
+            if (tvShow.isLocked()) {
+              continue;
+            }
+
             if (dataSources.contains(tvShow.getDataSource())) {
               gatherMediaInformationForUngatheredMediaFiles(tvShow);
             }
@@ -409,6 +415,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               break;
             }
             TvShow tvShow = tvShowList.getTvShows().get(i);
+
+            // do not process locked TV shows
+            if (tvShow.isLocked()) {
+              continue;
+            }
+
             if (tvShowFolders.contains(tvShow.getPathNIO())) {
               gatherMediaInformationForUngatheredMediaFiles(tvShow);
             }
