@@ -172,47 +172,47 @@ public class TvShowArtworkHelper {
   public static void downloadMissingArtwork(TvShow tvShow, List<MediaArtwork> artwork) {
     // poster
     if (tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
-      setBestPoster(tvShow, artwork);
+      setBestPoster(tvShow, artwork, false);
     }
 
     // fanart
     if (tvShow.getMediaFiles(MediaFileType.FANART).isEmpty()) {
-      setBestFanart(tvShow, artwork);
+      setBestFanart(tvShow, artwork, false);
     }
 
     // clearlogo
     if (tvShow.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.CLEARLOGO);
+      setBestArtwork(tvShow, artwork, MediaArtworkType.CLEARLOGO, false);
     }
 
     // clearart
     if (tvShow.getMediaFiles(MediaFileType.CLEARART).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.CLEARART);
+      setBestArtwork(tvShow, artwork, MediaArtworkType.CLEARART, false);
     }
 
     // banner
     if (tvShow.getMediaFiles(MediaFileType.BANNER).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.BANNER);
+      setBestArtwork(tvShow, artwork, MediaArtworkType.BANNER, false);
     }
 
     // thumb
     if (tvShow.getMediaFiles(MediaFileType.THUMB).isEmpty()) {
-      setBestThumb(tvShow, artwork);
+      setBestThumb(tvShow, artwork, false);
     }
 
     // discart
     if (tvShow.getMediaFiles(MediaFileType.DISC).isEmpty()) {
-      setBestArtwork(tvShow, artwork, MediaArtworkType.DISC);
+      setBestArtwork(tvShow, artwork, MediaArtworkType.DISC, false);
     }
 
     // characterart
     if (tvShow.getMediaFiles(MediaFileType.CHARACTERART).isEmpty()) {
-      setBestArtwork(tvShow, artwork, CHARACTERART);
+      setBestArtwork(tvShow, artwork, CHARACTERART, false);
     }
 
     // keyart
     if (tvShow.getMediaFiles(MediaFileType.KEYART).isEmpty()) {
-      setBestArtwork(tvShow, artwork, KEYART);
+      setBestArtwork(tvShow, artwork, KEYART, false);
     }
 
     for (TvShowSeason season : tvShow.getSeasons()) {
@@ -268,11 +268,11 @@ public class TvShowArtworkHelper {
     tvShow.writeNFO(); // rewrite NFO to get the urls into the NFO
   }
 
-  private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {
+  private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork, boolean overwrite) {
     boolean posterFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
+    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
       posterFound = true;
     }
     else {
@@ -379,12 +379,14 @@ public class TvShowArtworkHelper {
    *          the artwork list
    * @param type
    *          the type to download
+   * @param overwrite
+   *          indicates that we might be able to overwrite existing artwork
    */
-  private static void setBestArtwork(TvShow tvShow, List<MediaArtwork> artwork, MediaArtworkType type) {
+  private static void setBestArtwork(TvShow tvShow, List<MediaArtwork> artwork, MediaArtworkType type, boolean overwrite) {
     boolean artworkFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
+    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.getMediaFileType(type)))) {
       artworkFound = true;
     }
     else {
@@ -410,12 +412,14 @@ public class TvShowArtworkHelper {
    *          our tv show
    * @param artwork
    *          the artwork list
+   * @param overwrite
+   *          indicates that we might be able to overwrite existing artwork
    */
-  private static void setBestFanart(TvShow tvShow, List<MediaArtwork> artwork) {
+  private static void setBestFanart(TvShow tvShow, List<MediaArtwork> artwork, boolean overwrite) {
     boolean fanartFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
+    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
       fanartFound = true;
     }
     else {
@@ -459,11 +463,11 @@ public class TvShowArtworkHelper {
     }
   }
 
-  private static void setBestThumb(TvShow tvShow, List<MediaArtwork> artwork) {
+  private static void setBestThumb(TvShow tvShow, List<MediaArtwork> artwork, boolean overwrite) {
     boolean thumbFound = false;
 
     // use existing data if available
-    if (StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.THUMB))) {
+    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.THUMB))) {
       thumbFound = true;
     }
     else {
@@ -725,44 +729,44 @@ public class TvShowArtworkHelper {
 
     // poster
     if (config.contains(TvShowScraperMetadataConfig.POSTER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.POSTER)))) {
-      setBestPoster(tvShow, artwork);
+      setBestPoster(tvShow, artwork, overwrite);
     }
 
     // fanart
     if (config.contains(TvShowScraperMetadataConfig.FANART) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.FANART)))) {
-      setBestFanart(tvShow, artwork);
+      setBestFanart(tvShow, artwork, overwrite);
     }
 
     // banner
     if (config.contains(TvShowScraperMetadataConfig.BANNER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.BANNER)))) {
-      setBestArtwork(tvShow, artwork, BANNER);
+      setBestArtwork(tvShow, artwork, BANNER, overwrite);
     }
 
     // clearlogo
     if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO)
         && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
-      setBestArtwork(tvShow, artwork, CLEARLOGO);
+      setBestArtwork(tvShow, artwork, CLEARLOGO, overwrite);
     }
 
     // clearart
     if (config.contains(TvShowScraperMetadataConfig.CLEARART)
         && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.CLEARART)))) {
-      setBestArtwork(tvShow, artwork, CLEARART);
+      setBestArtwork(tvShow, artwork, CLEARART, overwrite);
     }
 
     // thumb
     if (config.contains(TvShowScraperMetadataConfig.THUMB) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.THUMB)))) {
-      setBestThumb(tvShow, artwork);
+      setBestThumb(tvShow, artwork, overwrite);
     }
 
     // characterart
     if (config.contains(TvShowScraperMetadataConfig.CHARACTERART)) {
-      setBestArtwork(tvShow, artwork, CHARACTERART);
+      setBestArtwork(tvShow, artwork, CHARACTERART, overwrite);
     }
 
     // keyart
     if (config.contains(TvShowScraperMetadataConfig.KEYART) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.KEYART)))) {
-      setBestArtwork(tvShow, artwork, KEYART);
+      setBestArtwork(tvShow, artwork, KEYART, overwrite);
     }
 
     // season poster

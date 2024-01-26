@@ -1496,6 +1496,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       Movie movie = movies.get(i);
+
+      // do not process locked movies (because filesFound has not been filled for them)
+      if (movie.isLocked()) {
+        continue;
+      }
+
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
@@ -1618,6 +1624,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
+      // do not process locked movies
+      if (movie.isLocked()) {
+        continue;
+      }
+
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, false));
@@ -1645,6 +1656,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     for (Movie movie : movies) {
       if (cancel) {
         break;
+      }
+
+      // do not process locked movies
+      if (movie.isLocked()) {
+        continue;
       }
 
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {

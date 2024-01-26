@@ -80,6 +80,8 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
   private final JLabel                                   lblFolderNew;
   private final JCheckBox                                cbFilter;
 
+  private final TvShowPreviewWorker                      worker;
+
   public TvShowRenamerPreviewDialog(final List<TvShow> selectedTvShows) {
     super(TmmResourceBundle.getString("movie.renamerpreview"), "tvShowRenamerPreview");
 
@@ -220,8 +222,20 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
     }
 
     // start calculation of the preview
-    TvShowPreviewWorker worker = new TvShowPreviewWorker(selectedTvShows);
+    worker = new TvShowPreviewWorker(selectedTvShows);
     worker.execute();
+  }
+
+  @Override
+  public void setVisible(boolean visible) {
+    if (!visible) {
+      // window closing
+      if (worker != null && !worker.isDone()) {
+        worker.cancel(true);
+      }
+    }
+
+    super.setVisible(visible);
   }
 
   /**********************************************************************
@@ -270,6 +284,10 @@ public class TvShowRenamerPreviewDialog extends TmmDialog {
       tvShowsToProcess.sort(new TvShowComparator());
       // rename them
       for (TvShow tvShow : tvShowsToProcess) {
+        if (isCancelled()) {
+          return null;
+        }
+
         TvShowRenamerPreviewContainer container = new TvShowRenamerPreview(tvShow).generatePreview();
         if (container.isNeedsRename()) {
           results.add(container);

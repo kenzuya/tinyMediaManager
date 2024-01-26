@@ -101,11 +101,6 @@ public abstract class TmmEditorTable extends TmmTable {
     }
 
     @Override
-    public void mouseClicked(MouseEvent arg0) {
-      click(arg0);
-    }
-
-    @Override
     public void mousePressed(MouseEvent arg0) {
       click(arg0);
     }

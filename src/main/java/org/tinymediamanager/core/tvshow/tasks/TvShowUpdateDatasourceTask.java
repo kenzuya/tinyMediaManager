@@ -397,6 +397,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               break;
             }
             TvShow tvShow = tvShowList.getTvShows().get(i);
+
+            // do not process locked TV shows
+            if (tvShow.isLocked()) {
+              continue;
+            }
+
             if (dataSources.contains(tvShow.getDataSource())) {
               gatherMediaInformationForUngatheredMediaFiles(tvShow);
             }
@@ -409,6 +415,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               break;
             }
             TvShow tvShow = tvShowList.getTvShows().get(i);
+
+            // do not process locked TV shows
+            if (tvShow.isLocked()) {
+              continue;
+            }
+
             if (tvShowFolders.contains(tvShow.getPathNIO())) {
               gatherMediaInformationForUngatheredMediaFiles(tvShow);
             }
@@ -462,6 +474,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
+      // do not process locked TV shows (because filesFound has not been filled for them)
+      if (tvShow.isLocked()) {
+        continue;
+      }
+
       if (!Files.exists(tvShow.getPathNIO())) {
         tvShowList.removeTvShow(tvShow);
       }
@@ -485,8 +502,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
       TvShow tvShow = tvShowList.getTvShows().get(i);
 
-      // check only Tv shows matching datasource
+      // check only TV shows matching datasource
       if (!Paths.get(datasource).toAbsolutePath().equals(Paths.get(tvShow.getDataSource()).toAbsolutePath())) {
+        continue;
+      }
+
+      // do not process locked TV shows (because filesFound has not been filled for them)
+      if (tvShow.isLocked()) {
         continue;
       }
 
@@ -1199,6 +1221,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // tvShow.addToMediaFiles(mfs); // add remaining
       // not so fast - try to parse S/E from remaining first!
       for (MediaFile mf : mfs) {
+        // case poster.ext -> do not add to the TV show itself when it is NOT in the TV show root!
+        if (mf.getType() == MediaFileType.POSTER && !mf.getPath().equals(tvShow.getPath())) {
+          // probably season poster
+          mf.setType(MediaFileType.SEASON_POSTER);
+        }
+
         // a season poster/fanart/banner/thumb does not belong to any episode - they need to be added to a TvShowSeason
         if (mf.getType() == MediaFileType.SEASON_POSTER || mf.getType() == MediaFileType.SEASON_FANART || mf.getType() == MediaFileType.SEASON_BANNER
             || mf.getType() == MediaFileType.SEASON_THUMB) {
