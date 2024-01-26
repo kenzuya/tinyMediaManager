@@ -1496,6 +1496,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       Movie movie = movies.get(i);
+
+      // do not process locked movies (because filesFound has not been filled for them)
+      if (movie.isLocked()) {
+        continue;
+      }
+
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();

@@ -462,6 +462,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
+      // do not process locked TV shows (because filesFound has not been filled for them)
+      if (tvShow.isLocked()) {
+        continue;
+      }
+
       if (!Files.exists(tvShow.getPathNIO())) {
         tvShowList.removeTvShow(tvShow);
       }
@@ -485,8 +490,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
       TvShow tvShow = tvShowList.getTvShows().get(i);
 
-      // check only Tv shows matching datasource
+      // check only TV shows matching datasource
       if (!Paths.get(datasource).toAbsolutePath().equals(Paths.get(tvShow.getDataSource()).toAbsolutePath())) {
+        continue;
+      }
+
+      // do not process locked TV shows (because filesFound has not been filled for them)
+      if (tvShow.isLocked()) {
         continue;
       }
 
