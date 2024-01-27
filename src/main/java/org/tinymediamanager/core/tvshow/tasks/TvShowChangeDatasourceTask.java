@@ -97,7 +97,7 @@ public class TvShowChangeDatasourceTask extends TmmThreadPool {
           tvShow.updateMediaFilePath(srcDir, destDir);
           for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
             episode.setDataSource(datasource);
-            episode.replacePathForRenamedFolder(srcDir, destDir);
+            episode.replacePathForRenamedTvShowRoot(srcDir, destDir);
             episode.updateMediaFilePath(srcDir, destDir);
             episode.saveToDb();
 

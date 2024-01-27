@@ -163,6 +163,12 @@ public class TvShowHelpers {
       for (TvShowEpisode episode : episodes) {
         Path videoFilePath = episode.getMainVideoFile().getFileAsPath().getParent();
 
+        if (!videoFilePath.startsWith(tvShowPath)) {
+          // inconsistent MF path!!
+          LOGGER.debug("episode MF path does not match TV show root!!");
+          continue;
+        }
+
         // split up the relative path into its path junks
         Path relativePath = tvShowPath.relativize(videoFilePath);
         int subfolders = relativePath.getNameCount();

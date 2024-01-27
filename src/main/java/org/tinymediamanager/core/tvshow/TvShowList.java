@@ -351,7 +351,7 @@ public final class TvShowList extends AbstractModelObject {
 
       for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
         episode.setDataSource(newDatasource);
-        episode.replacePathForRenamedFolder(oldTvShowPath, newTvShowPath);
+        episode.replacePathForRenamedTvShowRoot(oldTvShowPath, newTvShowPath);
         episode.updateMediaFilePath(oldTvShowPath, newTvShowPath);
         episode.saveToDb();
 
