@@ -211,6 +211,19 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     }
 
     if (!newNfos.isEmpty()) {
+      // remove orphaned files
+      List<MediaFile> existingNfos = movie.getMediaFiles(MediaFileType.NFO);
+      for (MediaFile nfo : existingNfos) {
+        if (!newNfos.contains(nfo)) {
+          try {
+            Utils.deleteFileWithBackup(nfo.getFileAsPath(), movie.getDataSource());
+          }
+          catch (Exception e) {
+            LOGGER.debug("Could not remove orphaned NFO - '{}'", e.getMessage());
+          }
+        }
+      }
+
       movie.removeAllMediaFiles(MediaFileType.NFO);
       movie.addToMediaFiles(newNfos);
     }
