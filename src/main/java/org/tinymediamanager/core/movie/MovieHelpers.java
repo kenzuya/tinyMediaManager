@@ -37,6 +37,7 @@ import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
@@ -149,7 +150,7 @@ public class MovieHelpers {
   public static void downloadBestTrailer(Movie movie) {
     if (!movie.getTrailer().isEmpty()) {
       TmmTask task = new MovieTrailerDownloadTask(movie);
-      TmmTaskManager.getInstance().addDownloadTask(task);
+      TmmTaskChain.getInstance(movie).add(task);
     }
   }
 
@@ -233,7 +234,7 @@ public class MovieHelpers {
             return movie;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(movie).add(task);
       }
       else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
@@ -247,7 +248,7 @@ public class MovieHelpers {
             return movie;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(movie).add(task);
       }
     }
     catch (Exception e) {

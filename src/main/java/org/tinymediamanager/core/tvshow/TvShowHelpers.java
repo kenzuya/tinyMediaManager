@@ -36,6 +36,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -229,7 +230,7 @@ public class TvShowHelpers {
   public static void downloadBestTrailer(TvShow tvShow) {
     if (!tvShow.getTrailer().isEmpty()) {
       TmmTask task = new TvShowTrailerDownloadTask(tvShow);
-      TmmTaskManager.getInstance().addDownloadTask(task);
+      TmmTaskChain.getInstance(tvShow).add(task);
     }
   }
 
@@ -291,7 +292,7 @@ public class TvShowHelpers {
             return tvshow;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(tvshow).add(task);
       }
       else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
@@ -306,7 +307,7 @@ public class TvShowHelpers {
             return tvshow;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(tvshow).add(task);
       }
     }
     catch (Exception e) {

@@ -13,6 +13,7 @@ x fixed detection of season posters (folder.jpg)
 x fixed downloading of artwork #2454
 x fixed opening trailers twice when pressing the play button
 x fixed updating of changed artwork #2446
+x improved automatic downloading of trailers #2455
 x (Trailer) allow renaming into a disc folder (Kodi style) #2451
 
 
