@@ -29,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,13 +175,21 @@ public class MovieInformationPanel extends InformationPanel {
     });
 
     lblMoviePath.addActionListener(arg0 -> {
-      if (!StringUtils.isEmpty(lblMoviePath.getText())) {
+      if (StringUtils.isNotEmpty(lblMoviePath.getLink())) {
         // get the location from the label
-        Path path = Paths.get(lblMoviePath.getText());
+        Path path = Paths.get(lblMoviePath.getLink());
         try {
           // check whether this location exists
           if (Files.exists(path)) {
             TmmUIHelper.openFile(path);
+          } else {
+            LOGGER.debug("could not open folder '{}' -> does not exist?", path);
+            BasicFileAttributes fileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
+            LOGGER.debug("isDir {}", fileAttributes.isDirectory());
+            LOGGER.debug("isRegularFile {}", fileAttributes.isRegularFile());
+            LOGGER.debug("isOther {}", fileAttributes.isOther());
+            LOGGER.debug("isSymlink {}", fileAttributes.isSymbolicLink());
+            LOGGER.debug("creationTime {}", fileAttributes.creationTime());
           }
         }
         catch (Exception ex) {

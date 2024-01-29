@@ -369,6 +369,7 @@ public class TmmUIHelper {
         Desktop.getDesktop().open(file.toFile());
       }
       catch (Exception e) {
+        LOGGER.debug("could not open file with the default app - '{}'", e.getMessage());
         // use explorer directly - ship around access exceptions and the unresolved network bug
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6780505
         exec(new String[] { "explorer", abs });
