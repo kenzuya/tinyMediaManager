@@ -46,6 +46,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -92,6 +93,7 @@ class MovieTrailerSettingsPanel extends JPanel {
   private JCheckBox                  cbTrailerFilename3;
   private JCheckBox                  cbTrailerFilename4;
   private JLabel                     lblAutomaticTrailerDownloadHint;
+  private JCheckBox                  chckbxTrailerDiscKodiStyle;
 
   MovieTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -328,6 +330,9 @@ class MovieTrailerSettingsPanel extends JPanel {
         trailerFilenameButtonGroup.add(cbTrailerFilename4);
         panelTrailerFilenames.add(cbTrailerFilename4, "cell 1 3");
       }
+
+      chckbxTrailerDiscKodiStyle = new JCheckBox(TmmResourceBundle.getString("Settings.trailerDiscFolder"));
+      panelOptions.add(chckbxTrailerDiscKodiStyle, "cell 2 6");
     }
   }
 
@@ -392,5 +397,10 @@ class MovieTrailerSettingsPanel extends JPanel {
     AutoBinding<JCheckBox, Boolean, JLabel, Boolean> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, checkBox, jCheckBoxBeanProperty,
         lblAutomaticTrailerDownloadHint, jLabelBeanProperty);
     autoBinding_6.bind();
+    //
+    Property movieSettingsBeanProperty_4 = BeanProperty.create("trailerDiscFolderInside");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4,
+        chckbxTrailerDiscKodiStyle, jCheckBoxBeanProperty);
+    autoBinding_7.bind();
   }
 }

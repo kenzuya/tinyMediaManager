@@ -143,6 +143,7 @@ public final class MovieSettings extends AbstractSettings {
   MovieConnectors                           movieConnector                         = MovieConnectors.KODI;
   CertificationStyle                        certificationStyle                     = CertificationStyle.LARGE;
   boolean                                   nfoDiscFolderInside                    = true;
+  boolean                                   trailerDiscFolderInside                = true;
   boolean                                   writeCleanNfo                          = false;
   DateField                                 nfoDateAddedField                      = DateField.DATE_ADDED;
   Locale                                    nfoLanguage                            = Locale.ENGLISH;
@@ -1662,6 +1663,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.nfoDiscFolderInside;
     this.nfoDiscFolderInside = newValue;
     firePropertyChange("nfoDiscFolderInside", oldValue, newValue);
+  }
+
+  public boolean isTrailerDiscFolderInside() {
+    return trailerDiscFolderInside;
+  }
+
+  public void setTrailerDiscFolderInside(boolean newValue) {
+    boolean oldValue = this.trailerDiscFolderInside;
+    this.trailerDiscFolderInside = newValue;
+    firePropertyChange("trailerDiscFolderInside", oldValue, newValue);
   }
 
   public boolean isWriteCleanNfo() {

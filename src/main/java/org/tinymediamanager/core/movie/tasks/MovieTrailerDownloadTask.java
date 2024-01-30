@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -180,6 +181,21 @@ public class MovieTrailerDownloadTask extends TmmTask {
       filename = movie.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
     }
 
-    return movie.getPathNIO().resolve(filename);
+    // DVD/BluRay folders can have trailers within!
+    // check for discFolders and/or files
+    final Path outputFolder;
+    if (movie.isDisc() && MovieModuleManager.getInstance().getSettings().isTrailerDiscFolderInside()) {
+      if (MediaFileHelper.isDiscFolder(movie.getMainFile().getFilename())) {
+        outputFolder = movie.getMainFile().getFileAsPath();
+      }
+      else {
+        outputFolder = movie.getPathNIO(); // not a virtual "MF folder"? use default
+      }
+    }
+    else {
+      outputFolder = movie.getPathNIO(); // default
+    }
+
+    return outputFolder.resolve(filename);
   }
 }
