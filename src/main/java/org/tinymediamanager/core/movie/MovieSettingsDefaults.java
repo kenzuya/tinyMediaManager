@@ -157,6 +157,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.XBMC);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -229,6 +230,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.KODI);
     movieSettings.setCertificationStyle(CertificationStyle.LARGE);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -301,6 +303,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.MP);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -373,6 +376,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.KODI);
     movieSettings.setCertificationStyle(CertificationStyle.TECHNICAL);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -444,6 +448,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.KODI);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -515,6 +520,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.EMBY);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
@@ -586,6 +592,7 @@ public class MovieSettingsDefaults {
     movieSettings.setMovieConnector(MovieConnectors.KODI);
     movieSettings.setCertificationStyle(CertificationStyle.SHORT);
     movieSettings.setNfoDiscFolderInside(true);
+    movieSettings.setTrailerDiscFolderInside(true);
 
     movieSettings.firePropertyChange("preset", false, true);
   }
