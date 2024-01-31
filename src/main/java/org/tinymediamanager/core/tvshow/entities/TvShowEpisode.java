@@ -577,6 +577,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
           break;
         }
       }
+    } else if (episodeNumber == null && episodeGroup.getEpisodeGroupType() == ABSOLUTE) {
+      for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+        if (mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == ABSOLUTE) {
+          episodeNumber = mediaEpisodeNumber;
+          break;
+        }
+      }
     }
 
     return episodeNumber;
@@ -700,7 +707,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the episode number (if found) or -1
    */
   public int getAiredEpisode() {
-    return getEpisode(MediaEpisodeGroup.DEFAULT_AIRED);
+    return getEpisode(AIRED);
   }
 
   @Override
