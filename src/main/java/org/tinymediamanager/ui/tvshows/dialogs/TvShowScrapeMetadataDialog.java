@@ -155,7 +155,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
           (episodeScraperMetadataConfig, s) -> episodeScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
     else {
-      cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.getValues());
+      cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(
+          TvShowEpisodeScraperMetadataConfig.getValuesWithout(TvShowEpisodeScraperMetadataConfig.SEASON_EPISODE));
       cbEpisodeScraperConfig.enableFilter(
           (episodeScraperMetadataConfig, s) -> episodeScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
