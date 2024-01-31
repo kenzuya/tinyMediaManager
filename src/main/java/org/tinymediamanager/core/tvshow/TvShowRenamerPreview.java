@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
  * the class {@link TvShowRenamerPreview} is used to create a renamer preview for TV shows
@@ -60,6 +61,9 @@ public class TvShowRenamerPreview {
 
     // process TV show media files
     processTvShow();
+
+    // process season media files
+    processSeasons();
 
     // generate all episode filenames
     processEpisodes();
@@ -106,6 +110,29 @@ public class TvShowRenamerPreview {
       clone.setDataSource(tvShow.getDataSource());
       clone.setPath(container.newPath.toString());
       newFiles.addAll(TvShowRenamer.generateFilename(clone, new MediaFile(mf)));
+    }
+  }
+
+  private void processSeasons() {
+    List<TvShowSeason> seasons = new ArrayList<>(tvShow.getSeasons());
+    Collections.sort(seasons);
+    for (TvShowSeason season : seasons) {
+      TvShowEpisode dummy = season.getEpisodes().get(0);
+      String seasonFoldername = getSeasonFoldername(season.getTvShow(), dummy);
+      Path seasonFolder = container.newPath;
+      if (StringUtils.isNotBlank(seasonFoldername)) {
+        seasonFolder = container.newPath.resolve(seasonFoldername);
+      }
+
+      for (MediaFile mf : season.getMediaFiles()) {
+        MediaFile oldMf = new MediaFile(mf);
+        oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
+
+        MediaFile newMf = new MediaFile(mf);
+        newMf.replacePathForRenamedFolder(mf.getFileAsPath().getParent(), seasonFolder);
+        newFiles.add(newMf);
+      }
+
     }
   }
 
