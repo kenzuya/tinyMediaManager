@@ -58,6 +58,7 @@ import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import retrofit2.Response;
 
@@ -317,7 +318,10 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           break;
 
         case 12: // TheMovieDB.com
-          ret.put(MediaMetadata.TMDB, remote.id);
+          int tid = MetadataUtil.parseInt(remote.id, -1);
+          if (tid > 0) {
+            ret.put(MediaMetadata.TMDB, tid); // save as INT
+          }
           break;
 
         case 13: // EIDR
@@ -335,7 +339,10 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
           break;
 
         case 19: // TV Maze
-          ret.put(MediaMetadata.TVMAZE, remote.id);
+          int mid = MetadataUtil.parseInt(remote.id, -1);
+          if (mid > 0) {
+            ret.put(MediaMetadata.TVMAZE, mid); // save as INT
+          }
           break;
 
         case 20: // ???
