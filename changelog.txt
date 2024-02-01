@@ -14,6 +14,7 @@ x fixed opening trailers twice when pressing the play button
 x fixed updating of changed artwork #2446
 x improved automatic downloading of trailers #2455
 x (Trailer) allow renaming into a disc folder (Kodi style) #2451
+x fix NFO writing removing all the file properties #2463
 
 
 Version 5.0.1.1
