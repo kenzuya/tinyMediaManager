@@ -63,7 +63,7 @@ public class TvShowRenamerPreview {
     processTvShow();
 
     // process season media files
-    processSeasons();
+    // processSeasons(); // TODO: reverted for now, until we have a dedicated method to generate correct filenames according to settings
 
     // generate all episode filenames
     processEpisodes();
