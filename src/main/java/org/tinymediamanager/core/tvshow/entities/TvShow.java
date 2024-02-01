@@ -449,7 +449,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // also rebuild the seasons and fire the event for all episodes too
     if (!oldValue.equals(newValue)) {
-      LOGGER.info("Switched episodeGroup '{}' -> '{}'", oldValue, newValue);
+      LOGGER.info("Switched episodeGroup '{}' -> '{}' for show {}", oldValue, newValue, getTitle());
       // remove all episodes from all seasons
       seasons.forEach(TvShowSeason::removeAllEpisodes);
 
