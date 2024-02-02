@@ -348,7 +348,7 @@ public class TmmUIHelper {
   }
 
   public static void openFile(Path file) throws Exception {
-    if (file == null || file.getFileName() == null) {
+    if (file == null) {
       return;
     }
     String abs = file.toAbsolutePath().toString();
@@ -356,8 +356,15 @@ public class TmmUIHelper {
       return;
     }
 
-    String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
-    if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
+    // opening a root folder "/" or "D:\\" has no filename, but could be opened
+    boolean rootFolder = false;
+    if (file.getFileName() == null) {
+      rootFolder = true;
+    }
+
+    String fileType = rootFolder == true ? ".mkv" : "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
+    if (!rootFolder && StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer())
+        && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
         exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
       }
@@ -367,7 +374,6 @@ public class TmmUIHelper {
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
       // try to open directly
-
       try {
         Desktop.getDesktop().open(file.toFile());
       }
@@ -415,7 +421,6 @@ public class TmmUIHelper {
     }
     else if (Desktop.isDesktopSupported()) {
       Desktop.getDesktop().open(file.toFile());
-
     }
     else {
       throw new UnsupportedOperationException();
