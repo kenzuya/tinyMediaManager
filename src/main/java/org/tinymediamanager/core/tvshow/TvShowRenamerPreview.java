@@ -44,12 +44,16 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 public class TvShowRenamerPreview {
 
   private final TvShow                        tvShow;
+  private final TvShow                        clone;
   private final TvShowRenamerPreviewContainer container;
   private final Map<String, MediaFile>        oldFiles;
   private final Set<MediaFile>                newFiles;
 
   public TvShowRenamerPreview(TvShow tvShow) {
     this.tvShow = tvShow;
+    this.clone = new TvShow();
+    this.clone.merge(tvShow);
+    this.clone.setDataSource(tvShow.getDataSource());
     this.container = new TvShowRenamerPreviewContainer(tvShow);
     this.oldFiles = new LinkedHashMap<>();
     this.newFiles = new LinkedHashSet<>();
@@ -58,6 +62,7 @@ public class TvShowRenamerPreview {
   public TvShowRenamerPreviewContainer generatePreview() {
     // generate the new path
     container.newPath = Paths.get(getTvShowFoldername(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername(), tvShow));
+    this.clone.setPath(container.newPath.toString());
 
     // process TV show media files
     processTvShow();
@@ -104,11 +109,6 @@ public class TvShowRenamerPreview {
     for (MediaFile mf : tvShow.getMediaFiles()) {
       MediaFile oldMf = new MediaFile(mf);
       oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
-
-      TvShow clone = new TvShow();
-      clone.merge(tvShow);
-      clone.setDataSource(tvShow.getDataSource());
-      clone.setPath(container.newPath.toString());
       newFiles.addAll(TvShowRenamer.generateFilename(clone, new MediaFile(mf)));
     }
   }
@@ -182,11 +182,6 @@ public class TvShowRenamerPreview {
         for (MediaFile mf : episode.getMediaFiles()) {
           MediaFile oldMf = new MediaFile(mf);
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
-
-          TvShow clone = new TvShow();
-          clone.merge(tvShow);
-          clone.setDataSource(tvShow.getDataSource());
-          clone.setPath(container.newPath.toString());
           newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(clone, new MediaFile(mf), oldVideoBasename));
         }
       }
