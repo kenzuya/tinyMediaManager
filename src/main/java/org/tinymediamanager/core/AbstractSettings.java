@@ -81,6 +81,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
         .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, true)
         .configure(MapperFeature.AUTO_DETECT_SETTERS, true)
         .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
+        .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
         .enable(SerializationFeature.INDENT_OUTPUT)
