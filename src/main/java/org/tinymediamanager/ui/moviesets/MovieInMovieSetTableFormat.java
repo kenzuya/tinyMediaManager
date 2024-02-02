@@ -51,7 +51,7 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.year"), "year", MediaEntity::getYear, Movie.class);
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    col.setMinWidth(fontMetrics.stringWidth("2000") + 12);
     addColumn(col);
 
     /*
@@ -61,7 +61,7 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
     col.setColumnResizeable(false);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date) + 10));
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
     }
     catch (Exception ignored) {
       // ignore
