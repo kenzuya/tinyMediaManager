@@ -27,7 +27,6 @@ import static org.tinymediamanager.core.Constants.THUMB;
 import java.awt.Component;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -170,17 +169,7 @@ public class TvShowInformationPanel extends InformationPanel {
       if (StringUtils.isNotBlank(lblPath.getText())) {
         // get the location from the label
         Path path = Paths.get(lblPath.getText());
-        try {
-          // check whether this location exists
-          if (Files.exists(path)) {
-            TmmUIHelper.openFile(path);
-          }
-        }
-        catch (Exception ex) {
-          LOGGER.error("open filemanager", ex);
-          MessageManager.instance
-              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-        }
+        TmmUIHelper.openFolder(path);
       }
     });
 

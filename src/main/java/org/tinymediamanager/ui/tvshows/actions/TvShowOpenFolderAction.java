@@ -18,14 +18,11 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.nio.file.Files;
 
 import javax.swing.KeyStroke;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
@@ -51,16 +48,6 @@ public class TvShowOpenFolderAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     TvShow tvShow = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShow();
-    try {
-      // check whether this location exists
-      if (Files.exists(tvShow.getPathNIO())) {
-        TmmUIHelper.openFile(tvShow.getPathNIO());
-      }
-    }
-    catch (Exception ex) {
-      LOGGER.error("open filemanager", ex);
-      MessageManager.instance.pushMessage(
-          new Message(Message.MessageLevel.ERROR, tvShow.getPathNIO(), "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-    }
+    TmmUIHelper.openFolder(tvShow.getPathNIO());
   }
 }

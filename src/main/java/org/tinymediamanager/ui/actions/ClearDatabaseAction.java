@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.actions;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -26,9 +25,6 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.MainWindow;
@@ -68,17 +64,7 @@ public class ClearDatabaseAction extends TmmAction {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.cleardatabase.error"));
       // open the tmm folder
       Path path = Paths.get("");
-      try {
-        // check whether this location exists
-        if (Files.exists(path)) {
-          TmmUIHelper.openFile(path);
-        }
-      }
-      catch (Exception ex) {
-        LOGGER.warn(ex.getMessage());
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-      }
+      TmmUIHelper.openFolder(path);
     }
     MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
   }

@@ -212,15 +212,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         final JButton btnPlay = new SquareIconButton(IconManager.FILE_OPEN_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
-
-          try {
-            TmmUIHelper.openFile(tvShowToScrape.getPathNIO());
-          }
-          catch (Exception ex) {
-            LOGGER.error("open file", ex);
-            MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, tvShowToScrape.getPathNIO(), "message.erroropenfile",
-                new String[] { ":", ex.getLocalizedMessage() }));
-          }
+          TmmUIHelper.openFolder(tvShowToScrape.getPathNIO());
         });
         panelPath.add(btnPlay, "cell 1 0");
       }

@@ -178,25 +178,7 @@ public class MovieInformationPanel extends InformationPanel {
       if (StringUtils.isNotEmpty(lblMoviePath.getLink())) {
         // get the location from the label
         Path path = Paths.get(lblMoviePath.getLink());
-        try {
-          // check whether this location exists
-          if (Files.exists(path)) {
-            TmmUIHelper.openFile(path);
-          } else {
-            LOGGER.debug("could not open folder '{}' -> does not exist?", path);
-            BasicFileAttributes fileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
-            LOGGER.debug("isDir {}", fileAttributes.isDirectory());
-            LOGGER.debug("isRegularFile {}", fileAttributes.isRegularFile());
-            LOGGER.debug("isOther {}", fileAttributes.isOther());
-            LOGGER.debug("isSymlink {}", fileAttributes.isSymbolicLink());
-            LOGGER.debug("creationTime {}", fileAttributes.creationTime());
-          }
-        }
-        catch (Exception ex) {
-          LOGGER.error("open filemanager", ex);
-          MessageManager.instance
-              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-        }
+        TmmUIHelper.openFolder(path);
       }
     });
 
