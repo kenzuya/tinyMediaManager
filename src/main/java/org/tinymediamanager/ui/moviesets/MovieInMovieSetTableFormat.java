@@ -21,9 +21,11 @@ import java.util.Date;
 
 import javax.swing.ImageIcon;
 
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 
@@ -57,7 +59,13 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateadded", MediaEntity::getDateAddedForUi, Date.class);
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date) + 100));
+    }
+    catch (Exception ignored) {
+      // ignore
+    }
     addColumn(col);
 
     /*
