@@ -220,7 +220,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - IMDb");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("9.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("IMDb") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -256,7 +256,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - TMDB");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("9.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("TMDB") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -284,6 +284,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
+    col.setMinWidth(fontMetrics.stringWidth("not rated") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -478,6 +479,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.SOURCE);
     col.setCellTooltip(showTooltip(mediaSourceFunction));
+    col.setMinWidth(fontMetrics.stringWidth("Blu-ray") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 

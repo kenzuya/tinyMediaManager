@@ -194,7 +194,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - IMDb");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("9.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("IMDb") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -235,6 +235,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
+    col.setMinWidth(fontMetrics.stringWidth("not rated") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -391,6 +392,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("metatag.source"), "mediaSource", this::getMediaSource, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.SOURCE);
+    col.setMinWidth(fontMetrics.stringWidth("Blu-ray") + 12);
     col.setDefaultHidden(true);
     addColumn(col);
 
