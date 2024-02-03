@@ -1827,9 +1827,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           path = file.getParent().getFileName().toString();
         }
 
-        // in a disc folder we only accept NFO files
+        // in a disc folder we only accept NFO (and trailer) files
         if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
-          if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+          if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo") || FilenameUtils.getBaseName(filename).endsWith("trailer")) {
             fFound.add(file.toAbsolutePath());
           }
           return CONTINUE;
