@@ -28,6 +28,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 
 /**
  * The MovieInMovieSetTableFormat. Used as definition for the movie table in the movie set module
@@ -59,6 +60,7 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateadded", MediaEntity::getDateAddedForUi, Date.class);
     col.setColumnResizeable(false);
+    col.setCellRenderer(new DateTableCellRenderer());
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
       col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
