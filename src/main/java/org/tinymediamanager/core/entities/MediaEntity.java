@@ -617,6 +617,7 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
       mediaFile = images.get(0);
       mediaFile.setFile(file);
       mediaFile.gatherMediaInformation(true);
+      fireAddedEventForMediaFile(mediaFile);
     }
     else {
       mediaFile = new MediaFile(file, type);
@@ -934,22 +935,22 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     }
 
     switch (mediaFile.getType()) {
-      case FANART:
+      case FANART, SEASON_FANART:
         firePropertyChange(FANART, null, mediaFile.getPath());
         firePropertyChange(HAS_IMAGES, false, true);
         break;
 
-      case POSTER:
+      case POSTER, SEASON_POSTER:
         firePropertyChange(POSTER, null, mediaFile.getPath());
         firePropertyChange(HAS_IMAGES, false, true);
         break;
 
-      case BANNER:
+      case BANNER, SEASON_BANNER:
         firePropertyChange(BANNER, null, mediaFile.getPath());
         firePropertyChange(HAS_IMAGES, false, true);
         break;
 
-      case THUMB:
+      case THUMB, SEASON_THUMB:
         firePropertyChange(THUMB, null, mediaFile.getPath());
         firePropertyChange(HAS_IMAGES, false, true);
         break;
@@ -995,22 +996,22 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
     }
 
     switch (mediaFile.getType()) {
-      case FANART:
+      case FANART, SEASON_FANART:
         firePropertyChange(FANART, null, "");
         firePropertyChange(HAS_IMAGES, true, false);
         break;
 
-      case POSTER:
+      case POSTER, SEASON_POSTER:
         firePropertyChange(POSTER, null, "");
         firePropertyChange(HAS_IMAGES, true, false);
         break;
 
-      case BANNER:
+      case BANNER, SEASON_BANNER:
         firePropertyChange(BANNER, null, "");
         firePropertyChange(HAS_IMAGES, true, false);
         break;
 
-      case THUMB:
+      case THUMB, SEASON_THUMB:
         firePropertyChange(THUMB, null, "");
         firePropertyChange(HAS_IMAGES, true, false);
         break;

@@ -330,16 +330,24 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * (re)sets the path (when renaming tv show/season folder).<br>
+   * (re)sets the path (when renaming tv show folder).<br>
    * Exchanges the beginning path from oldPath with newPath<br>
    */
-  public void replacePathForRenamedFolder(Path oldPath, Path newPath) {
+  public void replacePathForRenamedTvShowRoot(Path oldPath, Path newPath) {
     if (oldPath == null || newPath == null) {
       return;
     }
-    int oldCnt = oldPath.getNameCount();
-    Path remaining = getPathNIO().subpath(oldCnt, getPathNIO().getNameCount());
-    Path newPathToSet = newPath.resolve(remaining);
+
+    Path newPathToSet;
+    if (oldPath.equals(getPathNIO())) {
+      // episode is in TV show root -> just exchange
+      newPathToSet = newPath;
+    }
+    else {
+      Path subPath = oldPath.relativize(getPathNIO()); // path relative to the TV show root
+      newPathToSet = newPath.resolve(subPath);
+    }
+
     LOGGER.trace("EP replace: ({}, {}) -> {} results in {}", oldPath, newPath, getPath(), newPathToSet);
     setPath(newPathToSet.toAbsolutePath().toString());
   }
@@ -569,6 +577,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
           break;
         }
       }
+    } else if (episodeNumber == null && episodeGroup.getEpisodeGroupType() == ABSOLUTE) {
+      for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
+        if (mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == ABSOLUTE) {
+          episodeNumber = mediaEpisodeNumber;
+          break;
+        }
+      }
     }
 
     return episodeNumber;
@@ -692,7 +707,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the episode number (if found) or -1
    */
   public int getAiredEpisode() {
-    return getEpisode(MediaEpisodeGroup.DEFAULT_AIRED);
+    return getEpisode(AIRED);
   }
 
   @Override

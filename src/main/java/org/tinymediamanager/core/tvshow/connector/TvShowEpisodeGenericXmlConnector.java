@@ -239,6 +239,19 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     if (!newNfos.isEmpty()) {
       for (TvShowEpisode episode : episodes) {
+        // remove orphaned files
+        List<MediaFile> existingNfos = episode.getMediaFiles(MediaFileType.NFO);
+        for (MediaFile nfo : existingNfos) {
+          if (!newNfos.contains(nfo)) {
+            try {
+              Utils.deleteFileWithBackup(nfo.getFileAsPath(), episode.getTvShow().getDataSource());
+            }
+            catch (Exception e) {
+              LOGGER.debug("Could not remove orphaned NFO - '{}'", e.getMessage());
+            }
+          }
+        }
+
         episode.removeAllMediaFiles(MediaFileType.NFO);
         episode.addToMediaFiles(newNfos);
       }

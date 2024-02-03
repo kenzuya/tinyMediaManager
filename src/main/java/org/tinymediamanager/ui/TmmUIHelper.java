@@ -29,6 +29,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -347,14 +348,23 @@ public class TmmUIHelper {
   }
 
   public static void openFile(Path file) throws Exception {
-    String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
+    if (file == null) {
+      return;
+    }
     String abs = file.toAbsolutePath().toString();
-
     if (StringUtils.isBlank(abs)) {
       return;
     }
 
-    if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
+    // opening a root folder "/" or "D:\\" has no filename, but could be opened
+    boolean rootFolder = false;
+    if (file.getFileName() == null) {
+      rootFolder = true;
+    }
+
+    String fileType = rootFolder == true ? ".mkv" : "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
+    if (!rootFolder && StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer())
+        && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
         exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
       }
@@ -364,11 +374,11 @@ public class TmmUIHelper {
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
       // try to open directly
-
       try {
         Desktop.getDesktop().open(file.toFile());
       }
       catch (Exception e) {
+        LOGGER.debug("could not open file with the default app - '{}'", e.getMessage());
         // use explorer directly - ship around access exceptions and the unresolved network bug
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6780505
         exec(new String[] { "explorer", abs });
@@ -411,7 +421,6 @@ public class TmmUIHelper {
     }
     else if (Desktop.isDesktopSupported()) {
       Desktop.getDesktop().open(file.toFile());
-
     }
     else {
       throw new UnsupportedOperationException();
@@ -429,6 +438,15 @@ public class TmmUIHelper {
       // check whether this location exists
       if (Files.exists(path) && Files.isDirectory(path)) {
         TmmUIHelper.openFile(path);
+      }
+      else {
+        LOGGER.debug("could not open folder '{}' -> does not exist?", path);
+        BasicFileAttributes fileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
+        LOGGER.debug("isDir {}", fileAttributes.isDirectory());
+        LOGGER.debug("isRegularFile {}", fileAttributes.isRegularFile());
+        LOGGER.debug("isOther {}", fileAttributes.isOther());
+        LOGGER.debug("isSymlink {}", fileAttributes.isSymbolicLink());
+        LOGGER.debug("creationTime {}", fileAttributes.creationTime());
       }
     }
     catch (Exception ex) {

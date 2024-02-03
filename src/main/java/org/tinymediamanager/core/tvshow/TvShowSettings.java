@@ -460,7 +460,7 @@ public final class TvShowSettings extends AbstractSettings {
     CountryCode cc = CountryCode.getByCode(defaultLang.toUpperCase(Locale.ROOT));
     if (cc != null) {
       setCertificationCountry(cc);
-      setReleaseDateCountry(Locale.getDefault().getCountry());
+      setReleaseDateCountry(cc.getAlpha2());
     }
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {

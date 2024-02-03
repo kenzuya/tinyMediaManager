@@ -140,9 +140,8 @@ public class TvShowTest extends BasicTvShowTest {
     assertEqual("S:1 E:1", detectEpisode("showname S01E01\\ijfi38jsoid88939859283j.mkv"));
     assertEqual("S:8 E:4", detectEpisode("Homeland - Temporada 8 [HDTV][Cap.804][Castellano][www.descargas2020.org].avi"));
     assertEqual("S:10 E:4", detectEpisode("Homeland - Temporada 10 [HDTV][Cap.1004][Castellano][www.descargas2020.org].avi"));
-    assertEqual("S:-1 E:105 Absolute", detectEpisode("EP105 The Bed of Nails.avi")); // absolute
     assertEqual("S:3 E:5", detectEpisode("S03 EP05 The Bed of Nails.avi"));
-    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi")); // no valid absolute marker since season is here too!
+    assertEqual("S:3 E:105", detectEpisode("S03 EP105 The Bed of Nails.avi"));
     assertEqual("S:3 E:5", detectEpisode("S03.EP05.The.Bed.of.Nails.avi"));
     assertEqual("S:1 E:101", detectEpisode("Eisenbahn-Romantik.S01.E101.mp4"));
     assertEqual("S:5 E:1001", detectEpisode("S05.E1001.El.beso.de.la.mujer.veneno.mp4"));
@@ -315,9 +314,6 @@ public class TvShowTest extends BasicTvShowTest {
     for (int ep : result.episodes) {
       sb.append(" E:");
       sb.append(ep);
-    }
-    if (result.absolute) {
-      sb.append(" Absolute");
     }
     if (result.stackingMarkerFound) {
       sb.append(" Split");

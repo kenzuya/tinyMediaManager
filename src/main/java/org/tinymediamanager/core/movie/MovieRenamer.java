@@ -838,17 +838,39 @@ public class MovieRenamer {
             stackingMarker = matcher.group(1);
           }
 
+          // getTrailerFilename NEEDS extension - so add it here default, and overwrite it in isDisc()
+          newFilename += ".avi";
+          // DVD/BluRay folders can have trailers within!
+          // check for discFolders and/or files
+          Path outputFolder;
+          if (movie.isDisc() && MovieModuleManager.getInstance().getSettings().isTrailerDiscFolderInside()) {
+            MediaFile main = movie.getMainFile();
+            if (MediaFileHelper.isDiscFolder(main.getFilename())) {
+              Path mainFile = main.getFileAsPath();
+              Path rel = movie.getPathNIO().relativize(mainFile);
+              outputFolder = newMovieDir.resolve(rel);
+            }
+            else {
+              outputFolder = newMovieDir; // not a virtual "MF folder"? use default
+            }
+            // since we ARE in a disc structure, we have to name it accordingly.... (folder or not)
+            newFilename = movie.findDiscMainFile(); // with ext
+          }
+          else {
+            outputFolder = newMovieDir; // default
+          }
+
           for (MovieTrailerNaming name : trailernames) {
-            String newTrailerName = movie.getTrailerFilename(name, newFilename + ".avi"); // basename used, so add fake extension
+            String newTrailerName = movie.getTrailerFilename(name, newFilename); // basename used, so add fake extension
             if (newTrailerName.isEmpty()) {
               continue;
             }
             MediaFile trail = new MediaFile(mf);
             if (StringUtils.isNotBlank(stackingMarker)) {
-              trail.setFile(newMovieDir.resolve(newTrailerName + "." + stackingMarker + "." + mf.getExtension())); // get w/o extension to add same
+              trail.setFile(outputFolder.resolve(newTrailerName + "." + stackingMarker + "." + mf.getExtension())); // get w/o extension to add same
             }
             else {
-              trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+              trail.setFile(outputFolder.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
             }
             newFiles.add(trail);
           }

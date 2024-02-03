@@ -18,14 +18,11 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.nio.file.Files;
 
 import javax.swing.KeyStroke;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -51,16 +48,6 @@ public class MovieOpenFolderAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     Movie movie = MovieUIModule.getInstance().getSelectionModel().getSelectedMovie();
-    try {
-      // check whether this location exists
-      if (Files.exists(movie.getPathNIO())) {
-        TmmUIHelper.openFile(movie.getPathNIO());
-      }
-    }
-    catch (Exception ex) {
-      LOGGER.error("open filemanager", ex);
-      MessageManager.instance.pushMessage(
-          new Message(Message.MessageLevel.ERROR, movie.getPathNIO(), "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-    }
+    TmmUIHelper.openFolder(movie.getPathNIO());
   }
 }

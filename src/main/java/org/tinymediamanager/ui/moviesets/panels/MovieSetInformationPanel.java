@@ -162,34 +162,14 @@ public class MovieSetInformationPanel extends JPanel {
       if (!StringUtils.isEmpty(taArtworkPath1.getText())) {
         // get the location from the label
         Path path = Paths.get(taArtworkPath1.getText());
-        try {
-          // check whether this location exists
-          if (Files.exists(path)) {
-            TmmUIHelper.openFile(path);
-          }
-        }
-        catch (Exception ex) {
-          LOGGER.error("open filemanager", ex);
-          MessageManager.instance
-              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-        }
+        TmmUIHelper.openFolder(path);
       }
     });
     taArtworkPath2.addActionListener(arg0 -> {
       if (!StringUtils.isEmpty(taArtworkPath2.getText())) {
         // get the location from the label
         Path path = Paths.get(taArtworkPath2.getText());
-        try {
-          // check whether this location exists
-          if (Files.exists(path)) {
-            TmmUIHelper.openFile(path);
-          }
-        }
-        catch (Exception ex) {
-          LOGGER.error("open filemanager", ex);
-          MessageManager.instance
-              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
-        }
+        TmmUIHelper.openFolder(path);
       }
     });
   }

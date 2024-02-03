@@ -319,27 +319,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       LOGGER.debug("Processing '{}' existing, '{}' new movies and '{}' root files", existingMovieDirs.size(), newMovieDirs.size(), rootFiles.size());
 
-      // parse folders inside the DS recursively
       for (Path path : newMovieDirs) {
         searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
       }
       for (Path path : existingMovieDirs) {
         searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
       }
-
-      // wait here because on a really _slow_ machine, there could be concurrent lists from the folder level AND root level
-      waitForCompletionOrCancel();
-
-      // parse root recursively
       if (!rootFiles.isEmpty()) {
-        initThreadPool(1, "update");
-        setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
-        publishState();
-
         submitTask(new ParseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), new ArrayList<>(rootFiles)));
-
-        waitForCompletionOrCancel();
       }
+
+      waitForCompletionOrCancel();
 
       // print stats
       LOGGER.info("FilesFound: {}", filesFound.size());
@@ -1046,16 +1036,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
     if (videoAvailable) {
       LOGGER.debug("| store movie into DB as: {}", movie.getTitle());
-      if (movieList.addMovie(movie)) {
-        movie.setOffline(isOffline);
-        movie.reEvaluateDiscfolder();
-        movie.reEvaluateStacking();
-        movie.saveToDb();
-      }
-      else {
-        LOGGER.warn("movie (path/file) has already been added with a different object!");
-        return;
-      }
+      movieList.addMovie(movie);
+
+      movie.setOffline(isOffline);
+      movie.reEvaluateDiscfolder();
+      movie.reEvaluateStacking();
+      movie.saveToDb();
     }
     else {
       LOGGER.error("could not add '{}' because no VIDEO file found", movieDir);
@@ -1276,12 +1262,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
-      if (movieList.addMovie(movie)) {
-        movie.saveToDb();
-      }
-      else {
-        LOGGER.warn("movie (path/file) has already been added with a different object!");
-      }
+      movieList.addMovie(movie);
+      movie.saveToDb();
     } // end foreach VIDEO MF
 
     // check stacking on all movie from this dir (it might have changed!)

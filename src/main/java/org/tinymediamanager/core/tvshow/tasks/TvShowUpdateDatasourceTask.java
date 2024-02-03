@@ -1046,10 +1046,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // something found with the season detection?
             for (int ep : result.episodes) {
               TvShowEpisode episode = new TvShowEpisode();
-              if (result.absolute) {
-                episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_ABSOLUTE, 1, ep));
-              }
-              else if (tvShow.getEpisodeGroup() != null) {
+              if (tvShow.getEpisodeGroup() != null) {
                 // the TV show already has an assigned episode group - assign the S/E to the same group
                 episode.setEpisode(new MediaEpisodeNumber(tvShow.getEpisodeGroup(), result.season, ep));
               }

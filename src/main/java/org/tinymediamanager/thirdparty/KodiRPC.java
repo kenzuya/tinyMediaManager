@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.thirdparty;
 
+import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -157,7 +158,19 @@ public class KodiRPC {
       try {
         for (ListModel.SourceItem res : call.getResults()) {
           LOGGER.debug("Kodi datasource: {}", res.file);
-          this.videodatasources.put(res.file, res.label);
+          if (res.file.startsWith("multipath")) {
+            // more than one source mapped to a singe Kodi datasource
+            // multipath://%2fmedia%2f8TB%2fFilme%2fKino%2f/%2fmedia%2fWD-4TB%2f!Kino2%2f/
+            String mp = res.file.replace("multipath://", ""); // remove prefix
+            String[] source = mp.split("/"); // split on slash
+            for (String ds : source) {
+              String s = URLDecoder.decode(ds, "UTF-8");
+              this.videodatasources.put(s, res.label);
+            }
+          }
+          else {
+            this.videodatasources.put(res.file, res.label);
+          }
         }
       }
       catch (Exception e) {

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -125,8 +126,13 @@ public class MediaFileAudioStreamEditorPanel extends AbstractModalInputPanel {
     spBitdepth.setValue(audioStream.getBitDepth());
     tfTitle.setText(audioStream.getTitle());
 
-    LanguageContainer foundByValue = languages.stream().filter(v -> v.value.equalsIgnoreCase(audioStream.getLanguage())).findFirst().get();
-    cbLanguage.setSelectedItem(foundByValue);
+    Optional<LanguageContainer> foundByValue = languages.stream().filter(v -> v.value.equalsIgnoreCase(audioStream.getLanguage())).findFirst();
+    if (foundByValue.isPresent()) {
+      cbLanguage.setSelectedItem(foundByValue.get());
+    }
+    else {
+      cbLanguage.setSelectedItem(audioStream.getLanguage()); // but not added to langu list ;)
+    }
 
     // set focus to the first combobox
     SwingUtilities.invokeLater(tfCodec::requestFocus);

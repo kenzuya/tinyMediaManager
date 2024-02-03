@@ -219,6 +219,19 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     }
 
     if (!newNfos.isEmpty()) {
+      // remove orphaned files
+      List<MediaFile> existingNfos = tvShow.getMediaFiles(MediaFileType.NFO);
+      for (MediaFile nfo : existingNfos) {
+        if (!newNfos.contains(nfo)) {
+          try {
+            Utils.deleteFileWithBackup(nfo.getFileAsPath(), tvShow.getDataSource());
+          }
+          catch (Exception e) {
+            LOGGER.debug("Could not remove orphaned NFO - '{}'", e.getMessage());
+          }
+        }
+      }
+
       tvShow.removeAllMediaFiles(MediaFileType.NFO);
       tvShow.addToMediaFiles(newNfos);
     }

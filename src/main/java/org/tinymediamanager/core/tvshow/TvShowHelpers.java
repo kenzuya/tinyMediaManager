@@ -36,6 +36,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -163,6 +164,12 @@ public class TvShowHelpers {
       for (TvShowEpisode episode : episodes) {
         Path videoFilePath = episode.getMainVideoFile().getFileAsPath().getParent();
 
+        if (!videoFilePath.startsWith(tvShowPath)) {
+          // inconsistent MF path!!
+          LOGGER.debug("episode MF path does not match TV show root!!");
+          continue;
+        }
+
         // split up the relative path into its path junks
         Path relativePath = tvShowPath.relativize(videoFilePath);
         int subfolders = relativePath.getNameCount();
@@ -223,7 +230,7 @@ public class TvShowHelpers {
   public static void downloadBestTrailer(TvShow tvShow) {
     if (!tvShow.getTrailer().isEmpty()) {
       TmmTask task = new TvShowTrailerDownloadTask(tvShow);
-      TmmTaskManager.getInstance().addDownloadTask(task);
+      TmmTaskChain.getInstance(tvShow).add(task);
     }
   }
 
@@ -285,7 +292,7 @@ public class TvShowHelpers {
             return tvshow;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(tvshow).add(task);
       }
       else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
@@ -300,7 +307,7 @@ public class TvShowHelpers {
             return tvshow;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(tvshow).add(task);
       }
     }
     catch (Exception e) {

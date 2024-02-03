@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -36,6 +37,7 @@ import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
@@ -148,7 +150,7 @@ public class MovieHelpers {
   public static void downloadBestTrailer(Movie movie) {
     if (!movie.getTrailer().isEmpty()) {
       TmmTask task = new MovieTrailerDownloadTask(movie);
-      TmmTaskManager.getInstance().addDownloadTask(task);
+      TmmTaskChain.getInstance(movie).add(task);
     }
   }
 
@@ -203,13 +205,28 @@ public class MovieHelpers {
       filename = movie.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
     }
 
+    // DVD/BluRay folders can have trailers within!
+    // check for discFolders and/or files
+    final Path outputFolder;
+    if (movie.isDisc() && MovieModuleManager.getInstance().getSettings().isTrailerDiscFolderInside()) {
+      if (MediaFileHelper.isDiscFolder(movie.getMainFile().getFilename())) {
+        outputFolder = movie.getMainFile().getFileAsPath();
+      }
+      else {
+        outputFolder = movie.getPathNIO(); // not a virtual "MF folder"? use default
+      }
+    }
+    else {
+      outputFolder = movie.getPathNIO(); // default
+    }
+
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
         YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.getInstance().getSettings().getTrailerQuality()) {
           @Override
           protected Path getDestinationWoExtension() {
-            return movie.getPathNIO().resolve(filename);
+            return outputFolder.resolve(filename);
           }
 
           @Override
@@ -217,13 +234,13 @@ public class MovieHelpers {
             return movie;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(movie).add(task);
       }
       else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
           @Override
           protected Path getDestinationWoExtension() {
-            return movie.getPathNIO().resolve(filename);
+            return outputFolder.resolve(filename);
           }
 
           @Override
@@ -231,7 +248,7 @@ public class MovieHelpers {
             return movie;
           }
         };
-        TmmTaskManager.getInstance().addDownloadTask(task);
+        TmmTaskChain.getInstance(movie).add(task);
       }
     }
     catch (Exception e) {

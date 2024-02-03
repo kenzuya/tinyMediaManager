@@ -1775,7 +1775,9 @@ public class Utils {
     try {
       // pre-delete existing file. this will be needed for CaSe insensitive file systems,
       // because truncating the existing one may result to a false filename
-      Files.deleteIfExists(file);
+      // Files.deleteIfExists(file);
+      // NOOO - this is the wrong place. Our renamer needs to take care of such changes...
+      // deleting and recreating also destroys all set permissions & attributes...
 
       // write the file
       Files.writeString(file, text);

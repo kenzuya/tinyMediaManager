@@ -228,10 +228,8 @@ public final class MovieList extends AbstractModelObject {
    * 
    * @param movie
    *          the movie
-   * 
-   * @return true if the movie has been added; false if the movie was already there
    */
-  public boolean addMovie(Movie movie) {
+  public void addMovie(Movie movie) {
     if (!movieList.contains(movie)) {
       int oldValue = movieList.size();
       movieList.add(movie);
@@ -240,10 +238,7 @@ public final class MovieList extends AbstractModelObject {
       movie.addPropertyChangeListener(movieListener);
       firePropertyChange("movies", null, movieList);
       firePropertyChange("movieCount", oldValue, movieList.size());
-      return true;
     }
-
-    return false;
   }
 
   /**
@@ -564,13 +559,11 @@ public final class MovieList extends AbstractModelObject {
 
   public void persistMovie(Movie movie) {
     // sanity checks
-    try {
-      if (!movieList.contains(movie)) {
-        throw new IllegalArgumentException(movie.getPathNIO().toString());
-      }
-    }
-    catch (Exception e) {
-      LOGGER.debug("not persisting movie - not in movielist", e);
+    Movie movieInList = movieList.stream().filter(m -> m.equals(movie)).findFirst().orElse(null);
+
+    // the given movie must be in the movie list (same dbId and not only same path!)
+    if (movieInList == null || !movieInList.getDbId().equals(movie.getDbId())) {
+      LOGGER.debug("not persisting movie - not in movielist");
       return;
     }
 

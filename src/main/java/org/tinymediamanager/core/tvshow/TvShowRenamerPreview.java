@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
 /**
  * the class {@link TvShowRenamerPreview} is used to create a renamer preview for TV shows
@@ -43,12 +44,16 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 public class TvShowRenamerPreview {
 
   private final TvShow                        tvShow;
+  private final TvShow                        clone;
   private final TvShowRenamerPreviewContainer container;
   private final Map<String, MediaFile>        oldFiles;
   private final Set<MediaFile>                newFiles;
 
   public TvShowRenamerPreview(TvShow tvShow) {
     this.tvShow = tvShow;
+    this.clone = new TvShow();
+    this.clone.merge(tvShow);
+    this.clone.setDataSource(tvShow.getDataSource());
     this.container = new TvShowRenamerPreviewContainer(tvShow);
     this.oldFiles = new LinkedHashMap<>();
     this.newFiles = new LinkedHashSet<>();
@@ -57,9 +62,13 @@ public class TvShowRenamerPreview {
   public TvShowRenamerPreviewContainer generatePreview() {
     // generate the new path
     container.newPath = Paths.get(getTvShowFoldername(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername(), tvShow));
+    this.clone.setPath(container.newPath.toString());
 
     // process TV show media files
     processTvShow();
+
+    // process season media files
+    // processSeasons(); // TODO: reverted for now, until we have a dedicated method to generate correct filenames according to settings
 
     // generate all episode filenames
     processEpisodes();
@@ -100,12 +109,30 @@ public class TvShowRenamerPreview {
     for (MediaFile mf : tvShow.getMediaFiles()) {
       MediaFile oldMf = new MediaFile(mf);
       oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
-
-      TvShow clone = new TvShow();
-      clone.merge(tvShow);
-      clone.setDataSource(tvShow.getDataSource());
-      clone.setPath(container.newPath.toString());
       newFiles.addAll(TvShowRenamer.generateFilename(clone, new MediaFile(mf)));
+    }
+  }
+
+  private void processSeasons() {
+    List<TvShowSeason> seasons = new ArrayList<>(tvShow.getSeasons());
+    Collections.sort(seasons);
+    for (TvShowSeason season : seasons) {
+      TvShowEpisode dummy = season.getEpisodes().get(0);
+      String seasonFoldername = getSeasonFoldername(season.getTvShow(), dummy);
+      Path seasonFolder = container.newPath;
+      if (StringUtils.isNotBlank(seasonFoldername)) {
+        seasonFolder = container.newPath.resolve(seasonFoldername);
+      }
+
+      for (MediaFile mf : season.getMediaFiles()) {
+        MediaFile oldMf = new MediaFile(mf);
+        oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
+
+        MediaFile newMf = new MediaFile(mf);
+        newMf.replacePathForRenamedFolder(mf.getFileAsPath().getParent(), seasonFolder);
+        newFiles.add(newMf);
+      }
+
     }
   }
 
@@ -155,11 +182,6 @@ public class TvShowRenamerPreview {
         for (MediaFile mf : episode.getMediaFiles()) {
           MediaFile oldMf = new MediaFile(mf);
           oldFiles.put(oldMf.getFileAsPath().toString(), oldMf);
-
-          TvShow clone = new TvShow();
-          clone.merge(tvShow);
-          clone.setDataSource(tvShow.getDataSource());
-          clone.setPath(container.newPath.toString());
           newFiles.addAll(TvShowRenamer.generateEpisodeFilenames(clone, new MediaFile(mf), oldVideoBasename));
         }
       }

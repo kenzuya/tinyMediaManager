@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -100,6 +101,12 @@ public class TvShowTrailerDownloadTask extends TmmTask {
     // now try to download the trailers until we get one ;)
     for (MediaTrailer trailer : trailers) {
       String url = trailer.getUrl();
+
+      if (StringUtils.isBlank(url)) {
+        // no url - no download
+        continue;
+      }
+
       try {
         LOGGER.debug("try to download trailer '{}'", url);
 
