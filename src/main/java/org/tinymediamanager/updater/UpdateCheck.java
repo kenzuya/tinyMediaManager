@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -91,7 +92,7 @@ public class UpdateCheck {
 
         LOGGER.trace("Checking {}", uu);
         try {
-          Url url = new Url(urlAsString);
+          Url url = new Url(urlAsString + "?z=" + System.nanoTime() + "&clientver=" + License.getInstance().ref());
 
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {
