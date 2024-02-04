@@ -300,10 +300,6 @@ public class Url {
 
     InputStream is = null;
 
-    // replace our API keys for logging...
-    String logUrl = url.replaceAll("api_?key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
-    LOGGER.debug("getting {}", logUrl);
-
     Request.Builder requestBuilder = new Request.Builder();
     requestBuilder.url(url);
 
@@ -358,12 +354,12 @@ public class Url {
     }
     catch (SocketTimeoutException e) {
       cleanup();
-      LOGGER.debug("timeout: {}", logUrl);
-      throw new HttpException(logUrl, e.getMessage());
+      LOGGER.debug("timeout: {}", TmmHttpLoggingInterceptor.prepareUrlToLog(url));
+      throw new HttpException(TmmHttpLoggingInterceptor.prepareUrlToLog(url), e.getMessage());
     }
     catch (InterruptedIOException | IllegalStateException e) {
       cleanup();
-      LOGGER.debug("aborted request: {} - {}", logUrl, e.getMessage());
+      LOGGER.debug("aborted request: {} - {}", TmmHttpLoggingInterceptor.prepareUrlToLog(url), e.getMessage());
       throw new InterruptedException();
     }
     catch (UnknownHostException e) {
@@ -373,13 +369,13 @@ public class Url {
     }
     catch (HttpException e) {
       cleanup();
-      LOGGER.trace("HTTP '{}' for '{}'", e.getStatusCode(), logUrl);
+      LOGGER.trace("HTTP '{}' for '{}'", e.getStatusCode(), TmmHttpLoggingInterceptor.prepareUrlToLog(url));
       throw e;
     }
     catch (Exception e) {
       cleanup();
       // rethrow that to inform the caller that there was an HTTP-Exception
-      LOGGER.error("Unexpected exception getting url " + logUrl + " - " + e.getMessage(), e); // NOSONAR
+      LOGGER.error("Unexpected exception getting url '" + TmmHttpLoggingInterceptor.prepareUrlToLog(url) + "' - " + e.getMessage(), e); // NOSONAR
       throw e;
     }
     return is;
