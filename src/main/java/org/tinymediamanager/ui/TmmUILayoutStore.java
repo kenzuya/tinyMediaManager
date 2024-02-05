@@ -147,6 +147,26 @@ public class TmmUILayoutStore {
           dummy.dispose();
         }
 
+        // re-calculate the window rect (maybe it is bigger than the visible screen size)
+        Rectangle screenBounds = ge.getDefaultConfiguration().getBounds();
+        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(ge.getDefaultConfiguration());
+
+        if (rect.width > screenBounds.width - screenInsets.left - screenInsets.right) {
+          rect.width = screenBounds.width - screenInsets.left - screenInsets.right;
+        }
+
+        if (rect.x < screenInsets.left) {
+          rect.x = screenInsets.left;
+        }
+
+        if (rect.height > screenBounds.height - screenInsets.top - screenInsets.bottom) {
+          rect.height = screenBounds.height - screenInsets.top - screenInsets.bottom;
+        }
+
+        if (rect.y < screenInsets.top) {
+          rect.y = screenInsets.top;
+        }
+
         frame.setBounds(rect);
 
         // was the main window maximized?
