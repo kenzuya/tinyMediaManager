@@ -283,7 +283,6 @@ public class MainMenuPanel extends JPanel {
         logDialog.setVisible(true);
       });
 
-      menu.addSeparator();
       menu.add(debugMenu);
     }
 
