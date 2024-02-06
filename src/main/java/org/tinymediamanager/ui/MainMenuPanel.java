@@ -37,7 +37,6 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,7 +241,7 @@ public class MainMenuPanel extends JPanel {
         }
 
         if (kodiRPCMenu != null) {
-          if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
+          if (KodiRPC.getInstance().isConnected()) {
             kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
             kodiRPCMenu.setEnabled(true);
           }
