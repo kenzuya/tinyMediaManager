@@ -740,6 +740,7 @@ public class KodiRPC {
 
   public void disconnect() {
     connectionManager.disconnect();
+    this.kodiVersion = "";
   }
 
   public void updateMovieMappings() {

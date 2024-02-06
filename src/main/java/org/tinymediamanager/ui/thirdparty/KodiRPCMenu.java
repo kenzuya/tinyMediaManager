@@ -98,18 +98,26 @@ public class KodiRPCMenu {
 
           if (component instanceof JMenuItem menuItem) {
             if (connected) {
+              // connected
               if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(false);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {// all others
                 component.setEnabled(true);
               }
             }
             else {
-              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+              // not connected
+              if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(true);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(false);
+              }
+              else {// all others
                 component.setEnabled(false);
               }
             }
@@ -169,18 +177,26 @@ public class KodiRPCMenu {
 
           if (component instanceof JMenuItem menuItem) {
             if (connected) {
+              // connected
               if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(false);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {// all others
                 component.setEnabled(true);
               }
             }
             else {
-              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+              // not connected
+              if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(true);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(false);
+              }
+              else {// all others
                 component.setEnabled(false);
               }
             }
@@ -240,18 +256,26 @@ public class KodiRPCMenu {
 
           if (component instanceof JMenuItem menuItem) {
             if (connected) {
+              // connected
               if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(false);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {// all others
                 component.setEnabled(true);
               }
             }
             else {
-              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+              // not connected
+              if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(true);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(false);
+              }
+              else {// all others
                 component.setEnabled(false);
               }
             }
@@ -309,18 +333,26 @@ public class KodiRPCMenu {
 
           if (component instanceof JMenuItem menuItem) {
             if (connected) {
+              // connected
               if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(false);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(true);
+              }
+              else {// all others
                 component.setEnabled(true);
               }
             }
             else {
-              if (menuItem.getIcon() == IconManager.DISCONNECT) {
+              // not connected
+              if (menuItem.getIcon() == IconManager.CONNECT) {
                 component.setEnabled(true);
               }
-              else {
+              else if (menuItem.getIcon() == IconManager.DISCONNECT) {
+                component.setEnabled(false);
+              }
+              else {// all others
                 component.setEnabled(false);
               }
             }
