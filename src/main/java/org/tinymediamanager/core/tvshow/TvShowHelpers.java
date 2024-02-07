@@ -37,7 +37,6 @@ import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
@@ -198,12 +197,8 @@ public class TvShowHelpers {
       return entry.getKey();
     }
 
-    // just fake an episode here, since the real foldername can only be generated out of the episode
-    // create a dummy episode to inject the season number
-    TvShowEpisode episode = new TvShowEpisode();
-    episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, season, -1));
-
-    return TvShowRenamer.getSeasonFoldername(tvShow, episode);
+    // no common folder found -> force to write it to the TV show root
+    return "";
   }
 
   /**

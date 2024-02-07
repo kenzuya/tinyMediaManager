@@ -769,6 +769,8 @@ public class TvShowArtworkHelper {
       setBestArtwork(tvShow, artwork, KEYART, overwrite);
     }
 
+    boolean seasonArtworkWritten = false;
+
     // season poster
     if (config.contains(TvShowScraperMetadataConfig.SEASON_POSTER)) {
       int preferredSizeOrder = TvShowModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
@@ -782,6 +784,7 @@ public class TvShowArtworkHelper {
           if (!sortedPosters.isEmpty()) {
             season.setArtworkUrl(sortedPosters.get(0).getUrl(), MediaFileType.SEASON_POSTER);
             downloadSeasonArtwork(season, TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames(), MediaFileType.SEASON_POSTER);
+            seasonArtworkWritten = true;
           }
         }
       }
@@ -800,6 +803,7 @@ public class TvShowArtworkHelper {
           if (!sortedFanarts.isEmpty()) {
             season.setArtworkUrl(sortedFanarts.get(0).getUrl(), MediaFileType.SEASON_FANART);
             downloadSeasonArtwork(season, TvShowModuleManager.getInstance().getSettings().getSeasonFanartFilenames(), MediaFileType.SEASON_FANART);
+            seasonArtworkWritten = true;
           }
         }
       }
@@ -817,6 +821,7 @@ public class TvShowArtworkHelper {
           if (!sortedArtwork.isEmpty()) {
             season.setArtworkUrl(sortedArtwork.get(0).getUrl(), MediaFileType.SEASON_BANNER);
             downloadSeasonArtwork(season, TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames(), MediaFileType.SEASON_BANNER);
+            seasonArtworkWritten = true;
           }
         }
       }
@@ -835,6 +840,7 @@ public class TvShowArtworkHelper {
           if (!sortedThumbs.isEmpty()) {
             season.setArtworkUrl(sortedThumbs.get(0).getUrl(), MediaFileType.SEASON_THUMB);
             downloadSeasonArtwork(season, MediaFileType.SEASON_THUMB);
+            seasonArtworkWritten = true;
           }
         }
       }
@@ -866,6 +872,12 @@ public class TvShowArtworkHelper {
 
     // update DB
     tvShow.saveToDb();
+
+    if (seasonArtworkWritten) {
+      // also force to write all season NFO files
+      tvShow.getSeasons().forEach(TvShowSeason::writeNfo);
+    }
+
     tvShow.writeNFO(); // to get the artwork urls into the NFO
   }
 

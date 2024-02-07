@@ -643,8 +643,12 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                 }
               }
 
-              tvShowToScrape.saveToDb();
               tvShowToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
+
+              // also force to write all season NFO files
+              tvShowToScrape.getSeasons().forEach(TvShowSeason::writeNfo);
+
+              tvShowToScrape.saveToDb();
             }
             else {
               // get artwork asynchronous
