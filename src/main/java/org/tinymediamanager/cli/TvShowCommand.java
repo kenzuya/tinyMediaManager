@@ -44,6 +44,7 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowReloadMediaInformationTask;
@@ -419,6 +420,9 @@ class TvShowCommand implements Runnable {
 
     for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
       tvShow.writeNFO();
+      for(TvShowSeason season : tvShow.getSeasons()){
+        season.writeNfo();
+      }
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.writeNFO();
       }

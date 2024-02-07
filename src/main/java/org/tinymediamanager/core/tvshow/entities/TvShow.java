@@ -1336,6 +1336,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // update DB
     writeNFO();
+
+    // also force to write all season NFO files
+    seasons.forEach(TvShowSeason::writeNfo);
+
     saveToDb();
 
     // and post-process
@@ -1389,9 +1393,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         LOGGER.error("could not write NFO file - '{}'", e.getMessage());
       }
     }
-
-    // also force to write all season NFO files
-    seasons.forEach(TvShowSeason::writeNfo);
   }
 
   private void postProcess(List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {

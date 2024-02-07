@@ -288,8 +288,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
             // scrape trailer if wanted
             if (tvShowScrapeParams.tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
               tvShow.setTrailers(getTrailers(tvShow, md, trailerScrapers));
-              tvShow.saveToDb();
               tvShow.writeNFO();
+              tvShow.saveToDb();
 
               // start automatic movie trailer download
               TvShowHelpers.startAutomaticTrailerDownload(tvShow);

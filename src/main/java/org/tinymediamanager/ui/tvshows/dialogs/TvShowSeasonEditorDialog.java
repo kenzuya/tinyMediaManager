@@ -427,6 +427,7 @@ public class TvShowSeasonEditorDialog extends AbstractEditorDialog {
       processArtwork(SEASON_BANNER, lblBanner, tfBanner);
       processArtwork(SEASON_THUMB, lblThumb, tfThumb);
 
+      tvShowSeasonToEdit.writeNfo();
       tvShowSeasonToEdit.getTvShow().writeNFO();
       tvShowSeasonToEdit.getTvShow().saveToDb();
 
