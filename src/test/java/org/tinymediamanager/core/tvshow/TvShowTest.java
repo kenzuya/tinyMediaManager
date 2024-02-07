@@ -420,6 +420,7 @@ public class TvShowTest extends BasicTvShowTest {
     episode.addToMediaFiles(mf);
     tvShow.addEpisode(episode);
 
-    assertThat(TvShowHelpers.detectSeasonFolder(tvShow, 2)).isEqualTo("S2");
+    // should be in TV show root
+    assertThat(TvShowHelpers.detectSeasonFolder(tvShow, 2)).isEqualTo("");
   }
 }
