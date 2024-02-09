@@ -1,3 +1,7 @@
+Version 5.0.3
+=======================
+
+
 Version 5.0.2
 =======================
 + (TV shows) added an option to choose the rating source priority #2405
