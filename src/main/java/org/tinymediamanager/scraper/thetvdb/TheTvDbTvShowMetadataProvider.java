@@ -250,6 +250,8 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
 
     md.setRuntime(MetadataUtil.unboxInteger(show.averageRuntime, 0));
+    md.setCountries(Collections.singletonList(show.originalCountry));
+    md.setOriginalLanguage(show.originalLanguage);
 
     // scrape networks before all other production companies
     if (show.originalNetwork != null) {
