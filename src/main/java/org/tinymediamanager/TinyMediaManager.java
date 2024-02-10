@@ -109,7 +109,7 @@ public final class TinyMediaManager {
    */
   public static void main(String[] args) {
     try {
-      License.getInstance().init();
+      License.getInstance().init21121();
     }
     catch (Exception e) {
       LOGGER.error("Could not initialize license module!");
