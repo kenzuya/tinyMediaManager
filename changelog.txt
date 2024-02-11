@@ -1,6 +1,7 @@
 Version 5.0.3
 =======================
 x upgraded libmediainfo to 24.01
+x respect setting for trash folder when deleting movies/TV shows #2477
 
 
 Version 5.0.2

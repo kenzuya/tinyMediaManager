@@ -1155,57 +1155,71 @@ public class Utils {
    * @return true/false if successful
    */
   public static boolean deleteDirectorySafely(Path folder, String datasource) {
-    folder = folder.toAbsolutePath();
-    Path ds = Paths.get(datasource);
-
-    if (!Files.isDirectory(folder)) {
-      LOGGER.warn("Will not delete folder '{}': folder is a file, NOT a directory!", folder);
-      return false;
-    }
-    if (!folder.startsWith(ds)) { // safety
-      LOGGER.warn("Will not delete folder '{}': datasource '{}' does not match", folder, datasource);
-      return false;
-    }
-
-    // create backup folder
-    try {
-      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER);
-      if (!Files.exists(backup)) {
-        Files.createDirectories(backup);
+    // check if the backup is activated
+    if (!Settings.getInstance().isEnableTrash()) {
+      // backup disabled
+      try {
+        deleteDirectoryRecursive(folder);
+        return true;
       }
-      if (!Files.exists(backup.resolve(".nomedia"))) {
-        Files.createFile(backup.resolve(".nomedia"));
+      catch (Exception e) {
+        LOGGER.error("Could not delete folder '{}' - '{}'", folder, e.getMessage());
+        return false;
       }
     }
-    catch (AccessDeniedException e) {
-      // propagate to UI by logging with error
-      LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
-    }
-    catch (Exception e) {
-      // ignore
-    }
+    else {
+      folder = folder.toAbsolutePath();
+      Path ds = Paths.get(datasource);
 
-    // backup
-    try {
-      Instant instant = Instant.now();
-      long timeStampSeconds = instant.getEpochSecond();
-      // create path
-      Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(folder).toString() + timeStampSeconds);
-      if (!Files.exists(backup.getParent())) {
-        Files.createDirectories(backup.getParent());
+      if (!Files.isDirectory(folder)) {
+        LOGGER.warn("Will not delete folder '{}': folder is a file, NOT a directory!", folder);
+        return false;
       }
-      // overwrite backup file by deletion prior
-      // deleteDirectoryRecursive(backup); // we timestamped our folder - no need for it
-      return moveDirectorySafe(folder, backup);
-    }
-    catch (AccessDeniedException e) {
-      // propagate to UI by logging with error
-      LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
-      return false;
-    }
-    catch (IOException e) {
-      LOGGER.warn("could not delete directory: {}", e.getMessage());
-      return false;
+      if (!folder.startsWith(ds)) { // safety
+        LOGGER.warn("Will not delete folder '{}': datasource '{}' does not match", folder, datasource);
+        return false;
+      }
+
+      // create backup folder
+      try {
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER);
+        if (!Files.exists(backup)) {
+          Files.createDirectories(backup);
+        }
+        if (!Files.exists(backup.resolve(".nomedia"))) {
+          Files.createFile(backup.resolve(".nomedia"));
+        }
+      }
+      catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (read file) - '{}'", e.getMessage());
+      }
+      catch (Exception e) {
+        // ignore
+      }
+
+      // backup
+      try {
+        Instant instant = Instant.now();
+        long timeStampSeconds = instant.getEpochSecond();
+        // create path
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(folder).toString() + timeStampSeconds);
+        if (!Files.exists(backup.getParent())) {
+          Files.createDirectories(backup.getParent());
+        }
+        // overwrite backup file by deletion prior
+        // deleteDirectoryRecursive(backup); // we timestamped our folder - no need for it
+        return moveDirectorySafe(folder, backup);
+      }
+      catch (AccessDeniedException e) {
+        // propagate to UI by logging with error
+        LOGGER.error("ACCESS DENIED (move folder) - '{}'", e.getMessage());
+        return false;
+      }
+      catch (IOException e) {
+        LOGGER.error("could not delete directory: {}", e.getMessage());
+        return false;
+      }
     }
   }
 
