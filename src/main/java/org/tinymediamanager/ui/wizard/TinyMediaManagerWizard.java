@@ -184,16 +184,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
 
       // close the wizard
       TinyMediaManagerWizard.this.setVisible(false);
-
-      // trigger uds
-      if (!MovieModuleManager.getInstance().getSettings().getMovieDataSource().isEmpty()) {
-        TmmThreadPool task = new MovieUpdateDatasourceTask();
-        TmmTaskManager.getInstance().addMainTask(task);
-      }
-      if (!TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().isEmpty()) {
-        TmmThreadPool task = new TvShowUpdateDatasourceTask();
-        TmmTaskManager.getInstance().addMainTask(task);
-      }
     }
   }
 }
