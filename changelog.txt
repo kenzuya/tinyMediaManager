@@ -1,5 +1,6 @@
 Version 5.0.3
 =======================
+x upgraded libmediainfo to 24.01
 
 
 Version 5.0.2
