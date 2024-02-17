@@ -5,6 +5,7 @@ x respect setting for trash folder when deleting movies/TV shows #2477
 x (TVDB) scrape missing country for shows #2478
 x (TVDB) able to scrape language names (default enabled) #2478
 x (IMDB) also parse "T" certifications
+x (TV shows) added production company and certification to the renamer examples #2470 #2481
 
 
 Version 5.0.2

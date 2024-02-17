@@ -136,9 +136,12 @@ public class TvShowRenamer {
     tokenMap.put("showImdb", "tvShow.imdbId");
     tokenMap.put("showTmdb", "tvShow.tmdbId");
     tokenMap.put("showTvdb", "tvShow.tvdbId");
+    tokenMap.put("showCertification", "tvShow.certification");
     tokenMap.put("showTags", "tvShow.tags");
     tokenMap.put("showGenres", "tvShow.genres");
     tokenMap.put("showGenresAsString", "tvShow.genresAsString");
+    tokenMap.put("showProductionCompany", "tvShow.productionCompany");
+    tokenMap.put("showProductionCompanyAsArray", "tvShow.productionCompanyAsArray");
 
     // Season tags
     tokenMap.put("seasonName", "season.title");
