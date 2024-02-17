@@ -293,6 +293,7 @@ public enum MediaCertification {
   ES_ER(CountryCode.ES, "ER", new String[] { "ER" }),
   ES_ERI(CountryCode.ES, "ERI", new String[] { "ERI" }),
   ES_PX(CountryCode.ES, "PX", new String[] { "PX" }),
+  ES_T(CountryCode.ES, "T", new String[] { "T" }), // no ideas was T is: https://www.imdb.com/search/title/?certificates=ES:T
   ES_TP(CountryCode.ES, "TP", new String[] { "TP" }),
   ES_X(CountryCode.ES, "X", new String[] { "X" }),
   FI_12(CountryCode.FI, "12", new String[] { "12" }),
