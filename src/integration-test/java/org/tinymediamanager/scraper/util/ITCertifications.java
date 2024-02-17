@@ -38,7 +38,7 @@ public class ITCertifications {
       String nota = "\"" + String.join("\", \"", alt) + "\"";
       String javaenum = safeenum + "(CountryCode." + cc.getAlpha2() + ", \"" + cert + "\", new String[] { " + nota + " }),";
       // System.out.println(javaenum);
-      entries.add(javaenum);
+      // entries.add(javaenum); // activate when adding TMM internal ones!
     }
 
     getMovieCerts();
