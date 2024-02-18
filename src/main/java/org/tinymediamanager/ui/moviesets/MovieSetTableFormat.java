@@ -73,7 +73,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.COUNT);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("99") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("99") + getCellPadding());
     col.setColumnComparator(integerComparator);
     addColumn(col);
 
@@ -83,7 +83,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("2000 - 2000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("2000 - 2000") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -112,7 +112,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("99.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("99.9") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -123,7 +123,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("99.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("99.9") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -134,7 +134,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VOTES);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("1000000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1000000") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -148,7 +148,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + getCellPadding());
     }
     catch (Exception ignored) {
       // ignore
@@ -162,7 +162,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("200") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("200") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -173,7 +173,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("4:00") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("4:00") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -184,7 +184,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("1080p") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1080p") + getCellPadding());
     addColumn(col);
 
     /*
@@ -192,7 +192,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getMediaInfoVideoCodec, String.class);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
-    col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -201,7 +201,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getMediaInfoVideoBitrate, String.class);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
-    col.setMinWidth(fontMetrics.stringWidth("20000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("20000") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -210,7 +210,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudioInformation, String.class);
     col.setHeaderIcon(IconManager.AUDIO);
-    col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -221,7 +221,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("50000M") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("50000M") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -232,7 +232,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("50000M") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("50000M") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
