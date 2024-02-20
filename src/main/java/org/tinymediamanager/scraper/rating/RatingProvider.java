@@ -165,6 +165,12 @@ public class RatingProvider {
 
       for (MediaRating rating : ratingsFromMdblist) {
         RatingSource source = parseRatingSource(rating.getId());
+
+        if (source == RatingSource.TMDB) {
+          // use TMDB rating from TMDB only
+          continue;
+        }
+
         if (missingRatings.contains(source) && !ratings.contains(rating)) {
           ratings.add(rating);
           missingRatings.remove(source);

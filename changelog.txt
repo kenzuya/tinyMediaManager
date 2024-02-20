@@ -8,6 +8,7 @@ x (IMDB) also parse "T" certifications
 x (TV shows) added production company and certification to the renamer examples #2470 #2481
 x enhanced table cell width when using a bigger font size #2466
 x MediaInfo: workaround for reading different runtime (API vs XML) #2484
+x (TMDB) fixed fetching rating (via mdblist.com) #2276
 
 
 Version 5.0.2
