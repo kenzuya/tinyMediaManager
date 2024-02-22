@@ -59,8 +59,6 @@ import org.tinymediamanager.scraper.ofdb.OfdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.ofdb.OfdbMovieTrailerProvider;
 import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
-import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
-import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles_com.OpenSubtitlesComMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles_com.OpenSubtitlesComTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.spi.IAddonProvider;
@@ -171,7 +169,7 @@ public class MediaProviders {
     /////////////////////////////////////////////
     // MOVIE SUBTITLES
     /////////////////////////////////////////////
-    loadProvider(OpenSubtitlesMovieSubtitleProvider.class);
+    // loadProvider(OpenSubtitlesMovieSubtitleProvider.class); // obsolete as of 2024-01-01
     loadProvider(OpenSubtitlesComMovieSubtitleProvider.class);
 
     // addons
@@ -237,7 +235,7 @@ public class MediaProviders {
     /////////////////////////////////////////////
     // TV SHOW SUBTITLES
     /////////////////////////////////////////////
-    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class); // already loaded in movie section, because this scraper share its instances
+    // loadProvider(OpenSubtitlesTvShowSubtitleProvider.class); // obsolete as of 2024-01-01
     loadProvider(OpenSubtitlesComTvShowSubtitleProvider.class);
 
     // addons
