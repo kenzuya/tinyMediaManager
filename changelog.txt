@@ -11,6 +11,7 @@ x MediaInfo: workaround for reading different runtime (API vs XML) #2484
 x (TMDB) fixed fetching rating (via mdblist.com) #2276
 x (TV show) fixed scraping of TV show fanart #2483
 x (Ratings) fix some maxValues #2492
+x (Update) fix corner-case for stacking #2490
 
 
 Version 5.0.2
