@@ -93,6 +93,10 @@ public class MediaRating {
 
   public void setRating(float rating) {
     this.rating = Math.round(rating * 10) / 10f; // round to the first decimal place
+    // if value greater than 10, our default cannot be correct ;)
+    if (this.maxValue == 10 && this.rating > 10f) {
+      setMaxValue(100);
+    }
   }
 
   public void setRating(double rating) {
@@ -113,6 +117,9 @@ public class MediaRating {
 
   public void setMaxValue(int maxValue) {
     this.maxValue = maxValue;
+    if (this.maxValue == 10 && this.rating > 10f) {
+      this.maxValue = 100; // dummy check
+    }
   }
 
   /**

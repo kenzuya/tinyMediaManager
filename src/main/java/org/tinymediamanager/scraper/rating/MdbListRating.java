@@ -47,10 +47,8 @@ class MdbListRating {
     controller = new MdbListController();
   }
 
-  List<MediaRating> getRatings(Map<String, Object> ids) {
-
+  public List<MediaRating> getRatings(Map<String, Object> ids) {
     MdbListRatingEntity ratingEntity;
-
     List<MediaRating> mediaRatingList = new ArrayList<>();
 
     // Get API Key from the settings
@@ -94,17 +92,19 @@ class MdbListRating {
         }
 
         ratingEntity = response.body();
-
         // Loop over result to get all Ratings and add them to list of media ratings
         for (MdbListRatings ratings : ListUtils.nullSafe(ratingEntity.ratings)) {
-
           if (ratings.source == null || ratings.value == null) {
             continue;
           }
-
           MediaRating mediaRating = new MediaRating(ratings.source, ratings.value, ratings.votes);
+          switch (ratings.source) {
+            case MediaMetadata.LETTERBOXD:
+            case MediaMetadata.ROGER_EBERT: {
+              mediaRating.setMaxValue(5);
+            }
+          }
           mediaRatingList.add(mediaRating);
-
         }
 
         break;
