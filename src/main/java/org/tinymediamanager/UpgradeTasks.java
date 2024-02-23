@@ -30,7 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -42,6 +44,7 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaEpisodeGroup;
 import org.tinymediamanager.scraper.entities.MediaEpisodeNumber;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -125,10 +128,8 @@ public class UpgradeTasks {
         for (MediaFile mf : movie.getMediaFiles(MediaFileType.LOGO)) {
           // remove
           movie.removeFromMediaFiles(mf);
-
           // change type
           mf.setType(MediaFileType.CLEARLOGO);
-
           // and add ad the end
           movie.addToMediaFiles(mf);
         }
@@ -141,11 +142,20 @@ public class UpgradeTasks {
             movie.setArtworkUrl(logoUrl, MediaFileType.CLEARLOGO);
           }
         }
-
         movie.saveToDb();
       }
-
       module.setDbVersion(5001);
+    }
+
+    // fix ratings
+    if (module.getDbVersion() < 5002) {
+      LOGGER.info("performing upgrade to ver: {}", 5002);
+      for (Movie movie : movieList.getMovies()) {
+        if (fixRatings(movie)) {
+          movie.saveToDb();
+        }
+      }
+      module.setDbVersion(5002);
     }
   }
 
@@ -168,10 +178,8 @@ public class UpgradeTasks {
         for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.LOGO)) {
           // remove
           tvShow.removeFromMediaFiles(mf);
-
           // change type
           mf.setType(MediaFileType.CLEARLOGO);
-
           // and add ad the end
           tvShow.addToMediaFiles(mf);
         }
@@ -192,7 +200,6 @@ public class UpgradeTasks {
           if (mf.getFilesize() != 0) {
             String foldername = tvShow.getPathNIO().relativize(mf.getFileAsPath().getParent()).toString();
             int season = TvShowHelpers.detectSeasonFromFileAndFolder(mf.getFilename(), foldername);
-
             if (season != Integer.MIN_VALUE) {
               TvShowSeason tvShowSeason = tvShow.getOrCreateSeason(season);
               tvShowSeason.addToMediaFiles(mf);
@@ -205,12 +212,10 @@ public class UpgradeTasks {
         for (TvShowSeason season : tvShow.getSeasons()) {
           season.setTvShow(tvShow);
         }
-
         // save episodes (they are migrated while loading from database)
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
           episode.saveToDb();
         }
-
         tvShow.saveToDb();
       }
       module.setDbVersion(5001);
@@ -224,7 +229,6 @@ public class UpgradeTasks {
           // v4 empty / old v5 - cannot read
           tvShow.setEpisodeGroup(MediaEpisodeGroup.DEFAULT_AIRED);
         }
-
         tvShow.getEpisodes().forEach(TvShowEpisode::saveToDb); // re-save
         tvShow.saveToDb();
       } // end foreach show
@@ -257,8 +261,23 @@ public class UpgradeTasks {
           tvShow.saveToDb();
         }
       } // end foreach show
-
       module.setDbVersion(5003);
+    }
+
+    // fix ratings
+    if (module.getDbVersion() < 5004) {
+      LOGGER.info("performing upgrade to ver: {}", 5004);
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          if (fixRatings(episode)) {
+            episode.saveToDb();
+          }
+        }
+        if (fixRatings(tvShow)) {
+          tvShow.saveToDb();
+        }
+      }
+      module.setDbVersion(5004);
     }
 
     // if (module.getDbVersion() < 50xx) {
@@ -266,6 +285,27 @@ public class UpgradeTasks {
     //
     // module.setDbVersion(50xx);
     // }
+  }
+
+  /**
+   * Fix some known rating problems min/max values
+   * 
+   * @param me
+   * @return true, if something detected (call save)
+   */
+  private static boolean fixRatings(MediaEntity me) {
+    boolean changed = false;
+    for (MediaRating rat : me.getRatings().values()) {
+      if (rat.getMaxValue() == 10 && rat.getRating() > 10f) {
+        rat.setMaxValue(100);
+        changed = true;
+      }
+      if (rat.getMaxValue() == 10 && (rat.getId().equals(MediaMetadata.LETTERBOXD) || rat.getId().equals(MediaMetadata.ROGER_EBERT))) {
+        rat.setMaxValue(5);
+        changed = true;
+      }
+    }
+    return changed;
   }
 
   public static void upgradeEpisodeNumbers(TvShowEpisode episode) {
