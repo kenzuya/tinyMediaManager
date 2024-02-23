@@ -300,8 +300,12 @@ public class UpgradeTasks {
         rat.setMaxValue(100);
         changed = true;
       }
-      if (rat.getMaxValue() == 10 && (rat.getId().equals(MediaMetadata.LETTERBOXD) || rat.getId().equals(MediaMetadata.ROGER_EBERT))) {
+      if (rat.getMaxValue() == 10 && rat.getId().equals(MediaMetadata.LETTERBOXD)) {
         rat.setMaxValue(5);
+        changed = true;
+      }
+      if (rat.getMaxValue() == 10 && rat.getId().equals(MediaMetadata.ROGER_EBERT)) {
+        rat.setMaxValue(4); // yes, 4
         changed = true;
       }
     }

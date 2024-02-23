@@ -99,9 +99,14 @@ class MdbListRating {
           }
           MediaRating mediaRating = new MediaRating(ratings.source, ratings.value, ratings.votes);
           switch (ratings.source) {
-            case MediaMetadata.LETTERBOXD:
-            case MediaMetadata.ROGER_EBERT: {
+            case MediaMetadata.LETTERBOXD: {
               mediaRating.setMaxValue(5);
+              break;
+            }
+
+            case MediaMetadata.ROGER_EBERT: {
+              mediaRating.setMaxValue(4); // yes, 4
+              break;
             }
           }
           mediaRatingList.add(mediaRating);

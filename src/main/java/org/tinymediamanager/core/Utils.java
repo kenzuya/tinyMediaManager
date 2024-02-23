@@ -769,7 +769,7 @@ public class Utils {
 
       if (!rename) {
         LOGGER.error("Failed to rename directory {} to {}", srcDir, destDir);
-        LOGGER.error("Movie renaming aborted.");
+        LOGGER.error("Renaming aborted.");
         MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
