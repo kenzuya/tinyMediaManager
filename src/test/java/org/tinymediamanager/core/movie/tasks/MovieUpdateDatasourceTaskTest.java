@@ -36,11 +36,11 @@ import org.tinymediamanager.core.movie.entities.Movie;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicMovieTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES     = 100;
+  private static final int NUMBER_OF_EXPECTED_MOVIES     = 103;
   private static final int NUMBER_OF_STACKED_MOVIES      = 14;
   private static final int NUMBER_OF_DISC_MOVIES         = 7;
-  private static final int NUMBER_OF_MOVIES_IN_MMD       = 56;
-  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 224;
+  private static final int NUMBER_OF_MOVIES_IN_MMD       = 59;
+  private static final int NUMBER_OF_EXPECTED_MEDIAFILES = 227;
 
   @Before
   public void setup() throws Exception {

@@ -1,3 +1,19 @@
+Version 5.0.3
+=======================
+x upgraded libmediainfo to 24.01
+x respect setting for trash folder when deleting movies/TV shows #2477
+x (TVDB) scrape missing country for shows #2478
+x (TVDB) able to scrape language names (default enabled) #2478
+x (IMDB) also parse "T" certifications
+x (TV shows) added production company and certification to the renamer examples #2470 #2481
+x enhanced table cell width when using a bigger font size #2466
+x MediaInfo: workaround for reading different runtime (API vs XML) #2484
+x (TMDB) fixed fetching rating (via mdblist.com) #2276
+x (TV show) fixed scraping of TV show fanart #2483
+x (Ratings) fix some maxValues #2492
+x (Update) fix corner-case for stacking #2490
+
+
 Version 5.0.2
 =======================
 + (TV shows) added an option to choose the rating source priority #2405
@@ -17,6 +33,7 @@ x improved automatic downloading of trailers #2455
 x (Trailer) allow renaming into a disc folder (Kodi style) #2451
 x fix NFO writing removing all the file properties #2463
 x (MovieSets) better align dateAdded, were cut-off #2464
+x (OpenSubtitles.com) fixed searching for some languages (pt-PT, pt-BR, zh-CN, zh-TW)
 
 
 Version 5.0.1.1

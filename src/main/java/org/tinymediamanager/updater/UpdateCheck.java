@@ -92,7 +92,15 @@ public class UpdateCheck {
 
         LOGGER.trace("Checking {}", uu);
         try {
-          Url url = new Url(urlAsString + "?z=" + System.nanoTime() + "&clientver=" + License.getInstance().ref());
+          Url url;
+
+          if (ReleaseInfo.isNightly()) {
+            // different webserver, no caching - no need to create a cached call
+            url = new Url(urlAsString);
+          }
+          else {
+            url = new Url(urlAsString + "?z=" + System.nanoTime() + "&clientver=" + License.getInstance().ref());
+          }
 
           remoteDigest = UrlUtil.getStringFromUrl(url);
           if (remoteDigest != null && remoteDigest.contains("tmm.jar")) {

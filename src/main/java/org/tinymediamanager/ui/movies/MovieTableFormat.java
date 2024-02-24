@@ -122,7 +122,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(integerComparator);
     col.setCellRenderer(new IntegerTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("2000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("2000") + getCellPadding());
     addColumn(col);
 
     /*
@@ -136,7 +136,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + getCellPadding());
     }
     catch (Exception ignored) {
     }
@@ -182,7 +182,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("99.9") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("99.9") + getCellPadding());
     col.setCellTooltip(showTooltip(
         movie -> movie.getRating().getRating() + " (" + movie.getRating().getVotes() + " " + TmmResourceBundle.getString("metatag.votes") + ")"));
     addColumn(col);
@@ -196,7 +196,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.VOTES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("1000000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1000000") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -208,7 +208,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("10.0") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("10.0") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -220,7 +220,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - IMDb");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("IMDb") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("IMDb") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -232,7 +232,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - Rotten Tomatoes");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("100") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("100") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -244,7 +244,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - Metascore");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("100") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("100") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -256,7 +256,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.rating") + " - TMDB");
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("TMDB") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("TMDB") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -273,7 +273,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderTooltip(TmmResourceBundle.getString("metatag.top250"));
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("250") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("250") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -284,7 +284,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
-    col.setMinWidth(fontMetrics.stringWidth("not rated") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("not rated") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -299,7 +299,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + getCellPadding());
     }
     catch (Exception ignored) {
     }
@@ -317,7 +317,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + 12);
+      col.setMinWidth(fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) + getCellPadding());
     }
     catch (Exception ignored) {
     }
@@ -331,7 +331,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("200") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("200") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -343,7 +343,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("4:00") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("4:00") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -355,7 +355,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setCellRenderer(new RightAlignTableCellRenderer());
-    col.setMinWidth(fontMetrics.stringWidth("1080p") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1080p") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -367,7 +367,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.ASPECT_RATIO);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("1.78") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1.78") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -379,7 +379,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.ASPECT_RATIO_2);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("1.78") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("1.78") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -399,7 +399,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", Movie::getMediaInfoVideoCodec, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
-    col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("MPEG-2") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -410,7 +410,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
     col.setCellRenderer(new IntegerTableCellRenderer());
-    col.setMinWidth(fontMetrics.stringWidth("20000") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("20000") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -429,7 +429,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     }, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.AUDIO);
-    col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("DTS 7ch") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -442,7 +442,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("500.00 M") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("500.00 M") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -455,7 +455,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth(fontMetrics.stringWidth("500.00 M") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("500.00 M") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -479,7 +479,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.SOURCE);
     col.setCellTooltip(showTooltip(mediaSourceFunction));
-    col.setMinWidth(fontMetrics.stringWidth("Blu-ray") + 12);
+    col.setMinWidth(fontMetrics.stringWidth("Blu-ray") + getCellPadding());
     col.setDefaultHidden(true);
     addColumn(col);
 

@@ -216,6 +216,7 @@ public enum MediaCertification {
     ES_16(CountryCode.ES, "16", new String[] { "16" }),
     ES_18(CountryCode.ES, "18", new String[] { "18" }),
     ES_PX(CountryCode.ES, "PX", new String[] { "PX" }),
+    ES_T(CountryCode.ES, "T", new String[] { "T" }), // no ideas was T is: https://www.imdb.com/search/title/?certificates=ES:T
 
     SE_BTL(CountryCode.SE, "BTL", new String[] { "BTL" }),
     SE_7(CountryCode.SE, "7", new String[] { "7" }),

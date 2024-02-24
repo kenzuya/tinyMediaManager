@@ -24,6 +24,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -51,6 +53,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
   private static final Charset UTF8                 = StandardCharsets.UTF_8;
   private static final int     HTTP_CONTINUE        = 100;
   private static final int     MAX_TEXT_BODY_LENGTH = 1000;
+  private static final Pattern CONTENT_PATTERN      = Pattern.compile("(password|api-key|apikey)", Pattern.CASE_INSENSITIVE);
 
   @NotNull
   @Override
@@ -82,12 +85,17 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
 
         if (isPlaintext(buffer)) {
           String content = buffer.readString(charset);
-          // only log the first 1k characters
-          if (content.length() > MAX_TEXT_BODY_LENGTH) {
-            LOGGER.trace("{}...", content.substring(0, MAX_TEXT_BODY_LENGTH)); // NOSONAR
-          }
-          else {
-            LOGGER.trace(content);
+
+          // when the body contains either passwords or API keys, we do not log this (probably an auth call)
+          Matcher matcher = CONTENT_PATTERN.matcher(content);
+          if (!matcher.find()) {
+            // only log the first 1k characters
+            if (content.length() > MAX_TEXT_BODY_LENGTH) {
+              LOGGER.trace("{}...", content.substring(0, MAX_TEXT_BODY_LENGTH)); // NOSONAR
+            }
+            else {
+              LOGGER.trace(content);
+            }
           }
           // LOGGER.trace("--> END {} ({}-byte body)", request.method(), requestBody.contentLength());
         }

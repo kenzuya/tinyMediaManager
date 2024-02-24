@@ -217,7 +217,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       switch (image.type) {
         case "poster":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-          ma.setPreviewUrl(image.resolutions.medium.url);
+          ma.setPreviewUrl(image.resolutions.medium != null ? image.resolutions.medium.url : image.resolutions.original.url);
           ma.setOriginalUrl(image.resolutions.original.url);
           ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
               MediaArtwork.PosterSizes.getSizeOrder(image.resolutions.original.width));
@@ -226,7 +226,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
 
         case "background":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setPreviewUrl(image.resolutions.medium != null ? image.resolutions.medium.url : image.resolutions.original.url);
           ma.setOriginalUrl(image.resolutions.original.url);
           ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url,
               MediaArtwork.FanartSizes.getSizeOrder(image.resolutions.original.width));
@@ -235,7 +235,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
 
         case "banner":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BANNER);
-          ma.setOriginalUrl(image.resolutions.medium.url);
+          ma.setPreviewUrl(image.resolutions.medium != null ? image.resolutions.medium.url : image.resolutions.original.url);
           ma.setOriginalUrl(image.resolutions.original.url);
           ma.addImageSize(image.resolutions.original.width, image.resolutions.original.height, image.resolutions.original.url, 0);
           md.addMediaArt(ma);

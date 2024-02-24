@@ -107,6 +107,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
 
     info.getConfig().addText("apiKey", "", true);
     info.getConfig().addText("pin", "", true);
+    info.getConfig().addBoolean("scrapeLanguageNames", true);
 
     ArrayList<String> fallbackLanguages = new ArrayList<>();
     for (MediaLanguages mediaLanguages : MediaLanguages.values()) {
@@ -191,10 +192,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
       throw new ScrapeException(e);
     }
 
-    if (show == null) {
-      throw new NothingFoundException();
-    }
-
     // populate metadata
     md.setId(getId(), show.id);
     parseRemoteIDs(show.remoteIds).forEach(md::setId);
@@ -250,6 +247,22 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider
     }
 
     md.setRuntime(MetadataUtil.unboxInteger(show.averageRuntime, 0));
+    if (show.originalCountry != null) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
+        md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().toLocale(), show.originalCountry));
+      }
+      else {
+        md.addCountry(show.originalCountry);
+      }
+    }
+    if (show.originalLanguage != null) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
+        md.setOriginalLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(), show.originalLanguage));
+      }
+      else {
+        md.setOriginalLanguage(show.originalLanguage);
+      }
+    }
 
     // scrape networks before all other production companies
     if (show.originalNetwork != null) {

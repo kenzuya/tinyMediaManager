@@ -64,6 +64,15 @@ public class TvShowTitleToEntityMatcher extends TmmAction {
           .filter(dummy -> dummy.getTitle().equalsIgnoreCase(ep.getTitle()))
           .collect(Collectors.toList());
 
+      // not found? try to match via releaseDate
+      if (eps.size() == 0 && ep.getFirstAired() != null) {
+        eps = ep.getTvShow()
+            .getDummyEpisodes()
+            .stream()
+            .filter(dummy -> dummy.getFirstAired() != null && dummy.getFirstAired().equals(ep.getFirstAired()))
+            .collect(Collectors.toList());
+      }
+
       // MUST only match ONE named episode
       if (eps.size() == 0) {
         LOGGER.warn("Did not find an episode named '{}'", ep.getTitle());
@@ -76,6 +85,7 @@ public class TvShowTitleToEntityMatcher extends TmmAction {
           ep.saveToDb();
           ep.writeNFO();
           ep.firePropertyChange(Constants.EPISODE, null, ep);
+          LOGGER.info("Episode '{}' has been matched to S{}E{}", ep.getTitle(), ep.getSeason(), ep.getEpisode());
         }
         else {
           LOGGER.warn("Episode '{}' is already assigned - skipping", ep.getTitle());

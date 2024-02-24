@@ -28,6 +28,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaSource;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
 import org.tinymediamanager.ui.images.AudioChannelsIcon;
+import org.tinymediamanager.ui.images.GenericAudioCodecIcon;
 import org.tinymediamanager.ui.images.GenericVideoCodecIcon;
 import org.tinymediamanager.ui.images.MediaInfoIcon;
 import org.tinymediamanager.ui.images.VideoFormatIcon;
@@ -48,6 +49,7 @@ public class MediaInformationLogosPanel extends JPanel {
   private final JLabel      lblVideoHdr2;
   private final JLabel      lblVideoHdr3;
   private final JLabel      lblAudioCodec;
+  private final JLabel      lblAudioCodec2;
   private final JLabel      lblAudioChannels;
   private final JLabel      lblSource;
   private final JLabel      lblHfr;
@@ -74,6 +76,8 @@ public class MediaInformationLogosPanel extends JPanel {
     add(lblAudioChannels, "cell 6 0, bottom");
     lblAudioCodec = new JLabel();
     add(lblAudioCodec, "cell 7 0, bottom");
+    lblAudioCodec2 = new JLabel();
+    add(lblAudioCodec2, "cell 7 0, bottom");
 
     lblSource = new JLabel();
     add(lblSource, "cell 9 0, bottom");
@@ -101,12 +105,13 @@ public class MediaInformationLogosPanel extends JPanel {
   private void updateIcons() {
     setIcon(lblVideoFormat, getVideoFormatIcon());
     setIcon(lblAspectRatio, getAspectRatioIcon());
-    setIcon(lblVideoCodec, getVideoCodecIcon());
+    setIcon(lblVideoCodec, getVideoCodecIcon(0));
     setIcon(lblVideo3d, getVideo3dIcon());
     setIcon(lblVideoHdr1, getVideoHdrIcon(0));
     setIcon(lblVideoHdr2, getVideoHdrIcon(1));
     setIcon(lblVideoHdr3, getVideoHdrIcon(2));
-    setIcon(lblAudioCodec, getAudioCodecIcon());
+    setIcon(lblAudioCodec, getAudioCodecIcon(0));
+    setIcon(lblAudioCodec2, getAudioCodecIcon(1));
     setIcon(lblAudioChannels, getAudioChannelsIcon());
     setIcon(lblSource, getSourceIcon());
     setIcon(lblHfr, getHfrIcon());
@@ -168,26 +173,33 @@ public class MediaInformationLogosPanel extends JPanel {
    *
    * @return the icon or null
    */
-  private Icon getVideoCodecIcon() {
-    String videoCodec = Utils.cleanFilename(mediaInformationSource.getMediaInfoVideoCodec());
+  private Icon getVideoCodecIcon(int num) {
+    String videoCodec = mediaInformationSource.getMediaInfoVideoCodec();
 
     // a) return null if the Format is empty
     if (StringUtils.isBlank(videoCodec)) {
       return null;
     }
-
-    try {
-      return new MediaInfoIcon("video/codec/" + videoCodec.toLowerCase(Locale.ROOT) + ".svg");
-    }
-    catch (Exception e) {
-      try {
-        // nothing found so far - maybe it is just a "generic" codec; try to return the generic one
-        return new GenericVideoCodecIcon(videoCodec);
+    // https://www.matroska.org/technical/codec_specs.html
+    String[] split = videoCodec.split("/");
+    int i = 0;
+    for (String codec : split) {
+      if (num == i) {
+        try {
+          return new MediaInfoIcon("video/codec/" + codec.toLowerCase(Locale.ROOT).replaceAll("^v_", "") + ".svg");
+        }
+        catch (Exception e) {
+          try {
+            return new GenericVideoCodecIcon(codec);
+          }
+          catch (Exception e1) {
+            return null;
+          }
+        }
       }
-      catch (Exception e1) {
-        return null;
-      }
+      i++;
     }
+    return null;
   }
 
   /**
@@ -195,20 +207,33 @@ public class MediaInformationLogosPanel extends JPanel {
    *
    * @return the icon or null
    */
-  private Icon getAudioCodecIcon() {
-    String audioCodec = Utils.cleanFilename(mediaInformationSource.getMediaInfoAudioCodec());
+  private Icon getAudioCodecIcon(int num) {
+    String audioCodec = mediaInformationSource.getMediaInfoAudioCodec();
 
     // a) return null if the codec is empty
     if (StringUtils.isBlank(audioCodec)) {
       return null;
     }
-
-    try {
-      return new MediaInfoIcon("audio/codec/" + audioCodec.toLowerCase(Locale.ROOT) + ".svg");
+    // https://www.matroska.org/technical/codec_specs.html
+    String[] split = audioCodec.split("/");
+    int i = 0;
+    for (String codec : split) {
+      if (num == i) {
+        try {
+          return new MediaInfoIcon("audio/codec/" + codec.toLowerCase(Locale.ROOT).replaceAll("^a_", "") + ".svg");
+        }
+        catch (Exception e) {
+          try {
+            return new GenericAudioCodecIcon(audioCodec);
+          }
+          catch (Exception e1) {
+            return null;
+          }
+        }
+      }
+      i++;
     }
-    catch (Exception e) {
-      return null;
-    }
+    return null;
   }
 
   /**

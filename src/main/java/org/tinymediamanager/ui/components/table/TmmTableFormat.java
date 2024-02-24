@@ -63,6 +63,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     return canvas.getFontMetrics(defaultFont);
   }
 
+  protected int getCellPadding() {
+    // fixed padding for the column width
+    // this is calculated using the current font size rather than a fixed value
+    return getFontMetrics().stringWidth("xx");
+  }
+
   protected void addColumn(Column column) {
     columns.add(column);
   }

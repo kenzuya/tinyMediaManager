@@ -17,7 +17,6 @@ package org.tinymediamanager.scraper.thetvdb;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +75,7 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
 
     info.getConfig().addText("apiKey", "", true);
     info.getConfig().addText("pin", "", true);
+    info.getConfig().addBoolean("scrapeLanguageNames", true);
 
     ArrayList<String> fallbackLanguages = new ArrayList<>();
     for (MediaLanguages mediaLanguages : MediaLanguages.values()) {
@@ -329,9 +329,32 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     }
 
     md.setOriginalTitle(movie.name);
-    md.setCountries(Collections.singletonList(movie.originalCountry));
-    md.setOriginalLanguage(movie.originalLanguage);
-    md.setSpokenLanguages(movie.audioLanguages);
+    if (movie.originalCountry != null) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
+        md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().toLocale(), movie.originalCountry));
+      }
+      else {
+        md.addCountry(movie.originalCountry);
+      }
+    }
+    if (movie.originalLanguage != null) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
+        md.setOriginalLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(), movie.originalLanguage));
+      }
+      else {
+        md.setOriginalLanguage(movie.originalLanguage);
+      }
+    }
+    if (movie.audioLanguages != null) {
+      for (String langu : movie.audioLanguages) {
+        if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
+          md.addSpokenLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(), langu));
+        }
+        else {
+          md.addSpokenLanguage(langu);
+        }
+      }
+    }
 
     if (baseTranslation != null && StringUtils.isNotBlank(baseTranslation.overview)) {
       md.setPlot(baseTranslation.overview);

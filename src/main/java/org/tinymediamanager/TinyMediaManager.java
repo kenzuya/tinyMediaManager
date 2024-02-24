@@ -151,11 +151,14 @@ public final class TinyMediaManager {
               updateProgress("splash.ui", 80);
 
               SwingUtilities.invokeLater(() -> {
-                // wizard for new user
+                // wizard for new user / deleted tmm.json
+                boolean wizardRun = false;
+
                 if (Settings.getInstance().isNewConfig()) {
                   TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
                   wizard.setLocationRelativeTo(null); // center
                   wizard.setVisible(true);
+                  wizardRun = true; // for triggering the UDS after the MainWindow has been created
                 }
 
                 systemUiInit();
@@ -184,6 +187,18 @@ public final class TinyMediaManager {
                   shutdown();
                   shutdownLogger();
                 }));
+
+                // start UDS if the wizard has been run
+                if (wizardRun) {
+                  if (!MovieModuleManager.getInstance().getSettings().getMovieDataSource().isEmpty()) {
+                    TmmThreadPool task = new MovieUpdateDatasourceTask();
+                    TmmTaskManager.getInstance().addMainTask(task);
+                  }
+                  if (!TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().isEmpty()) {
+                    TmmThreadPool task = new TvShowUpdateDatasourceTask();
+                    TmmTaskManager.getInstance().addMainTask(task);
+                  }
+                }
 
                 // show changelog
                 if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {

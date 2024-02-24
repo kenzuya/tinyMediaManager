@@ -57,6 +57,7 @@ public class MediaMetadata {
   public static final String                               IMDB                = "imdb";
   public static final String                               LETTERBOXD          = "letterboxd";
   public static final String                               METACRITIC          = "metacritic";
+  public static final String                               METACRITIC_USER     = "metacriticuser";
   public static final String                               MY_ANIME_LIST       = "myanimelist";
   public static final String                               ROGER_EBERT         = "rogerebert";
   public static final String                               TMDB                = "tmdb";

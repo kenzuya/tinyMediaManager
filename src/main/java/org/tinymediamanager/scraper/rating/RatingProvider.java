@@ -45,7 +45,8 @@ public class RatingProvider {
   public enum RatingSource {
     IMDB("IMDb"),
     TMDB("TMDB"),
-    METACRITIC("Metacritic"),
+    METACRITIC("Metacritic Metascore"),
+    METACRITIC_USER("Metacritic Userscore"),
     ROTTEN_TOMATOES_TOMATOMETER("Rotten Tomatoes - Tomatometer"),
     ROTTEN_TOMATOES_AVG_RATING("Rotten Tomatoes - Audience Score"),
     TRAKT_TV("Trakt.tv"),
@@ -159,10 +160,20 @@ public class RatingProvider {
       }
     }
 
+    // TMDB rating comes directly from TMDB
+    if (missingRatings.contains(RatingSource.TMDB)) {
+      callScraper(MediaMetadata.TMDB, mediaType, missingRatings, ids, ratings);
+    }
+
+    // Trakt.tv rating comes directly form Trakt.tv
+    if (missingRatings.contains(RatingSource.TRAKT_TV)) {
+      callScraper(MediaMetadata.TRAKT_TV, mediaType, missingRatings, ids, ratings);
+    }
+
+    // MdbList
     if (ListUtils.containsAny(missingRatings, RatingSource.METACRITIC, RatingSource.ROTTEN_TOMATOES_AVG_RATING,
         RatingSource.ROTTEN_TOMATOES_AVG_RATING, RatingSource.LETTERBOXD, RatingSource.MAL, RatingSource.ROGER_EBERT)) {
       List<MediaRating> ratingsFromMdblist = new MdbListRating().getRatings(ids);
-
       for (MediaRating rating : ratingsFromMdblist) {
         RatingSource source = parseRatingSource(rating.getId());
         if (missingRatings.contains(source) && !ratings.contains(rating)) {
@@ -195,16 +206,6 @@ public class RatingProvider {
           missingRatings.remove(source);
         }
       }
-    }
-
-    // TMDB rating comes directly from TMDB
-    if (missingRatings.contains(RatingSource.TMDB)) {
-      callScraper(MediaMetadata.TMDB, mediaType, missingRatings, ids, ratings);
-    }
-
-    // Trakt.tv rating comes directly form Trakt.tv
-    if (missingRatings.contains(RatingSource.TRAKT_TV)) {
-      callScraper(MediaMetadata.TRAKT_TV, mediaType, missingRatings, ids, ratings);
     }
 
     return ratings;
@@ -252,12 +253,13 @@ public class RatingProvider {
 
     return switch (id) {
       case MediaMetadata.METACRITIC -> RatingSource.METACRITIC;
+      case MediaMetadata.METACRITIC_USER -> RatingSource.METACRITIC_USER;
       case MediaMetadata.IMDB -> RatingSource.IMDB;
       case MediaMetadata.TMDB -> RatingSource.TMDB;
       case "tomatometerallcritics" -> RatingSource.ROTTEN_TOMATOES_TOMATOMETER;
       case "tomatometeravgcritics" -> RatingSource.ROTTEN_TOMATOES_AVG_RATING;
       case MediaMetadata.TRAKT_TV -> RatingSource.TRAKT_TV;
-      case "letterboxd" -> RatingSource.LETTERBOXD;
+      case MediaMetadata.LETTERBOXD -> RatingSource.LETTERBOXD;
       case MediaMetadata.MY_ANIME_LIST -> RatingSource.MAL;
       case MediaMetadata.ROGER_EBERT -> RatingSource.ROGER_EBERT;
       default -> null;
@@ -276,6 +278,7 @@ public class RatingProvider {
       case IMDB -> MediaMetadata.IMDB;
       case TMDB -> MediaMetadata.TMDB;
       case METACRITIC -> MediaMetadata.METACRITIC;
+      case METACRITIC_USER -> MediaMetadata.METACRITIC_USER;
       case ROTTEN_TOMATOES_TOMATOMETER -> "tomatometerallcritics";
       case ROTTEN_TOMATOES_AVG_RATING -> "tomatometeravgcritics";
       case TRAKT_TV -> MediaMetadata.TRAKT_TV;

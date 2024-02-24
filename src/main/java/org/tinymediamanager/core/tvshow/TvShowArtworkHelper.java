@@ -419,7 +419,7 @@ public class TvShowArtworkHelper {
     boolean fanartFound = false;
 
     // use existing data if available
-    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.POSTER))) {
+    if (!overwrite && StringUtils.isNotBlank(tvShow.getArtworkUrl(MediaFileType.FANART))) {
       fanartFound = true;
     }
     else {

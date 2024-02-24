@@ -625,7 +625,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
           else {
             // detect unique basename, without stacking etc
-            String basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
+            String basename = FilenameUtils.getBaseName(mf.getFilename());
+            String stack = Utils.getStackingMarker(mf.getFilename()); // need extension for check
+            if (!stack.isEmpty()) {
+              // we are a video file, and therefore the stacking marker MUST be at end, to be removed. NOT in the middle!
+              if (basename.endsWith(stack)) {
+                LOGGER.trace("Found stacking marker {} inf file {} - removing", stack, mf.getFilename());
+                basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
+              }
+            }
             normalizedVideoFiles.add(basename);
           }
         }
@@ -947,7 +955,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     addMediafilesToMovie(movie, mfs);
 
     // ***************************************************************
-    // fourth round - try to match unknown graphics like title.ext or
+    // fifth round - try to match unknown graphics like title.ext or
     // filename.ext as poster
     // ***************************************************************
     for (MediaFile mf : mfs) {
@@ -969,7 +977,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     // ***************************************************************
-    // fifth round - remove files which are not here any more
+    // sixth round - remove files which are not here any more
     // ***************************************************************
     boolean videoRemoved = false;
 
@@ -1110,7 +1118,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     for (MediaFile mf : getMediaFiles(mfs, MediaFileType.VIDEO)) {
       Movie movie = null;
-      String basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
+
+      String basename = FilenameUtils.getBaseName(mf.getFilename());
+      String stack = Utils.getStackingMarker(mf.getFilename()); // need extension for check
+      if (!stack.isEmpty()) {
+        LOGGER.trace("Found stacking marker {} inf file {} - removing", stack, mf.getFilename());
+        // we are a video file, and therefore the stacking marker MUST be at end, to be removed. NOT in the middle!
+        if (basename.endsWith(stack)) {
+          basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
+        }
+      }
 
       // get all MFs with same basename
       List<MediaFile> sameName = new ArrayList<>();

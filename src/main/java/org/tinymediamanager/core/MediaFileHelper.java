@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -2775,7 +2776,24 @@ public class MediaFileHelper {
   }
 
   public static int parseDuration(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    String dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
+    // MI API delivers integer, but GUI+XML double - parse hms string first
+    String dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration/String3");
+    if (StringUtils.isNoneBlank(dur)) {
+      try {
+        String[] split = dur.split("[:.]");
+        int h = MetadataUtil.parseInt(split[0]);
+        int m = MetadataUtil.parseInt(split[1]);
+        int s = MetadataUtil.parseInt(split[2]);
+        int ns = MetadataUtil.parseInt(split[3]);
+        LocalTime lt = LocalTime.of(h, m, s, ns);
+        return lt.toSecondOfDay();
+      }
+      catch (NumberFormatException ignored) {
+        // nothing to do here
+      }
+    }
+    // fallback
+    dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
     if (StringUtils.isNoneBlank(dur)) {
       try {
         double ddur = Double.parseDouble(dur);
@@ -2790,6 +2808,7 @@ public class MediaFileHelper {
         // nothing to do here
       }
     }
+
     return 0;
   }
 
