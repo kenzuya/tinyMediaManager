@@ -137,12 +137,22 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
 
     List<SubtitleSearchResult> results = new ArrayList<>();
 
-    String language = options.getLanguage().getLanguage().toLowerCase(Locale.ROOT);
-
     // according to the API we can send everything together:
     // you can combine all together (send everything what you have and we will take of rest)
     // https://opensubtitles.stoplight.io/docs/opensubtitles-api/a172317bd5ccc-search-for-subtitles
     Map<String, String> query = new TreeMap<>();
+
+    // the API docs do not show _how_ the languages should be sent, but testing with the website we saw that _some_
+    // languages need to be sent along with the country code
+    String language;
+
+    switch (options.getLanguage()) {
+      case pt -> language = "pt-PT";
+      case pt_BR -> language = "pt-BR";
+      case zh_CN -> language = "zh-CN";
+      case zh_TW -> language = "zh-TW";
+      default -> language = options.getLanguage().getLanguage().toLowerCase(Locale.ROOT);
+    }
 
     query.put("languages", language);
 
