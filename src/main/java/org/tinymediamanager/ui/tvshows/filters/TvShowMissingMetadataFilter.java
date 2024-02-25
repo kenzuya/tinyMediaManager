@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.filters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.swing.JLabel;
 
@@ -146,6 +147,23 @@ public class TvShowMissingMetadataFilter extends AbstractCheckComboBoxTvShowUIFi
     @Override
     public String toString() {
       return config.getDescription();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      MetadataField that = (MetadataField) o;
+      return config == that.config;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(config);
     }
   }
 }

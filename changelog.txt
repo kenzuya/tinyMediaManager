@@ -14,6 +14,7 @@ x (Ratings) fix some maxValues #2492
 x (Update) fix corner-case for stacking #2490
 x (OpenSubtitles.com) fixed searching for some languages (pt-PT, pt-BR, zh-CN, zh-TW)
 x (TV shows) detect season artwork for seasons with 6 digits too #2487
+x fixed loading of missing metadata filter presets #2496
 
 
 Version 5.0.2
