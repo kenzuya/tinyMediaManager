@@ -182,10 +182,10 @@ public class MediaFileHelper {
     EXTRAFANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)[0-9]+\\.(" + extensions + ")$");
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
-    SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
-    SEASON_FANART_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-fanart)?\\.(" + extensions + ")$");
-    SEASON_BANNER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-banner\\.(" + extensions + ")$");
-    SEASON_THUMB_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
+    SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
+    SEASON_FANART_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)(-fanart)?\\.(" + extensions + ")$");
+    SEASON_BANNER_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)-banner\\.(" + extensions + ")$");
+    SEASON_THUMB_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
     LOGO_PATTERN = Pattern.compile("(?i)(.*-logo|logo)\\.(" + extensions + ")$");
     CLEARLOGO_PATTERN = Pattern.compile("(?i)(.*-clearlogo|clearlogo)\\.(" + extensions + ")$");
     CHARACTERART_PATTERN = Pattern.compile("(?i)(.*-characterart|characterart)[0-9]{0,2}\\.(" + extensions + ")$");
