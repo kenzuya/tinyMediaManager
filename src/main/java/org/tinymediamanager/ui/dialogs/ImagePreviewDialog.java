@@ -127,8 +127,9 @@ public class ImagePreviewDialog extends TmmDialog {
               imagePanel.invalidate();
               imagePanel.repaint();
 
-              if (width > 0 && height > 0) {
-                setTitle(TmmResourceBundle.getString("image.show") + " - " + width + "x" + height);
+              if (imgViewer.getImage().getWidth() > 0 && imgViewer.getImage().getHeight() > 0) {
+                setTitle(
+                    TmmResourceBundle.getString("image.show") + " - " + imgViewer.getImage().getWidth() + "x" + imgViewer.getImage().getHeight());
               }
             }
             catch (Exception e) {
