@@ -12,6 +12,9 @@ x (TMDB) fixed fetching rating (via mdblist.com) #2276
 x (TV show) fixed scraping of TV show fanart #2483
 x (Ratings) fix some maxValues #2492
 x (Update) fix corner-case for stacking #2490
+x (OpenSubtitles.com) fixed searching for some languages (pt-PT, pt-BR, zh-CN, zh-TW)
+x (TV shows) detect season artwork for seasons with 6 digits too #2487
+x fixed loading of missing metadata filter presets #2496
 
 
 Version 5.0.2
@@ -33,7 +36,6 @@ x improved automatic downloading of trailers #2455
 x (Trailer) allow renaming into a disc folder (Kodi style) #2451
 x fix NFO writing removing all the file properties #2463
 x (MovieSets) better align dateAdded, were cut-off #2464
-x (OpenSubtitles.com) fixed searching for some languages (pt-PT, pt-BR, zh-CN, zh-TW)
 
 
 Version 5.0.1.1
