@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -2781,14 +2780,14 @@ public class MediaFileHelper {
     if (StringUtils.isNoneBlank(dur)) {
       try {
         String[] split = dur.split("[:.]");
-        int h = MetadataUtil.parseInt(split[0]);
-        int m = MetadataUtil.parseInt(split[1]);
-        int s = MetadataUtil.parseInt(split[2]);
-        int ns = MetadataUtil.parseInt(split[3]);
-        LocalTime lt = LocalTime.of(h, m, s, ns);
-        return lt.toSecondOfDay();
+        if (split.length >= 3) {
+          int hours = MetadataUtil.parseInt(split[0]);
+          int minutes = MetadataUtil.parseInt(split[1]);
+          int seconds = MetadataUtil.parseInt(split[2]);
+          return hours * 3600 + minutes * 60 + seconds;
+        }
       }
-      catch (NumberFormatException ignored) {
+      catch (Exception ignored) {
         // nothing to do here
       }
     }
