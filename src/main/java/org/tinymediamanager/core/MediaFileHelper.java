@@ -2777,7 +2777,7 @@ public class MediaFileHelper {
   public static int parseDuration(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     // MI API delivers integer, but GUI+XML double - parse hms string first
     String dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration/String3");
-    if (StringUtils.isNoneBlank(dur)) {
+    if (StringUtils.isNotBlank(dur)) {
       try {
         String[] split = dur.split("[:.]");
         if (split.length >= 3) {
@@ -2788,12 +2788,12 @@ public class MediaFileHelper {
         }
       }
       catch (Exception ignored) {
-        // nothing to do here
+        LOGGER.trace("Could not parse duration as h:m:s: {}", dur);
       }
     }
     // fallback
     dur = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Duration");
-    if (StringUtils.isNoneBlank(dur)) {
+    if (StringUtils.isNotBlank(dur)) {
       try {
         double ddur = Double.parseDouble(dur);
         if (ddur > 25000) {
@@ -2804,7 +2804,7 @@ public class MediaFileHelper {
         }
       }
       catch (NumberFormatException ignored) {
-        // nothing to do here
+        LOGGER.trace("Could not parse duration as double {}", dur);
       }
     }
 
