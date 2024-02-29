@@ -153,8 +153,8 @@ class MovieUiSettingsPanel extends JPanel {
         }
       }
 
-      if (selectedItem instanceof String && StringUtils.isNotBlank((String) selectedItem)) {
-        MovieModuleManager.getInstance().getSettings().addRatingSource((String) selectedItem);
+      if (selectedItem instanceof String str && StringUtils.isNotBlank(str)) {
+        MovieModuleManager.getInstance().getSettings().addRatingSource(str);
 
         // set text combobox text input to ""
         if (editorComponent instanceof JTextField) {

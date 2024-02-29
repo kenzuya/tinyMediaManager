@@ -58,7 +58,6 @@ import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -158,8 +157,7 @@ class TvShowUiSettingsPanel extends JPanel {
       // check, if text is selected (from auto completion), in this case we just
       // remove the selection
       Component editorComponent = cbRating.getEditor().getEditorComponent();
-      if (editorComponent instanceof JTextField) {
-        JTextField tf = (JTextField) editorComponent;
+      if (editorComponent instanceof JTextField tf) {
         String selectedText = tf.getSelectedText();
         if (selectedText != null) {
           tf.setSelectionStart(0);
@@ -168,14 +166,17 @@ class TvShowUiSettingsPanel extends JPanel {
           return;
         }
       }
-      TvShowModuleManager.getInstance().getSettings().addRatingSource((String) selectedItem);
 
-      // set text combobox text input to ""
-      if (editorComponent instanceof JTextField) {
-        AutoCompleteSupport<String> autoCompleteSupport = cbRating.getAutoCompleteSupport();
-        autoCompleteSupport.setFirstItem(null);
-        cbRating.setSelectedIndex(0);
-        autoCompleteSupport.removeFirstItem();
+      if (selectedItem instanceof String str && StringUtils.isNotBlank(str)) {
+        TvShowModuleManager.getInstance().getSettings().addRatingSource(str);
+
+        // set text combobox text input to ""
+        if (editorComponent instanceof JTextField) {
+          AutoCompleteSupport<String> autoCompleteSupport = cbRating.getAutoCompleteSupport();
+          autoCompleteSupport.setFirstItem(null);
+          cbRating.setSelectedIndex(0);
+          autoCompleteSupport.removeFirstItem();
+        }
       }
     });
 
