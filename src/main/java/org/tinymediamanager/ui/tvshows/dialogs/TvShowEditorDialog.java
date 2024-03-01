@@ -1565,7 +1565,13 @@ public class TvShowEditorDialog extends AbstractEditorDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      String newTag = (String) cbTags.getSelectedItem();
+      Object selectedItem = cbTags.getSelectedItem();
+
+      if (selectedItem == null) {
+        return;
+      }
+
+      String newTag = (String) selectedItem;
       if (StringUtils.isBlank(newTag)) {
         return;
       }

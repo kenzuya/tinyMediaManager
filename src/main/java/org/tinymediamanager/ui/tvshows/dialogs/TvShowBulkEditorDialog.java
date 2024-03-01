@@ -219,8 +219,19 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         panelContent.add(btnAddTag, "flowx,cell 2 1");
         btnAddTag.addActionListener(e -> {
           tvShowsChanged = true;
+
+          Object selectedItem = cbTags.getSelectedItem();
+
+          if (selectedItem == null) {
+            return;
+          }
+
+          String tag = (String) selectedItem;
+          if (StringUtils.isBlank(tag)) {
+            return;
+          }
+
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          String tag = (String) cbTags.getSelectedItem();
           for (TvShow tvShow : tvShowsToEdit) {
             tvShow.addToTags(Collections.singletonList(tag));
           }
@@ -584,8 +595,19 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         panelContent.add(btnAddTagEpisode, "flowx,cell 2 5");
         btnAddTagEpisode.addActionListener(e -> {
           episodesChanged = true;
+
+          Object selectedItem = cbTagsEpisode.getSelectedItem();
+
+          if (selectedItem == null) {
+            return;
+          }
+
+          String tag = (String) selectedItem;
+          if (StringUtils.isBlank(tag)) {
+            return;
+          }
+
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          String tag = (String) cbTagsEpisode.getSelectedItem();
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
             episode.addToTags(Collections.singletonList(tag));
           }

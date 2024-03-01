@@ -221,12 +221,19 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JButton btnAddTag = new SquareIconButton(IconManager.ADD_INV);
         btnAddTag.addActionListener(e -> {
           changed = true;
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          String tag = (String) cbTags.getSelectedItem();
+
+          Object selectedItem = cbTags.getSelectedItem();
+
+          if (selectedItem == null) {
+            return;
+          }
+
+          String tag = (String) selectedItem;
           if (StringUtils.isBlank(tag)) {
             return;
           }
 
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (Movie movie : moviesToEdit) {
             movie.addToTags(Collections.singletonList(tag));
           }
