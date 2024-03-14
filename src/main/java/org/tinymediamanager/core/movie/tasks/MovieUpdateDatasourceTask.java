@@ -634,6 +634,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
                 basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
               }
             }
+            if (basename.isEmpty()) {
+              // happens when having only a "dics1.iso" file
+              basename = "empty"; // to at least have on entry!
+            }
             normalizedVideoFiles.add(basename);
           }
         }

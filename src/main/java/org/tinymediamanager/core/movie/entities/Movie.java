@@ -2504,7 +2504,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return vid;
     }
 
-    LOGGER.warn("Movie without video file? {}", getPathNIO());
+    LOGGER.warn("Movie without video file? {} | {}", getPathNIO(), getTitle());
     // cannot happen - movie MUST always have a video file
     return MediaFile.EMPTY_MEDIAFILE;
   }

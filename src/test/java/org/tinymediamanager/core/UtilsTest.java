@@ -191,6 +191,14 @@ public class UtilsTest extends BasicTest {
     assertEqual(Utils.getStackingMarker("Movie Name 3of4 (2013).mkv"), "3of4"); // inbetween matching
     assertEqual(Utils.getStackingMarker("Movie Name Part4 (2013)-Part1.mkv"), "Part1"); // no inbetween matching, but ending matching
 
+    // special case, when filename equals only a stacking param
+    assertEqual(Utils.getStackingMarker("Disc1.iso"), "Disc1");
+    assertEqual(Utils.getStackingMarker("Disc1 or smthg.iso"), "Disc1"); // inbetween matching
+    assertEqual(Utils.cleanStackingMarkers("Disc1.iso"), ".iso");
+    assertEqual(Utils.cleanStackingMarkers("Disc1 or smthg.iso"), " or smthg.iso");
+    assertEqual(Utils.getStackingNumber("Disc1.iso"), 1);
+    assertEqual(Utils.getStackingNumber("Disc1 or smthg.iso"), 1);
+
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd1.mkv"), 1);
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-cd12.mkv"), 12);
     assertEqual(Utils.getStackingNumber("Movie Name (2013)-PaRt1.mkv"), 1);

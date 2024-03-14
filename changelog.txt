@@ -1,5 +1,6 @@
 Version 5.0.4
 =======================
+x (stacking) improve stacking detection of file names
 
 
 Version 5.0.3
