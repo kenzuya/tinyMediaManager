@@ -90,6 +90,7 @@ import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.ITvShowEpisodeConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToEmbyConnector;
+import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToJellyfinConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
@@ -577,7 +578,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
           break;
         }
       }
-    } else if (episodeNumber == null && episodeGroup.getEpisodeGroupType() == ABSOLUTE) {
+    }
+    else if (episodeNumber == null && episodeGroup.getEpisodeGroupType() == ABSOLUTE) {
       for (MediaEpisodeNumber mediaEpisodeNumber : episodeNumbers) {
         if (mediaEpisodeNumber.episodeGroup().getEpisodeGroupType() == ABSOLUTE) {
           episodeNumber = mediaEpisodeNumber;
@@ -800,7 +802,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     for (String ratingSource : TvShowModuleManager.getInstance().getSettings().getRatingSources()) {
       // prevent crashing with null values
-      if(StringUtils.isBlank(ratingSource)){
+      if (StringUtils.isBlank(ratingSource)) {
         continue;
       }
 
@@ -1107,6 +1109,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     ITvShowEpisodeConnector connector = switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
       case XBMC -> new TvShowEpisodeToXbmcConnector(episodesInNfo);
       case EMBY -> new TvShowEpisodeToEmbyConnector(episodesInNfo);
+      case JELLYFIN -> new TvShowEpisodeToJellyfinConnector(episodesInNfo);
       default -> new TvShowEpisodeToKodiConnector(episodesInNfo);
     };
 
