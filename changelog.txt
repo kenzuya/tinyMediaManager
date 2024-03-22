@@ -3,6 +3,7 @@ Version 5.0.4
 x (stacking) improve stacking detection of file names
 x (Jellyfin) do not write artwork URLs into the NFO files #2518
 x adopted the column padding to do not clip runtime #2517
+x enhanced displaying of season names #2501
 
 
 Version 5.0.3

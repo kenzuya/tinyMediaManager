@@ -595,20 +595,23 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     public String toString() {
       // return season name
       if (getUserObject() instanceof TvShowSeason season) {
-        if (StringUtils.isNotBlank(season.getTitle())) {
-          return season.getTitle();
+        if (season.getSeason() == -1) {
+          return TmmResourceBundle.getString("tvshow.uncategorized");
+        }
+
+        String title = "";
+
+        if (season.getSeason() == 0) {
+          title = TmmResourceBundle.getString("metatag.specials");
         }
         else {
-          if (season.getSeason() == -1) {
-            return TmmResourceBundle.getString("tvshow.uncategorized");
-          }
-
-          if (season.getSeason() == 0) {
-            return TmmResourceBundle.getString("metatag.specials");
-          }
-
-          return TmmResourceBundle.getString("metatag.season") + " " + season.getSeason();
+          title = TmmResourceBundle.getString("metatag.season") + " " + season.getSeason();
         }
+        if (StringUtils.isNotBlank(season.getTitle())) {
+          title += " - " + season.getTitle();
+        }
+
+        return title;
       }
 
       // fallback: call super
