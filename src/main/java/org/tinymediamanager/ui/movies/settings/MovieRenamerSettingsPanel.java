@@ -90,6 +90,7 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.movies.dialogs.MovieTokenPreviewDialog;
 import org.tinymediamanager.ui.renderer.MultilineTableCellRenderer;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -282,7 +283,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private void initComponents() {
     setLayout(new MigLayout("hidemode 1", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow]", "[][][][][][]"));
+      JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow][grow]", "[][][][][][]"));
 
       JLabel lblPatternsT = new TmmLabel(TmmResourceBundle.getString("Settings.movie.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
@@ -346,6 +347,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
           }
         });
         panelPatterns.add(btnHelp, "cell 1 4 3 1");
+        JButton btnTokenPreview = new JButton(TmmResourceBundle.getString("tmm.renamer_preview"));
+        btnTokenPreview.addActionListener(e -> {
+          MovieTokenPreviewDialog movieTokenPreviewDialog = new MovieTokenPreviewDialog();
+          movieTokenPreviewDialog.setVisible(true);
+        });
+        panelPatterns.add(btnTokenPreview,"cell 0 5");
       }
       {
         taWarning = new ReadOnlyTextArea();
