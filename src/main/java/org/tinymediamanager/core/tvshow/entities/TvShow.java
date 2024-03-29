@@ -418,7 +418,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       if (StringUtils.isBlank(ratingSource)) {
         continue;
       }
-      
+
       mediaRating = ratings.get(ratingSource);
       if (mediaRating != null) {
         break;
@@ -953,6 +953,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (!seasons.contains(season)) {
       int seasonCount = seasons.size();
       seasons.add(season);
+      seasons.sort(TvShowSeason::compareTo);
 
       firePropertyChange(ADDED_SEASON, null, season);
       firePropertyChange(SEASON_COUNT, seasonCount, seasons.size());
