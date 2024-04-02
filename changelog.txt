@@ -1,6 +1,7 @@
 Version 5.0.4
 =======================
 + (movie/TV show) group the artwork type in the artwork panel for better visibility
+x fixed trailer downloading for newer trailers #2532
 x (stacking) improve stacking detection of file names
 x (Jellyfin) do not write artwork URLs into the NFO files #2518
 x adopted the column padding to do not clip runtime #2517
