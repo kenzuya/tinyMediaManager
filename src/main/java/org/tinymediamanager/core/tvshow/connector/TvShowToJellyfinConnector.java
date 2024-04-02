@@ -69,4 +69,24 @@ public class TvShowToJellyfinConnector extends TvShowToKodiConnector {
       root.appendChild(enddate);
     }
   }
+
+  @Override
+  protected void addThumb() {
+    // do not write any artwork urls
+  }
+
+  @Override
+  protected void addFanart() {
+    // do not write any artwork urls
+  }
+
+  @Override
+  protected void addSeasonPoster() {
+    // do not write any artwork urls
+  }
+
+  @Override
+  protected void addSeasonThumb() {
+    // do not write any artwork urls
+  }
 }

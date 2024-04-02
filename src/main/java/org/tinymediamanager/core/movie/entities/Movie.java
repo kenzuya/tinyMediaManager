@@ -104,6 +104,7 @@ import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.connector.MovieToEmbyConnector;
+import org.tinymediamanager.core.movie.connector.MovieToJellyfinConnector;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpLegacyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpMovingPicturesConnector;
@@ -1384,8 +1385,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
         connector = new MovieToEmbyConnector(this);
         break;
 
-      case KODI:
       case JELLYFIN:
+        connector = new MovieToJellyfinConnector(this);
+        break;
+
+      case KODI:
       case PLEX:
       case DVR_3:
       default:
@@ -2504,7 +2508,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       return vid;
     }
 
-    LOGGER.warn("Movie without video file? {}", getPathNIO());
+    LOGGER.warn("Movie without video file? {} | {}", getPathNIO(), getTitle());
     // cannot happen - movie MUST always have a video file
     return MediaFile.EMPTY_MEDIAFILE;
   }

@@ -116,6 +116,9 @@ public class Utils {
   // <cd/dvd/part/pt/disk/disc><0-N>
   private static final Pattern      stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
       Pattern.CASE_INSENSITIVE);
+  // same as above, but SOLELY as name like "disc1.iso"
+  private static final Pattern      stackingPattern1a           = Pattern.compile("((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
+      Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><a-d>
   private static final Pattern      stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
@@ -378,6 +381,10 @@ public class Utils {
       if (m.matches()) {
         return m.group(1) + m.group(3); // just return String w/o stacking
       }
+      m = stackingPattern1a.matcher(filename);
+      if (m.matches()) {
+        return m.group(2); // just return postfix, as we started with stacking 2=3
+      }
 
       // <cd/dvd/part/pt/disk/disc> <a-d>
       m = stackingPattern2.matcher(filename);
@@ -455,6 +462,10 @@ public class Utils {
       Matcher m = stackingPattern1.matcher(filename);
       if (m.matches()) {
         return m.group(2);
+      }
+      m = stackingPattern1a.matcher(filename);
+      if (m.matches()) {
+        return m.group(1); // we start with stacking param, so 2=1
       }
 
       // <cd/dvd/part/pt/disk/disc> <a-d>
