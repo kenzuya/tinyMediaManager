@@ -1230,45 +1230,31 @@ public class Utils {
     if (StringUtils.isBlank(language)) {
       return Locale.getDefault();
     }
-    // do we have a newer locale settings style?
+
+    // don't mess around; at least fixate this
+    if ("en".equalsIgnoreCase(language)) {
+      return Locale.US;
+    }
+    // fixate Chinese ones based on script, not country!
+    if ("zh_Hant".equalsIgnoreCase(language) || "zh__#Hant".equalsIgnoreCase(language) || "zh_HK".equalsIgnoreCase(language)
+        || "zh_TW".equalsIgnoreCase(language)) {
+      return new Locale.Builder().setLanguage("zh").setScript("Hant").build();
+    }
+    if ("zh".equalsIgnoreCase(language) || "zh__#Hans".equalsIgnoreCase(language) || "zh_Hans".equalsIgnoreCase(language)
+        || "zh_CN".equalsIgnoreCase(language) || "zh_SG".equalsIgnoreCase(language)) {
+      return new Locale.Builder().setLanguage("zh").setScript("Hans").build();
+    }
+
     if (language.length() > 2) {
       try {
         return LocaleUtils.toLocale(language);
       }
       catch (Exception e) {
-        // Whoopsie. try to fix string....
-        if (language.matches("^\\w\\w_\\w\\w.*")) {
-          // okay, maybe some special locale - try to detect all exceptions
-          if ("zh_Hant".equalsIgnoreCase(language)) {
-            return Locale.TRADITIONAL_CHINESE;
-          }
-          if ("zh_Hans".equalsIgnoreCase(language)) {
-            return Locale.SIMPLIFIED_CHINESE;
-          }
-          // return LocaleUtils.toLocale(language.substring(0, language.indexOf('_'))); // fall through
-        }
-      }
-    }
-    if (language.equalsIgnoreCase("en")) {
-      return Locale.US; // don't mess around; at least fixate this
-    }
-
-    // try to find country based locale
-    Locale l = null;
-    List<Locale> countries = LocaleUtils.countriesByLanguage(language.toLowerCase(Locale.ROOT));
-    for (Locale locale : countries) {
-      if (locale.getCountry().equalsIgnoreCase(language) && locale.getScript().isEmpty()) {
-        // map to main countries; de->de_DE (and not de_CH)
-        // only take empty script ones, else we get mostly some #Latn variants
-        l = locale;
-        break;
+        LOGGER.warn("Could not parse language {}", language);
       }
     }
 
-    if (l == null) {
-      l = new Locale(language); // let java decide..?
-    }
-    return l;
+    return new Locale(language); // let java decide..?
   }
 
   /**

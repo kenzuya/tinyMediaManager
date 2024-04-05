@@ -1,3 +1,9 @@
+Version 4.3.16
+=======================
+x fix writing localized genres into NFO
+x fix Kodi RPC calls on invalid entries
+
+
 Version 4.3.15
 =======================
 x fix chinese language for simplified/traditional
