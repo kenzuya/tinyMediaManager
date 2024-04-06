@@ -200,6 +200,9 @@ public class KodiRPC {
       // KODI ds|file=id
       Map<String, Integer> kodiDsAndFolder = new HashMap<>();
       for (MovieDetail movie : call.getResults()) {
+        if (movie.file == null || movie.file.isEmpty()) {
+          continue;
+        }
 
         // stacking only supported on movies
         if (movie.file.startsWith("stack")) {
@@ -318,6 +321,9 @@ public class KodiRPC {
       // KODI ds|dir=id
       Map<String, Integer> kodiDsAndFolder = new HashMap<>();
       for (TVShowDetail show : tvShowCall.getResults()) {
+        if (show.file == null || show.file.isEmpty()) {
+          continue;
+        }
         // Kodi return full path of show dir
         String ds = detectDatasource(show.file); // detect datasource of show dir
         String rel = show.file.replace(ds, ""); // remove ds, to have a relative folder
@@ -507,6 +513,9 @@ public class KodiRPC {
     if (episodeCall.getResults() != null && !episodeCall.getResults().isEmpty()) {
       Map<String, Integer> kodiDsAndFolder = new HashMap<>();
       for (EpisodeDetail ep : episodeCall.getResults()) {
+        if (ep.file == null || ep.file.isEmpty()) {
+          continue;
+        }
         // KODI ds|file=id
         // Kodi return full path of show dir
         String ds = detectDatasource(ep.file); // detect datasource of show dir
@@ -518,6 +527,7 @@ public class KodiRPC {
       }
       LOGGER.debug("KODI {} episodes", kodiDsAndFolder.size());
 
+      // TMM ds|dir=id
       Map<String, UUID> tmmDsAndFolder = prepareEpisodeFileMap(tmmShow);
       LOGGER.debug("TMM {} episodes", tmmDsAndFolder.size());
 
