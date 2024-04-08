@@ -1,3 +1,7 @@
+Version 5.0.5
+=======================
+
+
 Version 5.0.4
 =======================
 + (movie/TV show) group the artwork type in the artwork panel for better visibility
