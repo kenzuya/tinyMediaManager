@@ -51,7 +51,6 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
-import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
@@ -83,7 +82,6 @@ class MovieTrailerSettingsPanel extends JPanel {
 
   private TmmTable                   tableScraperInTable;
   private JTextPane                  tpScraperDescription;
-  private JComboBox<TrailerSources>  cbTrailerSource;
   private JComboBox<TrailerQuality>  cbTrailerQuality;
   private JCheckBox                  checkBox;
   private JCheckBox                  chckbxAutomaticTrailerDownload;
@@ -284,13 +282,6 @@ class MovieTrailerSettingsPanel extends JPanel {
         checkBox = new JCheckBox(TmmResourceBundle.getString("Settings.trailer.preferred"));
         panelOptions.add(checkBox, "cell 1 0 2 1");
 
-        JLabel lblTrailerSource = new JLabel(TmmResourceBundle.getString("Settings.trailer.source"));
-        panelOptions.add(lblTrailerSource, "cell 2 1");
-
-        cbTrailerSource = new JComboBox();
-        cbTrailerSource.setModel(new DefaultComboBoxModel<>(TrailerSources.values()));
-        panelOptions.add(cbTrailerSource, "cell 2 1");
-
         JLabel lblTrailerQuality = new JLabel(TmmResourceBundle.getString("Settings.trailer.quality"));
         panelOptions.add(lblTrailerQuality, "cell 2 2");
 
@@ -364,12 +355,6 @@ class MovieTrailerSettingsPanel extends JPanel {
     AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraperInTable,
         jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
     autoBinding.bind();
-    //
-    BeanProperty<MovieSettings, TrailerSources> movieSettingsBeanProperty = BeanProperty.create("trailerSource");
-    BeanProperty<JComboBox<TrailerSources>, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, TrailerSources, JComboBox<TrailerSources>, Object> autoBinding_1 = Bindings
-        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
-    autoBinding_1.bind();
     //
     BeanProperty<MovieSettings, TrailerQuality> movieSettingsBeanProperty_1 = BeanProperty.create("trailerQuality");
     BeanProperty<JComboBox<TrailerQuality>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");

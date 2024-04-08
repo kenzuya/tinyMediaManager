@@ -38,7 +38,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
-import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowCharacterartNaming;
@@ -218,7 +217,6 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        useTrailerPreference                   = true;
   boolean                                        automaticTrailerDownload               = false;
   TrailerQuality                                 trailerQuality                         = TrailerQuality.HD_720;
-  TrailerSources                                 trailerSource                          = TrailerSources.YOUTUBE;
 
   // subtitle scraper
   MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
@@ -595,16 +593,6 @@ public final class TvShowSettings extends AbstractSettings {
     TrailerQuality oldValue = this.trailerQuality;
     this.trailerQuality = newValue;
     firePropertyChange("trailerQuality", oldValue, newValue);
-  }
-
-  public TrailerSources getTrailerSource() {
-    return trailerSource;
-  }
-
-  public void setTrailerSource(TrailerSources newValue) {
-    TrailerSources oldValue = this.trailerSource;
-    this.trailerSource = newValue;
-    firePropertyChange("trailerSource", oldValue, newValue);
   }
 
   public void addTvShowTrailerScraper(String newValue) {

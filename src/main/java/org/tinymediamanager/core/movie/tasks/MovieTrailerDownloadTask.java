@@ -68,7 +68,7 @@ public class MovieTrailerDownloadTask extends TmmTask {
       trailernames.addAll(MovieModuleManager.getInstance().getSettings().getTrailerFilenames());
     }
 
-    desiredSource = MovieModuleManager.getInstance().getSettings().getTrailerSource();
+    desiredSource = TrailerSources.YOUTUBE;
     desiredQuality = MovieModuleManager.getInstance().getSettings().getTrailerQuality();
   }
 
