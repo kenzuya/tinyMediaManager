@@ -995,7 +995,7 @@ public abstract class ImdbParser {
       for (JsonNode vid : ListUtils.nullSafe(primaryTrailers)) {
         ImdbVideo video = JsonUtils.parseObject(mapper, vid.get("node"), ImdbVideo.class);
         for (ImdbPlaybackUrl vidurl : ListUtils.nullSafe(video.playbackURLs)) {
-          if (vidurl.displayName.value.equalsIgnoreCase("AUTO")) {
+          if (vidurl.displayName.value.equalsIgnoreCase("AUTO") || vidurl.displayName.value.equalsIgnoreCase("SD")) {
             continue;
           }
           MediaTrailer trailer = new MediaTrailer();
