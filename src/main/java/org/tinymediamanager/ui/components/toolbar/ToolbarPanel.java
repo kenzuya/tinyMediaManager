@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.components.toolbar;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -76,6 +78,7 @@ import org.tinymediamanager.ui.actions.HomepageAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
+import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.actions.UnlockAction;
 import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
@@ -116,7 +119,7 @@ public class ToolbarPanel extends JPanel {
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
     panelCenter.setLayout(
-        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][][15lp:n]", "[50lp]1lp[]5lp"));
+        new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][]15lp[][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0, alignx center, aligny bottom");
     JLabel lblVersion = new ToolbarLabel(ReleaseInfo.getRealVersion());
@@ -158,6 +161,11 @@ public class ToolbarPanel extends JPanel {
     btnRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(btnRenewLicense, "cell 12 0, alignx center,aligny bottom, gap 10lp");
 
+    JButton btnUpgrade = new ToolbarButton(IconManager.TOOLBAR_UPGRADE2, IconManager.TOOLBAR_UPGRADE2);
+    Action upgradeAction = new UpgradeV5Action();
+    btnUpgrade.setAction(upgradeAction);
+    panelCenter.add(btnUpgrade, "cell 13 0,alignx center,aligny bottom");
+
     menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
@@ -186,6 +194,10 @@ public class ToolbarPanel extends JPanel {
     lblRenewLicense = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.renewlicense"), unlockAction);
     lblRenewLicense.setToolTipText(TmmResourceBundle.getString("Toolbar.renewlicense.desc"));
     panelCenter.add(lblRenewLicense, "cell 12 1,alignx center, gap 10lp, wmin 0");
+
+    JLabel lblUpgrade = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.majorupgrade"), upgradeAction);
+    lblUpgrade.setToolTipText(TmmResourceBundle.getString("Toolbar.majorupgrade.desc"));
+    panelCenter.add(lblUpgrade, "cell 13 1,alignx center, wmin 0");
 
     License.getInstance().addEventListener(this::showHideUnlock);
 
@@ -420,5 +432,21 @@ public class ToolbarPanel extends JPanel {
     menu.add(new AboutAction());
 
     return menu;
+  }
+
+  private static class UpgradeV5Action extends TmmAction {
+
+    @Override
+    protected void processAction(ActionEvent e) {
+      String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/docs/upgrade-v5");
+      try {
+        TmmUIHelper.browseUrl(url);
+      }
+      catch (Exception e1) {
+        LOGGER.error("FAQ", e1);
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e1.getLocalizedMessage() }));
+      }
+    }
   }
 }
