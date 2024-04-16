@@ -273,6 +273,7 @@ public class TvShowArtworkHelper {
 
     // update DB
     tvShow.saveToDb();
+    tvShow.writeNFO(); // rewrite NFO to get the urls into the NFO
   }
 
   private static void setBestPoster(TvShow tvShow, List<MediaArtwork> artwork) {

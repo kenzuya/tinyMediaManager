@@ -236,6 +236,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         if (!artwork.isEmpty()) {
           episode.setArtworkUrl(artwork.get(0).getDefaultUrl(), MediaFileType.THUMB);
           episode.downloadArtwork(MediaFileType.THUMB);
+
+          episode.saveToDb();
+          episode.writeNFO(); // rewrite NFO to get the urls into the NFO
         }
       }
       catch (Exception e) {

@@ -557,6 +557,9 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
                   && (overwrite || StringUtils.isBlank(movieToScrape.getArtworkFilename(MediaFileType.KEYART)))) {
                 chooseArtwork(MediaFileType.KEYART);
               }
+
+              movieToScrape.saveToDb();
+              movieToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous

@@ -172,6 +172,8 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
               if (art.getType() == THUMB && StringUtils.isNotBlank(art.getDefaultUrl())) {
                 episode.setArtworkUrl(art.getDefaultUrl(), MediaFileType.THUMB);
                 episode.downloadArtwork(MediaFileType.THUMB, false);
+                episode.saveToDb();
+                episode.writeNFO();
                 break;
               }
             }

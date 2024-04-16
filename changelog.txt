@@ -2,6 +2,7 @@ Version 4.3.16
 =======================
 x fix writing localized genres into NFO
 x fix Kodi RPC calls on invalid entries
+x re-write NFO after new artwork has been set #2505
 
 
 Version 4.3.15

@@ -591,6 +591,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
                   chooseSeasonArtwork(season.getSeason(), MediaArtwork.MediaArtworkType.SEASON_THUMB);
                 }
               }
+
+              tvShowToScrape.saveToDb();
+              tvShowToScrape.writeNFO(); // rewrite NFO to get the urls into the NFO
             }
             else {
               // get artwork asynchronous
