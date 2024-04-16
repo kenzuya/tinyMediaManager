@@ -526,9 +526,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     if (!tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes()) {
       // check and delete all not found MediaFiles
       for (MediaFile mf : tvShow.getMediaFiles()) {
-        fileLock.readLock().lock();
         boolean fileFound = filesFound.contains(mf.getFileAsPath());
-        fileLock.readLock().unlock();
 
         if (!fileFound) {
           LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
@@ -545,9 +543,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       for (TvShowSeason season : tvShow.getSeasons()) {
         // check and delete all not found MediaFiles
         for (MediaFile mf : season.getMediaFiles()) {
-          fileLock.readLock().lock();
           boolean fileFound = filesFound.contains(mf.getFileAsPath());
-          fileLock.readLock().unlock();
 
           if (!fileFound) {
             LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
@@ -564,9 +560,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         for (MediaFile mf : episode.getMediaFiles()) {
-          fileLock.readLock().lock();
           boolean fileFound = filesFound.contains(mf.getFileAsPath());
-          fileLock.readLock().unlock();
 
           if (!fileFound) {
             LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());

@@ -1508,9 +1508,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
-      fileLock.readLock().lock();
       boolean dirFound = filesFound.contains(movieDir);
-      fileLock.readLock().unlock();
 
       if (!dirFound) {
         // dir is not in hashset - check with exists to be sure it is not here
@@ -1530,9 +1528,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // check and delete all not found MediaFiles
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
-          fileLock.readLock().lock();
           boolean fileFound = filesFound.contains(mf.getFileAsPath());
-          fileLock.readLock().unlock();
 
           if (!fileFound) {
             LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
