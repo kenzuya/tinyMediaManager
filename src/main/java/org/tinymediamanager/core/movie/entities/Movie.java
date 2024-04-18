@@ -1797,7 +1797,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       List<String> translatedLanguages = new ArrayList<>();
       for (String langu : ParserUtils.split(getSpokenLanguages())) {
         String translated = LanguageUtils
-            .getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage()), langu.trim());
+            .getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage()), langu.strip());
         translatedLanguages.add(translated);
       }
 

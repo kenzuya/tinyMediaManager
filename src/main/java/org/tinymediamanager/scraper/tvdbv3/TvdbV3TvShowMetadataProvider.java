@@ -548,7 +548,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
           String[] multiple = director.split(",");
           for (String g2 : multiple) {
             Person cm = new Person(DIRECTOR);
-            cm.setName(g2.trim());
+            cm.setName(g2.strip());
             episode.addCastMember(cm);
           }
         }
@@ -560,7 +560,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
           String[] multiple = writer.split(",");
           for (String g2 : multiple) {
             Person cm = new Person(WRITER);
-            cm.setName(g2.trim());
+            cm.setName(g2.strip());
             episode.addCastMember(cm);
           }
         }
@@ -572,7 +572,7 @@ public class TvdbV3TvShowMetadataProvider extends TvdbV3MetadataProvider impleme
           String[] multiple = guest.split(",");
           for (String g2 : multiple) {
             Person cm = new Person(GUEST);
-            cm.setName(g2.trim());
+            cm.setName(g2.strip());
             episode.addCastMember(cm);
           }
         }

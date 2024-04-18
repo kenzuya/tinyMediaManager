@@ -1372,17 +1372,17 @@ public class MovieRenamer {
     newDestination = newDestination.replace(":", "-"); // nicer
 
     // replace new lines
-    newDestination = newDestination.replaceAll("\r?\n", " ").trim();
+    newDestination = newDestination.replaceAll("\r?\n", " ");
 
     // replace multiple spaces with a single one
-    newDestination = newDestination.replaceAll(" +", " ").trim();
+    newDestination = newDestination.replaceAll(" +", " ");
 
     if (SystemUtils.IS_OS_WINDOWS) {
       // remove illegal characters on Windows
-      newDestination = newDestination.replace("\"", " ").trim();
+      newDestination = newDestination.replace("\"", " ");
     }
 
-    return newDestination.trim();
+    return newDestination.strip();
   }
 
   /**

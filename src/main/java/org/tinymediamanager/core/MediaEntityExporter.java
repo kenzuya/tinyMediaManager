@@ -294,8 +294,8 @@ public abstract class MediaEntityExporter {
         String value = "";
         try {
           String[] d = detail.split("=");
-          key = d[0].trim();
-          value = d[1].trim();
+          key = d[0].strip();
+          value = d[1].strip();
         }
         catch (Exception ignored) {
           // ignored

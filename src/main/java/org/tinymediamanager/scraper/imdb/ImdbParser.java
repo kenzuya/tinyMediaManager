@@ -277,7 +277,7 @@ public abstract class ImdbParser {
       return false;
     }
 
-    ResultCategory category = getResultCategory(text.trim());
+    ResultCategory category = getResultCategory(text.strip());
     if (category == null) {
       return false;
     }
@@ -1141,7 +1141,7 @@ public abstract class ImdbParser {
 
       int yearStart = movieTitle.lastIndexOf('(');
       if (yearStart > 0) {
-        movieTitle = movieTitle.substring(0, yearStart - 1).trim();
+        movieTitle = movieTitle.substring(0, yearStart - 1).strip();
         md.setTitle(movieTitle);
       }
     }
@@ -1153,7 +1153,7 @@ public abstract class ImdbParser {
       int startOfYear = content.lastIndexOf('(');
       if (startOfYear > 0) {
         // noo - this is NOT the original title!!! (seems always english?) parse from AKAs page...
-        String originalTitle = content.substring(0, startOfYear - 1).trim();
+        String originalTitle = content.substring(0, startOfYear - 1).strip();
         md.setOriginalTitle(originalTitle);
 
         String yearText = content.substring(startOfYear);
@@ -1204,7 +1204,7 @@ public abstract class ImdbParser {
       String ratingAsString = ratingElement.ownText().replace(",", ".");
       Element votesElement = doc.getElementsByClass("ipl-rating-star__total-votes").first();
       if (votesElement != null) {
-        String countAsString = votesElement.ownText().replaceAll("[.,()]", "").trim();
+        String countAsString = votesElement.ownText().replaceAll("[.,()]", "").strip();
         try {
           MediaRating rating = new MediaRating(MediaMetadata.IMDB);
           rating.setRating(Float.parseFloat(ratingAsString));
@@ -1242,7 +1242,7 @@ public abstract class ImdbParser {
       String releaseDateText = releaseDateElement.ownText();
       int startOfCountry = releaseDateText.indexOf('(');
       if (startOfCountry > 0) {
-        releaseDateText = releaseDateText.substring(0, startOfCountry - 1).trim();
+        releaseDateText = releaseDateText.substring(0, startOfCountry - 1).strip();
       }
       md.setReleaseDate(parseDate(releaseDateText));
     }
@@ -1402,7 +1402,7 @@ public abstract class ImdbParser {
     }
     if (directorsElement != null) {
       for (Element directorElement : directorsElement.getElementsByClass("name")) {
-        String director = directorElement.text().trim();
+        String director = directorElement.text().strip();
 
         Person cm = new Person(Person.Type.DIRECTOR, director);
         // profile path
@@ -1813,7 +1813,7 @@ public abstract class ImdbParser {
     if (characterElement != null) {
       characterName = cleanString(characterElement.text());
       // and now strip off trailing commentaries like - (120 episodes, 2006-2014)
-      characterName = characterName.replaceAll("\\(.*?\\)$", "").trim();
+      characterName = characterName.replaceAll("\\(.*?\\)$", "").strip();
     }
 
     String image = "";
@@ -2075,7 +2075,7 @@ public abstract class ImdbParser {
       return "";
     }
     // remove non-breaking spaces
-    String newString = StringUtils.trim(oldString.replace(String.valueOf((char) 160), " "));
+    String newString = StringUtils.strip(oldString.replace(String.valueOf((char) 160), " "));
 
     // if there is a leading AND trailing quotation marks (e.g. at TV shows) - remove them
     if (newString.startsWith("\"") && newString.endsWith("\"")) {

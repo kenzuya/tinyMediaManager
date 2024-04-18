@@ -318,8 +318,8 @@ public class TvShowTest extends BasicTvShowTest {
     if (result.stackingMarkerFound) {
       sb.append(" Split");
     }
-    System.out.println(padRight(sb.toString().trim(), 40) + name);
-    return sb.toString().trim();
+    System.out.println(padRight(sb.toString().strip(), 40) + name);
+    return sb.toString().strip();
   }
 
   private String padRight(String s, int n) {

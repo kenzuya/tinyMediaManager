@@ -2172,13 +2172,13 @@ public class MediaFileHelper {
             String[] brChunks = br.split("/");
             int brMult = 0;
             for (String brChunk : brChunks) {
-              brMult += MetadataUtil.parseInt(brChunk.trim(), 0);
+              brMult += MetadataUtil.parseInt(brChunk.strip(), 0);
             }
             stream.setBitrate(brMult / 1000);
           }
           else {
             br = br.replace("kb/s", "");// 448 / 1000 = 0
-            stream.setBitrate(Integer.parseInt(br.trim()) / 1000);
+            stream.setBitrate(Integer.parseInt(br.strip()) / 1000);
           }
         }
         catch (Exception e) {

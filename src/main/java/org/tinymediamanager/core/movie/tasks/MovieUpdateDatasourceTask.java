@@ -969,9 +969,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (vid != null && !vid.isEmpty()) {
           String vfilename = vid.get(0).getFilename();
           if (FilenameUtils.getBaseName(vfilename).equals(FilenameUtils.getBaseName(mf.getFilename())) // basename match
-              || FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vfilename)).trim().equals(FilenameUtils.getBaseName(mf.getFilename())) // basename
-                                                                                                                                             // w/o
-                                                                                                                                             // stacking
+              // basename w/o stacking
+              || FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vfilename)).strip().equals(FilenameUtils.getBaseName(mf.getFilename()))
               || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title match
             mf.setType(POSTER);
             movie.addToMediaFiles(mf);

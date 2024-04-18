@@ -1137,7 +1137,7 @@ public class TvShowNfoParser {
           // old style - single tag with delimiter
           String[] split = genre.ownText().split("/");
           for (String sp : split) {
-            genres.add(MediaGenres.getGenre(sp.trim()));
+            genres.add(MediaGenres.getGenre(sp.strip()));
           }
         }
       }

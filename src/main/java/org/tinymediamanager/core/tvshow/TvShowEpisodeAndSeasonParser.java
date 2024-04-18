@@ -119,7 +119,7 @@ public class TvShowEpisodeAndSeasonParser {
       }
       ret.append(" ").append(s);
     }
-    ret = new StringBuilder(ret.toString().trim());
+    ret = new StringBuilder(ret.toString().strip());
 
     // uh-oh - we removed too much
     // also split and reassemble backup
@@ -129,7 +129,7 @@ public class TvShowEpisodeAndSeasonParser {
       for (String s : b) {
         backup.append(" ").append(s);
       }
-      ret = new StringBuilder(backup.toString().trim());
+      ret = new StringBuilder(backup.toString().strip());
     }
     return ret.toString();
   }
@@ -217,7 +217,7 @@ public class TvShowEpisodeAndSeasonParser {
     foldername = " " + foldername + " "; // ease regex parsing w/o ^$
 
     result.stackingMarkerFound = !Utils.getStackingMarker(filename).isEmpty();
-    result.name = basename.trim();
+    result.name = basename.strip();
 
     // parse all long named season names, and remove
     result = parseSeasonLong(result, basename + foldername);

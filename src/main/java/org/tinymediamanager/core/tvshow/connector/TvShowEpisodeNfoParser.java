@@ -969,7 +969,7 @@ public class TvShowEpisodeNfoParser {
             // old style - single tag with delimiter
             String[] split = StringEscapeUtils.unescapeXml(genre.ownText()).split("[/&]");
             for (String sp : split) {
-              genres.add(MediaGenres.getGenre(sp.trim()));
+              genres.add(MediaGenres.getGenre(sp.strip()));
             }
           }
         }
