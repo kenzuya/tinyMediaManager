@@ -1875,7 +1875,8 @@ public class TvShowRenamer {
     destination = destination.replace(": ", " - "); // nicer
     destination = destination.replace(":", "-"); // nicer
 
-    destination = destination.replaceAll(" +", " ").trim();
+    // replace new lines
+    destination = destination.replaceAll("\r?\n", " ").trim();
 
     // trim out unnecessary whitespaces
     destination = destination.replaceAll(" +", " ").trim();
