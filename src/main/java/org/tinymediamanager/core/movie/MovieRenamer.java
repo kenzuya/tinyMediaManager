@@ -1371,6 +1371,9 @@ public class MovieRenamer {
     newDestination = newDestination.replace(": ", " - "); // nicer
     newDestination = newDestination.replace(":", "-"); // nicer
 
+    // replace new lines
+    newDestination = newDestination.replaceAll("\r?\n", " ").trim();
+
     // replace multiple spaces with a single one
     newDestination = newDestination.replaceAll(" +", " ").trim();
 

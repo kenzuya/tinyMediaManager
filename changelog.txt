@@ -2,6 +2,7 @@ Version 5.0.5
 =======================
 x improve performance for update data source (cleanup phase) #2531
 x enable line wrap for media logos #2547
+x replace newlines in renamer patterns #2544
 
 
 Version 5.0.4
