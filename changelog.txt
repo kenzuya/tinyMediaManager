@@ -4,6 +4,7 @@ x improve performance for update data source (cleanup phase) #2531
 x enable line wrap for media logos #2547
 x replace newlines in renamer patterns #2544
 x upgrade of JMTE to 7.0.3 #2543
+x fixed trailer downloading for newer trailers #2532
 
 
 Version 5.0.4
