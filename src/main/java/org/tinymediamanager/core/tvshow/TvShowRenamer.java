@@ -1722,7 +1722,7 @@ public class TvShowRenamer {
 
         loopNumbers += episodePart;
       }
-      loopNumbers = loopNumbers.trim();
+      loopNumbers = loopNumbers.strip();
 
       // foreach episode, replace and append pattern:
       StringBuilder episodeParts = new StringBuilder();
@@ -1749,7 +1749,7 @@ public class TvShowRenamer {
         }
       }
 
-      loopTitles = loopTitles.trim();
+      loopTitles = loopTitles.strip();
 
       // foreach episode, replace and append pattern:
       if (StringUtils.isNotBlank(loopTitles)) {
@@ -1785,7 +1785,7 @@ public class TvShowRenamer {
         }
       }
 
-      loopAired = loopAired.trim();
+      loopAired = loopAired.strip();
 
       // foreach episode, replace and append pattern:
       if (StringUtils.isNotBlank(loopAired)) {
@@ -1875,10 +1875,13 @@ public class TvShowRenamer {
     destination = destination.replace(": ", " - "); // nicer
     destination = destination.replace(":", "-"); // nicer
 
-    // trim out unnecessary whitespaces
-    destination = destination.replaceAll(" +", " ").trim();
+    // replace new lines
+    destination = destination.replaceAll("\r?\n", " ");
 
-    return destination.trim();
+    // trim out unnecessary whitespaces
+    destination = destination.replaceAll(" +", " ");
+
+    return destination.strip();
   }
 
   /**
@@ -2146,7 +2149,7 @@ public class TvShowRenamer {
       else {
         token = fulltoken;
       }
-      String tok = TOKEN_MAP.get(token.trim());
+      String tok = TOKEN_MAP.get(token.strip());
       if (tok == null) {
         err += "  " + matcher.group(); // complete token with ${}
       }

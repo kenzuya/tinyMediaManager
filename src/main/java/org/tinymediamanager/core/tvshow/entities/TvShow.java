@@ -1909,7 +1909,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // set preferred trailer
     if (TvShowModuleManager.getInstance().getSettings().isUseTrailerPreference()) {
       TrailerQuality desiredQuality = TvShowModuleManager.getInstance().getSettings().getTrailerQuality();
-      TrailerSources desiredSource = TvShowModuleManager.getInstance().getSettings().getTrailerSource();
+      TrailerSources desiredSource = TrailerSources.YOUTUBE;
 
       // search for quality and provider
       for (MediaTrailer trailer : trailers) {

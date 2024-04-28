@@ -397,7 +397,7 @@ public enum MediaCertification {
         certstring += " / " + c.getCountry().getName() + ":" + c.getName();
       }
     }
-    return certstring.substring(3).trim(); // strip off first slash
+    return certstring.substring(3).strip(); // strip off first slash
   }
 
   /**
@@ -447,7 +447,7 @@ public enum MediaCertification {
         }
       }
     }
-    return certstring.substring(3).trim(); // strip off first slash
+    return certstring.substring(3).strip(); // strip off first slash
   }
 
   /**

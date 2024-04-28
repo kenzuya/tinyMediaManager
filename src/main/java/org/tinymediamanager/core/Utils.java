@@ -338,7 +338,7 @@ public class Utils {
       }
     }
 
-    return title.trim();
+    return title.strip();
   }
 
   /**
@@ -360,7 +360,7 @@ public class Utils {
       }
       title = title.replaceAll("(?i)(.*), " + Pattern.quote(prfx) + "$", prfx + delim + "$1");
     }
-    return title.trim();
+    return title.strip();
   }
 
   /**

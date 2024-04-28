@@ -312,7 +312,7 @@ public class MovieSetNfoParser {
         if (StringUtils.isNotBlank(genre.ownText())) {
           // old style - single tag with delimiter
           for (String sp : ParserUtils.split(genre.ownText())) {
-            genres.add(MediaGenres.getGenre(sp.trim()));
+            genres.add(MediaGenres.getGenre(sp.strip()));
           }
         }
       }

@@ -178,7 +178,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
    * @return the cleaned title or the original title if there is nothing to clean
    */
   protected String clearYearFromTitle(String title, int year) {
-    return title.replaceAll("\\(" + year + "\\)$", "").trim();
+    return title.replaceAll("\\(" + year + "\\)$", "").strip();
   }
 
   /**

@@ -167,7 +167,7 @@ public class MediaInfoXMLParser {
 
           // Width and Height sometimes comes with the string "pixels"
           if (key.equals("Width") || key.equals("Height")) {
-            value = value.replace("pixels", "").replace(" ", "").trim();
+            value = value.replace("pixels", "").replace(" ", "").strip();
           }
 
           // accumulate filesizes & duration /for multiple tracks)
@@ -383,7 +383,7 @@ public class MediaInfoXMLParser {
     long s = 0L;
 
     // replace everything after bracket
-    size = size.replaceAll("\\(.*$", "").trim();
+    size = size.replaceAll("\\(.*$", "").strip();
 
     int factor = 1;
     if (size.toLowerCase(Locale.ROOT).endsWith("kib")) {

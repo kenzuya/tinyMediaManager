@@ -477,19 +477,19 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
 
   public void setTitle(String newValue) {
     String oldValue = title;
-    title = newValue == null ? "" : newValue.trim();
+    title = newValue == null ? "" : newValue.strip();
     firePropertyChange(TITLE, oldValue, newValue);
   }
 
   public void setOriginalTitle(String newValue) {
     String oldValue = originalTitle;
-    originalTitle = newValue == null ? "" : newValue.trim();
+    originalTitle = newValue == null ? "" : newValue.strip();
     firePropertyChange(ORIGINAL_TITLE, oldValue, newValue);
   }
 
   public void setPlot(String newValue) {
     String oldValue = plot;
-    plot = newValue == null ? "" : newValue.trim();
+    plot = newValue == null ? "" : newValue.strip();
     firePropertyChange(PLOT, oldValue, newValue);
   }
 

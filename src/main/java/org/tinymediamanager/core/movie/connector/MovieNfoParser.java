@@ -1043,7 +1043,7 @@ public class MovieNfoParser {
         if (StringUtils.isNotBlank(genre.ownText())) {
           // old style - single tag with delimiter
           for (String sp : ParserUtils.split(genre.ownText())) {
-            genres.add(MediaGenres.getGenre(sp.trim()));
+            genres.add(MediaGenres.getGenre(sp.strip()));
           }
         }
       }
@@ -1511,7 +1511,7 @@ public class MovieNfoParser {
     if (StringUtils.isNotBlank(languages)) {
       List<String> languages = new ArrayList<>();
       for (String langu : ParserUtils.split(this.languages)) {
-        langu = langu.trim();
+        langu = langu.strip();
         String languIso = LanguageUtils.getIso2LanguageFromLocalizedString(langu);
         if (StringUtils.isNotBlank(languIso)) {
           languages.add(languIso);
