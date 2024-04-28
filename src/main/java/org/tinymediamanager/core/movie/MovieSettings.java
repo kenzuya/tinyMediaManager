@@ -201,6 +201,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   writeActorImages                       = false;
 
   // trailer scraper
+  boolean                                   useYtDlp                               = false;
   boolean                                   useTrailerPreference                   = true;
   boolean                                   automaticTrailerDownload               = false;
   TrailerQuality                            trailerQuality                         = TrailerQuality.HD_720;
@@ -1420,6 +1421,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.scraperFallback;
     this.scraperFallback = newValue;
     firePropertyChange("scraperFallback", oldValue, newValue);
+  }
+
+  public boolean isUseYtDlp() {
+    return useYtDlp;
+  }
+
+  public void setUseYtDlp(boolean newValue) {
+    boolean oldValue = this.useYtDlp;
+    this.useYtDlp = newValue;
+    firePropertyChange("useYtDlp", oldValue, newValue);
   }
 
   public boolean isUseTrailerPreference() {

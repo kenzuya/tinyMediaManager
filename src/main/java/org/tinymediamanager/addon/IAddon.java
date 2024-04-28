@@ -19,6 +19,7 @@ package org.tinymediamanager.addon;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 
 /**
@@ -34,6 +35,15 @@ public interface IAddon {
    */
   default Path getAddonFolder() {
     return Paths.get(TmmOsUtils.getNativeFolderName()).resolve("addons").toAbsolutePath();
+  }
+
+  /**
+   * get the {@link Path} to the addon folder in the user directory
+   *
+   * @return a {@link Path} to the addon folder in the user directory
+   */
+  default Path getUserAddonFolder() {
+    return Paths.get(Globals.CONTENT_FOLDER).resolve("addons").toAbsolutePath();
   }
 
   /**

@@ -276,7 +276,8 @@ public class TvShowHelpers {
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
-        YTDownloadTask task = new YTDownloadTask(trailer, TvShowModuleManager.getInstance().getSettings().getTrailerQuality()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, TvShowModuleManager.getInstance().getSettings().getTrailerQuality(),
+            TvShowModuleManager.getInstance().getSettings().isUseYtDlp()) {
           @Override
           protected Path getDestinationWoExtension() {
             return tvshow.getPathNIO().resolve(filename);

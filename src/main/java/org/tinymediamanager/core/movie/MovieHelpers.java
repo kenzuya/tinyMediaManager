@@ -38,7 +38,6 @@ import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.imdb.ImdbMovieTrailerProvider;
 
@@ -223,7 +222,8 @@ public class MovieHelpers {
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
-        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.getInstance().getSettings().getTrailerQuality()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.getInstance().getSettings().getTrailerQuality(),
+            MovieModuleManager.getInstance().getSettings().isUseYtDlp()) {
           @Override
           protected Path getDestinationWoExtension() {
             return outputFolder.resolve(filename);
