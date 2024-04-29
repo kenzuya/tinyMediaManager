@@ -43,6 +43,7 @@ import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
+import org.tinymediamanager.core.jmte.NamedFramerateRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
@@ -140,6 +141,7 @@ public abstract class MediaEntityExporter {
     engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedFramerateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new NamedArrayRenderer());
 

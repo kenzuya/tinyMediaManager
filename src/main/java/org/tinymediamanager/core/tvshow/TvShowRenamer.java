@@ -63,6 +63,7 @@ import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
+import org.tinymediamanager.core.jmte.NamedFramerateRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
@@ -180,6 +181,7 @@ public class TvShowRenamer {
     tokenMap.put("aspectRatio2", "episode.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
+    tokenMap.put("framerate", "episode.mediaInfoFrameRate;framerate");
 
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "episode.mediaInfoAudioCodecList");
@@ -1604,6 +1606,7 @@ public class TvShowRenamer {
     engine.registerNamedRenderer(new NamedArrayRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedFramerateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new ChainedNamedRenderer(engine.getAllNamedRenderers()));
 

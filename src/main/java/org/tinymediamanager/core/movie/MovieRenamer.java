@@ -58,6 +58,7 @@ import org.tinymediamanager.core.jmte.NamedArrayUniqueRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
+import org.tinymediamanager.core.jmte.NamedFramerateRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
@@ -147,6 +148,7 @@ public class MovieRenamer {
     tokenMap.put("videoResolution", "movie.mediaInfoVideoResolution");
     tokenMap.put("videoBitDepth", "movie.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "movie.mediaInfoVideoBitrate;bitrate");
+    tokenMap.put("framerate", "movie.mediaInfoFrameRate;framerate");
 
     tokenMap.put("audioCodec", "movie.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "movie.mediaInfoAudioCodecList");
@@ -1275,6 +1277,7 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedNumberRenderer());
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
+    engine.registerNamedRenderer(new NamedFramerateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
     engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetWithDummyRenderer());
