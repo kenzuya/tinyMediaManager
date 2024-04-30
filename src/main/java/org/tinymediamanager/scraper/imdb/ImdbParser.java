@@ -820,36 +820,37 @@ public abstract class ImdbParser {
     // but validate whether it is legal or not
     if (StringUtils.isNotBlank(language) && StringUtils.isNotBlank(country) && LocaleUtils.isAvailableLocale(new Locale(language, country))) {
       String combined = language + "-" + country;
-      languageString.add(combined.toLowerCase(Locale.ROOT));
+      languageString.add(combined);
     }
 
     // also build langu & default country
     Locale localeFromLanguage = UrlUtil.getLocaleFromLanguage(language);
+    String cFromLang = localeFromLanguage.getCountry();
     if (localeFromLanguage != null) {
-      String combined = language + "-" + localeFromLanguage.getCountry().toLowerCase(Locale.ROOT);
+      String combined = language + (cFromLang.isEmpty() ? "" : "-" + cFromLang);
       if (!languageString.contains(combined)) {
         languageString.add(combined);
       }
     }
 
     if (StringUtils.isNotBlank(language)) {
-      languageString.add(language.toLowerCase(Locale.ROOT));
+      languageString.add(language);
     }
 
     // second: the JRE language
     Locale jreLocale = Locale.getDefault();
-    String combined = (jreLocale.getLanguage() + "-" + jreLocale.getCountry()).toLowerCase(Locale.ROOT);
+    String jreCountry = jreLocale.getCountry();
+    String combined = jreLocale.getLanguage() + (jreCountry.isEmpty() ? "" : "-" + jreCountry);
     if (!languageString.contains(combined)) {
       languageString.add(combined);
     }
-
-    if (!languageString.contains(jreLocale.getLanguage().toLowerCase(Locale.ROOT))) {
-      languageString.add(jreLocale.getLanguage().toLowerCase(Locale.ROOT));
+    if (!languageString.contains(jreLocale.getLanguage())) {
+      languageString.add(jreLocale.getLanguage());
     }
 
     // third: fallback to en
-    if (!languageString.contains("en-us")) {
-      languageString.add("en-us");
+    if (!languageString.contains("en-US")) {
+      languageString.add("en-US");
     }
     if (!languageString.contains("en")) {
       languageString.add("en");
@@ -870,7 +871,7 @@ public abstract class ImdbParser {
       qualifier -= 0.1;
     }
 
-    return languages.toString().toLowerCase(Locale.ROOT);
+    return languages.toString();
   }
 
   /**
