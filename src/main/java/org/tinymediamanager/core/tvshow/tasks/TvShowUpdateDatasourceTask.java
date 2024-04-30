@@ -269,10 +269,21 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // skip further processing
           // not in Windows since that won't happen there
           if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
-            // error - continue with next datasource
-            MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
-            continue;
+            // re-check if the folder is completely empty
+            boolean isEmpty = true;
+            try {
+              isEmpty = Utils.isFolderEmpty(dsAsPath);
+            }
+            catch (Exception e) {
+              LOGGER.warn("could not check folder '{}' for emptiness - {}", dsAsPath, e.getMessage());
+            }
+
+            if (isEmpty) {
+              // error - continue with next datasource
+              MessageManager.instance
+                  .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+              continue;
+            }
           }
 
           for (Path path : rootList) {
