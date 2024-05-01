@@ -3220,7 +3220,7 @@ public class MediaFileHelper {
           // no langu AND no hicc?
           title = "";
         }
-        else if (languageIndex < chunks.size()) {
+        else if (languageIndex >= 0 && languageIndex < chunks.size()) {
           // the language index was not the last chunk. Save the part between the language index and the last chunk as title
           title = String.join(" ", chunks.subList(languageIndex, chunks.size()));
         }
