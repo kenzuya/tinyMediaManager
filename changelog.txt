@@ -2,6 +2,7 @@ Version 5.0.5
 =======================
 + yt-dlp can be used as external program for downloading trailers
 + added frame rate to the renamer tokens #2557
++ added an alternate style for media certification (e.g. GB-15, DE-FSK16)
 x improve performance for update data source (cleanup phase) #2531
 x enable line wrap for media logos #2547
 x replace newlines in renamer patterns #2544
