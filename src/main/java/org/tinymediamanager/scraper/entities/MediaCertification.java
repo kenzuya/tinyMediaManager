@@ -19,6 +19,7 @@ package org.tinymediamanager.scraper.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
@@ -458,9 +459,19 @@ public enum MediaCertification {
    * @return the certification
    */
   public static MediaCertification findCertification(String name) {
+    if (StringUtils.isBlank(name)) {
+      return UNKNOWN;
+    }
+
+    // for GB-15 instead of GB_15
+    String alternateName = name.replace("-", "_");
+
     for (MediaCertification cert : MediaCertification.values()) {
       // check if the ENUM name matches
       if (cert.name().equalsIgnoreCase(name)) {
+        return cert;
+      }
+      if (cert.name().equalsIgnoreCase(alternateName)) {
         return cert;
       }
       // check if the name matches
@@ -474,6 +485,7 @@ public enum MediaCertification {
         }
       }
     }
+
     return UNKNOWN;
   }
 
@@ -487,10 +499,20 @@ public enum MediaCertification {
    * @return the certification
    */
   public static MediaCertification getCertification(CountryCode country, String name) {
+    if (StringUtils.isBlank(name)) {
+      return UNKNOWN;
+    }
+
+    // for GB-15 instead of GB_15
+    String alternateName = name.replace("-", "_");
+
     // try to find the certification
     for (MediaCertification cert : MediaCertification.getCertificationsforCountry(country)) {
       // check if the ENUM name matches
       if (cert.name().equalsIgnoreCase(name)) {
+        return cert;
+      }
+      if (cert.name().equalsIgnoreCase(alternateName)) {
         return cert;
       }
       // check if the name matches
@@ -504,6 +526,7 @@ public enum MediaCertification {
         }
       }
     }
+
     return UNKNOWN;
   }
 

@@ -974,9 +974,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   public static class SearchResultRenderer extends BorderTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      if (value instanceof MovieChooserModel) {
-        MovieChooserModel result = (MovieChooserModel) value;
-
+      if (value instanceof MovieChooserModel result) {
         String text = result.getTitle();
 
         if (result.isDuplicate()) {

@@ -125,7 +125,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String          SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
   // MMD detected as single movie in a structured folder such as /A/, /2010/ or decade
-  public final static String           FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
+  public static final String           FOLDER_STRUCTURE = "(?i)^(\\w|\\d{4}|\\d{4}s|\\d{4}\\-\\d{4})$";
   private static final Pattern         VIDEO_3D_PATTERN = Pattern.compile("(?i)[ .,_\\(\\[-]3D[ .,_\\)\\]-]?");
 
   private final List<String>           dataSources;
@@ -286,10 +286,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // when there is _nothing_ found in the ds root, it might be offline - skip further processing
       // not in Windows since that won't happen there
       if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
-        // error - continue with next datasource
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
-        continue;
+        // re-check if the folder is completely empty
+        boolean isEmpty = true;
+        try {
+          isEmpty = Utils.isFolderEmpty(dsAsPath);
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not check folder '{}' for emptiness - {}", dsAsPath, e.getMessage());
+        }
+
+        if (isEmpty) {
+          // error - continue with next datasource
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+          continue;
+        }
       }
 
       Set<Path> rootFiles = new TreeSet<>(); // avoid duplicates
@@ -488,10 +499,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // when there is _nothing_ found in the ds root, it might be offline - skip further processing
       // not in Windows since that won't happen there
       if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
-        // error - continue with next datasource
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
-        continue;
+        // re-check if the folder is completely empty
+        boolean isEmpty = true;
+        try {
+          isEmpty = Utils.isFolderEmpty(dsAsPath);
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not check folder '{}' for emptiness - {}", dsAsPath, e.getMessage());
+        }
+
+        if (isEmpty) {
+          // error - continue with next datasource
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+          continue;
+        }
       }
 
       // no dupes b/c of possible MMD movies with same path

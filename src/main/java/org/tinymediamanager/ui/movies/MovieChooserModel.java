@@ -331,10 +331,11 @@ public class MovieChooserModel extends AbstractModelObject {
       if (movieToScrape == movie) {
         continue;
       }
-
-      Object id = movie.getId(result.getProviderId());
-      if (id != null && id.toString().equals(result.getId())) {
-        return true;
+      for (var entry : result.getIds().entrySet()) {
+        Object id = movie.getId(entry.getKey());
+        if (id != null && id.toString().equals(entry.getValue())) {
+          return true;
+        }
       }
     }
     return false;
