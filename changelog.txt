@@ -1,3 +1,7 @@
+Version 5.0.6
+=======================
+
+
 Version 5.0.5
 =======================
 + yt-dlp can be used as external program for downloading trailers
