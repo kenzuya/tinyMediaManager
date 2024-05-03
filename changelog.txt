@@ -1,5 +1,6 @@
 Version 5.0.6
 =======================
+x do not duplicate season names in GUI #2497
 
 
 Version 5.0.5
