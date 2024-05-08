@@ -1032,7 +1032,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * @param person
    *          the {@link Person} to get the ids from
    */
-  private void addPersonIdsAsChildren(Element element, Person person) {
+  protected void addPersonIdsAsChildren(Element element, Person person) {
     // TMDB id
     int tmdbId = person.getIdAsInt(MediaMetadata.TMDB);
     if (tmdbId > 0) {
