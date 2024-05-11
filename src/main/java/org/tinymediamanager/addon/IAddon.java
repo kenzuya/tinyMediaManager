@@ -16,9 +16,12 @@
 
 package org.tinymediamanager.addon;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 
@@ -28,24 +31,6 @@ import org.tinymediamanager.TmmOsUtils;
  * @author Manuel Laggner
  */
 public interface IAddon {
-  /**
-   * get the {@link Path} to the addon folder
-   * 
-   * @return a {@link Path} to the addon folder
-   */
-  default Path getAddonFolder() {
-    return Paths.get(TmmOsUtils.getNativeFolderName()).resolve("addons").toAbsolutePath();
-  }
-
-  /**
-   * get the {@link Path} to the addon folder in the user directory
-   *
-   * @return a {@link Path} to the addon folder in the user directory
-   */
-  default Path getUserAddonFolder() {
-    return Paths.get(Globals.CONTENT_FOLDER).resolve("addons").toAbsolutePath();
-  }
-
   /**
    * get the addon name
    * 
@@ -58,7 +43,9 @@ public interface IAddon {
    * 
    * @return true/false
    */
-  boolean isAvailable();
+  default boolean isAvailable() {
+    return StringUtils.isNotBlank(getExecutablePath());
+  }
 
   /**
    * gets the executable filename
@@ -73,6 +60,30 @@ public interface IAddon {
    * @return the full path to the executable
    */
   default String getExecutablePath() {
-    return getAddonFolder().resolve(getExecutableFilename()).toAbsolutePath().toString();
+    String executableFilename = getExecutableFilename();
+
+    // 1. look in the user addon folder
+    Path executable = Paths.get(Globals.CONTENT_FOLDER).resolve("addons").toAbsolutePath().resolve(executableFilename);
+    if (Files.exists(executable)) {
+      return executable.toString();
+    }
+
+    // 2. look in the shipped addon folder
+    executable = Paths.get(TmmOsUtils.getNativeFolderName()).resolve("addons").toAbsolutePath().resolve(executableFilename);
+    if (Files.exists(executable)) {
+      return executable.toString();
+    }
+
+    // 3. look in the PATH from the system
+    String systemPath = System.getenv("PATH");
+    String[] pathDirs = systemPath.split(File.pathSeparator);
+
+    for (String pathDir : pathDirs) {
+      executable = Paths.get(pathDir, executableFilename).toAbsolutePath();
+      if (Files.exists(executable)) {
+        return executable.toString();
+      }
+    }
+    return "";
   }
 }

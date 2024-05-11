@@ -15,9 +15,6 @@
  */
 package org.tinymediamanager.addon;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.apache.commons.lang3.SystemUtils;
 
 /**
@@ -34,35 +31,10 @@ public class YtDlpAddon implements IAddon {
   }
 
   @Override
-  public boolean isAvailable() {
-    Path addonFolder = getUserAddonFolder();
-
-    if (!Files.exists(addonFolder)) {
-      return false;
-    }
-
-    if (Files.exists(addonFolder.resolve(getExecutableFilename()))) {
-      return true;
-    }
-
-    return false;
-  }
-
-  @Override
   public String getExecutableFilename() {
     if (SystemUtils.IS_OS_WINDOWS) {
       return "yt-dlp.exe";
     }
     return "yt-dlp";
-  }
-
-  /**
-   * get the full path to the executable
-   *
-   * @return the full path to the executable
-   */
-  @Override
-  public String getExecutablePath() {
-    return getUserAddonFolder().resolve(getExecutableFilename()).toAbsolutePath().toString();
   }
 }

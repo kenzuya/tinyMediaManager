@@ -1,3 +1,9 @@
+Version 5.0.6
+=======================
+x do not duplicate season names in GUI #2497
+x also search for FFmpeg and yt-dlp in system path
+
+
 Version 5.0.5
 =======================
 + yt-dlp can be used as external program for downloading trailers

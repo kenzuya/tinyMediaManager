@@ -607,7 +607,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
         else {
           title = TmmResourceBundle.getString("metatag.season") + " " + season.getSeason();
         }
-        if (StringUtils.isNotBlank(season.getTitle())) {
+        if (StringUtils.isNotBlank(season.getTitle()) && !title.strip().equalsIgnoreCase(season.getTitle().strip())) {
           title += " - " + season.getTitle();
         }
 
