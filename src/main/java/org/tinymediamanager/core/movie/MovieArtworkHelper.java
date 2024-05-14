@@ -1014,6 +1014,17 @@ public class MovieArtworkHelper {
       }
     }
 
+    // nothing with the chosen language(s) found - just re-try with empty language in the right resolution
+    if (sortedArtwork.isEmpty()) {
+      for (MediaArtwork art : artworkForType.stream().filter(art -> art.getLanguage().equals("")).toList()) {
+        for (MediaArtwork.ImageSizeAndUrl imageSizeAndUrl : art.getImageSizes()) {
+          if (imageSizeAndUrl.getSizeOrder() == sizeOrder && !sortedArtwork.contains(imageSizeAndUrl)) {
+            sortedArtwork.add(imageSizeAndUrl);
+          }
+        }
+      }
+    }
+
     // do we want to take other resolution artwork?
     if (MovieModuleManager.getInstance().getSettings().isImageScraperOtherResolutions()) {
       int newOrder = MediaArtwork.MAX_IMAGE_SIZE_ORDER;

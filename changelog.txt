@@ -4,6 +4,7 @@ x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
 x (Jellyfin) do not write person URLs into the NFO files #2518
 x fixed year column width in choosers for HiDPI displays #2567
+x enhanced automatic artwork download algorithm (re-search for the chosen resolution without language information)
 
 
 Version 5.0.5
