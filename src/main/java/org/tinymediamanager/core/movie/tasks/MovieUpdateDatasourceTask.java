@@ -1690,7 +1690,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         else {
           // did the file dates/size change?
           if (MediaFileHelper.gatherFileInformation(mf)) {
-            // okay, something changed with that movie file - force fetching mediainfo
+            // okay, something changed with that movie file - force fetching mediainfo and drop medianfo.xml
+            movie.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
+              Utils.deleteFileSafely(mediaFile.getFileAsPath());
+              movie.removeFromMediaFiles(mediaFile);
+            });
             submitTask(new MovieMediaFileInformationFetcherTask(mf, movie, true));
           }
         }
