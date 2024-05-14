@@ -118,7 +118,9 @@ public class MediaFileInformationFetcherTask implements Runnable {
       if (Settings.getInstance().isWriteMediaInfoXml()) {
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
         if (Files.exists(xmlFile)) {
-          mediaEntity.addToMediaFiles(new MediaFile(xmlFile));
+          MediaFile xmlMf = new MediaFile(xmlFile);
+          xmlMf.gatherMediaInformation();
+          mediaEntity.addToMediaFiles(xmlMf);
         }
       }
     }

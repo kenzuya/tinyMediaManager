@@ -625,7 +625,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       else {
         // // did the file dates/size change?
         if (MediaFileHelper.gatherFileInformation(mf)) {
-          // okay, something changed with that movie file - force fetching mediainfo
+          // okay, something changed with that movie file - force fetching mediainfo and drop medianfo.xml
+          tvShow.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
+            Utils.deleteFileSafely(mediaFile.getFileAsPath());
+            tvShow.removeFromMediaFiles(mediaFile);
+          });
           submitTask(new TvShowMediaFileInformationFetcherTask(mf, tvShow, true));
         }
       }
@@ -640,7 +644,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         else {
           // at least update the file dates
           if (MediaFileHelper.gatherFileInformation(mf)) {
-            // okay, something changed with that movie file - force fetching mediainfo
+            // okay, something changed with that movie file - force fetching mediainfo and drop medianfo.xml
+            episode.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
+              Utils.deleteFileSafely(mediaFile.getFileAsPath());
+              episode.removeFromMediaFiles(mediaFile);
+            });
             submitTask(new TvShowMediaFileInformationFetcherTask(mf, episode, true));
           }
         }
