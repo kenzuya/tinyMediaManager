@@ -1,5 +1,6 @@
 Version 4.3.17
 =======================
+x updated writing of .desktop file for Linux
 
 
 Version 4.3.16
