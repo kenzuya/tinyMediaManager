@@ -2458,7 +2458,7 @@ public class MediaFileHelper {
     mediaFile.setBitDepth(MetadataUtil.parseInt(bd, 0));
 
     try {
-      String fr = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "FrameRate");
+      String fr = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "FrameRate", "FrameRate_Original");
       mediaFile.setFrameRate(Double.parseDouble(fr));
     }
     catch (Exception e) {
