@@ -6,6 +6,7 @@ x (Jellyfin) do not write person URLs into the NFO files #2518
 x fixed year column width in choosers for HiDPI displays #2567
 x enhanced automatic artwork download algorithm (re-search for the chosen resolution without language information)
 x rewrite mediainfo.xml on file change #2566
+x updated writing of .desktop file for Linux
 
 
 Version 5.0.5
