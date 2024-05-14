@@ -1,5 +1,6 @@
 Version 5.0.6
 =======================
++ added an option to round the framerate (use ${framerate(round)}) #2568
 x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
 x (Jellyfin) do not write person URLs into the NFO files #2518

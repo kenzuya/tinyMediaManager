@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.core.jmte;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +39,10 @@ public class NamedFramerateRenderer implements NamedRenderer {
 
     double frameRate = (double) o;
 
+    if ("round".equalsIgnoreCase(s)) {
+      frameRate = round(frameRate, 0);
+    }
+
     // default: with decimals
     DecimalFormat format = new DecimalFormat("0.###");
 
@@ -52,6 +58,11 @@ public class NamedFramerateRenderer implements NamedRenderer {
     catch (Exception e) {
       return "";
     }
+  }
+
+  private double round(double value, int places) {
+    BigDecimal bd = new BigDecimal(Double.toString(value));
+    return bd.setScale(places, RoundingMode.HALF_UP).doubleValue();
   }
 
   @Override
