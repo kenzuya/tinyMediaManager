@@ -895,6 +895,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       col.setCellRenderer(new IntegerTableCellRenderer());
       col.setColumnResizeable(false);
       col.setMinWidth(fontMetrics.stringWidth("2000") + getCellPadding());
+      col.setMaxWidth(fontMetrics.stringWidth("2000") + getCellPadding());
       addColumn(col);
 
       /*
