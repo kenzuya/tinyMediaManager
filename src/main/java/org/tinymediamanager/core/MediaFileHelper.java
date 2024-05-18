@@ -46,6 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -370,11 +371,12 @@ public class MediaFileHelper {
    *
    * @param pathToFile
    *          the path/file to parse
-   * @return the detected media file type or MediaFileType.UNKNOWN
+   * @return the detected media file type or MediaFileType.GRAPHIC
    */
   public static MediaFileType parseImageType(Path pathToFile) {
     String filename = pathToFile.getFileName().toString();
     String foldername = pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT); // just path w/o filename
+    String parentName = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString());
 
     // movieset artwork
     Matcher matcher = MediaFileHelper.MOVIESET_ARTWORK_PATTERN.matcher(filename);
@@ -492,6 +494,11 @@ public class MediaFileHelper {
     }
     if (foldername.equalsIgnoreCase("extrathumbs") || foldername.equalsIgnoreCase("extrathumb")) {
       return MediaFileType.EXTRATHUMB;
+    }
+
+    // same name as the parent -> poster (Zidoo)
+    if (parentName.equals(FileNameUtils.getBaseName(filename))) {
+      return MediaFileType.POSTER;
     }
 
     return MediaFileType.GRAPHIC;

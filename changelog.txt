@@ -1,5 +1,6 @@
 Version 5.0.6
 =======================
++ (TV show) added poster file naming for Zidoo #2510
 + added an option to round the framerate (use ${framerate(round)}) #2568
 x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
