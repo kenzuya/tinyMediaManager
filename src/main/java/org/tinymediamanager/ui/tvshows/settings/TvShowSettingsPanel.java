@@ -69,6 +69,7 @@ class TvShowSettingsPanel extends JPanel {
   private JButton              btnPresetPlex;
   private JButton              btnPresetJellyfin;
   private JButton              btnPresetEmby;
+  private JButton              btnPresetMediaPig;
   private JCheckBox            chckbxRenameAfterScrape;
   private JCheckBox            chckbxAutoUpdateOnStart;
 
@@ -104,6 +105,7 @@ class TvShowSettingsPanel extends JPanel {
     btnPresetJellyfin.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForJellyfin());
     btnPresetEmby.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForEmby());
     btnPresetPlex.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForPlex());
+    btnPresetMediaPig.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPig());
     btnPresetMediaPortal1.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
     btnPresetMediaPortal2.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
   }
@@ -118,7 +120,8 @@ class TvShowSettingsPanel extends JPanel {
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#automatic-tasks"));
-      JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[]"));
+      JPanel panelPresets = new JPanel(
+          new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[]"));
 
       JLabel lblPresets = new TmmLabel(TmmResourceBundle.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel_1 = new CollapsiblePanel(panelPresets, lblPresets, true);
@@ -147,6 +150,9 @@ class TvShowSettingsPanel extends JPanel {
 
           btnPresetEmby = new JButton("Emby");
           panelPresets.add(btnPresetEmby, "cell 6 2,growx");
+
+          btnPresetMediaPig = new JButton("MediaPIG");
+          panelPresets.add(btnPresetMediaPig, "cell 8 2,growx");
         }
         {
           btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
