@@ -153,8 +153,6 @@ public final class MovieSettings extends AbstractSettings {
 
   // renamer
   boolean                                   renameAfterScrape                      = false;
-  @Deprecated
-  boolean                                   ardAfterScrape                         = false;
   boolean                                   updateOnStart                          = false;
   String                                    renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
   String                                    renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
@@ -964,18 +962,6 @@ public final class MovieSettings extends AbstractSettings {
 
   public boolean isRenameAfterScrape() {
     return this.renameAfterScrape;
-  }
-
-  @Deprecated
-  public void setArdAfterScrape(boolean newValue) {
-    boolean oldValue = this.ardAfterScrape;
-    this.ardAfterScrape = newValue;
-    firePropertyChange("ardAfterScrape", oldValue, newValue);
-  }
-
-  @Deprecated
-  public boolean isArdAfterScrape() {
-    return this.ardAfterScrape;
   }
 
   public boolean isUpdateOnStart() {
