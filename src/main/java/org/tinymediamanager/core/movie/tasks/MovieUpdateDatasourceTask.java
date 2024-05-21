@@ -65,7 +65,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractFileVisitor;
@@ -869,7 +868,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           String bdinfo = StrgUtils.substr(txtFile, ".*Disc Title:\\s+(.*?)[\\n\\r]");
           if (!bdinfo.isEmpty()) {
             LOGGER.debug("| Found Disc Title in BDInfo.txt: {}", bdinfo);
-            bdinfoTitle = WordUtils.capitalizeFully(bdinfo);
+            bdinfoTitle = StrgUtils.capitalize(bdinfo);
           }
 
           String imdb = ParserUtils.detectImdbId(txtFile);

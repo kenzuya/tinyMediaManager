@@ -19,15 +19,15 @@ package org.tinymediamanager.core.jmte;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.text.WordUtils;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 
 /**
- * this renderer is used to render strings in lower case
+ * this renderer is used to render strings in capitalized case, and adheres delimiters
  * 
- * @author Manuel Laggner
+ * @author Manuel Laggner, Myron Boyle
  */
 public class NamedTitleCaseRenderer implements NamedRenderer {
   @Override
@@ -36,7 +36,7 @@ public class NamedTitleCaseRenderer implements NamedRenderer {
       return "";
     }
 
-    return WordUtils.capitalizeFully(o.toString());
+    return StrgUtils.capitalize(o.toString());
   }
 
   @Override

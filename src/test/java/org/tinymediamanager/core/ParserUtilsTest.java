@@ -19,6 +19,7 @@ public class ParserUtilsTest extends BasicTest {
     assertEqual("2012 | 2008", detectTY("2012.(2008).WEB-DL.1080p.mkv"));
     assertEqual("movie | 2008", detectTY("UNRATED movie 2008 DTS something bla bla.mkv"));
 
+    assertEqual("Cowboys", detectTY("Cowboys.4k.WEB-DL.MicroHD.1080p.AVC.AC3.5.1.SPA-AC3.5.1.ENG.SUBS.mkv"));
     assertEqual("Cowboys | 2020", detectTY("Cowboys.(2020).WEB-DL.MicroHD.1080p.AVC.AC3.5.1.SPA-AC3.5.1.ENG.SUBS.mkv"));
     assertEqual("Rocketman | 2019", detectTY("Rocketman-2019-MULTi-UHD-BluRay-2160p-HDR-TrueHD-Atmos-7-1-HEVC-DDR.mkv"));
     assertEqual("Harry Potter 7 Part 1", detectTY("Harry Potter 7 - Part 1.mkv")); // PartX is NOT removed

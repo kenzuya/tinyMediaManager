@@ -68,7 +68,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1140,7 +1139,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
-        setTitle(WordUtils.capitalize(metadata.getTitle()));
+        setTitle(StrgUtils.capitalize(metadata.getTitle()));
       }
       else {
         setTitle(metadata.getTitle());
@@ -1150,7 +1149,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (config.contains(TvShowScraperMetadataConfig.ORIGINAL_TITLE) && (overwriteExistingItems || StringUtils.isBlank(getOriginalTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
-        setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
+        setOriginalTitle(StrgUtils.capitalize(metadata.getOriginalTitle()));
       }
       else {
         setOriginalTitle(metadata.getOriginalTitle());

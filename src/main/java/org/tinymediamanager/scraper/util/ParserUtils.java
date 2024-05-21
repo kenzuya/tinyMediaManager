@@ -48,7 +48,7 @@ public class ParserUtils {
       "h264", "h265", "hd", "hddvd", "hdr", "hdr10", "hdr10+", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "ituneshd", "ld", "md",
       "microhd", "multisubs", "mp3", "netflixhd", "nfo", "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "pso", "r3", "r5", "remastered",
       "repack", "rerip", "remux", "roor", "rs", "rsvcd", "screener", "sd", "subbed", "subs", "svcd", "tc", "telecine", "telesync", "ts", "truehd",
-      "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264", "x265", "xf", "xvid", "xvidvd", };
+      "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", "webdl", "webrip", "workprint", "ws", "x264", "x265", "xf", "xvid", "xvidvd", "4k" };
 
   // soft stopwords are well known words which _may_ occur before the year token and will be cleaned conditionally
   protected static final String[] SOFT_STOPWORDS  = { "complete", "custom", "dc", "docu", "doku", "extended", "fragment", "internal", "limited",
@@ -241,7 +241,7 @@ public class ParserUtils {
             break;
 
           default:
-            // name.append(WordUtils.capitalizeFully(word)).append(" "); // make CamelCase
+            // name.append(StrgUtils.capitalizeFully(word)).append(" "); // make CamelCase
             // NOPE - import it 1:1
             name.append(word).append(" ");
             break;

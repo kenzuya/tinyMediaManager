@@ -37,7 +37,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Constants;
@@ -61,6 +60,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -580,7 +580,7 @@ public class MovieSet extends MediaEntity {
     if (config.contains(MovieSetScraperMetadataConfig.TITLE)) {
       // Capitalize first letter of title if setting is set!
       if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
-        setTitle(WordUtils.capitalize(metadata.getTitle()));
+        setTitle(StrgUtils.capitalize(metadata.getTitle()));
       }
       else {
         setTitle(metadata.getTitle());

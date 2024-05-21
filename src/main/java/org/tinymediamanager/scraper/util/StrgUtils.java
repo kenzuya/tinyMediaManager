@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 
 /**
  * The class StrgUtils. This can be used for several String related tasks
@@ -40,6 +41,7 @@ public class StrgUtils {
   private static final char[]                    HEX_ARRAY             = "0123456789ABCDEF".toCharArray();
   private static final Map<String, String>       DATE_FORMAT_REGEXPS   = new HashMap<>(30);
   private static final Pattern                   NORMALIZE_PATTERN     = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+  private static final char[]                    CAP_DELIMS            = new char[] { ' ', '-', '_', '.', '\'', '(', '[', '*' };
   static {
     DATE_FORMAT_REGEXPS.put("^\\d{8}$", "yyyyMMdd");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}-\\d{1,2}-\\d{4}$", "dd-MM-yyyy");
@@ -548,5 +550,15 @@ public class StrgUtils {
       return new String[] {};
     }
     return source.replace("[", "").replace("]", "").replaceAll("\\s", "").split(",");
+  }
+
+  /**
+   * TMMs style of capitalizing strings. CapitalizeFully is not so good, and capitalize misses some.
+   * 
+   * @param text
+   * @return the capitalized string
+   */
+  public static String capitalize(String text) {
+    return WordUtils.capitalize(text, CAP_DELIMS);
   }
 }

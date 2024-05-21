@@ -2,6 +2,7 @@ package org.tinymediamanager.scraper.util;
 
 import java.text.ParseException;
 
+import org.apache.commons.text.WordUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
@@ -43,5 +44,16 @@ public class StrgUtilsTest extends BasicTest {
     Assert.assertNotNull(StrgUtils.parseDate("2019-02-12 15:16:13"));
     Assert.assertNotNull(StrgUtils.parseDate("2021-04-21T21:08:22.451Z"));
     Assert.assertNotNull(StrgUtils.parseDate("2014-12-25T09:31:55Z"));
+  }
+
+  @Test
+  public void titleCase() {
+    String text = "i am FINE U.N.c.l.e. iv gigi d'agostino part iI WALL·E (c) m*a*s*h F***ed Up";
+    char[] delim = new char[] { ' ', '-', '_', '.', '\'', '(', '[', '*' };
+
+    System.out.println(WordUtils.capitalize(text));
+    System.out.println(WordUtils.capitalizeFully(text));
+    System.out.println(WordUtils.capitalize(text, delim));
+    System.out.println(WordUtils.capitalizeFully(text, delim));
   }
 }
