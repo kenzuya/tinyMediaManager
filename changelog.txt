@@ -2,7 +2,7 @@ Version 5.0.6
 =======================
 + (TV show) added poster file naming for Zidoo #2510
 + added an option to round the framerate (use ${framerate(round)}) #2568
-+ (movie/Tv show) added a preset for MediaPIG
++ (movie/TV show) added a preset for MediaPIG
 + added a CMD argument to start tinyMediaManager with just the API active (and no GUI)
 x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
@@ -16,6 +16,7 @@ x (TV show) improve handling of absolute date based episodes #2576
 x updated writing of .desktop file for Linux
 x (TvShow) able to create ABSOLUTE numberings from an AIRED show
 x parsing a new framerate style from libmediainfo #2568
+x fixed an error when trying to download the subtitle of "Nothing found" #2574
 
 
 Version 5.0.5

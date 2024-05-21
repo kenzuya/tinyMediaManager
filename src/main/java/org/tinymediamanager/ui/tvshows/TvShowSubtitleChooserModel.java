@@ -62,6 +62,9 @@ public class TvShowSubtitleChooserModel extends AbstractModelObject {
   }
 
   public String getDownloadUrl() {
+    if (result == null) {
+      return "";
+    }
     return result.getUrl();
   }
 
