@@ -3,6 +3,7 @@ Version 5.0.6
 + (TV show) added poster file naming for Zidoo #2510
 + added an option to round the framerate (use ${framerate(round)}) #2568
 + (movie/Tv show) added a preset for MediaPIG
++ added a CMD argument to start tinyMediaManager with just the API active (and no GUI)
 x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
 x (Jellyfin) do not write person URLs into the NFO files #2518
