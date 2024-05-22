@@ -115,7 +115,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
   private final List<String>           dataSources   = new ArrayList<>();
   private final List<Pattern>          skipFolders   = new ArrayList<>();
-  private final List<Path>             tvShowFolders = new ArrayList<>();
+  private final List<TvShow>           showsToUpdate = new ArrayList<>();
   private final TvShowList             tvShowList;
   private final Set<Path>              filesFound    = new HashSet<>();
   private final ReentrantReadWriteLock fileLock      = new ReentrantReadWriteLock();
@@ -162,15 +162,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    * @param tvShowFolders
    *          a list of TV show folders to start the task for
    */
-  public TvShowUpdateDatasourceTask(List<Path> tvShowFolders) {
+  public TvShowUpdateDatasourceTask(List<TvShow> tvShowFolders) {
     this(Collections.emptyList(), tvShowFolders);
   }
 
-  private TvShowUpdateDatasourceTask(Collection<String> dataSources, List<Path> tvShowFolders) {
+  private TvShowUpdateDatasourceTask(Collection<String> dataSources, List<TvShow> tvShowFolders) {
     super(TmmResourceBundle.getString("update.datasource"));
     this.tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     this.dataSources.addAll(dataSources);
-    this.tvShowFolders.addAll(tvShowFolders);
+    this.showsToUpdate.addAll(tvShowFolders);
 
     init();
   }
@@ -199,7 +199,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   public void doInBackground() {
     // check if there is at least one DS to update
     Utils.removeEmptyStringsFromList(dataSources);
-    if (dataSources.isEmpty() && tvShowFolders.isEmpty()) {
+    if (dataSources.isEmpty() && showsToUpdate.isEmpty()) {
       LOGGER.info("no datasource to update");
       MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.nonespecified"));
       return;
@@ -221,7 +221,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // here we have 2 ways of updating:
       // - per datasource -> update ds / remove orphaned / update MFs
       // - per TV show -> udpate TV show / update MFs
-      if (tvShowFolders.isEmpty()) {
+      if (showsToUpdate.isEmpty()) {
         // should we re-set all new flags?
         if (TvShowModuleManager.getInstance().getSettings().isResetNewFlagOnUds()) {
           for (TvShow tvShow : tvShowList.getTvShows()) {
@@ -351,21 +351,58 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         } // end foreach datasource
       }
-      else {
+      else { // for each selected show
         initThreadPool(3, "update");
-        // update selected TV shows
-        for (Path path : tvShowFolders) {
+
+        // get distinct data sources
+        Set<String> showDatasources = new HashSet<>();
+        showsToUpdate.stream().filter(show -> !show.isLocked()).forEach(show -> showDatasources.add(show.getDataSource()));
+
+        List<TvShow> showsToCleanup = new ArrayList<>();
+
+        // update shows grouped by data source
+        for (String ds : showDatasources) {
+          Path dsAsPath = Paths.get(ds);
           // first of all check if the DS is available; we can take the
           // Files.exist here:
           // if the DS exists (and we have access to read it): Files.exist = true
-          if (!Files.exists(path)) {
+          if (!Files.exists(dsAsPath)) {
             // error - continue with next datasource
-            LOGGER.warn("Datasource not available/empty - {}", path.toAbsolutePath());
-            MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable",
-                new String[] { path.toAbsolutePath().toString() }));
+            MessageManager.instance
+                .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
             continue;
           }
-          submitTask(new FindTvShowTask(path, path.getParent().toAbsolutePath()));
+
+          List<Path> rootList = listFilesAndDirs(dsAsPath);
+
+          // when there is _nothing_ found in the ds root, it might be offline - skip further processing
+          // not in Windows since that won't happen there
+          if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
+            // re-check if the folder is completely empty
+            boolean isEmpty = true;
+            try {
+              isEmpty = Utils.isFolderEmpty(dsAsPath);
+            }
+            catch (Exception e) {
+              LOGGER.warn("could not check folder '{}' for emptiness - {}", dsAsPath, e.getMessage());
+            }
+
+            if (isEmpty) {
+              // error - continue with next datasource
+              MessageManager.instance
+                  .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+              continue;
+            }
+          }
+
+          // update selected TV shows
+          for (TvShow show : showsToUpdate) {
+            if (!show.getDataSource().equals(ds)) {
+              continue;
+            }
+            showsToCleanup.add(show);
+            submitTask(new FindTvShowTask(show.getPathNIO(), Paths.get(ds)));
+          }
         }
         waitForCompletionOrCancel();
 
@@ -378,7 +415,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("VisFile: {}", visFile);
 
         if (!cancel) {
-          cleanupShows();
+          cleanup(showsToCleanup);
           waitForCompletionOrCancel();
         }
       }
@@ -401,7 +438,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       setProgressDone(0);
       // gather MediaInformation for ALL shows - TBD
       if (!cancel) {
-        if (tvShowFolders.isEmpty()) {
+        if (showsToUpdate.isEmpty()) {
           // get MI for selected DS
           for (int i = tvShowList.getTvShows().size() - 1; i >= 0; i--) {
             if (cancel) {
@@ -432,7 +469,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               continue;
             }
 
-            if (tvShowFolders.contains(tvShow.getPathNIO())) {
+            if (showsToUpdate.contains(tvShow)) {
               gatherMediaInformationForUngatheredMediaFiles(tvShow);
             }
           }
@@ -466,7 +503,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     }
   }
 
-  private void cleanupShows() {
+  private void cleanup(List<TvShow> shows) {
     setTaskName(TmmResourceBundle.getString("update.cleanup"));
     setTaskDescription(null);
     setProgressDone(0);
@@ -474,16 +511,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     publishState();
 
     LOGGER.info("removing orphaned movies/files...");
-    for (int i = tvShowList.getTvShows().size() - 1; i >= 0; i--) {
+    for (int i = shows.size() - 1; i >= 0; i--) {
       if (cancel) {
         break;
       }
-      TvShow tvShow = tvShowList.getTvShows().get(i);
-
-      // check only Tv shows matching datasource
-      if (!tvShowFolders.contains(tvShow.getPathNIO())) {
-        continue;
-      }
+      TvShow tvShow = shows.get(i);
 
       // do not process locked TV shows (because filesFound has not been filled for them)
       if (tvShow.isLocked()) {
@@ -625,7 +657,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       else {
         // // did the file dates/size change?
         if (MediaFileHelper.gatherFileInformation(mf)) {
-          // okay, something changed with that movie file - force fetching mediainfo and drop medianfo.xml
+          // okay, something changed with that show file - force fetching mediainfo and drop medianfo.xml
           tvShow.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
             Utils.deleteFileSafely(mediaFile.getFileAsPath());
             tvShow.removeFromMediaFiles(mediaFile);
@@ -644,7 +676,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         else {
           // at least update the file dates
           if (MediaFileHelper.gatherFileInformation(mf)) {
-            // okay, something changed with that movie file - force fetching mediainfo and drop medianfo.xml
+            // okay, something changed with that show file - force fetching mediainfo and drop medianfo.xml
             episode.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
               Utils.deleteFileSafely(mediaFile.getFileAsPath());
               episode.removeFromMediaFiles(mediaFile);
@@ -973,7 +1005,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 }
                 episode.setNewlyAdded(true);
 
-                // remember the filename the first time the movie gets added to tmm
+                // remember the filename the first time the show gets added to tmm
                 if (StringUtils.isBlank(episode.getOriginalFilename())) {
                   episode.setOriginalFilename(vid.getFilename());
                 }
@@ -1040,7 +1072,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
                   ep.setNewlyAdded(true);
 
-                  // remember the filename the first time the movie gets added to tmm
+                  // remember the filename the first time the show gets added to tmm
                   if (StringUtils.isBlank(ep.getOriginalFilename())) {
                     ep.setOriginalFilename(vid.getFilename());
                   }
@@ -1093,7 +1125,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               }
               episode.setNewlyAdded(true);
 
-              // remember the filename the first time the movie gets added to tmm
+              // remember the filename the first time the show gets added to tmm
               if (StringUtils.isBlank(episode.getOriginalFilename())) {
                 episode.setOriginalFilename(vid.getFilename());
               }
@@ -1186,7 +1218,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             }
             episode.setNewlyAdded(true);
 
-            // remember the filename the first time the movie gets added to tmm
+            // remember the filename the first time the show gets added to tmm
             if (StringUtils.isBlank(episode.getOriginalFilename())) {
               episode.setOriginalFilename(vid.getFilename());
             }
