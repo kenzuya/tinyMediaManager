@@ -734,11 +734,11 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addOriginalFilename(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element originalFilename = document.createElement("original_filename");
-    if (StringUtils.isBlank(parser.originalFileName)) {
+    if (StringUtils.isBlank(episode.getOriginalFilename())) {
       originalFilename.setTextContent(episode.getMainFile().getFilename());
     }
     else {
-      originalFilename.setTextContent(parser.originalFileName);
+      originalFilename.setTextContent(episode.getOriginalFilename());
     }
     root.appendChild(originalFilename);
   }
