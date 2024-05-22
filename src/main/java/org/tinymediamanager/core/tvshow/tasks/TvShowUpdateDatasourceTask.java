@@ -1137,7 +1137,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           else {
             // ******************************
             // STEP 2.1.3 - episode detection found nothing - simply add this
-            // video as -1/-1
+            // video as -1/-1 (or at least with year as season, if detected
             // ******************************
             TvShowEpisode episode = new TvShowEpisode();
             episode.setPath(vid.getPath());
@@ -1162,7 +1162,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
             episode.setTitle(TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(FilenameUtils.getBaseName(vid.getFilename()), tvShow.getTitle()));
             episode.setTvShow(tvShow);
-            episode.setFirstAired(result.date); // maybe found
+            if (result.date != null) {
+              // if we have a date, we also have a season (=year)
+              episode.setFirstAired(result.date);
+              episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, result.season, -1));
+            }
             episode.addToMediaFiles(epFiles); // all found EP MFs
 
             // try to parse the imdb id from the filename
