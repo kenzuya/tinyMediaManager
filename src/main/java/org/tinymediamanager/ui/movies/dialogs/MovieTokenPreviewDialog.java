@@ -5,20 +5,22 @@ import static org.tinymediamanager.ui.TmmFontHelper.H2;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -39,7 +41,6 @@ import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.TvShowRenamer;
-import org.tinymediamanager.scraper.DynaEnum;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -65,21 +66,21 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
   JLabel                                    lblExample   = new TmmLabel("", H2);
   JPanel                                    contentPanel = new JPanel(new MigLayout("wrap,insets 10", "[20%][80%]", "[min!][min!][][][]"));
 
-  private TmmTable                          tableExamples;
-
   private final EventList<MovieRenamerTab1> movieRenamerTab1EventList;
 
   public MovieTokenPreviewDialog() {
     super(TmmResourceBundle.getString("movie.edit"), "movieBulkEditor");
-
     this.movieRenamerTab1EventList = GlazedLists
         .threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(MovieRenamerTab1.class)));
 
     initComponents();
     initDataBindings();
+    setListeners();
 
-    // data init
-    DocumentListener documentListener = new DocumentListener() {
+  }
+
+  private @NotNull DocumentListener getDocumentListener() {
+    return new DocumentListener() {
       @Override
       public void removeUpdate(DocumentEvent arg0) {
         createRenamerExample();
@@ -95,14 +96,6 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
         createRenamerExample();
       }
     };
-
-    tfMovieTokens.getDocument().addDocumentListener(documentListener);
-
-    ActionListener actionCreateRenamerExample = e -> createRenamerExample();
-    cbMovieForPreview.addActionListener(actionCreateRenamerExample);
-
-    movieRenamerTab1EventList.add(new MovieRenamerTab1());
-
   }
 
   private void initComponents() {
@@ -112,7 +105,6 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
         contentPanel.add(new JLabel(TmmResourceBundle.getString("tmm.movie")));
         cbMovieForPreview = new JComboBox();
         contentPanel.add(cbMovieForPreview, "grow, wrap");
-
         contentPanel.add(new JLabel(TmmResourceBundle.getString("Settings.renamer.folder")));
         tfMovieTokens = new TmmRoundTextArea();
         tfMovieTokens.setBorder(UIManager.getBorder("ScrollPane.border"));
@@ -132,6 +124,7 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
         tabbedPane.add("Props Entities", createPropsEntityPanel());
         contentPanel.add(tabbedPane, "span, grow, push");
       }
+
       JButton btnDone = new JButton(TmmResourceBundle.getString("Button.close"));
       btnDone.setIcon(IconManager.APPLY_INV);
       btnDone.addActionListener(e -> setVisible(false));
@@ -149,7 +142,7 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
       MoviePreviewContainer container = new MoviePreviewContainer();
       container.movie = movie;
       cbMovieForPreview.addItem(container);
-      if (sel != null && movie.equals(sel)) {
+      if (movie.equals(sel)) {
         cbMovieForPreview.setSelectedItem(container);
       }
     }
@@ -158,8 +151,8 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
   private void createRenamerExample() {
     Movie movie = null;
 
-    if (cbMovieForPreview.getSelectedItem() instanceof MovieTokenPreviewDialog.MoviePreviewContainer) {
-      MovieTokenPreviewDialog.MoviePreviewContainer container = (MovieTokenPreviewDialog.MoviePreviewContainer) cbMovieForPreview.getSelectedItem();
+    if (cbMovieForPreview.getSelectedItem() instanceof MoviePreviewContainer) {
+      MoviePreviewContainer container = (MoviePreviewContainer) cbMovieForPreview.getSelectedItem();
       movie = container.movie;
     }
 
@@ -171,7 +164,7 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
         if (!mediaFiles.isEmpty()) {
           String extension = FilenameUtils.getExtension(mediaFiles.get(0).getFilename());
           filename = MovieRenamer.getTokenValue(movie, tfMovieTokens.getText());
-          // patterns are always w/o extension, but when having the originalFilename, it will be there.
+
           if (!filename.endsWith(extension)) {
             filename += "." + extension;
           }
@@ -182,12 +175,12 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
       }
 
       try {
-        String result = filename;
-        lblExample.setText(result);
-        lblExample.setToolTipText(result);
+        lblExample.setText(filename);
+        lblExample.setToolTipText(filename);
+        movieRenamerTab1EventList.clear();
+        fillEventList(movie);
       }
-      catch (Exception e) {
-        // not changing on errors
+      catch (Exception ignored) {
       }
     }
     else {
@@ -196,19 +189,19 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
     }
   }
 
-  private JPanel createPropsMoviePanel() {
+  private JComponent createPropsMoviePanel() {
     JPanel panel = new JPanel(new MigLayout("wrap,insets 10", "[]", "[]"));
     TmmTable table = new TmmTable(
         new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(movieRenamerTab1EventList), new MovieRenamerTab1TableFormat()));
     panel.add(table, "span, grow, push");
-    return panel;
+    return new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
   }
 
-  private JPanel createMovieRendererPanel() {
+  private JComponent createMovieRendererPanel() {
     return new JPanel();
   }
 
-  private JPanel createPropsEntityPanel() {
+  private JComponent createPropsEntityPanel() {
     return new JPanel();
   }
 
@@ -244,6 +237,7 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
   }
 
   private static class MovieComparator implements Comparator<Movie> {
+
     @Override
     public int compare(Movie arg0, Movie arg1) {
       return arg0.getTitle().compareTo(arg1.getTitle());
@@ -259,9 +253,16 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
   }
 
   private static class MovieRenamerTab1 extends AbstractModelObject {
-    private final String title    = "Titel";
-    private final String shortcut = "Shortcut";
-    private final String result   = "Result";
+    private final String title;
+    private final String shortcut;
+    private final String result;
+
+    private MovieRenamerTab1(String title, String shortcut, String result) {
+      this.title = title;
+      this.shortcut = shortcut;
+      this.result = result;
+    }
+
   }
 
   private static class MovieRenamerTab1TableFormat extends TmmTableFormat<MovieRenamerTab1> {
@@ -277,13 +278,59 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
     }
   }
 
-  private void getToken(Class<?> clazz, String prefix) throws Exception {
+  /**
+   * Get the short token
+   * 
+   * @param prefix
+   *          the prefix of the token
+   * @param name
+   *          the name
+   * @return the short token
+   */
+  private String getShortToken(String prefix, String name) {
+    String shortToken = MovieRenamer.getTokenMapReversed().get(prefix + name);
+    if (shortToken == null) {
+      shortToken = TvShowRenamer.getTokenMapReversed().get(prefix + name);
+    }
+    if (shortToken != null && prefix.length() > 3) {
+      shortToken = "${" + shortToken + "}";
+    }
+    else {
+      shortToken = "";
+    }
+    return shortToken;
+  }
 
-    // access properties as Map
-    BeanInfo info = Introspector.getBeanInfo(clazz);
-    PropertyDescriptor[] pds = info.getPropertyDescriptors();
+  /**
+   * Get the full token
+   * 
+   * @param prefix
+   *          prefix to use for the token
+   * @param name
+   *          name
+   * @return the full token
+   */
+  private String getFullToken(String prefix, String name) {
+    String fullToken = name;
+    if (prefix.length() > 3) {
+      fullToken = "${" + prefix + fullToken + "}";
+    }
+    return fullToken;
+  }
 
+  private void setListeners() {
+    DocumentListener documentListener = getDocumentListener();
+    ActionListener actionCreateRenamerExample = e -> createRenamerExample();
+    tfMovieTokens.getDocument().addDocumentListener(documentListener);
+    cbMovieForPreview.addActionListener(actionCreateRenamerExample);
+  }
+
+  private void fillEventList(Movie movie) throws IntrospectionException {
+    PropertyDescriptor[] pds;
+    pds = Introspector.getBeanInfo(Movie.class).getPropertyDescriptors();
+    movieRenamerTab1EventList.clear();
     for (PropertyDescriptor descriptor : pds) {
+
       if ("class".equals(descriptor.getDisplayName())) {
         continue;
       }
@@ -293,48 +340,13 @@ public class MovieTokenPreviewDialog extends TmmDialog implements HierarchyListe
       }
 
       if (descriptor.getReadMethod() != null) {
-        String shortToken = getShort(prefix, descriptor.getDisplayName());
-        String fullToken = getFull(prefix, descriptor.getDisplayName());
-        String description = descriptor.getShortDescription();
+
+        String shortcut = getShortToken("movie.", descriptor.getDisplayName());
+        String title = getFullToken("movie.", descriptor.getDisplayName());
+        String result = MovieRenamer.createDestination(title, movie, true);
+
+        movieRenamerTab1EventList.add(new MovieRenamerTab1(title, shortcut, result));
       }
     }
-  }
-
-  private String getFull(String prefix, String name) {
-    String fullToken = name;
-    if (prefix.length() > 3) {
-      fullToken = "${" + prefix + fullToken + "}";
-    }
-    return fullToken;
-  }
-
-
-  private String getShort(String prefix, String name) {
-    String shortToken = MovieRenamer.getTokenMapReversed().get(prefix + name);
-    if (shortToken == null) {
-      shortToken = TvShowRenamer.getTokenMapReversed().get(prefix + name);
-    }
-    if (shortToken != null && prefix.length() > 3) {
-      shortToken = "${" + shortToken + "} |";
-    }
-    else {
-      shortToken = " | ";
-    }
-    return shortToken;
-  }
-
-  private String getTypeName(Class<?> clazz) {
-    String typeAsString;
-
-    if (clazz.isEnum()) {
-      typeAsString = "String";
-    }
-    else if (DynaEnum.class.isAssignableFrom(clazz)) {
-      typeAsString = "String";
-    }
-    else {
-      typeAsString = clazz.getSimpleName();
-    }
-    return typeAsString;
   }
 }
