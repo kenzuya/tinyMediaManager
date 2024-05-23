@@ -14,6 +14,7 @@ x rewrite mediainfo.xml on file change #2566
 x improve cleanup when updating a single tvshow
 x (TV show) improve handling of absolute date based episodes #2576
 x updated writing of .desktop file for Linux
+x (TvShow) able to create ABSOLUTE numberings from an AIRED show
 x parsing a new framerate style from libmediainfo #2568
 
 
