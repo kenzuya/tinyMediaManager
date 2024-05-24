@@ -34,7 +34,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,10 +47,12 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeResponse;
 import org.tinymediamanager.scraper.thetvdb.entities.Character;
 import org.tinymediamanager.scraper.thetvdb.entities.RemoteID;
 import org.tinymediamanager.scraper.thetvdb.entities.SearchResultResponse;
@@ -147,11 +148,17 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         tvdb.setAuthToken(getAuthToken());
 
         artworkTypes.clear();
-
-        for (ArtworkTypeRecord artworkTypeRecord : Objects.requireNonNull(tvdb.getConfigService().getArtworkTypes().execute().body()).data) {
-          if (artworkTypeRecord.width > 0 && artworkTypeRecord.height > 0) {
-            artworkTypes.put(artworkTypeRecord.id, artworkTypeRecord);
+        Response<ArtworkTypeResponse> response = tvdb.getConfigService().getArtworkTypes().execute();
+        if (response.isSuccessful()) {
+          for (ArtworkTypeRecord artworkTypeRecord : response.body().data) {
+            if (artworkTypeRecord.width > 0 && artworkTypeRecord.height > 0) {
+              artworkTypes.put(artworkTypeRecord.id, artworkTypeRecord);
+            }
           }
+        }
+        else {
+          String msg = response.message().isBlank() ? response.errorBody().string() : response.message();
+          throw new HttpException(response.code(), msg);
         }
       }
       catch (Exception e) {
