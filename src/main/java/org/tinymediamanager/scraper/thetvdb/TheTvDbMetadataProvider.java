@@ -106,7 +106,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getUserApiKey());
   }
 
-  String getAuthToken() {
+  String getAuthToken() throws Exception {
     String userApiKey = providerInfo.getUserApiKey();
     String userPin = providerInfo.getConfig().getValue("pin");
 
@@ -115,12 +115,7 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       tvdb.setUserApiKey(userApiKey);
       tvdb.setUserPin(userPin);
 
-      try {
-        return TheTvDbController.login(userApiKey, userPin);
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not logon with the user entered key - '{}'", e.getMessage());
-      }
+      return TheTvDbController.login(userApiKey, userPin);
     }
 
     return getApiKey();
