@@ -261,7 +261,7 @@ class TvShowCommand implements Runnable {
           options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
         }
         else {
-          LOGGER.warn("Could not scrape new episodes for '{}' - no recently scraped in tinyMediaManager", tvShow.getTitle());
+          LOGGER.warn("Could not scrape new episodes of show '{}' - show has not been scraped yet!", tvShow.getTitle());
           continue;
         }
 
@@ -420,7 +420,7 @@ class TvShowCommand implements Runnable {
 
     for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
       tvShow.writeNFO();
-      for(TvShowSeason season : tvShow.getSeasons()){
+      for (TvShowSeason season : tvShow.getSeasons()) {
         season.writeNfo();
       }
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
