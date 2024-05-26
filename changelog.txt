@@ -17,6 +17,7 @@ x updated writing of .desktop file for Linux
 x (TvShow) able to create ABSOLUTE numberings from an AIRED show
 x parsing a new framerate style from libmediainfo #2568
 x fixed an error when trying to download the subtitle of "Nothing found" #2574
+x produce better errors when OpenSubtitles limits are reached #2574
 
 
 Version 5.0.5
