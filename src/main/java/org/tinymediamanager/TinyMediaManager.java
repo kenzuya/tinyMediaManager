@@ -16,6 +16,7 @@
 
 package org.tinymediamanager;
 
+import static java.awt.Desktop.getDesktop;
 import static org.tinymediamanager.ui.TmmUIHelper.setLookAndFeel;
 
 import java.awt.Desktop;
@@ -299,7 +300,11 @@ public final class TinyMediaManager {
   }
 
   private void systemUiInit() {
-    Desktop desktop = Desktop.getDesktop();
+    if (!Desktop.isDesktopSupported()) {
+      return;
+    }
+
+    Desktop desktop = getDesktop();
     if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
       desktop.setAboutHandler(e -> {
         JDialog about = new AboutDialog();
