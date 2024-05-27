@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.LongBuffer;
@@ -39,6 +40,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.opensubtitles_com.model.DownloadRequest;
@@ -50,6 +52,9 @@ import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import retrofit2.Response;
 
@@ -373,7 +378,7 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
     return true;
   }
 
-  private String download(SubtitleFile file, double frameRate) {
+  private String download(SubtitleFile file, double frameRate) throws ScrapeException {
     DownloadRequest request = new DownloadRequest();
     request.file_id = file.fileId;
     request.sub_format = getProviderInfo().getConfig().getValue("subtitleFormat");
@@ -398,12 +403,25 @@ abstract class OpenSubtitlesComSubtitleProvider implements IMediaProvider {
         DOWNLOAD_CACHE.put(request, response.body());
         return response.body().link;
       }
+      else {
+        if (response.code() == 406 && response.errorBody() != null) {
+          Gson gson = new Gson();
+          Type type = new TypeToken<DownloadResponse>() {
+          }.getType();
+          DownloadResponse errorResponse = gson.fromJson(response.errorBody().charStream(), type);
+
+          // we hit the rate limit
+          throw new HttpException(response.code(), errorResponse.message);
+        }
+        else {
+          throw new HttpException(response.code(), response.message());
+        }
+      }
     }
     catch (Exception e) {
       getLogger().error("Could not retrieve download url - '{}'", e.getMessage());
+      throw new ScrapeException(e);
     }
-
-    return "";
   }
 
   static Integer formatImdbId(String imdbId) {

@@ -138,7 +138,7 @@ public class TvShowArtworkHelper {
 
       List<String> filenames = new ArrayList<>();
       for (IFileNaming naming : fileNamings) {
-        String filename = naming.getFilename("", Utils.getArtworkExtensionFromUrl(url));
+        String filename = naming.getFilename(show.getFoldername(), Utils.getArtworkExtensionFromUrl(url));
 
         if (StringUtils.isBlank(filename)) {
           continue;

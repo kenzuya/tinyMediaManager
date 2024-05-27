@@ -361,6 +361,20 @@ public abstract class MediaEntity extends AbstractModelObject implements IPrinta
   }
 
   /**
+   * get the folder name of this {@link MediaEntity}
+   * 
+   * @return the folder name or an empty string
+   */
+  public String getFoldername() {
+    Path pathNIO = getPathNIO();
+    if (pathNIO == null) {
+      return "";
+    }
+
+    return pathNIO.getFileName().toString();
+  }
+
+  /**
    * get the parent relative to the data source as string
    *
    * @return a string which represents the parent relative to the data source

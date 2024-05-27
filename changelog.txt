@@ -1,14 +1,23 @@
 Version 5.0.6
 =======================
++ (TV show) added poster file naming for Zidoo #2510
 + added an option to round the framerate (use ${framerate(round)}) #2568
++ (movie/TV show) added a preset for MediaPIG
++ added a CMD argument to start tinyMediaManager with just the API active (and no GUI)
 x do not duplicate season names in GUI #2497
 x also search for FFmpeg and yt-dlp in system path
 x (Jellyfin) do not write person URLs into the NFO files #2518
+x (NFO) fix accidental updating of originalFilename #2575
 x fixed year column width in choosers for HiDPI displays #2567
 x enhanced automatic artwork download algorithm (re-search for the chosen resolution without language information)
 x rewrite mediainfo.xml on file change #2566
+x improve cleanup when updating a single tvshow
+x (TV show) improve handling of absolute date based episodes #2576
 x updated writing of .desktop file for Linux
+x (TvShow) able to create ABSOLUTE numberings from an AIRED show
 x parsing a new framerate style from libmediainfo #2568
+x fixed an error when trying to download the subtitle of "Nothing found" #2574
+x produce better errors when OpenSubtitles limits are reached #2574
 
 
 Version 5.0.5

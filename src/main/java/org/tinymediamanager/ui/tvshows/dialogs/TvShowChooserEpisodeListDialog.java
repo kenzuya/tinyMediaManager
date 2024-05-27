@@ -17,6 +17,8 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -123,6 +125,16 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
             episodeContainer.setTitle(md.getTitle());
             break;
           }
+
+          // same with matching date
+          if (episodeContainer.tvShowEpisode.getFirstAired() != null && md.getReleaseDate() != null) {
+            LocalDate epdate = LocalDate.ofInstant(episodeContainer.tvShowEpisode.getFirstAired().toInstant(), ZoneId.systemDefault());
+            LocalDate mddate = LocalDate.ofInstant(md.getReleaseDate().toInstant(), ZoneId.systemDefault());
+            if (epdate.equals(mddate)) {
+              episodeContainer.setTitle(md.getTitle());
+              break;
+            }
+          }
         }
       }
     }
@@ -156,6 +168,10 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
 
     public String getEpisodeTitle() {
       return tvShowEpisode.getTitle();
+    }
+
+    public LocalDate getFirstAired() {
+      return tvShowEpisode.getFirstAired() == null ? null : LocalDate.ofInstant(tvShowEpisode.getFirstAired().toInstant(), ZoneId.systemDefault());
     }
 
     public String getTitle() {
@@ -204,6 +220,12 @@ class TvShowChooserEpisodeListDialog extends TmmDialog {
        * episode
        */
       col = new Column(TmmResourceBundle.getString("metatag.episode"), "episode", EpisodeContainer::getEpisode, Integer.class);
+      addColumn(col);
+
+      /*
+       * release date
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.aired"), "aired", EpisodeContainer::getFirstAired, LocalDate.class);
       addColumn(col);
 
       /*

@@ -846,7 +846,12 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addOriginalFilename() {
     Element originalFileName = document.createElement("original_filename");
-    originalFileName.setTextContent(movie.getOriginalFilename());
+    if (StringUtils.isBlank(movie.getOriginalFilename())) {
+      originalFileName.setTextContent(movie.getMainFile().getFilename());
+    }
+    else {
+      originalFileName.setTextContent(movie.getOriginalFilename());
+    }
     root.appendChild(originalFileName);
   }
 

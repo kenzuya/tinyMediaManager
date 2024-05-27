@@ -71,6 +71,7 @@ public class MovieSettingsPanel extends JPanel {
   private JButton             btnPresetMediaPortal1;
   private JButton             btnPresetMediaPortal2;
   private JButton             btnPresetPlex;
+  private JButton             btnPresetMediaPig;
   private JCheckBox           chckbxIncludeExternalAudioStreams;
   private JCheckBox           chckbxUseMediainfoMetadata;
 
@@ -101,6 +102,7 @@ public class MovieSettingsPanel extends JPanel {
     btnPresetJellyfin.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForJellyfin());
     btnPresetEmby.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForEmby());
     btnPresetPlex.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForPlex());
+    btnPresetMediaPig.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPig());
     btnPresetMediaPortal1.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal1());
     btnPresetMediaPortal2.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal2());
   }
@@ -117,7 +119,7 @@ public class MovieSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#automatic-tasks"));
       {
         JPanel panelPresets = new JPanel(
-            new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[][][][]"));
+            new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[][][][]"));
 
         JLabel lblPresets = new TmmLabel(TmmResourceBundle.getString("Settings.preset"), H3);
         CollapsiblePanel collapsiblePanel_1 = new CollapsiblePanel(panelPresets, lblPresets, true);
@@ -143,6 +145,9 @@ public class MovieSettingsPanel extends JPanel {
 
           btnPresetEmby = new JButton("Emby");
           panelPresets.add(btnPresetEmby, "cell 6 2,growx");
+
+          btnPresetMediaPig = new JButton("MediaPIG");
+          panelPresets.add(btnPresetMediaPig, "cell 8 2,growx");
         }
         {
           btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");

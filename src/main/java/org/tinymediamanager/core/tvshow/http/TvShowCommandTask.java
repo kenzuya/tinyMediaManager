@@ -108,7 +108,7 @@ class TvShowCommandTask extends TmmThreadPool {
 
   private void updateDataSources() {
     Set<String> dataSources = new TreeSet<>();
-    Set<Path> tvShowFolders = new TreeSet<>();
+    Set<TvShow> tvShowFolders = new TreeSet<>();
 
     List<TvShow> existingTvShows = new ArrayList<>(tvShowList.getTvShows());
     List<TvShowEpisode> existingEpisodes = new ArrayList<>();
@@ -191,15 +191,15 @@ class TvShowCommandTask extends TmmThreadPool {
     return dataSources;
   }
 
-  private List<Path> getTvShowFoldersForScope(CommandScope scope) {
-    List<Path> tvShowFolders = new ArrayList<>();
+  private List<TvShow> getTvShowFoldersForScope(CommandScope scope) {
+    List<TvShow> tvShows = new ArrayList<>();
 
     switch (scope.name) {
       case "show":
         for (String path : ListUtils.nullSafe(Arrays.asList(scope.args))) {
           for (TvShow tvShow : tvShowList.getTvShows()) {
             if (tvShow.getPathNIO().toAbsolutePath().toString().equals(path)) {
-              tvShowFolders.add(tvShow.getPathNIO());
+              tvShows.add(tvShow);
               break;
             }
           }
@@ -207,7 +207,7 @@ class TvShowCommandTask extends TmmThreadPool {
         break;
     }
 
-    return tvShowFolders;
+    return tvShows;
   }
 
   private void scrape() {
