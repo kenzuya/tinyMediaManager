@@ -86,15 +86,15 @@ import com.github.stephenc.javaisotools.loopfs.udf.UDFFileSystem;
  * @author Manuel Laggner
  */
 public class MediaFileHelper {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MediaFileHelper.class);
+  private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
-  public static final List<String> TRAILER_FOLDERS = List.of("trailer", "trailers");
+  public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
   // lower case
-  public static final List<String> EXTRA_FOLDERS   = List.of("extra", "extras", "behind the scenes", "behindthescenes",
-      "deleted scenes", "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene",
-      "scenes", "short", "shorts", "other", "others", "bloopers");
+  public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
+      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others",
+      "bloopers");
   // for structure detection
-  public static final List<String> BLURAY_FOLDERS  = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
+  public static final List<String> BLURAY_FOLDERS     = List.of("BDMV", "PLAYLIST", "CLIPINF", "STREAM");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -102,56 +102,56 @@ public class MediaFileHelper {
   public static final List<String> DEFAULT_SUBTITLE_FILETYPES;
   public static final List<String> BINARY_FILETYPES;
 
-  public static final Pattern MOVIESET_ARTWORK_PATTERN;
-  public static final Pattern POSTER_PATTERN;
-  public static final Pattern FANART_PATTERN;
-  public static final Pattern EXTRAFANART_PATTERN;
-  public static final Pattern BANNER_PATTERN;
-  public static final Pattern THUMB_PATTERN;
-  public static final Pattern SEASON_POSTER_PATTERN;
-  public static final Pattern SEASON_FANART_PATTERN;
-  public static final Pattern SEASON_BANNER_PATTERN;
-  public static final Pattern SEASON_THUMB_PATTERN;
-  public static final Pattern LOGO_PATTERN;
-  public static final Pattern CLEARLOGO_PATTERN;
-  public static final Pattern CHARACTERART_PATTERN;
-  public static final Pattern DISCART_PATTERN;
-  public static final Pattern CLEARART_PATTERN;
-  public static final Pattern KEYART_PATTERN;
+  public static final Pattern      MOVIESET_ARTWORK_PATTERN;
+  public static final Pattern      POSTER_PATTERN;
+  public static final Pattern      FANART_PATTERN;
+  public static final Pattern      EXTRAFANART_PATTERN;
+  public static final Pattern      BANNER_PATTERN;
+  public static final Pattern      THUMB_PATTERN;
+  public static final Pattern      SEASON_POSTER_PATTERN;
+  public static final Pattern      SEASON_FANART_PATTERN;
+  public static final Pattern      SEASON_BANNER_PATTERN;
+  public static final Pattern      SEASON_THUMB_PATTERN;
+  public static final Pattern      LOGO_PATTERN;
+  public static final Pattern      CLEARLOGO_PATTERN;
+  public static final Pattern      CHARACTERART_PATTERN;
+  public static final Pattern      DISCART_PATTERN;
+  public static final Pattern      CLEARART_PATTERN;
+  public static final Pattern      KEYART_PATTERN;
 
-  public static final String VIDEO_FORMAT_96P   = "96p";
-  public static final String VIDEO_FORMAT_120P  = "120p";
-  public static final String VIDEO_FORMAT_144P  = "144p";
-  public static final String VIDEO_FORMAT_240P  = "240p";
-  public static final String VIDEO_FORMAT_288P  = "288p";
-  public static final String VIDEO_FORMAT_360P  = "360p";
-  public static final String VIDEO_FORMAT_480P  = "480p";
-  public static final String VIDEO_FORMAT_540P  = "540p";
-  public static final String VIDEO_FORMAT_576P  = "576p";
-  public static final String VIDEO_FORMAT_720P  = "720p";
-  public static final String VIDEO_FORMAT_1080P = "1080p";
-  public static final String VIDEO_FORMAT_1440P = "1440p";
-  public static final String VIDEO_FORMAT_2160P = "2160p";
-  public static final String VIDEO_FORMAT_4320P = "4320p";
+  public static final String       VIDEO_FORMAT_96P   = "96p";
+  public static final String       VIDEO_FORMAT_120P  = "120p";
+  public static final String       VIDEO_FORMAT_144P  = "144p";
+  public static final String       VIDEO_FORMAT_240P  = "240p";
+  public static final String       VIDEO_FORMAT_288P  = "288p";
+  public static final String       VIDEO_FORMAT_360P  = "360p";
+  public static final String       VIDEO_FORMAT_480P  = "480p";
+  public static final String       VIDEO_FORMAT_540P  = "540p";
+  public static final String       VIDEO_FORMAT_576P  = "576p";
+  public static final String       VIDEO_FORMAT_720P  = "720p";
+  public static final String       VIDEO_FORMAT_1080P = "1080p";
+  public static final String       VIDEO_FORMAT_1440P = "1440p";
+  public static final String       VIDEO_FORMAT_2160P = "2160p";
+  public static final String       VIDEO_FORMAT_4320P = "4320p";
 
   // meta formats
-  public static final String VIDEO_FORMAT_LD  = "LD";
-  public static final String VIDEO_FORMAT_SD  = "SD";
-  public static final String VIDEO_FORMAT_HD  = "HD";
-  public static final String VIDEO_FORMAT_UHD = "UHD";
+  public static final String       VIDEO_FORMAT_LD    = "LD";
+  public static final String       VIDEO_FORMAT_SD    = "SD";
+  public static final String       VIDEO_FORMAT_HD    = "HD";
+  public static final String       VIDEO_FORMAT_UHD   = "UHD";
 
   // 3D / side-by-side / top-and-bottom / H=half - MVC=Multiview Video Coding-http://wiki.xbmc.org/index.php?title=3D#Video_filenames_flags
-  public static final String VIDEO_3D      = "3D";
-  public static final String VIDEO_3D_SBS  = "3D SBS";
-  public static final String VIDEO_3D_TAB  = "3D TAB";
-  public static final String VIDEO_3D_HSBS = "3D HSBS";
-  public static final String VIDEO_3D_HTAB = "3D HTAB";
-  public static final String VIDEO_3D_MVC  = "3D MVC";
+  public static final String       VIDEO_3D           = "3D";
+  public static final String       VIDEO_3D_SBS       = "3D SBS";
+  public static final String       VIDEO_3D_TAB       = "3D TAB";
+  public static final String       VIDEO_3D_HSBS      = "3D HSBS";
+  public static final String       VIDEO_3D_HTAB      = "3D HTAB";
+  public static final String       VIDEO_3D_MVC       = "3D MVC";
 
   // disc folders
-  public static final String VIDEO_TS = "VIDEO_TS";
-  public static final String BDMV     = "BDMV";
-  public static final String HVDVD_TS = "HVDVD_TS";
+  public static final String       VIDEO_TS           = "VIDEO_TS";
+  public static final String       BDMV               = "BDMV";
+  public static final String       HVDVD_TS           = "HVDVD_TS";
 
   static {
     SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp", "webp");
@@ -159,38 +159,33 @@ public class MediaFileHelper {
     // .disc = video stubs
     // .evo = hd-dvd
     // .ifo = DVD; only needed for KodiRPC
-    DEFAULT_VIDEO_FILETYPES = List.of(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw", ".dat",
-        ".divx", ".dv", ".dvr-ms", ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s",
-        ".m2ts", ".m2v", ".m4v", ".mkv", ".mk3d", ".mov", ".mp4", ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm",
-        ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts", ".ty", ".viv", ".vob", ".vp3", ".wmv", ".webm",
-        ".xvid");
+    DEFAULT_VIDEO_FILETYPES = List.of(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw", ".dat", ".divx", ".dv", ".dvr-ms",
+        ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s", ".m2ts", ".m2v", ".m4v", ".mkv", ".mk3d", ".mov", ".mp4",
+        ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm", ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts", ".ty", ".viv", ".vob", ".vp3",
+        ".wmv", ".webm", ".xvid");
 
-    DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape",
-        ".at3", ".atrac", ".au", ".dts", ".dtshd", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3",
-        ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".tta", ".thd", ".wav", ".wave", ".wma");
+    DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
+        ".dts", ".dtshd", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram",
+        ".tta", ".thd", ".wav", ".wave", ".wma");
 
-    DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs",
-        ".psb", ".rt", ".srt", ".smi", ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub", ".vtt");
+    DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
+        ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub", ".vtt");
 
     BINARY_FILETYPES = List.of("bin", "dat", "img", "nrg", "disc");
 
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
-    MOVIESET_ARTWORK_PATTERN = Pattern.compile(
-        "(?i)movieset-(poster|fanart|backdrop|banner|disc|discart|logo|clearlogo|clearart|thumb)\\.(" + extensions
-            + ")$");
+    MOVIESET_ARTWORK_PATTERN = Pattern
+        .compile("(?i)movieset-(poster|fanart|backdrop|banner|disc|discart|logo|clearlogo|clearart|thumb)\\.(" + extensions + ")$");
     POSTER_PATTERN = Pattern.compile("(?i)(.*-poster|poster|folder|movie|.*-cover|cover)\\.(" + extensions + ")$");
-    FANART_PATTERN = Pattern.compile(
-        "(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)\\.(" + extensions + ")$");
-    EXTRAFANART_PATTERN = Pattern.compile(
-        "(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)[0-9]+\\.(" + extensions + ")$");
+    FANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)\\.(" + extensions + ")$");
+    EXTRAFANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*-backdrop|.*\\.fanart|.*\\.backdrop|fanart|backdrop)[0-9]+\\.(" + extensions + ")$");
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
     SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
     SEASON_FANART_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)(-fanart)?\\.(" + extensions + ")$");
     SEASON_BANNER_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)-banner\\.(" + extensions + ")$");
-    SEASON_THUMB_PATTERN = Pattern.compile(
-        "(?i)season([0-9]{1,6}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
+    SEASON_THUMB_PATTERN = Pattern.compile("(?i)season([0-9]{1,6}|-specials|-all)-(thumb|landscape)\\.(" + extensions + ")$");
     LOGO_PATTERN = Pattern.compile("(?i)(.*-logo|logo)\\.(" + extensions + ")$");
     CLEARLOGO_PATTERN = Pattern.compile("(?i)(.*-clearlogo|clearlogo)\\.(" + extensions + ")$");
     CHARACTERART_PATTERN = Pattern.compile("(?i)(.*-characterart|characterart)[0-9]{0,2}\\.(" + extensions + ")$");
@@ -213,8 +208,7 @@ public class MediaFileHelper {
 
     Field[] declaredFields = MediaFileHelper.class.getDeclaredFields();
     for (Field field : declaredFields) {
-      if (Modifier.isStatic(field.getModifiers()) && field.getName().startsWith("VIDEO_FORMAT_")
-          && !field.isAnnotationPresent(Deprecated.class)) {
+      if (Modifier.isStatic(field.getModifiers()) && field.getName().startsWith("VIDEO_FORMAT_") && !field.isAnnotationPresent(Deprecated.class)) {
         try {
           videoFormats.add((String) field.get(null));
         }
@@ -254,7 +248,8 @@ public class MediaFileHelper {
   /**
    * Parses the media file type out of the given path
    *
-   * @param pathToFile the path/file to parse
+   * @param pathToFile
+   *          the path/file to parse
    * @return the detected media file type or MediaFileType.UNKNOWN
    */
   public static MediaFileType parseMediaFileType(Path pathToFile) {
@@ -264,8 +259,10 @@ public class MediaFileHelper {
   /**
    * Parses the media file type out of the given path
    *
-   * @param pathToFile the path/file to parse
-   * @param datasource to not evaluate higher than that!
+   * @param pathToFile
+   *          the path/file to parse
+   * @param datasource
+   *          to not evaluate higher than that!
    * @return the detected media file type or MediaFileType.UNKNOWN
    */
   public static MediaFileType parseMediaFileType(Path pathToFile, Path datasource) {
@@ -274,8 +271,7 @@ public class MediaFileHelper {
     String ext = FilenameUtils.getExtension(filename).toLowerCase(Locale.ROOT);
     String basename = FilenameUtils.getBaseName(filename);
     // just path w/o filename
-    String foldername = FilenameUtils.getBaseName(
-        pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT));
+    String foldername = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT));
 
     Path relative;
     if (datasource != null) {
@@ -292,8 +288,7 @@ public class MediaFileHelper {
     // we just ignore that and search forward in the path for extra folders
     List<String> relativePathJunks = new ArrayList<>();
     if (relative.getNameCount() > 2) {
-      relative = relative.subpath(1,
-          relative.getNameCount() - 1); // -1 because we're not interested in the file name itself
+      relative = relative.subpath(1, relative.getNameCount() - 1); // -1 because we're not interested in the file name itself
       for (int i = 1; i <= relative.getNameCount(); i++) {
         relativePathJunks.add(relative.subpath(i - 1, i).toString().toLowerCase(Locale.ROOT));
       }
@@ -345,8 +340,8 @@ public class MediaFileHelper {
 
     if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
-      if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?(\\d)*$") || basename.equalsIgnoreCase(
-          "movie-trailer") || basename.equalsIgnoreCase("trailer") || TRAILER_FOLDERS.contains(foldername)) {
+      if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?(\\d)*$") || basename.equalsIgnoreCase("movie-trailer")
+          || basename.equalsIgnoreCase("trailer") || TRAILER_FOLDERS.contains(foldername)) {
         return MediaFileType.TRAILER;
       }
 
@@ -375,16 +370,14 @@ public class MediaFileHelper {
   /**
    * Parses the image type out of the given path
    *
-   * @param pathToFile the path/file to parse
+   * @param pathToFile
+   *          the path/file to parse
    * @return the detected media file type or MediaFileType.GRAPHIC
    */
   public static MediaFileType parseImageType(Path pathToFile) {
     String filename = pathToFile.getFileName().toString();
-    String foldername = pathToFile.getParent() == null ?
-        "" :
-        pathToFile.getParent().toString().toLowerCase(Locale.ROOT); // just path w/o filename
-    String parentName = FilenameUtils.getBaseName(
-        pathToFile.getParent() == null ? "" : pathToFile.getParent().toString());
+    String foldername = pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT); // just path w/o filename
+    String parentName = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString());
 
     // movieset artwork
     Matcher matcher = MediaFileHelper.MOVIESET_ARTWORK_PATTERN.matcher(filename);
@@ -515,8 +508,10 @@ public class MediaFileHelper {
   /**
    * checks, if MediaFile is in its own dedicated "extras" folder, and not just an extras file...
    *
-   * @param mf     the mediafile to check
-   * @param entity needed for relative path
+   * @param mf
+   *          the mediafile to check
+   * @param entity
+   *          needed for relative path
    * @return treu/false
    */
   public static boolean isExtraInDedicatedFolder(MediaFile mf, MediaEntity entity) {
@@ -543,7 +538,8 @@ public class MediaFileHelper {
   /**
    * gets the "common" video format for the given {@link MediaFile}
    *
-   * @param mediaFile the media file to parse
+   * @param mediaFile
+   *          the media file to parse
    * @return 1080p 720p 480p... or SD if too small
    */
   public static String getVideoFormat(MediaFile mediaFile) {
@@ -659,7 +655,8 @@ public class MediaFileHelper {
    * get the video definition category for the given {@link MediaFile}<br/>
    * LD (<=360 lines), SD (>360 and <720 lines) or HD (720+ lines).
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return LD, SD or HD
    */
   public static String getVideoDefinitionCategory(MediaFile mediaFile) {
@@ -698,7 +695,8 @@ public class MediaFileHelper {
   /**
    * is that the given {@link MediaFile} a video in format LD?
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return true/false
    */
   public static boolean isVideoDefinitionLD(MediaFile mediaFile) {
@@ -712,7 +710,8 @@ public class MediaFileHelper {
   /**
    * is that the given {@link MediaFile} a video in format SD?
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return true/false
    */
   public static boolean isVideoDefinitionSD(MediaFile mediaFile) {
@@ -726,7 +725,8 @@ public class MediaFileHelper {
   /**
    * is that the given {@link MediaFile} a video in format HD?
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return true/false
    */
   public static boolean isVideoDefinitionHD(MediaFile mediaFile) {
@@ -740,7 +740,8 @@ public class MediaFileHelper {
   /**
    * is that the given {@link MediaFile} a video in format UHD?
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return true/false
    */
   public static boolean isVideoDefinitionUHD(MediaFile mediaFile) {
@@ -754,7 +755,8 @@ public class MediaFileHelper {
   /**
    * add 1% to the given value
    *
-   * @param value the value to blur
+   * @param value
+   *          the value to blur
    * @return the blurred value
    */
   private static int blur(int value) {
@@ -764,7 +766,8 @@ public class MediaFileHelper {
   /**
    * gather basic file information like file size, creation date and last modified date
    *
-   * @param mediaFile the {@link MediaFile} to gather the information for
+   * @param mediaFile
+   *          the {@link MediaFile} to gather the information for
    * @return true if the filesize changed, false otherwise
    */
   public static boolean gatherFileInformation(MediaFile mediaFile) {
@@ -802,8 +805,10 @@ public class MediaFileHelper {
   /**
    * Gathers the media information for the given {@link MediaFile} via libmediainfo
    *
-   * @param mediaFile the media file
-   * @param force     forces the execution, will not stop on already imported files
+   * @param mediaFile
+   *          the media file
+   * @param force
+   *          forces the execution, will not stop on already imported files
    */
   public static void gatherMediaInformation(MediaFile mediaFile, boolean force) {
     String extension = mediaFile.getExtension();
@@ -863,8 +868,7 @@ public class MediaFileHelper {
     if (!fileSizeChanged && mediaFile.getType() == MediaFileType.VIDEO) {
       try {
         // just parse via XML
-        Path xmlFile = Paths.get(mediaFile.getPath(),
-            FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
+        Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
         mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
 
         if (!mediaInfoFiles.isEmpty()) {
@@ -904,8 +908,10 @@ public class MediaFileHelper {
   /**
    * if you have an MI snapshot prepared, parse it
    *
-   * @param mediaFile      the {@link MediaFile} for which the snapshot should be parsed
-   * @param mediaInfoFiles a {@link List} of all files to be considered for mediainfo
+   * @param mediaFile
+   *          the {@link MediaFile} for which the snapshot should be parsed
+   * @param mediaInfoFiles
+   *          a {@link List} of all files to be considered for mediainfo
    */
   private static void parseMediainfoSnapshot(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     if (mediaInfoFiles.isEmpty()) {
@@ -938,8 +944,10 @@ public class MediaFileHelper {
   /**
    * is the given filename/foldername from a DVD/BR/HD-DVD "disc file/folder"?
    *
-   * @param filename the filename to check
-   * @param path     the path to check
+   * @param filename
+   *          the filename to check
+   * @param path
+   *          the path to check
    * @return true/false
    */
   public static boolean isDiscFile(String filename, String path) {
@@ -959,7 +967,8 @@ public class MediaFileHelper {
   /**
    * is the given filename/foldername from a DVD "disc file/folder"? (video_ts, vts...)
    *
-   * @param filename the filename to check
+   * @param filename
+   *          the filename to check
    * @return true/false
    */
   public static boolean isDVDFile(String filename) {
@@ -994,7 +1003,8 @@ public class MediaFileHelper {
   /**
    * is the given filename/foldername from a HD-DVD "disc file/folder"? (hvdvd_ts, hv...)
    *
-   * @param filename the filename to check
+   * @param filename
+   *          the filename to check
    * @return true/false
    */
   public static boolean isHDDVDFile(String filename) {
@@ -1008,8 +1018,7 @@ public class MediaFileHelper {
     }
 
     // https://pt.slideshare.net/mvasu22/introduction-tohd-dvdsystemmodel?next_slideshow=true
-    return filename.toLowerCase(Locale.ROOT)
-        .matches("(hv\\d{3}[imt]\\d{2}|hv[as]\\d{5}|title\\d{3})\\.(evo|bup|ifo|vti|map)");
+    return filename.toLowerCase(Locale.ROOT).matches("(hv\\d{3}[imt]\\d{2}|hv[as]\\d{5}|title\\d{3})\\.(evo|bup|ifo|vti|map)");
   }
 
   /**
@@ -1031,7 +1040,8 @@ public class MediaFileHelper {
   /**
    * is the given filename/foldername from Bluray "disc file/folder"? (index, movieobject, bdmv, ...) for movierenamer
    *
-   * @param filename the filename to check
+   * @param filename
+   *          the filename to check
    * @return true/false
    */
   public static boolean isBlurayFile(String filename) {
@@ -1044,19 +1054,18 @@ public class MediaFileHelper {
       return true;
     }
 
-    return filename.toLowerCase(Locale.ROOT)
-        .matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
+    return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
   }
 
   /**
    * checks whether the given file is a main disc identifier file
    *
-   * @param filename the filename to check
+   * @param filename
+   *          the filename to check
    * @return true/false
    */
   public static boolean isMainDiscIdentifierFile(String filename) {
-    if (filename.equalsIgnoreCase("video_ts.ifo") || filename.equalsIgnoreCase("index.bdmv")
-        || filename.equalsIgnoreCase("hv000i01.ifo")) {
+    if (filename.equalsIgnoreCase("video_ts.ifo") || filename.equalsIgnoreCase("index.bdmv") || filename.equalsIgnoreCase("hv000i01.ifo")) {
       return true;
     }
     return false;
@@ -1087,7 +1096,8 @@ public class MediaFileHelper {
   /**
    * get the libmediainfo snapshot of all data for the given {@link MediaFile}
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return a {@link List} of all associated files along with libmediainfo data
    */
   private static synchronized List<MediaInfoFile> getMediaInfoFromSingleFile(MediaFile mediaFile) {
@@ -1154,7 +1164,8 @@ public class MediaFileHelper {
   /**
    * get the libmediainfo snapshot of all data for the given {@link MediaFile} is it is an ISO file
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    * @return a {@link List} of all associated files along with libmediainfo data
    */
   private static synchronized List<MediaInfoFile> getMediaInfoSnapshotFromISO(MediaFile mediaFile) {
@@ -1222,8 +1233,7 @@ public class MediaFileHelper {
 
         LOGGER.trace("ISO: got entry {}, size : {}", entry.getName(), entry.getSize());
 
-        MediaFile mf = new MediaFile(
-            Paths.get(mediaFile.getFileAsPath().toString(), entry.getPath())); // set ISO as MF path
+        MediaFile mf = new MediaFile(Paths.get(mediaFile.getFileAsPath().toString(), entry.getPath())); // set ISO as MF path
         if (mf.isDiscFile()) { // count all known DVD/BR/HDDVD files!
 
           try (MediaInfo fileMI = new MediaInfo()) {
@@ -1296,12 +1306,11 @@ public class MediaFileHelper {
         }
         // ignore BACKUP folders 2 levels deep
         Path folder = Paths.get(entry.getPath()).getParent();
-        if (folder != null && folder.getFileName() != null && folder.getFileName().toString()
-            .equalsIgnoreCase("BACKUP")) {
+        if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
           continue;
         }
-        if (folder.getParent() != null && folder.getParent().getFileName() != null && folder.getParent().getFileName()
-            .toString().equalsIgnoreCase("BACKUP")) {
+        if (folder.getParent() != null && folder.getParent().getFileName() != null
+            && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
           continue;
         }
 
@@ -1452,7 +1461,8 @@ public class MediaFileHelper {
   /**
    * detect all relevant DVD files for parsing
    *
-   * @param mediaInfoFiles all found DVD files
+   * @param mediaInfoFiles
+   *          all found DVD files
    * @return a {@link List} of all relevant DVD files
    */
   private static List<MediaInfoFile> detectRelevantDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
@@ -1460,7 +1470,9 @@ public class MediaFileHelper {
 
     // find VIDEO_TS.IFO - no not work further if not present
     MediaInfoFile ifomif = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("VIDEO_TS.IFO")).findAny().orElse(null);
+        .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase("VIDEO_TS.IFO"))
+        .findAny()
+        .orElse(null);
     if (ifomif == null) {
       LOGGER.debug("Could not find a valid VIDEO_TS.IFO file");
       return relevantFiles;
@@ -1490,7 +1502,9 @@ public class MediaFileHelper {
 
         // find it
         MediaInfoFile vts = mediaInfoFiles.stream()
-            .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase(file)).findAny().orElse(null);
+            .filter(mediaInfoFile -> mediaInfoFile.getFilename().equalsIgnoreCase(file))
+            .findAny()
+            .orElse(null);
         if (vts == null) {
           continue;
         }
@@ -1508,8 +1522,11 @@ public class MediaFileHelper {
       // DVD/IFO files completely read
 
       // detected "main" movie
-      DvdTitle main = dvd.getTitles().stream().filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
-          .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
+      DvdTitle main = dvd.getTitles()
+          .stream()
+          .filter(t -> t.getTotalTimeMs() / 1000 < 9800) // limit duration
+          .max(Comparator.comparingLong(DvdTitle::getTotalTimeMs))
+          .orElse(null);
       if (main == null) {
         // second try, w/o limitation of duration
         main = dvd.getTitles().stream().max(Comparator.comparingLong(DvdTitle::getTotalTimeMs)).orElse(null);
@@ -1527,7 +1544,8 @@ public class MediaFileHelper {
       MediaInfoFile vob = mediaInfoFiles.stream()
           .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("VOB"))
           .filter(mediaInfoFile -> mediaInfoFile.getDuration() < 9800) // limit duration
-          .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+          .orElse(null);
       if (vob == null) {
         LOGGER.debug("Could not find a valid VOB file");
         return relevantFiles;
@@ -1557,7 +1575,8 @@ public class MediaFileHelper {
   /**
    * detect all relevant Bluray files for parsing
    *
-   * @param mediaInfoFiles all found Bluray files
+   * @param mediaInfoFiles
+   *          all found Bluray files
    * @return a {@link List} of all relevant Bluray files
    */
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
@@ -1568,12 +1587,11 @@ public class MediaFileHelper {
     for (MediaInfoFile mif : mediaInfoFiles) {
       // ignore BACKUP folders 2 levels deep
       Path folder = mif.getFileAsPath().getParent();
-      if (folder != null && folder.getFileName() != null && folder.getFileName().toString()
-          .equalsIgnoreCase("BACKUP")) {
+      if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
       }
-      if (folder.getParent() != null && folder.getParent().getFileName() != null && folder.getParent().getFileName()
-          .toString().equalsIgnoreCase("BACKUP")) {
+      if (folder.getParent() != null && folder.getParent().getFileName() != null
+          && folder.getParent().getFileName().toString().equalsIgnoreCase("BACKUP")) {
         continue;
       }
 
@@ -1608,8 +1626,7 @@ public class MediaFileHelper {
           }
         }
         catch (Exception e) {
-          LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(),
-              e.getMessage());
+          LOGGER.warn("Could not parse Bluray playlist file: {} - maybe a -mediainfo.xml?", mif.getFileAsPath(), e.getMessage());
         }
       }
     }
@@ -1630,8 +1647,7 @@ public class MediaFileHelper {
         for (MediaInfoFile mif : mediaInfoFiles) {
           // ignore BACKUP folders 2 levels deep
           Path folder = mif.getFileAsPath().getParent();
-          if (folder != null && folder.getFileName() != null && folder.getFileName().toString()
-              .equalsIgnoreCase("BACKUP")) {
+          if (folder != null && folder.getFileName() != null && folder.getFileName().toString().equalsIgnoreCase("BACKUP")) {
             continue;
           }
           if (folder != null && folder.getParent() != null && folder.getParent().getFileName() != null
@@ -1660,7 +1676,8 @@ public class MediaFileHelper {
       // no? just use our traditional way of finding the "biggest" file...
       MediaInfoFile mainVideo = mediaInfoFiles.stream()
           .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
-          .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+          .orElse(null);
 
       if (mainVideo == null || !mainVideo.getFilename().matches("^\\d{5}.*")) {
         return Collections.emptyList();
@@ -1701,14 +1718,16 @@ public class MediaFileHelper {
   /**
    * detect all relevant HD-DVD files for parsing
    *
-   * @param mediaInfoFiles all found HD-DVD files
+   * @param mediaInfoFiles
+   *          all found HD-DVD files
    * @return a {@link List} of all relevant HD-DVD files
    */
   private static List<MediaInfoFile> detectRelevantHdDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest evo file)
     MediaInfoFile evo = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("evo"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+        .orElse(null);
 
     if (evo == null) {
       return Collections.emptyList();
@@ -1724,15 +1743,19 @@ public class MediaFileHelper {
    * Gets the real mediainfo values as {@link List}. If you pass multiple keys, every found value will be added (in the same order) into the
    * {@link List}
    *
-   * @param miSnapshot   the mediainfo snapshot to load the data from
-   * @param streamKind   MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
-   * @param streamNumber the stream number (0 for first)
-   * @param keys         the information you want to fetch
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
+   * @param streamKind
+   *          MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
+   * @param streamNumber
+   *          the stream number (0 for first)
+   * @param keys
+   *          the information you want to fetch
    * @return a {@link List} of the media information you asked<br>
-   * <b>OR AN EMPTY LIST IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
+   *         <b>OR AN EMPTY LIST IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
    */
-  public static List<String> getMediaInfoValues(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot,
-      MediaInfo.StreamKind streamKind, int streamNumber, String... keys) {
+  public static List<String> getMediaInfoValues(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
+      int streamNumber, String... keys) {
     // prevent NPE
     if (miSnapshot == null) {
       return Collections.emptyList();
@@ -1767,15 +1790,19 @@ public class MediaFileHelper {
   /**
    * Gets the real mediainfo value
    *
-   * @param miSnapshot   the mediainfo snapshot to load the data from
-   * @param streamKind   MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
-   * @param streamNumber the stream number (0 for first)
-   * @param keys         the information you want to fetch
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
+   * @param streamKind
+   *          MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
+   * @param streamNumber
+   *          the stream number (0 for first)
+   * @param keys
+   *          the information you want to fetch
    * @return the media information you asked<br>
-   * <b>OR AN EMPTY STRING IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
+   *         <b>OR AN EMPTY STRING IF MEDIAINFO COULD NOT BE LOADED</b> (never NULL)
    */
-  public static String getMediaInfoValue(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot,
-      MediaInfo.StreamKind streamKind, int streamNumber, String... keys) {
+  public static String getMediaInfoValue(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
+      int streamNumber, String... keys) {
     return getMediaInfoValues(miSnapshot, streamKind, streamNumber, keys).stream().findFirst().orElse("");
   }
 
@@ -1783,15 +1810,20 @@ public class MediaFileHelper {
    * Checks, if a specific string can be found in one or multiple values<br>
    * comes handy for different MI versions, where something changed....
    *
-   * @param miSnapshot   the mediainfo snapshot to load the data from
-   * @param streamKind   MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
-   * @param streamNumber the stream number (0 for first)
-   * @param search       the information to search for
-   * @param keys         the information you want to fetch
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
+   * @param streamKind
+   *          MediaInfo.StreamKind.(General|Video|Audio|Text|Chapters|Image|Menu )
+   * @param streamNumber
+   *          the stream number (0 for first)
+   * @param search
+   *          the information to search for
+   * @param keys
+   *          the information you want to fetch
    * @return the search value you asked for, or empty string
    */
-  public static String getMediaInfoContains(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot,
-      MediaInfo.StreamKind streamKind, int streamNumber, String search, String... keys) {
+  public static String getMediaInfoContains(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind streamKind,
+      int streamNumber, String search, String... keys) {
     // prevent NPE
     if (miSnapshot == null) {
       return "";
@@ -1844,7 +1876,8 @@ public class MediaFileHelper {
   /**
    * normalized the mediainfo key for better support of different sources (libmediainfo, XML from mediainfo, XML from tmm, ...)
    *
-   * @param key the key to be normalized
+   * @param key
+   *          the key to be normalized
    * @return the normalized key
    */
   public static String normalizeKey(String key) {
@@ -1867,14 +1900,17 @@ public class MediaFileHelper {
    * gets a mediainfo value directly by calling libmediainfo.<br />
    * ATTENTION: this causes libmediainfo to open the file
    *
-   * @param mediaFile    the {@link MediaFile} to analyze
-   * @param streamKind   the stream kind
-   * @param streamNumber the stream number
-   * @param keys         the key
+   * @param mediaFile
+   *          the {@link MediaFile} to analyze
+   * @param streamKind
+   *          the stream kind
+   * @param streamNumber
+   *          the stream number
+   * @param keys
+   *          the key
    * @return the requested value or an empty string
    */
-  public static String getMediaInfoDirect(MediaFile mediaFile, MediaInfo.StreamKind streamKind, int streamNumber,
-      String... keys) {
+  public static String getMediaInfoDirect(MediaFile mediaFile, MediaInfo.StreamKind streamKind, int streamNumber, String... keys) {
     List<MediaInfoFile> mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile);
     if (!mediaInfoFiles.isEmpty()) {
       return getMediaInfoValue(mediaInfoFiles.get(0).getSnapshot(), streamKind, streamNumber, keys);
@@ -1886,7 +1922,8 @@ public class MediaFileHelper {
    * gather the subtitle information for the given {@link MediaFile}, but solely from the file naming.<br />
    * usable for subtitle files
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    */
   public static MediaFileSubtitle gatherSubtitleLanguageFromFile(MediaFile mediaFile) {
     String filename = mediaFile.getFilename();
@@ -1919,8 +1956,7 @@ public class MediaFileHelper {
     return sub;
   }
 
-  private static MediaFileSubtitle gatherSubtitleInformationFromMediainfo(
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, int i) {
+  private static MediaFileSubtitle gatherSubtitleInformationFromMediainfo(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, int i) {
 
     MediaFileSubtitle stream = new MediaFileSubtitle();
     stream.id = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, i, "StreamKindPos");
@@ -1951,10 +1987,10 @@ public class MediaFileHelper {
    * gather the subtitle information for the given {@link MediaFile}, but with libmediainfo<br />
    * usable for video files with embedded subtitles
    *
-   * @param mediaFile the media file
+   * @param mediaFile
+   *          the media file
    */
-  private static void gatherSubtitleInformation(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  private static void gatherSubtitleInformation(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     mediaFile.clearSubtitleInformation();
 
     int streams = getSubtitleStreamCount(miSnapshot);
@@ -1993,11 +2029,12 @@ public class MediaFileHelper {
   /**
    * gather the audio information for the given {@link MediaFile}
    *
-   * @param mediaFile  the media file
-   * @param miSnapshot the mediainfo snapshot to load the data from
+   * @param mediaFile
+   *          the media file
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
    */
-  private static void gatherAudioInformation(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  private static void gatherAudioInformation(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     mediaFile.clearAudioInformation();
 
     // https://github.com/MediaArea/MediaInfoLib/tree/master/Source/MediaInfo/Audio
@@ -2006,8 +2043,7 @@ public class MediaFileHelper {
     for (int i = 0; i < getAudioStreamCount(miSnapshot); i++) {
       // workaround for DTS & TrueHD variant detection
       // search for well known String in defined keys (changes between different MI versions!)
-      String[] acSearch = new String[] { "Format", "Format_Profile", "Format_Commercial", "Format_Commercial_IfAny",
-          "CodecID", "Codec" };
+      String[] acSearch = new String[] { "Format", "Format_Profile", "Format_Commercial", "Format_Commercial_IfAny", "CodecID", "Codec" };
       String audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "TrueHD", acSearch);
       if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "DTS", acSearch);
@@ -2085,8 +2121,7 @@ public class MediaFileHelper {
         }
         if ("MPEG Audio".equalsIgnoreCase(audioCodec)) {
           String codecId = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "CodecID");
-          if ("55".equals(codecId) || "A_MPEG/L3".equalsIgnoreCase(codecId) || "Layer 3".equalsIgnoreCase(
-              audioProfile)) {
+          if ("55".equals(codecId) || "A_MPEG/L3".equalsIgnoreCase(codecId) || "Layer 3".equalsIgnoreCase(audioProfile)) {
             audioCodec = "MP3";
           }
           else if ("A_MPEG/L2".equalsIgnoreCase(codecId) || "Layer 2".equalsIgnoreCase(audioProfile)) {
@@ -2096,10 +2131,10 @@ public class MediaFileHelper {
       }
 
       // newer 18.12 style
-      if ("ac3".equalsIgnoreCase(audioCodec) || "eac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(
-          audioCodec) || "TrueHD".equalsIgnoreCase(audioCodec)) {
-        String commName = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial",
-            "Format_Commercial_IfAny").toLowerCase(Locale.ROOT);
+      if ("ac3".equalsIgnoreCase(audioCodec) || "eac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec)
+          || "TrueHD".equalsIgnoreCase(audioCodec)) {
+        String commName = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial", "Format_Commercial_IfAny")
+            .toLowerCase(Locale.ROOT);
 
         if (!commName.isEmpty()) {
           if (commName.contains("master audio")) {
@@ -2137,8 +2172,7 @@ public class MediaFileHelper {
       }
       stream.setAudioChannels(ch);
 
-      String br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate", "BitRate_Maximum",
-          "BitRate_Minimum", "BitRate_Nominal");
+      String br = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate", "BitRate_Maximum", "BitRate_Minimum", "BitRate_Nominal");
       if (StringUtils.isNotBlank(br)) {
         try {
           String[] brMode = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Audio, i, "BitRate_Mode").split("/");
@@ -2208,12 +2242,13 @@ public class MediaFileHelper {
   /**
    * how many streams of chosen kind do we have gathered?
    *
-   * @param miSnapshot the media info snapshot
-   * @param kind       the stream kind
+   * @param miSnapshot
+   *          the media info snapshot
+   * @param kind
+   *          the stream kind
    * @return the stream count
    */
-  private static int getStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot,
-      MediaInfo.StreamKind kind) {
+  private static int getStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot, MediaInfo.StreamKind kind) {
     List<Map<String, String>> map = miSnapshot.get(kind);
     if (map != null) {
       return map.size();
@@ -2224,7 +2259,8 @@ public class MediaFileHelper {
   /**
    * get the audio stream count (can be either a field in mediainfo or just the count of the streams)
    *
-   * @param miSnapshot the snapshot to parse
+   * @param miSnapshot
+   *          the snapshot to parse
    * @return the stream count
    */
   private static int getAudioStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
@@ -2245,14 +2281,13 @@ public class MediaFileHelper {
   /**
    * get the subtitle stream count (can be either a field in mediainfo or just the count of the streams)
    *
-   * @param miSnapshot the snapshot to parse
+   * @param miSnapshot
+   *          the snapshot to parse
    * @return the stream count
    */
   private static int getSubtitleStreamCount(Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
-    int streamsTextCount = MetadataUtil.parseInt(
-        getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "TextCount"), 0);
-    int streamsStreamCount = MetadataUtil.parseInt(
-        getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, 0, "StreamCount"), 0);
+    int streamsTextCount = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "TextCount"), 0);
+    int streamsStreamCount = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Text, 0, "StreamCount"), 0);
 
     return streamsTextCount > 0 ? streamsTextCount : streamsStreamCount;
   }
@@ -2293,8 +2328,7 @@ public class MediaFileHelper {
     return highest;
   }
 
-  private static void gatherExtraData(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  private static void gatherExtraData(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     String imdbId = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "id");
     if (MediaIdUtil.isValidImdbId(imdbId)) {
       mediaFile.addExtraData("imdbId", imdbId);
@@ -2310,8 +2344,7 @@ public class MediaFileHelper {
       mediaFile.addExtraData("originalTitle", originalTitle);
     }
 
-    String plot = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary",
-        "Description", "Comment");
+    String plot = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "extra/LongDescription", "Summary", "Description", "Comment");
     if (StringUtils.isNotBlank(plot)) {
       mediaFile.addExtraData("plot", plot);
     }
@@ -2321,8 +2354,7 @@ public class MediaFileHelper {
       mediaFile.addExtraData("genre", genre);
     }
 
-    String dateAsString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date",
-        "Recorded_Date", "Date");
+    String dateAsString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Released_Date", "Recorded_Date", "Date");
     if (StringUtils.isNotBlank(dateAsString)) {
       try {
         Date date = StrgUtils.parseDate(dateAsString);
@@ -2354,11 +2386,12 @@ public class MediaFileHelper {
   /**
    * gather the video information for the given {@link MediaFile}
    *
-   * @param mediaFile  the media file
-   * @param miSnapshot the mediainfo snapshot to load the data from
+   * @param mediaFile
+   *          the media file
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
    */
-  private static void gatherVideoInformation(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  private static void gatherVideoInformation(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     mediaFile.clearVideoInformation();
 
     int height = 0;
@@ -2420,8 +2453,7 @@ public class MediaFileHelper {
       // search for the version
       try {
         // Version 2
-        int version = Integer.parseInt(
-            getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format_Version").replaceAll("\\D*", ""));
+        int version = Integer.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "Format_Version").replaceAll("\\D*", ""));
         videoCodec = "MPEG-" + version;
       }
       catch (Exception e) {
@@ -2448,11 +2480,9 @@ public class MediaFileHelper {
       mediaFile.setExactVideoFormat(height + "" + Character.toLowerCase(scanType.charAt(0)));
     }
 
-    String containerFormat = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List",
-        "Format");
+    String containerFormat = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List", "Format");
     if (StringUtils.isBlank(containerFormat)) {
-      containerFormat = getFirstEntryViaScanner(
-          getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
+      containerFormat = getFirstEntryViaScanner(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
     }
     if (StringUtils.isNotBlank(containerFormat)) {
       if ("BDAV".equalsIgnoreCase(containerFormat)) {
@@ -2472,8 +2502,7 @@ public class MediaFileHelper {
 
     // we use the storage ratio (width / heigth) and multiply by PAR
     // we do not care about the DAR
-    String parString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio",
-        "Pixel_aspect_ratio");
+    String parString = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio", "Pixel_aspect_ratio");
     if (parString.isEmpty()) {
       parString = "1.0";
     }
@@ -2496,8 +2525,7 @@ public class MediaFileHelper {
 
     if (StringUtils.isBlank(hdrFormat)) {
       // no HDR format found? try another mediainfo field
-      hdrFormat = detectHdrFormat(
-          getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
+      hdrFormat = detectHdrFormat(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
     }
     if (StringUtils.isBlank(hdrFormat)) {
       // STILL no HDR format found? check color space
@@ -2545,11 +2573,12 @@ public class MediaFileHelper {
   /**
    * gather image information for the given {@link MediaFile}
    *
-   * @param mediaFile  the media file
-   * @param miSnapshot the mediainfo snapshot to load the data from
+   * @param mediaFile
+   *          the media file
+   * @param miSnapshot
+   *          the mediainfo snapshot to load the data from
    */
-  public static void gatherImageInformation(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  public static void gatherImageInformation(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     int height = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "Height"), 0);
     int width = MetadataUtil.parseInt(getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "Width"), 0);
     String videoCodec = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Image, 0, "CodecID/Hint", "Format");
@@ -2577,7 +2606,8 @@ public class MediaFileHelper {
   /**
    * use a scanner to get the first entry
    *
-   * @param string the string to parse
+   * @param string
+   *          the string to parse
    * @return the first entry or an empty string
    */
   public static String getFirstEntryViaScanner(String string) {
@@ -2789,8 +2819,7 @@ public class MediaFileHelper {
     return 0;
   }
 
-  private static String parse3DFormat(MediaFile mediaFile,
-      Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
+  private static String parse3DFormat(MediaFile mediaFile, Map<MediaInfo.StreamKind, List<Map<String, String>>> miSnapshot) {
     int height = mediaFile.getVideoHeight();
     int width = mediaFile.getVideoWidth();
 
@@ -2798,8 +2827,7 @@ public class MediaFileHelper {
     String video3DFormat = "";
     if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
       video3DFormat = MediaFileHelper.VIDEO_3D;
-      String mvl = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(
-          Locale.ROOT);
+      String mvl = getMediaInfoValue(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
       LOGGER.trace("3D detected :) - {}", mvl);
       if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
         video3DFormat = MediaFileHelper.VIDEO_3D_HTAB; // assume HalfTAB as default
@@ -2884,8 +2912,7 @@ public class MediaFileHelper {
         continue;
       }
 
-      String language = getMediaInfoValue(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language",
-          "Language/String");
+      String language = getMediaInfoValue(ifo.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
       if (language.isEmpty()) {
         if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
           // try to parse from filename
@@ -2906,9 +2933,10 @@ public class MediaFileHelper {
     // FIXME: since this method is called with getRelevantFiles(), we need to take them all!
 
     // find the M2TS/MPLS with longest duration
-    MediaInfoFile m2ts = mediaInfoFiles.stream().filter(
-        mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension()
-            .equals("mpls")).max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile m2ts = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension().equals("mpls"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
 
     if (m2ts == null) {
       LOGGER.debug("Could not find a valid M2TS file");
@@ -2923,7 +2951,8 @@ public class MediaFileHelper {
     // get additional information of the clpi file
     MediaInfoFile clpi = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("clpi"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
     if (clpi != null) {
       if (mediaFile.getDuration() == 0) {
         mediaFile.setDuration(parseDuration(clpi.getSnapshot()));
@@ -2947,8 +2976,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language",
-            "Language/String");
+        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Audio, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename
@@ -2979,8 +3007,7 @@ public class MediaFileHelper {
           continue;
         }
 
-        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language",
-            "Language/String");
+        String language = getMediaInfoValue(clpi.getSnapshot(), MediaInfo.StreamKind.Text, i, "Language", "Language/String");
         if (language.isEmpty()) {
           if (!mediaFile.isDiscFile()) { // video_ts parsed 'ts' as Tsonga
             // try to parse from filename
@@ -2997,7 +3024,8 @@ public class MediaFileHelper {
     // get additional information of the ssif file
     MediaInfoFile ssif = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ssif"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
     if (ssif != null) {
       if (mediaFile.getDuration() == 0) {
         mediaFile.setDuration(parseDuration(ssif.getSnapshot()));
@@ -3009,8 +3037,10 @@ public class MediaFileHelper {
 
   private static void gatherMediaInformationFromHdDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     // find the EVO with longest duration
-    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("evo"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile evo = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("evo"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
 
     if (evo == null) {
       LOGGER.debug("Could not find a valid EVO file");
@@ -3025,7 +3055,8 @@ public class MediaFileHelper {
    * get the main video file for the given {@link MediaFile}. Handy if the {@link MediaFile} is a disc structure<br />
    * partly taken from detectRelevantDvdFiles, detectRelevantBlurayFiles and detectRelevantHdDvdFiles
    *
-   * @param mediaFile the {@link MediaFile} to check
+   * @param mediaFile
+   *          the {@link MediaFile} to check
    * @return the {@link Path} to the main video file
    */
   public static Path getMainVideoFile(MediaFile mediaFile) {
@@ -3045,8 +3076,7 @@ public class MediaFileHelper {
 
       if (!mediaInfoFiles.isEmpty()) {
         // take the first which is > 200 mb
-        MediaInfoFile mediaInfoFile = mediaInfoFiles.stream().filter(file -> file.getFilesize() > 200000000).findFirst()
-            .orElse(null);
+        MediaInfoFile mediaInfoFile = mediaInfoFiles.stream().filter(file -> file.getFilesize() > 200000000).findFirst().orElse(null);
         if (mediaInfoFile == null) {
           mediaInfoFile = mediaInfoFiles.get(0);
         }
@@ -3067,8 +3097,10 @@ public class MediaFileHelper {
    * to pass the basename of the main video file to this method too.<br />
    * This is only usable for audio and subtitle files
    *
-   * @param basename   the basename of {@link MediaFile} to work with (no extension!)
-   * @param commonPart the common part of the filename which is shared with the video file
+   * @param basename
+   *          the basename of {@link MediaFile} to work with (no extension!)
+   * @param commonPart
+   *          the common part of the filename which is shared with the video file
    */
   public static MediaStreamInfo gatherLanguageInformation(String basename, String commonPart) {
     String shortname = basename.replace(commonPart, "");
@@ -3092,8 +3124,7 @@ public class MediaFileHelper {
     }
 
     // SECOND - try to find country-lang Locales ONLY
-    String[] splitted = shortname.split(
-        "[\\p{Punct} &&[^_-]]"); // punctuation (+space), but WITHOUT dash and underscore
+    String[] splitted = shortname.split("[\\p{Punct} &&[^_-]]"); // punctuation (+space), but WITHOUT dash and underscore
     for (String token : splitted) {
       // does not work, if it is ALSO delimited with dash like movie-es-419
       // lets assume, the language token MUST be exact 2 chars

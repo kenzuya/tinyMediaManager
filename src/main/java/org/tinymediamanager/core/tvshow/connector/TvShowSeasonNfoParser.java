@@ -44,33 +44,34 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Manuel Laggner
  */
 public class TvShowSeasonNfoParser {
-  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowSeasonNfoParser.class);
+  private static final Logger       LOGGER              = LoggerFactory.getLogger(TvShowSeasonNfoParser.class);
   /**
    * ignore the following tags since they originally do not belong to a TV show NFO
    */
-  private static final List<String> IGNORE = Arrays.asList("epbookmark", "resume");
+  private static final List<String> IGNORE              = Arrays.asList("epbookmark", "resume");
 
-  private       Element      root;
-  private final List<String> supportedElements = new ArrayList<>();
+  private Element                   root;
+  private final List<String>        supportedElements   = new ArrayList<>();
 
-  public int    season    = -1;
-  public String title     = "";
-  public String sortTitle = "";
-  public String plot      = "";
+  public int                        season              = -1;
+  public String                     title               = "";
+  public String                     sortTitle           = "";
+  public String                     plot                = "";
 
-  public List<String> posters = new ArrayList<>();
-  public List<String> banners = new ArrayList<>();
-  public List<String> thumbs  = new ArrayList<>();
-  public List<String> fanarts = new ArrayList<>();
+  public List<String>               posters             = new ArrayList<>();
+  public List<String>               banners             = new ArrayList<>();
+  public List<String>               thumbs              = new ArrayList<>();
+  public List<String>               fanarts             = new ArrayList<>();
 
-  public List<String> unsupportedElements = new ArrayList<>();
+  public List<String>               unsupportedElements = new ArrayList<>();
 
   /* some xbmc related tags we parse, but do not use internally */
 
   /**
    * create a new instance by parsing the document
    *
-   * @param document the document returned by JSOUP.parse()
+   * @param document
+   *          the document returned by JSOUP.parse()
    */
   private TvShowSeasonNfoParser(Document document) {
     // first check if there is a valid root object
@@ -100,7 +101,8 @@ public class TvShowSeasonNfoParser {
   /**
    * parse the tag in a save way
    *
-   * @param function the parsing function to be executed
+   * @param function
+   *          the parsing function to be executed
    */
   private Void parseTag(Function<TvShowSeasonNfoParser, Void> function) {
     try {
@@ -116,9 +118,11 @@ public class TvShowSeasonNfoParser {
   /**
    * parse the given file
    *
-   * @param path the path to the NFO/XML to be parsed
+   * @param path
+   *          the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws IOException any exception if parsing fails
+   * @throws IOException
+   *           any exception if parsing fails
    */
   public static TvShowSeasonNfoParser parseNfo(Path path) throws IOException {
     try (InputStream is = Files.newInputStream(path)) {
@@ -129,7 +133,8 @@ public class TvShowSeasonNfoParser {
   /**
    * parse the xml content
    *
-   * @param content the content of the NFO/XML to be parsed
+   * @param content
+   *          the content of the NFO/XML to be parsed
    * @return a new instance of the parser class
    */
   public static TvShowSeasonNfoParser parseNfo(String content) {
@@ -378,8 +383,7 @@ public class TvShowSeasonNfoParser {
     return showSeason;
   }
 
-  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type,
-      Person nfoPerson) {
+  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type, Person nfoPerson) {
     org.tinymediamanager.core.entities.Person person = new org.tinymediamanager.core.entities.Person(type);
 
     person.setName(nfoPerson.name);
@@ -408,13 +412,13 @@ public class TvShowSeasonNfoParser {
    * entity classes
    */
   static class Rating {
-    static final String DEFAULT = "default";
-    static final String USER    = "user";
+    static final String DEFAULT  = "default";
+    static final String USER     = "user";
 
-    String id       = "";
-    float  rating   = 0;
-    int    votes    = 0;
-    int    maxValue = 10;
+    String              id       = "";
+    float               rating   = 0;
+    int                 votes    = 0;
+    int                 maxValue = 10;
   }
 
   public static class Person {

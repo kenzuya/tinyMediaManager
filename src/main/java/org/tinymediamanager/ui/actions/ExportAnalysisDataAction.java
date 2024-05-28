@@ -68,7 +68,8 @@ public class ExportAnalysisDataAction extends TmmAction {
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportanalysisdata.desc"));
   }
 
-  @Override protected void processAction(ActionEvent e) {
+  @Override
+  protected void processAction(ActionEvent e) {
     // open the log download window
     Path file = null;
     try {
@@ -85,9 +86,8 @@ public class ExportAnalysisDataAction extends TmmAction {
     }
     catch (Exception ex) {
       LOGGER.error("Could not write logs.zip: {}", ex.getMessage());
-      MessageManager.instance.pushMessage(
-          new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
-              new String[] { ":", ex.getLocalizedMessage() }));
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
+          new String[] { ":", ex.getLocalizedMessage() }));
     }
   }
 
@@ -100,8 +100,7 @@ public class ExportAnalysisDataAction extends TmmAction {
     // create zip
     ZipParameters zipParameters = createZipParameters();
 
-    try (FileOutputStream os = new FileOutputStream(file);
-        ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
+    try (FileOutputStream os = new FileOutputStream(file); ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
       // attach logs
       List<Path> logs = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
       for (Path logFile : logs) {

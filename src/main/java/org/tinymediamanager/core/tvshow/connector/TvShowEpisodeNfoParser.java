@@ -72,7 +72,8 @@ public class TvShowEpisodeNfoParser {
   /**
    * create a new instance by parsing the document
    *
-   * @param document the document returned by JSOUP.parse()
+   * @param document
+   *          the document returned by JSOUP.parse()
    */
   private TvShowEpisodeNfoParser(Document document) {
     document.outputSettings().prettyPrint(false);
@@ -108,9 +109,11 @@ public class TvShowEpisodeNfoParser {
   /**
    * parse the given file
    *
-   * @param path the path to the NFO/XML to be parsed
+   * @param path
+   *          the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception any exception if parsing fails
+   * @throws Exception
+   *           any exception if parsing fails
    */
   public static TvShowEpisodeNfoParser parseNfo(Path path) throws Exception {
     try (InputStream is = Files.newInputStream(path)) {
@@ -121,9 +124,11 @@ public class TvShowEpisodeNfoParser {
   /**
    * parse the xml content
    *
-   * @param content the content of the NFO/XML to be parsed
+   * @param content
+   *          the content of the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception any exception if parsing fails
+   * @throws Exception
+   *           any exception if parsing fails
    */
   public static TvShowEpisodeNfoParser parseNfo(String content) {
     return new TvShowEpisodeNfoParser(Jsoup.parse(content, "", Parser.xmlParser()));
@@ -164,55 +169,55 @@ public class TvShowEpisodeNfoParser {
   }
 
   public static class Episode {
-    private static final Logger       LOGGER = LoggerFactory.getLogger(Episode.class);
-    private static final List<String> IGNORE = Arrays.asList("set", "status");
+    private static final Logger       LOGGER              = LoggerFactory.getLogger(Episode.class);
+    private static final List<String> IGNORE              = Arrays.asList("set", "status");
 
-    private final Element      root;
-    private final List<String> supportedElements = new ArrayList<>();
+    private final Element             root;
+    private final List<String>        supportedElements   = new ArrayList<>();
 
-    public String             title            = "";
-    public String             originaltitle    = "";
-    public String             showTitle        = "";
-    public int                season           = -1;
-    public int                episode          = -1;
-    public int                displayseason    = -1;
-    public int                displayepisode   = -1;
-    public String             plot             = "";
-    public int                runtime          = 0;
-    public MediaCertification certification    = MediaCertification.UNKNOWN;
-    public Date               releaseDate      = null;
-    public boolean            watched          = false;
-    public int                playcount        = 0;
-    public MediaSource        source           = MediaSource.UNKNOWN;
-    public String             userNote         = "";
-    public String             originalFileName = "";
+    public String                     title               = "";
+    public String                     originaltitle       = "";
+    public String                     showTitle           = "";
+    public int                        season              = -1;
+    public int                        episode             = -1;
+    public int                        displayseason       = -1;
+    public int                        displayepisode      = -1;
+    public String                     plot                = "";
+    public int                        runtime             = 0;
+    public MediaCertification         certification       = MediaCertification.UNKNOWN;
+    public Date                       releaseDate         = null;
+    public boolean                    watched             = false;
+    public int                        playcount           = 0;
+    public MediaSource                source              = MediaSource.UNKNOWN;
+    public String                     userNote            = "";
+    public String                     originalFileName    = "";
 
-    public Map<String, Object> ids     = new HashMap<>();
-    public Map<String, Rating> ratings = new HashMap<>();
+    public Map<String, Object>        ids                 = new HashMap<>();
+    public Map<String, Rating>        ratings             = new HashMap<>();
 
-    public List<String>             thumbs         = new ArrayList<>();
-    public List<MediaGenres>        genres         = new ArrayList<>();
-    public List<String>             studios        = new ArrayList<>();
-    public List<String>             tags           = new ArrayList<>();
-    public List<Person>             actors         = new ArrayList<>();
-    public List<Person>             directors      = new ArrayList<>();
-    public List<Person>             credits        = new ArrayList<>();
-    public List<MediaEpisodeNumber> episodeNumbers = new ArrayList<>();
+    public List<String>               thumbs              = new ArrayList<>();
+    public List<MediaGenres>          genres              = new ArrayList<>();
+    public List<String>               studios             = new ArrayList<>();
+    public List<String>               tags                = new ArrayList<>();
+    public List<Person>               actors              = new ArrayList<>();
+    public List<Person>               directors           = new ArrayList<>();
+    public List<Person>               credits             = new ArrayList<>();
+    public List<MediaEpisodeNumber>   episodeNumbers      = new ArrayList<>();
 
-    public List<String> unsupportedElements = new ArrayList<>();
+    public List<String>               unsupportedElements = new ArrayList<>();
 
     /* some xbmc related tags we parse, but do not use internally */
-    public int      year             = 0;
-    public int      top250           = 0;
-    public String   outline          = "";
-    public String   tagline          = "";
-    public String   trailer          = "";
-    public Fileinfo fileinfo         = null;
-    public String   epbookmark       = "";
-    public Date     lastplayed       = null;
-    public String   code             = "";
-    public Date     dateadded        = null;
-    public String   episodenumberend = "";
+    public int                        year                = 0;
+    public int                        top250              = 0;
+    public String                     outline             = "";
+    public String                     tagline             = "";
+    public String                     trailer             = "";
+    public Fileinfo                   fileinfo            = null;
+    public String                     epbookmark          = "";
+    public Date                       lastplayed          = null;
+    public String                     code                = "";
+    public Date                       dateadded           = null;
+    public String                     episodenumberend    = "";
 
     private Episode(Element root) {
       this.root = root;
@@ -285,7 +290,8 @@ public class TvShowEpisodeNfoParser {
     /**
      * parse the tag in a save way
      *
-     * @param function the parsing function to be executed
+     * @param function
+     *          the parsing function to be executed
      */
     private Void parseTag(Function<Episode, Void> function) {
       try {
@@ -987,8 +993,7 @@ public class TvShowEpisodeNfoParser {
       // if there is exactly one studio tag, split the studios at the comma
       if (elements.size() == 1) {
         try {
-          studios.addAll(Arrays.asList(
-              elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
+          studios.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
         }
         catch (Exception ignored) {
           // ignored
@@ -1561,11 +1566,9 @@ public class TvShowEpisodeNfoParser {
       if (element != null) {
         for (Element group : element.children()) {
           try {
-            MediaEpisodeGroup.EpisodeGroupType episodeGroupType = MediaEpisodeGroup.EpisodeGroupType.valueOf(
-                group.attr("id"));
-            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(
-                new MediaEpisodeGroup(episodeGroupType, group.attr("name")), Integer.parseInt(group.attr("season")),
-                Integer.parseInt(group.attr("episode")));
+            MediaEpisodeGroup.EpisodeGroupType episodeGroupType = MediaEpisodeGroup.EpisodeGroupType.valueOf(group.attr("id"));
+            MediaEpisodeNumber episodeNumber = new MediaEpisodeNumber(new MediaEpisodeGroup(episodeGroupType, group.attr("name")),
+                Integer.parseInt(group.attr("season")), Integer.parseInt(group.attr("episode")));
 
             if (episodeNumber.containsAnyNumber()) {
               episodeNumbers.add(episodeNumber);
@@ -1598,8 +1601,7 @@ public class TvShowEpisodeNfoParser {
       else {
         // no - just add the S/E from the old style NFO
         episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_AIRED, this.season, this.episode));
-        episode.setEpisode(
-            new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, this.displayseason, this.displayepisode));
+        episode.setEpisode(new MediaEpisodeNumber(MediaEpisodeGroup.DEFAULT_DISPLAY, this.displayseason, this.displayepisode));
       }
 
       for (Map.Entry<String, TvShowEpisodeNfoParser.Rating> entry : ratings.entrySet()) {
@@ -1671,8 +1673,7 @@ public class TvShowEpisodeNfoParser {
       return episode;
     }
 
-    private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type,
-        Person nfoPerson) {
+    private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type, Person nfoPerson) {
       org.tinymediamanager.core.entities.Person person = new org.tinymediamanager.core.entities.Person(type);
 
       person.setName(nfoPerson.name);
@@ -1706,13 +1707,13 @@ public class TvShowEpisodeNfoParser {
    * entity classes
    */
   public static class Rating {
-    public static final String DEFAULT = "default";
-    public static final String USER    = "user";
+    public static final String DEFAULT  = "default";
+    public static final String USER     = "user";
 
-    public String id       = "";
-    public float  rating   = 0;
-    public int    votes    = 0;
-    public int    maxValue = 10;
+    public String              id       = "";
+    public float               rating   = 0;
+    public int                 votes    = 0;
+    public int                 maxValue = 10;
   }
 
   public static class Person {

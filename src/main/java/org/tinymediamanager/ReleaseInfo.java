@@ -217,7 +217,8 @@ public class ReleaseInfo {
    * If found as 'file://' try to get from execution root<br>
    * returns <i>null</i> if not found.
    *
-   * @param c the class file
+   * @param c
+   *          the class file
    * @return value of manifest entry
    */
   public static Manifest getManifest(Class<?> c) {
@@ -250,11 +251,14 @@ public class ReleaseInfo {
   /**
    * gets specified manifest entry from JAR containing 'class'
    *
-   * @param c     the class file
-   * @param entry the menifest entry
+   * @param c
+   *          the class file
+   * @param entry
+   *          the menifest entry
    * @return value of manifest entry
    */
-  @SuppressWarnings("rawtypes") private static String getManifestEntry(Class c, String entry) {
+  @SuppressWarnings("rawtypes")
+  private static String getManifestEntry(Class c, String entry) {
     String s = "";
     try {
       Manifest mf = ReleaseInfo.getManifest(c);

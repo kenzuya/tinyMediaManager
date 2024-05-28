@@ -43,18 +43,17 @@ import org.slf4j.LoggerFactory;
  * @author Manuel Laggner
  */
 public class TmmProperties {
-  private static final Logger        LOGGER          = LoggerFactory.getLogger(TmmProperties.class);
-  private static final String        PROPERTIES_FILE = "tmm.prop";
-  private static       TmmProperties instance;
+  private static final Logger  LOGGER          = LoggerFactory.getLogger(TmmProperties.class);
+  private static final String  PROPERTIES_FILE = "tmm.prop";
+  private static TmmProperties instance;
 
-  private final Properties properties;
-  private       boolean    dirty;
+  private final Properties     properties;
+  private boolean              dirty;
 
   private TmmProperties() {
     properties = new SortedProperties();
 
-    try (InputStream input = Files.newInputStream(
-        Paths.get(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE))) {
+    try (InputStream input = Files.newInputStream(Paths.get(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE))) {
       properties.load(input);
     }
     catch (FileNotFoundException ignored) {
@@ -87,8 +86,7 @@ public class TmmProperties {
       return;
     }
 
-    try (OutputStream output = new FileOutputStream(
-        new File(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE))) {
+    try (OutputStream output = new FileOutputStream(new File(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE))) {
       properties.store(output, null);
     }
     catch (IOException e) {
@@ -99,8 +97,10 @@ public class TmmProperties {
   /**
    * put a key/value pair into the properties file
    *
-   * @param key   the key
-   * @param value the value
+   * @param key
+   *          the key
+   * @param value
+   *          the value
    */
   public void putProperty(String key, String value) {
     properties.put(key, value);
@@ -110,7 +110,8 @@ public class TmmProperties {
   /**
    * get the value for the given key
    *
-   * @param key the key to search the value for
+   * @param key
+   *          the key to search the value for
    * @return the value or null
    */
   public String getProperty(String key) {
@@ -120,8 +121,10 @@ public class TmmProperties {
   /**
    * get the value for the given key
    *
-   * @param key          the key to search the value for
-   * @param defaultValue a default value, when key not found
+   * @param key
+   *          the key to search the value for
+   * @param defaultValue
+   *          a default value, when key not found
    * @return the value or defaultValue
    */
   public String getProperty(String key, String defaultValue) {
@@ -132,7 +135,8 @@ public class TmmProperties {
    * get the value as boolean<br>
    * if the value is not available or not parsable, this will return {@literal false}
    *
-   * @param key the key to search the value for
+   * @param key
+   *          the key to search the value for
    * @return true or false
    */
   public boolean getPropertyAsBoolean(String key) {
@@ -148,7 +152,8 @@ public class TmmProperties {
    * get the value as Integer<br>
    * if the value is not available or not parsable, this will return zero
    *
-   * @param key the key to search the value for
+   * @param key
+   *          the key to search the value for
    * @return the value or zero
    */
   public Integer getPropertyAsInteger(String key) {
@@ -168,17 +173,18 @@ public class TmmProperties {
   }
 
   private static class SortedProperties extends Properties {
-    @Override public Set<Object> keySet() {
+    @Override
+    public Set<Object> keySet() {
       return Collections.unmodifiableSet(new TreeSet<>(super.keySet()));
     }
 
-    @Override public Set<Map.Entry<Object, Object>> entrySet() {
+    @Override
+    public Set<Map.Entry<Object, Object>> entrySet() {
 
       Set<Map.Entry<Object, Object>> set1 = super.entrySet();
       Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
 
-      Iterator<Map.Entry<Object, Object>> iterator = set1.stream()
-          .sorted(Comparator.comparing(o -> o.getKey().toString())).iterator();
+      Iterator<Map.Entry<Object, Object>> iterator = set1.stream().sorted(Comparator.comparing(o -> o.getKey().toString())).iterator();
 
       while (iterator.hasNext())
         set2.add(iterator.next());
@@ -186,7 +192,8 @@ public class TmmProperties {
       return set2;
     }
 
-    @Override public synchronized Enumeration<Object> keys() {
+    @Override
+    public synchronized Enumeration<Object> keys() {
       return Collections.enumeration(new TreeSet<>(super.keySet()));
     }
   }

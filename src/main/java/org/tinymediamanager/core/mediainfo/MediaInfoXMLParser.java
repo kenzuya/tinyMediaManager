@@ -48,7 +48,7 @@ public class MediaInfoXMLParser {
   private static final Pattern DURATION_SECOND_PATTERN = Pattern.compile("(\\d*?) s");
   private static final String  DUMMY_FILENAME          = "/tmp/dummy.bdmv";
 
-  private Path file = null;
+  private Path                 file                    = null;
 
   public MediaInfoXMLParser(Path file) {
     this.file = file;
@@ -317,7 +317,8 @@ public class MediaInfoXMLParser {
    * Provides a simple mapping from our parsed XML tags to our already used internal MI naming.<br>
    * So we should be able to use our default gatherMI() method... since the snapshot is now correct ;)
    *
-   * @param key the original key to get the mapped key for
+   * @param key
+   *          the original key to get the mapped key for
    * @return the mapped key
    */
   private String getMappedKey(String key) {
@@ -408,7 +409,7 @@ public class MediaInfoXMLParser {
    * Track record of every file (1:N)
    */
   public static class MiTrack {
-    public       String        type;
+    public String              type;
     public final List<Element> elements = new ArrayList<>();
   }
 

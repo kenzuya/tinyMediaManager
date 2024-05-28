@@ -43,8 +43,8 @@ import org.tinymediamanager.core.entities.MediaFile;
 public class SubtitleDownloadTask extends DownloadTask {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
 
-  private final MediaEntity mediaEntity;
-  private final Path        destinationFile;
+  private final MediaEntity   mediaEntity;
+  private final Path          destinationFile;
 
   public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
     super(TmmResourceBundle.getString("subtitle.downloading"), url);
@@ -52,22 +52,26 @@ public class SubtitleDownloadTask extends DownloadTask {
     this.destinationFile = destinationFile;
   }
 
-  @Override protected void doInBackground() {
+  @Override
+  protected void doInBackground() {
     if (!isFeatureEnabled()) {
       return;
     }
     super.doInBackground();
   }
 
-  @Override protected Path getDestinationWoExtension() {
+  @Override
+  protected Path getDestinationWoExtension() {
     return destinationFile;
   }
 
-  @Override protected MediaEntity getMediaEntityToAdd() {
+  @Override
+  protected MediaEntity getMediaEntityToAdd() {
     return mediaEntity;
   }
 
-  @Override protected void moveDownloadedFile(String fileExtension) throws IOException {
+  @Override
+  protected void moveDownloadedFile(String fileExtension) throws IOException {
     Path destination = getDestinationWoExtension();
     if (!fileExtension.isEmpty()) {
       destination = destination.getParent().resolve(destination.getFileName() + "." + fileExtension);
@@ -75,8 +79,7 @@ public class SubtitleDownloadTask extends DownloadTask {
 
     MediaFile tempMediaFile = new MediaFile(tempFile);
 
-    if (tempMediaFile.getType() == MediaFileType.SUBTITLE || Settings.getInstance().getSubtitleFileType()
-        .contains("." + fileExtension)) {
+    if (tempMediaFile.getType() == MediaFileType.SUBTITLE || Settings.getInstance().getSubtitleFileType().contains("." + fileExtension)) {
       // a direct subtitle download - we can just move it an add it to the movie
       Utils.deleteFileSafely(destination); // delete existing file
       boolean ok = Utils.moveFileSafe(tempFile, destination);
