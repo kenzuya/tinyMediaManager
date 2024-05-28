@@ -19,8 +19,9 @@ package org.tinymediamanager.ui.actions;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -67,8 +68,7 @@ public class ExportAnalysisDataAction extends TmmAction {
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.exportanalysisdata.desc"));
   }
 
-  @Override
-  protected void processAction(ActionEvent e) {
+  @Override protected void processAction(ActionEvent e) {
     // open the log download window
     Path file = null;
     try {
@@ -85,8 +85,9 @@ public class ExportAnalysisDataAction extends TmmAction {
     }
     catch (Exception ex) {
       LOGGER.error("Could not write logs.zip: {}", ex.getMessage());
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
-          new String[] { ":", ex.getLocalizedMessage() }));
+      MessageManager.instance.pushMessage(
+          new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
+              new String[] { ":", ex.getLocalizedMessage() }));
     }
   }
 
@@ -99,11 +100,12 @@ public class ExportAnalysisDataAction extends TmmAction {
     // create zip
     ZipParameters zipParameters = createZipParameters();
 
-    try (FileOutputStream os = new FileOutputStream(file); ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
+    try (FileOutputStream os = new FileOutputStream(file);
+        ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
       // attach logs
       List<Path> logs = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
       for (Path logFile : logs) {
-        try (FileInputStream in = new FileInputStream(logFile.toFile())) {
+        try (InputStream in = Files.newInputStream(logFile)) {
           zipParameters.setFileNameInZip("logs/" + logFile.getFileName());
 
           zos.putNextEntry(zipParameters);
@@ -121,7 +123,7 @@ public class ExportAnalysisDataAction extends TmmAction {
       });
       if (data != null) {
         for (File dataFile : data) {
-          try (FileInputStream in = new FileInputStream(dataFile)) {
+          try (InputStream in = Files.newInputStream(dataFile.toPath())) {
             zipParameters.setFileNameInZip("data/" + dataFile.getName());
 
             zos.putNextEntry(zipParameters);
@@ -136,7 +138,7 @@ public class ExportAnalysisDataAction extends TmmAction {
 
       // attach extra files
       for (Path extraFile : extraFiles) {
-        try (FileInputStream in = new FileInputStream(extraFile.toFile())) {
+        try (InputStream in = Files.newInputStream(extraFile)) {
           zipParameters.setFileNameInZip(extraFile.getFileName().toString());
 
           zos.putNextEntry(zipParameters);

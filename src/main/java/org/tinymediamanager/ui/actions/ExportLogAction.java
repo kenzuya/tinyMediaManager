@@ -20,7 +20,6 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,8 +68,8 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
  */
 public class ExportLogAction extends TmmAction {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportLogAction.class);
-  private Movie               movie;
-  private TvShow              show;
+  private              Movie  movie;
+  private              TvShow show;
 
   public ExportLogAction() {
     this(null, null);
@@ -83,8 +82,7 @@ public class ExportLogAction extends TmmAction {
     this.show = showId;
   }
 
-  @Override
-  protected void processAction(ActionEvent e) {
+  @Override protected void processAction(ActionEvent e) {
     // open the log download window
     Path file = null;
     try {
@@ -100,19 +98,21 @@ public class ExportLogAction extends TmmAction {
     }
     catch (Exception ex) {
       LOGGER.error("Could not write logs.zip: {}", ex.getMessage());
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
-          new String[] { ":", ex.getLocalizedMessage() }));
+      MessageManager.instance.pushMessage(
+          new Message(Message.MessageLevel.ERROR, file != null ? file.toString() : "", "message.erroropenfile",
+              new String[] { ":", ex.getLocalizedMessage() }));
     }
   }
 
   private void writeLogsFile(File file) throws Exception {
     ZipParameters zipParameters = createZipParameters();
 
-    try (FileOutputStream os = new FileOutputStream(file); ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
+    try (FileOutputStream os = new FileOutputStream(file);
+        ZipOutputStream zos = ZipArchiveHelper.getInstance().createEncryptedZipOutputStream(os)) {
       // attach logs
       List<Path> logs = Utils.listFiles(Paths.get(Globals.LOG_FOLDER));
       for (Path logFile : logs) {
-        try (FileInputStream in = new FileInputStream(logFile.toFile())) {
+        try (InputStream in = Files.newInputStream(logFile)) {
           zipParameters.setFileNameInZip("logs/" + logFile.getFileName());
 
           zos.putNextEntry(zipParameters);
@@ -130,7 +130,7 @@ public class ExportLogAction extends TmmAction {
       });
       if (data != null) {
         for (File dataFile : data) {
-          try (FileInputStream in = new FileInputStream(dataFile)) {
+          try (InputStream in = Files.newInputStream(dataFile.toPath())) {
             zipParameters.setFileNameInZip("data/" + dataFile.getName());
 
             zos.putNextEntry(zipParameters);
@@ -194,25 +194,26 @@ public class ExportLogAction extends TmmAction {
     Path current = Paths.get(".");
 
     try {
-      Files.walkFileTree(current, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new AbstractFileVisitor() {
-        @Override
-        public FileVisitResult preVisitDirectory(Path file, BasicFileAttributes attrs) throws IOException {
-          // skip unneeded folders
-          String foldername = file.getFileName().toString();
-          if ("backup".equals(foldername) || "logs".equals(foldername) || "cache".equals(foldername) || "update".equals(foldername)
-              || "templates".equals(foldername) || ".git".equals(foldername) || ".idea".equals(foldername) || ".settings".equals(foldername)) {
-            return FileVisitResult.SKIP_SUBTREE;
-          }
+      Files.walkFileTree(current, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+          new AbstractFileVisitor() {
+            @Override public FileVisitResult preVisitDirectory(Path file, BasicFileAttributes attrs)
+                throws IOException {
+              // skip unneeded folders
+              String foldername = file.getFileName().toString();
+              if ("backup".equals(foldername) || "logs".equals(foldername) || "cache".equals(foldername)
+                  || "update".equals(foldername) || "templates".equals(foldername) || ".git".equals(foldername)
+                  || ".idea".equals(foldername) || ".settings".equals(foldername)) {
+                return FileVisitResult.SKIP_SUBTREE;
+              }
 
-          return FileVisitResult.CONTINUE;
-        }
+              return FileVisitResult.CONTINUE;
+            }
 
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-          filesAndFolders.add(file);
-          return FileVisitResult.CONTINUE;
-        }
-      });
+            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+              filesAndFolders.add(file);
+              return FileVisitResult.CONTINUE;
+            }
+          });
     }
     catch (Exception e) {
       LOGGER.warn("could not get a file listing: {}", e.getMessage());

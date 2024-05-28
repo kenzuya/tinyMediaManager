@@ -21,9 +21,10 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -66,73 +67,72 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
  * The class MovieNfoParser is used to parse all types of NFO/XML files
- * 
+ *
  * @author Manuel Laggner
  */
 public class MovieNfoParser {
-  private static final Logger LOGGER              = LoggerFactory.getLogger(MovieNfoParser.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieNfoParser.class);
 
-  private Element             root;
-  private final List<String>  supportedElements   = new ArrayList<>();
+  private       Element      root;
+  private final List<String> supportedElements = new ArrayList<>();
 
-  public String               title               = "";
-  public String               originaltitle       = "";
-  public String               sorttitle           = "";
-  public int                  year                = -1;
-  public int                  top250              = 0;
-  public String               plot                = "";
-  public String               outline             = "";
-  public String               tagline             = "";
-  public int                  runtime             = 0;
-  public MediaCertification   certification       = MediaCertification.UNKNOWN;
-  public Date                 releaseDate         = null;
-  public boolean              watched             = false;
-  public int                  playcount           = 0;
-  public String               languages           = "";
-  public MediaSource          source              = MediaSource.UNKNOWN;
-  public MovieEdition         edition             = MovieEdition.NONE;
-  public String               originalFilename    = "";
-  public String               userNote            = "";
+  public String             title            = "";
+  public String             originaltitle    = "";
+  public String             sorttitle        = "";
+  public int                year             = -1;
+  public int                top250           = 0;
+  public String             plot             = "";
+  public String             outline          = "";
+  public String             tagline          = "";
+  public int                runtime          = 0;
+  public MediaCertification certification    = MediaCertification.UNKNOWN;
+  public Date               releaseDate      = null;
+  public boolean            watched          = false;
+  public int                playcount        = 0;
+  public String             languages        = "";
+  public MediaSource        source           = MediaSource.UNKNOWN;
+  public MovieEdition       edition          = MovieEdition.NONE;
+  public String             originalFilename = "";
+  public String             userNote         = "";
 
-  public Map<String, Object>  ids                 = new HashMap<>();
-  public Map<String, Rating>  ratings             = new HashMap<>();
+  public Map<String, Object> ids     = new HashMap<>();
+  public Map<String, Rating> ratings = new HashMap<>();
 
-  public List<Set>            sets                = new ArrayList<>();
-  public List<String>         posters             = new ArrayList<>();
-  public List<String>         banners             = new ArrayList<>();
-  public List<String>         cleararts           = new ArrayList<>();
-  public List<String>         clearlogos          = new ArrayList<>();
-  public List<String>         discarts            = new ArrayList<>();
-  public List<String>         thumbs              = new ArrayList<>();
-  public List<String>         keyarts             = new ArrayList<>();
-  public List<String>         logos               = new ArrayList<>();
-  public List<String>         fanarts             = new ArrayList<>();
-  public List<MediaGenres>    genres              = new ArrayList<>();
-  public List<String>         countries           = new ArrayList<>();
-  public List<String>         studios             = new ArrayList<>();
-  public List<String>         tags                = new ArrayList<>();
-  public List<Person>         actors              = new ArrayList<>();
-  public List<Person>         producers           = new ArrayList<>();
-  public List<Person>         directors           = new ArrayList<>();
-  public List<Person>         credits             = new ArrayList<>();
-  public List<String>         showlinks           = new ArrayList<>();
-  public List<String>         trailers            = new ArrayList<>();
+  public List<Set>         sets       = new ArrayList<>();
+  public List<String>      posters    = new ArrayList<>();
+  public List<String>      banners    = new ArrayList<>();
+  public List<String>      cleararts  = new ArrayList<>();
+  public List<String>      clearlogos = new ArrayList<>();
+  public List<String>      discarts   = new ArrayList<>();
+  public List<String>      thumbs     = new ArrayList<>();
+  public List<String>      keyarts    = new ArrayList<>();
+  public List<String>      logos      = new ArrayList<>();
+  public List<String>      fanarts    = new ArrayList<>();
+  public List<MediaGenres> genres     = new ArrayList<>();
+  public List<String>      countries  = new ArrayList<>();
+  public List<String>      studios    = new ArrayList<>();
+  public List<String>      tags       = new ArrayList<>();
+  public List<Person>      actors     = new ArrayList<>();
+  public List<Person>      producers  = new ArrayList<>();
+  public List<Person>      directors  = new ArrayList<>();
+  public List<Person>      credits    = new ArrayList<>();
+  public List<String>      showlinks  = new ArrayList<>();
+  public List<String>      trailers   = new ArrayList<>();
 
-  public List<String>         unsupportedElements = new ArrayList<>();
+  public List<String> unsupportedElements = new ArrayList<>();
 
   /* some xbmc related tags we parse, but do not use internally */
-  public Fileinfo             fileinfo            = null;
-  public String               epbookmark          = "";
-  public Date                 lastplayed          = null;
-  public String               status              = "";
-  public String               code                = "";
-  public Date                 dateadded           = null;
+  public Fileinfo fileinfo   = null;
+  public String   epbookmark = "";
+  public Date     lastplayed = null;
+  public String   status     = "";
+  public String   code       = "";
+  public Date     dateadded  = null;
 
   /**
    * create a new instance by parsing the document
-   * 
-   * @param document
-   *          the document returned by JSOUP.parse()
+   *
+   * @param document the document returned by JSOUP.parse()
    */
   private MovieNfoParser(Document document) {
     document.outputSettings().prettyPrint(false);
@@ -216,8 +216,7 @@ public class MovieNfoParser {
   /**
    * parse the tag in a save way
    *
-   * @param function
-   *          the parsing function to be executed
+   * @param function the parsing function to be executed
    */
   private void parseTag(Function<MovieNfoParser, Void> function) {
     try {
@@ -230,25 +229,23 @@ public class MovieNfoParser {
 
   /**
    * parse the given file
-   * 
-   * @param path
-   *          the path to the NFO/XML to be parsed
+   *
+   * @param path the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception
-   *           any exception if parsing fails
+   * @throws Exception any exception if parsing fails
    */
   public static MovieNfoParser parseNfo(Path path) throws Exception {
-    return new MovieNfoParser(Jsoup.parse(new FileInputStream(path.toFile()), "UTF-8", "", Parser.xmlParser()));
+    try (InputStream is = Files.newInputStream(path)) {
+      return new MovieNfoParser(Jsoup.parse(is, "UTF-8", "", Parser.xmlParser()));
+    }
   }
 
   /**
    * parse the xml content
    *
-   * @param content
-   *          the content of the NFO/XML to be parsed
+   * @param content the content of the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception
-   *           any exception if parsing fails
+   * @throws Exception any exception if parsing fails
    */
   public static MovieNfoParser parseNfo(String content) {
     return new MovieNfoParser(Jsoup.parse(content, "", Parser.xmlParser()));
@@ -257,7 +254,7 @@ public class MovieNfoParser {
   /**
    * determines whether this was a valid NFO or not<br />
    * we use several fields which should be filled in a valid NFO for decision
-   * 
+   *
    * @return true/false
    */
   public boolean isValidNfo() {
@@ -642,11 +639,11 @@ public class MovieNfoParser {
 
   /**
    * artwork can come in several different forms<br />
-   * 
+   * <p>
    * Poster: <br />
    * - kodi usually puts it into thumb tags (multiple; in newer versions with an aspect attribute)<br />
    * - mediaportal puts it also in thumb tags (single)
-   * 
+   * <p>
    * Others: <br />
    * - kodi usually puts it into thumb tags (with an aspect attribute)<br />
    */
@@ -789,7 +786,8 @@ public class MovieNfoParser {
     supportedElements.add("imdbid");
     supportedElements.add("tmdbid");
     supportedElements.add("ids");
-    supportedElements.add("tmdbcollectionid"); // add the lowercase variant to supported elements, since we have an LC contains check
+    supportedElements.add(
+        "tmdbcollectionid"); // add the lowercase variant to supported elements, since we have an LC contains check
     supportedElements.add("tmdbCollectionId"); // but write the camelCase
     supportedElements.add("uniqueid");
 
@@ -1918,7 +1916,8 @@ public class MovieNfoParser {
     return movie;
   }
 
-  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type, Person nfoPerson) {
+  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type,
+      Person nfoPerson) {
     org.tinymediamanager.core.entities.Person person = new org.tinymediamanager.core.entities.Person(type);
 
     person.setName(nfoPerson.name);

@@ -53,18 +53,18 @@ import org.tinymediamanager.scraper.util.Similarity;
  * @author Myron Boyle, Manuel Laggner
  */
 abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
-  public static final String       ID              = "opensubtitles";
+  public static final String ID = "opensubtitles";
 
-  private static final String      SERVICE         = "http://api.opensubtitles.org/xml-rpc";
-  private static final int         HASH_CHUNK_SIZE = 64 * 1024;
+  private static final String SERVICE         = "http://api.opensubtitles.org/xml-rpc";
+  private static final int    HASH_CHUNK_SIZE = 64 * 1024;
 
-  protected static TmmXmlRpcClient client          = null;
+  protected static TmmXmlRpcClient client = null;
 
-  private final MediaProviderInfo  providerInfo;
+  private final MediaProviderInfo providerInfo;
 
-  private String                   sessionToken    = "";
-  private String                   username        = "";
-  private String                   password        = "";
+  private String sessionToken = "";
+  private String username     = "";
+  private String password     = "";
 
   protected OpenSubtitlesSubtitleProvider() {
     providerInfo = createMediaProviderInfo();
@@ -166,14 +166,15 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           // forbidden/unauthorized
           case HttpURLConnection.HTTP_FORBIDDEN:
           case HttpURLConnection.HTTP_UNAUTHORIZED:
-            throw new ScrapeException(new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
+            throw new ScrapeException(
+                new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
 
-          // rate limit exceeded?
+            // rate limit exceeded?
           case 429:
           case 407:
             throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
 
-          // unspecified error:
+            // unspecified error:
           default:
             throw new ScrapeException(e.getCause());
         }
@@ -219,18 +220,19 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           // forbidden/unauthorized
           case HttpURLConnection.HTTP_FORBIDDEN:
           case HttpURLConnection.HTTP_UNAUTHORIZED:
-            throw new ScrapeException(new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
+            throw new ScrapeException(
+                new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
 
-          // rate limit exceeded?
+            // rate limit exceeded?
           case 429:
           case 407:
             throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
 
-          // service unavailable
+            // service unavailable
           case 503:
             throw new ScrapeException(new HttpException(503, "Service unavailable (HTTP 503))"));
 
-          // unspecified error:
+            // unspecified error:
           default:
             throw new ScrapeException(e.getCause());
         }
@@ -269,14 +271,15 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           // forbidden/unauthorized
           case HttpURLConnection.HTTP_FORBIDDEN:
           case HttpURLConnection.HTTP_UNAUTHORIZED:
-            throw new ScrapeException(new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
+            throw new ScrapeException(
+                new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
 
-          // rate limit exceeded?
+            // rate limit exceeded?
           case 429:
           case 407:
             throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
 
-          // unspecified error:
+            // unspecified error:
           default:
             throw new ScrapeException(e);
         }
@@ -308,10 +311,8 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
   /**
    * calls the specific method with params...
    *
-   * @param method
-   *          the method
-   * @param params
-   *          the params
+   * @param method the method
+   * @param params the params
    * @return return value
    * @throws TmmXmlRpcException
    * @throws ScrapeException
@@ -336,8 +337,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
   /**
    * opensubtitles need sometimes not ISO 639.2B - this method maps the exceptions
    *
-   * @param locale
-   *          the language top be converted
+   * @param locale the language top be converted
    * @return the string accepted by opensubtitles
    */
   private String getLanguageCode(Locale locale) {
@@ -361,10 +361,10 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
    * This function should be always called when starting communication with OSDb server to identify user, specify application and start a new session
    * (either registered user or anonymous). If user has no account, blank username and password should be used.
    */
-  @SuppressWarnings("unchecked")
-  private synchronized void startSession() throws ScrapeException {
-    if ((providerInfo.getConfig().getValue("username") != null && !username.equals(providerInfo.getConfig().getValue("username")))
-        || (providerInfo.getConfig().getValue("password") != null && !password.equals(providerInfo.getConfig().getValue("password")))) {
+  @SuppressWarnings("unchecked") private synchronized void startSession() throws ScrapeException {
+    if ((providerInfo.getConfig().getValue("username") != null && !username.equals(
+        providerInfo.getConfig().getValue("username"))) || (providerInfo.getConfig().getValue("password") != null
+        && !password.equals(providerInfo.getConfig().getValue("password")))) {
       username = providerInfo.getConfig().getValue("username");
       password = providerInfo.getConfig().getValue("password");
       sessionToken = "";
@@ -390,8 +390,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
   /**
    * Returns OpenSubtitle hash or empty string if error
    *
-   * @param file
-   *          the file to compute the hash
+   * @param file the file to compute the hash
    * @return hash
    */
   private String computeOpenSubtitlesHash(File file) {

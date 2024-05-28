@@ -19,7 +19,8 @@ package org.tinymediamanager.core.movie.connector;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,33 +45,32 @@ import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
  * The class MovieSetNfoParser is used to parse all types of NFO files for movie sets
- * 
+ *
  * @author Manuel Laggner
  */
 public class MovieSetNfoParser {
-  private static final Logger LOGGER              = LoggerFactory.getLogger(MovieSetNfoParser.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieSetNfoParser.class);
 
-  private Element             root;
-  private final List<String>  supportedElements   = new ArrayList<>();
+  private       Element      root;
+  private final List<String> supportedElements = new ArrayList<>();
 
-  public String               title               = "";
-  public String               plot                = "";
-  public String               userNote            = "";
+  public String title    = "";
+  public String plot     = "";
+  public String userNote = "";
 
-  public Map<String, Object>  ids                 = new HashMap<>();
-  public List<String>         tags                = new ArrayList<>();
+  public Map<String, Object> ids  = new HashMap<>();
+  public List<String>        tags = new ArrayList<>();
 
   // supported for reading, but will not passed to tmm
-  public List<MediaGenres>    genres              = new ArrayList<>();
-  public List<String>         studios             = new ArrayList<>();
+  public List<MediaGenres> genres  = new ArrayList<>();
+  public List<String>      studios = new ArrayList<>();
 
-  public List<String>         unsupportedElements = new ArrayList<>();
+  public List<String> unsupportedElements = new ArrayList<>();
 
   /**
    * create a new instance by parsing the document
    *
-   * @param document
-   *          the document returned by JSOUP.parse()
+   * @param document the document returned by JSOUP.parse()
    */
   private MovieSetNfoParser(Document document) {
     document.outputSettings().prettyPrint(false);
@@ -105,8 +105,7 @@ public class MovieSetNfoParser {
   /**
    * parse the tag in a save way
    *
-   * @param function
-   *          the parsing function to be executed
+   * @param function the parsing function to be executed
    */
   private void parseTag(Function<MovieSetNfoParser, Void> function) {
     try {
@@ -119,25 +118,23 @@ public class MovieSetNfoParser {
 
   /**
    * parse the given file
-   * 
-   * @param path
-   *          the path to the NFO/XML to be parsed
+   *
+   * @param path the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception
-   *           any exception if parsing fails
+   * @throws Exception any exception if parsing fails
    */
   public static MovieSetNfoParser parseNfo(Path path) throws Exception {
-    return new MovieSetNfoParser(Jsoup.parse(new FileInputStream(path.toFile()), "UTF-8", "", Parser.xmlParser()));
+    try (InputStream is = Files.newInputStream(path)) {
+      return new MovieSetNfoParser(Jsoup.parse(is, "UTF-8", "", Parser.xmlParser()));
+    }
   }
 
   /**
    * parse the xml content
    *
-   * @param content
-   *          the content of the NFO/XML to be parsed
+   * @param content the content of the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws Exception
-   *           any exception if parsing fails
+   * @throws Exception any exception if parsing fails
    */
   public static MovieSetNfoParser parseNfo(String content) throws Exception {
     return new MovieSetNfoParser(Jsoup.parse(content, "", Parser.xmlParser()));
@@ -146,7 +143,7 @@ public class MovieSetNfoParser {
   /**
    * determines whether this was a valid NFO or not<br />
    * we use several fields which should be filled in a valid NFO for decision
-   * 
+   *
    * @return true/false
    */
   public boolean isValidNfo() {

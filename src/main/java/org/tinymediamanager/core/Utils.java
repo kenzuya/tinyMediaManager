@@ -21,7 +21,6 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,50 +104,52 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
  * The Class Utils.
- * 
+ *
  * @author Manuel Laggner / Myron Boyle
  */
 public class Utils {
-  private static final Logger       LOGGER                      = LoggerFactory.getLogger(Utils.class);
-  private static final Pattern      localePattern               = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties",
+  private static final Logger  LOGGER        = LoggerFactory.getLogger(Utils.class);
+  private static final Pattern localePattern = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties",
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><0-N>
-  private static final Pattern      stackingPattern1            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern1  = Pattern.compile(
+      "(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$", Pattern.CASE_INSENSITIVE);
   // same as above, but SOLELY as name like "disc1.iso"
-  private static final Pattern      stackingPattern1a           = Pattern.compile("((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern1a = Pattern.compile(
+      "((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)([ _.-].+)$", Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc><a-d>
-  private static final Pattern      stackingPattern2            = Pattern.compile("(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern2 = Pattern.compile(
+      "(.*)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[a-d])([ _.-].+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
-  private static final Pattern      stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
-
-  // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern      stackingPattern4            = Pattern
-      .compile("(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$", Pattern.CASE_INSENSITIVE);
-
-  // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
-  private static final Pattern      folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$",
+  private static final Pattern stackingPattern3 = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$",
       Pattern.CASE_INSENSITIVE);
 
+  // moviename-1of2.avi, moviename-1 of 2.avi
+  private static final Pattern stackingPattern4 = Pattern.compile(
+      "(.*?)[ (_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ )_-]?([ _.-].+)$", Pattern.CASE_INSENSITIVE);
+
+  // folder stacking marker <cd/dvd/part/pt/disk/disc><0-N> - must be last part
+  private static final Pattern folderStackingPattern = Pattern.compile(
+      "(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[1-9][0-9]?)$", Pattern.CASE_INSENSITIVE);
+
   // illegal file name characters
-  private static final char[]       ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
-      ':' };
+  private static final char[] ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\',
+      '<', '>', '|', '\"', ':' };
 
   // pattern for matching youtube links
-  public static final Pattern       YOUTUBE_PATTERN             = Pattern
-      .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
+  public static final Pattern YOUTUBE_PATTERN = Pattern.compile(
+      "^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
-  public static final Pattern       SEASON_NFO_PATTERN          = Pattern.compile("^season(\\d{2,}|\\-specials)?\\.nfo$", Pattern.CASE_INSENSITIVE);
-  public static final String        DISC_FOLDER_REGEX           = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
+  public static final Pattern SEASON_NFO_PATTERN = Pattern.compile("^season(\\d{2,}|\\-specials)?\\.nfo$",
+      Pattern.CASE_INSENSITIVE);
+  public static final String  DISC_FOLDER_REGEX  = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
-  private static final List<Locale> AVAILABLE_LOCALES           = new ArrayList<>();
+  private static final List<Locale> AVAILABLE_LOCALES = new ArrayList<>();
 
-  private static String             tempFolder;
+  private static String tempFolder;
 
   static {
     // get the systems default temp folder
@@ -185,9 +186,8 @@ public class Utils {
 
   /**
    * gets the filename part, and returns last extension
-   * 
-   * @param path
-   *          the path to get the last extension for
+   *
+   * @param path the path to get the last extension for
    * @return the last extension found
    */
   public static String getExtension(Path path) {
@@ -205,7 +205,7 @@ public class Utils {
    * because deduplication creates windows junction points, we check here if it is<br>
    * not a directory, and either a regular file or "other" one.<br>
    * see http://serverfault.com/a/667220
-   * 
+   *
    * @param file
    * @return
    */
@@ -234,7 +234,7 @@ public class Utils {
    * see http://serverfault.com/a/667220<br>
    * <br>
    * <b>Changed to only check for NOT DIRECTORY, treating all others as regular</b>
-   * 
+   *
    * @param attr
    * @return
    */
@@ -252,11 +252,9 @@ public class Utils {
   /**
    * returns the relative path of 2 absolute file paths<br>
    * "/a/b & /a/b/c/d -> c/d
-   * 
-   * @param parent
-   *          the directory
-   * @param child
-   *          the subdirectory
+   *
+   * @param parent the directory
+   * @param child  the subdirectory
    * @return relative path
    */
   public static String relPath(String parent, String child) {
@@ -266,11 +264,9 @@ public class Utils {
   /**
    * returns the relative path of 2 absolute file paths<br>
    * "/a/b & /a/b/c/d -> c/d
-   * 
-   * @param parent
-   *          the directory
-   * @param child
-   *          the subdirectory
+   *
+   * @param parent the directory
+   * @param child  the subdirectory
    * @return relative path
    */
   public static String relPath(Path parent, Path child) {
@@ -279,7 +275,7 @@ public class Utils {
 
   /**
    * gets a list of all datasources, sorted by the "longest" first
-   * 
+   *
    * @return
    */
   public static List<String> getAllDatasources() {
@@ -303,9 +299,8 @@ public class Utils {
   /**
    * Returns the sortable variant of title/originaltitle<br>
    * eg "The Bourne Legacy" -> "Bourne Legacy, The".
-   * 
-   * @param title
-   *          the title
+   *
+   * @param title the title
    * @return the title/originaltitle in its sortable format
    */
   public static String getSortableName(String title) {
@@ -317,11 +312,13 @@ public class Utils {
       return title;
     }
 
-    if (title.toLowerCase(Locale.ROOT).matches("^die hard$") || title.toLowerCase(Locale.ROOT).matches("^die hard[:\\s].*")) {
+    if (title.toLowerCase(Locale.ROOT).matches("^die hard$") || title.toLowerCase(Locale.ROOT)
+        .matches("^die hard[:\\s].*")) {
       return title;
     }
 
-    if (title.toLowerCase(Locale.ROOT).matches("^die another day$") || title.toLowerCase(Locale.ROOT).matches("^die another day[:\\s].*")) {
+    if (title.toLowerCase(Locale.ROOT).matches("^die another day$") || title.toLowerCase(Locale.ROOT)
+        .matches("^die another day[:\\s].*")) {
       return title;
     }
 
@@ -344,9 +341,8 @@ public class Utils {
   /**
    * Returns the common name of title/originaltitle when it is named sortable<br>
    * eg "Bourne Legacy, The" -> "The Bourne Legacy".
-   * 
-   * @param title
-   *          the title
+   *
+   * @param title the title
    * @return the original title
    */
   public static String removeSortableName(String title) {
@@ -366,9 +362,8 @@ public class Utils {
   /**
    * Clean stacking markers.<br>
    * Same logic as detection, but just returning string w/o
-   * 
-   * @param filename
-   *          the filename WITH extension
+   *
+   * @param filename the filename WITH extension
    * @return the string
    */
   public static String cleanStackingMarkers(String filename) {
@@ -410,9 +405,8 @@ public class Utils {
   /**
    * Clean stacking markers.<br>
    * Same logic as detection, but just returning string w/o
-   * 
-   * @param filename
-   *          the filename WITH extension
+   *
+   * @param filename the filename WITH extension
    * @return the string
    */
   public static String cleanFolderStackingMarkers(String filename) {
@@ -427,9 +421,8 @@ public class Utils {
 
   /**
    * Returns the stacking information from FOLDER name
-   * 
-   * @param filename
-   *          the filename
+   *
+   * @param filename the filename
    * @return the stacking information
    */
   public static String getFolderStackingMarker(String filename) {
@@ -448,9 +441,8 @@ public class Utils {
 
   /**
    * Returns the stacking information from filename
-   * 
-   * @param filename
-   *          the filename
+   *
+   * @param filename the filename
    * @return the stacking information
    */
   public static String getStackingMarker(String filename) {
@@ -502,9 +494,8 @@ public class Utils {
 
   /**
    * Returns the stacking prefix
-   * 
-   * @param filename
-   *          the filename
+   *
+   * @param filename the filename
    * @return the stacking prefix - might be empty
    */
   public static String getStackingPrefix(String filename) {
@@ -518,9 +509,8 @@ public class Utils {
 
   /**
    * Returns the stacking information from filename
-   * 
-   * @param filename
-   *          the filename
+   *
+   * @param filename the filename
    * @return the stacking information
    */
   public static int getStackingNumber(String filename) {
@@ -556,9 +546,8 @@ public class Utils {
 
   /**
    * Unquote.
-   * 
-   * @param str
-   *          the str
+   *
+   * @param str the str
    * @return the string
    */
   public static String unquote(String str) {
@@ -569,9 +558,8 @@ public class Utils {
 
   /**
    * gets the UTF-8 encoded System property.
-   * 
-   * @param prop
-   *          the property to fetch
+   *
+   * @param prop the property to fetch
    * @return the enc prop
    */
   private static String getEncProp(String prop) {
@@ -616,11 +604,9 @@ public class Utils {
   /**
    * replaces a string with placeholder ({}) with the string from the replacement array the strings in the replacement array have to be in the same
    * order as the placeholder in the source string
-   * 
-   * @param source
-   *          string
-   * @param replacements
-   *          array
+   *
+   * @param source       string
+   * @param replacements array
    * @return replaced string
    */
   public static String replacePlaceholders(String source, String[] replacements) {
@@ -635,7 +621,8 @@ public class Utils {
           if (replacements.length > index) {
             // we need the UnicodeUnescaper, because StringEscapeUtils.escapeJava translated unicode
             // https://stackoverflow.com/questions/59280607/stringescapeutils-not-handling-utf-8
-            result = result.replaceFirst(pattern.pattern(), new UnicodeUnescaper().translate(StringEscapeUtils.escapeJava(replacements[index])));
+            result = result.replaceFirst(pattern.pattern(),
+                new UnicodeUnescaper().translate(StringEscapeUtils.escapeJava(replacements[index])));
           }
           else {
             result = result.replaceFirst(pattern.pattern(), "");
@@ -658,14 +645,11 @@ public class Utils {
    * since renameTo() might not work in first place, retry it up to 5 times.<br>
    * (better wait 5 sec for success, than always copying a 50gig directory ;)<br>
    * <b>And NO, we're NOT doing a copy+delete as fallback!</b>
-   * 
-   * @param srcDir
-   *          the directory to be moved
-   * @param destDir
-   *          the destination directory
+   *
+   * @param srcDir  the directory to be moved
+   * @param destDir the destination directory
    * @return true, if successful
-   * @throws IOException
-   *           if an IO error occurs moving the file
+   * @throws IOException if an IO error occurs moving the file
    */
   public static boolean moveDirectorySafe(Path srcDir, Path destDir) throws IOException {
     // rip-off from
@@ -781,7 +765,8 @@ public class Utils {
       if (!rename) {
         LOGGER.error("Failed to rename directory {} to {}", srcDir, destDir);
         LOGGER.error("Renaming aborted.");
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename")); // NOSONAR
+        MessageManager.instance.pushMessage(
+            new Message(MessageLevel.ERROR, srcDir, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
       else {
@@ -813,19 +798,13 @@ public class Utils {
    * since renameTo() might not work in first place, retry it up to 5 times.<br>
    * (better wait 5 sec for success, than always copying a 50gig directory ;)<br>
    * <b>And NO, we're NOT doing a copy+delete as fallback!</b>
-   * 
-   * @param srcFile
-   *          the file to be moved
-   * @param destFile
-   *          the destination file
-   * @throws NullPointerException
-   *           if source or destination is {@code null}
-   * @throws FileExistsException
-   *           if the destination file exists
-   * @throws IOException
-   *           if source or destination is invalid
-   * @throws IOException
-   *           if an IO error occurs moving the file
+   *
+   * @param srcFile  the file to be moved
+   * @param destFile the destination file
+   * @throws NullPointerException if source or destination is {@code null}
+   * @throws FileExistsException  if the destination file exists
+   * @throws IOException          if source or destination is invalid
+   * @throws IOException          if an IO error occurs moving the file
    */
   public static boolean moveFileSafe(final Path srcFile, final Path destFile) throws IOException {
     if (srcFile == null) {
@@ -882,7 +861,8 @@ public class Utils {
             break;
           }
           catch (IOException e) {
-            LOGGER.warn("rename problem (fallback): '{}' - '{}'", e.getClass().getSimpleName(), e.getMessage()); // NOSONAR
+            LOGGER.warn("rename problem (fallback): '{}' - '{}'", e.getClass().getSimpleName(),
+                e.getMessage()); // NOSONAR
           }
         }
         catch (IOException e) {
@@ -904,7 +884,8 @@ public class Utils {
 
       if (!rename) {
         LOGGER.error("Failed to rename file '{}' to '{}'", srcFile, destFile);
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
+        MessageManager.instance.pushMessage(
+            new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
       else {
@@ -917,20 +898,14 @@ public class Utils {
 
   /**
    * copy a file, preserving the attributes, but NOT overwrite it
-   * 
-   * @param srcFile
-   *          the file to be copied
-   * @param destFile
-   *          the target
+   *
+   * @param srcFile  the file to be copied
+   * @param destFile the target
    * @return true/false
-   * @throws NullPointerException
-   *           if source or destination is {@code null}
-   * @throws FileExistsException
-   *           if the destination file exists
-   * @throws IOException
-   *           if source or destination is invalid
-   * @throws IOException
-   *           if an IO error occurs moving the file
+   * @throws NullPointerException if source or destination is {@code null}
+   * @throws FileExistsException  if the destination file exists
+   * @throws IOException          if source or destination is invalid
+   * @throws IOException          if an IO error occurs moving the file
    */
   public static boolean copyFileSafe(final Path srcFile, final Path destFile) throws IOException {
     return copyFileSafe(srcFile, destFile, false);
@@ -939,21 +914,14 @@ public class Utils {
   /**
    * copy a file, preserving the attributes
    *
-   * @param srcFile
-   *          the file to be copied
-   * @param destFile
-   *          the target
-   * @param overwrite
-   *          overwrite the target?
+   * @param srcFile   the file to be copied
+   * @param destFile  the target
+   * @param overwrite overwrite the target?
    * @return true/false
-   * @throws NullPointerException
-   *           if source or destination is {@code null}
-   * @throws FileExistsException
-   *           if the destination file exists
-   * @throws IOException
-   *           if source or destination is invalid
-   * @throws IOException
-   *           if an IO error occurs moving the file
+   * @throws NullPointerException if source or destination is {@code null}
+   * @throws FileExistsException  if the destination file exists
+   * @throws IOException          if source or destination is invalid
+   * @throws IOException          if an IO error occurs moving the file
    */
   public static boolean copyFileSafe(final Path srcFile, final Path destFile, boolean overwrite) throws IOException {
     if (srcFile == null) {
@@ -1036,7 +1004,8 @@ public class Utils {
 
       if (!rename) {
         LOGGER.error("Failed to copy file {} to {}", srcFile, destFile);
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
+        MessageManager.instance.pushMessage(
+            new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
       else {
@@ -1051,11 +1020,9 @@ public class Utils {
    * <b>PHYSICALLY</b> deletes a file by moving it to datasource backup folder<br>
    * DS\.backup\&lt;filename&gt;<br>
    * maintaining its originating directory
-   * 
-   * @param file
-   *          the file to be deleted
-   * @param datasource
-   *          the data source (for the location of the backup folder)
+   *
+   * @param file       the file to be deleted
+   * @param datasource the data source (for the location of the backup folder)
    * @return true/false if successful
    */
   public static boolean deleteFileWithBackup(Path file, String datasource) {
@@ -1105,7 +1072,8 @@ public class Utils {
       // backup
       try {
         // create path
-        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(file).toString());
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER,
+            ds.relativize(file).toString());
         if (!Files.exists(backup.getParent())) {
           Files.createDirectories(backup.getParent());
         }
@@ -1128,9 +1096,8 @@ public class Utils {
   /**
    * <b>PHYSICALLY</b> deletes a file (w/o backup)<br>
    * only doing a check if it is not a directory
-   * 
-   * @param file
-   *          the file to be deleted
+   *
+   * @param file the file to be deleted
    * @return true/false if successful
    */
   public static boolean deleteFileSafely(Path file) {
@@ -1158,11 +1125,9 @@ public class Utils {
    * <b>PHYSICALLY</b> deletes a complete directory by moving it to datasource backup folder<br>
    * DS\.backup\&lt;foldername&gt;<br>
    * maintaining its originating directory
-   * 
-   * @param folder
-   *          the folder to be deleted
-   * @param datasource
-   *          the datasource of this folder
+   *
+   * @param folder     the folder to be deleted
+   * @param datasource the datasource of this folder
    * @return true/false if successful
    */
   public static boolean deleteDirectorySafely(Path folder, String datasource) {
@@ -1214,7 +1179,8 @@ public class Utils {
         Instant instant = Instant.now();
         long timeStampSeconds = instant.getEpochSecond();
         // create path
-        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER, ds.relativize(folder).toString() + timeStampSeconds);
+        Path backup = Paths.get(ds.toAbsolutePath().toString(), Constants.DS_TRASH_FOLDER,
+            ds.relativize(folder).toString() + timeStampSeconds);
         if (!Files.exists(backup.getParent())) {
           Files.createDirectories(backup.getParent());
         }
@@ -1236,7 +1202,7 @@ public class Utils {
 
   /**
    * returns a list of all available GUI languages
-   * 
+   *
    * @return List of Locales
    */
   public static List<Locale> getLanguages() {
@@ -1306,9 +1272,8 @@ public class Utils {
 
   /**
    * Gets a correct Locale (language + country) from given language.
-   * 
-   * @param language
-   *          as 2char
+   *
+   * @param language as 2char
    * @return Locale
    */
   public static Locale getLocaleFromLanguage(String language) {
@@ -1321,12 +1286,12 @@ public class Utils {
       return Locale.US;
     }
     // fixate Chinese ones based on script, not country!
-    if ("zh_Hant".equalsIgnoreCase(language) || "zh__#Hant".equalsIgnoreCase(language) || "zh_HK".equalsIgnoreCase(language)
-        || "zh_TW".equalsIgnoreCase(language)) {
+    if ("zh_Hant".equalsIgnoreCase(language) || "zh__#Hant".equalsIgnoreCase(language) || "zh_HK".equalsIgnoreCase(
+        language) || "zh_TW".equalsIgnoreCase(language)) {
       return new Locale.Builder().setLanguage("zh").setScript("Hant").build();
     }
-    if ("zh".equalsIgnoreCase(language) || "zh__#Hans".equalsIgnoreCase(language) || "zh_Hans".equalsIgnoreCase(language)
-        || "zh_CN".equalsIgnoreCase(language) || "zh_SG".equalsIgnoreCase(language)) {
+    if ("zh".equalsIgnoreCase(language) || "zh__#Hans".equalsIgnoreCase(language) || "zh_Hans".equalsIgnoreCase(
+        language) || "zh_CN".equalsIgnoreCase(language) || "zh_SG".equalsIgnoreCase(language)) {
       return new Locale.Builder().setLanguage("zh").setScript("Hans").build();
     }
 
@@ -1344,7 +1309,7 @@ public class Utils {
 
   /**
    * returns all known translations for a key, like "metatag.title"
-   * 
+   *
    * @param key
    * @return list of translated values
    */
@@ -1368,9 +1333,8 @@ public class Utils {
   /**
    * creates a zipped backup of file in backup folder with yyyy-MM-dd timestamp<br>
    * <b>does overwrite already existing file from today!</b>
-   * 
-   * @param file
-   *          the file to backup
+   *
+   * @param file the file to backup
    */
   public static void createBackupFile(Path file) {
     createBackupFile(file, true);
@@ -1378,11 +1342,9 @@ public class Utils {
 
   /**
    * creates a zipped backup of file in backup folder with yyyy-MM-dd timestamp
-   * 
-   * @param file
-   *          the file to backup
-   * @param overwrite
-   *          if file is already there, ignore that and overwrite with new copy
+   *
+   * @param file      the file to backup
+   * @param overwrite if file is already there, ignore that and overwrite with new copy
    */
   public static void createBackupFile(Path file, boolean overwrite) {
     Path backup = Paths.get(Globals.BACKUP_FOLDER);
@@ -1412,18 +1374,17 @@ public class Utils {
 
   /**
    * Deletes old backup files in backup folder; keep only last X files
-   * 
-   * @param file
-   *          the file of backup to be deleted
-   * @param keep
-   *          keep last X versions
+   *
+   * @param file the file of backup to be deleted
+   * @param keep keep last X versions
    */
   public static void deleteOldBackupFile(Path file, int keep) {
     ArrayList<Path> al = new ArrayList<>();
     String fname = file.getFileName().toString();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Globals.BACKUP_FOLDER))) {
       for (Path path : directoryStream) {
-        if (path.getFileName().toString().matches(fname + "\\.\\d{4}\\-\\d{2}\\-\\d{2}\\.zip") || // name.ext.yyyy-mm-dd.zip
+        if (path.getFileName().toString().matches(fname + "\\.\\d{4}\\-\\d{2}\\-\\d{2}\\.zip") ||
+            // name.ext.yyyy-mm-dd.zip
             path.getFileName().toString().matches(fname + "\\.\\d{4}\\-\\d{2}\\-\\d{2}")) { // old name.ext.yyyy-mm-dd
           al.add(path);
         }
@@ -1451,9 +1412,8 @@ public class Utils {
 
   /**
    * Sends a wake-on-lan packet for specified MAC address across subnet
-   * 
-   * @param macAddr
-   *          the mac address to 'wake up'
+   *
+   * @param macAddr the mac address to 'wake up'
    */
   public static void sendWakeOnLanPacket(String macAddr) {
     // Broadcast IP address
@@ -1491,9 +1451,8 @@ public class Utils {
 
   /**
    * Deletes a complete directory recursively, using Java NIO
-   * 
-   * @param dir
-   *          directory to delete
+   *
+   * @param dir directory to delete
    * @throws IOException
    */
   public static void deleteDirectoryRecursive(Path dir) throws IOException {
@@ -1505,25 +1464,21 @@ public class Utils {
     try {
       Files.walkFileTree(dir, new FileVisitor<>() {
 
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
           Files.delete(dir);
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
           Files.delete(file);
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+        @Override public FileVisitResult visitFileFailed(Path file, IOException exc) {
           LOGGER.warn("Could not delete {} - {}", file, exc.getMessage());
           return FileVisitResult.CONTINUE;
         }
@@ -1541,8 +1496,7 @@ public class Utils {
   /**
    * Deletes a complete directory recursively, but checking if empty (from inside out) - using Java NIO
    *
-   * @param dir
-   *          directory to delete
+   * @param dir directory to delete
    * @throws IOException
    */
   public static void deleteEmptyDirectoryRecursive(Path dir) throws IOException {
@@ -1554,26 +1508,22 @@ public class Utils {
     try {
       Files.walkFileTree(dir, new FileVisitor<>() {
 
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
           if (isFolderEmpty(dir)) {
             Files.delete(dir);
           }
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
           return FileVisitResult.CONTINUE;
         }
 
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+        @Override public FileVisitResult visitFileFailed(Path file, IOException exc) {
           return FileVisitResult.CONTINUE;
         }
       });
@@ -1588,9 +1538,8 @@ public class Utils {
 
   /**
    * check whether a folder is empty or not
-   * 
-   * @param folder
-   *          the folder to be checked
+   *
+   * @param folder the folder to be checked
    * @return true/false
    * @throws IOException
    */
@@ -1608,11 +1557,9 @@ public class Utils {
 
   /**
    * Creates (or adds) a file to a ZIP
-   * 
-   * @param zipFile
-   *          Path of zip file
-   * @param toBeAdded
-   *          Path to be added
+   *
+   * @param zipFile   Path of zip file
+   * @param toBeAdded Path to be added
    */
   public static void createZip(Path zipFile, Path toBeAdded) {
     List<File> filesToArchive = new ArrayList<>();
@@ -1630,7 +1577,8 @@ public class Utils {
         ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
         archive.putArchiveEntry(entry);
 
-        try (FileInputStream fis = new FileInputStream(file); BufferedInputStream input = new BufferedInputStream(fis)) {
+        try (InputStream is = Files.newInputStream(file.toPath());
+            BufferedInputStream input = new BufferedInputStream(is)) {
           IOUtils.copy(input, archive);
         }
         archive.closeArchiveEntry();
@@ -1649,13 +1597,10 @@ public class Utils {
   /**
    * Remove the leading part of each entry that contains the source directory name
    *
-   * @param source
-   *          the directory where the file entry is found
-   * @param file
-   *          the file that is about to be added
+   * @param source the directory where the file entry is found
+   * @param file   the file that is about to be added
    * @return the name of an archive entry
-   * @throws IOException
-   *           if the io fails
+   * @throws IOException if the io fails
    */
   private static String getEntryName(File source, File file) throws IOException {
     int index = source.getAbsoluteFile().getParentFile().getAbsolutePath().length() + 1;
@@ -1666,11 +1611,9 @@ public class Utils {
 
   /**
    * Unzips the specified zip file to the specified destination directory. Replaces any files in the destination, if they already exist.
-   * 
-   * @param zipFile
-   *          the name of the zip file to extract
-   * @param destDir
-   *          the directory to unzip to
+   *
+   * @param zipFile the name of the zip file to extract
+   * @param destDir the directory to unzip to
    */
   public static void unzip(final Path zipFile, final Path destDir) {
     Map<String, String> env = new HashMap<>();
@@ -1696,8 +1639,7 @@ public class Utils {
 
         // walk the zip file tree and copy files to the destination
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             final Path destFile = Paths.get(destDir.toString(), file.toString());
             LOGGER.debug("Extracting file {} to {}", file, destFile);
             Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
@@ -1705,8 +1647,7 @@ public class Utils {
             return FileVisitResult.CONTINUE;
           }
 
-          @Override
-          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+          @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             final Path dirToCreate = Paths.get(destDir.toString(), dir.toString());
             if (!Files.exists(dirToCreate)) {
               LOGGER.debug("Creating directory {}", dirToCreate);
@@ -1729,12 +1670,9 @@ public class Utils {
   /**
    * Unzips the specified file from the given zip file to the specified destination filename. Replaces if the destination already exist.
    *
-   * @param zipFile
-   *          the name of the zip file to extract
-   * @param fileToExtract
-   *          the name of the file to extract
-   * @param destFile
-   *          the directory to unzip to
+   * @param zipFile       the name of the zip file to extract
+   * @param fileToExtract the name of the file to extract
+   * @param destFile      the directory to unzip to
    */
   public static void unzipFile(final Path zipFile, final Path fileToExtract, final Path destFile) {
     Map<String, String> env = new HashMap<>();
@@ -1760,8 +1698,7 @@ public class Utils {
 
         // walk the zip file tree and copy files to the destination
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toString().equals(fileToExtract.toString())) {
               LOGGER.debug("Extracting file {} to {}", file, destFile);
               Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
@@ -1770,8 +1707,7 @@ public class Utils {
             return FileVisitResult.CONTINUE;
           }
 
-          @Override
-          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+          @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             return FileVisitResult.CONTINUE;
           }
         });
@@ -1788,13 +1724,10 @@ public class Utils {
 
   /**
    * Java NIO replacement of commons-io
-   * 
-   * @param file
-   *          the file to write the string to
-   * @param text
-   *          the text to be written into the file
-   * @throws IOException
-   *           any {@link IOException} thrown
+   *
+   * @param file the file to write the string to
+   * @param text the text to be written into the file
+   * @throws IOException any {@link IOException} thrown
    */
   public static void writeStringToFile(Path file, String text) throws IOException {
     try {
@@ -1817,12 +1750,10 @@ public class Utils {
 
   /**
    * Java NIO replacement of commons-io
-   * 
-   * @param file
-   *          the file to read the string from
+   *
+   * @param file the file to read the string from
    * @return the read string
-   * @throws IOException
-   *           any {@link IOException} thrown
+   * @throws IOException any {@link IOException} thrown
    */
   public static String readFileToString(Path file) throws IOException {
     try {
@@ -1838,13 +1769,10 @@ public class Utils {
 
   /**
    * Copies a complete directory recursively, using Java NIO
-   * 
-   * @param from
-   *          source
-   * @param to
-   *          destination
-   * @throws IOException
-   *           any {@link IOException} thrown
+   *
+   * @param from source
+   * @param to   destination
+   * @throws IOException any {@link IOException} thrown
    */
   public static void copyDirectoryRecursive(Path from, Path to) throws IOException {
     LOGGER.info("Copying complete directory from {} to {}", from, to);
@@ -1904,9 +1832,8 @@ public class Utils {
 
   /**
    * detect the artwork extension from the url
-   * 
-   * @param url
-   *          the url to analyze
+   *
+   * @param url the url to analyze
    * @return the detected artwork type or jpg as fallback
    */
   public static String getArtworkExtensionFromUrl(String url) {
@@ -1945,9 +1872,8 @@ public class Utils {
   /**
    * detect the artwork extension from the content type<br />
    * taken from https://wiki.selfhtml.org/wiki/MIME-Type/%C3%9Cbersicht#I
-   * 
-   * @param contentType
-   *          the HTTP header "content type"
+   *
+   * @param contentType the HTTP header "content type"
    * @return the artwork extension or an empty string if not detectable
    */
   public static String getArtworkExtensionFromContentType(String contentType) {
@@ -1989,8 +1915,7 @@ public class Utils {
   /**
    * get all files from the given path
    *
-   * @param root
-   *          the root folder to search files for
+   * @param root the root folder to search files for
    * @return a list of all found files
    */
   public static List<Path> listFiles(Path root) {
@@ -2019,8 +1944,7 @@ public class Utils {
   /**
    * get all files from the given path recursive
    *
-   * @param root
-   *          the root folder to search files for
+   * @param root the root folder to search files for
    * @return a list of all found files
    */
   public static List<Path> listFilesRecursive(Path root) {
@@ -2030,8 +1954,7 @@ public class Utils {
     }
     try {
       Files.walkFileTree(root, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new AbstractFileVisitor() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
           if (Utils.isRegularFile(file)) {
             filesFound.add(file);
           }
@@ -2053,7 +1976,7 @@ public class Utils {
   /**
    * Returns the size of that disc folder<br>
    * Counts only files which are "discFiles()", so a generated NFO would not interfere.
-   * 
+   *
    * @param path
    * @return
    */
@@ -2065,9 +1988,7 @@ public class Utils {
 
       size = walk
           // .peek(System.out::println) // debug
-          .filter(Utils::isRegularFile)
-          .filter(f -> new MediaFile(f).isDiscFile())
-          .mapToLong(p -> {
+          .filter(Utils::isRegularFile).filter(f -> new MediaFile(f).isDiscFile()).mapToLong(p -> {
             // ugly, can pretty it with an extract method
             try {
               return Files.size(p);
@@ -2075,8 +1996,7 @@ public class Utils {
             catch (IOException e) {
               return 0L;
             }
-          })
-          .sum();
+          }).sum();
 
     }
     catch (AccessDeniedException e) {
@@ -2114,14 +2034,13 @@ public class Utils {
    */
   public static class CopyFileVisitor extends SimpleFileVisitor<Path> {
     private final Path targetPath;
-    private Path       sourcePath = null;
+    private       Path sourcePath = null;
 
     public CopyFileVisitor(Path targetPath) {
       this.targetPath = targetPath;
     }
 
-    @Override
-    public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
+    @Override public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
       if (sourcePath == null) {
         sourcePath = dir;
       }
@@ -2140,8 +2059,7 @@ public class Utils {
       return FileVisitResult.CONTINUE;
     }
 
-    @Override
-    public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+    @Override public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
       Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
       fixDateAttributes(file, targetPath);
       return FileVisitResult.CONTINUE;
@@ -2150,7 +2068,7 @@ public class Utils {
 
   /**
    * get the temporary folder for this tmm instance
-   * 
+   *
    * @return a string to the temporary folder
    */
   public static String getTempFolder() {
@@ -2160,8 +2078,7 @@ public class Utils {
   /**
    * Method to get a list of files with the given regular expression
    *
-   * @param regexList
-   *          list of regular expression
+   * @param regexList list of regular expression
    * @return a list of files
    */
   public static Set<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
@@ -2189,8 +2106,7 @@ public class Utils {
       this.regexList = regexList;
     }
 
-    @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+    @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       for (String regex : regexList) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(file.getFileName().toString());
@@ -2201,8 +2117,7 @@ public class Utils {
       return CONTINUE;
     }
 
-    @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) {
+    @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) {
       // if we're in a disc folder, don't walk further
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
@@ -2223,19 +2138,18 @@ public class Utils {
   /**
    * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
    *
-   * @param dir
-   *          the folder to check
+   * @param dir the folder to check
    * @return true/false
    */
   public static boolean containsSkipFile(Path dir) {
-    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
+    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(
+        dir.resolve(".nomedia"));
   }
 
   /**
    * Deletes "unwanted files/folders" according to settings. Same as the action, but w/o GUI.
-   * 
-   * @param me
-   *          the {@link MediaEntity} to clean
+   *
+   * @param me the {@link MediaEntity} to clean
    */
   public static void deleteUnwantedFilesAndFoldersFor(MediaEntity me) {
     // Get Cleanup File Types from the settings
@@ -2327,9 +2241,8 @@ public class Utils {
 
   /**
    * replace all illegal characters in a filename with an underscore
-   * 
-   * @param filename
-   *          the filename to be cleaned
+   *
+   * @param filename the filename to be cleaned
    * @return the cleaned filename
    */
   public static String cleanFilename(String filename) {
@@ -2342,10 +2255,8 @@ public class Utils {
   /**
    * handy method to return 1 when the value is filled
    *
-   * @param value
-   *          the value
+   * @param value the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   *
    */
   public static int returnOneWhenFilled(String value) {
     if (StringUtils.isNotBlank(value)) {
@@ -2357,10 +2268,8 @@ public class Utils {
   /**
    * handy method to return 1 when the value is filled
    *
-   * @param value
-   *          the value
+   * @param value the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   *
    */
   public static int returnOneWhenFilled(int value) {
     if (value > 0) {
@@ -2372,10 +2281,8 @@ public class Utils {
   /**
    * handy method to return 1 when the value is filled
    *
-   * @param value
-   *          the value
+   * @param value the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   *
    */
   public static int returnOneWhenFilled(Date value) {
     if (value != null && value.getTime() > 0) {
@@ -2387,10 +2294,8 @@ public class Utils {
   /**
    * handy method to return 1 when the value is filled
    *
-   * @param value
-   *          the value
+   * @param value the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   *
    */
   public static int returnOneWhenFilled(Collection<?> value) {
     if (value != null && !value.isEmpty()) {
@@ -2402,10 +2307,8 @@ public class Utils {
   /**
    * handy method to return 1 when the value is filled
    *
-   * @param value
-   *          the value
+   * @param value the value
    * @return 1 if the value is not null/empty - 0 otherwise
-   *
    */
   public static int returnOneWhenFilled(Map<?, ?> value) {
     if (value != null && !value.isEmpty()) {
@@ -2416,9 +2319,8 @@ public class Utils {
 
   /**
    * Format any file size according the preferred UI setting
-   * 
-   * @param filesize
-   *          the file size in bytes
+   *
+   * @param filesize the file size in bytes
    * @return the formatted file size as {@link String}
    */
   public static String formatFileSizeForDisplay(long filesize) {

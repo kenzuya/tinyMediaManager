@@ -15,9 +15,10 @@
  */
 package org.tinymediamanager.core.tasks;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -36,14 +37,14 @@ import org.tinymediamanager.core.entities.MediaFile;
 
 /**
  * This class handles the download and additional unpacking of a subtitle
- * 
+ *
  * @author Manuel Laggner
  */
 public class SubtitleDownloadTask extends DownloadTask {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
 
-  private final MediaEntity   mediaEntity;
-  private final Path          destinationFile;
+  private final MediaEntity mediaEntity;
+  private final Path        destinationFile;
 
   public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
     super(TmmResourceBundle.getString("subtitle.downloading"), url);
@@ -51,26 +52,22 @@ public class SubtitleDownloadTask extends DownloadTask {
     this.destinationFile = destinationFile;
   }
 
-  @Override
-  protected void doInBackground() {
+  @Override protected void doInBackground() {
     if (!isFeatureEnabled()) {
       return;
     }
     super.doInBackground();
   }
 
-  @Override
-  protected Path getDestinationWoExtension() {
+  @Override protected Path getDestinationWoExtension() {
     return destinationFile;
   }
 
-  @Override
-  protected MediaEntity getMediaEntityToAdd() {
+  @Override protected MediaEntity getMediaEntityToAdd() {
     return mediaEntity;
   }
 
-  @Override
-  protected void moveDownloadedFile(String fileExtension) throws IOException {
+  @Override protected void moveDownloadedFile(String fileExtension) throws IOException {
     Path destination = getDestinationWoExtension();
     if (!fileExtension.isEmpty()) {
       destination = destination.getParent().resolve(destination.getFileName() + "." + fileExtension);
@@ -78,7 +75,8 @@ public class SubtitleDownloadTask extends DownloadTask {
 
     MediaFile tempMediaFile = new MediaFile(tempFile);
 
-    if (tempMediaFile.getType() == MediaFileType.SUBTITLE || Settings.getInstance().getSubtitleFileType().contains("." + fileExtension)) {
+    if (tempMediaFile.getType() == MediaFileType.SUBTITLE || Settings.getInstance().getSubtitleFileType()
+        .contains("." + fileExtension)) {
       // a direct subtitle download - we can just move it an add it to the movie
       Utils.deleteFileSafely(destination); // delete existing file
       boolean ok = Utils.moveFileSafe(tempFile, destination);
@@ -104,10 +102,10 @@ public class SubtitleDownloadTask extends DownloadTask {
       MediaFile mf = null;
 
       // try to decompress
-      try (FileInputStream fis = new FileInputStream(tempFile.toFile()); ZipInputStream is = new ZipInputStream(fis)) {
+      try (InputStream is = Files.newInputStream(tempFile); ZipInputStream zis = new ZipInputStream(is)) {
 
         // get the zipped file list entry
-        ZipEntry ze = is.getNextEntry();
+        ZipEntry ze = zis.getNextEntry();
 
         // we prefer well known subtitle file formats, but also remember .txt files
         SubtitleEntry firstSubtitle = null;
@@ -118,14 +116,14 @@ public class SubtitleDownloadTask extends DownloadTask {
 
           // check is that is a valid file type
           if (Settings.getInstance().getSubtitleFileType().contains("." + extension) || "idx".equals(extension)) {
-            firstSubtitle = new SubtitleEntry(extension, is.readAllBytes());
+            firstSubtitle = new SubtitleEntry(extension, zis.readAllBytes());
           }
 
           if (firstTxt == null && "txt".equals(extension)) {
-            firstTxt = new SubtitleEntry(extension, is.readAllBytes());
+            firstTxt = new SubtitleEntry(extension, zis.readAllBytes());
           }
 
-          ze = is.getNextEntry();
+          ze = zis.getNextEntry();
         }
 
         if (firstSubtitle != null) {
@@ -135,7 +133,7 @@ public class SubtitleDownloadTask extends DownloadTask {
           mf = copySubtitleFile(firstTxt);
         }
 
-        is.closeEntry();
+        zis.closeEntry();
       }
       catch (Exception e) {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());

@@ -16,9 +16,9 @@
 package org.tinymediamanager.core;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,22 +58,20 @@ import com.floreysoft.jmte.encoder.XMLEncoder;
 import com.floreysoft.jmte.extended.ChainedNamedRenderer;
 
 public abstract class MediaEntityExporter {
-  private static final Logger   LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
+  private static final   Logger LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
   protected static final String TEMPLATE_DIRECTORY = "templates";
 
-  protected Engine              engine;
-  protected Properties          properties;
-  protected String              fileName;
-  protected String              fileExtension;
-  protected String              listTemplate       = "";
-  protected String              detailTemplate     = "";
-  protected Path                templateDir;
-  protected boolean             cancel             = false;
+  protected Engine     engine;
+  protected Properties properties;
+  protected String     fileName;
+  protected String     fileExtension;
+  protected String     listTemplate   = "";
+  protected String     detailTemplate = "";
+  protected Path       templateDir;
+  protected boolean    cancel         = false;
 
   public enum TemplateType {
-    MOVIE,
-    MOVIE_SET,
-    TV_SHOW
+    MOVIE, MOVIE_SET, TV_SHOW
   }
 
   protected MediaEntityExporter(Path templatePath, TemplateType type) throws Exception {
@@ -91,7 +89,7 @@ public abstract class MediaEntityExporter {
 
     // load settings from template
     properties = new Properties();
-    try (FileInputStream fis = new FileInputStream(configFile.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+    try (InputStream is = Files.newInputStream(configFile); BufferedInputStream bis = new BufferedInputStream(is)) {
       properties.load(bis);
     }
 
@@ -109,7 +107,9 @@ public abstract class MediaEntityExporter {
     // get other settings
     String detailTemplateFile = properties.getProperty("detail");
     fileName = StringUtils.isBlank(properties.getProperty("filename")) ? "" : properties.getProperty("filename");
-    fileExtension = StringUtils.isBlank(properties.getProperty("extension")) ? "html" : properties.getProperty("extension").toLowerCase();
+    fileExtension = StringUtils.isBlank(properties.getProperty("extension")) ?
+        "html" :
+        properties.getProperty("extension").toLowerCase();
 
     // set up engine
     engine = Engine.createEngine();
@@ -160,9 +160,8 @@ public abstract class MediaEntityExporter {
 
   /**
    * Find templates for the given type.
-   * 
-   * @param type
-   *          the template type
+   *
+   * @param type the template type
    * @return the list of all found template types
    */
   public static List<ExportTemplate> findTemplates(TemplateType type) {
@@ -188,10 +187,8 @@ public abstract class MediaEntityExporter {
   /**
    * search for {@link ExportTemplate}s in the given {@link Path}
    *
-   * @param folder
-   *          the {@link Path} to search templates for
-   * @param type
-   *          the {@link TemplateType}
+   * @param folder the {@link Path} to search templates for
+   * @param type   the {@link TemplateType}
    * @return a {@link List} of found {@link ExportTemplate}s
    */
   private static List<ExportTemplate> findTemplatesInFolder(Path folder, TemplateType type) {
@@ -214,7 +211,7 @@ public abstract class MediaEntityExporter {
 
           // load settings from template
           Properties properties = new Properties();
-          try (FileInputStream fis = new FileInputStream(config.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+          try (InputStream is = Files.newInputStream(config); BufferedInputStream bis = new BufferedInputStream(is)) {
             properties.load(bis);
           }
           catch (Exception e) {
@@ -266,21 +263,18 @@ public abstract class MediaEntityExporter {
       this.pathToExport = pathToExport;
     }
 
-    @Override
-    public RenderFormatInfo getFormatInfo() {
+    @Override public RenderFormatInfo getFormatInfo() {
       return null;
     }
 
-    @Override
-    public String getName() {
+    @Override public String getName() {
       return "copyArtwork";
     }
 
     /**
      * parse the parameters out of the parameters string
      *
-     * @param parameters
-     *          the parameters as string
+     * @param parameters the parameters as string
      * @return a map containing all parameters
      */
     protected Map<String, Object> parseParameters(String parameters) {

@@ -16,10 +16,11 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -56,72 +57,73 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
  * The class TvShowNfoParser is used to parse all types of NFO/XML files
- * 
+ *
  * @author Manuel Laggner
  */
 public class TvShowNfoParser {
-  private static final Logger       LOGGER              = LoggerFactory.getLogger(TvShowNfoParser.class);
-  /** ignore the following tags since they originally do not belong to a TV show NFO */
-  private static final List<String> IGNORE              = Arrays.asList("epbookmark", "resume");
+  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowNfoParser.class);
+  /**
+   * ignore the following tags since they originally do not belong to a TV show NFO
+   */
+  private static final List<String> IGNORE = Arrays.asList("epbookmark", "resume");
 
-  private Element                   root;
-  private final List<String>        supportedElements   = new ArrayList<>();
+  private       Element      root;
+  private final List<String> supportedElements = new ArrayList<>();
 
-  public String                     title               = "";
-  public String                     originalTitle       = "";
-  public String                     sortTitle           = "";
-  public String                     showTitle           = "";
-  public int                        year                = -1;
-  public int                        top250              = 0;
-  public String                     plot                = "";
-  public int                        runtime             = 0;
-  public MediaCertification         certification       = MediaCertification.UNKNOWN;
-  public Date                       releaseDate         = null;
-  public MediaAiredStatus           status              = MediaAiredStatus.UNKNOWN;
-  public boolean                    watched             = false;
-  public int                        playcount           = 0;
-  public String                     userNote            = "";
+  public String             title         = "";
+  public String             originalTitle = "";
+  public String             sortTitle     = "";
+  public String             showTitle     = "";
+  public int                year          = -1;
+  public int                top250        = 0;
+  public String             plot          = "";
+  public int                runtime       = 0;
+  public MediaCertification certification = MediaCertification.UNKNOWN;
+  public Date               releaseDate   = null;
+  public MediaAiredStatus   status        = MediaAiredStatus.UNKNOWN;
+  public boolean            watched       = false;
+  public int                playcount     = 0;
+  public String             userNote      = "";
 
-  public Map<String, Object>        ids                 = new HashMap<>();
-  public Map<String, Rating>        ratings             = new HashMap<>();
+  public Map<String, Object> ids     = new HashMap<>();
+  public Map<String, Rating> ratings = new HashMap<>();
 
-  public List<String>               posters             = new ArrayList<>();
-  public Map<Integer, String>       seasonTitles        = new HashMap<>();
-  public Map<Integer, List<String>> seasonPosters       = new HashMap<>();
-  public Map<Integer, List<String>> seasonBanners       = new HashMap<>();
-  public Map<Integer, List<String>> seasonThumbs        = new HashMap<>();
-  public List<String>               banners             = new ArrayList<>();
-  public List<String>               cleararts           = new ArrayList<>();
-  public List<String>               clearlogos          = new ArrayList<>();
-  public List<String>               discarts            = new ArrayList<>();
-  public List<String>               thumbs              = new ArrayList<>();
-  public List<String>               keyarts             = new ArrayList<>();
-  public List<String>               logos               = new ArrayList<>();
-  public List<String>               characterarts       = new ArrayList<>();
-  public List<String>               fanarts             = new ArrayList<>();
-  public List<MediaGenres>          genres              = new ArrayList<>();
-  public List<String>               studios             = new ArrayList<>();
-  public List<String>               countries           = new ArrayList<>();
-  public List<String>               tags                = new ArrayList<>();
-  public List<Person>               actors              = new ArrayList<>();
+  public List<String>               posters       = new ArrayList<>();
+  public Map<Integer, String>       seasonTitles  = new HashMap<>();
+  public Map<Integer, List<String>> seasonPosters = new HashMap<>();
+  public Map<Integer, List<String>> seasonBanners = new HashMap<>();
+  public Map<Integer, List<String>> seasonThumbs  = new HashMap<>();
+  public List<String>               banners       = new ArrayList<>();
+  public List<String>               cleararts     = new ArrayList<>();
+  public List<String>               clearlogos    = new ArrayList<>();
+  public List<String>               discarts      = new ArrayList<>();
+  public List<String>               thumbs        = new ArrayList<>();
+  public List<String>               keyarts       = new ArrayList<>();
+  public List<String>               logos         = new ArrayList<>();
+  public List<String>               characterarts = new ArrayList<>();
+  public List<String>               fanarts       = new ArrayList<>();
+  public List<MediaGenres>          genres        = new ArrayList<>();
+  public List<String>               studios       = new ArrayList<>();
+  public List<String>               countries     = new ArrayList<>();
+  public List<String>               tags          = new ArrayList<>();
+  public List<Person>               actors        = new ArrayList<>();
 
-  public List<String>               unsupportedElements = new ArrayList<>();
+  public List<String> unsupportedElements = new ArrayList<>();
 
   /* some xbmc related tags we parse, but do not use internally */
-  public String                     outline             = "";
-  public String                     tagline             = "";
-  public String                     trailer             = "";
-  public Date                       lastplayed          = null;
-  public String                     code                = "";
-  public Date                       dateadded           = null;
-  public String                     episodeguide        = "";
-  public String                     enddate             = "";
+  public String outline      = "";
+  public String tagline      = "";
+  public String trailer      = "";
+  public Date   lastplayed   = null;
+  public String code         = "";
+  public Date   dateadded    = null;
+  public String episodeguide = "";
+  public String enddate      = "";
 
   /**
    * create a new instance by parsing the document
    *
-   * @param document
-   *          the document returned by JSOUP.parse()
+   * @param document the document returned by JSOUP.parse()
    */
   private TvShowNfoParser(Document document) {
     // first check if there is a valid root object
@@ -184,8 +186,7 @@ public class TvShowNfoParser {
   /**
    * parse the tag in a save way
    *
-   * @param function
-   *          the parsing function to be executed
+   * @param function the parsing function to be executed
    */
   private Void parseTag(Function<TvShowNfoParser, Void> function) {
     try {
@@ -200,22 +201,21 @@ public class TvShowNfoParser {
 
   /**
    * parse the given file
-   * 
-   * @param path
-   *          the path to the NFO/XML to be parsed
+   *
+   * @param path the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
-   * @throws IOException
-   *           any exception if parsing fails
+   * @throws IOException any exception if parsing fails
    */
   public static TvShowNfoParser parseNfo(Path path) throws IOException {
-    return new TvShowNfoParser(Jsoup.parse(new FileInputStream(path.toFile()), "UTF-8", "", Parser.xmlParser()));
+    try (InputStream is = Files.newInputStream(path)) {
+      return new TvShowNfoParser(Jsoup.parse(is, "UTF-8", "", Parser.xmlParser()));
+    }
   }
 
   /**
    * parse the xml content
    *
-   * @param content
-   *          the content of the NFO/XML to be parsed
+   * @param content the content of the NFO/XML to be parsed
    * @return a new instance of the parser class
    */
   public static TvShowNfoParser parseNfo(String content) {
@@ -225,7 +225,7 @@ public class TvShowNfoParser {
   /**
    * determines whether this was a valid NFO or not<br />
    * we use several fields which should be filled in a valid NFO for decision
-   * 
+   *
    * @return true/false
    */
   public boolean isValidNfo() {
@@ -1158,7 +1158,8 @@ public class TvShowNfoParser {
     // if there is exactly one studio tag, split the studios at the comma
     if (elements.size() == 1) {
       try {
-        studios.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
+        studios.addAll(Arrays.asList(
+            elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
       }
       catch (Exception ignored) {
         // ignored
@@ -1185,7 +1186,8 @@ public class TvShowNfoParser {
     // if there is exactly one country tag, split the countries at the comma
     if (elements.size() == 1) {
       try {
-        countries.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
+        countries.addAll(Arrays.asList(
+            elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
       }
       catch (Exception ignored) {
         // ignored
@@ -1552,7 +1554,8 @@ public class TvShowNfoParser {
 
     List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
     for (Person actor : actors) {
-      org.tinymediamanager.core.entities.Person tmmActor = morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor);
+      org.tinymediamanager.core.entities.Person tmmActor = morphPerson(
+          org.tinymediamanager.core.entities.Person.Type.ACTOR, actor);
       if (!newActors.contains(tmmActor)) {
         newActors.add(tmmActor);
       }
@@ -1567,7 +1570,8 @@ public class TvShowNfoParser {
     return show;
   }
 
-  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type, Person nfoPerson) {
+  private org.tinymediamanager.core.entities.Person morphPerson(org.tinymediamanager.core.entities.Person.Type type,
+      Person nfoPerson) {
     org.tinymediamanager.core.entities.Person person = new org.tinymediamanager.core.entities.Person(type);
 
     person.setName(nfoPerson.name);
@@ -1600,13 +1604,13 @@ public class TvShowNfoParser {
    * entity classes
    */
   static class Rating {
-    static final String DEFAULT  = "default";
-    static final String USER     = "user";
+    static final String DEFAULT = "default";
+    static final String USER    = "user";
 
-    String              id       = "";
-    float               rating   = 0;
-    int                 votes    = 0;
-    int                 maxValue = 10;
+    String id       = "";
+    float  rating   = 0;
+    int    votes    = 0;
+    int    maxValue = 10;
   }
 
   public static class Person {
