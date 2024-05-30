@@ -197,9 +197,13 @@ public class MainWindow extends JFrame implements IModalPopupPanelProvider {
     JPanel panelStatusBar = new StatusBarPanel();
     rootPanel.add(panelStatusBar, "cell 0 1 2 1,grow");
 
+    LOGGER.debug("Initializing MovieUIModule...");
     addModule(MovieUIModule.getInstance());
+    LOGGER.debug("Initializing MovieSetUIModule...");
     addModule(MovieSetUIModule.getInstance());
+    LOGGER.debug("Initializing TvShowUIModule...");
     addModule(TvShowUIModule.getInstance());
+    LOGGER.debug("Done initializing UI modules :)");
 
     // shutdown listener - to clean database connections safely
     addWindowListener(new WindowAdapter() {
