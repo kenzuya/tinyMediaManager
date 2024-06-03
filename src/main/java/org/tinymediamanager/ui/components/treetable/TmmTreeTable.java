@@ -39,7 +39,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
 import javax.swing.event.TreeModelEvent;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -306,9 +305,7 @@ public class TmmTreeTable extends TmmTable {
           handleEnd += columnStart;
 
           TableColumn tableColumn = getColumnModel().getColumn(column);
-          TableCellEditor columnCellEditor = tableColumn.getCellEditor();
-          if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd) || (me.getClickCount() > 1 && columnCellEditor == null)) {
-
+          if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd)) {
             boolean expanded = layoutCache.isExpanded(path);
             if (!expanded) {
               getTreePathSupport().expandPath(path);
