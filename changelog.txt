@@ -20,6 +20,7 @@ x parsing a new framerate style from libmediainfo #2568
 x fixed an error when trying to download the subtitle of "Nothing found" #2574
 x produce better errors when OpenSubtitles limits are reached #2574
 x added some enhancements for "display missing episodes" when using alternate orders
+x always offer aired order in the episode number editor #2564
 
 
 Version 5.0.5
