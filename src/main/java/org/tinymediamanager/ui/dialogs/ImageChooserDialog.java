@@ -298,7 +298,7 @@ public class ImageChooserDialog extends TmmDialog {
           true);
 
       contentPanel.add(collapsiblePanel, "cell 0 0 2 1,grow, wmin 0");
-      panelFilter.setLayout(new MigLayout("insets 0", "[200lp:n][20lp!][200lp:n][20lp!][200lp:n]", "[][]"));
+      panelFilter.setLayout(new MigLayout("insets 0", "[25%:n][20lp!][25%:n][20lp!][25%:n]", "[][]"));
 
       JLabel lblScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
       panelFilter.add(lblScraperT, "cell 0 0");
@@ -313,10 +313,12 @@ public class ImageChooserDialog extends TmmDialog {
       panelFilter.add(cbScraper, "cell 0 1,growx,wmin 0");
 
       cbSize = new TmmCheckComboBox();
-      panelFilter.add(cbSize, "cell 2 1,wmin 0");
+      cbSize.setSingleLineEditor();
+      panelFilter.add(cbSize, "cell 2 1,growx,wmin 0");
 
       cbLanguage = new TmmCheckComboBox();
-      panelFilter.add(cbLanguage, "cell 4 1,wmin 0");
+      cbLanguage.setSingleLineEditor();
+      panelFilter.add(cbLanguage, "cell 4 1,growx,wmin 0");
     }
     {
       scrollPane = new NoBorderScrollPane();
