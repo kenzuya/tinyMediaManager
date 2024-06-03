@@ -18,6 +18,7 @@ x (TvShow) able to create ABSOLUTE numberings from an AIRED show
 x parsing a new framerate style from libmediainfo #2568
 x fixed an error when trying to download the subtitle of "Nothing found" #2574
 x produce better errors when OpenSubtitles limits are reached #2574
+x added some enhancements for "display missing episodes" when using alternate orders
 
 
 Version 5.0.5
