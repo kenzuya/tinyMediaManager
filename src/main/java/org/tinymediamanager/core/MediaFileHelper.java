@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
@@ -44,7 +45,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -300,7 +300,8 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other|bloopers)\\d?$") // Plex (w/o trailer)
+        || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other|bloopers)\\d?$")
+        // Plex (w/o trailer)
         || EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;
@@ -506,7 +507,7 @@ public class MediaFileHelper {
 
   /**
    * checks, if MediaFile is in its own dedicated "extras" folder, and not just an extras file...
-   * 
+   *
    * @param mf
    *          the mediafile to check
    * @param entity
@@ -1482,8 +1483,8 @@ public class MediaFileHelper {
       // read VIDEO_TS.IFO
       DataInputStream din = null;
       if (ifomif.getContents() == null) {
-        FileInputStream fin = new FileInputStream(ifomif.getFileAsPath().toString());
-        din = new DataInputStream(new BufferedInputStream(fin));
+        InputStream is = Files.newInputStream(ifomif.getFileAsPath());
+        din = new DataInputStream(new BufferedInputStream(is));
       }
       else {
         din = new DataInputStream(new ByteArrayInputStream(ifomif.getContents()));
@@ -1494,7 +1495,7 @@ public class MediaFileHelper {
       din.close();
 
       // get now all unique titleSetNumbers
-      List<Integer> sets = dvd.getTitles().stream().map(DvdTitle::getVtsn).distinct().collect(Collectors.toList());
+      List<Integer> sets = dvd.getTitles().stream().map(DvdTitle::getVtsn).distinct().toList();
       for (Integer vtsn : sets) {
         String file = String.format("VTS_%02d_0.IFO", vtsn);
         LOGGER.debug("Reading file {}", file);
@@ -3053,7 +3054,7 @@ public class MediaFileHelper {
   /**
    * get the main video file for the given {@link MediaFile}. Handy if the {@link MediaFile} is a disc structure<br />
    * partly taken from detectRelevantDvdFiles, detectRelevantBlurayFiles and detectRelevantHdDvdFiles
-   * 
+   *
    * @param mediaFile
    *          the {@link MediaFile} to check
    * @return the {@link Path} to the main video file

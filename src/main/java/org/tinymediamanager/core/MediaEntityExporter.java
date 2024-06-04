@@ -16,9 +16,9 @@
 package org.tinymediamanager.core;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,7 +91,7 @@ public abstract class MediaEntityExporter {
 
     // load settings from template
     properties = new Properties();
-    try (FileInputStream fis = new FileInputStream(configFile.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+    try (InputStream is = Files.newInputStream(configFile); BufferedInputStream bis = new BufferedInputStream(is)) {
       properties.load(bis);
     }
 
@@ -160,7 +160,7 @@ public abstract class MediaEntityExporter {
 
   /**
    * Find templates for the given type.
-   * 
+   *
    * @param type
    *          the template type
    * @return the list of all found template types
@@ -214,7 +214,7 @@ public abstract class MediaEntityExporter {
 
           // load settings from template
           Properties properties = new Properties();
-          try (FileInputStream fis = new FileInputStream(config.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+          try (InputStream is = Files.newInputStream(config); BufferedInputStream bis = new BufferedInputStream(is)) {
             properties.load(bis);
           }
           catch (Exception e) {

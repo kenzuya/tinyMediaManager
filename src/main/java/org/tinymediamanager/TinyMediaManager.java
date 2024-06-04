@@ -149,7 +149,7 @@ public final class TinyMediaManager {
               startup();
 
               // launch application ////////////////////////////////////////////
-              updateProgress("splash.ui", 80);
+              updateProgress("splash.ui", 90);
 
               SwingUtilities.invokeLater(() -> {
                 // wizard for new user / deleted tmm.json

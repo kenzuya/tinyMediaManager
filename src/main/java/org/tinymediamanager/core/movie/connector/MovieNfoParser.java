@@ -21,9 +21,10 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
  * The class MovieNfoParser is used to parse all types of NFO/XML files
- * 
+ *
  * @author Manuel Laggner
  */
 public class MovieNfoParser {
@@ -130,7 +131,7 @@ public class MovieNfoParser {
 
   /**
    * create a new instance by parsing the document
-   * 
+   *
    * @param document
    *          the document returned by JSOUP.parse()
    */
@@ -230,7 +231,7 @@ public class MovieNfoParser {
 
   /**
    * parse the given file
-   * 
+   *
    * @param path
    *          the path to the NFO/XML to be parsed
    * @return a new instance of the parser class
@@ -238,7 +239,9 @@ public class MovieNfoParser {
    *           any exception if parsing fails
    */
   public static MovieNfoParser parseNfo(Path path) throws Exception {
-    return new MovieNfoParser(Jsoup.parse(new FileInputStream(path.toFile()), "UTF-8", "", Parser.xmlParser()));
+    try (InputStream is = Files.newInputStream(path)) {
+      return new MovieNfoParser(Jsoup.parse(is, "UTF-8", "", Parser.xmlParser()));
+    }
   }
 
   /**
@@ -257,7 +260,7 @@ public class MovieNfoParser {
   /**
    * determines whether this was a valid NFO or not<br />
    * we use several fields which should be filled in a valid NFO for decision
-   * 
+   *
    * @return true/false
    */
   public boolean isValidNfo() {
@@ -642,11 +645,11 @@ public class MovieNfoParser {
 
   /**
    * artwork can come in several different forms<br />
-   * 
+   * <p>
    * Poster: <br />
    * - kodi usually puts it into thumb tags (multiple; in newer versions with an aspect attribute)<br />
    * - mediaportal puts it also in thumb tags (single)
-   * 
+   * <p>
    * Others: <br />
    * - kodi usually puts it into thumb tags (with an aspect attribute)<br />
    */
